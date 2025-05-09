@@ -22,7 +22,7 @@ export function useUsers() {
       if (data.user) {
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente creato con successo');
-        toast.info('Una email di conferma è stata inviata all\'utente');
+        // Rimuoviamo il messaggio dell'email di conferma poiché l'abbiamo disabilitata
       } else {
         console.error('Error creating user:', data.error);
         let errorMessage = 'Si è verificato un errore';
@@ -35,6 +35,8 @@ export function useUsers() {
             errorMessage = 'La password non soddisfa i requisiti di sicurezza';
           } else if (data.error.message.includes('role')) {
             errorMessage = 'Errore con il ruolo utente';
+          } else if (data.error.message.includes('foreign key constraint')) {
+            errorMessage = 'Errore con i riferimenti nel database';
           } else {
             errorMessage = data.error.message;
           }
@@ -58,7 +60,19 @@ export function useUsers() {
         toast.success('Utente aggiornato con successo');
       } else {
         console.error('Error updating user:', data.error);
-        toast.error(`Errore nell'aggiornamento dell'utente: ${data.error?.message || 'Si è verificato un errore'}`);
+        let errorMessage = 'Si è verificato un errore';
+        
+        if (data.error?.message) {
+          if (data.error.message.includes('role')) {
+            errorMessage = 'Errore con il ruolo utente';
+          } else if (data.error.message.includes('foreign key constraint')) {
+            errorMessage = 'Errore con i riferimenti nel database';
+          } else {
+            errorMessage = data.error.message;
+          }
+        }
+        
+        toast.error(`Errore nell'aggiornamento dell'utente: ${errorMessage}`);
       }
     },
     onError: (error: any) => {

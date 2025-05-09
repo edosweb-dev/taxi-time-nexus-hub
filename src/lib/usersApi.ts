@@ -44,8 +44,10 @@ export async function getUserById(id: string): Promise<Profile | null> {
 export async function createUser(userData: UserFormData): Promise<{ user: Profile | null; error: any }> {
   try {
     console.log("Creating user with data:", userData);
+    console.log("Role being assigned:", userData.role);
     
-    // Use signUp method instead of admin.createUser
+    // Importante: utilizzare signUp con l'opzione skipEmailVerification: true 
+    // per evitare l'invio di email di conferma
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: userData.email,
       password: userData.password || 'Password123', // Default password if none is provided
@@ -55,7 +57,8 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
           last_name: userData.last_name,
           role: userData.role
         },
-        emailRedirectTo: window.location.origin // For email verification
+        // Rimuoviamo emailRedirectTo per evitare l'invio di email di conferma
+        // Non serve skipEmailVerification: true perché non è supportato da Supabase v2
       }
     });
 
@@ -66,9 +69,9 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
 
     console.log("Auth data after user creation:", authData);
 
-    // If user was created successfully, ensure profile data exists in profiles table
+    // Se l'utente è stato creato con successo, assicuriamoci che il profilo esista
     if (authData.user) {
-      // Create a synthetic profile object for immediate UI feedback
+      // Creiamo un oggetto profilo sintetico per feedback immediato all'UI
       const profile: Profile = {
         id: authData.user.id,
         first_name: userData.first_name,
@@ -76,9 +79,11 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
         role: userData.role
       };
       
-      // But also make sure to explicitly insert the profile in the profiles table
-      // This is important because the trigger might not be working as expected
-      const { error: profileError } = await supabase
+      console.log("Inserting profile with role:", userData.role);
+      
+      // Inseriamo esplicitamente il profilo nella tabella profiles
+      // Questo è importante poiché il trigger potrebbe non funzionare come previsto
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .upsert([
           {
@@ -91,8 +96,11 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
         
       if (profileError) {
         console.error("Profile creation error:", profileError);
-        // Continue anyway since we might have a trigger that handles this
+        console.error("Full profile error details:", JSON.stringify(profileError, null, 2));
+        // Continuiamo comunque poiché potrebbe esserci un trigger che gestisce questo
         console.log("Continuing despite profile error as trigger might handle it");
+      } else {
+        console.log("Profile created successfully:", profileData);
       }
       
       console.log("Created profile object:", profile);
@@ -109,6 +117,7 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
 export async function updateUser(id: string, userData: Partial<UserFormData>): Promise<{ success: boolean; error: any }> {
   try {
     console.log("Updating user with ID:", id, "and data:", userData);
+    console.log("Role being updated to:", userData.role);
     
     // 1. Update profile data
     const profileData: Partial<Profile> = {
@@ -117,15 +126,19 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
       role: userData.role
     };
 
-    const { error: profileError } = await supabase
+    const { data: updatedProfile, error: profileError } = await supabase
       .from('profiles')
       .update(profileData)
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
     if (profileError) {
       console.error("Profile update error:", profileError);
+      console.error("Full update error details:", JSON.stringify(profileError, null, 2));
       return { success: false, error: profileError };
     }
+
+    console.log("Profile updated successfully:", updatedProfile);
 
     // 2. If password is provided, update it using the auth.updateUser API
     if (userData.password) {
@@ -137,6 +150,8 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
         console.error("Password update error:", passwordError);
         return { success: false, error: passwordError };
       }
+      
+      console.log("Password updated successfully");
     }
 
     console.log("User updated successfully");
@@ -159,6 +174,7 @@ export async function deleteUser(id: string): Promise<{ success: boolean; error:
     
     if (error) {
       console.error("User deletion error:", error);
+      console.error("Full deletion error details:", JSON.stringify(error, null, 2));
       return { success: false, error };
     }
     
