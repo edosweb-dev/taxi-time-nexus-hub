@@ -38,34 +38,31 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
 
   const { createShiftMutation, updateShiftMutation, deleteShiftMutation } = useShiftMutations(user?.id);
 
-  // Helper functions to expose mutations
+  // Helper functions to expose mutations - modified to return void instead of boolean
   const createShift = async (data: ShiftFormData) => {
     try {
       await createShiftMutation.mutateAsync(data);
-      return true;
+      // Return removed to match Promise<void> return type
     } catch (error) {
       // L'errore è già gestito nella mutation
-      return false;
     }
   };
 
   const updateShift = async (id: string, data: ShiftFormData) => {
     try {
       await updateShiftMutation.mutateAsync({ id, data });
-      return true;
+      // Return removed to match Promise<void> return type
     } catch (error) {
       // L'errore è già gestito nella mutation
-      return false;
     }
   };
 
   const deleteShift = async (id: string) => {
     try {
       await deleteShiftMutation.mutateAsync(id);
-      return true;
+      // Return removed to match Promise<void> return type
     } catch (error) {
       // L'errore è già gestito nella mutation
-      return false;
     }
   };
 
