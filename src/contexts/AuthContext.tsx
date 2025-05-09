@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 import { Session as SupabaseSession } from '@supabase/supabase-js';
-import { Profile } from '@/lib/types';
+import { Profile, UserRole } from '@/lib/types';
 
 interface AuthContextType {
   session: SupabaseSession | null;
@@ -72,7 +72,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error) throw error;
-      setProfile(data);
+      
+      // Cast the role to UserRole type explicitly
+      setProfile({
+        id: data.id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        role: data.role as UserRole // Explicit cast to UserRole
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -106,7 +113,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (profileData) {
-          setProfile(profileData);
+          // Cast the role to UserRole type explicitly
+          setProfile({
+            id: profileData.id,
+            first_name: profileData.first_name,
+            last_name: profileData.last_name,
+            role: profileData.role as UserRole // Explicit cast to UserRole
+          });
           
           // Reindirizza in base al ruolo
           if (profileData.role === 'cliente') {
