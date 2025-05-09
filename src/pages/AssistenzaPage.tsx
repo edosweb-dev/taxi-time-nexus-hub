@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
@@ -36,14 +35,11 @@ export default function AssistenzaPage() {
   return (
     <AuthLayout>
       <Card className="w-full shadow-2xl border-taxitime-200 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="space-y-1 flex items-center justify-center pb-2">
-          <div className="flex justify-center mb-8 mt-4">
-            <img 
-              src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
-              alt="Taxitime Logo" 
-              className="h-32 w-32 object-contain drop-shadow-md"
-            />
-          </div>
+        <CardHeader className="pb-2">
+          <h2 className="text-xl font-medium text-center text-taxitime-800">Richiedi Assistenza</h2>
+          <p className="text-sm text-center text-muted-foreground mt-1">
+            Compila il modulo per richiedere supporto
+          </p>
         </CardHeader>
         
         <form onSubmit={handleSubmit}>

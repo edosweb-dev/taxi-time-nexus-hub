@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -49,14 +48,8 @@ export function LoginForm() {
 
   return (
     <Card className="w-full shadow-2xl border-taxitime-200 bg-white/95 backdrop-blur-sm">
-      <CardHeader className="space-y-1 flex items-center justify-center pb-2">
-        <div className="flex justify-center mb-8 mt-4">
-          <img 
-            src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
-            alt="Taxitime Logo" 
-            className="h-32 w-32 object-contain drop-shadow-md"
-          />
-        </div>
+      <CardHeader className="pb-2">
+        <h1 className="text-2xl font-bold text-center text-taxitime-800">Accedi a Taxitime</h1>
       </CardHeader>
 
       <form onSubmit={handleLogin}>
