@@ -15,7 +15,7 @@ export function MainLayout({ children }: PropsWithChildren) {
 
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar className="border-r border-border bg-[#6a8298] text-white">
+      <Sidebar className="border-r border-border bg-gradient-to-br from-taxitime-800 to-taxitime-600 text-white">
         <SidebarHeader className="h-14 flex items-center px-4 border-b border-white/20">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#6a8298] font-bold text-lg">
