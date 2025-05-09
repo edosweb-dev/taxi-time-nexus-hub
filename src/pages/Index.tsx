@@ -1,11 +1,45 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && profile) {
+      // Redirect based on role if already logged in
+      if (profile.role === 'cliente') {
+        navigate('/dashboard-cliente');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [user, profile, navigate]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen flex flex-col bg-muted/20">
+      <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center text-center">
+          <div className="h-24 w-24 rounded-full taxitime-gradient flex items-center justify-center text-white text-3xl font-bold mb-8">
+            T
+          </div>
+          <h1 className="text-4xl font-bold mb-4">TAXITIME V2</h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-lg">
+            Piattaforma gestionale per aziende, dedicata all'organizzazione di servizi, utenti, turni e spese
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button
+              onClick={() => navigate('/login')}
+              className="bg-taxitime-600 hover:bg-taxitime-700 text-white"
+              size="lg"
+            >
+              Accedi
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
