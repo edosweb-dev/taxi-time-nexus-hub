@@ -4,9 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2 } from 'lucide-react';
+import { LogIn, HelpCircle, Mail } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
 
 export function LoginForm() {
   // Login state
@@ -47,23 +49,19 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-lg">
-      <CardHeader className="space-y-1">
-        <div className="flex justify-center mb-4">
+    <Card className="w-full max-w-md shadow-xl border-taxitime-100">
+      <CardHeader className="space-y-1 flex items-center justify-center pb-0">
+        <div className="flex justify-center mb-6 mt-2">
           <img 
             src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
             alt="Taxitime Logo" 
-            className="h-24 w-24 object-contain"
+            className="h-28 w-28 object-contain"
           />
         </div>
-        <CardTitle className="text-2xl font-bold text-center">TAXITIME V2</CardTitle>
-        <CardDescription className="text-center">
-          Accedi per continuare
-        </CardDescription>
       </CardHeader>
 
       <form onSubmit={handleLogin}>
-        <CardContent className="space-y-4 pt-4">
+        <CardContent className="space-y-5 pt-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -98,7 +96,7 @@ export function LoginForm() {
             </Label>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-4">
           <Button 
             type="submit" 
             className="w-full bg-taxitime-600 hover:bg-taxitime-700" 
@@ -106,12 +104,23 @@ export function LoginForm() {
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Accesso in corso...
+                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span> Accesso in corso...
               </>
             ) : (
-              'Accedi'
+              <>
+                <LogIn className="mr-2 h-4 w-4" /> Accedi
+              </>
             )}
           </Button>
+          
+          <div className="flex w-full justify-between text-sm">
+            <Button variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
+              <Mail className="mr-1 h-3.5 w-3.5" /> Recupera password
+            </Button>
+            <Button variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
+              <HelpCircle className="mr-1 h-3.5 w-3.5" /> Richiedi assistenza
+            </Button>
+          </div>
         </CardFooter>
       </form>
     </Card>
