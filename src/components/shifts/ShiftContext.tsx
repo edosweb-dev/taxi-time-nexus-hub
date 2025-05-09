@@ -28,6 +28,8 @@ const validateShiftRule = (
   console.log('Validating shift with date:', newShiftDate);
   console.log('User shifts on same date:', userShiftsOnSameDate);
   console.log('All shifts:', shifts);
+  console.log('New shift type:', newShift.shift_type);
+  console.log('User ID being checked:', newShift.user_id);
   
   // If there are no existing shifts for that date, it's always valid
   if (userShiftsOnSameDate.length === 0) {
@@ -88,6 +90,9 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
   // Helper functions to expose mutations - with validation logic before mutation
   const createShift = async (data: ShiftFormData) => {
     try {
+      console.log('Creating shift with data:', data);
+      console.log('Current user ID:', user?.id);
+      
       // Get existing shifts from query cache - use the correct query key to match our query
       const currentShifts = queryClient.getQueryData<Shift[]>([
         'shifts', 
@@ -95,6 +100,8 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
         dateRange.end, 
         user?.id
       ]) || [];
+      
+      console.log('Retrieved shifts from cache for validation:', currentShifts);
       
       // Validate if the shift can be inserted
       const validation = validateShiftRule(currentShifts, data);
@@ -107,12 +114,15 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
       await createShiftMutation.mutateAsync(data);
       // Return removed to match Promise<void> return type
     } catch (error) {
+      console.error('Error in createShift:', error);
       // L'errore è già gestito nella mutation
     }
   };
 
   const updateShift = async (id: string, data: ShiftFormData) => {
     try {
+      console.log('Updating shift with ID:', id, 'Data:', data);
+      
       // Get existing shifts from query cache - use the correct query key to match our query
       const currentShifts = queryClient.getQueryData<Shift[]>([
         'shifts', 
@@ -120,6 +130,8 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
         dateRange.end, 
         user?.id
       ]) || [];
+      
+      console.log('Retrieved shifts from cache for validation on update:', currentShifts);
       
       // Validate if the shift can be updated
       const validation = validateShiftRule(currentShifts, data, id);
@@ -132,6 +144,7 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
       await updateShiftMutation.mutateAsync({ id, data });
       // Return removed to match Promise<void> return type
     } catch (error) {
+      console.error('Error in updateShift:', error);
       // L'errore è già gestito nella mutation
     }
   };
