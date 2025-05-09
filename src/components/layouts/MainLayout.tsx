@@ -80,19 +80,19 @@ export function MainLayout({ children }: PropsWithChildren) {
         </SidebarFooter>
       </Sidebar>
       
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden bg-background">
         <div className="flex-1 overflow-auto p-4 md:p-6">
           {children}
         </div>
       </main>
       
       {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-around py-2 px-4 z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-taxitime-700 to-taxitime-600 border-t border-white/20 flex items-center justify-around py-2 px-4 z-50 text-white">
           <Link 
             to="/dashboard" 
             className={cn(
               "flex flex-col items-center justify-center p-2 rounded-md",
-              location.pathname === "/dashboard" ? "text-taxitime-600" : "text-gray-500"
+              location.pathname === "/dashboard" ? "text-white" : "text-white/70"
             )}
           >
             <LayoutDashboard className="h-5 w-5" />
@@ -102,7 +102,7 @@ export function MainLayout({ children }: PropsWithChildren) {
             to="/shifts" 
             className={cn(
               "flex flex-col items-center justify-center p-2 rounded-md",
-              location.pathname === "/shifts" ? "text-taxitime-600" : "text-gray-500"
+              location.pathname === "/shifts" ? "text-white" : "text-white/70"
             )}
           >
             <CalendarDays className="h-5 w-5" />
@@ -110,7 +110,7 @@ export function MainLayout({ children }: PropsWithChildren) {
           </Link>
           <button 
             onClick={() => signOut()}
-            className="flex flex-col items-center justify-center p-2 rounded-md text-gray-500"
+            className="flex flex-col items-center justify-center p-2 rounded-md text-white/70 hover:text-white"
           >
             <LogOut className="h-5 w-5" />
             <span className="text-xs mt-1">Esci</span>
