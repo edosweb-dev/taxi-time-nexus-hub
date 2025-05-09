@@ -12,20 +12,18 @@ export function MainLayout({ children }: PropsWithChildren) {
 
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar className="border-r border-border bg-sidebar-taxitime text-white">
-        <SidebarHeader className="h-20 flex items-center px-4 border-b border-taxitime-400/30">
-          <div className="flex items-center gap-3">
-            <div className="bg-white rounded-lg p-1 shadow-md">
-              <img 
-                src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
-                alt="Taxitime Logo" 
-                className="h-9 w-9 object-contain"
-              />
-            </div>
-            <span className="font-bold text-xl tracking-wide text-white">TAXITIME</span>
+      <Sidebar className="border-r border-border bg-[#6a8298] text-white">
+        <SidebarHeader className="h-16 flex items-center px-4 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <img 
+              src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
+              alt="Taxitime Logo" 
+              className="h-8 w-8 object-contain"
+            />
+            <span className="font-semibold text-lg text-white">TAXITIME</span>
           </div>
-          <Button variant="ghost" size="icon" className="ml-auto text-white hover:bg-taxitime-400/20">
-            <Menu className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="ml-auto text-white hover:bg-white/10">
+            <Menu className="h-4 w-4" />
             <span className="sr-only">Toggle sidebar</span>
           </Button>
         </SidebarHeader>
@@ -34,10 +32,10 @@ export function MainLayout({ children }: PropsWithChildren) {
           {/* Sidebar content will go here in future iterations */}
         </SidebarContent>
         
-        <SidebarFooter className="p-4 border-t border-taxitime-400/30">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white">
-              <User size={18} />
+        <SidebarFooter className="p-4 border-t border-white/10">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+              <User size={16} />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium text-white">
@@ -50,7 +48,7 @@ export function MainLayout({ children }: PropsWithChildren) {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="ml-auto text-white/70 hover:text-white hover:bg-taxitime-400/20"
+              className="ml-auto text-white/70 hover:text-white hover:bg-white/10"
               onClick={() => signOut()}
             >
               <LogOut size={16} />

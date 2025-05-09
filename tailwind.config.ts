@@ -59,7 +59,7 @@ export default {
 					200: '#bcc9d6',
 					300: '#9aabbd',
 					400: '#7e94aa',
-					500: '#6a8298', // Main brand color - modificato al colore richiesto
+					500: '#6a8298', // Main brand color
 					600: '#556c81',
 					700: '#455769',
 					800: '#394653',
@@ -74,8 +74,7 @@ export default {
 					accent: 'hsl(var(--sidebar-accent))',
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))',
-					taxitime: 'hsl(var(--sidebar-taxitime))'
+					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
 			borderRadius: {
