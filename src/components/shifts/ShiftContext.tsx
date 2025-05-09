@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -69,32 +70,60 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
     try {
       let query = supabase
         .from('shifts')
-        .select(`
-          *,
-          profiles(first_name, last_name)
-        `)
-        .gte('shift_date', format(start, 'yyyy-MM-dd'))
-        .lte('shift_date', format(end, 'yyyy-MM-dd'));
+        .select('*');
 
       // If not admin/socio, only fetch own shifts
       if (!isAdminOrSocio && user) {
         query = query.eq('user_id', user.id);
       }
 
-      const { data, error } = await query;
+      // Add date range filter
+      query = query
+        .gte('shift_date', format(start, 'yyyy-MM-dd'))
+        .lte('shift_date', format(end, 'yyyy-MM-dd'));
 
-      if (error) throw error;
+      const { data: shiftsData, error: shiftsError } = await query;
 
-      // Transform data to include user_first_name and user_last_name
-      return data.map((shift) => ({
-        ...shift,
-        user_first_name: shift.profiles?.first_name,
-        user_last_name: shift.profiles?.last_name,
-      })) as Shift[];
+      if (shiftsError) throw shiftsError;
+
+      // Now fetch profile information for all user_ids
+      if (shiftsData && shiftsData.length > 0) {
+        // Extract unique user ids
+        const userIds = [...new Set(shiftsData.map(shift => shift.user_id))];
+        
+        // Get profile data for these users
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name')
+          .in('id', userIds);
+        
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+          throw profilesError;
+        }
+
+        // Create a map of user_id to profile data
+        const profilesMap = (profilesData || []).reduce((acc, profile) => {
+          acc[profile.id] = profile;
+          return acc;
+        }, {} as Record<string, { id: string; first_name: string | null; last_name: string | null; }>);
+        
+        // Merge shifts with profile data
+        const shiftsWithProfiles = shiftsData.map(shift => ({
+          ...shift,
+          user_first_name: profilesMap[shift.user_id]?.first_name || null,
+          user_last_name: profilesMap[shift.user_id]?.last_name || null
+        }));
+
+        console.log('Shifts with profiles:', shiftsWithProfiles);
+        return shiftsWithProfiles as Shift[];
+      }
+
+      return shiftsData as Shift[];
     } catch (error) {
       console.error('Error fetching shifts:', error);
       toast.error('Errore nel caricamento dei turni');
-      return [];
+      throw error;
     }
   };
 
@@ -129,12 +158,19 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
         updated_by: user.id
       };
 
+      console.log('Creating shift with data:', shiftData);
+
       const { data: result, error } = await supabase
         .from('shifts')
         .insert(shiftData)
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error details from Supabase:', error);
+        throw error;
+      }
+
+      console.log('Shift created successfully:', result);
       return result[0];
     },
     onSuccess: () => {
@@ -165,13 +201,20 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
         updated_by: user.id
       };
 
+      console.log('Updating shift with ID:', id, 'Data:', shiftData);
+
       const { data: result, error } = await supabase
         .from('shifts')
         .update(shiftData)
         .eq('id', id)
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error details from Supabase:', error);
+        throw error;
+      }
+
+      console.log('Shift updated successfully:', result);
       return result[0];
     },
     onSuccess: () => {
@@ -187,12 +230,21 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
   // Mutation for deleting a shift
   const deleteShiftMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      console.log('Deleting shift with ID:', id);
+      
+      const { data, error } = await supabase
         .from('shifts')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error details from Supabase:', error);
+        throw error;
+      }
+
+      console.log('Shift deleted successfully:', data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['shifts']});
