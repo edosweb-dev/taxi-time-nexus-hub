@@ -12,7 +12,7 @@ export function MainLayout({ children }: PropsWithChildren) {
 
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar defaultCollapsed={isMobile} className="border-r border-border">
+      <Sidebar className="border-r border-border">
         <SidebarHeader className="h-14 flex items-center px-4 border-b">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-taxitime-500 flex items-center justify-center text-white font-bold">

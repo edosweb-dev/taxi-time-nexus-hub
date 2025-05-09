@@ -1,12 +1,9 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { type Database } from './database.types';
+import type { Database } from '@/integrations/supabase/types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase credentials. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.');
-}
+// Using direct values instead of environment variables
+const supabaseUrl = "https://iczxhmzwjopfdvbxwzjs.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljenhobXp3am9wZmR2Ynh3empzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4MDQzMjMsImV4cCI6MjA2MjM4MDMyM30.gkm8NiZrwvtmVskV1SQJc48WE7Q3Yn-xRBOt4qf_seo";
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);

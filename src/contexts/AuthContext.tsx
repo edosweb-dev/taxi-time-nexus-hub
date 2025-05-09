@@ -2,13 +2,14 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { Session } from '@/lib/types';
 import { toast } from '@/components/ui/sonner';
+import { Session as SupabaseSession } from '@supabase/supabase-js';
+import { Profile } from '@/lib/types';
 
 interface AuthContextType {
-  session: Session | null;
+  session: SupabaseSession | null;
   user: any | null;
-  profile: any | null;
+  profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -17,9 +18,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<SupabaseSession | null>(null);
   const [user, setUser] = useState<any | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
