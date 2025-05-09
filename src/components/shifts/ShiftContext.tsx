@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -72,10 +71,7 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
         .from('shifts')
         .select(`
           *,
-          profiles:user_id (
-            first_name,
-            last_name
-          )
+          profiles(first_name, last_name)
         `)
         .gte('shift_date', format(start, 'yyyy-MM-dd'))
         .lte('shift_date', format(end, 'yyyy-MM-dd'));
