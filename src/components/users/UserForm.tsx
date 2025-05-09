@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -71,16 +70,15 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
   });
 
   const handleSubmit = (values: z.infer<typeof userFormSchema>) => {
+    // Fixed: Always include email in userData whether creating or updating
     const userData: UserFormData = {
       first_name: values.first_name,
       last_name: values.last_name,
       role: values.role,
+      email: values.email, // Always include email field to satisfy the UserFormData type
     };
 
-    if (!isEditing || values.email) {
-      userData.email = values.email;
-    }
-
+    // Only include password if it's provided
     if (values.password) {
       userData.password = values.password;
     }
@@ -120,21 +118,24 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
           />
         </div>
 
-        {!isEditing && (
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="Inserisci l'email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input 
+                  type="email" 
+                  placeholder="Inserisci l'email" 
+                  {...field} 
+                  disabled={isEditing}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

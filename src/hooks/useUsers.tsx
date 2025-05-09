@@ -18,11 +18,16 @@ export function useUsers() {
 
   const createUserMutation = useMutation({
     mutationFn: (userData: UserFormData) => createUser(userData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Utente creato con successo');
+    onSuccess: (data) => {
+      if (data.user) {
+        queryClient.invalidateQueries({ queryKey: ['users'] });
+        toast.success('Utente creato con successo');
+      } else {
+        console.error('Error creating user:', data.error);
+        toast.error(`Errore nella creazione dell'utente: ${data.error?.message || 'Si è verificato un errore'}`);
+      }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error creating user:', error);
       toast.error(`Errore nella creazione dell'utente: ${error.message || 'Si è verificato un errore'}`);
     },
@@ -31,11 +36,16 @@ export function useUsers() {
   const updateUserMutation = useMutation({
     mutationFn: ({ id, userData }: { id: string; userData: Partial<UserFormData> }) => 
       updateUser(id, userData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Utente aggiornato con successo');
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ['users'] });
+        toast.success('Utente aggiornato con successo');
+      } else {
+        console.error('Error updating user:', data.error);
+        toast.error(`Errore nell'aggiornamento dell'utente: ${data.error?.message || 'Si è verificato un errore'}`);
+      }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error updating user:', error);
       toast.error(`Errore nell'aggiornamento dell'utente: ${error.message || 'Si è verificato un errore'}`);
     },
@@ -43,11 +53,16 @@ export function useUsers() {
 
   const deleteUserMutation = useMutation({
     mutationFn: (id: string) => deleteUser(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Utente eliminato con successo');
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ['users'] });
+        toast.success('Utente eliminato con successo');
+      } else {
+        console.error('Error deleting user:', data.error);
+        toast.error(`Errore nell'eliminazione dell'utente: ${data.error?.message || 'Si è verificato un errore'}`);
+      }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error deleting user:', error);
       toast.error(`Errore nell'eliminazione dell'utente: ${error.message || 'Si è verificato un errore'}`);
     },

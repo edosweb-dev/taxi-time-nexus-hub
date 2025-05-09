@@ -2,6 +2,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -31,6 +32,11 @@ export function UserDialog({
           <DialogTitle>
             {user ? "Modifica Utente" : "Crea Nuovo Utente"}
           </DialogTitle>
+          <DialogDescription>
+            {user 
+              ? "Modifica i dettagli dell'utente esistente. Lascia vuoto il campo password per non modificarla."
+              : "Inserisci i dettagli del nuovo utente. Tutti i campi sono obbligatori."}
+          </DialogDescription>
         </DialogHeader>
         <UserForm
           user={user}

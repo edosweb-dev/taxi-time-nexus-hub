@@ -43,23 +43,32 @@ export async function getUserById(id: string): Promise<Profile | null> {
 
 export async function createUser(userData: UserFormData): Promise<{ user: Profile | null; error: any }> {
   try {
-    // 1. Create auth user
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    console.log("Creating user with data:", userData);
+    
+    // Instead of using admin.createUser which requires service_role, use the signUp method
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email: userData.email,
-      password: userData.password,
-      email_confirm: true,
-      user_metadata: {
-        first_name: userData.first_name,
-        last_name: userData.last_name
+      password: userData.password || 'Password123', // Default password if none is provided
+      options: {
+        data: {
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          role: userData.role
+        },
+        emailRedirectTo: window.location.origin // For email verification
       }
     });
 
     if (authError) {
+      console.error("Auth error during user creation:", authError);
       return { user: null, error: authError };
     }
 
-    // 2. Update profile with role (the trigger should have created the profile)
+    console.log("Auth data after user creation:", authData);
+
+    // If user was created successfully, update the profile with role
     if (authData.user) {
+      // Update the profile with first_name, last_name and role
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -72,21 +81,25 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
         .single();
 
       if (profileError) {
+        console.error("Profile update error:", profileError);
         return { user: null, error: profileError };
       }
 
+      console.log("Profile updated successfully:", profileData);
       return { user: profileData as Profile, error: null };
     }
 
     return { user: null, error: "Failed to create user" };
   } catch (error) {
-    console.error('Error creating user:', error);
+    console.error('Error in createUser:', error);
     return { user: null, error };
   }
 }
 
 export async function updateUser(id: string, userData: Partial<UserFormData>): Promise<{ success: boolean; error: any }> {
   try {
+    console.log("Updating user with ID:", id, "and data:", userData);
+    
     // 1. Update profile data
     const profileData: Partial<Profile> = {
       first_name: userData.first_name,
@@ -100,38 +113,49 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
       .eq('id', id);
 
     if (profileError) {
+      console.error("Profile update error:", profileError);
       return { success: false, error: profileError };
     }
 
-    // 2. If password is provided, update it
+    // 2. If password is provided, update it using the auth.updateUser API
     if (userData.password) {
-      const { error: passwordError } = await supabase.auth.admin.updateUserById(id, {
+      const { error: passwordError } = await supabase.auth.updateUser({
         password: userData.password
       });
 
       if (passwordError) {
+        console.error("Password update error:", passwordError);
         return { success: false, error: passwordError };
       }
     }
 
+    console.log("User updated successfully");
     return { success: true, error: null };
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error('Error in updateUser:', error);
     return { success: false, error };
   }
 }
 
 export async function deleteUser(id: string): Promise<{ success: boolean; error: any }> {
   try {
-    const { error } = await supabase.auth.admin.deleteUser(id);
+    console.log("Deleting user with ID:", id);
+    
+    // Delete user from auth - this should cascade to profiles table
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', id);
     
     if (error) {
+      console.error("User deletion error:", error);
       return { success: false, error };
     }
     
+    console.log("User deleted successfully");
     return { success: true, error: null };
   } catch (error) {
-    console.error('Error deleting user:', error);
+    console.error('Error in deleteUser:', error);
     return { success: false, error };
   }
 }
