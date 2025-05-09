@@ -12,6 +12,7 @@ import RecuperaPasswordPage from "./pages/RecuperaPasswordPage";
 import AssistenzaPage from "./pages/AssistenzaPage";
 import DashboardPage from "./pages/DashboardPage";
 import ClientDashboardPage from "./pages/ClientDashboardPage";
+import ShiftsPage from "./pages/ShiftsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,12 @@ const App = () => (
               <Route path="/dashboard" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <DashboardPage />
+                </AuthGuard>
+              } />
+              
+              <Route path="/shifts" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <ShiftsPage />
                 </AuthGuard>
               } />
               
