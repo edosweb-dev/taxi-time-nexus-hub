@@ -15,7 +15,7 @@ export function MainLayout({ children }: PropsWithChildren) {
 
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar className="border-r border-border bg-gradient-to-br from-taxitime-800 to-taxitime-600 text-white">
+      <Sidebar className="border-r border-border bg-gradient-to-br from-taxitime-900 to-taxitime-700 text-white">
         <SidebarHeader className="h-14 flex items-center px-4 border-b border-white/20">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#6a8298] font-bold text-lg">
@@ -87,7 +87,7 @@ export function MainLayout({ children }: PropsWithChildren) {
       </main>
       
       {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-taxitime-700 to-taxitime-600 border-t border-white/20 flex items-center justify-around py-2 px-4 z-50 text-white">
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-taxitime-900 to-taxitime-700 border-t border-white/20 flex items-center justify-around py-2 px-4 z-50 text-white">
           <Link 
             to="/dashboard" 
             className={cn(
