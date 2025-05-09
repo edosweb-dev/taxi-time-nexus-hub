@@ -15,69 +15,72 @@ export function MainLayout({ children }: PropsWithChildren) {
 
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar className="border-r border-border bg-black text-white">
-        <SidebarHeader className="h-14 flex items-center px-4 border-b border-white/20">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#6a8298] font-bold text-lg">
-              T
+      <Sidebar className="border-r border-border text-white">
+        {/* This container will hold the actual sidebar content with black background */}
+        <div className="flex flex-col h-full bg-black">
+          <SidebarHeader className="h-14 flex items-center px-4 border-b border-white/20">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#6a8298] font-bold text-lg">
+                T
+              </div>
+              <span className="font-semibold text-lg tracking-wide">TAXITIME V2</span>
             </div>
-            <span className="font-semibold text-lg tracking-wide">TAXITIME V2</span>
-          </div>
-          <Button variant="ghost" size="icon" className="ml-auto text-white hover:bg-white/20 hover:text-white">
-            <Menu className="h-4 w-4" />
-            <span className="sr-only">Toggle sidebar</span>
-          </Button>
-        </SidebarHeader>
-        
-        <SidebarContent className="p-2">
-          <div className="space-y-1">
-            <Link 
-              to="/dashboard" 
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
-                location.pathname === "/dashboard" ? "bg-white/30" : "transparent"
-              )}
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              <span>Dashboard</span>
-            </Link>
-            <Link 
-              to="/shifts" 
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
-                location.pathname === "/shifts" ? "bg-white/30" : "transparent"
-              )}
-            >
-              <CalendarDays className="h-4 w-4" />
-              <span>Turni</span>
-            </Link>
-          </div>
-        </SidebarContent>
-        
-        <SidebarFooter className="p-4 border-t border-white/20">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#6a8298]">
-              <User size={16} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">
-                {profile?.first_name && profile?.last_name 
-                  ? `${profile.first_name} ${profile.last_name}`
-                  : profile?.first_name || 'Utente'}
-              </span>
-              <span className="text-xs text-white/70 capitalize">{profile?.role || ''}</span>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="ml-auto text-white/70 hover:text-white hover:bg-white/20"
-              onClick={() => signOut()}
-            >
-              <LogOut size={16} />
-              <span className="sr-only">Esci</span>
+            <Button variant="ghost" size="icon" className="ml-auto text-white hover:bg-white/20 hover:text-white">
+              <Menu className="h-4 w-4" />
+              <span className="sr-only">Toggle sidebar</span>
             </Button>
-          </div>
-        </SidebarFooter>
+          </SidebarHeader>
+          
+          <SidebarContent className="p-2">
+            <div className="space-y-1">
+              <Link 
+                to="/dashboard" 
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
+                  location.pathname === "/dashboard" ? "bg-white/30" : "transparent"
+                )}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+              <Link 
+                to="/shifts" 
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
+                  location.pathname === "/shifts" ? "bg-white/30" : "transparent"
+                )}
+              >
+                <CalendarDays className="h-4 w-4" />
+                <span>Turni</span>
+              </Link>
+            </div>
+          </SidebarContent>
+          
+          <SidebarFooter className="p-4 border-t border-white/20">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#6a8298]">
+                <User size={16} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">
+                  {profile?.first_name && profile?.last_name 
+                    ? `${profile.first_name} ${profile.last_name}`
+                    : profile?.first_name || 'Utente'}
+                </span>
+                <span className="text-xs text-white/70 capitalize">{profile?.role || ''}</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="ml-auto text-white/70 hover:text-white hover:bg-white/20"
+                onClick={() => signOut()}
+              >
+                <LogOut size={16} />
+                <span className="sr-only">Esci</span>
+              </Button>
+            </div>
+          </SidebarFooter>
+        </div>
       </Sidebar>
       
       <main className="flex-1 flex flex-col overflow-hidden bg-background">
