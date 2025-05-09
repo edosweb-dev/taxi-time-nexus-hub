@@ -8,6 +8,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
 import LoginPage from "./pages/LoginPage";
+import RecuperaPasswordPage from "./pages/RecuperaPasswordPage";
+import AssistenzaPage from "./pages/AssistenzaPage";
 import DashboardPage from "./pages/DashboardPage";
 import ClientDashboardPage from "./pages/ClientDashboardPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -26,6 +28,8 @@ const App = () => (
               {/* Redirect root to login page */}
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/recupera-password" element={<RecuperaPasswordPage />} />
+              <Route path="/assistenza" element={<AssistenzaPage />} />
               
               {/* Protected routes for non-client roles */}
               <Route path="/dashboard" element={

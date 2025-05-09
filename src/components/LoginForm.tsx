@@ -7,8 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { LogIn, HelpCircle, Mail } from 'lucide-react';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
 export function LoginForm() {
   // Login state
@@ -114,11 +113,15 @@ export function LoginForm() {
           </Button>
           
           <div className="flex w-full justify-between text-sm">
-            <Button variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
-              <Mail className="mr-1 h-3.5 w-3.5" /> Recupera password
+            <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
+              <Link to="/recupera-password">
+                <Mail className="mr-1 h-3.5 w-3.5" /> Recupera password
+              </Link>
             </Button>
-            <Button variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
-              <HelpCircle className="mr-1 h-3.5 w-3.5" /> Richiedi assistenza
+            <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
+              <Link to="/assistenza">
+                <HelpCircle className="mr-1 h-3.5 w-3.5" /> Richiedi assistenza
+              </Link>
             </Button>
           </div>
         </CardFooter>
