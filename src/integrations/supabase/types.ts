@@ -18,7 +18,7 @@ export type Database = {
         }
         Insert: {
           first_name?: string | null
-          id: string
+          id?: string
           last_name?: string | null
           role: string
         }

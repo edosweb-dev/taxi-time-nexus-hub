@@ -48,21 +48,21 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-xl border-taxitime-100">
-      <CardHeader className="space-y-1 flex items-center justify-center pb-0">
-        <div className="flex justify-center mb-6 mt-2">
+    <Card className="w-full shadow-2xl border-taxitime-200 bg-white/95 backdrop-blur-sm">
+      <CardHeader className="space-y-1 flex items-center justify-center pb-2">
+        <div className="flex justify-center mb-8 mt-4">
           <img 
             src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
             alt="Taxitime Logo" 
-            className="h-28 w-28 object-contain"
+            className="h-32 w-32 object-contain drop-shadow-md"
           />
         </div>
       </CardHeader>
 
       <form onSubmit={handleLogin}>
-        <CardContent className="space-y-5 pt-4">
+        <CardContent className="space-y-6 pt-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-taxitime-800 font-medium">Email</Label>
             <Input
               id="email"
               type="email"
@@ -70,18 +70,18 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-background"
+              className="bg-white border-taxitime-200 focus-visible:ring-taxitime-500"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-taxitime-800 font-medium">Password</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-background"
+              className="bg-white border-taxitime-200 focus-visible:ring-taxitime-500"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -89,16 +89,17 @@ export function LoginForm() {
               id="rememberMe" 
               checked={rememberMe}
               onCheckedChange={(checked) => setRememberMe(checked === true)}
+              className="border-taxitime-400 data-[state=checked]:bg-taxitime-600"
             />
-            <Label htmlFor="rememberMe" className="font-normal cursor-pointer">
+            <Label htmlFor="rememberMe" className="font-normal cursor-pointer text-taxitime-700">
               Ricorda credenziali
             </Label>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
+        <CardFooter className="flex flex-col gap-6 pb-8">
           <Button 
             type="submit" 
-            className="w-full bg-taxitime-600 hover:bg-taxitime-700" 
+            className="w-full bg-taxitime-600 hover:bg-taxitime-700 text-white transition-colors text-base py-6" 
             disabled={loading}
           >
             {loading ? (
@@ -113,12 +114,12 @@ export function LoginForm() {
           </Button>
           
           <div className="flex w-full justify-between text-sm">
-            <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
+            <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0 font-medium">
               <Link to="/recupera-password">
                 <Mail className="mr-1 h-3.5 w-3.5" /> Recupera password
               </Link>
             </Button>
-            <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0">
+            <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0 font-medium">
               <Link to="/assistenza">
                 <HelpCircle className="mr-1 h-3.5 w-3.5" /> Richiedi assistenza
               </Link>
