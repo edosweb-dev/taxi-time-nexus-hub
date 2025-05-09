@@ -11,7 +11,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
           className="h-32 w-32 object-contain drop-shadow-md"
         />
       </div>
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
         {children}
       </div>
     </div>

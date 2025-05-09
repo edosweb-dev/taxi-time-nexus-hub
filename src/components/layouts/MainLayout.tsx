@@ -3,12 +3,15 @@ import { PropsWithChildren } from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Menu, User } from "lucide-react";
+import { Home, LogOut, Menu, User, CalendarDays, LayoutDashboard } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export function MainLayout({ children }: PropsWithChildren) {
   const { profile, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const location = useLocation();
 
   return (
     <div className="flex min-h-screen w-full">
@@ -27,7 +30,28 @@ export function MainLayout({ children }: PropsWithChildren) {
         </SidebarHeader>
         
         <SidebarContent className="p-2">
-          {/* Sidebar content will be added in future iterations */}
+          <div className="space-y-1">
+            <Link 
+              to="/dashboard" 
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
+                location.pathname === "/dashboard" ? "bg-white/30" : "transparent"
+              )}
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Dashboard</span>
+            </Link>
+            <Link 
+              to="/shifts" 
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
+                location.pathname === "/shifts" ? "bg-white/30" : "transparent"
+              )}
+            >
+              <CalendarDays className="h-4 w-4" />
+              <span>Turni</span>
+            </Link>
+          </div>
         </SidebarContent>
         
         <SidebarFooter className="p-4 border-t border-white/20">
@@ -55,9 +79,44 @@ export function MainLayout({ children }: PropsWithChildren) {
           </div>
         </SidebarFooter>
       </Sidebar>
+      
       <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-auto p-4 md:p-6">{children}</div>
+        <div className="flex-1 overflow-auto p-4 md:p-6">
+          {children}
+        </div>
       </main>
+      
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-around py-2 px-4 z-50">
+          <Link 
+            to="/dashboard" 
+            className={cn(
+              "flex flex-col items-center justify-center p-2 rounded-md",
+              location.pathname === "/dashboard" ? "text-taxitime-600" : "text-gray-500"
+            )}
+          >
+            <LayoutDashboard className="h-5 w-5" />
+            <span className="text-xs mt-1">Dashboard</span>
+          </Link>
+          <Link 
+            to="/shifts" 
+            className={cn(
+              "flex flex-col items-center justify-center p-2 rounded-md",
+              location.pathname === "/shifts" ? "text-taxitime-600" : "text-gray-500"
+            )}
+          >
+            <CalendarDays className="h-5 w-5" />
+            <span className="text-xs mt-1">Turni</span>
+          </Link>
+          <button 
+            onClick={() => signOut()}
+            className="flex flex-col items-center justify-center p-2 rounded-md text-gray-500"
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="text-xs mt-1">Esci</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

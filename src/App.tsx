@@ -28,6 +28,8 @@ const App = () => (
             <Routes>
               {/* Redirect root to login page */}
               <Route path="/" element={<Navigate to="/login" replace />} />
+              
+              {/* Public authentication routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/recupera-password" element={<RecuperaPasswordPage />} />
               <Route path="/assistenza" element={<AssistenzaPage />} />
