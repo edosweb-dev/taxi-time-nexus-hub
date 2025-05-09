@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
@@ -44,12 +45,6 @@ export default function AssistenzaPage() {
         
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6 pt-4">
-            <div className="text-center mb-4">
-              <h2 className="text-xl font-medium text-taxitime-800">Richiedi Assistenza</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Compila il modulo per richiedere supporto
-              </p>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="name" className="text-taxitime-800 font-medium">Nome completo</Label>
               <Input
