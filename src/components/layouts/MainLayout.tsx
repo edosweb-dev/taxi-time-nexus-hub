@@ -13,12 +13,14 @@ export function MainLayout({ children }: PropsWithChildren) {
   return (
     <div className="flex min-h-screen w-full">
       <Sidebar className="border-r border-border">
-        <SidebarHeader className="h-14 flex items-center px-4 border-b">
+        <SidebarHeader className="h-16 flex items-center px-4 border-b">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-taxitime-500 flex items-center justify-center text-white font-bold">
-              T
-            </div>
-            <span className="font-semibold text-lg">TAXITIME V2</span>
+            <img 
+              src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
+              alt="Taxitime Logo" 
+              className="h-8 w-8 object-contain"
+            />
+            <span className="font-semibold text-lg">TAXITIME</span>
           </div>
           <Button variant="outline" size="icon" className="ml-auto">
             <Menu className="h-4 w-4" />

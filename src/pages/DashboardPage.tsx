@@ -12,18 +12,18 @@ export default function DashboardPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
+      <div className="space-y-6 max-w-7xl mx-auto">
+        <div className="py-4 border-b">
+          <h1 className="text-3xl font-bold tracking-tight text-taxitime-800">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
             Benvenuto, {fullName}
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
+          <Card className="border-taxitime-200 shadow-sm hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle>Gestione Utenti</CardTitle>
+              <CardTitle className="text-taxitime-800">Gestione Utenti</CardTitle>
               <CardDescription>
                 Gestisci gli utenti della piattaforma
               </CardDescription>
@@ -33,9 +33,9 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-taxitime-200 shadow-sm hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle>Turni</CardTitle>
+              <CardTitle className="text-taxitime-800">Turni</CardTitle>
               <CardDescription>
                 Organizza i turni di lavoro
               </CardDescription>
@@ -45,9 +45,9 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-taxitime-200 shadow-sm hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle>Spese</CardTitle>
+              <CardTitle className="text-taxitime-800">Spese</CardTitle>
               <CardDescription>
                 Gestisci le spese aziendali
               </CardDescription>
