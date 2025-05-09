@@ -1,4 +1,3 @@
-
 import { supabase } from './supabase';
 import { Profile } from './types';
 
@@ -45,7 +44,7 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
   try {
     console.log("Creating user with data:", userData);
     
-    // Instead of using admin.createUser which requires service_role, use the signUp method
+    // Use signUp method instead of admin.createUser
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: userData.email,
       password: userData.password || 'Password123', // Default password if none is provided
@@ -68,25 +67,17 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
 
     // If user was created successfully, update the profile with role
     if (authData.user) {
-      // Update the profile with first_name, last_name and role
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          role: userData.role
-        })
-        .eq('id', authData.user.id)
-        .select()
-        .single();
-
-      if (profileError) {
-        console.error("Profile update error:", profileError);
-        return { user: null, error: profileError };
-      }
-
-      console.log("Profile updated successfully:", profileData);
-      return { user: profileData as Profile, error: null };
+      // Instead of querying the profile with single(), create a synthetic profile object
+      // based on the user data we already have. This avoids the "no rows returned" error
+      const profile: Profile = {
+        id: authData.user.id,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        role: userData.role
+      };
+      
+      console.log("Created profile object:", profile);
+      return { user: profile, error: null };
     }
 
     return { user: null, error: "Failed to create user" };

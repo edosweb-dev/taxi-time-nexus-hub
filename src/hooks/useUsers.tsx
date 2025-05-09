@@ -22,9 +22,23 @@ export function useUsers() {
       if (data.user) {
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente creato con successo');
+        toast.info('Una email di conferma è stata inviata all\'utente');
       } else {
         console.error('Error creating user:', data.error);
-        toast.error(`Errore nella creazione dell'utente: ${data.error?.message || 'Si è verificato un errore'}`);
+        let errorMessage = 'Si è verificato un errore';
+        
+        // Add more specific error messages based on Supabase error codes
+        if (data.error?.message) {
+          if (data.error.message.includes('already registered')) {
+            errorMessage = 'Email già registrata, scegli un\'altra email';
+          } else if (data.error.message.includes('password')) {
+            errorMessage = 'La password non soddisfa i requisiti di sicurezza';
+          } else {
+            errorMessage = data.error.message;
+          }
+        }
+        
+        toast.error(`Errore nella creazione dell'utente: ${errorMessage}`);
       }
     },
     onError: (error: any) => {

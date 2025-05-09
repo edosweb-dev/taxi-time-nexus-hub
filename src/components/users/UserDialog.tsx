@@ -35,7 +35,7 @@ export function UserDialog({
           <DialogDescription>
             {user 
               ? "Modifica i dettagli dell'utente esistente. Lascia vuoto il campo password per non modificarla."
-              : "Inserisci i dettagli del nuovo utente. Tutti i campi sono obbligatori."}
+              : "Inserisci i dettagli del nuovo utente. Gli utenti riceveranno una email di conferma."}
           </DialogDescription>
         </DialogHeader>
         <UserForm
