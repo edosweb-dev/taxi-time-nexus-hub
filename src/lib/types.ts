@@ -3,10 +3,8 @@ export type UserRole = 'admin' | 'socio' | 'dipendente' | 'cliente';
 
 export interface Profile {
   id: string;
-  updated_at: string;
-  username: string | null;
-  full_name: string | null;
-  avatar_url: string | null;
+  first_name: string | null;
+  last_name: string | null;
   role: UserRole;
 }
 

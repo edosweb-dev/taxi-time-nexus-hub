@@ -16,26 +16,20 @@ export interface Database {
       profiles: {
         Row: {
           id: string
-          updated_at: string
-          username: string | null
-          full_name: string | null
-          avatar_url: string | null
+          first_name: string | null
+          last_name: string | null
           role: 'admin' | 'socio' | 'dipendente' | 'cliente'
         }
         Insert: {
           id: string
-          updated_at?: string
-          username?: string | null
-          full_name?: string | null
-          avatar_url?: string | null
-          role?: 'admin' | 'socio' | 'dipendente' | 'cliente'
+          first_name?: string | null
+          last_name?: string | null
+          role: 'admin' | 'socio' | 'dipendente' | 'cliente'
         }
         Update: {
           id?: string
-          updated_at?: string
-          username?: string | null
-          full_name?: string | null
-          avatar_url?: string | null
+          first_name?: string | null
+          last_name?: string | null
           role?: 'admin' | 'socio' | 'dipendente' | 'cliente'
         }
       }

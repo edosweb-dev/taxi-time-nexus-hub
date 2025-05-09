@@ -5,6 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function ClientDashboardPage() {
   const { profile } = useAuth();
+  
+  const fullName = profile?.first_name && profile?.last_name 
+    ? `${profile.first_name} ${profile.last_name}`
+    : profile?.first_name || 'Cliente';
 
   return (
     <MainLayout>
@@ -12,7 +16,7 @@ export default function ClientDashboardPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard Cliente</h1>
           <p className="text-muted-foreground">
-            Benvenuto, {profile?.full_name || profile?.username || 'Cliente'}
+            Benvenuto, {fullName}
           </p>
         </div>
 

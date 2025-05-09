@@ -5,6 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function DashboardPage() {
   const { profile } = useAuth();
+  
+  const fullName = profile?.first_name && profile?.last_name 
+    ? `${profile.first_name} ${profile.last_name}`
+    : profile?.first_name || 'Utente';
 
   return (
     <MainLayout>
@@ -12,7 +16,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Benvenuto, {profile?.full_name || profile?.username || 'Utente'}
+            Benvenuto, {fullName}
           </p>
         </div>
 

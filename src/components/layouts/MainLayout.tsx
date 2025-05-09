@@ -36,7 +36,11 @@ export function MainLayout({ children }: PropsWithChildren) {
               <User size={16} />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{profile?.full_name || profile?.username || 'Utente'}</span>
+              <span className="text-sm font-medium">
+                {profile?.first_name && profile?.last_name 
+                  ? `${profile.first_name} ${profile.last_name}`
+                  : profile?.first_name || 'Utente'}
+              </span>
               <span className="text-xs text-muted-foreground capitalize">{profile?.role || ''}</span>
             </div>
             <Button 

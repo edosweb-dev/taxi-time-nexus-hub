@@ -94,11 +94,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.user) {
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', data.user.id)
           .single();
+
+        if (profileError) {
+          toast.error('Errore nel recupero del profilo');
+          return;
+        }
 
         if (profileData) {
           setProfile(profileData);
