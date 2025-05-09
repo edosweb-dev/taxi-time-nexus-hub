@@ -24,8 +24,14 @@ const validateShiftRule = (
     (!editingShiftId || shift.id !== editingShiftId)
   );
   
+  // Debug logs to verify filtering
+  console.log('Validating shift with date:', newShiftDate);
+  console.log('User shifts on same date:', userShiftsOnSameDate);
+  console.log('All shifts:', shifts);
+  
   // If there are no existing shifts for that date, it's always valid
   if (userShiftsOnSameDate.length === 0) {
+    console.log('No shifts on this date, allowing new shift');
     return { isValid: true };
   }
 
@@ -33,12 +39,14 @@ const validateShiftRule = (
   if (newShift.shift_type === 'specific_hours') {
     // Verify that all existing shifts are "specific_hours" type
     const allSpecificHours = userShiftsOnSameDate.every(shift => shift.shift_type === 'specific_hours');
+    console.log('New shift is specific_hours, all existing shifts are specific_hours:', allSpecificHours);
     if (allSpecificHours) {
       return { isValid: true };
     }
   }
 
   // In all other cases, it's not allowed to add another shift
+  console.log('Validation failed: user already has a non-specific_hours shift on this date');
   return { 
     isValid: false, 
     errorMessage: "È possibile inserire un solo turno per giornata, a meno che entrambi i turni abbiano un orario specifico."
@@ -80,8 +88,13 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
   // Helper functions to expose mutations - with validation logic before mutation
   const createShift = async (data: ShiftFormData) => {
     try {
-      // Get existing shifts from query cache
-      const currentShifts = queryClient.getQueryData<Shift[]>(['shifts']) || [];
+      // Get existing shifts from query cache - use the correct query key to match our query
+      const currentShifts = queryClient.getQueryData<Shift[]>([
+        'shifts', 
+        dateRange.start, 
+        dateRange.end, 
+        user?.id
+      ]) || [];
       
       // Validate if the shift can be inserted
       const validation = validateShiftRule(currentShifts, data);
@@ -100,8 +113,13 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
 
   const updateShift = async (id: string, data: ShiftFormData) => {
     try {
-      // Get existing shifts from query cache
-      const currentShifts = queryClient.getQueryData<Shift[]>(['shifts']) || [];
+      // Get existing shifts from query cache - use the correct query key to match our query
+      const currentShifts = queryClient.getQueryData<Shift[]>([
+        'shifts', 
+        dateRange.start, 
+        dateRange.end, 
+        user?.id
+      ]) || [];
       
       // Validate if the shift can be updated
       const validation = validateShiftRule(currentShifts, data, id);
