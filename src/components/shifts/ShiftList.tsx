@@ -19,12 +19,10 @@ interface ShiftListProps {
 }
 
 export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: ShiftListProps) {
-  const { shifts, isLoading, setSelectedShift, deleteShift } = useShifts();
+  const { shifts, isLoading, setSelectedShift, deleteShift, setUserFilter, setDateFilter } = useShifts();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [filteredUserId, setFilteredUserId] = useState<string | null>(null);
-  const [filteredDate, setFilteredDate] = useState<Date | null>(null);
 
   // Handler for selecting a shift
   const handleSelectShift = (shift: Shift) => {
@@ -47,24 +45,6 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
     setIsDeleteDialogOpen(true);
   };
 
-  // Filter shifts based on user and date filters
-  const filteredShifts = shifts.filter(shift => {
-    // Apply user filter
-    if (filteredUserId && shift.user_id !== filteredUserId) {
-      return false;
-    }
-    
-    // Apply date filter
-    if (filteredDate) {
-      const formattedFilterDate = format(filteredDate, 'yyyy-MM-dd');
-      if (shift.shift_date !== formattedFilterDate) {
-        return false;
-      }
-    }
-    
-    return true;
-  });
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-12">
@@ -82,12 +62,12 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
       />
       
       <ShiftListFilters 
-        onUserFilter={setFilteredUserId}
-        onDateFilter={setFilteredDate}
+        onUserFilter={setUserFilter}
+        onDateFilter={setDateFilter}
         isAdminOrSocio={isAdminOrSocio}
       />
 
-      {filteredShifts.length > 0 ? (
+      {shifts.length > 0 ? (
         <Table>
           <TableHeader>
             <TableRow>
@@ -100,7 +80,7 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredShifts
+            {shifts
               .sort((a, b) => a.shift_date.localeCompare(b.shift_date))
               .map((shift) => (
                 <ShiftListRow 

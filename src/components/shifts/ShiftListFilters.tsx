@@ -99,14 +99,14 @@ export function ShiftListFilters({ onUserFilter, onDateFilter, isAdminOrSocio }:
                 <div className="space-y-2">
                   <h4 className="font-medium leading-none mb-2">Filtra per utente</h4>
                   <Select
-                    value={selectedUserId || ""}
-                    onValueChange={(value) => handleUserFilterChange(value || null)}
+                    value={selectedUserId || "all-users"} // Use "all-users" instead of empty string
+                    onValueChange={(value) => handleUserFilterChange(value === "all-users" ? null : value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona un utente" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tutti gli utenti</SelectItem>
+                      <SelectItem value="all-users">Tutti gli utenti</SelectItem> {/* Changed from empty string to "all-users" */}
                       {users.map((user) => (
                         <SelectItem key={user.id} value={user.id}>
                           {user.first_name} {user.last_name}
