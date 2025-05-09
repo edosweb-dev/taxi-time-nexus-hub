@@ -8,6 +8,7 @@ import { AddShiftDialog } from './AddShiftDialog';
 import { ShiftMonthNavigator } from './ShiftMonthNavigator';
 import { ShiftListRow } from './ShiftListRow';
 import { ShiftEmptyState } from './ShiftEmptyState';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface ShiftListProps {
   currentMonth: Date;
@@ -16,13 +17,30 @@ interface ShiftListProps {
 }
 
 export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: ShiftListProps) {
-  const { shifts, isLoading, setSelectedShift } = useShifts();
+  const { shifts, isLoading, setSelectedShift, deleteShift } = useShifts();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Handler for selecting a shift
   const handleSelectShift = (shift: Shift) => {
     setSelectedShift(shift);
     setIsAddDialogOpen(true);
+  };
+  
+  // Handler for confirming deletion
+  const handleDeleteConfirm = async () => {
+    if (shiftToDelete) {
+      await deleteShift(shiftToDelete);
+      setShiftToDelete(null);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+  
+  // Handler for initiating delete
+  const handleDeleteShift = (id: string) => {
+    setShiftToDelete(id);
+    setIsDeleteDialogOpen(true);
   };
 
   if (isLoading) {
@@ -50,7 +68,7 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
               <TableHead>Tipo</TableHead>
               <TableHead>Orario</TableHead>
               <TableHead>Note</TableHead>
-              <TableHead className="w-[100px]">Azioni</TableHead>
+              <TableHead className="w-[150px]">Azioni</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -62,6 +80,7 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
                   shift={shift}
                   isAdminOrSocio={isAdminOrSocio}
                   onSelectShift={handleSelectShift}
+                  onDeleteShift={isAdminOrSocio ? handleDeleteShift : undefined}
                 />
               ))}
           </TableBody>
@@ -75,6 +94,27 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
         onOpenChange={setIsAddDialogOpen}
         isAdminOrSocio={isAdminOrSocio}
       />
+      
+      {/* Confirmation dialog for deleting shifts */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare questo turno? Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
