@@ -13,6 +13,7 @@ import AssistenzaPage from "./pages/AssistenzaPage";
 import DashboardPage from "./pages/DashboardPage";
 import ClientDashboardPage from "./pages/ClientDashboardPage";
 import ShiftsPage from "./pages/ShiftsPage";
+import UsersPage from "./pages/UsersPage"; // Add the import
 import NotFoundPage from "./pages/NotFoundPage";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,13 @@ const App = () => (
               <Route path="/shifts" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <ShiftsPage />
+                </AuthGuard>
+              } />
+              
+              {/* New Users Page - restricted to admin and socio roles */}
+              <Route path="/users" element={
+                <AuthGuard allowedRoles={['admin', 'socio']}>
+                  <UsersPage />
                 </AuthGuard>
               } />
               
