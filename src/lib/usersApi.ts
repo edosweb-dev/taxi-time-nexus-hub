@@ -12,12 +12,20 @@ export type UserFormData = {
 
 export async function getUsers(): Promise<Profile[]> {
   try {
+    // Log debug info
+    console.log("Fetching users from profiles table");
+    
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .order('last_name', { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
+    
+    console.log(`Retrieved ${data?.length || 0} users from database`);
     return data as Profile[];
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -43,23 +51,42 @@ export async function getUserById(id: string): Promise<Profile | null> {
 
 export async function createUser(userData: UserFormData): Promise<{ user: Profile | null; error: any }> {
   try {
-    // Log debug info
-    console.log("Creating user with data:", userData);
+    // Verifica completa dei dati in ingresso
+    console.log("Creating user with data:", JSON.stringify(userData, null, 2));
     console.log("First name:", userData.first_name);
     console.log("Last name:", userData.last_name);
+    console.log("Email:", userData.email);
     console.log("Role being assigned:", userData.role);
     
-    // Verifica se i campi richiesti sono presenti
-    if (!userData.first_name || !userData.last_name || !userData.role) {
+    // Verifica se i campi richiesti sono presenti e validi
+    if (!userData.first_name || !userData.last_name || !userData.role || !userData.email) {
       console.error("Missing required fields:", { 
         first_name: userData.first_name, 
-        last_name: userData.last_name, 
+        last_name: userData.last_name,
+        email: userData.email, 
         role: userData.role 
       });
       return { user: null, error: { message: "Campi obbligatori mancanti" } };
     }
     
-    // Crea l'utente con la funzione signUp
+    // Verifico che il ruolo sia valido
+    const validRoles = ['admin', 'socio', 'dipendente', 'cliente'];
+    if (!validRoles.includes(userData.role)) {
+      console.error("Invalid role:", userData.role);
+      return { user: null, error: { message: `Ruolo non valido: ${userData.role}` } };
+    }
+    
+    // Crea l'utente con la funzione signUp, SENZA emailRedirectTo per evitare email di conferma
+    console.log("Calling supabase.auth.signUp with:", {
+      email: userData.email,
+      password: userData.password ? "PROVIDED (not logged)" : "DEFAULT PASSWORD (not logged)",
+      user_metadata: {
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        role: userData.role
+      }
+    });
+    
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: userData.email,
       password: userData.password || 'Password123', // Default password if none is provided
@@ -83,19 +110,17 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
     // Se l'utente è stato creato con successo
     if (authData.user) {
       try {
-        // Creiamo un oggetto profilo sintetico per feedback immediato all'UI
-        // e per garantire che i dati siano disponibili anche se il trigger DB fallisce
+        // Creiamo un oggetto profilo completo
         const profile: Profile = {
           id: authData.user.id,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          role: userData.role
+          first_name: userData.first_name, // Valorizzato dal form
+          last_name: userData.last_name,   // Valorizzato dal form
+          role: userData.role              // Valorizzato dal form
         };
         
         console.log("Created profile object for immediate UI feedback:", profile);
         
         // Eseguiamo un upsert esplicito nella tabella profiles
-        // Questo è importante poiché il trigger potrebbe non funzionare come previsto
         console.log("Attempting to upsert profile with data:", {
           id: authData.user.id,
           first_name: userData.first_name,
@@ -119,6 +144,10 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
           console.error("Full profile error details:", JSON.stringify(profileError, null, 2));
           // Continuiamo comunque con l'oggetto profilo sintetico per l'UI
           console.log("Continuing with synthetic profile despite upsert error");
+          
+          if (profileError.message?.includes('row-level security policy')) {
+            console.error("RLS policy error detected. This could be caused by insufficient permissions.");
+          }
         } else {
           console.log("Profile upserted successfully:", profileData);
         }
@@ -148,6 +177,8 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
       last_name: userData.last_name,
       role: userData.role
     };
+
+    console.log("Profile data being sent to Supabase:", profileData);
 
     const { data: updatedProfile, error: profileError } = await supabase
       .from('profiles')
@@ -189,7 +220,7 @@ export async function deleteUser(id: string): Promise<{ success: boolean; error:
   try {
     console.log("Deleting user with ID:", id);
     
-    // Delete user from auth - this should cascade to profiles table
+    // Delete user from profiles table
     const { error } = await supabase
       .from('profiles')
       .delete()

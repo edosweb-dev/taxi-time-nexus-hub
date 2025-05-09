@@ -40,6 +40,8 @@ export function useUsers() {
             errorMessage = 'Errore con i riferimenti nel database';
           } else if (data.error.message.includes('row-level security')) {
             errorMessage = 'Errore di permessi: controlla le policy RLS in Supabase';
+          } else if (data.error.code === 'email_address_invalid') {
+            errorMessage = 'Indirizzo email non valido';
           } else {
             errorMessage = data.error.message;
           }
@@ -70,6 +72,8 @@ export function useUsers() {
             errorMessage = 'Errore con il ruolo utente';
           } else if (data.error.message.includes('foreign key constraint')) {
             errorMessage = 'Errore con i riferimenti nel database';
+          } else if (data.error.message.includes('row-level security')) {
+            errorMessage = 'Errore di permessi: controlla le policy RLS in Supabase';
           } else {
             errorMessage = data.error.message;
           }

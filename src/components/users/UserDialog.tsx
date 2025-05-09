@@ -25,6 +25,16 @@ export function UserDialog({
   user,
   isSubmitting,
 }: UserDialogProps) {
+  // Log per tracciare i dati dell'utente quando il dialog si apre
+  if (isOpen) {
+    console.log("UserDialog opened with user data:", user);
+  }
+
+  const handleUserFormSubmit = (data: UserFormData) => {
+    console.log("UserDialog - Form submitted with data:", data);
+    onSubmit(data);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -40,7 +50,7 @@ export function UserDialog({
         </DialogHeader>
         <UserForm
           user={user}
-          onSubmit={onSubmit}
+          onSubmit={handleUserFormSubmit}
           onCancel={() => onOpenChange(false)}
           isSubmitting={isSubmitting}
         />

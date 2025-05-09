@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -62,7 +63,7 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
-      email: isEditing ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
+      email: user?.id ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
       role: user?.role || 'dipendente', // Default a 'dipendente' invece di 'cliente'
       password: '',
       confirm_password: '',
@@ -70,17 +71,20 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
   });
 
   const handleSubmit = (values: z.infer<typeof userFormSchema>) => {
+    // Log dettagliato dei valori del form
     console.log("Form values before submit:", values);
     console.log("First name:", values.first_name);
     console.log("Last name:", values.last_name);
+    console.log("Email:", values.email);
     console.log("Role selected:", values.role);
+    console.log("Password provided:", values.password ? "Yes (not shown)" : "No");
     
     // Completo il userData con tutti i campi richiesti
     const userData: UserFormData = {
-      first_name: values.first_name,
-      last_name: values.last_name,
+      first_name: values.first_name.trim(),
+      last_name: values.last_name.trim(),
       role: values.role,
-      email: values.email, // Includo email per tutti i casi
+      email: values.email.trim(), // Includo email per tutti i casi
     };
 
     // Aggiungo password solo se fornita
