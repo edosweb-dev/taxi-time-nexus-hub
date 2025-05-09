@@ -62,8 +62,8 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
-      email: user?.id ? '' : '', // Empty email for new user
-      role: user?.role || 'dipendente',
+      email: isEditing ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
+      role: user?.role || 'dipendente', // Default a 'dipendente' invece di 'cliente'
       password: '',
       confirm_password: '',
     },
@@ -71,16 +71,19 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
 
   const handleSubmit = (values: z.infer<typeof userFormSchema>) => {
     console.log("Form values before submit:", values);
+    console.log("First name:", values.first_name);
+    console.log("Last name:", values.last_name);
+    console.log("Role selected:", values.role);
     
-    // Fixed: Always include email in userData whether creating or updating
+    // Completo il userData con tutti i campi richiesti
     const userData: UserFormData = {
       first_name: values.first_name,
       last_name: values.last_name,
       role: values.role,
-      email: values.email, // Always include email field to satisfy the UserFormData type
+      email: values.email, // Includo email per tutti i casi
     };
 
-    // Only include password if it's provided
+    // Aggiungo password solo se fornita
     if (values.password) {
       userData.password = values.password;
     }

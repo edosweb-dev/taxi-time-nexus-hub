@@ -43,11 +43,23 @@ export async function getUserById(id: string): Promise<Profile | null> {
 
 export async function createUser(userData: UserFormData): Promise<{ user: Profile | null; error: any }> {
   try {
+    // Log debug info
     console.log("Creating user with data:", userData);
+    console.log("First name:", userData.first_name);
+    console.log("Last name:", userData.last_name);
     console.log("Role being assigned:", userData.role);
     
-    // Importante: utilizzare signUp con l'opzione skipEmailVerification: true 
-    // per evitare l'invio di email di conferma
+    // Verifica se i campi richiesti sono presenti
+    if (!userData.first_name || !userData.last_name || !userData.role) {
+      console.error("Missing required fields:", { 
+        first_name: userData.first_name, 
+        last_name: userData.last_name, 
+        role: userData.role 
+      });
+      return { user: null, error: { message: "Campi obbligatori mancanti" } };
+    }
+    
+    // Crea l'utente con la funzione signUp
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: userData.email,
       password: userData.password || 'Password123', // Default password if none is provided
@@ -56,9 +68,8 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
           first_name: userData.first_name,
           last_name: userData.last_name,
           role: userData.role
-        },
+        }
         // Rimuoviamo emailRedirectTo per evitare l'invio di email di conferma
-        // Non serve skipEmailVerification: true perché non è supportato da Supabase v2
       }
     });
 
@@ -69,45 +80,57 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
 
     console.log("Auth data after user creation:", authData);
 
-    // Se l'utente è stato creato con successo, assicuriamoci che il profilo esista
+    // Se l'utente è stato creato con successo
     if (authData.user) {
-      // Creiamo un oggetto profilo sintetico per feedback immediato all'UI
-      const profile: Profile = {
-        id: authData.user.id,
-        first_name: userData.first_name,
-        last_name: userData.last_name,
-        role: userData.role
-      };
-      
-      console.log("Inserting profile with role:", userData.role);
-      
-      // Inseriamo esplicitamente il profilo nella tabella profiles
-      // Questo è importante poiché il trigger potrebbe non funzionare come previsto
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .upsert([
-          {
-            id: authData.user.id,
-            first_name: userData.first_name,
-            last_name: userData.last_name,
-            role: userData.role
-          }
-        ], { onConflict: 'id' });
+      try {
+        // Creiamo un oggetto profilo sintetico per feedback immediato all'UI
+        // e per garantire che i dati siano disponibili anche se il trigger DB fallisce
+        const profile: Profile = {
+          id: authData.user.id,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          role: userData.role
+        };
         
-      if (profileError) {
-        console.error("Profile creation error:", profileError);
-        console.error("Full profile error details:", JSON.stringify(profileError, null, 2));
-        // Continuiamo comunque poiché potrebbe esserci un trigger che gestisce questo
-        console.log("Continuing despite profile error as trigger might handle it");
-      } else {
-        console.log("Profile created successfully:", profileData);
+        console.log("Created profile object for immediate UI feedback:", profile);
+        
+        // Eseguiamo un upsert esplicito nella tabella profiles
+        // Questo è importante poiché il trigger potrebbe non funzionare come previsto
+        console.log("Attempting to upsert profile with data:", {
+          id: authData.user.id,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          role: userData.role
+        });
+        
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .upsert([
+            {
+              id: authData.user.id,
+              first_name: userData.first_name,
+              last_name: userData.last_name,
+              role: userData.role
+            }
+          ], { onConflict: 'id' });
+          
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+          console.error("Full profile error details:", JSON.stringify(profileError, null, 2));
+          // Continuiamo comunque con l'oggetto profilo sintetico per l'UI
+          console.log("Continuing with synthetic profile despite upsert error");
+        } else {
+          console.log("Profile upserted successfully:", profileData);
+        }
+        
+        return { user: profile, error: null };
+      } catch (error) {
+        console.error('Error in profile creation:', error);
+        return { user: null, error: { message: "Errore durante la creazione del profilo" } };
       }
-      
-      console.log("Created profile object:", profile);
-      return { user: profile, error: null };
     }
 
-    return { user: null, error: "Failed to create user" };
+    return { user: null, error: { message: "Creazione utente fallita" } };
   } catch (error) {
     console.error('Error in createUser:', error);
     return { user: null, error };

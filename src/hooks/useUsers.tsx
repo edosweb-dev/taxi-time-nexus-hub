@@ -22,14 +22,15 @@ export function useUsers() {
       if (data.user) {
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente creato con successo');
-        // Rimuoviamo il messaggio dell'email di conferma poiché l'abbiamo disabilitata
       } else {
         console.error('Error creating user:', data.error);
         let errorMessage = 'Si è verificato un errore';
         
-        // Add more specific error messages based on Supabase error codes
+        // Add more specific error messages based on the error
         if (data.error?.message) {
-          if (data.error.message.includes('already registered')) {
+          if (data.error.message === "Campi obbligatori mancanti") {
+            errorMessage = 'Assicurati di compilare tutti i campi richiesti';
+          } else if (data.error.message.includes('already registered')) {
             errorMessage = 'Email già registrata, scegli un\'altra email';
           } else if (data.error.message.includes('password')) {
             errorMessage = 'La password non soddisfa i requisiti di sicurezza';
@@ -37,6 +38,8 @@ export function useUsers() {
             errorMessage = 'Errore con il ruolo utente';
           } else if (data.error.message.includes('foreign key constraint')) {
             errorMessage = 'Errore con i riferimenti nel database';
+          } else if (data.error.message.includes('row-level security')) {
+            errorMessage = 'Errore di permessi: controlla le policy RLS in Supabase';
           } else {
             errorMessage = data.error.message;
           }
