@@ -33,6 +33,8 @@ export function useUsers() {
             errorMessage = 'Email già registrata, scegli un\'altra email';
           } else if (data.error.message.includes('password')) {
             errorMessage = 'La password non soddisfa i requisiti di sicurezza';
+          } else if (data.error.message.includes('role')) {
+            errorMessage = 'Errore con il ruolo utente';
           } else {
             errorMessage = data.error.message;
           }

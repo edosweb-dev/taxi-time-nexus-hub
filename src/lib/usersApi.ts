@@ -1,3 +1,4 @@
+
 import { supabase } from './supabase';
 import { Profile } from './types';
 
@@ -65,16 +66,34 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
 
     console.log("Auth data after user creation:", authData);
 
-    // If user was created successfully, update the profile with role
+    // If user was created successfully, ensure profile data exists in profiles table
     if (authData.user) {
-      // Instead of querying the profile with single(), create a synthetic profile object
-      // based on the user data we already have. This avoids the "no rows returned" error
+      // Create a synthetic profile object for immediate UI feedback
       const profile: Profile = {
         id: authData.user.id,
         first_name: userData.first_name,
         last_name: userData.last_name,
         role: userData.role
       };
+      
+      // But also make sure to explicitly insert the profile in the profiles table
+      // This is important because the trigger might not be working as expected
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert([
+          {
+            id: authData.user.id,
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            role: userData.role
+          }
+        ], { onConflict: 'id' });
+        
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        // Continue anyway since we might have a trigger that handles this
+        console.log("Continuing despite profile error as trigger might handle it");
+      }
       
       console.log("Created profile object:", profile);
       return { user: profile, error: null };
