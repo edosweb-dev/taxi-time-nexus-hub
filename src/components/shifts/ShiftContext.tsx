@@ -68,25 +68,37 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
     end: endOfMonth(new Date()),
   });
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [filteredUserId, setFilteredUserId] = useState<string | null>(null);
+  const [filteredDate, setFilteredDate] = useState<Date | null>(null);
   const queryClient = useQueryClient();
 
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   // Query for shifts
   const { data: shifts = [], isLoading, isError } = useQuery({
-    queryKey: ['shifts', dateRange.start, dateRange.end, user?.id],
+    queryKey: ['shifts', dateRange.start, dateRange.end, user?.id, filteredUserId, filteredDate],
     queryFn: () => fetchShifts({
       start: dateRange.start,
       end: dateRange.end,
       isAdminOrSocio,
-      userId: user?.id
+      userId: filteredUserId || (isAdminOrSocio ? undefined : user?.id)
     }),
     enabled: !!user,
   });
 
-  // Load shifts for a specific date range
+  // Load shifts for a specific date range and filters
   const loadShifts = useCallback((start: Date, end: Date) => {
     setDateRange({ start, end });
+  }, []);
+
+  // Set filter for specific user
+  const setUserFilter = useCallback((userId: string | null) => {
+    setFilteredUserId(userId);
+  }, []);
+
+  // Set filter for specific date
+  const setDateFilter = useCallback((date: Date | null) => {
+    setFilteredDate(date);
   }, []);
 
   const { createShiftMutation, updateShiftMutation, deleteShiftMutation } = useShiftMutations(user?.id);
@@ -159,7 +171,11 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
     deleteShift,
     loadShifts,
     selectedShift,
-    setSelectedShift
+    setSelectedShift,
+    filteredUserId,
+    setUserFilter,
+    filteredDate,
+    setDateFilter
   };
 
   return <ShiftContext.Provider value={value}>{children}</ShiftContext.Provider>;

@@ -45,4 +45,8 @@ export interface ShiftContextType {
   loadShifts: (startDate: Date, endDate: Date) => void;
   setSelectedShift: (shift: Shift | null) => void;
   selectedShift: Shift | null;
+  filteredUserId?: string | null;
+  setUserFilter: (userId: string | null) => void;
+  filteredDate?: Date | null;
+  setDateFilter: (date: Date | null) => void;
 }

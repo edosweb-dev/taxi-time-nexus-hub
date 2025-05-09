@@ -24,6 +24,9 @@ export const fetchShifts = async ({
     // If not admin/socio, only fetch own shifts
     if (!isAdminOrSocio && userId) {
       query = query.eq('user_id', userId);
+    } else if (userId) {
+      // If admin/socio AND userId is provided, filter by that user
+      query = query.eq('user_id', userId);
     }
 
     // Add date range filter

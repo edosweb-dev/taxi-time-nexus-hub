@@ -8,6 +8,8 @@ import { AddShiftDialog } from './AddShiftDialog';
 import { ShiftMonthNavigator } from './ShiftMonthNavigator';
 import { ShiftListRow } from './ShiftListRow';
 import { ShiftEmptyState } from './ShiftEmptyState';
+import { ShiftListFilters } from './ShiftListFilters';
+import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface ShiftListProps {
@@ -21,6 +23,8 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [filteredUserId, setFilteredUserId] = useState<string | null>(null);
+  const [filteredDate, setFilteredDate] = useState<Date | null>(null);
 
   // Handler for selecting a shift
   const handleSelectShift = (shift: Shift) => {
@@ -43,6 +47,24 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
     setIsDeleteDialogOpen(true);
   };
 
+  // Filter shifts based on user and date filters
+  const filteredShifts = shifts.filter(shift => {
+    // Apply user filter
+    if (filteredUserId && shift.user_id !== filteredUserId) {
+      return false;
+    }
+    
+    // Apply date filter
+    if (filteredDate) {
+      const formattedFilterDate = format(filteredDate, 'yyyy-MM-dd');
+      if (shift.shift_date !== formattedFilterDate) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-12">
@@ -58,8 +80,14 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
         currentMonth={currentMonth} 
         onMonthChange={onMonthChange} 
       />
+      
+      <ShiftListFilters 
+        onUserFilter={setFilteredUserId}
+        onDateFilter={setFilteredDate}
+        isAdminOrSocio={isAdminOrSocio}
+      />
 
-      {shifts.length > 0 ? (
+      {filteredShifts.length > 0 ? (
         <Table>
           <TableHeader>
             <TableRow>
@@ -72,7 +100,7 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
             </TableRow>
           </TableHeader>
           <TableBody>
-            {shifts
+            {filteredShifts
               .sort((a, b) => a.shift_date.localeCompare(b.shift_date))
               .map((shift) => (
                 <ShiftListRow 

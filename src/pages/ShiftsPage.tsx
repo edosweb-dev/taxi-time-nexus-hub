@@ -10,7 +10,7 @@ import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { Plus, Calendar, List } from 'lucide-react';
-import { ShiftProvider } from '@/components/shifts/ShiftContext';
+import { ShiftProvider, useShifts } from '@/components/shifts/ShiftContext';
 
 export default function ShiftsPage() {
   const { profile } = useAuth();
@@ -21,6 +21,10 @@ export default function ShiftsPage() {
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   const currentMonthLabel = format(currentMonth, 'MMMM yyyy');
+
+  const handleMonthChange = (newMonth: Date) => {
+    setCurrentMonth(newMonth);
+  };
 
   return (
     <MainLayout>
@@ -66,13 +70,13 @@ export default function ShiftsPage() {
             {viewMode === 'calendar' ? (
               <ShiftCalendar 
                 currentMonth={currentMonth}
-                onMonthChange={setCurrentMonth}
+                onMonthChange={handleMonthChange}
                 isAdminOrSocio={isAdminOrSocio}
               />
             ) : (
               <ShiftList 
                 currentMonth={currentMonth}
-                onMonthChange={setCurrentMonth}
+                onMonthChange={handleMonthChange}
                 isAdminOrSocio={isAdminOrSocio}
               />
             )}
