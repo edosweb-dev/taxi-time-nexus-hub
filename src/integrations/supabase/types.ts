@@ -42,6 +42,53 @@ export type Database = {
         }
         Relationships: []
       }
+      passeggeri: {
+        Row: {
+          created_at: string
+          destinazione: string
+          email: string | null
+          id: string
+          luogo_presa: string
+          nome_cognome: string
+          orario_presa: string
+          servizio_id: string
+          telefono: string | null
+          usa_indirizzo_personalizzato: boolean
+        }
+        Insert: {
+          created_at?: string
+          destinazione: string
+          email?: string | null
+          id?: string
+          luogo_presa: string
+          nome_cognome: string
+          orario_presa: string
+          servizio_id: string
+          telefono?: string | null
+          usa_indirizzo_personalizzato?: boolean
+        }
+        Update: {
+          created_at?: string
+          destinazione?: string
+          email?: string | null
+          id?: string
+          luogo_presa?: string
+          nome_cognome?: string
+          orario_presa?: string
+          servizio_id?: string
+          telefono?: string | null
+          usa_indirizzo_personalizzato?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passeggeri_servizio_id_fkey"
+            columns: ["servizio_id"]
+            isOneToOne: false
+            referencedRelation: "servizi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           azienda_id: string | null
@@ -67,6 +114,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_azienda_id_fkey"
+            columns: ["azienda_id"]
+            isOneToOne: false
+            referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      servizi: {
+        Row: {
+          azienda_id: string
+          created_at: string
+          created_by: string
+          data_servizio: string
+          id: string
+          metodo_pagamento: string
+          note: string | null
+          numero_commessa: string | null
+          referente_id: string
+          stato: string
+        }
+        Insert: {
+          azienda_id: string
+          created_at?: string
+          created_by: string
+          data_servizio: string
+          id?: string
+          metodo_pagamento: string
+          note?: string | null
+          numero_commessa?: string | null
+          referente_id: string
+          stato?: string
+        }
+        Update: {
+          azienda_id?: string
+          created_at?: string
+          created_by?: string
+          data_servizio?: string
+          id?: string
+          metodo_pagamento?: string
+          note?: string | null
+          numero_commessa?: string | null
+          referente_id?: string
+          stato?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servizi_azienda_id_fkey"
             columns: ["azienda_id"]
             isOneToOne: false
             referencedRelation: "aziende"

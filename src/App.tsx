@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +23,10 @@ import ServiziPage from "./pages/cliente/ServiziPage";
 import NuovoServizioPage from "./pages/cliente/NuovoServizioPage";
 import ReportPage from "./pages/cliente/ReportPage";
 import ProfiloPage from "./pages/cliente/ProfiloPage";
+
+// Servizi pages
+import ServiziPage from "./pages/servizi/ServiziPage";
+import NuovoServizioPage from "./pages/servizi/NuovoServizioPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,6 +120,19 @@ const App = () => (
               <Route path="/dashboard-cliente/profilo" element={
                 <AuthGuard allowedRoles={['cliente']}>
                   <ProfiloPage />
+                </AuthGuard>
+              } />
+              
+              {/* Servizi routes - accessible to all authenticated users */}
+              <Route path="/servizi" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente', 'cliente']}>
+                  <ServiziPage />
+                </AuthGuard>
+              } />
+              
+              <Route path="/nuovo-servizio" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'cliente']}>
+                  <NuovoServizioPage />
                 </AuthGuard>
               } />
               
