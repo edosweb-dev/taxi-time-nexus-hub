@@ -4,10 +4,29 @@ import { RequestParseResult, UserData } from "./types.ts";
 
 export async function parseRequestBody(req: Request): Promise<RequestParseResult> {
   try {
-    // Assicurati che la richiesta sia clonata prima di leggere il corpo
-    const clonedReq = req.clone();
-    const rawText = await clonedReq.text();
-    console.log("Edge function: Raw request body:", rawText);
+    // Check if request body is empty
+    const contentLength = req.headers.get("content-length");
+    if (!contentLength || parseInt(contentLength) === 0) {
+      console.error("Edge function: Corpo della richiesta vuoto o mancante");
+      return { 
+        userData: null, 
+        error: 'Corpo della richiesta vuoto o mancante' 
+      };
+    }
+    
+    // Clone the request to ensure it can be read
+    let rawText: string;
+    try {
+      const clonedReq = req.clone();
+      rawText = await clonedReq.text();
+      console.log("Edge function: Raw request body:", rawText);
+    } catch (readError) {
+      console.error("Edge function: Errore nella lettura del corpo della richiesta:", readError);
+      return { 
+        userData: null, 
+        error: 'Errore nella lettura del corpo della richiesta' 
+      };
+    }
     
     if (!rawText || rawText.trim() === '') {
       console.error("Edge function: Corpo della richiesta vuoto");
@@ -25,7 +44,8 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
       console.error("Edge function: Testo ricevuto:", rawText);
       return { 
         userData: null, 
-        error: 'Dati utente non validi: formato JSON non corretto' 
+        error: 'Dati utente non validi: formato JSON non corretto', 
+        details: { raw: rawText.substring(0, 100) + (rawText.length > 100 ? '...' : '') }
       };
     }
     
@@ -57,7 +77,7 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
     console.log("Edge function: Dati utente ricevuti:", userData);
     return { userData, error: null };
   } catch (e) {
-    console.error("Edge function: Errore nel leggere il corpo della richiesta:", e);
+    console.error("Edge function: Errore generale nel processare la richiesta:", e);
     return { 
       userData: null, 
       error: 'Errore nella lettura dei dati' 

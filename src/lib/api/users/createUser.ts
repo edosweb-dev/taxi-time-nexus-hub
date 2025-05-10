@@ -25,12 +25,24 @@ export async function createUser(userData: UserFormData) {
     }
 
     // Debug per la chiamata alla Edge Function
-    console.log('[createUser] Preparing to call edge function with data:', JSON.stringify(userData));
+    console.log('[createUser] Preparing to call edge function with data:', JSON.stringify(userData, null, 2));
     console.log('[createUser] Token length:', accessToken.length);
+    
+    // Validate JSON before sending
+    const payload = JSON.stringify(userData);
+    
+    // Verify JSON is valid
+    try {
+      JSON.parse(payload);
+      console.log('[createUser] JSON payload validation successful');
+    } catch (e) {
+      console.error('[createUser] Invalid JSON payload:', e);
+      throw new Error('Dati utente non validi per la conversione in JSON');
+    }
     
     // Chiamata alla Supabase Edge Function con corretto payload JSON
     const { data, error } = await supabase.functions.invoke('create-user', {
-      body: JSON.stringify(userData),
+      body: payload,
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
@@ -58,6 +70,7 @@ export async function createUser(userData: UserFormData) {
           }
         } catch (e) {
           // Se il parsing fallisce, usa il messaggio originale
+          console.error('[createUser] Error parsing error message:', e);
         }
       }
       
