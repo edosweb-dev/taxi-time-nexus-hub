@@ -14,6 +14,9 @@ export async function createUser(userData: UserFormData) {
     console.log('[createUser] Role being assigned:', userData.role);
     if (userData.azienda_id) {
       console.log('[createUser] Azienda ID:', userData.azienda_id);
+    } else if (userData.role === 'cliente') {
+      console.error('[createUser] ERRORE: Tentativo di creare cliente senza azienda_id');
+      throw new Error('Per gli utenti con ruolo cliente è necessario specificare azienda_id');
     }
 
     // Get current session token

@@ -22,8 +22,21 @@ export async function createNewUser(supabase: any, userData: UserData): Promise<
     }
     
     console.log("Edge function: Azienda verificata:", userData.azienda_id);
+  } else if (userData.role === 'cliente') {
+    // Doppio controllo: un utente cliente deve avere un'azienda associata
+    console.error("Edge function: Tentativo di creare utente cliente senza azienda_id");
+    return { user: null, error: "Per gli utenti con ruolo cliente è necessario specificare azienda_id" };
   }
 
+  // Creazione utente con metadati
+  console.log("Edge function: Creazione utente con ruolo:", userData.role);
+  console.log("Edge function: Metadati user:", {
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    role: userData.role,
+    azienda_id: userData.azienda_id,
+  });
+  
   const { data: authData, error: createError } = await supabase.auth.admin.createUser({
     email: userData.email,
     password: password,
@@ -53,6 +66,8 @@ export async function handleUserProfile(supabase: any, userId: string, userData:
     role: userData.role,
     azienda_id: userData.azienda_id
   };
+  
+  console.log("Edge function: Creazione profilo con dati:", profileData);
 
   // Check if profile exists
   const { data: existingProfile, error: profileCheckError } = await supabase

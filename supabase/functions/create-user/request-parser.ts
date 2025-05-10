@@ -39,6 +39,7 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
     let userData: UserData;
     try {
       userData = JSON.parse(rawText);
+      console.log("Edge function: Successfully parsed JSON:", userData);
     } catch (parseError) {
       console.error("Edge function: Errore nel parsing dei dati JSON:", parseError);
       console.error("Edge function: Testo ricevuto:", rawText);
@@ -71,6 +72,16 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
         userData: null, 
         error: 'Ruolo non valido',
         details: { valid_roles: validRoles.join(', ') }
+      };
+    }
+    
+    // Special validation for "cliente" role
+    if (userData.role === 'cliente' && !userData.azienda_id) {
+      console.error("Edge function: Azienda ID mancante per utente cliente");
+      return {
+        userData: null,
+        error: 'Per gli utenti con ruolo cliente è necessario specificare azienda_id',
+        details: { role: userData.role }
       };
     }
     
