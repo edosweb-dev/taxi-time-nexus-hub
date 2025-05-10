@@ -26,7 +26,10 @@ export async function createUser(userData: UserFormData) {
 
     // Verifica della configurazione della chiamata
     console.log('[createUser] Invoking edge function with access token length:', accessToken.length);
-    console.log('[createUser] Project ID from URL:', supabase.supabaseUrl);
+    
+    // Non accediamo più direttamente a supabase.supabaseUrl
+    // Utilizziamo l'URL definito nella configurazione
+    console.log('[createUser] Calling edge function create-user');
 
     // Chiamata diretta alla Supabase Edge Function
     const { data, error } = await supabase.functions.invoke('create-user', {

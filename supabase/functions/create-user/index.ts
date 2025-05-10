@@ -41,6 +41,8 @@ serve(async (req) => {
     
     if (!supabaseUrl || !supabaseKey) {
       console.error("Edge function: Variabili d'ambiente mancanti");
+      console.error("Edge function: SUPABASE_URL:", supabaseUrl ? "presente" : "mancante");
+      console.error("Edge function: SUPABASE_SERVICE_ROLE_KEY:", supabaseKey ? "presente" : "mancante (lunghezza 0)");
       return new Response(
         JSON.stringify({ message: 'Configurazione del server incompleta' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
