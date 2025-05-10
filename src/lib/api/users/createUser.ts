@@ -30,27 +30,8 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
       return { user: null, error: { message: `Ruolo non valido: ${userData.role}` } };
     }
 
-    // NUOVA IMPLEMENTAZIONE: Prima verifico se l'email è già registrata
-    try {
-      const { data: authUsers, error: checkError } = await supabase.auth.admin.listUsers();
-
-      if (checkError) {
-        console.error("[createUser] Errore nella verifica dell'email esistente:", checkError);
-        return { user: null, error: checkError };
-      }
-
-      // Tipizza esplicitamente authUsers.users per evitare errore TS2339
-      const usersList = (authUsers?.users ?? []) as Array<{ email: string }>;
-
-      const userWithSameEmail = usersList.find(u => u.email === userData.email);
-      if (userWithSameEmail) {
-        console.warn("[createUser] Email già registrata:", userData.email);
-        return { user: null, error: { message: "Email già registrata" } };
-      }
-    } catch (emailCheckError) {
-      console.error("[createUser] Errore durante la verifica dell'email:", emailCheckError);
-      // Continuiamo comunque, potrebbe essere un problema temporaneo
-    }
+    // Rimossa la verifica dell'email già registrata tramite admin.listUsers
+    // che causava l'errore "User not allowed"
     
     // Ora procedo con la creazione dell'utente
     console.log("[createUser] Calling supabase.auth.signUp with:", {
@@ -95,7 +76,7 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
         
         console.log("[createUser] Created profile object for immediate UI feedback:", profile);
         
-        // NUOVA IMPLEMENTAZIONE: Prima verifichiamo se l'handle_new_user ha creato automaticamente il profilo
+        // Verifichiamo se l'handle_new_user ha creato automaticamente il profilo
         console.log("[createUser] Verifying if profile was automatically created by trigger...");
         const { data: existingProfile, error: profileCheckError } = await supabase
           .from('profiles')

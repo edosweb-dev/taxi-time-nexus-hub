@@ -76,7 +76,21 @@ export function useUsers() {
     },
     onError: (error: any) => {
       console.error('Error creating user:', error);
-      toast.error(`Errore nella creazione dell'utente: ${error.message || 'Si è verificato un errore'}`);
+      // Aggiunta gestione specifica per errori di autenticazione Supabase
+      let errorMessage = error.message || 'Si è verificato un errore';
+      
+      // Gestione degli errori comuni di Supabase Auth
+      if (error.code === 'auth/email-already-in-use' || 
+          error.message?.includes('already been registered')) {
+        errorMessage = 'Email già registrata, scegli un\'altra email';
+      } else if (error.code === 'auth/weak-password' || 
+                error.message?.includes('password')) {
+        errorMessage = 'La password non soddisfa i requisiti di sicurezza';
+      } else if (error.message?.includes('service_role')) {
+        errorMessage = 'Errore di permessi: questa operazione richiede privilegi elevati';
+      }
+      
+      toast.error(`Errore nella creazione dell'utente: ${errorMessage}`);
     },
     onSettled: () => {
       console.log('[useUsers] Invalidando la cache della query users dopo la mutation');
