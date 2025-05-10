@@ -41,6 +41,7 @@ export function useUsers() {
     mutationFn: (userData: UserFormData) => createUser(userData),
     onSuccess: (data) => {
       if (data.user) {
+        console.log('[useUsers] Creazione utente riuscita:', data.user);
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente creato con successo');
       } else {
@@ -49,7 +50,7 @@ export function useUsers() {
         
         // Add more specific error messages based on the error
         if (data.error?.message) {
-          if (data.error.message === "Campi obbligatori mancanti") {
+          if (data.error.message.includes('Campi obbligatori mancanti')) {
             errorMessage = 'Assicurati di compilare tutti i campi richiesti';
           } else if (data.error.message.includes('already registered')) {
             errorMessage = 'Email già registrata, scegli un\'altra email';
@@ -63,6 +64,8 @@ export function useUsers() {
             errorMessage = 'Errore di permessi: controlla le policy RLS in Supabase';
           } else if (data.error.code === 'email_address_invalid') {
             errorMessage = 'Indirizzo email non valido';
+          } else if (data.error.message.includes('Profilo non creato')) {
+            errorMessage = 'Il profilo utente non è stato creato nel database';
           } else {
             errorMessage = data.error.message;
           }
@@ -74,6 +77,10 @@ export function useUsers() {
     onError: (error: any) => {
       console.error('Error creating user:', error);
       toast.error(`Errore nella creazione dell'utente: ${error.message || 'Si è verificato un errore'}`);
+    },
+    onSettled: () => {
+      console.log('[useUsers] Invalidando la cache della query users dopo la mutation');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 
@@ -107,6 +114,10 @@ export function useUsers() {
       console.error('Error updating user:', error);
       toast.error(`Errore nell'aggiornamento dell'utente: ${error.message || 'Si è verificato un errore'}`);
     },
+    onSettled: () => {
+      console.log('[useUsers] Invalidando la cache della query users dopo update');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
   });
 
   const deleteUserMutation = useMutation({
@@ -123,6 +134,10 @@ export function useUsers() {
     onError: (error: any) => {
       console.error('Error deleting user:', error);
       toast.error(`Errore nell'eliminazione dell'utente: ${error.message || 'Si è verificato un errore'}`);
+    },
+    onSettled: () => {
+      console.log('[useUsers] Invalidando la cache della query users dopo delete');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 

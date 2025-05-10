@@ -81,13 +81,13 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
     
     // Verifica se i campi richiesti sono presenti e validi
     if (!userData.first_name || !userData.last_name || !userData.role || !userData.email) {
-      console.error("Missing required fields:", { 
-        first_name: userData.first_name, 
-        last_name: userData.last_name,
-        email: userData.email, 
-        role: userData.role 
-      });
-      return { user: null, error: { message: "Campi obbligatori mancanti" } };
+      const missingFields = [];
+      if (!userData.first_name) missingFields.push("first_name");
+      if (!userData.last_name) missingFields.push("last_name");
+      if (!userData.role) missingFields.push("role");
+      if (!userData.email) missingFields.push("email");
+      console.error("createUser: Campi obbligatori mancanti:", missingFields);
+      return { user: null, error: { message: "Campi obbligatori mancanti: " + missingFields.join(", ") } };
     }
     
     // Verifico che il ruolo sia valido
@@ -158,7 +158,8 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
               last_name: userData.last_name,
               role: userData.role
             }
-          ], { onConflict: 'id' });
+          ], { onConflict: 'id' })
+          .select(); // Aggiungiamo select per ottenere i dati del profilo inserito
           
         if (profileError) {
           console.error("Profile creation error:", profileError);
@@ -171,6 +172,12 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
           }
         } else {
           console.log("Profile upserted successfully:", profileData);
+        }
+        
+        // IMPORTANTISSIMO: Verifico che il profilo sia stato effettivamente creato
+        if (!profileData || profileData.length === 0) {
+          console.error("ERRORE: Il profilo non è stato creato in profiles!!!");
+          return { user: null, error: { message: "Profilo non creato in database" } };
         }
         
         return { user: profile, error: null };
