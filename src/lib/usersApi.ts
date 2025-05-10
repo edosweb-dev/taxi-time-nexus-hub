@@ -15,9 +15,9 @@ export async function getUsers(): Promise<Profile[]> {
     // Log debug completi
     console.log("[getUsers] Iniziando il recupero degli utenti dalla tabella profiles");
     
-    // Log della query che verrà eseguita
+    // Log della query che verrà eseguita senza toJSON() che causa errore
     const query = supabase.from('profiles').select('*').order('last_name', { ascending: true });
-    console.log("[getUsers] Query in esecuzione:", query.toJSON());
+    console.log("[getUsers] Query in esecuzione:", "SELECT * FROM profiles ORDER BY last_name ASC");
     
     const { data, error } = await query;
 
