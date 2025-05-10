@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { UserForm } from "./UserForm";
 import { Profile } from "@/lib/types";
-import { UserFormData } from "@/lib/usersApi";
+import { UserFormData } from "@/lib/api/users/types";
 import { Azienda } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 

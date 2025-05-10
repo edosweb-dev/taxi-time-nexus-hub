@@ -41,12 +41,8 @@ export async function createUser(userData: UserFormData) {
       first_name: userData.first_name,
       last_name: userData.last_name,
       role: userData.role,
+      azienda_id: userData.azienda_id
     };
-    
-    // Add azienda_id if provided
-    if (userData.azienda_id) {
-      profileData.azienda_id = userData.azienda_id;
-    }
     
     console.log('[createUser] Created profile object for immediate UI feedback:', profileData);
 
@@ -67,15 +63,8 @@ export async function createUser(userData: UserFormData) {
       first_name: userData.first_name,
       last_name: userData.last_name,
       role: userData.role,
+      azienda_id: userData.azienda_id
     };
-    
-    // Add azienda_id if provided
-    if (userData.azienda_id) {
-      profileUpdateData = {
-        ...profileUpdateData,
-        azienda_id: userData.azienda_id
-      };
-    }
 
     if (existingProfile) {
       console.log('[createUser] Profile was automatically created, updating it:', existingProfile);
