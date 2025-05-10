@@ -106,7 +106,9 @@ async function verifyUserRole(supabase: any, userId: string): Promise<{ hasPermi
 // Parse and validate request body
 async function parseRequestBody(req: Request): Promise<{ userData: UserData | null, error: string | null, details?: any }> {
   try {
-    const rawText = await req.text();
+    // CORREZIONE: Assicurati che la richiesta sia clonata prima di leggere il corpo
+    const clonedReq = req.clone();
+    const rawText = await clonedReq.text();
     console.log("Edge function: Raw request body:", rawText);
     
     if (!rawText || rawText.trim() === '') {
@@ -168,9 +170,31 @@ async function parseRequestBody(req: Request): Promise<{ userData: UserData | nu
 
 // Create a new user
 async function createNewUser(supabase: any, userData: UserData) {
+  // CORREZIONE: Genera una password casuale se non fornita
+  const password = userData.password || Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10).toUpperCase() + '!1';
+  
+  console.log("Edge function: Creazione utente con email:", userData.email);
+  console.log("Edge function: Password generata:", userData.password ? "Fornita dall'utente" : "Generata automaticamente");
+  
+  // Verifica che l'azienda esista se è stato fornito un azienda_id
+  if (userData.azienda_id) {
+    const { data: azienda, error: aziendaError } = await supabase
+      .from('aziende')
+      .select('id')
+      .eq('id', userData.azienda_id)
+      .single();
+    
+    if (aziendaError || !azienda) {
+      console.error("Edge function: Errore nella verifica dell'azienda:", aziendaError);
+      return { user: null, error: "L'azienda specificata non esiste" };
+    }
+    
+    console.log("Edge function: Azienda verificata:", userData.azienda_id);
+  }
+
   const { data: authData, error: createError } = await supabase.auth.admin.createUser({
     email: userData.email,
-    password: userData.password || Math.random().toString(36).substring(2, 10),
+    password: password,
     email_confirm: true,
     user_metadata: {
       first_name: userData.first_name,
