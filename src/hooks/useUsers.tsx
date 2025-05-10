@@ -101,6 +101,7 @@ export function useUsers() {
   const updateUserMutation = useMutation({
     mutationFn: ({ id, userData }: { id: string; userData: Partial<UserFormData> }) => {
       console.log("[useUsers] Updating user mutation:", id, userData);
+      console.log("[useUsers] Role being sent for update:", userData.role);
       return updateUser(id, userData);
     },
     onSuccess: (data) => {
@@ -166,6 +167,7 @@ export function useUsers() {
     createUser: (userData: UserFormData) => createUserMutation.mutate(userData),
     updateUser: (id: string, userData: Partial<UserFormData>) => {
       console.log("[useUsers] Calling updateUser with:", id, userData);
+      console.log("[useUsers] Role being updated to:", userData.role);
       updateUserMutation.mutate({ id, userData });
     },
     deleteUser: (id: string) => deleteUserMutation.mutate(id),
