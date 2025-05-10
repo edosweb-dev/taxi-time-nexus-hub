@@ -31,7 +31,7 @@ export function UserEmailField({ control, isEditing }: UserEmailFieldProps) {
               disabled={isEditing}
             />
           </FormControl>
-          <FormMessage />
+          {!isEditing && <FormMessage />}
         </FormItem>
       )}
     />

@@ -14,31 +14,6 @@ import {
   UserPasswordFields
 } from './form-fields';
 
-// Form validation schema
-const userFormSchema = z.object({
-  first_name: z.string().min(2, { message: 'Il nome deve contenere almeno 2 caratteri' }),
-  last_name: z.string().min(2, { message: 'Il cognome deve contenere almeno 2 caratteri' }),
-  email: z.string().email({ message: 'Inserisci un indirizzo email valido' }),
-  role: z.enum(['admin', 'socio', 'dipendente', 'cliente'], {
-    required_error: 'Seleziona un ruolo',
-  }),
-  password: z.string()
-    .min(8, { message: 'La password deve contenere almeno 8 caratteri' })
-    .regex(/[A-Z]/, { message: 'La password deve contenere almeno una lettera maiuscola' })
-    .regex(/[0-9]/, { message: 'La password deve contenere almeno un numero' })
-    .optional()
-    .or(z.literal('')),
-  confirm_password: z.string().optional().or(z.literal('')),
-}).refine((data) => {
-  if (data.password && data.confirm_password) {
-    return data.password === data.confirm_password;
-  }
-  return true;
-}, {
-  message: "Le password non corrispondono",
-  path: ["confirm_password"],
-});
-
 interface UserFormProps {
   user?: Profile | null;
   onSubmit: (data: UserFormData) => void;
@@ -49,13 +24,40 @@ interface UserFormProps {
 export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormProps) {
   const isEditing = !!user;
 
+  // Form validation schema condizionale in base a isEditing
+  const userFormSchema = z.object({
+    first_name: z.string().min(2, { message: 'Il nome deve contenere almeno 2 caratteri' }),
+    last_name: z.string().min(2, { message: 'Il cognome deve contenere almeno 2 caratteri' }),
+    email: isEditing 
+      ? z.string().optional() // Email opzionale in modalità modifica
+      : z.string().email({ message: 'Inserisci un indirizzo email valido' }), // Richiesta in modalità creazione
+    role: z.enum(['admin', 'socio', 'dipendente', 'cliente'], {
+      required_error: 'Seleziona un ruolo',
+    }),
+    password: z.string()
+      .min(8, { message: 'La password deve contenere almeno 8 caratteri' })
+      .regex(/[A-Z]/, { message: 'La password deve contenere almeno una lettera maiuscola' })
+      .regex(/[0-9]/, { message: 'La password deve contenere almeno un numero' })
+      .optional()
+      .or(z.literal('')),
+    confirm_password: z.string().optional().or(z.literal('')),
+  }).refine((data) => {
+    if (data.password && data.confirm_password) {
+      return data.password === data.confirm_password;
+    }
+    return true;
+  }, {
+    message: "Le password non corrispondono",
+    path: ["confirm_password"],
+  });
+
   const form = useForm<z.infer<typeof userFormSchema>>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
       email: user?.id ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
-      role: user?.role || 'dipendente', // Default a 'dipendente' invece di 'cliente'
+      role: user?.role || 'dipendente',
       password: '',
       confirm_password: '',
     },
