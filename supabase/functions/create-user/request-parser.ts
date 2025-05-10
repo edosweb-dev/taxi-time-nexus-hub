@@ -17,52 +17,37 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
       };
     }
 
-    // Check if request body is empty
-    const contentLength = req.headers.get("content-length");
-    if (!contentLength || parseInt(contentLength) === 0) {
-      console.error("Edge function: Corpo della richiesta vuoto o mancante");
-      return { 
-        userData: null, 
-        error: 'Corpo della richiesta vuoto o mancante' 
-      };
-    }
-    
-    // Clone the request to ensure it can be read
-    let rawText: string;
-    try {
-      // Create a clone to avoid consuming the original request body
-      const clonedReq = req.clone();
-      rawText = await clonedReq.text();
-      console.log("Edge function: Raw request body length:", rawText.length);
-      console.log("Edge function: Raw request body preview:", 
-        rawText.length > 100 ? `${rawText.substring(0, 100)}...` : rawText);
-    } catch (readError) {
-      console.error("Edge function: Errore nella lettura del corpo della richiesta:", readError);
-      return { 
-        userData: null, 
-        error: 'Errore nella lettura del corpo della richiesta' 
-      };
-    }
-    
-    if (!rawText || rawText.trim() === '') {
-      console.error("Edge function: Corpo della richiesta vuoto");
-      return { 
-        userData: null, 
-        error: 'Corpo della richiesta vuoto' 
-      };
-    }
+    // Log dei dettagli della richiesta
+    console.log("Edge function: Headers completi:", JSON.stringify(Object.fromEntries(req.headers.entries()), null, 2));
+    console.log("Edge function: Method:", req.method);
+    console.log("Edge function: Content-Length:", req.headers.get("content-length"));
     
     let userData: UserData;
     try {
-      userData = JSON.parse(rawText);
+      // Tentiamo di estrarre il corpo JSON
+      userData = await req.json();
       console.log("Edge function: Successfully parsed JSON:", userData);
     } catch (parseError) {
       console.error("Edge function: Errore nel parsing dei dati JSON:", parseError);
-      console.error("Edge function: Testo ricevuto:", rawText);
+      
+      // Proviamo a leggere il corpo grezzo per diagnostica
+      try {
+        const clonedReq = req.clone();
+        const rawText = await clonedReq.text();
+        console.error("Edge function: Raw request body:", rawText);
+        return { 
+          userData: null, 
+          error: 'Dati utente non validi: formato JSON non corretto', 
+          details: { raw: rawText.substring(0, 200) + (rawText.length > 200 ? '...' : '') }
+        };
+      } catch (textError) {
+        console.error("Edge function: Impossibile leggere il corpo raw:", textError);
+      }
+      
       return { 
         userData: null, 
         error: 'Dati utente non validi: formato JSON non corretto', 
-        details: { raw: rawText.substring(0, 100) + (rawText.length > 100 ? '...' : '') }
+        details: { error: parseError.message }
       };
     }
     

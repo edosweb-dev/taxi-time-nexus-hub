@@ -31,24 +31,11 @@ export async function createUser(userData: UserFormData) {
     console.log('[createUser] Preparing to call edge function with data:', JSON.stringify(userData, null, 2));
     console.log('[createUser] Token length:', accessToken.length);
     
-    // Validate JSON before sending
-    const payload = JSON.stringify(userData);
+    // CORREZIONE: Passare l'oggetto userData direttamente come body (non come stringa)
+    console.log('[createUser] Sending request to edge function as JavaScript object');
     
-    // Verify JSON is valid
-    try {
-      JSON.parse(payload);
-      console.log('[createUser] JSON payload validation successful');
-    } catch (e) {
-      console.error('[createUser] Invalid JSON payload:', e);
-      throw new Error('Dati utente non validi per la conversione in JSON');
-    }
-    
-    // Chiamata alla Supabase Edge Function con corretto payload JSON
-    console.log('[createUser] Sending request to edge function with payload:', payload);
-    
-    // CORREZIONE: Aggiungo esplicitamente Content-Type header
     const response = await supabase.functions.invoke('create-user', {
-      body: payload, // NON ri-stringificare! È già una stringa JSON
+      body: userData, // Passare l'oggetto direttamente, NON come stringa JSON
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
