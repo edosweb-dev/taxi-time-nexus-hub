@@ -12,6 +12,7 @@ export async function createUser(userData: UserFormData) {
     console.log('[createUser] Last name:', userData.last_name);
     console.log('[createUser] Email:', userData.email);
     console.log('[createUser] Role being assigned:', userData.role);
+    
     if (userData.azienda_id) {
       console.log('[createUser] Azienda ID:', userData.azienda_id);
     } else if (userData.role === 'cliente') {
@@ -48,14 +49,10 @@ export async function createUser(userData: UserFormData) {
       throw new Error(`Campi obbligatori mancanti: ${missing.join(', ')}`);
     }
     
-    // Richiesta alla Edge Function - passaggio corretto del body come oggetto JavaScript
+    // Richiesta alla Edge Function - CORRETTO: passaggio diretto dell'oggetto senza headers aggiuntivi
     console.log('[createUser] Invoking edge function with userData object');
     const response = await supabase.functions.invoke('create-user', {
-      body: userData, // Passare l'oggetto direttamente
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
+      body: userData  // Passare l'oggetto direttamente, senza stringify e senza headers aggiuntivi
     });
     
     // Log dettagliati per verificare la risposta

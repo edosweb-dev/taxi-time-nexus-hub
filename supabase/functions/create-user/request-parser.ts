@@ -34,33 +34,35 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
     }
     
     let userData: UserData;
-    let rawBody: string = '';
     
     try {
-      // Prima leggiamo il corpo grezzo per diagnostica
+      // Tentativo di leggere il corpo della richiesta
       const clonedReq = req.clone();
-      rawBody = await clonedReq.text();
+      const rawBody = await clonedReq.text();
       console.log("Edge function: Raw request body:", rawBody);
       
       if (!rawBody || rawBody.trim() === '') {
-        console.error("Edge function: Corpo richiesta vuoto nonostante content-length non zero");
+        console.error("Edge function: Corpo richiesta vuoto o formato non valido");
         return {
           userData: null,
-          error: 'Corpo richiesta vuoto o corrotto',
-          details: { content_length: contentLength, body_length: rawBody.length }
+          error: 'Corpo richiesta vuoto o formato non valido',
+          details: { body_length: rawBody.length }
         };
       }
       
       // Ora proviamo a parsare il JSON
       try {
         userData = JSON.parse(rawBody);
-        console.log("Edge function: Successfully parsed JSON:", userData);
+        console.log("Edge function: Successfully parsed JSON body:", userData);
       } catch (jsonError) {
         console.error("Edge function: JSON parsing failed:", jsonError);
         return {
           userData: null,
           error: 'Formato JSON non valido',
-          details: { raw: rawBody.substring(0, 200) + (rawBody.length > 200 ? '...' : '') }
+          details: { 
+            raw: rawBody.substring(0, 200) + (rawBody.length > 200 ? '...' : ''),
+            error: jsonError.message 
+          }
         };
       }
     } catch (bodyError) {
@@ -75,9 +77,19 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
         return {
           userData: null,
           error: 'Impossibile leggere il corpo della richiesta',
-          details: { error: bodyError.message }
+          details: { error: jsonError.message || bodyError.message }
         };
       }
+    }
+    
+    // Debug avanzato - verifica che userData sia stato effettivamente popolato
+    if (!userData || typeof userData !== 'object') {
+      console.error("Edge function: userData non è un oggetto valido:", userData);
+      return {
+        userData: null,
+        error: 'Dati utente non validi',
+        details: { received_type: typeof userData }
+      };
     }
     
     // Validate required fields
@@ -115,13 +127,14 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
       };
     }
     
-    console.log("Edge function: Dati utente ricevuti:", userData);
+    console.log("Edge function: Dati utente ricevuti e validati:", userData);
     return { userData, error: null };
   } catch (e) {
     console.error("Edge function: Errore generale nel processare la richiesta:", e);
     return { 
       userData: null, 
-      error: 'Errore nella lettura dei dati' 
+      error: 'Errore nella lettura dei dati',
+      details: { error: e.message }
     };
   }
 }
