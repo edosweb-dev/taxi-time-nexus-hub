@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,8 +35,11 @@ const App = () => (
         <AuthProvider>
           <SidebarProvider>
             <Routes>
-              {/* Root redirect based on auth status */}
-              <Route path="/" element={<Index />} />
+              {/* Root now redirects directly to login */}
+              <Route path="/" element={<Navigate to="/login" />} />
+              
+              {/* Keep the original index page available at /welcome for backward compatibility */}
+              <Route path="/welcome" element={<Index />} />
               
               {/* Public authentication routes */}
               <Route path="/login" element={<LoginPage />} />

@@ -10,7 +10,10 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('[LoginPage] Checking authentication status:', { user, profile });
+    
     if (user && profile) {
+      console.log('[LoginPage] User already authenticated, redirecting based on role');
       // Redirect based on role
       if (profile.role === 'cliente') {
         navigate('/dashboard-cliente');
