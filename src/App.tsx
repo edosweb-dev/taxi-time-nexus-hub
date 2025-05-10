@@ -13,10 +13,19 @@ import AssistenzaPage from "./pages/AssistenzaPage";
 import DashboardPage from "./pages/DashboardPage";
 import ClientDashboardPage from "./pages/ClientDashboardPage";
 import ShiftsPage from "./pages/ShiftsPage";
-import UsersPage from "./pages/UsersPage"; // Add the import
+import UsersPage from "./pages/UsersPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import Index from "./pages/Index";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Disattiva la funzionalità di riportare al background durante eventi focus
+      // Questo aiuta a prevenire che le query vengano rifatte quando ci spostiamo tra pagine
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -27,8 +36,8 @@ const App = () => (
         <AuthProvider>
           <SidebarProvider>
             <Routes>
-              {/* Redirect root to login page */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              {/* Root redirect based on auth status */}
+              <Route path="/" element={<Index />} />
               
               {/* Public authentication routes */}
               <Route path="/login" element={<LoginPage />} />
@@ -48,7 +57,7 @@ const App = () => (
                 </AuthGuard>
               } />
               
-              {/* New Users Page - restricted to admin and socio roles */}
+              {/* Users Page - restricted to admin and socio roles */}
               <Route path="/users" element={
                 <AuthGuard allowedRoles={['admin', 'socio']}>
                   <UsersPage />

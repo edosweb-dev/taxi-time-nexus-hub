@@ -46,6 +46,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        console.log("[AuthContext] Auth state changed:", event);
+        
+        // Importante: NON cambiamo sessione quando l'evento è "USER_CREATED"
+        // Questo è per evitare che il sistema cambi utente quando creiamo utenti dalla pagina di amministrazione
+        if (event === 'USER_CREATED') {
+          console.log("[AuthContext] Ignoring USER_CREATED event to prevent automatic login");
+          return;
+        }
+        
         setSession(newSession);
         setUser(newSession?.user ?? null);
         

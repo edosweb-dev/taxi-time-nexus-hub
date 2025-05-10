@@ -9,11 +9,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Profile } from "@/lib/types";
 import { UserFormData } from "@/lib/usersApi";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function UsersPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const location = useLocation();
   const {
     users,
     isLoading,
@@ -31,7 +31,8 @@ export default function UsersPage() {
   useEffect(() => {
     console.log('[UsersPage] Pagina utenti caricata');
     console.log('[UsersPage] Stato auth.user:', user);
-  }, [user]);
+    console.log('[UsersPage] Current path:', location.pathname);
+  }, [user, location]);
 
   // Monitora cambiamenti negli utenti
   useEffect(() => {
@@ -82,10 +83,6 @@ export default function UsersPage() {
       createUser(data);
     }
     setIsUserDialogOpen(false);
-    
-    // Assicuriamoci di rimanere nella pagina utenti dopo la creazione o modifica
-    // Non è necessaria una navigazione poiché siamo già in questa pagina
-    // Ci limitiamo a non reindirizzare l'utente
   };
 
   const handleConfirmDelete = () => {

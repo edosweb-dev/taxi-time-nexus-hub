@@ -9,13 +9,21 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('[Index] Current user profile:', profile);
+    
     if (user && profile) {
+      console.log('[Index] User is logged in, redirecting based on role:', profile.role);
+      
       // Redirect based on role if already logged in
       if (profile.role === 'cliente') {
         navigate('/dashboard-cliente');
+      } else if (profile.role === 'admin' || profile.role === 'socio') {
+        navigate('/dashboard');
       } else {
         navigate('/dashboard');
       }
+    } else {
+      console.log('[Index] No user logged in, staying on index page');
     }
   }, [user, profile, navigate]);
 

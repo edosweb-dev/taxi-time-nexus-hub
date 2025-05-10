@@ -12,8 +12,13 @@ interface AuthGuardProps {
 export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
   const { user, profile, loading } = useAuth();
   const location = useLocation();
+  
+  console.log('[AuthGuard] Checking access for path:', location.pathname);
+  console.log('[AuthGuard] Current user profile:', profile);
+  console.log('[AuthGuard] Allowed roles:', allowedRoles);
 
   if (loading) {
+    console.log('[AuthGuard] Auth is loading, showing loader');
     return (
       <div className="h-screen w-full flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-taxitime-500 animate-spin" />
@@ -22,17 +27,34 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
   }
 
   if (!user) {
+    console.log('[AuthGuard] No user logged in, redirecting to login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Check if user role has access to this route
   if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
-    // Redirect based on user role if they don't have access to this route
+    console.log('[AuthGuard] User does not have appropriate role, redirecting');
+    // Only perform role-based redirects if they're actually trying to access a protected route
+    // This prevents redirects during user creation operations
+    
+    // If accessing /users page specifically with an admin account, do not redirect
+    // This is to handle the case where newly created users might otherwise cause redirection
+    if (location.pathname === '/users' && (profile.role === 'admin' || profile.role === 'socio')) {
+      console.log('[AuthGuard] Special case: admin/socio on users page - allowing access');
+      return <>{children}</>;
+    }
+    
+    // Normal role-based redirect
     if (profile.role === 'cliente') {
+      console.log('[AuthGuard] Redirecting client to client dashboard');
       return <Navigate to="/dashboard-cliente" replace />;
     } else {
+      console.log('[AuthGuard] Redirecting staff to main dashboard');
       return <Navigate to="/dashboard" replace />;
     }
   }
 
+  // User has access to this route
+  console.log('[AuthGuard] Access granted');
   return <>{children}</>;
 }
