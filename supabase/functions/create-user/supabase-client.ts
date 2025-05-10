@@ -18,6 +18,7 @@ export function initializeSupabase(): SupabaseClientResult {
   
   console.log("Edge function: Supabase URL disponibile:", !!supabaseUrl);
   console.log("Edge function: Supabase Key disponibile:", !!supabaseKey);
+  console.log("Edge function: Utilizzando SERVICE_ROLE_KEY per accesso admin");
   
   return { 
     supabase: createClient(supabaseUrl, supabaseKey),

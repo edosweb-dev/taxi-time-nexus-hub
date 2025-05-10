@@ -11,6 +11,8 @@ import { createNewUser, handleUserProfile } from "./user-management.ts";
 // Main handler function
 serve(async (req) => {
   console.log("Edge function: create-user chiamata");
+  console.log("Edge function: Request method:", req.method);
+  console.log("Edge function: Request headers:", Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight request
   const corsResponse = handleCorsPreflightRequest(req);
@@ -20,6 +22,7 @@ serve(async (req) => {
     // Initialize Supabase client
     const { supabase, error: initError } = initializeSupabase();
     if (initError) {
+      console.error("Edge function: Errore inizializzazione supabase:", initError);
       return new Response(
         JSON.stringify({ message: initError }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -33,6 +36,7 @@ serve(async (req) => {
     );
     
     if (authError) {
+      console.error("Edge function: Errore autenticazione:", authError);
       return new Response(
         JSON.stringify({ message: authError }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -43,6 +47,7 @@ serve(async (req) => {
     const { hasPermission, error: roleError } = await verifyUserRole(supabase, caller.id);
     
     if (!hasPermission) {
+      console.error("Edge function: Errore permessi:", roleError);
       return new Response(
         JSON.stringify({ message: roleError }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -53,6 +58,7 @@ serve(async (req) => {
     const { userData, error: parseError, details } = await parseRequestBody(req);
     
     if (parseError) {
+      console.error("Edge function: Errore parsing richiesta:", parseError);
       return new Response(
         JSON.stringify({ message: parseError, details }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -63,6 +69,7 @@ serve(async (req) => {
     const { user, error: createError } = await createNewUser(supabase, userData!);
     
     if (createError) {
+      console.error("Edge function: Errore creazione utente:", createError);
       return new Response(
         JSON.stringify({ message: `Errore nella creazione dell'utente: ${createError}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

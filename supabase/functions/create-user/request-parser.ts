@@ -4,6 +4,19 @@ import { RequestParseResult, UserData } from "./types.ts";
 
 export async function parseRequestBody(req: Request): Promise<RequestParseResult> {
   try {
+    // Check if request headers are valid
+    const contentType = req.headers.get("content-type");
+    console.log("Edge function: Content-Type header:", contentType);
+    
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("Edge function: Content-Type non valido o mancante:", contentType);
+      return { 
+        userData: null, 
+        error: 'Content-Type deve essere application/json',
+        details: { received: contentType || 'nessuno' }
+      };
+    }
+
     // Check if request body is empty
     const contentLength = req.headers.get("content-length");
     if (!contentLength || parseInt(contentLength) === 0) {
@@ -17,9 +30,12 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
     // Clone the request to ensure it can be read
     let rawText: string;
     try {
+      // Create a clone to avoid consuming the original request body
       const clonedReq = req.clone();
       rawText = await clonedReq.text();
-      console.log("Edge function: Raw request body:", rawText);
+      console.log("Edge function: Raw request body length:", rawText.length);
+      console.log("Edge function: Raw request body preview:", 
+        rawText.length > 100 ? `${rawText.substring(0, 100)}...` : rawText);
     } catch (readError) {
       console.error("Edge function: Errore nella lettura del corpo della richiesta:", readError);
       return { 
