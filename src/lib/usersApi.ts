@@ -101,6 +101,7 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
     const { data: existingUser, error: checkError } = await supabase.auth.admin.listUsers();
     if (checkError) {
       console.error("[createUser] Errore nella verifica dell'email esistente:", checkError);
+      return { user: null, error: checkError };
     } else if (existingUser) {
       const userWithSameEmail = existingUser.users.find(u => u.email === userData.email);
       if (userWithSameEmail) {
