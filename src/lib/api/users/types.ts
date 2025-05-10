@@ -7,5 +7,5 @@ export type UserFormData = {
   first_name: string;
   last_name: string;
   role: UserRole;
-  azienda_id?: string;
+  azienda_id?: string | null;
 };
