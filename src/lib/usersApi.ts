@@ -1,3 +1,4 @@
+
 import { supabase } from './supabase';
 import { Profile } from './types';
 
@@ -13,12 +14,12 @@ export async function getUsers(): Promise<Profile[]> {
   try {
     // Log debug completi
     console.log("[getUsers] Iniziando il recupero degli utenti dalla tabella profiles");
-    console.log("[getUsers] Query in esecuzione:", "SELECT * FROM profiles ORDER BY last_name ASC");
     
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('last_name', { ascending: true });
+    // Log della query che verrà eseguita
+    const query = supabase.from('profiles').select('*').order('last_name', { ascending: true });
+    console.log("[getUsers] Query in esecuzione:", query.toJSON());
+    
+    const { data, error } = await query;
 
     if (error) {
       console.error('[getUsers] Errore nel recupero degli utenti:', error);
@@ -30,7 +31,7 @@ export async function getUsers(): Promise<Profile[]> {
       console.warn('[getUsers] Nessun utente trovato nel database');
     } else {
       console.log(`[getUsers] Recuperati ${data.length} utenti dal database`);
-      console.log('[getUsers] Primo utente recuperato (esempio):', data[0]);
+      console.log('[getUsers] Struttura dati utente:', JSON.stringify(data[0], null, 2));
       
       // Verifichiamo i valori effettivi dei campi critici
       const missingFirstNames = data.filter(user => !user.first_name).length;

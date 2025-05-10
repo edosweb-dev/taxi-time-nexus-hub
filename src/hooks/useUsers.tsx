@@ -1,3 +1,5 @@
+
+import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, createUser, updateUser, deleteUser, UserFormData } from '@/lib/usersApi';
 import { toast } from '@/components/ui/sonner';
@@ -26,7 +28,7 @@ export function useUsers() {
   });
 
   // Log quando i dati cambiano
-  React.useEffect(() => {
+  useEffect(() => {
     if (users && users.length > 0) {
       console.log(`[useUsers] Dati utenti aggiornati, numero utenti: ${users.length}`);
       console.log('[useUsers] Primi 3 utenti:', users.slice(0, 3));

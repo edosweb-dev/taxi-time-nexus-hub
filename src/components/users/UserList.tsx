@@ -31,17 +31,30 @@ interface UserListProps {
 export function UserList({ users, onEdit, onDelete, onAddUser, currentUserId }: UserListProps) {
   // Log quando la lista degli utenti cambia
   useEffect(() => {
-    console.log('[UserList] Lista utenti aggiornata, numero utenti:', users.length);
+    console.log('[UserList] Lista utenti ricevuta, numero utenti:', users.length);
+    
     if (users.length === 0) {
       console.log('[UserList] Nessun utente disponibile per la visualizzazione');
     } else {
       // Log degli utenti in formato tabellare per una migliore leggibilità
       console.table(users.map(user => ({
         id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        role: user.role
+        first_name: user.first_name || '(vuoto)',
+        last_name: user.last_name || '(vuoto)',
+        role: user.role || '(ruolo mancante)'
       })));
+      
+      // Verifica utenti con campi problematici
+      const usersWithIssues = users.filter(user => 
+        !user.first_name || 
+        !user.last_name || 
+        !user.role || 
+        !['admin', 'socio', 'dipendente', 'cliente'].includes(user.role)
+      );
+      
+      if (usersWithIssues.length > 0) {
+        console.warn('[UserList] Utenti con problemi nei dati:', usersWithIssues);
+      }
     }
   }, [users]);
 
@@ -110,8 +123,8 @@ export function UserList({ users, onEdit, onDelete, onAddUser, currentUserId }: 
                 <TableCell>{user.last_name || '-'}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {getRoleIcon(user.role)}
-                    {getRoleName(user.role)}
+                    {user.role ? getRoleIcon(user.role) : null}
+                    {user.role ? getRoleName(user.role) : 'Ruolo mancante'}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
