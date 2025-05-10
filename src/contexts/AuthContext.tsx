@@ -48,10 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, newSession) => {
         console.log("[AuthContext] Auth state changed:", event);
         
-        // Importante: NON cambiamo sessione quando l'evento è "USER_CREATED"
-        // Questo è per evitare che il sistema cambi utente quando creiamo utenti dalla pagina di amministrazione
-        if (event === 'USER_CREATED') {
-          console.log("[AuthContext] Ignoring USER_CREATED event to prevent automatic login");
+        // Aggiornato per utilizzare un evento valido per Supabase
+        // Importante: non cambiamo sessione su determinati eventi per evitare interferenze con la creazione utenti
+        if (event === "USER_UPDATED") {
+          console.log("[AuthContext] Ignoring USER_UPDATED event to prevent automatic login");
           return;
         }
         
