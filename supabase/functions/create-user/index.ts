@@ -23,9 +23,12 @@ serve(async (req) => {
   }
   
   try {
+    console.log("Edge function: create-user chiamata");
+    
     // Verifica dell'autenticazione
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error("Edge function: Autorizzazione mancante");
       return new Response(
         JSON.stringify({ message: 'Autorizzazione mancante' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -35,6 +38,18 @@ serve(async (req) => {
     // Crea un client Supabase con il service role key
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error("Edge function: Variabili d'ambiente mancanti");
+      return new Response(
+        JSON.stringify({ message: 'Configurazione del server incompleta' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log("Edge function: Supabase URL disponibile:", !!supabaseUrl);
+    console.log("Edge function: Supabase Key disponibile:", !!supabaseKey);
+    
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Estrai il token JWT
@@ -44,6 +59,7 @@ serve(async (req) => {
     const { data: { user: caller }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !caller) {
+      console.error("Edge function: Utente non autorizzato", authError);
       return new Response(
         JSON.stringify({ message: 'Utente non autorizzato' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -57,7 +73,14 @@ serve(async (req) => {
       .eq('id', caller.id)
       .single();
     
-    if (profileError || !['admin', 'socio'].includes(callerProfile?.role)) {
+    if (profileError) {
+      console.error("Edge function: Errore nel recupero del profilo", profileError);
+    }
+    
+    console.log("Edge function: Profilo del chiamante:", callerProfile);
+    
+    if (!callerProfile || !['admin', 'socio'].includes(callerProfile?.role)) {
+      console.error("Edge function: Permessi insufficienti, ruolo:", callerProfile?.role);
       return new Response(
         JSON.stringify({ message: 'Permessi insufficienti' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -65,13 +88,22 @@ serve(async (req) => {
     }
     
     // Ottieni i dati dell'utente da creare
-    const userData: UserData = await req.json();
-    console.log("Creazione utente con dati:", userData);
+    let userData: UserData;
+    try {
+      userData = await req.json();
+      console.log("Edge function: Dati utente ricevuti:", userData);
+    } catch (e) {
+      console.error("Edge function: Errore nel parsing dei dati JSON:", e);
+      return new Response(
+        JSON.stringify({ message: 'Dati utente non validi' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     // Crea l'utente con admin.createUser
     const { data: authData, error: createError } = await supabase.auth.admin.createUser({
       email: userData.email,
-      password: userData.password,
+      password: userData.password || Math.random().toString(36).substring(2, 10),
       email_confirm: true,
       user_metadata: {
         first_name: userData.first_name,
@@ -82,12 +114,14 @@ serve(async (req) => {
     });
 
     if (createError) {
-      console.error('Errore nella creazione dell\'utente:', createError);
+      console.error('Edge function: Errore nella creazione dell\'utente:', createError);
       return new Response(
         JSON.stringify({ message: `Errore nella creazione dell'utente: ${createError.message}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log("Edge function: Utente creato con successo:", authData.user.id);
 
     // Verifica se il profilo è stato automaticamente creato dal trigger
     const { data: existingProfile, error: profileCheckError } = await supabase
@@ -95,6 +129,12 @@ serve(async (req) => {
       .select('*')
       .eq('id', authData.user.id)
       .single();
+
+    if (profileCheckError) {
+      console.log("Edge function: Profilo non trovato, creazione manuale necessaria");
+    } else {
+      console.log("Edge function: Profilo esistente trovato:", existingProfile);
+    }
 
     // Prepara i dati del profilo
     const profileUpdateData = {
@@ -113,7 +153,9 @@ serve(async (req) => {
         .select();
         
       if (updateError) {
-        console.error('Errore nell\'aggiornamento del profilo:', updateError);
+        console.error('Edge function: Errore nell\'aggiornamento del profilo:', updateError);
+      } else {
+        console.log("Edge function: Profilo aggiornato:", updatedProfile);
       }
     } else {
       // Crea il profilo manualmente
@@ -126,21 +168,33 @@ serve(async (req) => {
         .select();
         
       if (createProfileError) {
-        console.error('Errore nella creazione manuale del profilo:', createProfileError);
+        console.error('Edge function: Errore nella creazione manuale del profilo:', createProfileError);
+      } else {
+        console.log("Edge function: Nuovo profilo creato:", newProfile);
       }
     }
     
+    const responseData = {
+      user: {
+        id: authData.user.id,
+        ...profileUpdateData
+      }
+    };
+    
+    console.log("Edge function: Dati di risposta:", responseData);
+    
     return new Response(
-      JSON.stringify({ 
-        user: {
-          id: authData.user.id,
-          ...profileUpdateData
+      JSON.stringify(responseData),
+      { 
+        status: 200, 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
         } 
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      }
     );
   } catch (error) {
-    console.error('Errore imprevisto:', error);
+    console.error('Edge function: Errore imprevisto:', error);
     return new Response(
       JSON.stringify({ message: `Errore imprevisto: ${error.message}` }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

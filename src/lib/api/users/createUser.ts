@@ -24,6 +24,10 @@ export async function createUser(userData: UserFormData) {
       throw new Error('Utente non autenticato');
     }
 
+    // Verifica della configurazione della chiamata
+    console.log('[createUser] Invoking edge function with access token length:', accessToken.length);
+    console.log('[createUser] Project ID from URL:', supabase.supabaseUrl);
+
     // Chiamata diretta alla Supabase Edge Function
     const { data, error } = await supabase.functions.invoke('create-user', {
       body: JSON.stringify(userData),
@@ -33,12 +37,17 @@ export async function createUser(userData: UserFormData) {
       }
     });
     
+    // Aggiungi log dettagliati per verificare la risposta
     if (error) {
       console.error('[createUser] Error invoking edge function:', error);
+      console.error('[createUser] Error details:', JSON.stringify(error, null, 2));
       throw new Error(error.message || 'Errore nella creazione dell\'utente');
     }
     
+    console.log('[createUser] Edge function response:', data);
+    
     if (!data || !data.user) {
+      console.error('[createUser] Invalid response from function:', data);
       throw new Error('Risposta non valida dalla funzione');
     }
 
