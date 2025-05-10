@@ -3,7 +3,7 @@ import { PropsWithChildren } from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, LogOut, Menu, User, CalendarDays, LayoutDashboard, Users } from "lucide-react";
+import { Home, LogOut, Menu, User, CalendarDays, LayoutDashboard, Users, Building } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -68,6 +68,20 @@ export function MainLayout({ children }: PropsWithChildren) {
                 >
                   <Users className="h-4 w-4" />
                   <span>Utenti</span>
+                </Link>
+              )}
+              
+              {/* Add Aziende menu item - only visible to admin and socio roles */}
+              {isAdminOrSocio && (
+                <Link 
+                  to="/aziende" 
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
+                    location.pathname === "/aziende" ? "bg-white/30" : "transparent"
+                  )}
+                >
+                  <Building className="h-4 w-4" />
+                  <span>Aziende</span>
                 </Link>
               )}
             </div>
@@ -140,6 +154,20 @@ export function MainLayout({ children }: PropsWithChildren) {
             >
               <Users className="h-5 w-5" />
               <span className="text-xs mt-1">Utenti</span>
+            </Link>
+          )}
+          
+          {/* Add Aziende menu item to mobile navigation - only visible to admin and socio roles */}
+          {isAdminOrSocio && (
+            <Link 
+              to="/aziende" 
+              className={cn(
+                "flex flex-col items-center justify-center p-2 rounded-md",
+                location.pathname === "/aziende" ? "text-white" : "text-white/70"
+              )}
+            >
+              <Building className="h-5 w-5" />
+              <span className="text-xs mt-1">Aziende</span>
             </Link>
           )}
           
