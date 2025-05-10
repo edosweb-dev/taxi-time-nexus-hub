@@ -6,8 +6,8 @@ import { toast } from '@/components/ui/sonner';
 
 export async function createUser(userData: UserFormData) {
   try {
-    // Dettagli per debug
-    console.log('[createUser] Creating user with data:', userData);
+    // Detailed logging for debugging
+    console.log('[createUser] Creating user with data:', JSON.stringify(userData, null, 2));
     console.log('[createUser] First name:', userData.first_name);
     console.log('[createUser] Last name:', userData.last_name);
     console.log('[createUser] Email:', userData.email);
@@ -27,15 +27,31 @@ export async function createUser(userData: UserFormData) {
       throw new Error('Utente non autenticato');
     }
 
-    // Debug per la chiamata alla Edge Function
-    console.log('[createUser] Preparing to call edge function with data:', JSON.stringify(userData, null, 2));
-    console.log('[createUser] Token length:', accessToken.length);
+    // IMPORTANTE: assicurarsi che userData non sia null o vuoto
+    if (!userData || Object.keys(userData).length === 0) {
+      console.error('[createUser] ERRORE: userData è null o vuoto');
+      throw new Error('I dati utente non possono essere vuoti');
+    }
+
+    // Debug avanzato - esplicitare il tipo di dato che si sta inviando
+    console.log('[createUser] userData type:', typeof userData);
+    console.log('[createUser] userData keys:', Object.keys(userData));
     
-    // CORREZIONE: Passare l'oggetto userData direttamente come body (non come stringa)
-    console.log('[createUser] Sending request to edge function as JavaScript object');
+    // Verifica che tutti i campi obbligatori siano presenti
+    if (!userData.first_name || !userData.last_name || !userData.email || !userData.role) {
+      console.error('[createUser] Campi obbligatori mancanti');
+      const missing = [];
+      if (!userData.first_name) missing.push('first_name');
+      if (!userData.last_name) missing.push('last_name');
+      if (!userData.email) missing.push('email');
+      if (!userData.role) missing.push('role');
+      throw new Error(`Campi obbligatori mancanti: ${missing.join(', ')}`);
+    }
     
+    // Richiesta alla Edge Function - passaggio corretto del body come oggetto JavaScript
+    console.log('[createUser] Invoking edge function with userData object');
     const response = await supabase.functions.invoke('create-user', {
-      body: userData, // Passare l'oggetto direttamente, NON come stringa JSON
+      body: userData, // Passare l'oggetto direttamente
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'

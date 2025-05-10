@@ -17,38 +17,67 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
       };
     }
 
-    // Log dei dettagli della richiesta
+    // Log dei dettagli della richiesta per debug avanzato
     console.log("Edge function: Headers completi:", JSON.stringify(Object.fromEntries(req.headers.entries()), null, 2));
     console.log("Edge function: Method:", req.method);
     console.log("Edge function: Content-Length:", req.headers.get("content-length"));
     
+    // Verifica esplicita del content-length
+    const contentLength = req.headers.get("content-length");
+    if (contentLength === "0" || contentLength === null) {
+      console.error("Edge function: Corpo della richiesta vuoto (content-length: 0)");
+      return {
+        userData: null,
+        error: 'Corpo della richiesta vuoto',
+        details: { content_length: contentLength || 'non specificato' }
+      };
+    }
+    
     let userData: UserData;
+    let rawBody: string = '';
+    
     try {
-      // Tentiamo di estrarre il corpo JSON
-      userData = await req.json();
-      console.log("Edge function: Successfully parsed JSON:", userData);
-    } catch (parseError) {
-      console.error("Edge function: Errore nel parsing dei dati JSON:", parseError);
+      // Prima leggiamo il corpo grezzo per diagnostica
+      const clonedReq = req.clone();
+      rawBody = await clonedReq.text();
+      console.log("Edge function: Raw request body:", rawBody);
       
-      // Proviamo a leggere il corpo grezzo per diagnostica
-      try {
-        const clonedReq = req.clone();
-        const rawText = await clonedReq.text();
-        console.error("Edge function: Raw request body:", rawText);
-        return { 
-          userData: null, 
-          error: 'Dati utente non validi: formato JSON non corretto', 
-          details: { raw: rawText.substring(0, 200) + (rawText.length > 200 ? '...' : '') }
+      if (!rawBody || rawBody.trim() === '') {
+        console.error("Edge function: Corpo richiesta vuoto nonostante content-length non zero");
+        return {
+          userData: null,
+          error: 'Corpo richiesta vuoto o corrotto',
+          details: { content_length: contentLength, body_length: rawBody.length }
         };
-      } catch (textError) {
-        console.error("Edge function: Impossibile leggere il corpo raw:", textError);
       }
       
-      return { 
-        userData: null, 
-        error: 'Dati utente non validi: formato JSON non corretto', 
-        details: { error: parseError.message }
-      };
+      // Ora proviamo a parsare il JSON
+      try {
+        userData = JSON.parse(rawBody);
+        console.log("Edge function: Successfully parsed JSON:", userData);
+      } catch (jsonError) {
+        console.error("Edge function: JSON parsing failed:", jsonError);
+        return {
+          userData: null,
+          error: 'Formato JSON non valido',
+          details: { raw: rawBody.substring(0, 200) + (rawBody.length > 200 ? '...' : '') }
+        };
+      }
+    } catch (bodyError) {
+      console.error("Edge function: Errore nella lettura del corpo:", bodyError);
+      
+      // Tentativo alternativo di lettura con req.json()
+      try {
+        userData = await req.json();
+        console.log("Edge function: Successfully parsed JSON with req.json():", userData);
+      } catch (jsonError) {
+        console.error("Edge function: Anche req.json() ha fallito:", jsonError);
+        return {
+          userData: null,
+          error: 'Impossibile leggere il corpo della richiesta',
+          details: { error: bodyError.message }
+        };
+      }
     }
     
     // Validate required fields
