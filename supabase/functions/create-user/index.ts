@@ -127,7 +127,28 @@ serve(async (req) => {
     if (!userData.email || !userData.first_name || !userData.last_name || !userData.role) {
       console.error("Edge function: Campi obbligatori mancanti:", userData);
       return new Response(
-        JSON.stringify({ message: 'Campi obbligatori mancanti' }),
+        JSON.stringify({ 
+          message: 'Campi obbligatori mancanti', 
+          details: {
+            email: userData.email ? '✓' : '✗',
+            first_name: userData.first_name ? '✓' : '✗',
+            last_name: userData.last_name ? '✓' : '✗',
+            role: userData.role ? '✓' : '✗'
+          }
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validazione del ruolo
+    const validRoles = ['admin', 'socio', 'dipendente', 'cliente'];
+    if (!validRoles.includes(userData.role)) {
+      console.error(`Edge function: Ruolo non valido: ${userData.role}`);
+      return new Response(
+        JSON.stringify({ 
+          message: 'Ruolo non valido', 
+          valid_roles: validRoles.join(', ')
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

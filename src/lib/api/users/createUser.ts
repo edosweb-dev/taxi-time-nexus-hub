@@ -41,7 +41,27 @@ export async function createUser(userData: UserFormData) {
     if (error) {
       console.error('[createUser] Error invoking edge function:', error);
       console.error('[createUser] Error details:', JSON.stringify(error, null, 2));
-      throw new Error(error.message || 'Errore nella creazione dell\'utente');
+      
+      // Estrai messaggio di errore, se disponibile dalla risposta dell'Edge Function
+      let errorMessage = 'Errore nella creazione dell\'utente';
+      
+      if (error.message) {
+        errorMessage += ': ' + error.message;
+      }
+      
+      // Se c'è un messaggio personalizzato dalla funzione Edge, usalo
+      if (typeof error.message === 'string' && error.message.includes('message')) {
+        try {
+          const parsedError = JSON.parse(error.message);
+          if (parsedError.message) {
+            errorMessage = parsedError.message;
+          }
+        } catch (e) {
+          // Se il parsing fallisce, usa il messaggio originale
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
     
     console.log('[createUser] Edge function response:', data);
