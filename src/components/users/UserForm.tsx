@@ -67,11 +67,25 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
     // Log dettagliato dei valori del form
     console.log("Form values before submit:", values);
     
-    // In modalità modifica, includi solo il campo ruolo
+    // In modalità modifica, includi solo i campi che effettivamente vogliamo modificare
     if (isEditing) {
       const userData: Partial<UserFormData> = {
-        role: values.role
+        role: values.role  // Includiamo esplicitamente il ruolo
       };
+      
+      // Opzionalmente includi altre modifiche se vengono fornite e sono diverse dai valori originali
+      if (values.first_name && values.first_name !== user?.first_name) {
+        userData.first_name = values.first_name.trim();
+      }
+      
+      if (values.last_name && values.last_name !== user?.last_name) {
+        userData.last_name = values.last_name.trim();
+      }
+      
+      if (values.password) {
+        userData.password = values.password;
+      }
+      
       console.log("User data being submitted (edit mode):", userData);
       onSubmit(userData as UserFormData);
     } else {

@@ -105,6 +105,7 @@ export function useUsers() {
     },
     onSuccess: (data) => {
       if (data.success) {
+        console.log("[useUsers] User update successful, invalidating cache");
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente aggiornato con successo');
       } else {

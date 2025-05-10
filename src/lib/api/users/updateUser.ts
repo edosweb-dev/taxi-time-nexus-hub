@@ -18,19 +18,24 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
 
     console.log("[updateUser] Profile data being sent to Supabase:", profileData);
 
-    const { data: updatedProfile, error: profileError } = await supabase
-      .from('profiles')
-      .update(profileData)
-      .eq('id', id)
-      .select();
+    // Check if we have any profile data to update
+    if (Object.keys(profileData).length > 0) {
+      const { data: updatedProfile, error: profileError } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', id)
+        .select();
 
-    if (profileError) {
-      console.error("[updateUser] Profile update error:", profileError);
-      console.error("[updateUser] Full update error details:", JSON.stringify(profileError, null, 2));
-      return { success: false, error: profileError };
+      if (profileError) {
+        console.error("[updateUser] Profile update error:", profileError);
+        console.error("[updateUser] Full update error details:", JSON.stringify(profileError, null, 2));
+        return { success: false, error: profileError };
+      }
+
+      console.log("[updateUser] Profile updated successfully:", updatedProfile);
+    } else {
+      console.log("[updateUser] No profile data to update");
     }
-
-    console.log("[updateUser] Profile updated successfully:", updatedProfile);
 
     // 2. If password is provided, update it using the auth.updateUser API
     if (userData.password) {
