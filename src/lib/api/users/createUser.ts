@@ -16,12 +16,20 @@ export async function createUser(userData: UserFormData) {
       console.log('[createUser] Azienda ID:', userData.azienda_id);
     }
 
+    // Get current session token
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+
+    if (!accessToken) {
+      throw new Error('Utente non autenticato');
+    }
+
     // Chiamata alla nostra API personalizzata per la creazione dell'utente
     const response = await fetch('/api/create-user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabase.auth.session()?.access_token}`
+        'Authorization': `Bearer ${accessToken}`
       },
       body: JSON.stringify(userData)
     });
