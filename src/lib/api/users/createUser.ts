@@ -44,7 +44,8 @@ export async function createUser(userData: UserFormData) {
     }
     
     // Chiamata alla Supabase Edge Function con corretto payload JSON
-    const { data, error } = await supabase.functions.invoke('create-user', {
+    console.log('[createUser] Sending request to edge function with payload:', payload);
+    const response = await supabase.functions.invoke('create-user', {
       body: payload,
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -53,43 +54,47 @@ export async function createUser(userData: UserFormData) {
     });
     
     // Log dettagliati per verificare la risposta
-    if (error) {
-      console.error('[createUser] Error invoking edge function:', error);
-      console.error('[createUser] Error details:', JSON.stringify(error, null, 2));
+    if (response.error) {
+      console.error('[createUser] Error invoking edge function:', response.error);
+      console.error('[createUser] Error status:', response.error.status);
+      console.error('[createUser] Error name:', response.error.name);
       
-      // Estrai messaggio di errore, se disponibile dalla risposta dell'Edge Function
-      let errorMessage = 'Errore nella creazione dell\'utente';
-      
-      if (error.message) {
-        errorMessage += ': ' + error.message;
-      }
-      
-      // Se c'è un messaggio personalizzato dalla funzione Edge, usalo
-      if (typeof error.message === 'string' && error.message.includes('message')) {
-        try {
-          const parsedError = JSON.parse(error.message);
-          if (parsedError.message) {
-            errorMessage = parsedError.message;
+      // Tentativo di recuperare il corpo della risposta di errore
+      let errorText = 'Corpo risposta non disponibile';
+      try {
+        if (response.error.response) {
+          const rawText = await response.error.response.text();
+          console.error('[createUser] Raw error response:', rawText);
+          errorText = rawText;
+          
+          // Prova a parsare come JSON se possibile
+          try {
+            const errorJson = JSON.parse(rawText);
+            console.error('[createUser] Parsed error JSON:', errorJson);
+            if (errorJson.message || errorJson.error) {
+              errorText = errorJson.message || errorJson.error;
+            }
+          } catch (parseErr) {
+            console.error('[createUser] Error response is not valid JSON');
           }
-        } catch (e) {
-          // Se il parsing fallisce, usa il messaggio originale
-          console.error('[createUser] Error parsing error message:', e);
         }
+      } catch (e) {
+        console.error('[createUser] Error getting response text:', e);
       }
       
-      throw new Error(errorMessage);
+      throw new Error(`Errore nella creazione dell'utente: ${errorText}`);
     }
     
-    console.log('[createUser] Edge function response:', data);
+    console.log('[createUser] Edge function response:', response.data);
     
-    if (!data || !data.user) {
-      console.error('[createUser] Invalid response from function:', data);
+    if (!response.data || !response.data.user) {
+      console.error('[createUser] Invalid response from function:', response.data);
       throw new Error('Risposta non valida dalla funzione');
     }
 
     // Creiamo un oggetto profile per il feedback immediato nell'UI
     const profileData: Profile = {
-      id: data.user.id,
+      id: response.data.user.id,
       first_name: userData.first_name,
       last_name: userData.last_name,
       role: userData.role,
