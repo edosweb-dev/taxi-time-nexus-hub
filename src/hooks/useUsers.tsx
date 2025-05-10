@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, createUser, updateUser, deleteUser, UserFormData } from '@/lib/usersApi';
 import { toast } from '@/components/ui/sonner';
@@ -13,8 +12,28 @@ export function useUsers() {
     error,
   } = useQuery({
     queryKey: ['users'],
-    queryFn: getUsers,
+    queryFn: async () => {
+      console.log('[useUsers] Iniziando la query per recuperare gli utenti');
+      try {
+        const users = await getUsers();
+        console.log(`[useUsers] Query completata, ricevuti ${users.length} utenti`);
+        return users;
+      } catch (err) {
+        console.error('[useUsers] Errore durante la query degli utenti:', err);
+        throw err;
+      }
+    },
   });
+
+  // Log quando i dati cambiano
+  React.useEffect(() => {
+    if (users && users.length > 0) {
+      console.log(`[useUsers] Dati utenti aggiornati, numero utenti: ${users.length}`);
+      console.log('[useUsers] Primi 3 utenti:', users.slice(0, 3));
+    } else if (users && users.length === 0) {
+      console.log('[useUsers] Nessun utente disponibile nell\'array users');
+    }
+  }, [users]);
 
   const createUserMutation = useMutation({
     mutationFn: (userData: UserFormData) => createUser(userData),

@@ -1,4 +1,3 @@
-
 import { supabase } from './supabase';
 import { Profile } from './types';
 
@@ -12,8 +11,9 @@ export type UserFormData = {
 
 export async function getUsers(): Promise<Profile[]> {
   try {
-    // Log debug info
-    console.log("Fetching users from profiles table");
+    // Log debug completi
+    console.log("[getUsers] Iniziando il recupero degli utenti dalla tabella profiles");
+    console.log("[getUsers] Query in esecuzione:", "SELECT * FROM profiles ORDER BY last_name ASC");
     
     const { data, error } = await supabase
       .from('profiles')
@@ -21,15 +21,35 @@ export async function getUsers(): Promise<Profile[]> {
       .order('last_name', { ascending: true });
 
     if (error) {
-      console.error('Error fetching users:', error);
+      console.error('[getUsers] Errore nel recupero degli utenti:', error);
+      console.error('[getUsers] Dettagli completi errore:', JSON.stringify(error, null, 2));
       throw error;
     }
     
-    console.log(`Retrieved ${data?.length || 0} users from database`);
-    return data as Profile[];
+    if (!data || data.length === 0) {
+      console.warn('[getUsers] Nessun utente trovato nel database');
+    } else {
+      console.log(`[getUsers] Recuperati ${data.length} utenti dal database`);
+      console.log('[getUsers] Primo utente recuperato (esempio):', data[0]);
+      
+      // Verifichiamo i valori effettivi dei campi critici
+      const missingFirstNames = data.filter(user => !user.first_name).length;
+      const missingLastNames = data.filter(user => !user.last_name).length;
+      const roleDistribution = data.reduce((acc, user) => {
+        acc[user.role] = (acc[user.role] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      console.log(`[getUsers] Utenti senza first_name: ${missingFirstNames}`);
+      console.log(`[getUsers] Utenti senza last_name: ${missingLastNames}`);
+      console.log(`[getUsers] Distribuzione dei ruoli:`, roleDistribution);
+    }
+    
+    return data as Profile[] || [];
   } catch (error) {
-    console.error('Error fetching users:', error);
-    throw error;
+    console.error('[getUsers] Errore critico durante il recupero degli utenti:', error);
+    // Ritorniamo un array vuoto invece di far fallire l'intera applicazione
+    return [];
   }
 }
 

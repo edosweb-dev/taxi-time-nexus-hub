@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -29,6 +29,22 @@ interface UserListProps {
 }
 
 export function UserList({ users, onEdit, onDelete, onAddUser, currentUserId }: UserListProps) {
+  // Log quando la lista degli utenti cambia
+  useEffect(() => {
+    console.log('[UserList] Lista utenti aggiornata, numero utenti:', users.length);
+    if (users.length === 0) {
+      console.log('[UserList] Nessun utente disponibile per la visualizzazione');
+    } else {
+      // Log degli utenti in formato tabellare per una migliore leggibilità
+      console.table(users.map(user => ({
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role
+      })));
+    }
+  }, [users]);
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin':
@@ -40,6 +56,7 @@ export function UserList({ users, onEdit, onDelete, onAddUser, currentUserId }: 
       case 'cliente':
         return <ShoppingBagIcon className="h-4 w-4 text-green-500" />;
       default:
+        console.warn(`[UserList] Ruolo sconosciuto: ${role}`);
         return null;
     }
   };
@@ -55,6 +72,7 @@ export function UserList({ users, onEdit, onDelete, onAddUser, currentUserId }: 
       case 'cliente':
         return 'Cliente';
       default:
+        console.warn(`[UserList] Ruolo sconosciuto: ${role}`);
         return role;
     }
   };
