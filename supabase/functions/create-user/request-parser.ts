@@ -39,7 +39,8 @@ export async function parseRequestBody(req: Request): Promise<RequestParseResult
       // Tentativo di leggere il corpo della richiesta
       const clonedReq = req.clone();
       const rawBody = await clonedReq.text();
-      console.log("Edge function: Raw request body:", rawBody);
+      // DEBUG COMPLETO: Visualizza il corpo esatto ricevuto dall'Edge Function
+      console.log("DEBUG CORPO RAW:", rawBody);
       
       if (!rawBody || rawBody.trim() === '') {
         console.error("Edge function: Corpo richiesta vuoto o formato non valido");

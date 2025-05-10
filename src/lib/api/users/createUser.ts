@@ -49,54 +49,57 @@ export async function createUser(userData: UserFormData) {
       throw new Error(`Campi obbligatori mancanti: ${missing.join(', ')}`);
     }
     
-    // Richiesta alla Edge Function - CORRETTO: passaggio diretto dell'oggetto senza headers aggiuntivi
-    console.log('[createUser] Invoking edge function with userData object');
-    const response = await supabase.functions.invoke('create-user', {
-      body: userData  // Passare l'oggetto direttamente, senza stringify e senza headers aggiuntivi
+    // SOLUZIONE: Usa fetch direttamente invece di invoke per garantire la serializzazione corretta
+    console.log('[createUser] Sending request with fetch instead of invoke');
+    
+    // Pulisci l'oggetto userData da eventuali valori undefined
+    const cleanUserData = JSON.parse(JSON.stringify(userData));
+    console.log('[createUser] Cleaned userData:', cleanUserData);
+    
+    const response = await fetch('https://iczxhmzwjopfdvbxwzjs.supabase.co/functions/v1/create-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(cleanUserData)
     });
     
-    // Log dettagliati per verificare la risposta
-    if (response.error) {
-      console.error('[createUser] Error invoking edge function:', response.error);
-      console.error('[createUser] Error status:', response.error.status);
-      console.error('[createUser] Error name:', response.error.name);
+    console.log('[createUser] Fetch response status:', response.status);
+    
+    if (!response.ok) {
+      console.error('[createUser] Error response status:', response.status);
       
-      // Tentativo di recuperare il corpo della risposta di errore
-      let errorText = 'Corpo risposta non disponibile';
+      // Tentativo di leggere il corpo dell'errore
+      let errorText = 'Errore nella richiesta';
       try {
-        if (response.error.response) {
-          const rawText = await response.error.response.text();
-          console.error('[createUser] Raw error response:', rawText);
-          errorText = rawText;
-          
-          // Prova a parsare come JSON se possibile
-          try {
-            const errorJson = JSON.parse(rawText);
-            console.error('[createUser] Parsed error JSON:', errorJson);
-            if (errorJson.message || errorJson.error) {
-              errorText = errorJson.message || errorJson.error;
-            }
-          } catch (parseErr) {
-            console.error('[createUser] Error response is not valid JSON');
-          }
+        const errorData = await response.text();
+        console.error('[createUser] Error response body:', errorData);
+        
+        try {
+          const errorJson = JSON.parse(errorData);
+          errorText = errorJson.message || errorJson.error || errorData;
+        } catch (e) {
+          errorText = errorData || `Errore HTTP ${response.status}`;
         }
       } catch (e) {
-        console.error('[createUser] Error getting response text:', e);
+        console.error('[createUser] Error getting error response:', e);
       }
       
       throw new Error(`Errore nella creazione dell'utente: ${errorText}`);
     }
     
-    console.log('[createUser] Edge function response:', response.data);
+    const responseData = await response.json();
+    console.log('[createUser] Successful response data:', responseData);
     
-    if (!response.data || !response.data.user) {
-      console.error('[createUser] Invalid response from function:', response.data);
+    if (!responseData || !responseData.user) {
+      console.error('[createUser] Invalid response from function:', responseData);
       throw new Error('Risposta non valida dalla funzione');
     }
 
     // Creiamo un oggetto profile per il feedback immediato nell'UI
     const profileData: Profile = {
-      id: response.data.user.id,
+      id: responseData.user.id,
       first_name: userData.first_name,
       last_name: userData.last_name,
       role: userData.role,
