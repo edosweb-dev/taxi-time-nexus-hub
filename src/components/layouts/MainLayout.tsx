@@ -3,7 +3,7 @@ import { PropsWithChildren } from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, LogOut, Menu, User, CalendarDays, LayoutDashboard } from "lucide-react";
+import { Home, LogOut, Menu, User, CalendarDays, LayoutDashboard, Users } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,9 @@ export function MainLayout({ children }: PropsWithChildren) {
   const { profile, signOut } = useAuth();
   const isMobile = useIsMobile();
   const location = useLocation();
+  
+  // Check if user is admin or socio for showing users menu
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   return (
     <div className="flex min-h-screen w-full">
@@ -53,6 +56,20 @@ export function MainLayout({ children }: PropsWithChildren) {
                 <CalendarDays className="h-4 w-4" />
                 <span>Turni</span>
               </Link>
+              
+              {/* Add Users menu item - only visible to admin and socio roles */}
+              {isAdminOrSocio && (
+                <Link 
+                  to="/users" 
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
+                    location.pathname === "/users" ? "bg-white/30" : "transparent"
+                  )}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Utenti</span>
+                </Link>
+              )}
             </div>
           </SidebarContent>
           
@@ -111,6 +128,21 @@ export function MainLayout({ children }: PropsWithChildren) {
             <CalendarDays className="h-5 w-5" />
             <span className="text-xs mt-1">Turni</span>
           </Link>
+          
+          {/* Add Users menu item to mobile navigation - only visible to admin and socio roles */}
+          {isAdminOrSocio && (
+            <Link 
+              to="/users" 
+              className={cn(
+                "flex flex-col items-center justify-center p-2 rounded-md",
+                location.pathname === "/users" ? "text-white" : "text-white/70"
+              )}
+            >
+              <Users className="h-5 w-5" />
+              <span className="text-xs mt-1">Utenti</span>
+            </Link>
+          )}
+          
           <button 
             onClick={() => signOut()}
             className="flex flex-col items-center justify-center p-2 rounded-md text-white/70 hover:text-white"
