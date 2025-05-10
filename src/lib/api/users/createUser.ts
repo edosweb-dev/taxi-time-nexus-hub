@@ -45,8 +45,10 @@ export async function createUser(userData: UserFormData) {
     
     // Chiamata alla Supabase Edge Function con corretto payload JSON
     console.log('[createUser] Sending request to edge function with payload:', payload);
+    
+    // CORREZIONE: Aggiungo esplicitamente Content-Type header
     const response = await supabase.functions.invoke('create-user', {
-      body: payload,
+      body: payload, // NON ri-stringificare! È già una stringa JSON
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
