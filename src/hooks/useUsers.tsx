@@ -1,8 +1,7 @@
-
-import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUsers, createUser, updateUser, deleteUser, UserFormData } from '@/lib/api/users';
+import { getUsers, getUserById, createUser, updateUser, deleteUser, UserFormData } from '@/lib/api/users';
 import { toast } from '@/components/ui/sonner';
+import { User } from '@/lib/types';
 
 export function useUsers() {
   const queryClient = useQueryClient();
@@ -12,129 +11,60 @@ export function useUsers() {
     isLoading,
     isError,
     error,
+    refetch
   } = useQuery({
     queryKey: ['users'],
     queryFn: async () => {
-      console.log('[useUsers] Iniziando la query per recuperare gli utenti');
+      console.log('[useUsers] Fetching users');
       try {
         const users = await getUsers();
-        console.log(`[useUsers] Query completata, ricevuti ${users.length} utenti`);
+        console.log(`[useUsers] Query completed, received ${users.length} users`);
         return users;
       } catch (err) {
-        console.error('[useUsers] Errore durante la query degli utenti:', err);
+        console.error('[useUsers] Error during users query:', err);
         throw err;
       }
     },
   });
 
-  // Log quando i dati cambiano
-  useEffect(() => {
-    if (users && users.length > 0) {
-      console.log(`[useUsers] Dati utenti aggiornati, numero utenti: ${users.length}`);
-      console.log('[useUsers] Primi 3 utenti:', users.slice(0, 3));
-    } else if (users && users.length === 0) {
-      console.log('[useUsers] Nessun utente disponibile nell\'array users');
-    }
-  }, [users]);
+  const getUserDetails = (id: string) => {
+    return useQuery({
+      queryKey: ['user', id],
+      queryFn: () => getUserById(id),
+      enabled: !!id
+    });
+  };
 
   const createUserMutation = useMutation({
     mutationFn: (userData: UserFormData) => createUser(userData),
     onSuccess: (data) => {
       if (data.user) {
-        console.log('[useUsers] Creazione utente riuscita:', data.user);
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente creato con successo');
-      } else {
-        console.error('Error creating user:', data.error);
-        let errorMessage = 'Si è verificato un errore';
-        
-        // Add more specific error messages based on the error
-        if (data.error?.message) {
-          if (data.error.message.includes('Campi obbligatori mancanti')) {
-            errorMessage = 'Assicurati di compilare tutti i campi richiesti';
-          } else if (data.error.message.includes('already registered')) {
-            errorMessage = 'Email già registrata, scegli un\'altra email';
-          } else if (data.error.message.includes('password')) {
-            errorMessage = 'La password non soddisfa i requisiti di sicurezza';
-          } else if (data.error.message.includes('role')) {
-            errorMessage = 'Errore con il ruolo utente';
-          } else if (data.error.message.includes('foreign key constraint')) {
-            errorMessage = 'Errore con i riferimenti nel database';
-          } else if (data.error.message.includes('row-level security')) {
-            errorMessage = 'Errore di permessi: controlla le policy RLS in Supabase';
-          } else if (data.error.code === 'email_address_invalid') {
-            errorMessage = 'Indirizzo email non valido';
-          } else if (data.error.message.includes('Profilo non creato')) {
-            errorMessage = 'Il profilo utente non è stato creato nel database';
-          } else {
-            errorMessage = data.error.message;
-          }
-        }
-        
-        toast.error(`Errore nella creazione dell'utente: ${errorMessage}`);
+      } else if (data.error) {
+        toast.error(`Errore nella creazione dell'utente: ${data.error.message}`);
       }
     },
     onError: (error: any) => {
       console.error('Error creating user:', error);
-      // Aggiunta gestione specifica per errori di autenticazione Supabase
-      let errorMessage = error.message || 'Si è verificato un errore';
-      
-      // Gestione degli errori comuni di Supabase Auth
-      if (error.code === 'auth/email-already-in-use' || 
-          error.message?.includes('already been registered')) {
-        errorMessage = 'Email già registrata, scegli un\'altra email';
-      } else if (error.code === 'auth/weak-password' || 
-                error.message?.includes('password')) {
-        errorMessage = 'La password non soddisfa i requisiti di sicurezza';
-      } else if (error.message?.includes('service_role')) {
-        errorMessage = 'Errore di permessi: questa operazione richiede privilegi elevati';
-      }
-      
-      toast.error(`Errore nella creazione dell'utente: ${errorMessage}`);
-    },
-    onSettled: () => {
-      console.log('[useUsers] Invalidando la cache della query users dopo la mutation');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.error(`Errore nella creazione dell'utente: ${error.message || 'Si è verificato un errore'}`);
     },
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ id, userData }: { id: string; userData: Partial<UserFormData> }) => {
-      console.log("[useUsers] Updating user mutation:", id, userData);
-      console.log("[useUsers] Role being sent for update:", userData.role);
-      return updateUser(id, userData);
-    },
+    mutationFn: ({ id, data }: { id: string; data: Partial<UserFormData> }) => updateUser(id, data),
     onSuccess: (data) => {
       if (data.success) {
-        console.log("[useUsers] User update successful, invalidating cache");
         queryClient.invalidateQueries({ queryKey: ['users'] });
+        queryClient.invalidateQueries({ queryKey: ['user'] });
         toast.success('Utente aggiornato con successo');
-      } else {
-        console.error('Error updating user:', data.error);
-        let errorMessage = 'Si è verificato un errore';
-        
-        if (data.error?.message) {
-          if (data.error.message.includes('role')) {
-            errorMessage = 'Errore con il ruolo utente';
-          } else if (data.error.message.includes('foreign key constraint')) {
-            errorMessage = 'Errore con i riferimenti nel database';
-          } else if (data.error.message.includes('row-level security')) {
-            errorMessage = 'Errore di permessi: controlla le policy RLS in Supabase';
-          } else {
-            errorMessage = data.error.message;
-          }
-        }
-        
-        toast.error(`Errore nell'aggiornamento dell'utente: ${errorMessage}`);
+      } else if (data.error) {
+        toast.error(`Errore nell'aggiornamento dell'utente: ${data.error.message}`);
       }
     },
     onError: (error: any) => {
       console.error('Error updating user:', error);
       toast.error(`Errore nell'aggiornamento dell'utente: ${error.message || 'Si è verificato un errore'}`);
-    },
-    onSettled: () => {
-      console.log('[useUsers] Invalidando la cache della query users dopo update');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 
@@ -144,18 +74,13 @@ export function useUsers() {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente eliminato con successo');
-      } else {
-        console.error('Error deleting user:', data.error);
-        toast.error(`Errore nell'eliminazione dell'utente: ${data.error?.message || 'Si è verificato un errore'}`);
+      } else if (data.error) {
+        toast.error(`Errore nell'eliminazione dell'utente: ${data.error.message}`);
       }
     },
     onError: (error: any) => {
       console.error('Error deleting user:', error);
       toast.error(`Errore nell'eliminazione dell'utente: ${error.message || 'Si è verificato un errore'}`);
-    },
-    onSettled: () => {
-      console.log('[useUsers] Invalidando la cache della query users dopo delete');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 
@@ -164,12 +89,10 @@ export function useUsers() {
     isLoading,
     isError,
     error,
-    createUser: (userData: UserFormData) => createUserMutation.mutate(userData),
-    updateUser: (id: string, userData: Partial<UserFormData>) => {
-      console.log("[useUsers] Calling updateUser with:", id, userData);
-      console.log("[useUsers] Role being updated to:", userData.role);
-      updateUserMutation.mutate({ id, userData });
-    },
+    refetch,
+    getUserDetails,
+    createUser: (data: UserFormData) => createUserMutation.mutate(data),
+    updateUser: (id: string, data: Partial<UserFormData>) => updateUserMutation.mutate({ id, data }),
     deleteUser: (id: string) => deleteUserMutation.mutate(id),
     isCreating: createUserMutation.isPending,
     isUpdating: updateUserMutation.isPending,

@@ -1,23 +1,16 @@
 
-import { useState } from 'react';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { 
-  PencilIcon, 
-  Trash2Icon, 
-  BuildingIcon,
-  PlusIcon,
-  CheckIcon,
-  XIcon
-} from 'lucide-react';
-import { Azienda } from '@/lib/types';
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Azienda } from "@/lib/types";
+import { Edit, Trash2, Eye, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface AziendaListProps {
   aziende: Azienda[];
@@ -26,76 +19,88 @@ interface AziendaListProps {
   onAddAzienda: () => void;
 }
 
-export function AziendaList({ aziende, onEdit, onDelete, onAddAzienda }: AziendaListProps) {
+export function AziendaList({
+  aziende,
+  onEdit,
+  onDelete,
+  onAddAzienda,
+}: AziendaListProps) {
+  const navigate = useNavigate();
+
+  const handleViewAzienda = (azienda: Azienda) => {
+    navigate(`/aziende/${azienda.id}`);
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Aziende</h2>
+      <div className="flex justify-end">
         <Button onClick={onAddAzienda}>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Nuova Azienda
+          <Plus className="mr-2 h-4 w-4" /> Nuova Azienda
         </Button>
       </div>
-      
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Partita IVA</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Telefono</TableHead>
-            <TableHead>Firma Digitale</TableHead>
-            <TableHead className="text-right">Azioni</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {aziende.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                Nessuna azienda trovata. Creane una!
-              </TableCell>
-            </TableRow>
-          ) : (
-            aziende.map((azienda) => (
-              <TableRow key={azienda.id}>
-                <TableCell className="font-medium">{azienda.nome}</TableCell>
-                <TableCell>{azienda.partita_iva}</TableCell>
-                <TableCell>{azienda.email || '-'}</TableCell>
-                <TableCell>{azienda.telefono || '-'}</TableCell>
-                <TableCell>
-                  {azienda.firma_digitale_attiva ? (
-                    <CheckIcon className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <XIcon className="h-4 w-4 text-gray-400" />
-                  )}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(azienda)}
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                      <span className="sr-only">Modifica</span>
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive/80"
-                      onClick={() => onDelete(azienda)}
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span className="sr-only">Elimina</span>
-                    </Button>
-                  </div>
-                </TableCell>
+
+      {aziende.length === 0 ? (
+        <div className="text-center py-10 border rounded-lg">
+          <p className="text-muted-foreground mb-4">
+            Nessuna azienda presente nel sistema.
+          </p>
+          <Button onClick={onAddAzienda}>
+            <Plus className="mr-2 h-4 w-4" /> Aggiungi la prima azienda
+          </Button>
+        </div>
+      ) : (
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[300px]">Nome</TableHead>
+                <TableHead>Partita IVA</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Telefono</TableHead>
+                <TableHead className="text-right">Azioni</TableHead>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {aziende.map((azienda) => (
+                <TableRow key={azienda.id}>
+                  <TableCell className="font-medium">{azienda.nome}</TableCell>
+                  <TableCell>{azienda.partita_iva}</TableCell>
+                  <TableCell>{azienda.email || "-"}</TableCell>
+                  <TableCell>{azienda.telefono || "-"}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewAzienda(azienda)}
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">Visualizza</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(azienda)}
+                      >
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Modifica</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onDelete(azienda)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Elimina</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }

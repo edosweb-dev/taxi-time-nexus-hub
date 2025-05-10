@@ -15,6 +15,7 @@ import ClientDashboardPage from "./pages/cliente/ClientDashboardPage";
 import ShiftsPage from "./pages/ShiftsPage";
 import UsersPage from "./pages/UsersPage";
 import AziendePage from "./pages/aziende/AziendePage";
+import AziendaDetailPage from "./pages/aziende/AziendaDetailPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Index from "./pages/Index";
 
@@ -78,6 +79,13 @@ const App = () => (
               <Route path="/aziende" element={
                 <AuthGuard allowedRoles={['admin', 'socio']}>
                   <AziendePage />
+                </AuthGuard>
+              } />
+              
+              {/* Company Detail Page - restricted to admin and socio roles */}
+              <Route path="/aziende/:id" element={
+                <AuthGuard allowedRoles={['admin', 'socio']}>
+                  <AziendaDetailPage />
                 </AuthGuard>
               } />
               
