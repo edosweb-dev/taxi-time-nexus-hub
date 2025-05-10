@@ -9,26 +9,70 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      aziende: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          firma_digitale_attiva: boolean | null
+          id: string
+          indirizzo: string | null
+          nome: string
+          partita_iva: string
+          telefono: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          firma_digitale_attiva?: boolean | null
+          id?: string
+          indirizzo?: string | null
+          nome: string
+          partita_iva: string
+          telefono?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          firma_digitale_attiva?: boolean | null
+          id?: string
+          indirizzo?: string | null
+          nome?: string
+          partita_iva?: string
+          telefono?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          azienda_id: string | null
           first_name: string | null
           id: string
           last_name: string | null
           role: string
         }
         Insert: {
+          azienda_id?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           role: string
         }
         Update: {
+          azienda_id?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           role?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_azienda_id_fkey"
+            columns: ["azienda_id"]
+            isOneToOne: false
+            referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shifts: {
         Row: {
@@ -86,7 +130,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

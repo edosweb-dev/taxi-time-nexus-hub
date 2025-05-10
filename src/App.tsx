@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,11 +11,18 @@ import LoginPage from "./pages/LoginPage";
 import RecuperaPasswordPage from "./pages/RecuperaPasswordPage";
 import AssistenzaPage from "./pages/AssistenzaPage";
 import DashboardPage from "./pages/DashboardPage";
-import ClientDashboardPage from "./pages/ClientDashboardPage";
+import ClientDashboardPage from "./pages/cliente/ClientDashboardPage";
 import ShiftsPage from "./pages/ShiftsPage";
 import UsersPage from "./pages/UsersPage";
+import AziendePage from "./pages/aziende/AziendePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Index from "./pages/Index";
+
+// Client pages
+import ServiziPage from "./pages/cliente/ServiziPage";
+import NuovoServizioPage from "./pages/cliente/NuovoServizioPage";
+import ReportPage from "./pages/cliente/ReportPage";
+import ProfiloPage from "./pages/cliente/ProfiloPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,11 +73,42 @@ const App = () => (
                   <UsersPage />
                 </AuthGuard>
               } />
+
+              {/* Companies Page - restricted to admin and socio roles */}
+              <Route path="/aziende" element={
+                <AuthGuard allowedRoles={['admin', 'socio']}>
+                  <AziendePage />
+                </AuthGuard>
+              } />
               
               {/* Protected routes for client role */}
               <Route path="/dashboard-cliente" element={
                 <AuthGuard allowedRoles={['cliente']}>
                   <ClientDashboardPage />
+                </AuthGuard>
+              } />
+              
+              <Route path="/dashboard-cliente/servizi" element={
+                <AuthGuard allowedRoles={['cliente']}>
+                  <ServiziPage />
+                </AuthGuard>
+              } />
+              
+              <Route path="/dashboard-cliente/nuovo-servizio" element={
+                <AuthGuard allowedRoles={['cliente']}>
+                  <NuovoServizioPage />
+                </AuthGuard>
+              } />
+              
+              <Route path="/dashboard-cliente/report" element={
+                <AuthGuard allowedRoles={['cliente']}>
+                  <ReportPage />
+                </AuthGuard>
+              } />
+              
+              <Route path="/dashboard-cliente/profilo" element={
+                <AuthGuard allowedRoles={['cliente']}>
+                  <ProfiloPage />
                 </AuthGuard>
               } />
               

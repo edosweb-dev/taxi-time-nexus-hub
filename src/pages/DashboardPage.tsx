@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Users } from 'lucide-react';
+import { Calendar, Clock, Users, Building } from 'lucide-react';
 
 export default function DashboardPage() {
   const { profile } = useAuth();
@@ -50,6 +50,30 @@ export default function DashboardPage() {
                   variant={isAdminOrSocio ? "default" : "outline"}
                 >
                   Vai alla gestione utenti
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {isAdminOrSocio && (
+            <Card className={isAdminOrSocio ? "border-primary/30 shadow-md" : ""}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className={`h-5 w-5 ${isAdminOrSocio ? "text-primary" : "text-muted-foreground"}`} />
+                  Gestione Aziende
+                </CardTitle>
+                <CardDescription>
+                  Gestisci le aziende clienti
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col space-y-2">
+                <p className="text-sm">Gestisci le aziende clienti e i loro referenti.</p>
+                <Button 
+                  onClick={handleNavigate('/aziende')} 
+                  className="mt-2"
+                  variant={isAdminOrSocio ? "default" : "outline"}
+                >
+                  Vai alla gestione aziende
                 </Button>
               </CardContent>
             </Card>

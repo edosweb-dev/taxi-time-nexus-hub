@@ -6,6 +6,7 @@ export interface Profile {
   first_name: string | null;
   last_name: string | null;
   role: UserRole;
+  azienda_id?: string | null;
 }
 
 export interface Session {
@@ -16,4 +17,15 @@ export interface Session {
     email: string;
   };
   expires_at: number;
+}
+
+export interface Azienda {
+  id: string;
+  nome: string;
+  partita_iva: string;
+  email?: string | null;
+  telefono?: string | null;
+  indirizzo?: string | null;
+  firma_digitale_attiva: boolean;
+  created_at: string;
 }

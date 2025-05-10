@@ -87,7 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.id,
         first_name: data.first_name,
         last_name: data.last_name,
-        role: data.role as UserRole // Explicit cast to UserRole
+        role: data.role as UserRole, // Explicit cast to UserRole
+        azienda_id: data.azienda_id || null
       });
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -127,7 +128,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             id: profileData.id,
             first_name: profileData.first_name,
             last_name: profileData.last_name,
-            role: profileData.role as UserRole // Explicit cast to UserRole
+            role: profileData.role as UserRole, // Explicit cast to UserRole
+            azienda_id: profileData.azienda_id || null
           });
           
           // Reindirizza in base al ruolo
