@@ -1,4 +1,5 @@
 
+import React, { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -11,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useServizi } from "@/hooks/useServizi";
-import { ServizioFormData } from "@/lib/types/servizi";
+import { ServizioFormData, MetodoPagamento } from "@/lib/types/servizi";
 import { toast } from "@/components/ui/sonner";
 import { AziendaSelectField } from "./AziendaSelectField";
 import { PasseggeroForm } from "./PasseggeroForm";
@@ -43,21 +44,21 @@ export function NuovoServizioForm() {
   const { profile } = useAuth();
   const { createServizio, isCreating } = useServizi();
 
-  const form = useFormProvider<ServizioFormData>({
+  const form = useForm<ServizioFormData>({
     resolver: zodResolver(servizioFormSchema),
     defaultValues: {
       azienda_id: "",
       referente_id: profile?.id,
       numero_commessa: "",
       data_servizio: new Date().toISOString().split("T")[0],
-      metodo_pagamento: "Bonifico",
+      metodo_pagamento: "Bonifico" as MetodoPagamento,
       note: "",
       passeggeri: [],
     },
   });
 
   // Se l'utente è un cliente, imposta l'azienda_id di default
-  React.useEffect(() => {
+  useEffect(() => {
     if (profile?.role === "cliente" && profile?.azienda_id) {
       form.setValue("azienda_id", profile.azienda_id);
     }
@@ -216,8 +217,4 @@ export function NuovoServizioForm() {
       </form>
     </FormProvider>
   );
-}
-
-function useFormProvider<T extends Record<string, any>>(props: Parameters<typeof useForm<T>>[0]) {
-  return useForm<T>(props);
 }

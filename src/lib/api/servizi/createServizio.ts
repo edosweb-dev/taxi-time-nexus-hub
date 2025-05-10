@@ -17,7 +17,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     const userId = sessionData.session.user.id;
 
     // 1. Insert servizio
-    const { data: servizio, error: servizioError } = await supabase
+    const { data: servizioData, error: servizioError } = await supabase
       .from('servizi')
       .insert({
         azienda_id: data.servizio.azienda_id,
@@ -36,11 +36,14 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
       throw new Error(`Errore nella creazione del servizio: ${servizioError.message}`);
     }
 
-    if (!servizio) {
+    if (!servizioData) {
       throw new Error('Errore nella creazione del servizio: nessun dato restituito');
     }
 
-    console.log('[createServizio] Servizio created:', servizio);
+    console.log('[createServizio] Servizio created:', servizioData);
+    
+    // Assicuriamoci che il servizio restituito sia del tipo corretto
+    const servizio: Servizio = servizioData as Servizio;
 
     // 2. Insert passeggeri
     if (data.passeggeri.length > 0) {
