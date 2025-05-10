@@ -8,21 +8,25 @@ import { useUsers } from '@/hooks/useUsers';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit } from 'lucide-react';
-import { UserForm } from '@/components/users/UserForm';
-import { UserList } from '@/components/users/UserList';
 import { UserDialog } from '@/components/users/UserDialog';
 import { AziendaDialog } from '@/components/aziende/AziendaDialog';
 import { AziendaFormData } from '@/lib/api/aziende';
-import { Azienda } from '@/lib/types';
+import { Azienda, Profile, UserRole } from '@/lib/types';
 import { toast } from '@/components/ui/sonner';
+import { UserFormData } from '@/lib/api/users';
+import { useContext } from 'react';
+import { AuthContext } from '@/contexts/AuthContext';
 
 export default function AziendaDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { session } = useContext(AuthContext);
+  const currentUserID = session?.user?.id;
   
   const [activeTab, setActiveTab] = useState('info');
   const [isAziendaDialogOpen, setIsAziendaDialogOpen] = useState(false);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
   const { 
     getCompanyDetails, 
@@ -50,8 +54,8 @@ export default function AziendaDetailPage() {
     }
   }, [error, navigate]);
 
-  // Filtra gli utenti per mostrare solo quelli associati all'azienda
-  const filteredUsers = users.filter(user => user.azienda_id === id);
+  // Filtra gli utenti per mostrare solo quelli associati all'azienda e con ruolo 'cliente'
+  const referenti = users.filter(user => user.azienda_id === id && user.role === 'cliente');
 
   const handleBack = () => {
     navigate('/aziende');
@@ -69,7 +73,40 @@ export default function AziendaDetailPage() {
   };
 
   const handleAddUser = () => {
+    setSelectedUser(null);
     setIsUserDialogOpen(true);
+  };
+
+  const handleEditUser = (user: Profile) => {
+    setSelectedUser(user);
+    setIsUserDialogOpen(true);
+  };
+
+  const handleDeleteUser = (user: Profile) => {
+    // Qui puoi implementare la logica per eliminare l'utente
+    // o mostrare un dialog di conferma prima dell'eliminazione
+    if (window.confirm(`Sei sicuro di voler eliminare ${user.first_name} ${user.last_name}?`)) {
+      deleteUser(user.id);
+    }
+  };
+
+  const handleSubmitUser = (userData: UserFormData) => {
+    // Se stiamo modificando un utente esistente
+    if (selectedUser) {
+      updateUser(selectedUser.id, userData);
+    } else {
+      // Altrimenti stiamo creando un nuovo utente
+      // Assicuriamoci che l'utente sia associato all'azienda corrente
+      const userDataWithAzienda = {
+        ...userData,
+        azienda_id: id,
+        role: 'cliente' as UserRole // Forza il ruolo a 'cliente'
+      };
+      
+      createUser(userDataWithAzienda);
+    }
+    
+    setIsUserDialogOpen(false);
   };
 
   if (isLoading) {
@@ -185,23 +222,57 @@ export default function AziendaDetailPage() {
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     <span className="ml-2">Caricamento referenti...</span>
                   </div>
-                ) : filteredUsers.length > 0 ? (
-                  <UserList 
-                    users={filteredUsers}
-                    onEdit={(user) => {
-                      // Apri il dialog di modifica utente
-                      setIsUserDialogOpen(true);
-                    }}
-                    onDelete={(user) => {
-                      // Gestisci l'eliminazione dell'utente
-                    }}
-                  />
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">Nessun referente associato a questa azienda.</p>
-                    <Button onClick={handleAddUser} className="mt-4">
-                      Aggiungi il primo referente
-                    </Button>
+                  <div className="space-y-4">
+                    {referenti.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">Nessun referente associato a questa azienda.</p>
+                        <Button onClick={handleAddUser} className="mt-4">
+                          Aggiungi il primo referente
+                        </Button>
+                      </div>
+                    ) : (
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2">Nome</th>
+                            <th className="text-left py-2">Cognome</th>
+                            <th className="text-right py-2">Azioni</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {referenti.map((user) => (
+                            <tr key={user.id} className="border-b">
+                              <td className="py-3">{user.first_name || '-'}</td>
+                              <td className="py-3">{user.last_name || '-'}</td>
+                              <td className="py-3">
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleEditUser(user)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                    <span className="sr-only">Modifica</span>
+                                  </Button>
+                                  
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-destructive hover:text-destructive/80"
+                                    onClick={() => handleDeleteUser(user)}
+                                    disabled={user.id === currentUserID}
+                                  >
+                                    <ArrowLeft className="h-4 w-4" />
+                                    <span className="sr-only">Elimina</span>
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -220,28 +291,12 @@ export default function AziendaDetailPage() {
         <UserDialog
           isOpen={isUserDialogOpen}
           onOpenChange={setIsUserDialogOpen}
-          onSubmit={(userData) => {
-            // Aggiungi azienda_id ai dati dell'utente
-            const userDataWithAzienda = {
-              ...userData,
-              azienda_id: id
-            };
-            
-            // Se stiamo modificando un utente esistente
-            if (userData.id) {
-              updateUser(userData.id, userDataWithAzienda);
-            } else {
-              // Altrimenti stiamo creando un nuovo utente
-              createUser(userDataWithAzienda);
-            }
-            
-            setIsUserDialogOpen(false);
-          }}
-          user={null} // Imposta l'utente selezionato quando modifichi
+          onSubmit={handleSubmitUser}
+          user={selectedUser}
           isSubmitting={isCreatingUser || isUpdatingUser}
-          defaultRole="cliente" // Imposta il ruolo di default a 'cliente'
-          hiddenRoles={['admin', 'socio', 'dipendente']} // Nascondi altri ruoli
-          isNewUser={true}
+          defaultRole="cliente"
+          hiddenRoles={['admin', 'socio', 'dipendente']}
+          isNewUser={!selectedUser}
           preselectedAzienda={azienda}
         />
       </div>

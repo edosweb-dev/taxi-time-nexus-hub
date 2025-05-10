@@ -9,6 +9,8 @@ import {
 import { UserForm } from "./UserForm";
 import { Profile } from "@/lib/types";
 import { UserFormData } from "@/lib/usersApi";
+import { Azienda } from "@/lib/types";
+import { UserRole } from "@/lib/types";
 
 interface UserDialogProps {
   isOpen: boolean;
@@ -16,6 +18,10 @@ interface UserDialogProps {
   onSubmit: (data: UserFormData) => void;
   user: Profile | null;
   isSubmitting: boolean;
+  defaultRole?: UserRole;
+  hiddenRoles?: UserRole[];
+  isNewUser?: boolean;
+  preselectedAzienda?: Azienda | null;
 }
 
 export function UserDialog({
@@ -24,10 +30,17 @@ export function UserDialog({
   onSubmit,
   user,
   isSubmitting,
+  defaultRole,
+  hiddenRoles,
+  isNewUser,
+  preselectedAzienda,
 }: UserDialogProps) {
   // Log per tracciare i dati dell'utente quando il dialog si apre
   if (isOpen) {
     console.log("UserDialog opened with user data:", user);
+    if (defaultRole) console.log("Default role:", defaultRole);
+    if (hiddenRoles) console.log("Hidden roles:", hiddenRoles);
+    if (preselectedAzienda) console.log("Preselected azienda:", preselectedAzienda);
   }
 
   const handleUserFormSubmit = (data: UserFormData) => {
@@ -45,7 +58,9 @@ export function UserDialog({
           <DialogDescription>
             {user 
               ? "Modifica i dettagli dell'utente esistente. Lascia vuoto il campo password per non modificarla."
-              : "Inserisci i dettagli del nuovo utente."}
+              : isNewUser && preselectedAzienda
+                ? `Inserisci i dettagli del nuovo referente per ${preselectedAzienda.nome}`
+                : "Inserisci i dettagli del nuovo utente."}
           </DialogDescription>
         </DialogHeader>
         <UserForm
@@ -53,6 +68,9 @@ export function UserDialog({
           onSubmit={handleUserFormSubmit}
           onCancel={() => onOpenChange(false)}
           isSubmitting={isSubmitting}
+          defaultRole={defaultRole}
+          hiddenRoles={hiddenRoles}
+          preselectedAzienda={preselectedAzienda}
         />
       </DialogContent>
     </Dialog>

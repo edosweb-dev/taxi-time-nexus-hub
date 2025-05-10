@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { UserFormData } from '@/lib/usersApi';
-import { Profile } from '@/lib/types';
+import { Profile, UserRole, Azienda } from '@/lib/types';
 import {
   UserNameFields,
   UserEmailField,
@@ -19,9 +19,20 @@ interface UserFormProps {
   onSubmit: (data: UserFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
+  defaultRole?: UserRole;
+  hiddenRoles?: UserRole[];
+  preselectedAzienda?: Azienda | null;
 }
 
-export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormProps) {
+export function UserForm({ 
+  user, 
+  onSubmit, 
+  onCancel, 
+  isSubmitting, 
+  defaultRole, 
+  hiddenRoles,
+  preselectedAzienda
+}: UserFormProps) {
   const isEditing = !!user;
 
   // Form validation schema condizionale in base a isEditing
@@ -57,7 +68,7 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
       email: user?.id ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
-      role: user?.role || 'dipendente',
+      role: user?.role || defaultRole || 'dipendente',
       password: '',
       confirm_password: '',
     },
@@ -105,6 +116,11 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
         userData.password = values.password;
       }
       
+      // Se c'è un'azienda preselezionata, aggiungi l'ID azienda
+      if (preselectedAzienda) {
+        userData.azienda_id = preselectedAzienda.id;
+      }
+      
       console.log("User data being submitted (create mode):", userData);
       onSubmit(userData);
     }
@@ -115,8 +131,20 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <UserNameFields control={form.control} isEditing={isEditing} />
         <UserEmailField control={form.control} isEditing={isEditing} />
-        <UserRoleField control={form.control} />
+        <UserRoleField 
+          control={form.control} 
+          hiddenRoles={hiddenRoles} 
+          defaultRole={defaultRole}
+        />
         <UserPasswordFields control={form.control} isEditing={isEditing} />
+
+        {preselectedAzienda && (
+          <div className="bg-muted/50 p-3 rounded-md">
+            <p className="text-sm">
+              <span className="font-medium">Azienda:</span> {preselectedAzienda.nome}
+            </p>
+          </div>
+        )}
 
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onCancel}>

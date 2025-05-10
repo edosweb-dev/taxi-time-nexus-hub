@@ -15,12 +15,26 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Control } from 'react-hook-form';
+import { UserRole } from '@/lib/types';
 
 interface UserRoleFieldProps {
   control: Control<any>;
+  hiddenRoles?: UserRole[];
+  defaultRole?: UserRole;
 }
 
-export function UserRoleField({ control }: UserRoleFieldProps) {
+export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRoleFieldProps) {
+  // Definisci tutte le possibili opzioni di ruolo
+  const allRoles: { value: UserRole; label: string }[] = [
+    { value: 'admin', label: 'Amministratore' },
+    { value: 'socio', label: 'Socio' },
+    { value: 'dipendente', label: 'Dipendente' },
+    { value: 'cliente', label: 'Cliente' },
+  ];
+
+  // Filtra i ruoli nascosti
+  const visibleRoles = allRoles.filter(role => !hiddenRoles.includes(role.value));
+
   return (
     <FormField
       control={control}
@@ -28,17 +42,20 @@ export function UserRoleField({ control }: UserRoleFieldProps) {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Ruolo</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select 
+            onValueChange={field.onChange} 
+            defaultValue={field.value || defaultRole || 'dipendente'}
+            value={field.value}
+          >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Seleziona un ruolo" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="admin">Amministratore</SelectItem>
-              <SelectItem value="socio">Socio</SelectItem>
-              <SelectItem value="dipendente">Dipendente</SelectItem>
-              <SelectItem value="cliente">Cliente</SelectItem>
+              {visibleRoles.map(role => (
+                <SelectItem key={role.value} value={role.value}>{role.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <FormMessage />

@@ -11,6 +11,9 @@ export async function createUser(userData: UserFormData) {
     console.log('[createUser] Last name:', userData.last_name);
     console.log('[createUser] Email:', userData.email);
     console.log('[createUser] Role being assigned:', userData.role);
+    if (userData.azienda_id) {
+      console.log('[createUser] Azienda ID:', userData.azienda_id);
+    }
 
     // Step 1: Create the user in Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -21,6 +24,7 @@ export async function createUser(userData: UserFormData) {
         first_name: userData.first_name,
         last_name: userData.last_name,
         role: userData.role,
+        azienda_id: userData.azienda_id,
       },
     });
 
@@ -39,6 +43,11 @@ export async function createUser(userData: UserFormData) {
       role: userData.role,
     };
     
+    // Add azienda_id if provided
+    if (userData.azienda_id) {
+      profileData.azienda_id = userData.azienda_id;
+    }
+    
     console.log('[createUser] Created profile object for immediate UI feedback:', profileData);
 
     // Step 2: Verify if the profile was automatically created by the trigger
@@ -54,17 +63,27 @@ export async function createUser(userData: UserFormData) {
       // Continue despite error - we'll try to create or update the profile anyway
     }
 
+    let profileUpdateData = {
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      role: userData.role,
+    };
+    
+    // Add azienda_id if provided
+    if (userData.azienda_id) {
+      profileUpdateData = {
+        ...profileUpdateData,
+        azienda_id: userData.azienda_id
+      };
+    }
+
     if (existingProfile) {
       console.log('[createUser] Profile was automatically created, updating it:', existingProfile);
       
       // Update the profile with the provided data
       const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
-        .update({
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          role: userData.role,
-        })
+        .update(profileUpdateData)
         .eq('id', authData.user.id)
         .select();
         
@@ -83,9 +102,7 @@ export async function createUser(userData: UserFormData) {
         .from('profiles')
         .insert({
           id: authData.user.id,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          role: userData.role,
+          ...profileUpdateData
         })
         .select();
         

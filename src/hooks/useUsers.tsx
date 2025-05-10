@@ -1,7 +1,8 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, getUserById, createUser, updateUser, deleteUser, UserFormData } from '@/lib/api/users';
 import { toast } from '@/components/ui/sonner';
-import { User } from '@/lib/types';
+import { Profile } from '@/lib/types';
 
 export function useUsers() {
   const queryClient = useQueryClient();
