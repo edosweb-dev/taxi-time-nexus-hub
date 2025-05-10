@@ -1,4 +1,3 @@
-
 import { supabase } from './supabase';
 import { Profile } from './types';
 
@@ -100,21 +99,19 @@ export async function createUser(userData: UserFormData): Promise<{ user: Profil
     // NUOVA IMPLEMENTAZIONE: Prima verifico se l'email è già registrata
     try {
       const { data: authUsers, error: checkError } = await supabase.auth.admin.listUsers();
-      
+
       if (checkError) {
         console.error("[createUser] Errore nella verifica dell'email esistente:", checkError);
         return { user: null, error: checkError };
       }
-      
-      // Verifica se authUsers è valido e contiene la proprietà users
-      if (authUsers && Array.isArray(authUsers.users)) {
-        const userWithSameEmail = authUsers.users.find(u => u.email === userData.email);
-        if (userWithSameEmail) {
-          console.warn("[createUser] Email già registrata:", userData.email);
-          return { user: null, error: { message: "Email già registrata" } };
-        }
-      } else {
-        console.warn("[createUser] Formato dati utenti inatteso:", authUsers);
+
+      // Tipizza esplicitamente authUsers.users per evitare errore TS2339
+      const usersList = (authUsers?.users ?? []) as Array<{ email: string }>;
+
+      const userWithSameEmail = usersList.find(u => u.email === userData.email);
+      if (userWithSameEmail) {
+        console.warn("[createUser] Email già registrata:", userData.email);
+        return { user: null, error: { message: "Email già registrata" } };
       }
     } catch (emailCheckError) {
       console.error("[createUser] Errore durante la verifica dell'email:", emailCheckError);
