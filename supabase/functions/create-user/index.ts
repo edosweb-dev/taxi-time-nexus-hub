@@ -89,18 +89,50 @@ serve(async (req) => {
       );
     }
     
-    // Ottieni i dati dell'utente da creare
+    // Parsing robusto del corpo della richiesta
     let userData: UserData;
     try {
-      userData = await req.json();
-      console.log("Edge function: Dati utente ricevuti:", userData);
+      // Prima tentiamo di leggere il corpo come testo
+      const rawText = await req.text();
+      console.log("Edge function: Raw request body:", rawText);
+      
+      if (!rawText || rawText.trim() === '') {
+        console.error("Edge function: Corpo della richiesta vuoto");
+        return new Response(
+          JSON.stringify({ message: 'Corpo della richiesta vuoto' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Poi facciamo il parsing del JSON
+      try {
+        userData = JSON.parse(rawText);
+      } catch (parseError) {
+        console.error("Edge function: Errore nel parsing dei dati JSON:", parseError);
+        console.error("Edge function: Testo ricevuto:", rawText);
+        return new Response(
+          JSON.stringify({ message: 'Dati utente non validi: formato JSON non corretto' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     } catch (e) {
-      console.error("Edge function: Errore nel parsing dei dati JSON:", e);
+      console.error("Edge function: Errore nel leggere il corpo della richiesta:", e);
       return new Response(
-        JSON.stringify({ message: 'Dati utente non validi' }),
+        JSON.stringify({ message: 'Errore nella lettura dei dati' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    // Verifica dei campi obbligatori
+    if (!userData.email || !userData.first_name || !userData.last_name || !userData.role) {
+      console.error("Edge function: Campi obbligatori mancanti:", userData);
+      return new Response(
+        JSON.stringify({ message: 'Campi obbligatori mancanti' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log("Edge function: Dati utente ricevuti:", userData);
     
     // Crea l'utente con admin.createUser
     const { data: authData, error: createError } = await supabase.auth.admin.createUser({
