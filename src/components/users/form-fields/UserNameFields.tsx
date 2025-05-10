@@ -12,9 +12,10 @@ import { Control } from 'react-hook-form';
 
 interface UserNameFieldsProps {
   control: Control<any>;
+  isEditing: boolean;
 }
 
-export function UserNameFields({ control }: UserNameFieldsProps) {
+export function UserNameFields({ control, isEditing }: UserNameFieldsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <FormField
@@ -24,7 +25,7 @@ export function UserNameFields({ control }: UserNameFieldsProps) {
           <FormItem>
             <FormLabel>Nome</FormLabel>
             <FormControl>
-              <Input placeholder="Inserisci il nome" {...field} />
+              <Input placeholder="Inserisci il nome" {...field} disabled={isEditing} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -37,7 +38,7 @@ export function UserNameFields({ control }: UserNameFieldsProps) {
           <FormItem>
             <FormLabel>Cognome</FormLabel>
             <FormControl>
-              <Input placeholder="Inserisci il cognome" {...field} />
+              <Input placeholder="Inserisci il cognome" {...field} disabled={isEditing} />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -65,27 +65,36 @@ export function UserForm({ user, onSubmit, onCancel, isSubmitting }: UserFormPro
     // Log dettagliato dei valori del form
     console.log("Form values before submit:", values);
     
-    // Completo il userData con tutti i campi richiesti
-    const userData: UserFormData = {
-      first_name: values.first_name.trim(),
-      last_name: values.last_name.trim(),
-      role: values.role,
-      email: values.email.trim(), // Includo email per tutti i casi
-    };
+    // In modalità modifica, includi solo il campo ruolo
+    if (isEditing) {
+      const userData: Partial<UserFormData> = {
+        role: values.role
+      };
+      console.log("User data being submitted (edit mode):", userData);
+      onSubmit(userData as UserFormData);
+    } else {
+      // Modalità creazione: includi tutti i campi
+      const userData: UserFormData = {
+        first_name: values.first_name.trim(),
+        last_name: values.last_name.trim(),
+        role: values.role,
+        email: values.email.trim(),
+      };
 
-    // Aggiungo password solo se fornita
-    if (values.password) {
-      userData.password = values.password;
+      // Aggiungi password solo se fornita
+      if (values.password) {
+        userData.password = values.password;
+      }
+      
+      console.log("User data being submitted (create mode):", userData);
+      onSubmit(userData);
     }
-    
-    console.log("User data being submitted:", userData);
-    onSubmit(userData);
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <UserNameFields control={form.control} />
+        <UserNameFields control={form.control} isEditing={isEditing} />
         <UserEmailField control={form.control} isEditing={isEditing} />
         <UserRoleField control={form.control} />
         <UserPasswordFields control={form.control} isEditing={isEditing} />
