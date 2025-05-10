@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUsers, createUser, updateUser, deleteUser, UserFormData } from '@/lib/usersApi';
+import { getUsers, createUser, updateUser, deleteUser, UserFormData } from '@/lib/api/users';
 import { toast } from '@/components/ui/sonner';
 
 export function useUsers() {
