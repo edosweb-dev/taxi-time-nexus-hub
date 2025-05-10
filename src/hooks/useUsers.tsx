@@ -85,8 +85,10 @@ export function useUsers() {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ id, userData }: { id: string; userData: Partial<UserFormData> }) => 
-      updateUser(id, userData),
+    mutationFn: ({ id, userData }: { id: string; userData: Partial<UserFormData> }) => {
+      console.log("[useUsers] Updating user mutation:", id, userData);
+      return updateUser(id, userData);
+    },
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -147,8 +149,10 @@ export function useUsers() {
     isError,
     error,
     createUser: (userData: UserFormData) => createUserMutation.mutate(userData),
-    updateUser: (id: string, userData: Partial<UserFormData>) => 
-      updateUserMutation.mutate({ id, userData }),
+    updateUser: (id: string, userData: Partial<UserFormData>) => {
+      console.log("[useUsers] Calling updateUser with:", id, userData);
+      updateUserMutation.mutate({ id, userData });
+    },
     deleteUser: (id: string) => deleteUserMutation.mutate(id),
     isCreating: createUserMutation.isPending,
     isUpdating: updateUserMutation.isPending,

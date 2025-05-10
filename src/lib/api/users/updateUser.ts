@@ -9,11 +9,12 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
     console.log("[updateUser] Role being updated to:", userData.role);
     
     // 1. Update profile data
-    const profileData: Partial<Profile> = {
-      first_name: userData.first_name,
-      last_name: userData.last_name,
-      role: userData.role
-    };
+    const profileData: Partial<Profile> = {};
+    
+    // Only include fields that are provided
+    if (userData.first_name) profileData.first_name = userData.first_name;
+    if (userData.last_name) profileData.last_name = userData.last_name;
+    if (userData.role) profileData.role = userData.role;
 
     console.log("[updateUser] Profile data being sent to Supabase:", profileData);
 
