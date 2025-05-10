@@ -24,26 +24,27 @@ export async function createUser(userData: UserFormData) {
       throw new Error('Utente non autenticato');
     }
 
-    // Chiamata alla nostra API personalizzata per la creazione dell'utente
-    const response = await fetch('/api/create-user', {
-      method: 'POST',
+    // Chiamata diretta alla Supabase Edge Function
+    const { data, error } = await supabase.functions.invoke('create-user', {
+      body: JSON.stringify(userData),
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify(userData)
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Errore nella creazione dell\'utente');
+    
+    if (error) {
+      console.error('[createUser] Error invoking edge function:', error);
+      throw new Error(error.message || 'Errore nella creazione dell\'utente');
+    }
+    
+    if (!data || !data.user) {
+      throw new Error('Risposta non valida dalla funzione');
     }
 
-    const result = await response.json();
-    
     // Creiamo un oggetto profile per il feedback immediato nell'UI
     const profileData: Profile = {
-      id: result.user.id,
+      id: data.user.id,
       first_name: userData.first_name,
       last_name: userData.last_name,
       role: userData.role,
