@@ -30,10 +30,19 @@ export function NuovoServizioForm() {
           referente_id,
           numero_commessa: values.numero_commessa,
           data_servizio: values.data_servizio,
+          orario_servizio: values.orario_servizio,
+          indirizzo_presa: values.indirizzo_presa,
+          indirizzo_destinazione: values.indirizzo_destinazione,
           metodo_pagamento: values.metodo_pagamento,
           note: values.note,
         },
-        passeggeri: values.passeggeri,
+        passeggeri: values.passeggeri.map((p: any) => ({
+          ...p,
+          // Se non usa indirizzo personalizzato, usa quello generale
+          orario_presa: p.usa_indirizzo_personalizzato ? p.orario_presa : values.orario_servizio,
+          luogo_presa: p.usa_indirizzo_personalizzato ? p.luogo_presa : values.indirizzo_presa,
+          destinazione: p.usa_indirizzo_personalizzato ? p.destinazione : values.indirizzo_destinazione
+        })),
       });
 
       navigate("/servizi");

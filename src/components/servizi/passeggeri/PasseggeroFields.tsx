@@ -3,7 +3,8 @@ import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
+import { Clock, MapPin } from "lucide-react";
 
 interface PasseggeroFieldsProps {
   index: number;
@@ -11,6 +12,12 @@ interface PasseggeroFieldsProps {
 
 export function PasseggeroFields({ index }: PasseggeroFieldsProps) {
   const { control } = useFormContext();
+  
+  // Watch the usa_indirizzo_personalizzato field to conditionally render fields
+  const usaIndirizzoPersonalizzato = useWatch({
+    control,
+    name: `passeggeri.${index}.usa_indirizzo_personalizzato`
+  });
 
   return (
     <>
@@ -29,19 +36,24 @@ export function PasseggeroFields({ index }: PasseggeroFieldsProps) {
           )}
         />
         
-        <FormField
-          control={control}
-          name={`passeggeri.${index}.orario_presa`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Orario di presa *</FormLabel>
-              <FormControl>
-                <Input {...field} type="time" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {usaIndirizzoPersonalizzato && (
+          <FormField
+            control={control}
+            name={`passeggeri.${index}.orario_presa`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Orario di presa personalizzato *</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input {...field} type="time" className="pl-8" />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -93,33 +105,43 @@ export function PasseggeroFields({ index }: PasseggeroFieldsProps) {
           )}
         />
 
-        <FormField
-          control={control}
-          name={`passeggeri.${index}.luogo_presa`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Luogo di presa *</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Via Roma, 1, Milano" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {usaIndirizzoPersonalizzato && (
+          <>
+            <FormField
+              control={control}
+              name={`passeggeri.${index}.luogo_presa`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Luogo di presa personalizzato *</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input {...field} placeholder="Via Roma, 1, Milano" className="pl-8" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={control}
-          name={`passeggeri.${index}.destinazione`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Destinazione *</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Aeroporto Malpensa, Milano" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={control}
+              name={`passeggeri.${index}.destinazione`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Destinazione personalizzata *</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input {...field} placeholder="Aeroporto Malpensa, Milano" className="pl-8" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
       </div>
     </>
   );
