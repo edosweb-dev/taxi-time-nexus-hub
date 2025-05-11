@@ -31,7 +31,11 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarVie
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col items-center space-y-3">
+        <h2 className="text-xl font-semibold">
+          {format(currentDate, "EEEE d MMMM yyyy", { locale: it })}
+        </h2>
+
         <div className="flex gap-2">
           <Button variant="outline" onClick={goToPreviousDay} size="sm">
             <ChevronLeft className="h-4 w-4 mr-1" />
@@ -44,29 +48,25 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarVie
             Successivo
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <CalendarIcon className="h-4 w-4" />
+                <span>Scegli data</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={currentDate}
+                onSelect={(date) => date && setCurrentDate(date)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
-
-        <h2 className="text-lg font-semibold">
-          {format(currentDate, "EEEE d MMMM yyyy", { locale: it })}
-        </h2>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <CalendarIcon className="h-4 w-4" />
-              <span>Scegli data</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <Calendar
-              mode="single"
-              selected={currentDate}
-              onSelect={(date) => date && setCurrentDate(date)}
-              initialFocus
-              className={cn("p-3 pointer-events-auto")}
-            />
-          </PopoverContent>
-        </Popover>
       </div>
 
       {serviziDelGiorno.length === 0 ? (
