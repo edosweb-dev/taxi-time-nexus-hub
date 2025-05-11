@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
 import { CalendarIcon, TableIcon, Users, ChevronDown } from "lucide-react";
@@ -44,7 +44,7 @@ export const ServizioTable = ({
   };
 
   // Fetch passenger counts for services
-  useState(() => {
+  useEffect(() => {
     const fetchPasseggeriCounts = async () => {
       if (servizi.length === 0) return;
       
@@ -70,7 +70,7 @@ export const ServizioTable = ({
     };
     
     fetchPasseggeriCounts();
-  }, [servizi]);  // This is a useEffect, not useState
+  }, [servizi]);
 
   const toggleRowExpand = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
