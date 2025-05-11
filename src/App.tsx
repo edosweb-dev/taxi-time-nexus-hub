@@ -28,6 +28,7 @@ import ProfiloPage from "./pages/cliente/ProfiloPage";
 // Servizi pages
 import AdminServiziPage from "./pages/servizi/ServiziPage";
 import AdminNuovoServizioPage from "./pages/servizi/NuovoServizioPage";
+import ServizioDetailPage from "./pages/servizi/ServizioDetailPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -134,6 +135,13 @@ const App = () => (
               <Route path="/nuovo-servizio" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'cliente']}>
                   <AdminNuovoServizioPage />
+                </AuthGuard>
+              } />
+              
+              {/* Service Detail Page */}
+              <Route path="/servizi/:id" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente', 'cliente']}>
+                  <ServizioDetailPage />
                 </AuthGuard>
               } />
               

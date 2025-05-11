@@ -4,6 +4,9 @@ import { Profile } from "@/lib/types";
 import { TabsContent } from "@/components/ui/tabs";
 import { EmptyState } from "./EmptyState";
 import { ServizioCard } from "./ServizioCard";
+import { Button } from "../ui/button";
+import { FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ServizioTabContentProps {
   status: StatoServizio;
@@ -22,6 +25,8 @@ export const ServizioTabContent = ({
   onSelectServizio,
   onNavigateToDetail
 }: ServizioTabContentProps) => {
+  const navigate = useNavigate();
+  
   const getStatusMessage = (status: StatoServizio) => {
     switch (status) {
       case 'da_assegnare':
