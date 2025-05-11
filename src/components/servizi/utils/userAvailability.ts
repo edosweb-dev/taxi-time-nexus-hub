@@ -1,6 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
-import { Profile } from '@/lib/types';
+import { Profile, UserRole } from '@/lib/types';
 
 /**
  * Gets available users for a service on a specific date
@@ -67,7 +67,16 @@ export async function getAvailableUsers(date: string, serviceId?: string): Promi
     // Filter users based on availability
     const availableUsers = allUsers.filter(user => userAvailability[user.id]);
     
-    return availableUsers;
+    // Ensure proper type casting for user roles
+    const validRoles: UserRole[] = ['admin', 'socio', 'dipendente', 'cliente'];
+    const sanitizedUsers: Profile[] = availableUsers.map(user => ({
+      ...user,
+      role: validRoles.includes(user.role as UserRole) 
+        ? (user.role as UserRole) 
+        : 'dipendente' as UserRole // Fallback to 'dipendente' if role is invalid
+    }));
+    
+    return sanitizedUsers;
   } catch (error) {
     console.error('Error getting available users:', error);
     return [];
