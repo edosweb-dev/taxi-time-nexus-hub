@@ -1,134 +1,206 @@
 
+import { useState } from "react";
+import { format, parseISO } from "date-fns";
+import { it } from "date-fns/locale";
+import { CalendarIcon, TableIcon, Users, ChevronDown } from "lucide-react";
+import { Servizio, StatoServizio } from "@/lib/types/servizi";
+import { Profile } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Info, MapPin, Calendar, Clock, CreditCard, User, Building, Users } from "lucide-react";
-import { formatDate } from "@/lib/utils";
 import { getStatoBadge, getUserName } from "./utils/serviceUtils";
-import { Servizio } from "@/lib/types/servizi";
-import { Profile } from "@/lib/types";
-import { useNavigate } from "react-router-dom";
+import { useAziende } from "@/hooks/useAziende";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { supabase } from "@/lib/supabase";
 
 interface ServizioTableProps {
   servizi: Servizio[];
   users: Profile[];
   onNavigateToDetail: (id: string) => void;
-  onSelect?: (servizio: Servizio) => void; 
+  onSelect?: (servizio: Servizio) => void;
   isAdminOrSocio?: boolean;
 }
 
-export function ServizioTable({
-  servizi,
-  users,
+export const ServizioTable = ({ 
+  servizi, 
+  users, 
   onNavigateToDetail,
   onSelect,
   isAdminOrSocio = false
-}: ServizioTableProps) {
-  const navigate = useNavigate();
+}: ServizioTableProps) => {
+  const { aziende } = useAziende();
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [passeggeriCounts, setPasseggeriCounts] = useState<Record<string, number>>({});
+  
+  // Get company name by ID
+  const getAziendaName = (aziendaId?: string) => {
+    if (!aziendaId) return "Azienda sconosciuta";
+    const azienda = aziende.find(a => a.id === aziendaId);
+    return azienda ? azienda.nome : "Azienda sconosciuta";
+  };
 
-  if (servizi.length === 0) {
-    return (
-      <div className="text-center p-8 bg-muted/20 rounded-lg">
-        <p>Nessun servizio disponibile in questa categoria</p>
-      </div>
-    );
-  }
+  // Fetch passenger counts for services
+  useState(() => {
+    const fetchPasseggeriCounts = async () => {
+      if (servizi.length === 0) return;
+      
+      const servizioIds = servizi.map(s => s.id);
+      
+      const { data, error } = await supabase
+        .from('passeggeri')
+        .select('servizio_id')
+        .in('servizio_id', servizioIds);
+        
+      if (error) {
+        console.error('Error fetching passengers:', error);
+        return;
+      }
+      
+      // Count passengers per service
+      const counts: Record<string, number> = {};
+      data?.forEach(p => {
+        counts[p.servizio_id] = (counts[p.servizio_id] || 0) + 1;
+      });
+      
+      setPasseggeriCounts(counts);
+    };
+    
+    fetchPasseggeriCounts();
+  }, [servizi]);
 
-  const handleSelect = (servizio: Servizio) => {
-    if (onSelect) onSelect(servizio);
+  const toggleRowExpand = (id: string) => {
+    setExpandedRow(expandedRow === id ? null : id);
   };
 
   return (
-    <div className="rounded-md border overflow-hidden">
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Data</TableHead>
+            <TableHead>Commessa</TableHead>
             <TableHead>Azienda</TableHead>
-            <TableHead>Indirizzo di presa</TableHead>
-            <TableHead>Indirizzo di destinazione</TableHead>
+            <TableHead>Data</TableHead>
+            <TableHead>Orario</TableHead>
             <TableHead>Stato</TableHead>
+            <TableHead>Passeggeri</TableHead>
             <TableHead>Assegnato a</TableHead>
             <TableHead className="text-right">Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {servizi.map((servizio) => {
-            const assignedUserName = getUserName(users, servizio.assegnato_a);
-            
-            return (
-              <TableRow key={servizio.id}>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    {formatDate(servizio.data_servizio)}
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    {servizio.orario_servizio.substring(0, 5)}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Building className="h-4 w-4 text-muted-foreground" />
-                    {servizio.azienda_id}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    {servizio.indirizzo_presa}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    {servizio.indirizzo_destinazione}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {getStatoBadge(servizio.stato)}
-                </TableCell>
-                <TableCell>
-                  {servizio.conducente_esterno 
-                    ? <span className="flex items-center gap-1">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        {servizio.conducente_esterno_nome || 'Conducente esterno'}
-                      </span> 
-                    : assignedUserName 
-                      ? <span className="flex items-center gap-1">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          {assignedUserName}
-                        </span>
-                      : <span className="text-muted-foreground text-sm">Non assegnato</span>
-                  }
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onNavigateToDetail(servizio.id)}
-                    >
-                      <Info className="h-4 w-4 mr-1" />
-                      Dettagli
-                    </Button>
-                    {isAdminOrSocio && servizio.stato === 'da_assegnare' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleSelect(servizio)}
-                      >
-                        <Users className="h-4 w-4 mr-1" />
-                        Assegna
-                      </Button>
+          {servizi.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center py-6">
+                Nessun servizio disponibile
+              </TableCell>
+            </TableRow>
+          ) : (
+            servizi.map((servizio) => (
+              <>
+                <TableRow 
+                  key={servizio.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => toggleRowExpand(servizio.id)}
+                >
+                  <TableCell className="font-medium">
+                    {servizio.numero_commessa || "N/D"}
+                  </TableCell>
+                  <TableCell>{getAziendaName(servizio.azienda_id)}</TableCell>
+                  <TableCell>{format(parseISO(servizio.data_servizio), "dd/MM/yyyy")}</TableCell>
+                  <TableCell>{servizio.orario_servizio}</TableCell>
+                  <TableCell>{getStatoBadge(servizio.stato)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-1" />
+                      {passeggeriCounts[servizio.id] || 0}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {servizio.conducente_esterno ? (
+                      <span>{servizio.conducente_esterno_nome || "Conducente esterno"}</span>
+                    ) : servizio.assegnato_a ? (
+                      <span>{getUserName(users, servizio.assegnato_a) || "Utente sconosciuto"}</span>
+                    ) : (
+                      <span className="text-muted-foreground">Non assegnato</span>
                     )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigateToDetail(servizio.id);
+                        }}>
+                          Visualizza dettagli
+                        </DropdownMenuItem>
+                        {servizio.stato === 'da_assegnare' && isAdminOrSocio && onSelect && (
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            onSelect(servizio);
+                          }}>
+                            Assegna
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+                {expandedRow === servizio.id && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="bg-muted/30 p-4">
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                        <div>
+                          <span className="font-medium">Referente:</span>{" "}
+                          <span>{getUserName(users, servizio.referente_id)}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium">Metodo pagamento:</span>{" "}
+                          <span>{servizio.metodo_pagamento}</span>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="font-medium">Indirizzo di presa:</span>{" "}
+                          <span>{servizio.indirizzo_presa}</span>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="font-medium">Indirizzo di destinazione:</span>{" "}
+                          <span>{servizio.indirizzo_destinazione}</span>
+                        </div>
+                        {servizio.note && (
+                          <div className="col-span-2">
+                            <span className="font-medium">Note:</span>{" "}
+                            <span>{servizio.note}</span>
+                          </div>
+                        )}
+                        <div className="col-span-2 mt-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onNavigateToDetail(servizio.id);
+                            }}
+                          >
+                            Dettagli completi
+                          </Button>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
   );
-}
+};
