@@ -61,7 +61,7 @@ export function CalendarView({ servizi, users, onNavigateToDetail }: CalendarVie
               hasServizio: "bg-amber-100 text-amber-900 font-medium"
             }}
             components={{
-              DayContent: (props) => (
+              DayContent: (props: any) => (
                 <div className="relative">
                   {props.children}
                   {servizi.filter(s => s.data_servizio === formatDate(props.date, "yyyy-MM-dd")).length > 0 && (
@@ -79,7 +79,7 @@ export function CalendarView({ servizi, users, onNavigateToDetail }: CalendarVie
       <div className="md:col-span-2 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium">
-            Servizi per il {formatDate(date, 'dd MMMM yyyy')}
+            Servizi per il {formatDate(date)}
           </h3>
           
           <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "cards" | "table")}>
@@ -96,7 +96,7 @@ export function CalendarView({ servizi, users, onNavigateToDetail }: CalendarVie
           <Card>
             <CardContent className="p-6 text-center">
               <p className="text-muted-foreground">
-                Nessun servizio in programma per {formatDate(date, 'dd MMMM yyyy')}
+                Nessun servizio in programma per {formatDate(date)}
               </p>
             </CardContent>
           </Card>

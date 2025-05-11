@@ -21,8 +21,8 @@ export default function ServizioDetailPage() {
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
   
-  // Fetch related azienda details
-  const { azienda } = useAziendaDetail(servizio?.azienda_id || "");
+  // Fetch related azienda details with correct parameters
+  const { azienda } = useAziendaDetail(servizio?.azienda_id || "", true);
   
   // Find referent and assigned user details
   const referente = users.find(user => user.id === servizio?.referente_id);

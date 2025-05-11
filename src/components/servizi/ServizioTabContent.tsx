@@ -50,10 +50,9 @@ export const ServizioTabContent = ({
               key={servizio.id}
               servizio={servizio}
               users={users}
-              status={status}
+              onSelectServizio={onSelectServizio}
+              onNavigateToDetail={onNavigateToDetail}
               isAdminOrSocio={isAdminOrSocio}
-              onSelect={onSelectServizio}
-              onClick={onNavigateToDetail}
             />
           ))
         )}
