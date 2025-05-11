@@ -3,10 +3,12 @@ import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
+  Outlet
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/ui/theme-provider"
+import { AuthProvider } from "@/contexts/AuthContext";
 
 import Index from "@/pages/Index"
 import LoginPage from "@/pages/LoginPage"
@@ -23,70 +25,84 @@ import ClientDashboardPage from "@/pages/cliente/ClientDashboardPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ServizioDetailPage from "./pages/servizi/ServizioDetailPage";
 
+// Wrapper component to provide auth context within the router
+const AuthWrapper = () => {
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
+};
+
 // Create router outside of component to avoid recreation on renders
 const router = createBrowserRouter([
   {
-    path: "",
-    element: <Index />
-  },
-  {
-    path: "login",
-    element: <LoginPage />
-  },
-  {
-    path: "recupera-password",
-    element: <RecuperaPasswordPage />
-  },
-  {
-    path: "dashboard",
-    element: <DashboardPage />
-  },
-  {
-    path: "users",
-    element: <UsersPage />
-  },
-  {
-    path: "aziende",
-    element: <AziendePage />
-  },
-  {
-    path: "aziende/:id",
-    element: <AziendaDetailPage />
-  },
-  {
-    path: "servizi",
-    element: <ServiziPage />
-  },
-  {
-    path: "servizi/:id",
-    element: <ServizioDetailPage />
-  },
-  {
-    path: "nuovo-servizio",
-    element: <NuovoServizioPage />
-  },
-  {
-    path: "shifts",
-    element: <ShiftsPage />
-  },
-  {
-    path: "assistenza",
-    element: <AssistenzaPage />
-  },
-  // Cliente routes
-  {
-    path: "cliente",
-    element: <ClientDashboardPage />,
+    element: <AuthWrapper />,
     children: [
       {
         path: "",
-        element: <div>Client Dashboard</div>
+        element: <Index />
+      },
+      {
+        path: "login",
+        element: <LoginPage />
+      },
+      {
+        path: "recupera-password",
+        element: <RecuperaPasswordPage />
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage />
+      },
+      {
+        path: "users",
+        element: <UsersPage />
+      },
+      {
+        path: "aziende",
+        element: <AziendePage />
+      },
+      {
+        path: "aziende/:id",
+        element: <AziendaDetailPage />
+      },
+      {
+        path: "servizi",
+        element: <ServiziPage />
+      },
+      {
+        path: "servizi/:id",
+        element: <ServizioDetailPage />
+      },
+      {
+        path: "nuovo-servizio",
+        element: <NuovoServizioPage />
+      },
+      {
+        path: "shifts",
+        element: <ShiftsPage />
+      },
+      {
+        path: "assistenza",
+        element: <AssistenzaPage />
+      },
+      // Cliente routes
+      {
+        path: "cliente",
+        element: <ClientDashboardPage />,
+        children: [
+          {
+            path: "",
+            element: <div>Client Dashboard</div>
+          }
+        ]
+      },
+      {
+        path: "*",
+        element: <NotFoundPage />
       }
     ]
-  },
-  {
-    path: "*",
-    element: <NotFoundPage />
   }
 ]);
 
