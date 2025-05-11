@@ -43,7 +43,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     console.log('[createServizio] Servizio created:', servizioData);
     
     // Assicuriamoci che il servizio restituito sia del tipo corretto
-    const servizio: Servizio = servizioData as Servizio;
+    const servizio = servizioData as Servizio;
 
     // 2. Insert passeggeri
     if (data.passeggeri.length > 0) {
