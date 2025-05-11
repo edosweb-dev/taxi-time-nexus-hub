@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlusCircle, Loader2 } from "lucide-react";
+import { PlusCircle, Loader2, Calendar } from "lucide-react";
 import { useServizi } from "@/hooks/useServizi";
 import { useUsers } from "@/hooks/useUsers";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -33,6 +34,11 @@ export default function ServiziPage() {
     navigate(`/servizi/${id}`);
   };
 
+  // Function to handle switching to calendar view
+  const handleShowCalendarView = () => {
+    setActiveTab("calendario");
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -43,10 +49,16 @@ export default function ServiziPage() {
               Gestisci i servizi di trasporto
             </p>
           </div>
-          <Button onClick={() => navigate("/nuovo-servizio")}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nuovo servizio
-          </Button>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={handleShowCalendarView}>
+              <Calendar className="mr-2 h-4 w-4" />
+              Calendario
+            </Button>
+            <Button onClick={() => navigate("/nuovo-servizio")}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Nuovo servizio
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
