@@ -8,7 +8,7 @@ import { toast } from '@/components/ui/sonner';
 import { UserFormData } from '@/lib/api/users/types';
 import { AziendaFormData } from '@/lib/api/aziende';
 
-export function useAziendaDetail(id: string | undefined, currentUserID: string | undefined) {
+export function useAziendaDetail(id: string | undefined, enabled: boolean = true) {
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('info');

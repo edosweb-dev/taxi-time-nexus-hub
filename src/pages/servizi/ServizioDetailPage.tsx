@@ -20,7 +20,7 @@ export default function ServizioDetailPage() {
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
   
-  // Fetch related azienda details - fixed the parameter type issue
+  // Fixed the parameter type issue
   const { azienda } = useAziendaDetail(servizio?.azienda_id || "", Boolean(servizio?.azienda_id));
   
   // Find referent and assigned user details
