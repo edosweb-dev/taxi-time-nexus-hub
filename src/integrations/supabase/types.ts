@@ -123,7 +123,11 @@ export type Database = {
       }
       servizi: {
         Row: {
+          assegnato_a: string | null
           azienda_id: string
+          conducente_esterno: boolean | null
+          conducente_esterno_email: string | null
+          conducente_esterno_nome: string | null
           created_at: string
           created_by: string
           data_servizio: string
@@ -135,7 +139,11 @@ export type Database = {
           stato: string
         }
         Insert: {
+          assegnato_a?: string | null
           azienda_id: string
+          conducente_esterno?: boolean | null
+          conducente_esterno_email?: string | null
+          conducente_esterno_nome?: string | null
           created_at?: string
           created_by: string
           data_servizio: string
@@ -147,7 +155,11 @@ export type Database = {
           stato?: string
         }
         Update: {
+          assegnato_a?: string | null
           azienda_id?: string
+          conducente_esterno?: boolean | null
+          conducente_esterno_email?: string | null
+          conducente_esterno_nome?: string | null
           created_at?: string
           created_by?: string
           data_servizio?: string
@@ -159,6 +171,13 @@ export type Database = {
           stato?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "servizi_assegnato_a_fkey"
+            columns: ["assegnato_a"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "servizi_azienda_id_fkey"
             columns: ["azienda_id"]

@@ -3,7 +3,7 @@ import { PropsWithChildren } from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, LogOut, Menu, User, CalendarDays, LayoutDashboard, Users, Building } from "lucide-react";
+import { Home, LogOut, Menu, User, CalendarDays, LayoutDashboard, Users, Building, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -55,6 +55,18 @@ export function MainLayout({ children }: PropsWithChildren) {
               >
                 <CalendarDays className="h-4 w-4" />
                 <span>Turni</span>
+              </Link>
+              
+              {/* Add Servizi menu item - visible to all users */}
+              <Link 
+                to="/servizi" 
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
+                  location.pathname === "/servizi" ? "bg-white/30" : "transparent"
+                )}
+              >
+                <FileText className="h-4 w-4" />
+                <span>Servizi</span>
               </Link>
               
               {/* Add Users menu item - only visible to admin and socio roles */}
@@ -141,6 +153,18 @@ export function MainLayout({ children }: PropsWithChildren) {
           >
             <CalendarDays className="h-5 w-5" />
             <span className="text-xs mt-1">Turni</span>
+          </Link>
+          
+          {/* Add Servizi to mobile navigation - visible to all users */}
+          <Link 
+            to="/servizi" 
+            className={cn(
+              "flex flex-col items-center justify-center p-2 rounded-md",
+              location.pathname === "/servizi" ? "text-white" : "text-white/70"
+            )}
+          >
+            <FileText className="h-5 w-5" />
+            <span className="text-xs mt-1">Servizi</span>
           </Link>
           
           {/* Add Users menu item to mobile navigation - only visible to admin and socio roles */}
