@@ -21,7 +21,6 @@ export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
   const [referenti, setReferenti] = useState<Referente[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newReferente, setNewReferente] = useState({
     firstName: '',
     lastName: '',
@@ -116,7 +115,6 @@ export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
           
           setReferenti(prev => [...prev, newReferenteData]);
           setValue('referente_id', data.user.id);
-          setIsDialogOpen(false);
           setNewReferente({ firstName: '', lastName: '', email: '' });
         }
       }
@@ -174,17 +172,74 @@ export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
                     )}
                     
                     <div className="p-2 border-t">
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="w-full flex items-center justify-center"
-                          onClick={() => setIsDialogOpen(true)}
-                          type="button"
-                        >
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Crea nuovo referente
-                        </Button>
-                      </DialogTrigger>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="w-full flex items-center justify-center"
+                            type="button"
+                          >
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Crea nuovo referente
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Crea nuovo referente</DialogTitle>
+                          </DialogHeader>
+                          
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <FormLabel htmlFor="first_name">Nome</FormLabel>
+                                <Input
+                                  id="first_name"
+                                  value={newReferente.firstName}
+                                  onChange={(e) => setNewReferente(prev => ({ ...prev, firstName: e.target.value }))}
+                                  placeholder="Mario"
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <FormLabel htmlFor="last_name">Cognome</FormLabel>
+                                <Input
+                                  id="last_name"
+                                  value={newReferente.lastName}
+                                  onChange={(e) => setNewReferente(prev => ({ ...prev, lastName: e.target.value }))}
+                                  placeholder="Rossi"
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <FormLabel htmlFor="email">Email</FormLabel>
+                              <Input
+                                id="email"
+                                type="email"
+                                value={newReferente.email}
+                                onChange={(e) => setNewReferente(prev => ({ ...prev, email: e.target.value }))}
+                                placeholder="mario.rossi@example.com"
+                                className="mt-1"
+                              />
+                            </div>
+                          </div>
+
+                          <DialogFooter className="sm:justify-end">
+                            <DialogClose asChild>
+                              <Button type="button" variant="outline">Annulla</Button>
+                            </DialogClose>
+                            <Button 
+                              type="button" 
+                              onClick={handleCreateReferente}
+                              disabled={isCreatingReferente || !newReferente.firstName || !newReferente.lastName || !newReferente.email}
+                            >
+                              {isCreatingReferente && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              Crea referente
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </>
                 ) : (
@@ -198,65 +253,6 @@ export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
           </FormItem>
         )}
       />
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Crea nuovo referente</DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <FormLabel htmlFor="first_name">Nome</FormLabel>
-                <Input
-                  id="first_name"
-                  value={newReferente.firstName}
-                  onChange={(e) => setNewReferente(prev => ({ ...prev, firstName: e.target.value }))}
-                  placeholder="Mario"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <FormLabel htmlFor="last_name">Cognome</FormLabel>
-                <Input
-                  id="last_name"
-                  value={newReferente.lastName}
-                  onChange={(e) => setNewReferente(prev => ({ ...prev, lastName: e.target.value }))}
-                  placeholder="Rossi"
-                  className="mt-1"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <Input
-                id="email"
-                type="email"
-                value={newReferente.email}
-                onChange={(e) => setNewReferente(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="mario.rossi@example.com"
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="sm:justify-end">
-            <DialogClose asChild>
-              <Button type="button" variant="outline">Annulla</Button>
-            </DialogClose>
-            <Button 
-              type="button" 
-              onClick={handleCreateReferente}
-              disabled={isCreatingReferente || !newReferente.firstName || !newReferente.lastName || !newReferente.email}
-            >
-              {isCreatingReferente && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Crea referente
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
