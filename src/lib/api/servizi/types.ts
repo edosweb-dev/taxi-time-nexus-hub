@@ -1,5 +1,5 @@
 
-import { MetodoPagamento, PasseggeroFormData } from "@/lib/types/servizi";
+import { MetodoPagamento, PasseggeroFormData, StatoServizio } from "@/lib/types/servizi";
 
 export interface ServizioInput {
   azienda_id: string;
@@ -11,6 +11,11 @@ export interface ServizioInput {
   indirizzo_destinazione: string;
   metodo_pagamento: MetodoPagamento;
   note?: string;
+  assegnato_a?: string;
+  conducente_esterno?: boolean;
+  conducente_esterno_nome?: string;
+  conducente_esterno_email?: string;
+  stato?: StatoServizio;
 }
 
 export interface CreateServizioRequest {

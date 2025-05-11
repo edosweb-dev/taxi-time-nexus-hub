@@ -1,8 +1,7 @@
-
 import { Azienda, UserRole } from "@/lib/types";
 
 export type MetodoPagamento = 'Contanti' | 'Carta' | 'Bonifico';
-export type StatoServizio = 'da_assegnare' | 'assegnato' | 'completato' | 'annullato';
+export type StatoServizio = 'da_assegnare' | 'assegnato' | 'completato' | 'annullato' | 'non_accettato';
 
 export interface Servizio {
   id: string;
@@ -18,6 +17,10 @@ export interface Servizio {
   stato: StatoServizio;
   created_at: string;
   created_by: string;
+  assegnato_a?: string;
+  conducente_esterno?: boolean;
+  conducente_esterno_nome?: string;
+  conducente_esterno_email?: string;
 }
 
 export interface Passeggero {

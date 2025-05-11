@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createServizio, getServizi, getServizioById } from '@/lib/api/servizi';
 import { CreateServizioRequest } from '@/lib/api/servizi/types';
 import { toast } from '@/components/ui/sonner';
+import { StatoServizio } from '@/lib/types/servizi';
+import { supabase } from '@/lib/supabase';
 
 export function useServizi() {
   const queryClient = useQueryClient();
@@ -36,6 +38,27 @@ export function useServizi() {
     },
   });
 
+  const updateStatoServizioMutation = useMutation({
+    mutationFn: async ({ id, stato }: { id: string; stato: StatoServizio }) => {
+      const { data, error } = await supabase
+        .from('servizi')
+        .update({ stato })
+        .eq('id', id)
+        .select();
+      
+      if (error) throw error;
+      return data?.[0] || null;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      toast.success('Stato del servizio aggiornato con successo');
+    },
+    onError: (error: any) => {
+      console.error('Error updating service status:', error);
+      toast.error(`Errore nell'aggiornamento dello stato: ${error.message || 'Si è verificato un errore'}`);
+    },
+  });
+
   return {
     servizi,
     isLoading,
@@ -43,7 +66,10 @@ export function useServizi() {
     error,
     refetch,
     createServizio: (data: CreateServizioRequest) => createServizioMutation.mutate(data),
-    isCreating: createServizioMutation.isPending
+    updateStatoServizio: (id: string, stato: StatoServizio) => 
+      updateStatoServizioMutation.mutate({ id, stato }),
+    isCreating: createServizioMutation.isPending,
+    isUpdating: updateStatoServizioMutation.isPending
   };
 }
 
