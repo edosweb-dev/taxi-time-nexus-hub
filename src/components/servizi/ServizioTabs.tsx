@@ -2,7 +2,7 @@
 import { Servizio } from "@/lib/types/servizi";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, UserCheck, UserX, CheckCircle, XCircle } from "lucide-react";
+import { Users, UserCheck, UserX, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { groupServiziByStatus } from "./utils/serviceUtils";
 
 interface ServizioTabsProps {
@@ -15,7 +15,7 @@ export const ServizioTabs = ({ servizi, activeTab, onTabChange }: ServizioTabsPr
   const serviziByStatus = groupServiziByStatus(servizi);
 
   return (
-    <TabsList className="grid grid-cols-5 mb-8">
+    <TabsList className="grid grid-cols-6 mb-8">
       <TabsTrigger value="da_assegnare" className="flex gap-2">
         <Users className="h-4 w-4" />
         <span className="hidden sm:inline">Da assegnare</span>
@@ -40,6 +40,10 @@ export const ServizioTabs = ({ servizi, activeTab, onTabChange }: ServizioTabsPr
         <XCircle className="h-4 w-4" />
         <span className="hidden sm:inline">Annullati</span>
         <Badge variant="outline" className="ml-1">{serviziByStatus.annullato.length}</Badge>
+      </TabsTrigger>
+      <TabsTrigger value="calendario" className="flex gap-2">
+        <Calendar className="h-4 w-4" />
+        <span className="hidden sm:inline">Calendario</span>
       </TabsTrigger>
     </TabsList>
   );

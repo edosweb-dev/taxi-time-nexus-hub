@@ -14,6 +14,7 @@ import { AssegnazioneDialog } from "@/components/servizi/AssegnazioneDialog";
 import { EmptyState } from "@/components/servizi/EmptyState";
 import { ServizioTabs } from "@/components/servizi/ServizioTabs";
 import { ServizioTabContent } from "@/components/servizi/ServizioTabContent";
+import { CalendarView } from "@/components/servizi/CalendarView";
 import { groupServiziByStatus } from "@/components/servizi/utils/serviceUtils";
 
 export default function ServiziPage() {
@@ -86,6 +87,14 @@ export default function ServiziPage() {
                 onNavigateToDetail={handleNavigateToDetail}
               />
             ))}
+            
+            <TabsContent value="calendario" className="mt-0">
+              <CalendarView 
+                servizi={servizi}
+                users={users}
+                onNavigateToDetail={handleNavigateToDetail}
+              />
+            </TabsContent>
           </Tabs>
         )}
       </div>
