@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useServizi } from "@/hooks/useServizi";
 import { toast } from "@/components/ui/sonner";
 import { ServizioDetailsForm } from "./ServizioDetailsForm";
-import { PasseggeroForm } from "./PasseggeroForm";
+import { PasseggeroForm } from "./passeggeri/PasseggeroForm";
 import { useServizioForm } from "@/hooks/useServizioForm";
 
 export function NuovoServizioForm() {
