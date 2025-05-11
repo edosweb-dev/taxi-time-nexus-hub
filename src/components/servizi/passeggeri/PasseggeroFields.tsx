@@ -39,7 +39,7 @@ export function PasseggeroFields({ index }: PasseggeroFieldsProps) {
         {usaIndirizzoPersonalizzato && (
           <FormField
             control={control}
-            name={`passeggeri.${index}.orario_presa`}
+            name={`passeggeri.${index}.orario_presa_personalizzato`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Orario di presa personalizzato *</FormLabel>
@@ -109,7 +109,7 @@ export function PasseggeroFields({ index }: PasseggeroFieldsProps) {
           <>
             <FormField
               control={control}
-              name={`passeggeri.${index}.luogo_presa`}
+              name={`passeggeri.${index}.luogo_presa_personalizzato`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Luogo di presa personalizzato *</FormLabel>
@@ -126,7 +126,7 @@ export function PasseggeroFields({ index }: PasseggeroFieldsProps) {
 
             <FormField
               control={control}
-              name={`passeggeri.${index}.destinazione`}
+              name={`passeggeri.${index}.destinazione_personalizzato`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Destinazione personalizzata *</FormLabel>

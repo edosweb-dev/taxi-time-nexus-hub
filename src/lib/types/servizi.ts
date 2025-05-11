@@ -1,3 +1,4 @@
+
 import { Azienda, UserRole } from "@/lib/types";
 
 export type MetodoPagamento = 'Contanti' | 'Carta' | 'Bonifico';
@@ -29,10 +30,10 @@ export interface Passeggero {
   nome_cognome: string;
   email?: string;
   telefono?: string;
-  orario_presa: string;
-  luogo_presa: string;
+  orario_presa_personalizzato?: string;
+  luogo_presa_personalizzato?: string;
   usa_indirizzo_personalizzato: boolean;
-  destinazione: string;
+  destinazione_personalizzato?: string;
   created_at?: string;
 }
 
@@ -54,8 +55,8 @@ export interface PasseggeroFormData {
   nome_cognome: string;
   email?: string;
   telefono?: string;
-  orario_presa: string;
-  luogo_presa: string;
+  orario_presa_personalizzato?: string;
+  luogo_presa_personalizzato?: string;
   usa_indirizzo_personalizzato: boolean;
-  destinazione: string;
+  destinazione_personalizzato?: string;
 }

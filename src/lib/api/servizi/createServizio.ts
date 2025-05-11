@@ -16,7 +16,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
 
     const userId = sessionData.session.user.id;
 
-    // 1. Insert servizio
+    // 1. Insert servizio with new fields
     const { data: servizioData, error: servizioError } = await supabase
       .from('servizi')
       .insert({
@@ -24,6 +24,9 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         referente_id: data.servizio.referente_id,
         numero_commessa: data.servizio.numero_commessa,
         data_servizio: data.servizio.data_servizio,
+        orario_servizio: data.servizio.orario_servizio,
+        indirizzo_presa: data.servizio.indirizzo_presa,
+        indirizzo_destinazione: data.servizio.indirizzo_destinazione,
         metodo_pagamento: data.servizio.metodo_pagamento,
         note: data.servizio.note,
         created_by: userId
@@ -52,10 +55,11 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         nome_cognome: p.nome_cognome,
         email: p.email,
         telefono: p.telefono,
-        orario_presa: p.orario_presa,
-        luogo_presa: p.luogo_presa,
-        usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato,
-        destinazione: p.destinazione
+        // Use personalized fields only when personalization is enabled
+        orario_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.orario_presa_personalizzato : null,
+        luogo_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.luogo_presa_personalizzato : null,
+        destinazione_personalizzato: p.usa_indirizzo_personalizzato ? p.destinazione_personalizzato : null,
+        usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato
       }));
 
       console.log('[createServizio] Inserting passeggeri:', passeggeriToInsert);

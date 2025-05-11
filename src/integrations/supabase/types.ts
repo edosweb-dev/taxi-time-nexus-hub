@@ -45,36 +45,36 @@ export type Database = {
       passeggeri: {
         Row: {
           created_at: string
-          destinazione: string
+          destinazione_personalizzato: string | null
           email: string | null
           id: string
-          luogo_presa: string
+          luogo_presa_personalizzato: string | null
           nome_cognome: string
-          orario_presa: string
+          orario_presa_personalizzato: string | null
           servizio_id: string
           telefono: string | null
           usa_indirizzo_personalizzato: boolean
         }
         Insert: {
           created_at?: string
-          destinazione: string
+          destinazione_personalizzato?: string | null
           email?: string | null
           id?: string
-          luogo_presa: string
+          luogo_presa_personalizzato?: string | null
           nome_cognome: string
-          orario_presa: string
+          orario_presa_personalizzato?: string | null
           servizio_id: string
           telefono?: string | null
           usa_indirizzo_personalizzato?: boolean
         }
         Update: {
           created_at?: string
-          destinazione?: string
+          destinazione_personalizzato?: string | null
           email?: string | null
           id?: string
-          luogo_presa?: string
+          luogo_presa_personalizzato?: string | null
           nome_cognome?: string
-          orario_presa?: string
+          orario_presa_personalizzato?: string | null
           servizio_id?: string
           telefono?: string | null
           usa_indirizzo_personalizzato?: boolean
@@ -132,9 +132,12 @@ export type Database = {
           created_by: string
           data_servizio: string
           id: string
+          indirizzo_destinazione: string
+          indirizzo_presa: string
           metodo_pagamento: string
           note: string | null
           numero_commessa: string | null
+          orario_servizio: string
           referente_id: string
           stato: string
         }
@@ -148,9 +151,12 @@ export type Database = {
           created_by: string
           data_servizio: string
           id?: string
+          indirizzo_destinazione?: string
+          indirizzo_presa?: string
           metodo_pagamento: string
           note?: string | null
           numero_commessa?: string | null
+          orario_servizio?: string
           referente_id: string
           stato?: string
         }
@@ -164,9 +170,12 @@ export type Database = {
           created_by?: string
           data_servizio?: string
           id?: string
+          indirizzo_destinazione?: string
+          indirizzo_presa?: string
           metodo_pagamento?: string
           note?: string | null
           numero_commessa?: string | null
+          orario_servizio?: string
           referente_id?: string
           stato?: string
         }

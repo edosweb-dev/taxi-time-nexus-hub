@@ -208,4 +208,4 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarVie
       )}
     </div>
   );
-};
+}

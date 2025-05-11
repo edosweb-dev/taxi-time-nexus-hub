@@ -38,10 +38,11 @@ export function NuovoServizioForm() {
         },
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,
-          // Se non usa indirizzo personalizzato, usa quello generale
-          orario_presa: p.usa_indirizzo_personalizzato ? p.orario_presa : values.orario_servizio,
-          luogo_presa: p.usa_indirizzo_personalizzato ? p.luogo_presa : values.indirizzo_presa,
-          destinazione: p.usa_indirizzo_personalizzato ? p.destinazione : values.indirizzo_destinazione
+          // Se non usa indirizzo personalizzato, i campi personalizzati saranno null
+          // Se usa indirizzo personalizzato, assicuriamoci che i campi siano compilati
+          orario_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.orario_presa_personalizzato || values.orario_servizio : null,
+          luogo_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.luogo_presa_personalizzato || values.indirizzo_presa : null,
+          destinazione_personalizzato: p.usa_indirizzo_personalizzato ? p.destinazione_personalizzato || values.indirizzo_destinazione : null
         })),
       });
 

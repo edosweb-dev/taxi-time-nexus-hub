@@ -24,10 +24,10 @@ export const servizioFormSchema = z.object({
       nome_cognome: z.string().min(1, "Nome e cognome obbligatorio"),
       email: z.string().email("Email non valida").optional().or(z.literal('')),
       telefono: z.string().optional(),
-      orario_presa: z.string().optional(),
-      luogo_presa: z.string().optional(),
+      orario_presa_personalizzato: z.string().optional(),
+      luogo_presa_personalizzato: z.string().optional(),
       usa_indirizzo_personalizzato: z.boolean().default(false),
-      destinazione: z.string().optional(),
+      destinazione_personalizzato: z.string().optional(),
     })
   ).min(1, "Aggiungi almeno un passeggero"),
 });
