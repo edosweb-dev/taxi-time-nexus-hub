@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useUsers } from '@/hooks/useUsers';
 import { Servizio, StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, MailIcon, UserIcon } from 'lucide-react';
+import { getAvailableUsers } from './utils/userAvailability';
+import { Profile } from '@/lib/types';
 
 interface AssegnazioneDialogProps {
   isOpen: boolean;
@@ -20,18 +22,30 @@ interface AssegnazioneDialogProps {
 }
 
 export function AssegnazioneDialog({ isOpen, onClose, servizio }: AssegnazioneDialogProps) {
-  const { users, isLoading: isLoadingUsers } = useUsers();
+  const { users } = useUsers();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConducenteEsterno, setIsConducenteEsterno] = useState(false);
   const [conducenteEsternoNome, setConducenteEsternoNome] = useState('');
   const [conducenteEsternoEmail, setConducenteEsternoEmail] = useState('');
   const [selectedDipendente, setSelectedDipendente] = useState<string>('');
+  
+  // Query for available users based on shifts and existing assignments
+  const { data: availableUsers, isLoading: isLoadingAvailableUsers } = useQuery({
+    queryKey: ['available-users', servizio.data_servizio, servizio.id],
+    queryFn: () => getAvailableUsers(servizio.data_servizio, servizio.id),
+    enabled: isOpen, // Only run the query when the dialog is open
+  });
 
-  // Filter users to only include admin, socio, and dipendente roles
-  const eligibleUsers = users.filter(user => 
-    user.role === 'admin' || user.role === 'socio' || user.role === 'dipendente'
-  );
+  useEffect(() => {
+    if (isOpen) {
+      // Reset form when dialog opens
+      setIsConducenteEsterno(!!servizio.conducente_esterno);
+      setConducenteEsternoNome(servizio.conducente_esterno_nome || '');
+      setConducenteEsternoEmail(servizio.conducente_esterno_email || '');
+      setSelectedDipendente(servizio.assegnato_a || '');
+    }
+  }, [isOpen, servizio]);
 
   const handleAssign = async () => {
     try {
@@ -82,6 +96,15 @@ export function AssegnazioneDialog({ isOpen, onClose, servizio }: AssegnazioneDi
       setIsSubmitting(false);
     }
   };
+
+  // Create a filtered list to show available users first, then unavailable users
+  const allUsers = users.filter(user => 
+    user.role === 'admin' || user.role === 'socio' || user.role === 'dipendente'
+  );
+
+  // Prepare a map of user IDs to determine which ones are available
+  const availableUserMap = new Map<string, boolean>();
+  availableUsers?.forEach(user => availableUserMap.set(user.id, true));
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -138,18 +161,41 @@ export function AssegnazioneDialog({ isOpen, onClose, servizio }: AssegnazioneDi
                 <SelectTrigger id="dipendente-select">
                   <SelectValue placeholder="Seleziona un dipendente" />
                 </SelectTrigger>
-                <SelectContent>
-                  {isLoadingUsers ? (
+                <SelectContent className="max-h-80">
+                  {isLoadingAvailableUsers ? (
                     <div className="flex items-center justify-center p-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
                     </div>
-                  ) : eligibleUsers.length > 0 ? (
-                    eligibleUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.first_name} {user.last_name} ({user.role === 'admin' ? 'Amministratore' : 
-                          user.role === 'socio' ? 'Socio' : 'Dipendente'})
-                      </SelectItem>
-                    ))
+                  ) : allUsers.length > 0 ? (
+                    <>
+                      <div className="p-2 text-sm font-medium text-foreground bg-muted/50">
+                        Dipendenti disponibili
+                      </div>
+                      {availableUsers?.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.first_name} {user.last_name} ({user.role === 'admin' ? 'Amministratore' : 
+                            user.role === 'socio' ? 'Socio' : 'Dipendente'})
+                        </SelectItem>
+                      ))}
+                      
+                      {/* Show unavailable users separately */}
+                      {allUsers.filter(user => !availableUserMap.get(user.id)).length > 0 && (
+                        <>
+                          <div className="p-2 text-sm font-medium text-foreground bg-muted/50 mt-2">
+                            Dipendenti non disponibili
+                          </div>
+                          {allUsers
+                            .filter(user => !availableUserMap.get(user.id))
+                            .map((user) => (
+                              <SelectItem key={user.id} value={user.id} disabled className="text-muted-foreground">
+                                {user.first_name} {user.last_name} ({user.role === 'admin' ? 'Amministratore' : 
+                                  user.role === 'socio' ? 'Socio' : 'Dipendente'})
+                              </SelectItem>
+                            ))
+                          }
+                        </>
+                      )}
+                    </>
                   ) : (
                     <div className="p-2 text-center text-sm text-muted-foreground">
                       Nessun dipendente disponibile
@@ -157,6 +203,9 @@ export function AssegnazioneDialog({ isOpen, onClose, servizio }: AssegnazioneDi
                   )}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                I dipendenti non disponibili sono già assegnati, senza turno, o in malattia/ferie per questa data.
+              </p>
             </div>
           )}
         </div>
