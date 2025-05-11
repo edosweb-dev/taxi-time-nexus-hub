@@ -21,88 +21,84 @@ import ShiftsPage from "@/pages/ShiftsPage";
 import AssistenzaPage from "@/pages/AssistenzaPage";
 import ClientDashboardPage from "@/pages/cliente/ClientDashboardPage";
 import NotFoundPage from "@/pages/NotFoundPage";
-
-import { AuthProvider } from './contexts/AuthContext';
-import { AuthGuard } from './components/AuthGuard';
 import ServizioDetailPage from "./pages/servizi/ServizioDetailPage";
+
+// Create router outside of component to avoid recreation on renders
+const router = createBrowserRouter([
+  {
+    path: "",
+    element: <Index />
+  },
+  {
+    path: "login",
+    element: <LoginPage />
+  },
+  {
+    path: "recupera-password",
+    element: <RecuperaPasswordPage />
+  },
+  {
+    path: "dashboard",
+    element: <DashboardPage />
+  },
+  {
+    path: "users",
+    element: <UsersPage />
+  },
+  {
+    path: "aziende",
+    element: <AziendePage />
+  },
+  {
+    path: "aziende/:id",
+    element: <AziendaDetailPage />
+  },
+  {
+    path: "servizi",
+    element: <ServiziPage />
+  },
+  {
+    path: "servizi/:id",
+    element: <ServizioDetailPage />
+  },
+  {
+    path: "nuovo-servizio",
+    element: <NuovoServizioPage />
+  },
+  {
+    path: "shifts",
+    element: <ShiftsPage />
+  },
+  {
+    path: "assistenza",
+    element: <AssistenzaPage />
+  },
+  // Cliente routes
+  {
+    path: "cliente",
+    element: <ClientDashboardPage />,
+    children: [
+      {
+        path: "",
+        element: <div>Client Dashboard</div>
+      }
+    ]
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />
+  }
+]);
 
 function App() {
   const queryClient = new QueryClient();
   
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-          <Toaster />
-          <RouterProvider router={
-            createBrowserRouter([
-              {
-                path: "",
-                element: <Index />
-              },
-              {
-                path: "login",
-                element: <LoginPage />
-              },
-              {
-                path: "recupera-password",
-                element: <RecuperaPasswordPage />
-              },
-              {
-                path: "dashboard",
-                element: <AuthGuard><DashboardPage /></AuthGuard>
-              },
-              {
-                path: "users",
-                element: <AuthGuard allowedRoles={["admin", "socio"]}><UsersPage /></AuthGuard>
-              },
-              {
-                path: "aziende",
-                element: <AuthGuard allowedRoles={["admin", "socio"]}><AziendePage /></AuthGuard>
-              },
-              {
-                path: "aziende/:id",
-                element: <AuthGuard allowedRoles={["admin", "socio"]}><AziendaDetailPage /></AuthGuard>
-              },
-              {
-                path: "servizi",
-                element: <AuthGuard><ServiziPage /></AuthGuard>
-              },
-              {
-                path: "servizi/:id",
-                element: <AuthGuard><ServizioDetailPage /></AuthGuard>
-              },
-              {
-                path: "nuovo-servizio",
-                element: <AuthGuard allowedRoles={["admin", "socio", "cliente"]}><NuovoServizioPage /></AuthGuard>
-              },
-              {
-                path: "shifts",
-                element: <AuthGuard allowedRoles={["admin", "socio"]}><ShiftsPage /></AuthGuard>
-              },
-              {
-                path: "assistenza",
-                element: <AuthGuard><AssistenzaPage /></AuthGuard>
-              },
-              // Cliente routes
-              {
-                path: "cliente",
-                element: <AuthGuard allowedRoles={["cliente"]}><ClientDashboardPage /></AuthGuard>,
-                children: [
-                  {
-                    path: "",
-                    element: <div>Client Dashboard</div>
-                  }
-                ]
-              },
-              {
-                path: "*",
-                element: <NotFoundPage />
-              }
-            ])
-          } />
-        </ThemeProvider>
-      </AuthProvider>
+      <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+        <Toaster />
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
