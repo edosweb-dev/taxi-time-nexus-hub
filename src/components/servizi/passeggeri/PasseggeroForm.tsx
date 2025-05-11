@@ -22,10 +22,10 @@ export function PasseggeroForm() {
       nome_cognome: "",
       email: "",
       telefono: "",
-      orario_presa: "",
-      luogo_presa: "",
+      orario_presa_personalizzato: "",
+      luogo_presa_personalizzato: "",
       usa_indirizzo_personalizzato: false,
-      destinazione: "",
+      destinazione_personalizzato: "",
     });
   };
 
