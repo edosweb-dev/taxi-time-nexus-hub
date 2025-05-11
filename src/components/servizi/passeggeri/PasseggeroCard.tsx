@@ -1,21 +1,90 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Passeggero } from "@/lib/types/servizi";
-import { MapPin, Clock, Phone, Mail, User } from "lucide-react";
+import { MapPin, Clock, Phone, Mail, User, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useFormContext } from "react-hook-form";
+import { ServizioFormData } from "@/lib/types/servizi";
 
 interface PasseggeroCardProps {
-  passeggero: Passeggero;
-  servizioPresa: string;
-  servizioDestinazione: string;
-  servizioOrario: string;
+  passeggero?: Passeggero;
+  servizioPresa?: string;
+  servizioDestinazione?: string;
+  servizioOrario?: string;
+  // Props for form usage
+  index?: number;
+  onRemove?: () => void;
 }
 
 export const PasseggeroCard = ({
   passeggero,
   servizioPresa,
   servizioDestinazione,
-  servizioOrario
+  servizioOrario,
+  index,
+  onRemove
 }: PasseggeroCardProps) => {
+  // If this is being used as a form field component
+  const { register } = useFormContext<ServizioFormData>() || {};
+
+  // If we're using this as a form field component
+  if (typeof index === 'number' && onRemove && register) {
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="font-medium">Passeggero {index + 1}</h3>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onRemove}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Rimuovi</span>
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label htmlFor={`passeggeri.${index}.nome_cognome`} className="block text-sm font-medium mb-1">
+                Nome e cognome
+              </label>
+              <input
+                {...register(`passeggeri.${index}.nome_cognome`)}
+                className="w-full border rounded p-2"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor={`passeggeri.${index}.telefono`} className="block text-sm font-medium mb-1">
+                  Telefono
+                </label>
+                <input
+                  {...register(`passeggeri.${index}.telefono`)}
+                  className="w-full border rounded p-2"
+                />
+              </div>
+              <div>
+                <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-1">
+                  Email
+                </label>
+                <input
+                  {...register(`passeggeri.${index}.email`)}
+                  className="w-full border rounded p-2"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Original view-only component
+  if (!passeggero) return null;
+  
   return (
     <Card>
       <CardContent className="p-4 space-y-3">

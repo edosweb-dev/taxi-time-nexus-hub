@@ -70,7 +70,7 @@ export const ServizioTable = ({
     };
     
     fetchPasseggeriCounts();
-  }, [servizi]);
+  }, [servizi]);  // This is a useEffect, not useState
 
   const toggleRowExpand = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
