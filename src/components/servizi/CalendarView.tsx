@@ -1,16 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, addDays, subDays, isSameDay, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { Servizio } from "@/lib/types/servizi";
-import { Profile } from "@/lib/types";
+import { Profile, Azienda } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { getStatoBadge, getUserName } from "./utils/serviceUtils";
+import { useQuery } from "@tanstack/react-query";
+import { getAziende } from "@/lib/api/aziende";
+import { supabase } from "@/lib/supabase";
 
 interface CalendarViewProps {
   servizi: Servizio[];
@@ -20,14 +23,63 @@ interface CalendarViewProps {
 
 export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarViewProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [passeggeriCounts, setPasseggeriCounts] = useState<Record<string, number>>({});
 
   const serviziDelGiorno = servizi.filter(s => 
     isSameDay(parseISO(s.data_servizio), currentDate)
   );
 
+  // Fetch all companies for reference
+  const { data: aziende = [] } = useQuery({
+    queryKey: ['aziende'],
+    queryFn: getAziende,
+  });
+
+  // Fetch passenger counts for services of the day
+  useEffect(() => {
+    const fetchPasseggeriCounts = async () => {
+      if (serviziDelGiorno.length === 0) return;
+      
+      const servizioIds = serviziDelGiorno.map(s => s.id);
+      
+      const { data, error } = await supabase
+        .from('passeggeri')
+        .select('servizio_id')
+        .in('servizio_id', servizioIds);
+        
+      if (error) {
+        console.error('Error fetching passengers:', error);
+        return;
+      }
+      
+      // Count passengers per service
+      const counts: Record<string, number> = {};
+      data?.forEach(p => {
+        counts[p.servizio_id] = (counts[p.servizio_id] || 0) + 1;
+      });
+      
+      setPasseggeriCounts(counts);
+    };
+    
+    fetchPasseggeriCounts();
+  }, [serviziDelGiorno]);
+
   const goToPreviousDay = () => setCurrentDate(subDays(currentDate, 1));
   const goToNextDay = () => setCurrentDate(addDays(currentDate, 1));
   const goToToday = () => setCurrentDate(new Date());
+
+  // Get company name by ID
+  const getAziendaName = (aziendaId?: string) => {
+    if (!aziendaId) return "Azienda sconosciuta";
+    const azienda = aziende.find(a => a.id === aziendaId);
+    return azienda ? azienda.nome : "Azienda sconosciuta";
+  };
+
+  // Get referent name by ID
+  const getReferenteName = (users: Profile[], referenteId?: string) => {
+    if (!referenteId) return "Referente sconosciuto";
+    return getUserName(users, referenteId) || "Referente sconosciuto";
+  };
 
   return (
     <div className="space-y-4">
@@ -83,30 +135,72 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarVie
               className="cursor-pointer hover:bg-accent/10 transition-colors"
               onClick={() => onNavigateToDetail(servizio.id)}
             >
-              <CardHeader className="pb-2 flex flex-row items-start justify-between">
-                <div>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
                   <CardTitle className="text-base">
                     {servizio.numero_commessa 
                       ? `Commessa: ${servizio.numero_commessa}` 
                       : "Servizio di trasporto"}
                   </CardTitle>
-                  <p className="text-sm font-medium mt-1">
-                    Ore {servizio.orario_servizio}
-                  </p>
+                  <div>{getStatoBadge(servizio.stato)}</div>
                 </div>
-                <div>{getStatoBadge(servizio.stato)}</div>
               </CardHeader>
-              <CardContent className="space-y-1 text-sm text-muted-foreground">
-                <p>Da: {servizio.indirizzo_presa}</p>
-                <p>A: {servizio.indirizzo_destinazione}</p>
-                <p>Metodo pagamento: {servizio.metodo_pagamento}</p>
-                {servizio.assegnato_a && (
-                  <p>Assegnato a: {getUserName(users, servizio.assegnato_a) || "Utente sconosciuto"}</p>
-                )}
-                {servizio.conducente_esterno && servizio.conducente_esterno_nome && (
-                  <p>Conducente esterno: {servizio.conducente_esterno_nome}</p>
-                )}
-                {servizio.note && <p>Note: {servizio.note}</p>}
+              <CardContent className="space-y-3 text-sm">
+                <div className="grid grid-cols-1 gap-1">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Azienda:</span>
+                    <span className="text-right">{getAziendaName(servizio.azienda_id)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Referente:</span>
+                    <span className="text-right">{getReferenteName(users, servizio.referente_id)}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <span className="font-medium">Data:</span>{" "}
+                    <span>{format(parseISO(servizio.data_servizio), "dd/MM/yyyy")}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Orario:</span>{" "}
+                    <span>{servizio.orario_servizio}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-1 pt-1">
+                  <div>
+                    <span className="font-medium">Partenza:</span>{" "}
+                    <span className="text-muted-foreground">{servizio.indirizzo_presa}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Destinazione:</span>{" "}
+                    <span className="text-muted-foreground">{servizio.indirizzo_destinazione}</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <span className="font-medium">Metodo pagamento:</span>{" "}
+                    <span>{servizio.metodo_pagamento}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <span className="font-medium mr-1">Passeggeri:</span>{" "}
+                    <span>{passeggeriCounts[servizio.id] || 0}</span>
+                  </div>
+                </div>
+                
+                <div className="pt-1">
+                  <span className="font-medium">Assegnato a:</span>{" "}
+                  {servizio.conducente_esterno ? (
+                    <span>{servizio.conducente_esterno_nome || "Conducente esterno"}</span>
+                  ) : servizio.assegnato_a ? (
+                    <span>{getUserName(users, servizio.assegnato_a) || "Utente sconosciuto"}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Non assegnato</span>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
