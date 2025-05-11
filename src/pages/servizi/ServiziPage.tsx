@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
@@ -15,6 +14,7 @@ import {
   XCircle
 } from "lucide-react";
 import { useServizi } from "@/hooks/useServizi";
+import { useUsers } from "@/hooks/useUsers";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,7 @@ import { AssegnazioneDialog } from "@/components/servizi/AssegnazioneDialog";
 export default function ServiziPage() {
   const navigate = useNavigate();
   const { servizi, isLoading, error } = useServizi();
+  const { users } = useUsers();
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("da_assegnare");
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
@@ -71,6 +72,13 @@ export default function ServiziPage() {
       case 'non_accettato':
         return <UserX className="h-5 w-5 text-purple-500" />;
     }
+  };
+
+  // Find user details by ID
+  const getUserName = (userId?: string) => {
+    if (!userId) return null;
+    const user = users.find(u => u.id === userId);
+    return user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : null;
   };
 
   return (
@@ -187,7 +195,7 @@ export default function ServiziPage() {
                             {servizio.conducente_esterno ? (
                               <p>Conducente esterno: {servizio.conducente_esterno_nome}</p>
                             ) : servizio.assegnato_a ? (
-                              <p>Assegnato a: [Nome dipendente]</p>
+                              <p>Assegnato a: {getUserName(servizio.assegnato_a) || "Utente sconosciuto"}</p>
                             ) : status === 'da_assegnare' && isAdminOrSocio ? (
                               <Button 
                                 variant="outline" 
