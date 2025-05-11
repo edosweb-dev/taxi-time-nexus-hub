@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import { format, addDays, subDays, isSameDay, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { TableIcon, Layout, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { Servizio } from "@/lib/types/servizi";
-import { Profile, Azienda } from "@/lib/types";
+import { Profile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -14,6 +14,8 @@ import { getStatoBadge, getUserName } from "./utils/serviceUtils";
 import { useQuery } from "@tanstack/react-query";
 import { getAziende } from "@/lib/api/aziende";
 import { supabase } from "@/lib/supabase";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ServizioTable } from "./ServizioTable";
 
 interface CalendarViewProps {
   servizi: Servizio[];
@@ -24,6 +26,7 @@ interface CalendarViewProps {
 export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarViewProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [passeggeriCounts, setPasseggeriCounts] = useState<Record<string, number>>({});
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
 
   const serviziDelGiorno = servizi.filter(s => 
     isSameDay(parseISO(s.data_servizio), currentDate)
@@ -88,36 +91,47 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarVie
           {format(currentDate, "EEEE d MMMM yyyy", { locale: it })}
         </h2>
 
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={goToPreviousDay} size="sm">
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Precedente
-          </Button>
-          <Button variant="outline" onClick={goToToday} size="sm">
-            Oggi
-          </Button>
-          <Button variant="outline" onClick={goToNextDay} size="sm">
-            Successivo
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
+        <div className="flex justify-between items-center w-full">
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={goToPreviousDay} size="sm">
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Precedente
+            </Button>
+            <Button variant="outline" onClick={goToToday} size="sm">
+              Oggi
+            </Button>
+            <Button variant="outline" onClick={goToNextDay} size="sm">
+              Successivo
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <CalendarIcon className="h-4 w-4" />
-                <span>Scegli data</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={currentDate}
-                onSelect={(date) => date && setCurrentDate(date)}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  <span>Scegli data</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={currentDate}
+                  onSelect={(date) => date && setCurrentDate(date)}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "cards" | "table")}>
+            <ToggleGroupItem value="cards" aria-label="Visualizza schede">
+              <Layout className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="table" aria-label="Visualizza tabella">
+              <TableIcon className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
 
@@ -127,6 +141,12 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarVie
             Nessun servizio programmato per questo giorno
           </CardContent>
         </Card>
+      ) : viewMode === "table" ? (
+        <ServizioTable
+          servizi={serviziDelGiorno}
+          users={users}
+          onNavigateToDetail={onNavigateToDetail}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {serviziDelGiorno.map(servizio => (

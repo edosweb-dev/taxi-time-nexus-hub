@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlusCircle, Loader2, Calendar } from "lucide-react";
+import { PlusCircle, Loader2, Calendar, Table as TableIcon, Layout } from "lucide-react";
 import { useServizi } from "@/hooks/useServizi";
 import { useUsers } from "@/hooks/useUsers";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -16,6 +16,8 @@ import { ServizioTabs } from "@/components/servizi/ServizioTabs";
 import { ServizioTabContent } from "@/components/servizi/ServizioTabContent";
 import { CalendarView } from "@/components/servizi/CalendarView";
 import { groupServiziByStatus } from "@/components/servizi/utils/serviceUtils";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ServizioTable } from "@/components/servizi/ServizioTable";
 
 export default function ServiziPage() {
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ export default function ServiziPage() {
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("da_assegnare");
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
@@ -81,22 +84,46 @@ export default function ServiziPage() {
           />
         ) : (
           <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab}>
-            <ServizioTabs 
-              servizi={servizi} 
-              activeTab={activeTab} 
-              onTabChange={setActiveTab} 
-            />
+            <div className="flex justify-between items-center mb-4">
+              <ServizioTabs 
+                servizi={servizi} 
+                activeTab={activeTab} 
+                onTabChange={setActiveTab} 
+              />
+              
+              {activeTab !== "calendario" && (
+                <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "cards" | "table")}>
+                  <ToggleGroupItem value="cards" aria-label="Visualizza schede">
+                    <Layout className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="table" aria-label="Visualizza tabella">
+                    <TableIcon className="h-4 w-4" />
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              )}
+            </div>
             
             {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato"] as const).map((status) => (
-              <ServizioTabContent
-                key={status}
-                status={status}
-                servizi={serviziByStatus[status]}
-                users={users}
-                isAdminOrSocio={isAdminOrSocio}
-                onSelectServizio={setSelectedServizio}
-                onNavigateToDetail={handleNavigateToDetail}
-              />
+              <TabsContent key={status} value={status} className="mt-0">
+                {viewMode === "cards" ? (
+                  <ServizioTabContent
+                    status={status}
+                    servizi={serviziByStatus[status]}
+                    users={users}
+                    isAdminOrSocio={isAdminOrSocio}
+                    onSelectServizio={setSelectedServizio}
+                    onNavigateToDetail={handleNavigateToDetail}
+                  />
+                ) : (
+                  <ServizioTable
+                    servizi={serviziByStatus[status]}
+                    users={users}
+                    onNavigateToDetail={handleNavigateToDetail}
+                    onSelect={isAdminOrSocio ? setSelectedServizio : undefined}
+                    isAdminOrSocio={isAdminOrSocio}
+                  />
+                )}
+              </TabsContent>
             ))}
             
             <TabsContent value="calendario" className="mt-0">
