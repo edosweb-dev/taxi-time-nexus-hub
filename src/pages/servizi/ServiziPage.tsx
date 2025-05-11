@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
@@ -7,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { useServizi } from "@/hooks/useServizi";
 import { useUsers } from "@/hooks/useUsers";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Servizio, StatoServizio } from "@/lib/types/servizi";
 import { AssegnazioneDialog } from "@/components/servizi/AssegnazioneDialog";
