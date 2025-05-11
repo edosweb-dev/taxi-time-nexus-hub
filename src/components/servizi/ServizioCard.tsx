@@ -1,194 +1,75 @@
-
-import { Calendar, Clock, MapPin, CreditCard, Users, UserRound, Building, User } from "lucide-react";
-import { format } from "date-fns";
-import { it } from "date-fns/locale";
-import { Servizio, StatoServizio } from "@/lib/types/servizi";
-import { Profile } from "@/lib/types";
+import React from "react";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getStatoBadge, getStateIcon, getUserName } from "./utils/serviceUtils";
-import { useQuery } from "@tanstack/react-query";
-import { getAziende } from "@/lib/api/aziende";
-import { supabase } from "@/lib/supabase";
-import { useState, useEffect } from "react";
+import { Building, Calendar, Clock, Info, MapPin, Users } from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import { Servizio } from "@/lib/types/servizi";
+import { Profile } from "@/lib/types";
 
-interface ServizioCardProps {
-  servizio: Servizio;
-  users: Profile[];
-  status: StatoServizio;
-  isAdminOrSocio: boolean;
-  onSelect: (servizio: Servizio) => void;
-  onClick: (id: string) => void;
-}
-
-export const ServizioCard = ({
+export function ServizioCard({ 
   servizio,
   users,
-  status,
-  isAdminOrSocio,
-  onSelect,
-  onClick
-}: ServizioCardProps) => {
-  const [passeggeriCount, setPasseggeriCount] = useState<number>(0);
-  
-  // Fetch all companies for reference
-  const { data: aziende = [] } = useQuery({
-    queryKey: ['aziende'],
-    queryFn: getAziende,
-  });
-
-  // Get company name by ID
-  const getAziendaName = (aziendaId?: string) => {
-    if (!aziendaId) return "Azienda sconosciuta";
-    const azienda = aziende.find(a => a.id === aziendaId);
-    return azienda ? azienda.nome : "Azienda sconosciuta";
-  };
-
-  // Fetch passenger count for this service
-  useEffect(() => {
-    const fetchPasseggeriCount = async () => {
-      const { count, error } = await supabase
-        .from('passeggeri')
-        .select('*', { count: 'exact', head: true })
-        .eq('servizio_id', servizio.id);
-        
-      if (error) {
-        console.error('Error fetching passengers:', error);
-        return;
-      }
-      
-      setPasseggeriCount(count || 0);
-    };
-    
-    fetchPasseggeriCount();
-  }, [servizio.id]);
+  onSelectServizio,
+  onNavigateToDetail,
+  isAdminOrSocio
+}: { 
+  servizio: Servizio; 
+  users: Profile[];
+  onSelectServizio: (servizio: Servizio) => void;
+  onNavigateToDetail: (id: string) => void;
+  isAdminOrSocio: boolean;
+}) {
+  const assignedUser = users.find(user => user.id === servizio.assegnato_a);
 
   return (
-    <Card 
-      className="relative cursor-pointer hover:bg-accent/10 transition-colors"
-      onClick={() => onClick(servizio.id)}
-    >
+    <Card className="overflow-hidden">
       <CardHeader className="pb-2">
-        <div className="flex justify-between">
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {format(new Date(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}
-            </span>
-          </div>
-          {getStatoBadge(servizio.stato)}
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-base">
+            {formatDate(servizio.data_servizio)}
+          </CardTitle>
         </div>
-        <CardTitle className="text-base mt-2">
-          {servizio.numero_commessa 
-            ? `Commessa: ${servizio.numero_commessa}` 
-            : "Servizio di trasporto"}
-        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="text-sm space-y-3">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-start gap-1">
-              <Building className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Azienda</div>
-                <div className="text-muted-foreground">{getAziendaName(servizio.azienda_id)}</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-1">
-              <User className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Referente</div>
-                <div className="text-muted-foreground">{getUserName(users, servizio.referente_id)}</div>
-              </div>
-            </div>
+      
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Building className="h-4 w-4 text-muted-foreground" />
+            <span>{servizio.azienda_id}</span>
           </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-start gap-1">
-              <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Data</div>
-                <div className="text-muted-foreground">{format(new Date(servizio.data_servizio), "dd/MM/yyyy")}</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-1">
-              <Clock className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Orario</div>
-                <div className="text-muted-foreground">{servizio.orario_servizio}</div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <span>{servizio.indirizzo_presa}</span>
           </div>
-
-          <div className="space-y-2">
-            <div className="flex items-start gap-1">
-              <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Indirizzo di presa</div>
-                <div className="text-muted-foreground truncate">{servizio.indirizzo_presa}</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-1">
-              <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Indirizzo di destinazione</div>
-                <div className="text-muted-foreground truncate">{servizio.indirizzo_destinazione}</div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <span>{servizio.indirizzo_destinazione}</span>
           </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-start gap-1">
-              <CreditCard className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Metodo pagamento</div>
-                <div className="text-muted-foreground">{servizio.metodo_pagamento}</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-1">
-              <Users className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Passeggeri</div>
-                <div className="text-muted-foreground">{passeggeriCount}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-1">
-            <UserRound className="h-4 w-4 mt-0.5 text-muted-foreground" />
-            <div>
-              <div className="font-medium">Assegnato a</div>
-              {servizio.conducente_esterno ? (
-                <div className="text-muted-foreground">{servizio.conducente_esterno_nome || "Conducente esterno"}</div>
-              ) : servizio.assegnato_a ? (
-                <div className="text-muted-foreground">{getUserName(users, servizio.assegnato_a) || "Utente sconosciuto"}</div>
-              ) : (
-                <div className="text-muted-foreground">Non assegnato</div>
-              )}
-            </div>
-          </div>
-
-          {status === 'da_assegnare' && isAdminOrSocio && (
+        </div>
+        
+        <CardFooter className="px-0 pt-4 pb-0 flex justify-between gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="flex-1"
+            onClick={() => onNavigateToDetail(servizio.id)}
+          >
+            <Info className="h-4 w-4 mr-1" />
+            Dettagli
+          </Button>
+          {isAdminOrSocio && servizio.stato === 'da_assegnare' && (
             <Button 
               variant="outline" 
-              size="sm" 
-              className="mt-2 w-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(servizio);
-              }}
+              size="sm"
+              className="flex-1"
+              onClick={() => onSelectServizio(servizio)}
             >
-              <Users className="mr-2 h-4 w-4" />
+              <Users className="h-4 w-4 mr-1" />
               Assegna
             </Button>
           )}
-        </div>
+        </CardFooter>
       </CardContent>
-      {getStateIcon(servizio.stato) && (
-        <div className="absolute top-3 right-3">
-          {getStateIcon(servizio.stato)}
-        </div>
-      )}
     </Card>
   );
-};
+}
