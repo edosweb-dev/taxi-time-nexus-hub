@@ -13,7 +13,6 @@ export type Database = {
         Row: {
           created_at: string | null
           email: string | null
-          firma_digitale_attiva: boolean | null
           id: string
           indirizzo: string | null
           nome: string
@@ -23,7 +22,6 @@ export type Database = {
         Insert: {
           created_at?: string | null
           email?: string | null
-          firma_digitale_attiva?: boolean | null
           id?: string
           indirizzo?: string | null
           nome: string
@@ -33,7 +31,6 @@ export type Database = {
         Update: {
           created_at?: string | null
           email?: string | null
-          firma_digitale_attiva?: boolean | null
           id?: string
           indirizzo?: string | null
           nome?: string
