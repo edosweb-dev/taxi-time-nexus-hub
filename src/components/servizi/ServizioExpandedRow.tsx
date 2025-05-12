@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Profile } from "@/lib/types";
 import { Servizio } from "@/lib/types/servizi";
-import { getUserName } from "./utils/serviceUtils";
+import { getUserName } from "./utils/userUtils";
 
 interface ServizioExpandedRowProps {
   servizio: Servizio;

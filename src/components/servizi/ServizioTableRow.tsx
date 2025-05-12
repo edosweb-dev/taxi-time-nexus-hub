@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
-import { getStatoBadge, getUserName } from "./utils/serviceUtils";
+import { getStatoBadge, getUserName } from "./utils";
 import { ServizioExpandedRow } from "./ServizioExpandedRow";
 
 interface ServizioTableRowProps {

@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { getStatoBadge, getUserName } from "./utils/serviceUtils";
+import { getStatoBadge, getUserName } from "./utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAziende } from "@/lib/api/aziende";
 import { supabase } from "@/lib/supabase";

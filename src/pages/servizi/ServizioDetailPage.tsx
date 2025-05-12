@@ -11,7 +11,7 @@ import { useAziende } from "@/hooks/useAziende";
 import { useUsers } from "@/hooks/useUsers";
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
-import { getStatoBadge, getUserName } from "@/components/servizi/utils/serviceUtils";
+import { getStatoBadge, getUserName } from "@/components/servizi/utils";
 import { PasseggeroCard } from "@/components/servizi/passeggeri/PasseggeroCard";
 import { Passeggero } from "@/lib/types/servizi";
 import { Separator } from "@/components/ui/separator";

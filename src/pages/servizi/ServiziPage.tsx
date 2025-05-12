@@ -15,7 +15,7 @@ import { EmptyState } from "@/components/servizi/EmptyState";
 import { ServizioTabs } from "@/components/servizi/ServizioTabs";
 import { ServizioTabContent } from "@/components/servizi/ServizioTabContent";
 import { CalendarView } from "@/components/servizi/CalendarView";
-import { groupServiziByStatus } from "@/components/servizi/utils/serviceUtils";
+import { groupServiziByStatus } from "@/components/servizi/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ServizioTable } from "@/components/servizi/ServizioTable";
 
