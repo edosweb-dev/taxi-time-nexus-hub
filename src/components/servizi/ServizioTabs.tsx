@@ -3,7 +3,7 @@ import { Servizio } from "@/lib/types/servizi";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Users, UserCheck, UserX, CheckCircle, XCircle } from "lucide-react";
-import { groupServiziByStatus } from "./utils/serviceUtils";
+import { groupServiziByStatus } from "./utils";
 
 interface ServizioTabsProps {
   servizi: Servizio[];
