@@ -72,7 +72,7 @@ export default function ServizioDetailPage() {
     );
   }
   
-  // Add passeggeri count to servizio for InfoTab
+  // Add passeggeri count to servizio for InfoTab, type-safe with the extended interface
   const servizioWithPasseggeriCount = {
     ...servizio,
     passeggeriCount: passeggeri.length

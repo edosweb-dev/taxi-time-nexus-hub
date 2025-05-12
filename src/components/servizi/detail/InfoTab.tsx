@@ -6,8 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import { Servizio } from "@/lib/types/servizi";
 import { getUserName } from "@/components/servizi/utils";
 
+interface ServizioWithCount extends Servizio {
+  passeggeriCount?: number;
+}
+
 interface InfoTabProps {
-  servizio: Servizio;
+  servizio: ServizioWithCount;
   getAziendaName: (aziendaId?: string) => string;
   users: any[];
 }
