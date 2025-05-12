@@ -5,7 +5,7 @@ import { MainLayout } from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Building, Calendar, Clock, CreditCard, Edit, MapPin, User, Users } from "lucide-react";
+import { ArrowLeft, Building, Calendar, Clock, CreditCard, Edit, MapPin, Pen, User, Users } from "lucide-react";
 import { useServizio } from "@/hooks/useServizi";
 import { useAziende } from "@/hooks/useAziende";
 import { useUsers } from "@/hooks/useUsers";
@@ -16,26 +16,47 @@ import { PasseggeroCard } from "@/components/servizi/passeggeri/PasseggeroCard";
 import { Passeggero } from "@/lib/types/servizi";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
+import { FirmaDialog } from "@/components/servizi/firma/FirmaDialog";
+import { saveSignature } from "@/lib/api/servizi";
+import { toast } from "@/components/ui/sonner";
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const { data, isLoading, error } = useServizio(id);
+  const { data, isLoading, error, refetch } = useServizio(id);
   const { aziende } = useAziende();
   const { users } = useUsers();
   const [activeTab, setActiveTab] = useState<string>("info");
+  const [firmaDialogOpen, setFirmaDialogOpen] = useState(false);
   
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
+  // Check if firma_digitale is enabled for this azienda
+  const aziendaWithFirma = servizio?.azienda_id ? aziende.find(a => a.id === servizio.azienda_id) : null;
+  const firmaDigitaleAttiva = aziendaWithFirma?.firma_digitale_attiva || false;
+  
   // Get company name by ID
   const getAziendaName = (aziendaId?: string) => {
     if (!aziendaId) return "Azienda sconosciuta";
     const azienda = aziende.find(a => a.id === aziendaId);
     return azienda ? azienda.nome : "Azienda sconosciuta";
+  };
+  
+  const handleSignatureConfirm = async (signatureImage: string) => {
+    if (!id) return;
+    
+    try {
+      await saveSignature(id, signatureImage);
+      toast.success("Firma salvata con successo");
+      refetch(); // Reload servizio data to get the updated firma_url
+    } catch (error) {
+      console.error("Error saving signature:", error);
+      toast.error("Errore nel salvataggio della firma");
+    }
   };
   
   if (isLoading) {
@@ -88,12 +109,24 @@ export default function ServizioDetailPage() {
             </p>
           </div>
           
-          {isAdminOrSocio && (
-            <Button onClick={() => navigate(`/servizi/${id}/edit`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Modifica servizio
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {firmaDigitaleAttiva && !servizio.firma_url && (
+              <Button 
+                variant="outline" 
+                onClick={() => setFirmaDialogOpen(true)}
+              >
+                <Pen className="mr-2 h-4 w-4" />
+                Firma
+              </Button>
+            )}
+            
+            {isAdminOrSocio && (
+              <Button onClick={() => navigate(`/servizi/${id}/edit`)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Modifica servizio
+              </Button>
+            )}
+          </div>
         </div>
         
         <Tabs defaultValue="info" value={activeTab} onValueChange={setActiveTab}>
@@ -115,6 +148,32 @@ export default function ServizioDetailPage() {
                     <div>
                       <h3 className="text-lg font-medium">Dati generali</h3>
                       <Separator className="my-2" />
+                      
+                      {/* Display signature if available */}
+                      {servizio.firma_url && (
+                        <div className="mb-4 p-4 border rounded-md">
+                          <h4 className="text-sm font-medium mb-2">Firma digitale</h4>
+                          <div className="flex flex-col gap-2">
+                            <a 
+                              href={servizio.firma_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="block max-w-xs"
+                            >
+                              <img 
+                                src={servizio.firma_url} 
+                                alt="Firma digitale" 
+                                className="border rounded w-full max-h-20 object-contain bg-white"
+                              />
+                            </a>
+                            {servizio.firma_timestamp && (
+                              <p className="text-xs text-muted-foreground">
+                                Firmato il: {format(new Date(servizio.firma_timestamp), "dd/MM/yyyy HH:mm")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="flex items-start gap-1">
@@ -262,6 +321,13 @@ export default function ServizioDetailPage() {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <FirmaDialog 
+        isOpen={firmaDialogOpen}
+        onClose={() => setFirmaDialogOpen(false)}
+        onConfirm={handleSignatureConfirm}
+        servizioId={id || ''}
+      />
     </MainLayout>
   );
 }

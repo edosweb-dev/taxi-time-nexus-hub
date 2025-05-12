@@ -131,6 +131,8 @@ export type Database = {
           created_at: string
           created_by: string
           data_servizio: string
+          firma_timestamp: string | null
+          firma_url: string | null
           id: string
           indirizzo_destinazione: string
           indirizzo_presa: string
@@ -150,6 +152,8 @@ export type Database = {
           created_at?: string
           created_by: string
           data_servizio: string
+          firma_timestamp?: string | null
+          firma_url?: string | null
           id?: string
           indirizzo_destinazione?: string
           indirizzo_presa?: string
@@ -169,6 +173,8 @@ export type Database = {
           created_at?: string
           created_by?: string
           data_servizio?: string
+          firma_timestamp?: string | null
+          firma_url?: string | null
           id?: string
           indirizzo_destinazione?: string
           indirizzo_presa?: string
