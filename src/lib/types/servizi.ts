@@ -1,3 +1,4 @@
+
 import { Azienda, UserRole } from "@/lib/types";
 
 export type MetodoPagamento = 'Contanti' | 'Carta' | 'Bonifico';
@@ -21,8 +22,6 @@ export interface Servizio {
   conducente_esterno?: boolean;
   conducente_esterno_nome?: string;
   conducente_esterno_email?: string;
-  firma_url?: string;
-  firma_timestamp?: string;
 }
 
 export interface Passeggero {
