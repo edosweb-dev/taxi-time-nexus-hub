@@ -5,6 +5,8 @@ import { MapPin, Clock, Phone, Mail, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from "react-hook-form";
 import { ServizioFormData } from "@/lib/types/servizi";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 
 interface PasseggeroCardProps {
   passeggero?: Passeggero;
@@ -25,10 +27,12 @@ export const PasseggeroCard = ({
   onRemove
 }: PasseggeroCardProps) => {
   // If this is being used as a form field component
-  const { register } = useFormContext<ServizioFormData>() || {};
+  const { register, watch, setValue } = useFormContext<ServizioFormData>() || {};
 
   // If we're using this as a form field component
   if (typeof index === 'number' && onRemove && register) {
+    const usaIndirizzoPersonalizzato = watch(`passeggeri.${index}.usa_indirizzo_personalizzato`);
+    
     return (
       <Card>
         <CardContent className="p-4">
@@ -76,6 +80,62 @@ export const PasseggeroCard = ({
                 />
               </div>
             </div>
+
+            <FormField
+              name={`passeggeri.${index}.usa_indirizzo_personalizzato`}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) => {
+                        setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel className="font-normal">
+                    Questo passeggero ha indirizzi intermedi diversi
+                  </FormLabel>
+                </FormItem>
+              )}
+            />
+
+            {usaIndirizzoPersonalizzato && (
+              <div className="space-y-4 mt-4 p-3 bg-muted/50 rounded-md">
+                <div>
+                  <label htmlFor={`passeggeri.${index}.orario_presa_personalizzato`} className="block text-sm font-medium mb-1">
+                    Orario di presa personalizzato
+                  </label>
+                  <input
+                    type="time"
+                    {...register(`passeggeri.${index}.orario_presa_personalizzato`)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor={`passeggeri.${index}.luogo_presa_personalizzato`} className="block text-sm font-medium mb-1">
+                    Indirizzo di presa intermedio
+                  </label>
+                  <input
+                    {...register(`passeggeri.${index}.luogo_presa_personalizzato`)}
+                    className="w-full border rounded p-2"
+                    placeholder="Inserisci l'indirizzo intermedio di presa"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor={`passeggeri.${index}.destinazione_personalizzato`} className="block text-sm font-medium mb-1">
+                    Destinazione intermedia
+                  </label>
+                  <input
+                    {...register(`passeggeri.${index}.destinazione_personalizzato`)}
+                    className="w-full border rounded p-2"
+                    placeholder="Inserisci la destinazione intermedia"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -117,7 +177,7 @@ export const PasseggeroCard = ({
             <div className="text-sm">
               {passeggero.orario_presa_personalizzato || servizioOrario}
               {passeggero.orario_presa_personalizzato && (
-                <span className="text-xs text-muted-foreground ml-1">(personalizzato)</span>
+                <span className="text-xs text-muted-foreground ml-1">(intermedio)</span>
               )}
             </div>
           </div>
@@ -133,7 +193,7 @@ export const PasseggeroCard = ({
                   ? passeggero.luogo_presa_personalizzato
                   : servizioPresa}
                 {passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato && (
-                  <span className="text-xs text-muted-foreground ml-1">(personalizzato)</span>
+                  <span className="text-xs text-muted-foreground ml-1">(intermedio)</span>
                 )}
               </div>
             </div>
@@ -148,7 +208,7 @@ export const PasseggeroCard = ({
                 <div className="text-sm font-medium">Destinazione:</div>
                 <div className="text-sm">
                   {passeggero.destinazione_personalizzato}
-                  <span className="text-xs text-muted-foreground ml-1">(personalizzato)</span>
+                  <span className="text-xs text-muted-foreground ml-1">(intermedio)</span>
                 </div>
               </div>
             </div>

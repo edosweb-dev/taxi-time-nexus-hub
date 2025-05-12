@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/sonner";
 import { ServizioDetailsForm } from "./ServizioDetailsForm";
 import { PasseggeroForm } from "./passeggeri/PasseggeroForm";
 import { useServizioForm } from "@/hooks/useServizioForm";
+import { IndirizziIntermediSummary } from "./IndirizziIntermediSummary";
 
 export function NuovoServizioForm() {
   const navigate = useNavigate();
@@ -57,6 +58,8 @@ export function NuovoServizioForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <ServizioDetailsForm />
         <PasseggeroForm />
+        
+        <IndirizziIntermediSummary />
 
         <div className="flex justify-end space-x-4">
           <Button
