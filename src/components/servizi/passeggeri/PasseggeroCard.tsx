@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Passeggero } from "@/lib/types/servizi";
 import { MapPin, Clock, Phone, Mail, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
@@ -27,11 +27,15 @@ export const PasseggeroCard = ({
   onRemove
 }: PasseggeroCardProps) => {
   // If this is being used as a form field component
-  const { register, watch, setValue } = useFormContext<ServizioFormData>() || {};
+  const { register, watch, setValue, control } = useFormContext<ServizioFormData>() || {};
 
   // If we're using this as a form field component
   if (typeof index === 'number' && onRemove && register) {
     const usaIndirizzoPersonalizzato = watch(`passeggeri.${index}.usa_indirizzo_personalizzato`);
+    // Watch the entire passeggeri array to determine if we should show the intermediate address option
+    const passeggeri = useWatch({ control, name: "passeggeri" }) || [];
+    // Only show the checkbox if there are 2 or more passengers
+    const showIntermediateAddressOption = passeggeri.length >= 2;
     
     return (
       <Card>
@@ -81,24 +85,26 @@ export const PasseggeroCard = ({
               </div>
             </div>
 
-            <FormField
-              name={`passeggeri.${index}.usa_indirizzo_personalizzato`}
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={(checked) => {
-                        setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
-                      }}
-                    />
-                  </FormControl>
-                  <FormLabel className="font-normal">
-                    Questo passeggero ha indirizzi intermedi diversi
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
+            {showIntermediateAddressOption && (
+              <FormField
+                name={`passeggeri.${index}.usa_indirizzo_personalizzato`}
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      Questo passeggero ha indirizzi intermedi diversi
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+            )}
 
             {usaIndirizzoPersonalizzato && (
               <div className="space-y-4 mt-4 p-3 bg-muted/50 rounded-md">
