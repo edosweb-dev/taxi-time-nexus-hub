@@ -35,12 +35,12 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
       throw servizioError;
     }
 
-    // Get passeggeri
+    // Get passeggeri - Corretto la colonna per l'ordinamento da orario_presa a orario_presa_personalizzato
     const { data: passeggeri, error: passeggeriError } = await supabase
       .from('passeggeri')
       .select('*')
       .eq('servizio_id', id)
-      .order('orario_presa', { ascending: true });
+      .order('created_at', { ascending: true }); // Cambiato l'ordinamento da orario_presa a created_at
 
     if (passeggeriError) {
       console.error('[getServizioById] Error fetching passeggeri:', passeggeriError);
