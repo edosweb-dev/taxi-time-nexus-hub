@@ -7,22 +7,22 @@ interface FormActionsProps {
   onCancel: () => void;
   isLoading: boolean;
   isDisabled: boolean;
-  selectedServiziCount?: number;
+  serviziCount?: number;
 }
 
 export const FormActions: React.FC<FormActionsProps> = ({
   onCancel,
   isLoading,
   isDisabled,
-  selectedServiziCount = 0
+  serviziCount = 0
 }) => {
   // Funzione per mostrare un messaggio in caso di permessi mancanti
   const handleSubmitClick = () => {
     if (isDisabled) {
-      if (selectedServiziCount === 0) {
+      if (serviziCount === 0) {
         toast({
-          title: "Selezione richiesta",
-          description: "Seleziona almeno un servizio per generare il report.",
+          title: "Nessun servizio disponibile",
+          description: "Non ci sono servizi consuntivati per i criteri selezionati.",
           variant: "destructive",
         });
       }

@@ -21,7 +21,6 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
   const [referenti, setReferenti] = useState<any[]>([]);
   const [selectedAziendaId, setSelectedAziendaId] = useState<string>('');
   const [servizi, setServizi] = useState<any[]>([]);
-  const [selectedServizi, setSelectedServizi] = useState<{ id: string; selected: boolean }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingServizi, setIsLoadingServizi] = useState(false);
   
@@ -51,7 +50,6 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
     try {
       const result = await fetchServizi(aziendaId, referenteId, month, year);
       setServizi(result);
-      setSelectedServizi(result.map(s => ({ id: s.id, selected: true })));
     } catch (error) {
       console.error('Error loading servizi:', error);
     } finally {
@@ -62,15 +60,13 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
   const onSubmit = async (data: ReportFormValues) => {
     setIsLoading(true);
     try {
-      // Get selected servizi IDs
-      const selectedServiziIds = selectedServizi
-        .filter(s => s.selected)
-        .map(s => s.id);
+      // Use all servizi IDs
+      const serviziIds = servizi.map(s => s.id);
       
-      if (selectedServiziIds.length === 0) {
+      if (serviziIds.length === 0) {
         toast({
           title: "Errore",
-          description: 'Seleziona almeno un servizio per generare il report.',
+          description: 'Non ci sono servizi disponibili per generare il report.',
           variant: "destructive",
         });
         setIsLoading(false);
@@ -82,7 +78,7 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
         referenteId: data.referenteId,
         month: parseInt(data.month),
         year: parseInt(data.year),
-        serviziIds: selectedServiziIds,
+        serviziIds: serviziIds,
         createdBy: profile?.id || ''
       });
       
@@ -111,7 +107,6 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
       // Reset referente selection
       form.setValue('referenteId', '');
       setServizi([]);
-      setSelectedServizi([]);
     }
   }, [form.watch('aziendaId'), users]);
 
@@ -131,18 +126,6 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
     form.watch('month'),
     form.watch('year')
   ]);
-
-  const toggleSelectAll = (select: boolean) => {
-    setSelectedServizi(prev => prev.map(s => ({ ...s, selected: select })));
-  };
-
-  const toggleServizioSelection = (id: string) => {
-    setSelectedServizi(prev => 
-      prev.map(s => s.id === id ? { ...s, selected: !s.selected } : s)
-    );
-  };
-
-  const selectedServiziCount = selectedServizi.filter(s => s.selected).length;
 
   const monthOptions = [
     { value: '1', label: 'Gennaio' },
@@ -169,15 +152,11 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
     isLoading,
     isLoadingServizi,
     servizi,
-    selectedServizi,
     referenti,
     selectedAziendaId,
     monthOptions,
     yearOptions,
-    selectedServiziCount,
     onSubmit,
-    toggleSelectAll,
-    toggleServizioSelection,
     aziende,
   };
 };

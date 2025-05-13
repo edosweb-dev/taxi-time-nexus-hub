@@ -19,15 +19,11 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
     isLoading,
     isLoadingServizi,
     servizi,
-    selectedServizi,
     referenti,
     selectedAziendaId,
     monthOptions,
     yearOptions,
-    selectedServiziCount,
     onSubmit,
-    toggleSelectAll,
-    toggleServizioSelection,
     aziende
   } = useReportGeneratorForm(onCancel);
 
@@ -54,7 +50,7 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
           yearOptions={yearOptions}
         />
 
-        {/* Service selection section */}
+        {/* Service display section */}
         {watchAziendaId && watchReferenteId && watchMonth && watchYear && (
           <div className="mt-6">
             <ServizioSelectionHeader 
@@ -62,19 +58,16 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
               referenteName={referenteName}
               monthName={monthName}
               year={watchYear}
-              toggleSelectAll={toggleSelectAll}
             />
 
             <ServizioSelectionTable 
               servizi={servizi}
-              selectedServizi={selectedServizi}
-              toggleServizioSelection={toggleServizioSelection}
               isLoading={isLoadingServizi}
             />
 
-            {selectedServizi.length > 0 && (
+            {servizi.length > 0 && (
               <div className="mt-2 text-sm text-gray-600">
-                Servizi selezionati: {selectedServiziCount} di {selectedServizi.length}
+                Servizi trovati: {servizi.length}
               </div>
             )}
           </div>
@@ -83,8 +76,8 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
         <FormActions 
           onCancel={onCancel}
           isLoading={isLoading}
-          isDisabled={!watchReferenteId || selectedServiziCount === 0}
-          selectedServiziCount={selectedServiziCount}
+          isDisabled={!watchReferenteId || servizi.length === 0}
+          serviziCount={servizi.length}
         />
       </form>
     </Form>
