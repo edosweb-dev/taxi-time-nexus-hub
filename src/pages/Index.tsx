@@ -34,7 +34,7 @@ const Index = () => {
           <div className="h-24 w-24 rounded-full taxitime-gradient flex items-center justify-center text-white text-3xl font-bold mb-8">
             T
           </div>
-          <h1 className="text-4xl font-bold mb-4">TAXITIME V2</h1>
+          <h1 className="text-4xl font-bold mb-4">TAXITIME</h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-lg">
             Piattaforma gestionale per aziende, dedicata all'organizzazione di servizi, utenti, turni e spese
           </p>
