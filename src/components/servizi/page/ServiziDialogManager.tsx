@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Servizio } from "@/lib/types/servizi";
 import { useUsers } from "@/hooks/useUsers";
-import { AssegnazioneDialog } from "../AssegnazioneDialog";
+import { AssegnazioneDialog } from "../assegnazione";
 import { CompletaServizioDialog } from "../CompletaServizioDialog";
 import { FirmaServizio } from "../../firma/FirmaServizio";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
@@ -50,7 +50,6 @@ export const ServiziDialogManager = ({ onRefetch }: ServiziDialogManagerProps) =
         <>
           <AssegnazioneDialog
             servizio={selectedServizio}
-            users={users.filter(u => u.role === 'dipendente' || u.role === 'socio')}
             open={showAssegnazioneDialog}
             onOpenChange={setShowAssegnazioneDialog}
             onClose={handleDialogClose}
