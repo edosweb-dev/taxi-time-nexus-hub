@@ -18,6 +18,10 @@ export function ShiftMonthNavigator({ currentMonth, onMonthChange }: ShiftMonthN
     onMonthChange(addMonths(currentMonth, 1));
   };
 
+  const handleToday = () => {
+    onMonthChange(new Date());
+  };
+
   return (
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold">
@@ -30,7 +34,7 @@ export function ShiftMonthNavigator({ currentMonth, onMonthChange }: ShiftMonthN
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => onMonthChange(new Date())}
+          onClick={handleToday}
         >
           Oggi
         </Button>
