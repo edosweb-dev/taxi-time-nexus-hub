@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as PDFLib from "https://esm.sh/jspdf@2.5.1";
@@ -49,6 +48,40 @@ serve(async (req: Request) => {
       );
     }
 
+    // Ensure the report_aziende bucket exists
+    const ensureReportBucket = async (supabaseClient) => {
+      try {
+        // Check if bucket exists
+        const { data: buckets, error: bucketsError } = await supabaseClient.storage.listBuckets();
+        
+        if (bucketsError) {
+          console.error('Error checking buckets:', bucketsError);
+          return false;
+        }
+        
+        const bucketExists = buckets.some(bucket => bucket.name === 'report_aziende');
+        
+        if (!bucketExists) {
+          // Create the bucket
+          const { error: createError } = await supabaseClient.storage.createBucket('report_aziende', {
+            public: false,
+            fileSizeLimit: 52428800, // 50MB
+          });
+          
+          if (createError) {
+            console.error('Error creating report_aziende bucket:', createError);
+            return false;
+          }
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('Unexpected error ensuring bucket exists:', error);
+        return false;
+      }
+    };
+    await ensureReportBucket(supabaseClient);
+
     // Fetch servizi details
     const { data: servizi, error: serviziError } = await supabaseClient
       .from("servizi")
@@ -58,6 +91,16 @@ serve(async (req: Request) => {
 
     if (serviziError) {
       throw new Error(`Error fetching servizi: ${serviziError.message}`);
+    }
+
+    if (!servizi || servizi.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "No consuntivati servizi found with the provided IDs" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Fetch azienda details

@@ -1,118 +1,137 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Download, Eye } from 'lucide-react';
-import { format } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { useReports } from '../hooks/useReports';
-import { formatItalianDate } from '../utils/formatUtils';
+import React, { useState } from 'react';
+import { useReports } from '@/components/servizi/hooks/useReports';
 import { useUsers } from '@/hooks/useUsers';
 import { useAziende } from '@/hooks/useAziende';
-import { useAuth } from '@/contexts/AuthContext';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
+import { Button } from '@/components/ui/button';
+import { DownloadIcon, EyeIcon, Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ReportPDF } from './ReportPDF';
+import { usePasseggeriCounts } from '@/components/servizi/hooks/usePasseggeriCounts';
+import { useServizi } from '@/hooks/useServizi';
+import { ReportGeneratorDialog } from './ReportGeneratorDialog';
 
 export const ReportsList = () => {
   const { reports, isLoading, downloadReport } = useReports();
   const { users } = useUsers();
   const { aziende } = useAziende();
-  const { profile } = useAuth();
+  const { servizi } = useServizi();
+  const { passeggeriCounts } = usePasseggeriCounts();
   
-  // For client view, filter reports by their azienda
-  const filteredReports = profile?.role === 'cliente' && profile?.azienda_id
-    ? reports.filter(report => report.azienda_id === profile.azienda_id)
-    : reports;
+  const [viewingReport, setViewingReport] = useState<string | null>(null);
+  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   
-  const getAziendaName = (aziendaId: string) => {
-    const azienda = aziende.find(a => a.id === aziendaId);
-    return azienda ? azienda.nome : 'Azienda sconosciuta';
+  // Get the currently viewed report
+  const currentReport = reports.find(r => r.id === viewingReport);
+  
+  // Get report servizi
+  const reportServizi = currentReport 
+    ? servizi.filter(s => currentReport.servizi_ids.includes(s.id))
+    : [];
+  
+  // Get company and referente names
+  const getCompanyName = (id: string) => {
+    const azienda = aziende.find(a => a.id === id);
+    return azienda?.nome || 'Azienda non trovata';
   };
   
-  const getReferenteName = (referenteId: string) => {
-    const referente = users.find(u => u.id === referenteId);
-    return referente 
-      ? `${referente.first_name || ''} ${referente.last_name || ''}`
-      : 'Referente sconosciuto';
+  const getReferenteName = (id: string) => {
+    const user = users.find(u => u.id === id);
+    return user ? `${user.first_name} ${user.last_name}` : 'Referente non trovato';
   };
   
-  const getCreatorName = (creatorId: string) => {
-    const creator = users.find(u => u.id === creatorId);
-    return creator 
-      ? `${creator.first_name || ''} ${creator.last_name || ''}`
-      : 'Utente sconosciuto';
-  };
-  
-  const formatMonthYear = (month: number, year: number) => {
-    const date = new Date(year, month - 1);
-    return format(date, 'MMMM yyyy', { locale: it });
+  const getMonthName = (monthNum: number) => {
+    return format(new Date(2022, monthNum - 1, 1), 'MMMM', { locale: it });
   };
   
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-8">Caricamento report in corso...</div>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center space-x-4 p-4 border rounded-md">
+            <Skeleton className="h-12 w-12" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+            <Skeleton className="h-10 w-24" />
+          </div>
+        ))}
+      </div>
     );
   }
   
-  if (filteredReports.length === 0) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-8">Nessun report disponibile.</div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Report generati</CardTitle>
-        <CardDescription>
-          Lista dei report PDF generati per i servizi consuntivati
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left font-medium px-4 py-2">Azienda</th>
-                <th className="text-left font-medium px-4 py-2">Referente</th>
-                <th className="text-left font-medium px-4 py-2">Periodo</th>
-                <th className="text-left font-medium px-4 py-2">Data generazione</th>
-                <th className="text-left font-medium px-4 py-2">Creato da</th>
-                <th className="text-left font-medium px-4 py-2">Azioni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredReports.map((report) => (
-                <tr key={report.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{getAziendaName(report.azienda_id)}</td>
-                  <td className="px-4 py-2">{getReferenteName(report.referente_id)}</td>
-                  <td className="px-4 py-2">{formatMonthYear(report.month, report.year)}</td>
-                  <td className="px-4 py-2">{formatItalianDate(report.created_at)}</td>
-                  <td className="px-4 py-2">{getCreatorName(report.created_by)}</td>
-                  <td className="px-4 py-2">
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadReport(report.id)}
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        Scarica
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <>
+      {reports.length === 0 ? (
+        <div className="text-center py-12 border rounded-md bg-muted/30">
+          <h3 className="text-lg font-medium">Nessun report generato</h3>
+          <p className="text-muted-foreground mt-1">
+            I report generati appariranno qui. Usa il pulsante "Genera Report" per crearne uno.
+          </p>
         </div>
-      </CardContent>
-    </Card>
+      ) : (
+        <div className="space-y-4">
+          {reports.map((report) => (
+            <div 
+              key={report.id}
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md hover:bg-muted/30 transition-colors"
+            >
+              <div className="space-y-1 mb-3 sm:mb-0">
+                <h3 className="font-medium">
+                  {getCompanyName(report.azienda_id)} - {getMonthName(report.month)} {report.year}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Referente: {getReferenteName(report.referente_id)} | 
+                  Generato il: {format(new Date(report.created_at), 'dd/MM/yyyy')} | 
+                  Servizi: {report.servizi_ids.length}
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setViewingReport(report.id)}
+                >
+                  <EyeIcon className="h-4 w-4 mr-1" /> 
+                  Visualizza
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  onClick={() => downloadReport(report.id)}
+                >
+                  <DownloadIcon className="h-4 w-4 mr-1" /> 
+                  Scarica
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* PDF Preview Dialog */}
+      <Dialog open={!!viewingReport} onOpenChange={(open) => !open && setViewingReport(null)}>
+        <DialogContent className="max-w-6xl h-[90vh] max-h-[90vh]">
+          {currentReport && (
+            <ReportPDF
+              servizi={reportServizi}
+              passeggeriCounts={passeggeriCounts}
+              azienda={aziende.find(a => a.id === currentReport.azienda_id) || null}
+              referenteName={getReferenteName(currentReport.referente_id)}
+              month={currentReport.month}
+              year={currentReport.year}
+              users={users}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Report Generator Dialog */}
+      <ReportGeneratorDialog open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen} />
+    </>
   );
 };

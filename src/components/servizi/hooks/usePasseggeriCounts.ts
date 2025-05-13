@@ -1,49 +1,32 @@
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { Servizio } from "@/lib/types/servizi";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
-/**
- * Hook to fetch passenger counts for a list of services
- */
-export function usePasseggeriCounts(servizi: Servizio[]) {
-  const [passeggeriCounts, setPasseggeriCounts] = useState<Record<string, number>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  
-  useEffect(() => {
-    const fetchPasseggeriCounts = async () => {
-      if (servizi.length === 0) return;
-      
-      setIsLoading(true);
-      const servizioIds = servizi.map(s => s.id);
-      
+export const usePasseggeriCounts = () => {
+  const { data: passeggeriData, isLoading } = useQuery({
+    queryKey: ['passeggeriCounts'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('passeggeri')
-        .select('servizio_id')
-        .in('servizio_id', servizioIds);
+        .select('servizio_id');
         
       if (error) {
-        console.error('Error fetching passengers:', error);
-        setIsLoading(false);
-        return;
+        console.error('Error fetching passeggeri counts:', error);
+        return [];
       }
       
-      // Count passengers per service
-      const counts: Record<string, number> = {};
-      data?.forEach(p => {
-        counts[p.servizio_id] = (counts[p.servizio_id] || 0) + 1;
-      });
-      
-      setPasseggeriCounts(counts);
-      setIsLoading(false);
-    };
-    
-    fetchPasseggeriCounts();
-  }, [servizi]);
-
-  return { 
-    passeggeriCounts, 
+      return data;
+    },
+  });
+  
+  // Count passeggeri per servizio
+  const passeggeriCounts = (passeggeriData || []).reduce((acc: Record<string, number>, p) => {
+    acc[p.servizio_id] = (acc[p.servizio_id] || 0) + 1;
+    return acc;
+  }, {});
+  
+  return {
+    passeggeriCounts,
     isLoading,
-    getCount: (servizioId: string) => passeggeriCounts[servizioId] || 0 
   };
-}
+};

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Document, Page, Text, View, StyleSheet, PDFViewer, Image } from '@react-pdf/renderer';
 import { format } from 'date-fns';
@@ -113,7 +112,7 @@ interface ReportPDFProps {
   users: Profile[];
 }
 
-const ReportPDF: React.FC<ReportPDFProps> = ({
+export const ReportPDF: React.FC<ReportPDFProps> = ({
   servizi,
   passeggeriCounts,
   azienda,
