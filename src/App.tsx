@@ -9,7 +9,7 @@ import UsersPage from './pages/UsersPage';
 import ClientDashboardPage from './pages/ClientDashboardPage';
 import RecuperaPasswordPage from './pages/RecuperaPasswordPage';
 import { AuthProvider } from './contexts/AuthContext';
-import AuthGuard from './components/AuthGuard';
+import { AuthGuard } from './components/AuthGuard';
 import AziendePage from './pages/aziende/AziendePage';
 import AziendaDetailPage from './pages/aziende/AziendaDetailPage';
 import ServiziPage from './pages/servizi/ServiziPage';
