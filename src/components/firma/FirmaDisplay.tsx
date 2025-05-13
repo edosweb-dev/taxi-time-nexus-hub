@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, RefreshCcw, Image } from "lucide-react";
+import { AlertTriangle, RefreshCcw, Image as ImageIcon } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
@@ -45,16 +45,16 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
       
       console.log(`Tentativo ${retryCount + 1} caricamento immagine firma:`, cacheBustUrl);
       
-      // Precarica l'immagine per verificare che sia valida
-      const img = new Image();
+      // Create a standard HTMLImageElement to check if image loads properly
+      const imgElement = document.createElement('img');
       
-      img.onload = () => {
+      imgElement.onload = () => {
         console.log("Immagine firma caricata correttamente");
         setIsLoading(false);
         setImageError(false);
       };
       
-      img.onerror = (e) => {
+      imgElement.onerror = (e) => {
         console.error("Errore caricamento immagine firma:", e);
         setImageError(true);
         setIsLoading(false);
@@ -74,8 +74,8 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
       };
       
       // Set crossOrigin to anonymous to allow CORS
-      img.crossOrigin = "anonymous";
-      img.src = cacheBustUrl;
+      imgElement.crossOrigin = "anonymous";
+      imgElement.src = cacheBustUrl;
     };
     
     loadImage();
@@ -109,7 +109,7 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
     <Card className="overflow-hidden">
       <CardHeader className="bg-muted/30 pb-2">
         <CardTitle className="text-lg flex items-center">
-          <Image className="h-4 w-4 mr-2" />
+          <ImageIcon className="h-4 w-4 mr-2" />
           Firma Digitale
         </CardTitle>
       </CardHeader>
