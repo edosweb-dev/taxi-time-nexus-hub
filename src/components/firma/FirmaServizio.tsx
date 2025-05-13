@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { SignatureCanvas } from "./SignatureCanvas";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/use-toast";
 import { Pencil } from "lucide-react";
 import { useFirmaDigitale } from "@/hooks/useFirmaDigitale";
 
@@ -17,7 +17,9 @@ export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps
   const { uploadFirma, isLoading } = useFirmaDigitale();
 
   const handleSalvaFirma = async (signatureData: string) => {
-    toast.info("Salvataggio firma in corso...");
+    toast({
+      description: "Salvataggio firma in corso..."
+    });
     
     try {
       console.log("Elaborazione firma prima dell'upload");
@@ -29,11 +31,19 @@ export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps
         onFirmaSalvata();
       } else {
         console.error("Errore nel salvataggio della firma:", result.error);
-        toast.error(`Errore nel salvataggio della firma: ${result.error?.message || 'Errore sconosciuto'}`);
+        toast({
+          title: "Errore",
+          description: `Errore nel salvataggio della firma: ${result.error?.message || 'Errore sconosciuto'}`,
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error("Errore durante il salvataggio della firma:", error);
-      toast.error("Si è verificato un errore durante il salvataggio della firma");
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio della firma",
+        variant: "destructive"
+      });
     }
   };
 
