@@ -71,7 +71,7 @@ export const ShiftEvent = ({
       onClick={onClick}
     >
       <div className="flex items-center gap-1">
-        {getShiftTypeIcon(shift.shift_type, { size: 12 })}
+        {getShiftTypeIcon(shift.shift_type)}
         <span className="font-medium">
           {shift.start_time && shift.end_time
             ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
