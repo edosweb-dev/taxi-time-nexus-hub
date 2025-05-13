@@ -3,3 +3,4 @@
 export * from './useGenerateReport';
 export * from './useReports';
 export * from './usePasseggeriCounts';
+export * from './useDebugReporting';

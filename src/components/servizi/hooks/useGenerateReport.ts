@@ -45,6 +45,26 @@ export const useGenerateReport = () => {
         referenteId: filterParams.referenteId
       });
       
+      // First fetch all servizi regardless of status to debug
+      const { data: allServizi, error: allServiziError } = await supabase
+        .from('servizi')
+        .select('*')
+        .eq('azienda_id', filterParams.aziendaId)
+        .eq('referente_id', filterParams.referenteId)
+        .gte('data_servizio', startDateString)
+        .lte('data_servizio', endDateString)
+        .order('data_servizio', { ascending: true });
+        
+      if (allServiziError) {
+        console.error('Error fetching all servizi:', allServiziError);
+        return [];
+      }
+      
+      console.log('Servizi totali trovati:', allServizi?.length || 0);
+      console.log('Date dei servizi trovati:', allServizi?.map(s => s.data_servizio));
+      console.log('Filtrati consuntivati:', allServizi?.filter(s => s.stato === 'consuntivato').length || 0);
+      
+      // Now fetch only consuntivati for the actual data
       const { data, error } = await supabase
         .from('servizi')
         .select('*')
@@ -60,7 +80,21 @@ export const useGenerateReport = () => {
         return [];
       }
       
-      console.log('Retrieved servizi count:', data?.length || 0);
+      console.log('Retrieved consuntivati servizi count:', data?.length || 0);
+      
+      // Log details of each servizio to verify data format
+      if (data && data.length > 0) {
+        console.log('Sample servizio data format:', {
+          id: data[0].id,
+          data_servizio: data[0].data_servizio,
+          stato: data[0].stato,
+          azienda_id: data[0].azienda_id,
+          referente_id: data[0].referente_id
+        });
+      } else {
+        console.log('No consuntivati servizi found with current filters');
+      }
+      
       return data as Servizio[];
     },
     enabled: !!(filterParams.aziendaId && filterParams.referenteId && filterParams.month && filterParams.year),
@@ -86,6 +120,7 @@ export const useGenerateReport = () => {
       });
       
       console.log('Generating report with params:', params);
+      console.log('Selected servizi IDs:', params.serviziIds);
       
       // Call Edge Function to generate PDF
       const { data, error } = await supabase.functions.invoke('generate-report', {
