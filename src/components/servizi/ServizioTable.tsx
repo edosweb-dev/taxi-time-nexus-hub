@@ -6,15 +6,17 @@ import { Profile } from "@/lib/types";
 import { useAziende } from "@/hooks/useAziende";
 import { usePasseggeriCounts } from "./hooks/usePasseggeriCounts";
 import { ServizioTableRow } from "./ServizioTableRow";
+import { getServizioIndex } from "./utils/formatUtils";
 
 interface ServizioTableProps {
   servizi: Servizio[];
   users: Profile[];
   onNavigateToDetail: (id: string) => void;
   onSelect?: (servizio: Servizio) => void;
-  onCompleta?: (servizio: Servizio) => void; // Nuovo handler per completamento
-  onFirma?: (servizio: Servizio) => void; // Nuovo handler per firma
+  onCompleta?: (servizio: Servizio) => void;
+  onFirma?: (servizio: Servizio) => void;
   isAdminOrSocio?: boolean;
+  allServizi: Servizio[]; // Added this prop for global indexing
 }
 
 export const ServizioTable = ({ 
@@ -24,7 +26,8 @@ export const ServizioTable = ({
   onSelect,
   onCompleta,
   onFirma,
-  isAdminOrSocio = false
+  isAdminOrSocio = false,
+  allServizi
 }: ServizioTableProps) => {
   const { aziende } = useAziende();
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -65,23 +68,28 @@ export const ServizioTable = ({
               </TableCell>
             </TableRow>
           ) : (
-            servizi.map((servizio, index) => (
-              <ServizioTableRow
-                key={servizio.id}
-                servizio={servizio}
-                users={users}
-                aziendaName={getAziendaName(servizio.azienda_id)}
-                passengerCount={passeggeriCounts[servizio.id] || 0}
-                isExpanded={expandedRow === servizio.id}
-                isAdminOrSocio={isAdminOrSocio}
-                index={index}
-                onToggleExpand={toggleRowExpand}
-                onNavigateToDetail={onNavigateToDetail}
-                onSelect={onSelect}
-                onCompleta={onCompleta}
-                onFirma={onFirma}
-              />
-            ))
+            servizi.map((servizio) => {
+              // Get the index of the service in the global list
+              const globalIndex = getServizioIndex(servizio.id, allServizi);
+              
+              return (
+                <ServizioTableRow
+                  key={servizio.id}
+                  servizio={servizio}
+                  users={users}
+                  aziendaName={getAziendaName(servizio.azienda_id)}
+                  passengerCount={passeggeriCounts[servizio.id] || 0}
+                  isExpanded={expandedRow === servizio.id}
+                  isAdminOrSocio={isAdminOrSocio}
+                  index={globalIndex}
+                  onToggleExpand={toggleRowExpand}
+                  onNavigateToDetail={onNavigateToDetail}
+                  onSelect={onSelect}
+                  onCompleta={onCompleta}
+                  onFirma={onFirma}
+                />
+              );
+            })
           )}
         </TableBody>
       </Table>

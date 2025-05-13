@@ -1,89 +1,59 @@
 
-import { useState, useEffect, useCallback } from "react";
-import { useServizio, useServizi } from "@/hooks/useServizi";
-import { useAziende } from "@/hooks/useAziende";
-import { useAuth } from "@/contexts/AuthContext";
-import { Servizio } from "@/lib/types/servizi";
+import { useState } from "react";
+import { useServizio, useServizi } from "./useServizi";
+import { useUsers } from "./useUsers";
+import { useAziende } from "./useAziende";
+import { getServizioIndex } from "@/components/servizi/utils/formatUtils";
 
 export function useServizioDetail(id?: string) {
-  const { data, isLoading, error, refetch } = useServizio(id);
-  const { servizi } = useServizi();
+  const { data, isLoading, isError, error } = useServizio(id);
+  const { servizi: allServizi } = useServizi(); // Get all servizi for global indexing
+  const { users } = useUsers();
   const { aziende } = useAziende();
-  const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<string>("info");
-  const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
-  const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
-  const [firmaDigitaleAttiva, setFirmaDigitaleAttiva] = useState(false);
-  const [servizioIndex, setServizioIndex] = useState(0);
+  
+  const [activeTab, setActiveTab] = useState("info");
   
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
   
-  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
-  const isAssegnatoToMe = profile?.id === servizio?.assegnato_a;
-
-  // Find the index of the current servizio in the list
-  useEffect(() => {
-    if (servizi && servizi.length > 0 && id) {
-      const index = servizi.findIndex(s => s.id === id);
-      setServizioIndex(index !== -1 ? index : 0);
-    }
-  }, [servizi, id]);
+  const canBeEdited = servizio?.stato === "da_assegnare";
+  const canBeCompleted = servizio?.stato === "assegnato";
+  const canBeConsuntivato = servizio?.stato === "completato";
   
-  useEffect(() => {
-    if (servizio && aziende.length > 0) {
-      const azienda = aziende.find(a => a.id === servizio.azienda_id);
-      setFirmaDigitaleAttiva(!!azienda?.firma_digitale_attiva);
-    }
-  }, [servizio, aziende]);
-  
-  // Get company name by ID
-  const getAziendaName = useCallback((aziendaId?: string) => {
+  // Function to get azienda name
+  const getAziendaName = (aziendaId?: string) => {
     if (!aziendaId) return "Azienda sconosciuta";
     const azienda = aziende.find(a => a.id === aziendaId);
     return azienda ? azienda.nome : "Azienda sconosciuta";
-  }, [aziende]);
+  };
   
-  // Service can be edited by admin/socio if not yet completed or consuntivato
-  const canBeEdited = isAdminOrSocio && 
-    servizio && 
-    (servizio.stato !== 'completato' && servizio.stato !== 'consuntivato');
-  
-  // Check if service can be completed (only by assigned user)
-  const canBeCompleted = servizio && 
-    servizio.stato === 'assegnato' && 
-    (isAssegnatoToMe || isAdminOrSocio);
-  
-  // Check if service can be consuntivato (only by admin/socio after completion)
-  const canBeConsuntivato = isAdminOrSocio && 
-    servizio && 
-    servizio.stato === 'completato';
-  
-  // Format currency values
-  const formatCurrency = (value?: number) => {
-    if (value === undefined || value === null) return "-";
-    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
+  // Function to get user name
+  const getUserName = (users: any[], userId?: string) => {
+    if (!userId) return null;
+    const user = users.find(u => u.id === userId);
+    if (!user) return null;
+    return `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email;
   };
 
+  // Get global index for the service
+  const servizioIndex = servizio && allServizi ? 
+    getServizioIndex(servizio.id, allServizi) : 
+    0;
+  
   return {
     servizio,
     passeggeri,
+    users,
     isLoading,
+    isError,
     error,
-    refetch,
     activeTab,
     setActiveTab,
-    completaDialogOpen,
-    setCompletaDialogOpen,
-    consuntivaDialogOpen,
-    setConsuntivaDialogOpen,
-    firmaDigitaleAttiva,
-    isAdminOrSocio,
     canBeEdited,
     canBeCompleted,
     canBeConsuntivato,
     getAziendaName,
-    formatCurrency,
+    getUserName,
     servizioIndex,
   };
 }

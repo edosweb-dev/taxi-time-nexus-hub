@@ -5,14 +5,18 @@ import { it } from "date-fns/locale";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Servizio } from "@/lib/types/servizi";
 import { getStatoBadge, getStateIcon } from "../utils";
-import { formatProgressiveId } from "../utils/formatUtils";
+import { formatProgressiveId, getServizioIndex } from "../utils/formatUtils";
 
 interface ServizioCardHeaderProps {
   servizio: Servizio;
   index: number;
+  allServizi?: { id: string }[]; // Optional to maintain backward compatibility
 }
 
-export const ServizioCardHeader = ({ servizio, index }: ServizioCardHeaderProps) => {
+export const ServizioCardHeader = ({ servizio, index, allServizi }: ServizioCardHeaderProps) => {
+  // If allServizi is provided, use it to get global index
+  const globalIndex = allServizi ? getServizioIndex(servizio.id, allServizi) : index;
+
   return (
     <CardHeader className="pb-2">
       <div className="flex justify-between">
@@ -26,7 +30,7 @@ export const ServizioCardHeader = ({ servizio, index }: ServizioCardHeaderProps)
       </div>
       <CardTitle className="text-base mt-2 flex justify-between items-center">
         <div>
-          {formatProgressiveId(servizio.id, index)}: {servizio.numero_commessa || "Servizio di trasporto"}
+          {formatProgressiveId(servizio.id, globalIndex)}: {servizio.numero_commessa || "Servizio di trasporto"}
         </div>
         {getStateIcon(servizio.stato) && (
           <div className="text-muted-foreground">

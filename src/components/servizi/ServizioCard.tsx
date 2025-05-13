@@ -1,92 +1,70 @@
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Servizio, StatoServizio } from "@/lib/types/servizi";
+import { Card } from "@/components/ui/card";
+import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { getAziende } from "@/lib/api/aziende";
+import { ServizioCardHeader } from "./card/ServizioCardHeader";
+import { ServizioCardCompany } from "./card/ServizioCardCompany";
+import { ServizioCardAddresses } from "./card/ServizioCardAddresses";
+import { ServizioCardAssignee } from "./card/ServizioCardAssignee";
+import { ServizioCardActions } from "./card/ServizioCardActions";
+import { ServizioCardPayment } from "./card/ServizioCardPayment";
 import { usePasseggeriCount } from "./card/hooks/usePasseggeriCount";
-import {
-  ServizioCardHeader,
-  ServizioCardCompany,
-  ServizioCardDateTime,
-  ServizioCardAddresses,
-  ServizioCardPayment,
-  ServizioCardAssignee,
-  ServizioCardActions
-} from "./card";
 
 interface ServizioCardProps {
   servizio: Servizio;
   users: Profile[];
-  status: StatoServizio;
   isAdminOrSocio: boolean;
-  index: number;
-  onSelect: (servizio: Servizio) => void;
-  onClick: (id: string) => void;
+  onSelectServizio: (servizio: Servizio) => void;
+  onNavigateToDetail: (id: string) => void;
   onCompleta?: (servizio: Servizio) => void;
   onFirma?: (servizio: Servizio) => void;
+  index: number;
+  allServizi?: { id: string }[]; // Added for global indexing
 }
 
 export const ServizioCard = ({
   servizio,
   users,
-  status,
   isAdminOrSocio,
-  index,
-  onSelect,
-  onClick,
+  onSelectServizio,
+  onNavigateToDetail,
   onCompleta,
-  onFirma
+  onFirma,
+  index,
+  allServizi
 }: ServizioCardProps) => {
-  // Fetch all companies for reference
-  const { data: aziende = [] } = useQuery({
-    queryKey: ['aziende'],
-    queryFn: getAziende,
-  });
-  
-  // Get passenger count 
-  const passeggeriCount = usePasseggeriCount(servizio.id);
+  const { count } = usePasseggeriCount(servizio.id);
 
   return (
-    <Card 
-      className="relative cursor-pointer hover:bg-accent/10 transition-colors"
-      onClick={() => onClick(servizio.id)}
-    >
-      <ServizioCardHeader servizio={servizio} index={index} />
+    <Card className="overflow-hidden">
+      <ServizioCardHeader 
+        servizio={servizio}
+        index={index}
+        allServizi={allServizi}
+      />
       
-      <CardContent>
-        <div className="text-sm space-y-3">
-          <ServizioCardCompany 
-            servizio={servizio} 
-            users={users} 
-            aziende={aziende} 
-          />
-
-          <ServizioCardDateTime servizio={servizio} />
-
-          <ServizioCardAddresses servizio={servizio} />
-
-          <ServizioCardPayment 
-            servizio={servizio} 
-            passeggeriCount={passeggeriCount} 
-          />
-
-          <ServizioCardAssignee 
-            servizio={servizio} 
-            users={users} 
-          />
-
-          <ServizioCardActions
-            servizio={servizio}
-            status={status}
-            isAdminOrSocio={isAdminOrSocio}
-            onSelect={onSelect}
-            onCompleta={onCompleta}
-            onFirma={onFirma}
-          />
-        </div>
-      </CardContent>
+      <div className="divide-y">
+        <ServizioCardCompany servizio={servizio} />
+        
+        <ServizioCardAddresses servizio={servizio} />
+        
+        <ServizioCardAssignee 
+          servizio={servizio} 
+          users={users} 
+          passeggeriCount={count} 
+        />
+        
+        <ServizioCardPayment servizio={servizio} />
+        
+        <ServizioCardActions 
+          servizio={servizio} 
+          isAdminOrSocio={isAdminOrSocio}
+          onSelect={() => onSelectServizio(servizio)}
+          onViewDetails={() => onNavigateToDetail(servizio.id)}
+          onCompleta={onCompleta}
+          onFirma={onFirma}
+        />
+      </div>
     </Card>
   );
 };

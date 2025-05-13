@@ -25,6 +25,7 @@ interface ServiziContentProps {
   onSelectServizio: (servizio: Servizio) => void;
   onCompleta: (servizio: Servizio) => void;
   onFirma: (servizio: Servizio) => void;
+  allServizi: Servizio[]; // Added this prop for global indexing
 }
 
 export function ServiziContent({
@@ -38,7 +39,8 @@ export function ServiziContent({
   onNavigateToNewServizio,
   onSelectServizio,
   onCompleta,
-  onFirma
+  onFirma,
+  allServizi
 }: ServiziContentProps) {
   const [activeTab, setActiveTab] = useState<string>("da_assegnare");
   const [viewMode, setViewMode] = useState<"cards" | "table">(isMobile ? "cards" : "table");
@@ -114,6 +116,7 @@ export function ServiziContent({
               onNavigateToDetail={onNavigateToDetail}
               onCompleta={onCompleta}
               onFirma={onFirma}
+              allServizi={allServizi}
             />
           ) : (
             <ServizioTable
@@ -124,6 +127,7 @@ export function ServiziContent({
               onCompleta={onCompleta}
               onFirma={onFirma}
               isAdminOrSocio={isAdminOrSocio}
+              allServizi={allServizi}
             />
           )}
         </TabsContent>
@@ -134,6 +138,7 @@ export function ServiziContent({
           servizi={servizi}
           users={users}
           onNavigateToDetail={onNavigateToDetail}
+          allServizi={allServizi}
         />
       </TabsContent>
     </Tabs>

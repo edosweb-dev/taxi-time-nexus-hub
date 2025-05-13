@@ -1,11 +1,10 @@
 
-import { useState } from "react";
 import { MainLayout } from "@/components/layouts/MainLayout";
-import { useServiziPage } from "@/hooks/useServiziPage";
-import { ServiziHeader } from "@/components/servizi/page/ServiziHeader";
 import { ServiziContent } from "@/components/servizi/page/ServiziContent";
+import { ServiziHeader } from "@/components/servizi/page/ServiziHeader";
 import { ServiziDialogManager } from "@/components/servizi/page/ServiziDialogManager";
-import { Servizio } from "@/lib/types/servizi";
+import { useServiziPage } from "@/hooks/useServiziPage";
+import { useState } from "react";
 
 export default function ServiziPage() {
   const {
@@ -20,52 +19,21 @@ export default function ServiziPage() {
     handleNavigateToNewServizio,
   } = useServiziPage();
 
-  const [activeTab, setActiveTab] = useState<string>("da_assegnare");
-  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
-  const [servizioPerCompletamento, setServizioPerCompletamento] = useState<Servizio | null>(null);
-  const [servizioPerFirma, setServizioPerFirma] = useState<Servizio | null>(null);
+  const [showCalendarView, setShowCalendarView] = useState(false);
   
-  // Function to handle switching to calendar view
   const handleShowCalendarView = () => {
-    setActiveTab("calendario");
-  };
-
-  // Function that gets called when a signature is saved successfully
-  const handleFirmaSalvata = () => {
-    // Refresh the list of services
-    refetch();
-  };
-
-  // Dialog state handlers
-  const handleSelectServizio = (servizio: Servizio) => {
-    setSelectedServizio(servizio);
-  };
-
-  const handleCompleta = (servizio: Servizio) => {
-    setServizioPerCompletamento(servizio);
-  };
-
-  const handleFirma = (servizio: Servizio) => {
-    setServizioPerFirma(servizio);
-  };
-
-  const handleCloseAssegnazione = () => {
-    setSelectedServizio(null);
-  };
-
-  const handleCloseCompletamento = (open: boolean) => {
-    if (!open) setServizioPerCompletamento(null);
+    setShowCalendarView(true);
   };
 
   return (
     <MainLayout>
       <div className="space-y-6">
         <ServiziHeader 
-          onShowCalendarView={handleShowCalendarView}
-          onCreateNewServizio={handleNavigateToNewServizio}
+          onShowCalendarView={handleShowCalendarView} 
+          onCreateNewServizio={handleNavigateToNewServizio} 
         />
-
-        <ServiziContent
+        
+        <ServiziContent 
           servizi={servizi}
           users={users}
           isLoading={isLoading}
@@ -74,21 +42,16 @@ export default function ServiziPage() {
           isMobile={isMobile}
           onNavigateToDetail={handleNavigateToDetail}
           onNavigateToNewServizio={handleNavigateToNewServizio}
-          onSelectServizio={handleSelectServizio}
-          onCompleta={handleCompleta}
-          onFirma={handleFirma}
+          onSelectServizio={(servizio) => {}}
+          onCompleta={(servizio) => {}}
+          onFirma={(servizio) => {}}
+          allServizi={servizi} // Pass all servizi for global indexing
+        />
+        
+        <ServiziDialogManager 
+          onRefetch={refetch}
         />
       </div>
-      
-      <ServiziDialogManager
-        users={users}
-        onFirmaSalvata={handleFirmaSalvata}
-        selectedServizio={selectedServizio}
-        servizioPerCompletamento={servizioPerCompletamento}
-        servizioPerFirma={servizioPerFirma}
-        onCloseAssegnazione={handleCloseAssegnazione}
-        onCloseCompletamento={handleCloseCompletamento}
-      />
     </MainLayout>
   );
 }

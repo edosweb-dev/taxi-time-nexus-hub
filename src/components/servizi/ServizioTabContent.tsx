@@ -1,10 +1,13 @@
 
-import { Servizio, StatoServizio } from "@/lib/types/servizi";
+import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { ServizioCard } from "./ServizioCard";
+import { getServizioIndex } from "./utils/formatUtils";
+
+type StatoServizioType = "da_assegnare" | "assegnato" | "non_accettato" | "completato" | "annullato" | "consuntivato";
 
 interface ServizioTabContentProps {
-  status: StatoServizio;
+  status: StatoServizioType;
   servizi: Servizio[];
   users: Profile[];
   isAdminOrSocio: boolean;
@@ -12,6 +15,7 @@ interface ServizioTabContentProps {
   onNavigateToDetail: (id: string) => void;
   onCompleta?: (servizio: Servizio) => void;
   onFirma?: (servizio: Servizio) => void;
+  allServizi?: Servizio[]; // Added for global indexing
 }
 
 export const ServizioTabContent = ({
@@ -22,37 +26,58 @@ export const ServizioTabContent = ({
   onSelectServizio,
   onNavigateToDetail,
   onCompleta,
-  onFirma
+  onFirma,
+  allServizi
 }: ServizioTabContentProps) => {
   if (servizi.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        Nessun servizio {status === "da_assegnare" ? "da assegnare" 
-          : status === "assegnato" ? "assegnato" 
-          : status === "completato" ? "completato"
-          : status === "annullato" ? "annullato"
-          : status === "non_accettato" ? "non accettato"
-          : ""}
+      <div className="text-center py-8 border rounded-md bg-muted/30">
+        Nessun servizio {getLocalizedStatus(status)}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {servizi.map((servizio, index) => (
-        <ServizioCard
-          key={servizio.id}
-          servizio={servizio}
-          users={users}
-          status={status}
-          isAdminOrSocio={isAdminOrSocio}
-          index={index}
-          onSelect={onSelectServizio}
-          onClick={onNavigateToDetail}
-          onCompleta={onCompleta}
-          onFirma={onFirma}
-        />
-      ))}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {servizi.map((servizio) => {
+        // Get index for global progressive ID
+        const globalIndex = allServizi 
+          ? getServizioIndex(servizio.id, allServizi) 
+          : servizi.indexOf(servizio);
+          
+        return (
+          <ServizioCard
+            key={servizio.id}
+            servizio={servizio}
+            users={users}
+            isAdminOrSocio={isAdminOrSocio}
+            onSelectServizio={onSelectServizio}
+            onNavigateToDetail={onNavigateToDetail}
+            onCompleta={onCompleta}
+            onFirma={onFirma}
+            index={globalIndex}
+          />
+        );
+      })}
     </div>
   );
 };
+
+function getLocalizedStatus(status: StatoServizioType): string {
+  switch (status) {
+    case "da_assegnare":
+      return "da assegnare";
+    case "assegnato":
+      return "assegnati";
+    case "non_accettato":
+      return "non accettati";
+    case "completato":
+      return "completati";
+    case "annullato":
+      return "annullati";
+    case "consuntivato":
+      return "consuntivati";
+    default:
+      return "";
+  }
+}
