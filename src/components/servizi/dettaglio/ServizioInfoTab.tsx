@@ -1,28 +1,17 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Servizio } from "@/lib/types/servizi";
 import { format, parseISO } from "date-fns";
 import { Building, User, Calendar, Clock, CreditCard, Users, MapPin } from "lucide-react";
-import { User as UserType } from "@/lib/api/users/types";
-
-// Definiamo il tipo User qui visto che non viene esportato da @/lib/api/users/types
-type User = {
-  id: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  role?: string;
-  created_at?: string;
-};
+import { Profile } from "@/lib/types";
 
 interface ServizioInfoTabProps {
   servizio: Servizio;
   passeggeri: any[];
-  users: User[];
+  users: Profile[];
   getAziendaName: (aziendaId?: string) => string;
-  getUserName: (users: User[], userId?: string) => string;
+  getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
 }
 

@@ -4,7 +4,7 @@ import { MainLayout } from "@/components/layouts/MainLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
 import { useUsers } from "@/hooks/useUsers";
-import { getUserName } from "@/components/servizi/utils";
+import { getUserName } from "@/components/servizi/utils/userUtils";
 import { FirmaServizio } from "@/components/firma/FirmaServizio";
 import { FirmaDisplay } from "@/components/firma/FirmaDisplay";
 import { CompletaServizioDialog } from "@/components/servizi/CompletaServizioDialog";
