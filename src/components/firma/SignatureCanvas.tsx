@@ -1,7 +1,8 @@
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Save, Pencil } from "lucide-react";
+import SignaturePad from "react-signature-canvas";
+import { toast } from "@/components/ui/sonner";
 
 interface SignatureCanvasProps {
   onSave: (signatureData: string) => void;
@@ -10,123 +11,59 @@ interface SignatureCanvasProps {
 }
 
 export function SignatureCanvas({ onSave, width = 500, height = 200 }: SignatureCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const signatureRef = useRef<SignaturePad>(null);
   const [hasSignature, setHasSignature] = useState(false);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Imposta lo stile del tratto
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "#000";
-
-    // Pulisci il canvas
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }, []);
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    setIsDrawing(true);
+  const handleBegin = () => {
+    console.log("Firma: inizio disegno");
     setHasSignature(true);
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    
-    ctx.beginPath();
-    
-    // Gestisci sia mouse che touch events
-    if (e.nativeEvent instanceof MouseEvent) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.nativeEvent.clientX - rect.left;
-      const y = e.nativeEvent.clientY - rect.top;
-      ctx.moveTo(x, y);
-    } else if (e.nativeEvent instanceof TouchEvent) {
-      e.preventDefault(); // Previeni lo scroll su dispositivi touch
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.nativeEvent.touches[0];
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-      ctx.moveTo(x, y);
-    }
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    
-    // Gestisci sia mouse che touch events
-    if (e.nativeEvent instanceof MouseEvent) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.nativeEvent.clientX - rect.left;
-      const y = e.nativeEvent.clientY - rect.top;
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    } else if (e.nativeEvent instanceof TouchEvent) {
-      e.preventDefault(); // Previeni lo scroll su dispositivi touch
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.nativeEvent.touches[0];
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    }
-  };
-
-  const endDrawing = () => {
-    setIsDrawing(false);
   };
 
   const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setHasSignature(false);
+    if (signatureRef.current) {
+      signatureRef.current.clear();
+      setHasSignature(false);
+      console.log("Firma: canvas pulito");
+    }
   };
 
   const saveSignature = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    // Converti il canvas in una stringa base64 di tipo PNG
-    const dataUrl = canvas.toDataURL("image/png");
-    onSave(dataUrl);
+    if (signatureRef.current) {
+      // Check if the signature pad is empty
+      const isEmpty = signatureRef.current.isEmpty();
+      console.log("Firma isEmpty check:", isEmpty);
+
+      if (isEmpty) {
+        toast.error("Firma non valida. Inserisci una firma prima di salvare.");
+        return;
+      }
+
+      // Get signature as data URL with higher quality
+      const dataUrl = signatureRef.current.toDataURL("image/png");
+      console.log("Firma dataUrl generato:", dataUrl.substring(0, 50) + "...");
+      
+      // Check if the dataUrl contains actual image data
+      if (dataUrl.length < 1000) {
+        toast.error("Firma troppo semplice o vuota. Prova a firmare nuovamente.");
+        return;
+      }
+
+      onSave(dataUrl);
+    }
   };
 
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="border border-gray-300 rounded bg-white">
-        <canvas
-          ref={canvasRef}
-          width={width}
-          height={height}
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={endDrawing}
-          onMouseLeave={endDrawing}
-          onTouchStart={startDrawing}
-          onTouchMove={draw}
-          onTouchEnd={endDrawing}
-          style={{ touchAction: "none" }}
+        <SignaturePad
+          ref={signatureRef}
+          canvasProps={{
+            width: width,
+            height: height,
+            className: "signature-canvas",
+          }}
+          backgroundColor="#fff"
+          onBegin={handleBegin}
         />
       </div>
       <div className="flex gap-2">
@@ -135,11 +72,11 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
         </Button>
         <Button 
           type="button" 
-          disabled={!hasSignature} 
           onClick={saveSignature}
           className="flex gap-2 items-center"
+          disabled={!hasSignature}
         >
-          <Save className="h-4 w-4" /> Salva firma
+          Salva firma
         </Button>
       </div>
       <p className="text-sm text-muted-foreground">

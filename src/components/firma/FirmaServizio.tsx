@@ -17,11 +17,21 @@ export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps
   const { uploadFirma, isLoading } = useFirmaDigitale();
 
   const handleSalvaFirma = async (signatureData: string) => {
-    const result = await uploadFirma(servizioId, signatureData);
+    toast.info("Salvataggio firma in corso...");
     
-    if (result.success) {
-      setOpen(false);
-      onFirmaSalvata();
+    try {
+      const result = await uploadFirma(servizioId, signatureData);
+      
+      if (result.success) {
+        setOpen(false);
+        toast.success("Firma salvata con successo");
+        onFirmaSalvata();
+      } else {
+        toast.error(`Errore nel salvataggio della firma: ${result.error?.message || 'Errore sconosciuto'}`);
+      }
+    } catch (error) {
+      console.error("Errore durante il salvataggio della firma:", error);
+      toast.error("Si è verificato un errore durante il salvataggio della firma");
     }
   };
 

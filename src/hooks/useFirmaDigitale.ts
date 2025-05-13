@@ -12,6 +12,12 @@ export function useFirmaDigitale() {
     try {
       setIsLoading(true);
       
+      console.log("Inizio upload firma...");
+      if (!firmaBase64 || firmaBase64.length < 1000) {
+        console.error("Firma non valida o troppo piccola");
+        return { success: false, error: new Error("Firma non valida o troppo piccola") };
+      }
+      
       const result = await salvaFirmaDigitale(servizioId, firmaBase64);
       
       if (!result.success) {
@@ -22,12 +28,10 @@ export function useFirmaDigitale() {
       queryClient.invalidateQueries({ queryKey: ['servizio', servizioId] });
       queryClient.invalidateQueries({ queryKey: ['servizi'] });
       
-      toast.success("Firma salvata con successo");
       return { success: true, url: result.url, timestamp: result.timestamp };
       
     } catch (error: any) {
       console.error('Errore nel salvataggio della firma:', error);
-      toast.error(`Errore nel salvataggio della firma: ${error.message || 'Si è verificato un errore'}`);
       return { success: false, error };
     } finally {
       setIsLoading(false);
