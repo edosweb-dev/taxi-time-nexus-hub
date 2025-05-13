@@ -16,6 +16,8 @@ export const getStatoBadge = (stato: StatoServizio) => {
       return <Badge variant="outline" className="bg-red-100 text-red-700 hover:bg-red-100">Annullato</Badge>;
     case 'non_accettato':
       return <Badge variant="outline" className="bg-purple-100 text-purple-700 hover:bg-purple-100">Non accettato</Badge>;
+    case 'consuntivato':
+      return <Badge variant="outline" className="bg-slate-100 text-slate-700 hover:bg-slate-100">Consuntivato</Badge>;
     default:
       return <Badge variant="outline">{stato}</Badge>;
   }
@@ -34,5 +36,7 @@ export const getStateIcon = (stato: StatoServizio) => {
       return <XCircle className="h-5 w-5 text-red-500" />;
     case 'non_accettato':
       return <UserX className="h-5 w-5 text-purple-500" />;
+    case 'consuntivato':
+      return <CheckCircle className="h-5 w-5 text-slate-500" />;
   }
 };
