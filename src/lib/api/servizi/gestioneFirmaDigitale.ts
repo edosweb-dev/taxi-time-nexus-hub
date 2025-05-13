@@ -25,47 +25,12 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       throw new Error("Dati firma vuoti");
     }
     
-    // Decodifica i dati base64 per verificare che contengano dati immagine reali
-    try {
-      const binaryData = atob(base64Data);
-      if (binaryData.length < 100) {
-        console.error("Dati immagine troppo piccoli dopo decodifica:", binaryData.length);
-        throw new Error("Firma troppo semplice o vuota");
-      }
-      console.log(`Dati immagine decodificati correttamente: ${binaryData.length} bytes`);
-      
-      // Analisi dei dati binari per verificare se è un'immagine completamente bianca
-      // Campione casuale di byte per verificare se sono tutti 0 o 255 (bianco)
-      let allWhite = true;
-      let checkSampleSize = Math.min(1000, binaryData.length);
-      let checkInterval = Math.floor(binaryData.length / checkSampleSize);
-      
-      for (let i = 0; i < binaryData.length; i += checkInterval) {
-        if (binaryData.charCodeAt(i) !== 0 && binaryData.charCodeAt(i) !== 255) {
-          allWhite = false;
-          break;
-        }
-      }
-      
-      if (allWhite) {
-        console.warn("Possibile immagine completamente bianca o trasparente");
-      }
-    } catch (error) {
-      console.error("Errore nella decodifica base64:", error);
-      throw new Error("Formato firma non valido");
-    }
-    
-    // Non verifichiamo più se il bucket esiste, assumiamo che sia stato creato manualmente
-    // dalla dashboard di Supabase
-    console.log("Utilizzando bucket 'firme' esistente");
-    
     // Crea un timestamp per il nome del file
     const timestamp = new Date().toISOString();
     const fileName = `firma_${servizioId}_${timestamp}.png`;
     
     console.log(`Caricamento firma: ${fileName}`);
     
-    // Carica l'immagine nel bucket "firme"
     // Converti il base64 in un blob per un upload migliore
     const blob = await fetch(`data:image/png;base64,${base64Data}`).then(res => res.blob());
     
@@ -77,6 +42,24 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
     console.log("Dimensione blob per upload:", blob.size, "bytes");
     
+    // Verifica se esiste già il bucket "firme" e crealo se non esiste
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const firmeBucket = buckets?.find(bucket => bucket.name === 'firme');
+    
+    if (!firmeBucket) {
+      console.log("Creazione del bucket 'firme'");
+      const { error: createBucketError } = await supabase.storage.createBucket('firme', {
+        public: true
+      });
+      
+      if (createBucketError) {
+        console.error("Errore nella creazione del bucket:", createBucketError);
+        throw createBucketError;
+      }
+    } else {
+      console.log("Bucket 'firme' già esistente");
+    }
+    
     // Aggiungiamo l'autenticazione esplicita per assicurarci che l'utente sia autenticato
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !sessionData.session) {
@@ -84,7 +67,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       throw new Error("Sessione utente non valida. Effettua nuovamente l'accesso.");
     }
     
-    // Utilizziamo i dati della sessione per l'upload
+    // Upload del file nel bucket storage "firme"
     const { data, error: uploadError } = await supabase.storage
       .from('firme')
       .upload(fileName, blob, {

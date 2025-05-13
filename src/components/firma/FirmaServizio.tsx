@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { toast } from "@/components/ui/use-toast";
 import { Signature } from "lucide-react";
 import { useFirmaDigitale } from "@/hooks/useFirmaDigitale";
-import { Servizio } from "@/lib/types/servizi";
 
 interface FirmaServizioProps {
   servizioId: string;
@@ -22,6 +21,7 @@ export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps
 
   const handleSalvaFirma = async (signatureData: string) => {
     toast({
+      title: "Salvataggio in corso",
       description: "Salvataggio firma in corso..."
     });
     
