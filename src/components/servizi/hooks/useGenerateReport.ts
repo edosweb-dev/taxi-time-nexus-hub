@@ -27,6 +27,7 @@ export const useGenerateReport = () => {
     queryKey: ['servizi', 'consuntivati', filterParams],
     queryFn: async () => {
       if (!filterParams.aziendaId || !filterParams.referenteId || !filterParams.month || !filterParams.year) {
+        console.log('Missing required filter params:', filterParams);
         return [];
       }
       

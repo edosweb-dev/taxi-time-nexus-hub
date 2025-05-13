@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, FileText, BugIcon } from 'lucide-react';
@@ -14,12 +14,40 @@ import {
   CardDescription 
 } from '@/components/ui/card';
 import { useDebugReporting } from '@/components/servizi/hooks';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAziende } from '@/hooks/useAziende';
+import { useUsers } from '@/hooks/useUsers';
 
 export default function ReportPage() {
   const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
   const [isDebugMode, setIsDebugMode] = useState(false);
   const { profile } = useAuth();
   const { debugInfo, checkServizi } = useDebugReporting();
+  const { aziende } = useAziende();
+  const { users } = useUsers();
+  
+  const [debugAziendaId, setDebugAziendaId] = useState<string>('');
+  const [debugReferenteId, setDebugReferenteId] = useState<string>('');
+  const [debugMonth, setDebugMonth] = useState<number>(new Date().getMonth() + 1);
+  const [debugYear, setDebugYear] = useState<number>(new Date().getFullYear());
+  const [debugReferenti, setDebugReferenti] = useState<any[]>([]);
+
+  // When azienda changes, filter referenti
+  useEffect(() => {
+    if (debugAziendaId) {
+      const filteredReferenti = users.filter(user => 
+        user.role === 'cliente' && user.azienda_id === debugAziendaId
+      );
+      setDebugReferenti(filteredReferenti);
+      setDebugReferenteId('');
+    }
+  }, [debugAziendaId, users]);
+
+  const handleDebugCheck = () => {
+    if (debugAziendaId && debugReferenteId && debugMonth && debugYear) {
+      checkServizi(debugAziendaId, debugReferenteId, debugMonth, debugYear);
+    }
+  };
 
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
@@ -63,52 +91,129 @@ export default function ReportPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-3 sm:col-span-1">
-                    <div className="text-sm font-medium mb-1 text-amber-800">Aziende</div>
-                    <div className="text-sm text-amber-700">
-                      {debugInfo?.aziende ? debugInfo.aziende.length : 0} aziende trovate
-                    </div>
-                  </div>
-                  <div className="col-span-3 sm:col-span-1">
-                    <div className="text-sm font-medium mb-1 text-amber-800">Referenti</div>
-                    <div className="text-sm text-amber-700">
-                      {debugInfo?.referenti ? debugInfo.referenti.length : 0} referenti trovati
-                    </div>
-                  </div>
-                  <div className="col-span-3 sm:col-span-1">
-                    <div className="text-sm font-medium mb-1 text-amber-800">Servizi</div>
-                    <div className="text-sm text-amber-700">
-                      Totali: {debugInfo?.allServizi ? debugInfo.allServizi.count : 0}
-                      <br />
-                      Consuntivati: {debugInfo?.consuntivati ? debugInfo.consuntivati.count : 0}
-                    </div>
-                  </div>
-                </div>
-
-                {debugInfo?.statuses && (
-                  <div>
-                    <div className="text-sm font-medium mb-1 text-amber-800">Stati servizi</div>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(debugInfo.statuses).map(([stato, count]) => (
-                        <div key={stato} className="px-2 py-1 bg-amber-100 rounded text-xs">
-                          {stato}: {String(count)}
-                        </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-amber-800 mb-1">Azienda</label>
+                  <Select value={debugAziendaId} onValueChange={setDebugAziendaId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona azienda" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {aziende.map(azienda => (
+                        <SelectItem key={azienda.id} value={azienda.id}>
+                          {azienda.nome}
+                        </SelectItem>
                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {debugInfo?.dateRange && (
-                  <div>
-                    <div className="text-sm font-medium mb-1 text-amber-800">Intervallo date</div>
-                    <div className="text-sm text-amber-700">
-                      Da: {debugInfo.dateRange.startDateString} a {debugInfo.dateRange.endDateString}
-                    </div>
-                  </div>
-                )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-amber-800 mb-1">Referente</label>
+                  <Select value={debugReferenteId} onValueChange={setDebugReferenteId} disabled={!debugAziendaId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona referente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {debugReferenti.map(referente => (
+                        <SelectItem key={referente.id} value={referente.id}>
+                          {referente.first_name} {referente.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-amber-800 mb-1">Mese</label>
+                  <Select value={debugMonth.toString()} onValueChange={(v) => setDebugMonth(parseInt(v))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona mese" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({length: 12}, (_, i) => (
+                        <SelectItem key={i+1} value={(i+1).toString()}>
+                          {new Date(2022, i).toLocaleString('it-IT', {month: 'long'})}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-amber-800 mb-1">Anno</label>
+                  <Select value={debugYear.toString()} onValueChange={(v) => setDebugYear(parseInt(v))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona anno" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({length: 5}, (_, i) => {
+                        const year = new Date().getFullYear() - 2 + i;
+                        return (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+              
+              <Button 
+                variant="outline" 
+                className="bg-amber-100 hover:bg-amber-200 text-amber-900 border-amber-300 mb-4"
+                onClick={handleDebugCheck}
+                disabled={!debugAziendaId || !debugReferenteId}
+              >
+                Verifica dati servizi
+              </Button>
+              
+              {debugInfo && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-3 sm:col-span-1">
+                      <div className="text-sm font-medium mb-1 text-amber-800">Aziende</div>
+                      <div className="text-sm text-amber-700">
+                        {debugInfo?.aziende ? debugInfo.aziende.length : 0} aziende trovate
+                      </div>
+                    </div>
+                    <div className="col-span-3 sm:col-span-1">
+                      <div className="text-sm font-medium mb-1 text-amber-800">Referenti</div>
+                      <div className="text-sm text-amber-700">
+                        {debugInfo?.referenti ? debugInfo.referenti.length : 0} referenti trovati
+                      </div>
+                    </div>
+                    <div className="col-span-3 sm:col-span-1">
+                      <div className="text-sm font-medium mb-1 text-amber-800">Servizi</div>
+                      <div className="text-sm text-amber-700">
+                        Totali: {debugInfo?.allServizi ? debugInfo.allServizi.count : 0}
+                        <br />
+                        Consuntivati: {debugInfo?.consuntivati ? debugInfo.consuntivati.count : 0}
+                      </div>
+                    </div>
+                  </div>
+
+                  {debugInfo?.statuses && (
+                    <div>
+                      <div className="text-sm font-medium mb-1 text-amber-800">Stati servizi</div>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(debugInfo.statuses).map(([stato, count]) => (
+                          <div key={stato} className="px-2 py-1 bg-amber-100 rounded text-xs">
+                            {stato}: {String(count)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {debugInfo?.dateRange && (
+                    <div>
+                      <div className="text-sm font-medium mb-1 text-amber-800">Intervallo date</div>
+                      <div className="text-sm text-amber-700">
+                        Da: {debugInfo.dateRange.startDateString} a {debugInfo.dateRange.endDateString}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

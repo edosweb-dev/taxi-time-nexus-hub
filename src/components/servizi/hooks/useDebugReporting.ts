@@ -21,6 +21,16 @@ export const useDebugReporting = () => {
       
       console.log('Debug report - Date range:', { startDateString, endDateString });
       
+      // First get referenti and aziende for context
+      const { data: aziende } = await supabase
+        .from('aziende')
+        .select('id, nome');
+        
+      const { data: referenti } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .eq('role', 'cliente');
+        
       // Get all servizi for this period
       const { data: allServizi, error: allError } = await supabase
         .from('servizi')
@@ -63,7 +73,9 @@ export const useDebugReporting = () => {
         statuses: allServizi?.reduce((acc: Record<string, number>, servizio) => {
           acc[servizio.stato] = (acc[servizio.stato] || 0) + 1;
           return acc;
-        }, {}) || {}
+        }, {}) || {},
+        aziende,
+        referenti
       };
       
       console.log('Debug report - Results:', result);

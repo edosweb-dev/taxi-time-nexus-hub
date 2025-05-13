@@ -22,6 +22,7 @@ export const useReports = () => {
   const { data: reports = [], isLoading, error } = useQuery({
     queryKey: ['reports'],
     queryFn: async () => {
+      console.log('Fetching reports...');
       const { data, error } = await supabase
         .from('reports')
         .select('*')
@@ -30,6 +31,18 @@ export const useReports = () => {
       if (error) {
         console.error('Error fetching reports:', error);
         return [];
+      }
+      
+      console.log(`Retrieved ${data?.length || 0} reports`);
+      if (data && data.length > 0) {
+        console.log('Sample report data:', {
+          id: data[0].id,
+          azienda_id: data[0].azienda_id,
+          referente_id: data[0].referente_id,
+          servizi_ids: data[0].servizi_ids?.length || 0
+        });
+      } else {
+        console.log('No reports found in database');
       }
       
       return data as Report[];
