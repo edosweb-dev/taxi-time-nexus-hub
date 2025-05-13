@@ -1,59 +1,78 @@
 
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Servizio } from "@/lib/types/servizi";
-import { Profile } from "@/lib/types";
-import { AssegnazioneDialog } from "@/components/servizi/AssegnazioneDialog";
-import { CompletaServizioDialog } from "@/components/servizi/CompletaServizioDialog";
-import { FirmaServizio } from "@/components/firma/FirmaServizio";
+import { useUsers } from "@/hooks/useUsers";
+import { AssegnazioneDialog } from "../AssegnazioneDialog";
+import { CompletaServizioDialog } from "../CompletaServizioDialog";
+import { FirmaServizio } from "../../firma/FirmaServizio";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 interface ServiziDialogManagerProps {
-  users: Profile[];
-  onFirmaSalvata: () => void;
-  selectedServizio: Servizio | null;
-  servizioPerCompletamento: Servizio | null;
-  servizioPerFirma: Servizio | null;
-  onCloseAssegnazione: () => void;
-  onCloseCompletamento: (open: boolean) => void;
+  onRefetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Servizio[], Error>>;
 }
 
-export function ServiziDialogManager({ 
-  users, 
-  onFirmaSalvata,
-  selectedServizio,
-  servizioPerCompletamento,
-  servizioPerFirma,
-  onCloseAssegnazione,
-  onCloseCompletamento
-}: ServiziDialogManagerProps) {
+export const ServiziDialogManager = ({ onRefetch }: ServiziDialogManagerProps) => {
+  const navigate = useNavigate();
+  const { users } = useUsers();
+  
+  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
+  const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
+  const [showCompletaDialog, setShowCompletaDialog] = useState(false);
+  const [showFirmaDialog, setShowFirmaDialog] = useState(false);
+  
+  const handleSelectServizio = (servizio: Servizio) => {
+    setSelectedServizio(servizio);
+    setShowAssegnazioneDialog(true);
+  };
+  
+  const handleCompleta = (servizio: Servizio) => {
+    setSelectedServizio(servizio);
+    setShowCompletaDialog(true);
+  };
+  
+  const handleFirma = (servizio: Servizio) => {
+    setSelectedServizio(servizio);
+    setShowFirmaDialog(true);
+  };
+  
+  const handleDialogClose = () => {
+    setShowAssegnazioneDialog(false);
+    setShowCompletaDialog(false);
+    setShowFirmaDialog(false);
+    setSelectedServizio(null);
+    onRefetch();
+  };
+
   return (
     <>
-      {/* Dialog per l'assegnazione */}
       {selectedServizio && (
-        <AssegnazioneDialog 
-          isOpen={!!selectedServizio} 
-          onClose={onCloseAssegnazione} 
-          servizio={selectedServizio} 
-        />
-      )}
-
-      {/* Dialog per il completamento */}
-      {servizioPerCompletamento && (
-        <CompletaServizioDialog 
-          open={!!servizioPerCompletamento} 
-          onOpenChange={onCloseCompletamento}
-          servizioId={servizioPerCompletamento.id}
-          metodoDefault={servizioPerCompletamento.metodo_pagamento}
-          onComplete={onFirmaSalvata}
-          users={users}
-        />
-      )}
-
-      {/* Modale per la firma */}
-      {servizioPerFirma && (
-        <FirmaServizio 
-          servizioId={servizioPerFirma.id}
-          onFirmaSalvata={onFirmaSalvata}
-        />
+        <>
+          <AssegnazioneDialog
+            servizio={selectedServizio}
+            users={users.filter(u => u.role === 'dipendente' || u.role === 'socio')}
+            open={showAssegnazioneDialog}
+            onOpenChange={setShowAssegnazioneDialog}
+            onClose={handleDialogClose}
+          />
+          
+          <CompletaServizioDialog
+            servizio={selectedServizio}
+            open={showCompletaDialog}
+            onOpenChange={setShowCompletaDialog}
+            onCompleted={handleDialogClose}
+          />
+          
+          {showFirmaDialog && (
+            <FirmaServizio
+              servizio={selectedServizio}
+              open={showFirmaDialog}
+              onOpenChange={setShowFirmaDialog}
+              onComplete={handleDialogClose}
+            />
+          )}
+        </>
       )}
     </>
   );
-}
+};

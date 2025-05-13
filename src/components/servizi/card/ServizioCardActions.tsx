@@ -7,7 +7,7 @@ interface ServizioCardActionsProps {
   servizio: Servizio;
   status: string;
   isAdminOrSocio: boolean;
-  onSelect: (servizio: Servizio) => void;
+  onSelect: () => void;
   onCompleta?: (servizio: Servizio) => void;
   onFirma?: (servizio: Servizio) => void;
 }
@@ -36,7 +36,7 @@ export const ServizioCardActions = ({
           variant="outline" 
           size="sm" 
           className="flex-1"
-          onClick={(e) => handleClick(e, () => onSelect(servizio))}
+          onClick={(e) => handleClick(e, onSelect)}
         >
           <Users className="mr-2 h-4 w-4" />
           Assegna

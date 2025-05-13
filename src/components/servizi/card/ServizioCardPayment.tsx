@@ -7,10 +7,10 @@ import { getUserName } from "../utils";
 interface ServizioCardPaymentProps {
   servizio: Servizio;
   passeggeriCount: number;
-  users?: Profile[];
+  users: Profile[];
 }
 
-export const ServizioCardPayment = ({ servizio, passeggeriCount, users = [] }: ServizioCardPaymentProps) => {
+export const ServizioCardPayment = ({ servizio, passeggeriCount, users }: ServizioCardPaymentProps) => {
   return (
     <div className="grid grid-cols-2 gap-2">
       <div className="flex items-start gap-1">

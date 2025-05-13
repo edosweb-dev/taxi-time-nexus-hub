@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 export function usePasseggeriCount(servizioId: string) {
-  const { data, isLoading } = useQuery({
+  return useQuery({
     queryKey: ["passeggeriCount", servizioId],
     queryFn: async () => {
       const { data, error, count } = await supabase
@@ -18,10 +18,4 @@ export function usePasseggeriCount(servizioId: string) {
       return count || 0;
     },
   });
-
-  return {
-    data,
-    isLoading,
-    count: data || 0
-  };
 }

@@ -4,14 +4,20 @@ import { useServizio, useServizi } from "./useServizi";
 import { useUsers } from "./useUsers";
 import { useAziende } from "./useAziende";
 import { getServizioIndex } from "@/components/servizi/utils/formatUtils";
+import { useQuery } from "@tanstack/react-query";
+import { formatCurrency as formatCurrencyUtil } from "@/components/servizi/utils/formatUtils";
+import { useFirmaDigitale } from "./useFirmaDigitale";
 
 export function useServizioDetail(id?: string) {
-  const { data, isLoading, isError, error } = useServizio(id);
+  const { data, isLoading, isError, error, refetch } = useServizio(id);
   const { servizi: allServizi } = useServizi(); // Get all servizi for global indexing
   const { users } = useUsers();
   const { aziende } = useAziende();
+  const { isFirmaDigitaleAttiva } = useFirmaDigitale();
   
   const [activeTab, setActiveTab] = useState("info");
+  const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
+  const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
   
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
@@ -55,5 +61,12 @@ export function useServizioDetail(id?: string) {
     getAziendaName,
     getUserName,
     servizioIndex,
+    refetch,
+    completaDialogOpen,
+    setCompletaDialogOpen,
+    consuntivaDialogOpen,
+    setConsuntivaDialogOpen,
+    firmaDigitaleAttiva: isFirmaDigitaleAttiva,
+    formatCurrency: formatCurrencyUtil,
   };
 }

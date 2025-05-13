@@ -2,6 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
+import { Azienda } from "@/lib/types";
 import { ServizioCardHeader } from "./card/ServizioCardHeader";
 import { ServizioCardCompany } from "./card/ServizioCardCompany";
 import { ServizioCardAddresses } from "./card/ServizioCardAddresses";
@@ -9,6 +10,7 @@ import { ServizioCardAssignee } from "./card/ServizioCardAssignee";
 import { ServizioCardActions } from "./card/ServizioCardActions";
 import { ServizioCardPayment } from "./card/ServizioCardPayment";
 import { usePasseggeriCount } from "./card/hooks/usePasseggeriCount";
+import { useAziende } from "@/hooks/useAziende";
 
 interface ServizioCardProps {
   servizio: Servizio;
@@ -33,7 +35,8 @@ export const ServizioCard = ({
   index,
   allServizi
 }: ServizioCardProps) => {
-  const { count } = usePasseggeriCount(servizio.id);
+  const { data: passeggeriCount } = usePasseggeriCount(servizio.id);
+  const { aziende } = useAziende();
 
   return (
     <Card className="overflow-hidden">
@@ -44,23 +47,30 @@ export const ServizioCard = ({
       />
       
       <div className="divide-y">
-        <ServizioCardCompany servizio={servizio} />
+        <ServizioCardCompany 
+          servizio={servizio} 
+          users={users}
+          aziende={aziende}
+        />
         
         <ServizioCardAddresses servizio={servizio} />
         
         <ServizioCardAssignee 
           servizio={servizio} 
-          users={users} 
-          passeggeriCount={count} 
+          users={users}
         />
         
-        <ServizioCardPayment servizio={servizio} />
+        <ServizioCardPayment 
+          servizio={servizio} 
+          passeggeriCount={passeggeriCount || 0} 
+          users={users}
+        />
         
         <ServizioCardActions 
           servizio={servizio} 
+          status={servizio.stato}
           isAdminOrSocio={isAdminOrSocio}
           onSelect={() => onSelectServizio(servizio)}
-          onViewDetails={() => onNavigateToDetail(servizio.id)}
           onCompleta={onCompleta}
           onFirma={onFirma}
         />

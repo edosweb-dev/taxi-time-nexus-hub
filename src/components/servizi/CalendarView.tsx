@@ -21,9 +21,10 @@ interface CalendarViewProps {
   servizi: Servizio[];
   users: Profile[];
   onNavigateToDetail: (id: string) => void;
+  allServizi: { id: string }[]; // Added to match ServizioTable requirements
 }
 
-export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarViewProps) => {
+export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }: CalendarViewProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [passeggeriCounts, setPasseggeriCounts] = useState<Record<string, number>>({});
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
@@ -146,6 +147,8 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail }: CalendarVie
           servizi={serviziDelGiorno}
           users={users}
           onNavigateToDetail={onNavigateToDetail}
+          allServizi={allServizi}
+          isAdminOrSocio={false}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
