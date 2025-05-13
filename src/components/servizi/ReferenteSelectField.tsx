@@ -9,6 +9,9 @@ import { Loader2, PlusCircle, User } from "lucide-react";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { supabase } from '@/lib/supabase';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { UserFormData } from "@/lib/api/users/types";
+import { createUser } from "@/lib/usersApi";
+import { toast } from "@/components/ui/use-toast";
 
 interface Referente {
   id: string;
@@ -27,6 +30,7 @@ export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
     email: '',
   });
   const [isCreatingReferente, setIsCreatingReferente] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Carica la lista di referenti dell'azienda selezionata
   useEffect(() => {
@@ -65,61 +69,58 @@ export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
 
   const handleCreateReferente = async () => {
     if (!newReferente.firstName || !newReferente.lastName || !newReferente.email) {
+      toast({
+        title: "Errore",
+        description: "Tutti i campi sono obbligatori",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
       setIsCreatingReferente(true);
 
-      // Crea un nuovo utente con ruolo cliente
-      const { data, error } = await supabase.auth.admin.createUser({
+      // Utilizziamo l'API esistente per la creazione dell'utente
+      const userData: UserFormData = {
+        first_name: newReferente.firstName,
+        last_name: newReferente.lastName,
         email: newReferente.email,
-        password: Math.random().toString(36).slice(2, 10), // Password casuale temporanea
-        email_confirm: true,
-        user_metadata: {
-          first_name: newReferente.firstName,
-          last_name: newReferente.lastName,
-        },
-        app_metadata: {
-          role: 'cliente',
-        },
-      });
+        role: 'cliente',
+        azienda_id: aziendaId,
+      };
 
-      if (error) {
-        throw error;
+      // Chiamiamo la funzione API esistente per creare l'utente
+      const response = await createUser(userData);
+
+      if (response.error) {
+        throw response.error;
       }
 
-      if (data.user) {
-        // Aggiorna il profilo con l'azienda_id
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            first_name: newReferente.firstName,
-            last_name: newReferente.lastName,
-            azienda_id: aziendaId,
-          })
-          .eq('id', data.user.id)
-          .select();
-
-        if (profileError) {
-          throw profileError;
-        }
-
-        if (profileData && profileData.length > 0) {
-          // Aggiungi il nuovo referente alla lista e selezionalo
-          const newReferenteData = {
-            id: data.user.id,
-            first_name: newReferente.firstName,
-            last_name: newReferente.lastName,
-          };
-          
-          setReferenti(prev => [...prev, newReferenteData]);
-          setValue('referente_id', data.user.id);
-          setNewReferente({ firstName: '', lastName: '', email: '' });
-        }
+      if (response.user) {
+        // Aggiungi il nuovo referente alla lista e selezionalo
+        const newReferenteData = {
+          id: response.user.id,
+          first_name: newReferente.firstName,
+          last_name: newReferente.lastName,
+        };
+        
+        setReferenti(prev => [...prev, newReferenteData]);
+        setValue('referente_id', response.user.id);
+        setNewReferente({ firstName: '', lastName: '', email: '' });
+        setIsDialogOpen(false);
+        
+        toast({
+          title: "Successo",
+          description: "Referente creato con successo",
+        });
       }
     } catch (error: any) {
       console.error('Error creating referente:', error);
+      toast({
+        title: "Errore durante la creazione del referente",
+        description: error.message || "Si è verificato un errore",
+        variant: "destructive",
+      });
     } finally {
       setIsCreatingReferente(false);
     }
@@ -172,7 +173,7 @@ export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
                     )}
                     
                     <div className="p-2 border-t">
-                      <Dialog>
+                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
                           <Button
                             variant="ghost"
