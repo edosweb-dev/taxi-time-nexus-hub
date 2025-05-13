@@ -5,6 +5,7 @@ import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { LeftColumn } from "./info/LeftColumn";
 import { RightColumn } from "./info/RightColumn";
+import { FirmaDisplay } from "@/components/firma/FirmaDisplay";
 
 interface ServizioInfoTabProps {
   servizio: Servizio;
@@ -41,6 +42,16 @@ export function ServizioInfoTab({
           
           <RightColumn servizio={servizio} />
         </div>
+        
+        {/* Firma digitale sezione */}
+        {servizio.firma_url && (
+          <div className="pt-2">
+            <FirmaDisplay 
+              firmaUrl={servizio.firma_url} 
+              firmaTimestamp={servizio.firma_timestamp} 
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
