@@ -1,78 +1,205 @@
 
-import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, CalendarDays, FileText, Users, Building } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/contexts/AuthContext';
+import { BarChart4, Calendar, ClipboardList, FilePlus, FileText, Home, Settings, ShoppingBag, UserCircle, Users } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 
 export function SidebarNavLinks() {
-  const location = useLocation();
   const { profile } = useAuth();
   
-  // Check if user is admin or socio for showing users menu
-  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
-  
-  return (
-    <div className="space-y-1">
-      <Link 
-        to="/dashboard" 
-        className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
-          location.pathname === "/dashboard" ? "bg-white/30" : "transparent"
-        )}
-      >
-        <LayoutDashboard className="h-4 w-4" />
-        <span>Dashboard</span>
-      </Link>
-      <Link 
-        to="/shifts" 
-        className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
-          location.pathname === "/shifts" ? "bg-white/30" : "transparent"
-        )}
-      >
-        <CalendarDays className="h-4 w-4" />
-        <span>Turni</span>
-      </Link>
-      
-      {/* Add Servizi menu item - visible to all users */}
-      <Link 
-        to="/servizi" 
-        className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
-          location.pathname === "/servizi" ? "bg-white/30" : "transparent"
-        )}
-      >
-        <FileText className="h-4 w-4" />
-        <span>Servizi</span>
-      </Link>
-      
-      {/* Add Users menu item - only visible to admin and socio roles */}
-      {isAdminOrSocio && (
-        <Link 
-          to="/users" 
-          className={cn(
-            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
-            location.pathname === "/users" ? "bg-white/30" : "transparent"
-          )}
+  if (!profile) {
+    return null;
+  }
+
+  // Admin and Socio links
+  if (profile.role === 'admin' || profile.role === 'socio') {
+    return (
+      <nav className="space-y-1">
+        <NavLink 
+          to="/dashboard" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
         >
-          <Users className="h-4 w-4" />
-          <span>Utenti</span>
-        </Link>
-      )}
-      
-      {/* Add Aziende menu item - only visible to admin and socio roles */}
-      {isAdminOrSocio && (
-        <Link 
+          <Home className="mr-3 h-5 w-5" />
+          Dashboard
+        </NavLink>
+        
+        <NavLink 
+          to="/servizi" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <ClipboardList className="mr-3 h-5 w-5" />
+          Servizi
+        </NavLink>
+        
+        <NavLink 
+          to="/nuovo-servizio" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <FilePlus className="mr-3 h-5 w-5" />
+          Nuovo servizio
+        </NavLink>
+        
+        <NavLink 
+          to="/turni" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <Calendar className="mr-3 h-5 w-5" />
+          Turni
+        </NavLink>
+        
+        <NavLink 
+          to="/reports" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <FileText className="mr-3 h-5 w-5" />
+          Report Aziende
+        </NavLink>
+        
+        <NavLink 
           to="/aziende" 
-          className={cn(
-            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20",
-            location.pathname === "/aziende" ? "bg-white/30" : "transparent"
-          )}
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
         >
-          <Building className="h-4 w-4" />
-          <span>Aziende</span>
-        </Link>
-      )}
-    </div>
-  );
+          <ShoppingBag className="mr-3 h-5 w-5" />
+          Aziende
+        </NavLink>
+        
+        {profile.role === 'admin' && (
+          <NavLink 
+            to="/users" 
+            className={({ isActive }) => 
+              `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+                isActive 
+                  ? 'bg-accent text-accent-foreground' 
+                  : 'text-muted-foreground hover:bg-muted'
+              }`
+            }
+          >
+            <Users className="mr-3 h-5 w-5" />
+            Utenti
+          </NavLink>
+        )}
+      </nav>
+    );
+  }
+  
+  // Dipendente links
+  if (profile.role === 'dipendente') {
+    return (
+      <nav className="space-y-1">
+        <NavLink 
+          to="/dashboard" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <Home className="mr-3 h-5 w-5" />
+          Dashboard
+        </NavLink>
+        
+        <NavLink 
+          to="/servizi" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <ClipboardList className="mr-3 h-5 w-5" />
+          Servizi
+        </NavLink>
+      </nav>
+    );
+  }
+  
+  // Cliente links
+  if (profile.role === 'cliente') {
+    return (
+      <nav className="space-y-1">
+        <NavLink 
+          to="/dashboard" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <Home className="mr-3 h-5 w-5" />
+          Dashboard
+        </NavLink>
+        
+        <NavLink 
+          to="/reports" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <FileText className="mr-3 h-5 w-5" />
+          I miei report
+        </NavLink>
+
+        <NavLink 
+          to="/profilo" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              isActive 
+                ? 'bg-accent text-accent-foreground' 
+                : 'text-muted-foreground hover:bg-muted'
+            }`
+          }
+        >
+          <UserCircle className="mr-3 h-5 w-5" />
+          Profilo
+        </NavLink>
+      </nav>
+    );
+  }
+  
+  return null;
 }

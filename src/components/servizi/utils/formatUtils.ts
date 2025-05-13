@@ -28,3 +28,19 @@ export function formatCurrency(value?: number | null): string {
 export function getServizioIndex(targetId: string, allServizi: { id: string }[]): number {
   return allServizi.findIndex(servizio => servizio.id === targetId);
 }
+
+/**
+ * Formatta una data nel formato italiano
+ * @param dateString Una stringa di data
+ * @returns La data formattata nel formato italiano (es. 01/01/2023)
+ */
+export function formatItalianDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('it-IT', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}

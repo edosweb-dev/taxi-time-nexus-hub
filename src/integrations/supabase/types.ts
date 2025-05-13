@@ -121,6 +121,60 @@ export type Database = {
           },
         ]
       }
+      reports: {
+        Row: {
+          azienda_id: string
+          created_at: string
+          created_by: string
+          file_name: string
+          file_path: string
+          id: string
+          month: number
+          referente_id: string
+          servizi_ids: string[]
+          year: number
+        }
+        Insert: {
+          azienda_id: string
+          created_at?: string
+          created_by: string
+          file_name: string
+          file_path: string
+          id?: string
+          month: number
+          referente_id: string
+          servizi_ids: string[]
+          year: number
+        }
+        Update: {
+          azienda_id?: string
+          created_at?: string
+          created_by?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          month?: number
+          referente_id?: string
+          servizi_ids?: string[]
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_azienda_id_fkey"
+            columns: ["azienda_id"]
+            isOneToOne: false
+            referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       servizi: {
         Row: {
           assegnato_a: string | null
