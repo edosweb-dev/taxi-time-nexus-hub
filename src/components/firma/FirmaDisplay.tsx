@@ -7,6 +7,7 @@ import { AlertTriangle, RefreshCcw, Image as ImageIcon } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { cleanupFirmaUrl } from "@/components/servizi/utils/firmaUtils";
 
 interface FirmaDisplayProps {
   firmaUrl?: string | null;
@@ -18,11 +19,6 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
-  
-  // Function to clean up URL and remove any double slashes
-  const cleanupUrl = (url: string) => {
-    return url.replace(/([^:]\/)\/+/g, "$1");
-  };
   
   useEffect(() => {
     if (!firmaUrl) {
@@ -36,8 +32,8 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
       setIsLoading(true);
       setImageError(false);
       
-      // Clean up URL
-      const correctedUrl = cleanupUrl(firmaUrl);
+      // Clean up URL using the utility function
+      const correctedUrl = cleanupFirmaUrl(firmaUrl);
       
       // Add cache-busting query parameter to force reload
       const cacheBustUrl = `${correctedUrl}?v=${Date.now()}&retry=${retryCount}`;
@@ -46,7 +42,7 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
       console.log(`Tentativo ${retryCount + 1} caricamento immagine firma:`, cacheBustUrl);
       
       // Create a standard HTMLImageElement to check if image loads properly
-      const imgElement = document.createElement('img');
+      const imgElement = new Image();
       
       imgElement.onload = () => {
         console.log("Immagine firma caricata correttamente");
@@ -54,17 +50,18 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
         setImageError(false);
       };
       
-      imgElement.onerror = (e) => {
-        console.error("Errore caricamento immagine firma:", e);
+      imgElement.onerror = () => {
+        console.error("Errore caricamento immagine firma:", firmaUrl);
         setImageError(true);
         setIsLoading(false);
         
-        // Retry logic
-        if (retryCount < 3) {
+        // Retry logic with exponential backoff
+        if (retryCount < 2) {
+          const delay = Math.pow(2, retryCount) * 1000;
           setTimeout(() => {
             setRetryCount(prev => prev + 1);
-          }, 1500); // Wait before retrying
-        } else if (retryCount === 3) {
+          }, delay);
+        } else if (retryCount === 2) {
           toast({
             title: "Errore di caricamento",
             description: "Impossibile caricare l'immagine della firma",
@@ -73,25 +70,25 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
         }
       };
       
-      // Set crossOrigin to anonymous to allow CORS
+      // Important: To avoid CORS issues
       imgElement.crossOrigin = "anonymous";
+      imgElement.referrerPolicy = "no-referrer";
       imgElement.src = cacheBustUrl;
     };
     
     loadImage();
     
-    // Timeout in caso l'immagine non si carichi entro 7 secondi
+    // Timeout if image doesn't load within 5 seconds
     const timeout = setTimeout(() => {
       if (isLoading) {
-        console.error("Timeout caricamento immagine firma");
         setImageError(true);
         setIsLoading(false);
         
-        if (retryCount < 3) {
+        if (retryCount < 2) {
           setRetryCount(prev => prev + 1);
         }
       }
-    }, 7000);
+    }, 5000);
     
     return () => clearTimeout(timeout);
   }, [firmaUrl, retryCount]);
@@ -132,6 +129,7 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
                     className="object-contain h-auto w-full"
                     onError={() => setImageError(true)}
                     crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
                   />
                 </AspectRatio>
               </div>
