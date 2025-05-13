@@ -1,24 +1,34 @@
 
-import { useState, useEffect } from "react";
-import { useServizio } from "@/hooks/useServizi";
+import { useState, useEffect, useCallback } from "react";
+import { useServizio, useServizi } from "@/hooks/useServizi";
 import { useAziende } from "@/hooks/useAziende";
 import { useAuth } from "@/contexts/AuthContext";
 import { Servizio } from "@/lib/types/servizi";
 
 export function useServizioDetail(id?: string) {
   const { data, isLoading, error, refetch } = useServizio(id);
+  const { servizi } = useServizi();
   const { aziende } = useAziende();
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("info");
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
   const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
   const [firmaDigitaleAttiva, setFirmaDigitaleAttiva] = useState(false);
+  const [servizioIndex, setServizioIndex] = useState(0);
   
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   const isAssegnatoToMe = profile?.id === servizio?.assegnato_a;
+
+  // Find the index of the current servizio in the list
+  useEffect(() => {
+    if (servizi && servizi.length > 0 && id) {
+      const index = servizi.findIndex(s => s.id === id);
+      setServizioIndex(index !== -1 ? index : 0);
+    }
+  }, [servizi, id]);
   
   useEffect(() => {
     if (servizio && aziende.length > 0) {
@@ -28,11 +38,11 @@ export function useServizioDetail(id?: string) {
   }, [servizio, aziende]);
   
   // Get company name by ID
-  const getAziendaName = (aziendaId?: string) => {
+  const getAziendaName = useCallback((aziendaId?: string) => {
     if (!aziendaId) return "Azienda sconosciuta";
     const azienda = aziende.find(a => a.id === aziendaId);
     return azienda ? azienda.nome : "Azienda sconosciuta";
-  };
+  }, [aziende]);
   
   // Service can be edited by admin/socio if not yet completed or consuntivato
   const canBeEdited = isAdminOrSocio && 
@@ -74,5 +84,6 @@ export function useServizioDetail(id?: string) {
     canBeConsuntivato,
     getAziendaName,
     formatCurrency,
+    servizioIndex,
   };
 }

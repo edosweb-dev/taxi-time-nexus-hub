@@ -31,6 +31,7 @@ export default function ServizioDetailPage() {
     canBeConsuntivato,
     getAziendaName,
     formatCurrency,
+    servizioIndex,
   } = useServizioDetail(id);
   
   if (isLoading) {
@@ -51,6 +52,7 @@ export default function ServizioDetailPage() {
           canBeConsuntivato={canBeConsuntivato}
           onCompleta={() => setCompletaDialogOpen(true)}
           onConsuntiva={() => setConsuntivaDialogOpen(true)}
+          index={servizioIndex}
         />
         
         {/* Firma section shown only when needed */}
