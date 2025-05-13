@@ -43,7 +43,7 @@ export default function ServizioDetailPage() {
   
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <ServizioHeader
           servizio={servizio}
           canBeEdited={canBeEdited}
@@ -53,6 +53,7 @@ export default function ServizioDetailPage() {
           onConsuntiva={() => setConsuntivaDialogOpen(true)}
         />
         
+        {/* Firma section shown only when needed */}
         <FirmaDigitaleSection 
           servizio={servizio} 
           firmaDigitaleAttiva={firmaDigitaleAttiva}

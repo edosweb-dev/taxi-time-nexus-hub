@@ -21,26 +21,26 @@ export function FirmaDigitaleSection({
   }
 
   return (
-    <>
-      {/* Digital signature action */}
-      {servizio.stato === 'assegnato' && firmaDigitaleAttiva && !servizio.firma_url && (
-        <div className="mb-4 flex justify-end">
-          <FirmaServizio 
-            servizioId={servizio.id}
-            onFirmaSalvata={refetch}
-          />
-        </div>
-      )}
-      
-      {/* Show signature if available */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+      {/* Digital signature display */}
       {servizio.firma_url && (
-        <div className="mb-6">
+        <div className="md:col-span-2">
           <FirmaDisplay 
             firmaUrl={servizio.firma_url} 
             firmaTimestamp={servizio.firma_timestamp}
           />
         </div>
       )}
-    </>
+      
+      {/* Digital signature action */}
+      {servizio.stato === 'assegnato' && firmaDigitaleAttiva && !servizio.firma_url && (
+        <div className="flex justify-end md:col-span-3">
+          <FirmaServizio 
+            servizioId={servizio.id}
+            onFirmaSalvata={refetch}
+          />
+        </div>
+      )}
+    </div>
   );
 }
