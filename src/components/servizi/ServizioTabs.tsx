@@ -1,9 +1,6 @@
 
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Servizio } from "@/lib/types/servizi";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Users, UserCheck, UserX, CheckCircle, XCircle } from "lucide-react";
-import { groupServiziByStatus } from "./utils";
 
 interface ServizioTabsProps {
   servizi: Servizio[];
@@ -11,36 +8,42 @@ interface ServizioTabsProps {
   onTabChange: (value: string) => void;
 }
 
-export const ServizioTabs = ({ servizi, activeTab, onTabChange }: ServizioTabsProps) => {
-  const serviziByStatus = groupServiziByStatus(servizi);
+export const ServizioTabs = ({
+  servizi,
+  activeTab,
+  onTabChange
+}: ServizioTabsProps) => {
+  // Count servizi by status
+  const counts = {
+    da_assegnare: servizi.filter(s => s.stato === "da_assegnare").length,
+    assegnato: servizi.filter(s => s.stato === "assegnato").length,
+    completato: servizi.filter(s => s.stato === "completato").length,
+    annullato: servizi.filter(s => s.stato === "annullato").length,
+    non_accettato: servizi.filter(s => s.stato === "non_accettato").length,
+  };
 
   return (
-    <TabsList className="grid grid-cols-5 mb-8">
-      <TabsTrigger value="da_assegnare" className="flex gap-2">
-        <Users className="h-4 w-4" />
-        <span className="hidden sm:inline">Da assegnare</span>
-        <Badge variant="outline" className="ml-1">{serviziByStatus.da_assegnare.length}</Badge>
-      </TabsTrigger>
-      <TabsTrigger value="assegnato" className="flex gap-2">
-        <UserCheck className="h-4 w-4" />
-        <span className="hidden sm:inline">Assegnati</span>
-        <Badge variant="outline" className="ml-1">{serviziByStatus.assegnato.length}</Badge>
-      </TabsTrigger>
-      <TabsTrigger value="non_accettato" className="flex gap-2">
-        <UserX className="h-4 w-4" />
-        <span className="hidden sm:inline">Non accettati</span>
-        <Badge variant="outline" className="ml-1">{serviziByStatus.non_accettato.length}</Badge>
-      </TabsTrigger>
-      <TabsTrigger value="completato" className="flex gap-2">
-        <CheckCircle className="h-4 w-4" />
-        <span className="hidden sm:inline">Completati</span>
-        <Badge variant="outline" className="ml-1">{serviziByStatus.completato.length}</Badge>
-      </TabsTrigger>
-      <TabsTrigger value="annullato" className="flex gap-2">
-        <XCircle className="h-4 w-4" />
-        <span className="hidden sm:inline">Annullati</span>
-        <Badge variant="outline" className="ml-1">{serviziByStatus.annullato.length}</Badge>
-      </TabsTrigger>
-    </TabsList>
+    <Tabs value={activeTab} onValueChange={onTabChange}>
+      <TabsList className="space-x-1">
+        <TabsTrigger value="da_assegnare">
+          Da assegnare ({counts.da_assegnare})
+        </TabsTrigger>
+        <TabsTrigger value="assegnato">
+          Assegnati ({counts.assegnato})
+        </TabsTrigger>
+        <TabsTrigger value="completato">
+          Completati ({counts.completato})
+        </TabsTrigger>
+        <TabsTrigger value="non_accettato">
+          Non accettati ({counts.non_accettato})
+        </TabsTrigger>
+        <TabsTrigger value="annullato">
+          Annullati ({counts.annullato})
+        </TabsTrigger>
+        <TabsTrigger value="calendario">
+          Calendario
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 };

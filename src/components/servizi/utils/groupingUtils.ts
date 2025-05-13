@@ -1,13 +1,23 @@
 
-import { Servizio } from "@/lib/types/servizi";
+import { Servizio, StatoServizio } from "@/lib/types/servizi";
 
-// Group services by status
 export const groupServiziByStatus = (servizi: Servizio[]) => {
-  return {
-    da_assegnare: servizi.filter(s => s.stato === 'da_assegnare'),
-    assegnato: servizi.filter(s => s.stato === 'assegnato'),
-    completato: servizi.filter(s => s.stato === 'completato'),
-    annullato: servizi.filter(s => s.stato === 'annullato'),
-    non_accettato: servizi.filter(s => s.stato === 'non_accettato')
+  const result: Record<StatoServizio, Servizio[]> = {
+    da_assegnare: [],
+    assegnato: [],
+    completato: [],
+    annullato: [],
+    non_accettato: [],
+    consuntivato: [],
   };
+  
+  servizi.forEach(servizio => {
+    if (result[servizio.stato]) {
+      result[servizio.stato].push(servizio);
+    } else {
+      console.warn(`Unknown servizio status: ${servizio.stato}`);
+    }
+  });
+  
+  return result;
 };
