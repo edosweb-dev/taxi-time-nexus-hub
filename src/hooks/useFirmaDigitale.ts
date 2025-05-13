@@ -13,10 +13,19 @@ export function useFirmaDigitale() {
       setIsLoading(true);
       
       console.log("Inizio upload firma...");
-      if (!firmaBase64 || firmaBase64.length < 1000) {
-        console.error("Firma non valida o troppo piccola");
-        return { success: false, error: new Error("Firma non valida o troppo piccola") };
+      if (!firmaBase64) {
+        console.error("Firma non fornita");
+        toast.error("Firma non fornita");
+        return { success: false, error: new Error("Firma non fornita") };
       }
+      
+      if (firmaBase64.length < 1000) {
+        console.error("Firma troppo piccola o vuota:", firmaBase64.length);
+        toast.error("Firma troppo semplice, prova a firmare nuovamente");
+        return { success: false, error: new Error("Firma troppo semplice") };
+      }
+      
+      console.log("Dimensione dati firma:", firmaBase64.length, "bytes");
       
       const result = await salvaFirmaDigitale(servizioId, firmaBase64);
       
@@ -32,6 +41,7 @@ export function useFirmaDigitale() {
       
     } catch (error: any) {
       console.error('Errore nel salvataggio della firma:', error);
+      toast.error(`Errore nel salvataggio della firma: ${error.message || 'Errore sconosciuto'}`);
       return { success: false, error };
     } finally {
       setIsLoading(false);

@@ -13,11 +13,29 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     }
     
     // Estrai la parte base64 escludendo il prefisso "data:image/png;base64,"
-    const base64Data = firmaBase64.split(',')[1];
-    
-    if (!base64Data) {
-      console.error("Formato base64 non valido");
+    const base64Parts = firmaBase64.split(',');
+    if (base64Parts.length !== 2 || !base64Parts[0].includes('image/png')) {
+      console.error("Formato base64 non valido", base64Parts[0]);
       throw new Error("Formato base64 non valido");
+    }
+    
+    const base64Data = base64Parts[1];
+    if (!base64Data || base64Data.trim() === '') {
+      console.error("Dati base64 vuoti");
+      throw new Error("Dati firma vuoti");
+    }
+    
+    // Decodifica i dati base64 per verificare che contengano dati immagine reali
+    try {
+      const binaryData = atob(base64Data);
+      if (binaryData.length < 100) {
+        console.error("Dati immagine troppo piccoli dopo decodifica:", binaryData.length);
+        throw new Error("Firma troppo semplice o vuota");
+      }
+      console.log(`Dati immagine decodificati correttamente: ${binaryData.length} bytes`);
+    } catch (error) {
+      console.error("Errore nella decodifica base64:", error);
+      throw new Error("Formato firma non valido");
     }
     
     // Verifica che il bucket esista, altrimenti crealo
@@ -42,7 +60,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
     console.log(`Caricamento firma: ${fileName}`);
     
-    // Carica l'immagine nel bucket "firme" - percorso senza slash iniziale
+    // Carica l'immagine nel bucket "firme"
     const { data, error: uploadError } = await supabase.storage
       .from('firme')
       .upload(fileName, base64Data, {
