@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, RefreshCcw, Image } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 interface FirmaDisplayProps {
   firmaUrl?: string | null;
@@ -39,7 +40,7 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
       const correctedUrl = cleanupUrl(firmaUrl);
       
       // Add cache-busting query parameter to force reload
-      const cacheBustUrl = `${correctedUrl}?v=${Date.now()}`;
+      const cacheBustUrl = `${correctedUrl}?v=${Date.now()}&retry=${retryCount}`;
       setImageUrl(cacheBustUrl);
       
       console.log(`Tentativo ${retryCount + 1} caricamento immagine firma:`, cacheBustUrl);
@@ -105,44 +106,54 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
   if (!firmaUrl) return null;
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Firma Digitale</CardTitle>
+    <Card className="overflow-hidden">
+      <CardHeader className="bg-muted/30 pb-2">
+        <CardTitle className="text-lg flex items-center">
+          <Image className="h-4 w-4 mr-2" />
+          Firma Digitale
+        </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <div className="flex flex-col gap-3">
-          <div className="border p-4 bg-white rounded-md flex justify-center items-center min-h-[150px]">
+          <div className={cn(
+            "border rounded-md flex justify-center items-center min-h-[150px] overflow-hidden",
+            isLoading ? "bg-muted/20" : "bg-white"
+          )}>
             {isLoading ? (
-              <Skeleton className="h-24 w-48" />
+              <div className="w-full h-full flex justify-center items-center p-6">
+                <Skeleton className="h-24 w-48 rounded-md opacity-60" />
+              </div>
             ) : imageUrl && !imageError ? (
-              <AspectRatio ratio={16/9} className="overflow-hidden max-w-full h-auto">
-                <img 
-                  src={imageUrl} 
-                  alt="Firma digitale" 
-                  className="max-w-full h-auto object-contain"
-                  onError={() => setImageError(true)}
-                  crossOrigin="anonymous"
-                />
-              </AspectRatio>
+              <div className="w-full p-2">
+                <AspectRatio ratio={3/1} className="overflow-hidden w-full mx-auto max-w-md">
+                  <img 
+                    src={imageUrl} 
+                    alt="Firma digitale" 
+                    className="object-contain h-auto w-full"
+                    onError={() => setImageError(true)}
+                    crossOrigin="anonymous"
+                  />
+                </AspectRatio>
+              </div>
             ) : (
-              <div className="flex flex-col justify-center items-center h-32 text-muted-foreground gap-2">
+              <div className="flex flex-col justify-center items-center p-6 text-muted-foreground gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-500" />
                 <span>
-                  {imageError ? "Errore nel caricamento dell'immagine" : "Nessuna firma disponibile"}
+                  {imageError ? "Errore nel caricamento della firma" : "Nessuna firma disponibile"}
                 </span>
                 {imageError && (
                   <button 
                     onClick={handleRetry}
-                    className="text-sm mt-2 text-blue-600 hover:underline"
+                    className="text-sm mt-2 flex items-center gap-1 text-primary hover:underline"
                   >
-                    Riprova
+                    <RefreshCcw className="h-3 w-3" /> Riprova
                   </button>
                 )}
               </div>
             )}
           </div>
           {firmaTimestamp && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center">
               Firmato il: {format(new Date(firmaTimestamp), 'dd/MM/yyyy HH:mm')}
             </p>
           )}

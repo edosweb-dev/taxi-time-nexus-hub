@@ -25,10 +25,10 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       throw new Error("Dati firma vuoti");
     }
     
-    // Crea un timestamp per il nome del file
+    // Crea un timestamp per il nome del file e prevenire la cache
     const timestamp = new Date().toISOString();
-    // Aggiungo timestamp numerico per prevenire cache issues
-    const fileName = `firma_${servizioId}_${timestamp}_${Date.now()}.png`;
+    const randomId = Math.random().toString(36).substring(2, 15);
+    const fileName = `firma_${servizioId}_${timestamp.replace(/[:.]/g, '-')}_${randomId}.png`;
     
     console.log(`Caricamento firma: ${fileName}`);
     
@@ -64,7 +64,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
         throw createBucketError;
       }
       
-      // Set bucket to public after creation
+      // Imposta il bucket come pubblico dopo la creazione
       const { error: updateBucketError } = await supabase.storage.updateBucket('firme', {
         public: true,
         fileSizeLimit: 1024 * 1024 // 1MB limit
@@ -90,7 +90,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       .upload(fileName, blob, {
         contentType: 'image/png',
         upsert: true,
-        cacheControl: 'no-cache, no-store'
+        cacheControl: 'no-cache, no-store, must-revalidate'
       });
       
     if (uploadError) {
