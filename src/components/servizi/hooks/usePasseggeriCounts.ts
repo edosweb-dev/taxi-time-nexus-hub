@@ -1,14 +1,21 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { Servizio } from '@/lib/types/servizi';
 
-export const usePasseggeriCounts = () => {
+export const usePasseggeriCounts = (servizi?: Servizio[]) => {
   const { data: passeggeriData, isLoading } = useQuery({
-    queryKey: ['passeggeriCounts'],
+    queryKey: ['passeggeriCounts', servizi?.map(s => s.id)],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('passeggeri')
-        .select('servizio_id');
+      // If specific servizi are provided, filter by their IDs
+      let query = supabase.from('passeggeri').select('servizio_id');
+      
+      if (servizi && servizi.length > 0) {
+        const serviziIds = servizi.map(s => s.id);
+        query = query.in('servizio_id', serviziIds);
+      }
+      
+      const { data, error } = await query;
         
       if (error) {
         console.error('Error fetching passeggeri counts:', error);
