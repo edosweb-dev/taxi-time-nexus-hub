@@ -11,8 +11,10 @@ import {
   subDays,
   addDays,
   parseISO,
-  isSameDay
+  isSameDay,
+  format
 } from 'date-fns';
+import { it } from 'date-fns/locale';
 import { Shift } from '../../types';
 import { useShifts } from '../../ShiftContext';
 
