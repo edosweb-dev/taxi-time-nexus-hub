@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/components/ui/sonner";
 import { Pencil } from "lucide-react";
-import { format } from "date-fns";
+import { updateFirmaServizio } from "@/lib/api/servizi";
 
 interface FirmaServizioProps {
   servizioId: string;
@@ -45,14 +45,14 @@ export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps
         .from('firme')
         .getPublicUrl(fileName);
       
+      console.log("URL pubblico generato:", publicUrl);
+      
       // Aggiorna il servizio con l'URL della firma e il timestamp
-      const { error: updateError } = await supabase
-        .from('servizi')
-        .update({
-          firma_url: publicUrl,
-          firma_timestamp: timestamp
-        })
-        .eq('id', servizioId);
+      const { error: updateError } = await updateFirmaServizio({
+        id: servizioId,
+        firma_url: publicUrl,
+        firma_timestamp: timestamp
+      });
         
       if (updateError) {
         throw updateError;
