@@ -98,7 +98,7 @@ export function ServiziContent({
         )}
       </div>
       
-      {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato"] as const).map((status) => (
+      {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
         <TabsContent key={status} value={status} className="mt-0">
           {viewMode === "cards" ? (
             <ServizioTabContent

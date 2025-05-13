@@ -20,6 +20,7 @@ export const ServizioTabs = ({
     completato: servizi.filter(s => s.stato === "completato").length,
     annullato: servizi.filter(s => s.stato === "annullato").length,
     non_accettato: servizi.filter(s => s.stato === "non_accettato").length,
+    consuntivato: servizi.filter(s => s.stato === "consuntivato").length,
   };
 
   return (
@@ -40,7 +41,11 @@ export const ServizioTabs = ({
         <TabsTrigger value="annullato">
           Annullati ({counts.annullato})
         </TabsTrigger>
+        <TabsTrigger value="consuntivato">
+          Consuntivati ({counts.consuntivato})
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );
 };
+

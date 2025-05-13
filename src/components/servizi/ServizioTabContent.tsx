@@ -56,6 +56,7 @@ export const ServizioTabContent = ({
             onCompleta={onCompleta}
             onFirma={onFirma}
             index={globalIndex}
+            allServizi={allServizi}
           />
         );
       })}
