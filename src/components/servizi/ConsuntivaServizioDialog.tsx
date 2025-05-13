@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/sonner";
 import { consuntivaServizio } from "@/lib/api/servizi";
-import { useUsers } from "@/hooks/useUsers";
+import { Profile } from "@/lib/types";
 
 const formSchema = z.object({
   incasso_previsto: z.coerce.number().min(0, "Deve essere un numero positivo").optional(),
@@ -26,6 +27,7 @@ interface ConsuntivaServizioDialogProps {
   isContanti: boolean;
   incassoRicevuto?: number;
   oreLavorate?: number;
+  users: Profile[];
   onComplete: () => void;
 }
 
@@ -36,9 +38,9 @@ export function ConsuntivaServizioDialog({
   isContanti,
   incassoRicevuto = 0,
   oreLavorate = 0,
+  users,
   onComplete,
 }: ConsuntivaServizioDialogProps) {
-  const { users } = useUsers();
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {

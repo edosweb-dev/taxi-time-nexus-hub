@@ -78,6 +78,7 @@ export default function ServizioDetailPage() {
         onCompletaOpenChange={setCompletaDialogOpen}
         onConsuntivaOpenChange={setConsuntivaDialogOpen}
         onComplete={refetch}
+        users={users}
       />
     </MainLayout>
   );

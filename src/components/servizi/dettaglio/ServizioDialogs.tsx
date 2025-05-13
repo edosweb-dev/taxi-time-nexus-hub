@@ -3,6 +3,7 @@ import React from "react";
 import { CompletaServizioDialog } from "@/components/servizi/CompletaServizioDialog";
 import { ConsuntivaServizioDialog } from "@/components/servizi/ConsuntivaServizioDialog";
 import { Servizio } from "@/lib/types/servizi";
+import { Profile } from "@/lib/types";
 
 interface ServizioDialogsProps {
   servizio: Servizio;
@@ -11,6 +12,7 @@ interface ServizioDialogsProps {
   onCompletaOpenChange: (open: boolean) => void;
   onConsuntivaOpenChange: (open: boolean) => void;
   onComplete: () => void;
+  users: Profile[];
 }
 
 export function ServizioDialogs({
@@ -20,6 +22,7 @@ export function ServizioDialogs({
   onCompletaOpenChange,
   onConsuntivaOpenChange,
   onComplete,
+  users,
 }: ServizioDialogsProps) {
   return (
     <>
@@ -40,6 +43,7 @@ export function ServizioDialogs({
         isContanti={servizio.metodo_pagamento === 'Contanti'}
         incassoRicevuto={servizio.incasso_ricevuto}
         oreLavorate={servizio.ore_lavorate}
+        users={users}
         onComplete={onComplete}
       />
     </>

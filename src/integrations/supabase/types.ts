@@ -128,18 +128,23 @@ export type Database = {
           conducente_esterno: boolean | null
           conducente_esterno_email: string | null
           conducente_esterno_nome: string | null
+          consegna_contanti_a: string | null
           created_at: string
           created_by: string
           data_servizio: string
           firma_timestamp: string | null
           firma_url: string | null
           id: string
+          incasso_previsto: number | null
+          incasso_ricevuto: number | null
           indirizzo_destinazione: string
           indirizzo_presa: string
           metodo_pagamento: string
           note: string | null
           numero_commessa: string | null
           orario_servizio: string
+          ore_finali: number | null
+          ore_lavorate: number | null
           referente_id: string
           stato: string
         }
@@ -149,18 +154,23 @@ export type Database = {
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
           conducente_esterno_nome?: string | null
+          consegna_contanti_a?: string | null
           created_at?: string
           created_by: string
           data_servizio: string
           firma_timestamp?: string | null
           firma_url?: string | null
           id?: string
+          incasso_previsto?: number | null
+          incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
           indirizzo_presa?: string
           metodo_pagamento: string
           note?: string | null
           numero_commessa?: string | null
           orario_servizio?: string
+          ore_finali?: number | null
+          ore_lavorate?: number | null
           referente_id: string
           stato?: string
         }
@@ -170,18 +180,23 @@ export type Database = {
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
           conducente_esterno_nome?: string | null
+          consegna_contanti_a?: string | null
           created_at?: string
           created_by?: string
           data_servizio?: string
           firma_timestamp?: string | null
           firma_url?: string | null
           id?: string
+          incasso_previsto?: number | null
+          incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
           indirizzo_presa?: string
           metodo_pagamento?: string
           note?: string | null
           numero_commessa?: string | null
           orario_servizio?: string
+          ore_finali?: number | null
+          ore_lavorate?: number | null
           referente_id?: string
           stato?: string
         }
