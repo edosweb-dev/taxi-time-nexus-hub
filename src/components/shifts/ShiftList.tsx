@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Loader2 } from 'lucide-react';
 import { useShifts, Shift } from './ShiftContext';
@@ -16,14 +16,20 @@ interface ShiftListProps {
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
   isAdminOrSocio: boolean;
+  selectedUserId?: string | null;
 }
 
-export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: ShiftListProps) {
+export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio, selectedUserId }: ShiftListProps) {
   const { shifts, isLoading, setSelectedShift, deleteShift, setUserFilter, setDateFilter } = useShifts();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  // Apply the user filter if provided
+  useEffect(() => {
+    setUserFilter(selectedUserId || null);
+  }, [selectedUserId, setUserFilter]);
+  
   // Handler for selecting a shift
   const handleSelectShift = (shift: Shift) => {
     setSelectedShift(shift);
@@ -65,6 +71,7 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio }: Shift
         onUserFilter={setUserFilter}
         onDateFilter={setDateFilter}
         isAdminOrSocio={isAdminOrSocio}
+        selectedUserId={selectedUserId}
       />
 
       {shifts.length > 0 ? (

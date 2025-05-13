@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
-import { Plus, Calendar, List } from 'lucide-react';
+import { Plus, Calendar, List, Filter } from 'lucide-react';
 import { ShiftProvider, useShifts } from '@/components/shifts/ShiftContext';
+import { UserFilterDropdown } from '@/components/shifts/filters/UserFilterDropdown';
 
 export default function ShiftsPage() {
   const { profile } = useAuth();
@@ -18,6 +19,7 @@ export default function ShiftsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>(isMobile ? 'list' : 'calendar');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
@@ -40,6 +42,14 @@ export default function ShiftsPage() {
             </div>
             
             <div className="flex items-center gap-2 w-full sm:w-auto">
+              {isAdminOrSocio && (
+                <UserFilterDropdown 
+                  selectedUserId={selectedUserId} 
+                  onSelectUser={(userId) => setSelectedUserId(userId)}
+                  showOnlyAdminAndSocio={true}
+                />
+              )}
+              
               <Tabs 
                 defaultValue={viewMode} 
                 value={viewMode}
@@ -71,12 +81,14 @@ export default function ShiftsPage() {
                 currentMonth={currentMonth}
                 onMonthChange={handleMonthChange}
                 isAdminOrSocio={isAdminOrSocio}
+                selectedUserId={selectedUserId}
               />
             ) : (
               <ShiftList 
                 currentMonth={currentMonth}
                 onMonthChange={handleMonthChange}
                 isAdminOrSocio={isAdminOrSocio}
+                selectedUserId={selectedUserId}
               />
             )}
           </div>

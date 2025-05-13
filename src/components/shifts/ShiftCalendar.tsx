@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   startOfMonth, 
   endOfMonth, 
@@ -24,20 +24,34 @@ import { ShiftCalendarHeader } from './calendar/ShiftCalendarHeader';
 import { ShiftCalendarGrid } from './calendar/ShiftCalendarGrid';
 import { ShiftCalendarLegend } from './calendar/ShiftCalendarLegend';
 import { Card, CardContent } from '@/components/ui/card';
+import { useUsers } from '@/hooks/useUsers';
+import { getUserColorClass } from './filters/UserFilterDropdown';
 
 interface ShiftCalendarProps {
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
   isAdminOrSocio: boolean;
+  selectedUserId?: string | null;
 }
 
-export function ShiftCalendar({ currentMonth, onMonthChange, isAdminOrSocio }: ShiftCalendarProps) {
-  const { shifts, isLoading, loadShifts, setSelectedShift } = useShifts();
+export function ShiftCalendar({ 
+  currentMonth, 
+  onMonthChange, 
+  isAdminOrSocio,
+  selectedUserId
+}: ShiftCalendarProps) {
+  const { shifts, isLoading, loadShifts, setSelectedShift, setUserFilter } = useShifts();
+  const { users } = useUsers();
   const { user } = useAuth();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedShiftUserId, setSelectedShiftUserId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"week" | "day" | "month">("week");
+
+  // Apply the user filter if provided
+  useEffect(() => {
+    setUserFilter(selectedUserId || null);
+  }, [selectedUserId, setUserFilter]);
 
   // Get days of current view based on viewMode
   const viewStart = useMemo(() => {
@@ -90,7 +104,7 @@ export function ShiftCalendar({ currentMonth, onMonthChange, isAdminOrSocio }: S
 
   const handleCellClick = (day: Date, userId: string | null = null) => {
     setSelectedDate(day);
-    setSelectedUserId(userId);
+    setSelectedShiftUserId(userId);
     setIsAddDialogOpen(true);
   };
 
@@ -147,6 +161,12 @@ export function ShiftCalendar({ currentMonth, onMonthChange, isAdminOrSocio }: S
     return { top: 20, height: 40, spanRows: true };
   };
 
+  // Get a color for a user shift based on user_id
+  const getShiftColor = (shift: Shift) => {
+    if (!users || !users.length) return "";
+    return getUserColorClass(users, shift.user_id);
+  };
+
   return (
     <div className="space-y-4">
       <ShiftCalendarHeader 
@@ -193,36 +213,40 @@ export function ShiftCalendar({ currentMonth, onMonthChange, isAdminOrSocio }: S
                   {format(day, 'd')}
                 </div>
                 <div className="flex flex-col gap-1 overflow-auto max-h-[80px]">
-                  {dayShifts.map(shift => (
-                    <Badge 
-                      key={shift.id}
-                      variant={
-                        shift.shift_type === 'full_day' ? 'success' : 
-                        shift.shift_type === 'half_day' ? 'secondary' :
-                        shift.shift_type === 'sick_leave' ? 'destructive' :
-                        shift.shift_type === 'unavailable' ? 'outline' : 'default'
-                      }
-                      className="text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedShift(shift);
-                        setIsAddDialogOpen(true);
-                      }}
-                    >
-                      {isAdminOrSocio && (
-                        <span className="font-medium mr-1">
-                          {shift.user_first_name?.substring(0, 1)}.{shift.user_last_name?.substring(0, 1)}.
-                        </span>
-                      )}
-                      {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time
-                        ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
-                        : shift.shift_type === 'half_day'
-                        ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
-                        : shift.shift_type === 'full_day' ? 'Giornata intera'
-                        : shift.shift_type === 'sick_leave' ? 'Malattia'
-                        : 'Non disponibile'}
-                    </Badge>
-                  ))}
+                  {dayShifts.map(shift => {
+                    const userColor = getShiftColor(shift);
+                    
+                    return (
+                      <Badge 
+                        key={shift.id}
+                        variant={
+                          shift.shift_type === 'full_day' ? 'success' : 
+                          shift.shift_type === 'half_day' ? 'secondary' :
+                          shift.shift_type === 'sick_leave' ? 'destructive' :
+                          shift.shift_type === 'unavailable' ? 'outline' : 'default'
+                        }
+                        className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${userColor}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedShift(shift);
+                          setIsAddDialogOpen(true);
+                        }}
+                      >
+                        {isAdminOrSocio && (
+                          <span className="font-medium mr-1">
+                            {shift.user_first_name?.substring(0, 1)}.{shift.user_last_name?.substring(0, 1)}.
+                          </span>
+                        )}
+                        {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time
+                          ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
+                          : shift.shift_type === 'half_day'
+                          ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
+                          : shift.shift_type === 'full_day' ? 'Giornata intera'
+                          : shift.shift_type === 'sick_leave' ? 'Malattia'
+                          : 'Non disponibile'}
+                      </Badge>
+                    );
+                  })}
                   {dayShifts.length === 0 && isCurrentMonth && (
                     <div 
                       className="text-xs text-muted-foreground text-center py-1 px-2 border border-dashed border-muted rounded cursor-pointer hover:border-primary hover:text-primary transition-colors"
@@ -267,7 +291,7 @@ export function ShiftCalendar({ currentMonth, onMonthChange, isAdminOrSocio }: S
         onOpenChange={setIsAddDialogOpen}
         isAdminOrSocio={isAdminOrSocio}
         defaultDate={selectedDate}
-        defaultUserId={selectedUserId}
+        defaultUserId={selectedShiftUserId}
       />
     </div>
   );

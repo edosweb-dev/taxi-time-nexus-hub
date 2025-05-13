@@ -1,5 +1,10 @@
 
+import { cn } from "@/lib/utils";
 import { Shift } from "../types";
+import { getShiftTypeIcon } from "../utils/shiftDisplayUtils";
+import { useUsers } from "@/hooks/useUsers";
+import { useEffect, useState } from "react";
+import { getUserColorClass } from "../filters/UserFilterDropdown";
 
 interface ShiftEventProps {
   shift: Shift;
@@ -9,58 +14,82 @@ interface ShiftEventProps {
   onClick: () => void;
 }
 
-// Define color classes for each shift type
-export const getShiftTypeColor = (type: string, halfDayType?: string) => {
-  switch (type) {
-    case 'specific_hours':
-      return "bg-primary/80 hover:bg-primary text-primary-foreground";
-    case 'full_day':
-      return "bg-green-400/90 hover:bg-green-500/90 text-green-950";
-    case 'half_day':
-      return "bg-blue-400/90 hover:bg-blue-500/90 text-blue-950";
-    case 'sick_leave':
-      return "bg-red-400/90 hover:bg-red-500/90 text-red-950";
-    case 'unavailable':
-      return "bg-amber-400/90 hover:bg-amber-500/90 text-amber-950";
-    default:
-      return "bg-slate-400/90 hover:bg-slate-500/90 text-slate-950";
-  }
-};
+export const ShiftEvent = ({
+  shift,
+  top,
+  height,
+  spanRows,
+  onClick
+}: ShiftEventProps) => {
+  const { users } = useUsers();
+  const [userColorClass, setUserColorClass] = useState("");
 
-export const ShiftEvent = ({ shift, top, height, spanRows, onClick }: ShiftEventProps) => {
-  const colorClass = getShiftTypeColor(shift.shift_type, shift.half_day_type);
-  
-  const getShiftTitle = () => {
-    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-      return `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`;
-    } else if (shift.shift_type === 'half_day') {
-      return shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio';
-    } else if (shift.shift_type === 'full_day') {
-      return 'Giornata intera';
-    } else if (shift.shift_type === 'sick_leave') {
-      return 'Malattia';
-    } else {
-      return 'Non disponibile';
+  useEffect(() => {
+    if (users && users.length) {
+      setUserColorClass(getUserColorClass(users, shift.user_id));
+    }
+  }, [users, shift.user_id]);
+
+  // Determine variant based on shift type
+  const getVariant = () => {
+    switch (shift.shift_type) {
+      case "full_day":
+        return "success";
+      case "half_day":
+        return "secondary";
+      case "sick_leave":
+        return "destructive";
+      case "unavailable":
+        return "outline";
+      case "specific_hours":
+        return "default";
+      default:
+        return "default";
     }
   };
-  
+
   return (
-    <div 
-      className={`absolute left-1 right-1 ${colorClass} rounded px-2 py-1 overflow-hidden cursor-pointer transition-colors shadow-sm z-20 ${spanRows ? "left-0 right-0 flex items-center justify-center" : ""}`}
-      style={{ 
-        top: `${top}px`, 
+    <div
+      className={cn(
+        "absolute left-0 right-0 z-10 mx-1 rounded-md border p-1 text-xs overflow-hidden cursor-pointer transition-shadow hover:shadow-md",
+        {
+          "bg-green-400/90 text-green-950 border-green-500": getVariant() === "success",
+          "bg-secondary text-secondary-foreground border-secondary": getVariant() === "secondary",
+          "bg-destructive text-destructive-foreground border-destructive/30": getVariant() === "destructive",
+          "bg-background border-muted-foreground/50 text-muted-foreground": getVariant() === "outline",
+          "bg-primary text-primary-foreground border-primary": getVariant() === "default",
+          "z-20": spanRows,
+          [userColorClass]: userColorClass !== ""
+        }
+      )}
+      style={{
+        top: `${top}px`,
         height: `${height}px`,
+        minHeight: "20px",
+        maxHeight: spanRows ? "auto" : undefined
       }}
       onClick={onClick}
     >
-      <div className="font-medium text-xs truncate">
-        {getShiftTitle()}
+      <div className="flex items-center gap-1">
+        {getShiftTypeIcon(shift.shift_type, { size: 12 })}
+        <span className="font-medium">
+          {shift.start_time && shift.end_time
+            ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
+            : shift.shift_type === 'half_day'
+            ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
+            : shift.shift_type === 'full_day' ? 'Giornata intera'
+            : shift.shift_type === 'sick_leave' ? 'Malattia'
+            : 'Non disponibile'
+          }
+        </span>
       </div>
-      {shift.user_first_name && shift.user_last_name && (
-        <div className="text-xs truncate">
+      
+      {shift.user_first_name && (
+        <div className="text-xs font-medium truncate">
           {shift.user_first_name} {shift.user_last_name}
         </div>
       )}
+      
       {shift.notes && (
         <div className="text-xs truncate">
           {shift.notes}
