@@ -26,6 +26,26 @@ interface CalendarViewProps {
 const HOURS = Array.from({ length: 17 }, (_, i) => i + 6);
 const HOUR_HEIGHT = 60; // Height in pixels for each hour slot
 
+// Define color classes for each status
+const getServizioStatusColor = (stato: string) => {
+  switch (stato) {
+    case 'da_assegnare':
+      return "bg-amber-400/90 hover:bg-amber-500/90 text-amber-950";
+    case 'assegnato':
+      return "bg-blue-400/90 hover:bg-blue-500/90 text-blue-950";
+    case 'completato':
+      return "bg-green-400/90 hover:bg-green-500/90 text-green-950";
+    case 'annullato':
+      return "bg-red-400/90 hover:bg-red-500/90 text-red-950";
+    case 'non_accettato':
+      return "bg-purple-400/90 hover:bg-purple-500/90 text-purple-950";
+    case 'consuntivato':
+      return "bg-slate-400/90 hover:bg-slate-500/90 text-slate-950";
+    default:
+      return "bg-primary/80 hover:bg-primary text-white";
+  }
+};
+
 export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }: CalendarViewProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"week" | "day" | "table">("week");
@@ -130,11 +150,12 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }:
     
     return serviziOfDay.map(servizio => {
       const { top, height } = getServizioPosition(servizio);
+      const colorClass = getServizioStatusColor(servizio.stato);
       
       return (
         <div 
           key={servizio.id}
-          className="absolute left-1 right-1 bg-primary/80 text-white rounded px-2 py-1 overflow-hidden cursor-pointer hover:bg-primary transition-colors"
+          className={`absolute left-1 right-1 ${colorClass} rounded px-2 py-1 overflow-hidden cursor-pointer transition-colors shadow-sm`}
           style={{ 
             top: `${top}px`, 
             height: `${height}px`,
@@ -263,12 +284,12 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }:
             ))}
           </div>
           
-          {/* Days columns */}
+          {/* Days columns - Full width for both day and week views */}
           <div className={`flex-1 flex ${viewMode === "day" ? "" : "divide-x"}`}>
             {daysInView.map((day) => (
               <div 
                 key={day.toISOString()} 
-                className={`${viewMode === "week" ? "w-1/7" : "w-full"} relative`}
+                className="flex-1 relative"
               >
                 {/* Day header */}
                 <div className={`h-10 flex justify-center items-center border-b bg-muted/50 sticky top-0 z-20 
