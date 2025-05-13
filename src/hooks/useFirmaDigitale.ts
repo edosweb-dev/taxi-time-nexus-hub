@@ -1,6 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { checkFirmaDigitaleAttiva } from '@/lib/api/servizi/gestioneFirmaDigitale';
+import { checkFirmaDigitaleAttiva, uploadFirma } from '@/lib/api/servizi/gestioneFirmaDigitale';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function useFirmaDigitale() {
@@ -16,5 +16,6 @@ export function useFirmaDigitale() {
   return {
     isFirmaDigitaleAttiva: data || false,
     isLoading,
+    uploadFirma
   };
 }

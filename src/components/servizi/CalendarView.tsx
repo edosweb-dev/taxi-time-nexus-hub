@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format, addDays, subDays, isSameDay, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
@@ -21,7 +20,7 @@ interface CalendarViewProps {
   servizi: Servizio[];
   users: Profile[];
   onNavigateToDetail: (id: string) => void;
-  allServizi: { id: string }[]; // Added to match ServizioTable requirements
+  allServizi: Servizio[]; // Updated to expect proper Servizio objects
 }
 
 export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }: CalendarViewProps) => {

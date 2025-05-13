@@ -2,6 +2,37 @@
 import { supabase } from '@/lib/supabase';
 import { updateFirmaServizio } from './updateFirmaServizio';
 
+// Function to check if firma digitale is active for an azienda
+export async function checkFirmaDigitaleAttiva(aziendaId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('aziende')
+      .select('firma_digitale_attiva')
+      .eq('id', aziendaId)
+      .single();
+    
+    if (error) {
+      console.error('Error checking firma digitale:', error);
+      return false;
+    }
+    
+    return data?.firma_digitale_attiva === true;
+  } catch (error) {
+    console.error('Unexpected error checking firma digitale:', error);
+    return false;
+  }
+}
+
+// Add upload function to handle firma digitale
+export async function uploadFirma(servizioId: string, firmaBase64: string) {
+  try {
+    return await salvaFirmaDigitale(servizioId, firmaBase64);
+  } catch (error) {
+    console.error('Error uploading firma:', error);
+    return { success: false, error };
+  }
+}
+
 export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string) {
   try {
     console.log("salvaFirmaDigitale: Inizio processo");

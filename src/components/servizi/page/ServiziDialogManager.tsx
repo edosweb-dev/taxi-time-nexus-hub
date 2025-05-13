@@ -50,24 +50,27 @@ export const ServiziDialogManager = ({ onRefetch }: ServiziDialogManagerProps) =
         <>
           <AssegnazioneDialog
             servizio={selectedServizio}
-            users={users.filter(u => u.role === 'dipendente' || u.role === 'socio')}
+            utenti={users.filter(u => u.role === 'dipendente' || u.role === 'socio')}
             open={showAssegnazioneDialog}
             onOpenChange={setShowAssegnazioneDialog}
             onClose={handleDialogClose}
           />
           
           <CompletaServizioDialog
-            servizio={selectedServizio}
+            servizioId={selectedServizio.id}
+            metodoDefault={selectedServizio.metodo_pagamento}
             open={showCompletaDialog}
             onOpenChange={setShowCompletaDialog}
-            onCompleted={handleDialogClose}
+            onComplete={handleDialogClose}
+            users={users}
           />
           
           {showFirmaDialog && (
             <FirmaServizio
-              servizio={selectedServizio}
+              servizioId={selectedServizio.id}
               open={showFirmaDialog}
               onOpenChange={setShowFirmaDialog}
+              onFirmaSalvata={handleDialogClose}
               onComplete={handleDialogClose}
             />
           )}
