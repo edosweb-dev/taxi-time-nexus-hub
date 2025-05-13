@@ -33,6 +33,7 @@ export function ServizioDialogs({
         servizioId={servizio.id}
         metodoDefault={servizio.metodo_pagamento}
         onComplete={onComplete}
+        users={users}
       />
 
       {/* Consuntiva servizio dialog */}

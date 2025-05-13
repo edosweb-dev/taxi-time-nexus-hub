@@ -1,15 +1,15 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { MetodoPagamento } from "@/lib/types/servizi";
+import { Profile } from "@/lib/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/sonner";
 import { completaServizio } from "@/lib/api/servizi";
 
@@ -19,6 +19,7 @@ const formSchema = z.object({
   }),
   incasso_ricevuto: z.coerce.number().min(0, "Deve essere un numero positivo").optional(),
   ore_lavorate: z.coerce.number().min(0, "Deve essere un numero positivo").optional(),
+  consegna_contanti_a: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -29,6 +30,7 @@ interface CompletaServizioDialogProps {
   servizioId: string;
   metodoDefault: MetodoPagamento;
   onComplete: () => void;
+  users: Profile[];
 }
 
 export function CompletaServizioDialog({
@@ -37,15 +39,42 @@ export function CompletaServizioDialog({
   servizioId,
   metodoDefault,
   onComplete,
+  users,
 }: CompletaServizioDialogProps) {
+  const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
+  const [isContanti, setIsContanti] = useState(metodoDefault === 'Contanti');
+
+  useEffect(() => {
+    if (users) {
+      const filteredUsers = users
+        .filter(user => user.role === 'admin' || user.role === 'socio')
+        .map(user => ({
+          id: user.id,
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.id,
+        }));
+      setAdminUsers(filteredUsers);
+    }
+  }, [users]);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       metodo_pagamento: metodoDefault,
       incasso_ricevuto: 0,
       ore_lavorate: 0,
+      consegna_contanti_a: '',
     },
   });
+
+  // Update the isContanti state when the metodo_pagamento value changes
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "metodo_pagamento") {
+        setIsContanti(value.metodo_pagamento === "Contanti");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch]);
 
   const isSubmitting = form.formState.isSubmitting;
 
@@ -56,6 +85,7 @@ export function CompletaServizioDialog({
         metodo_pagamento: data.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
         ore_lavorate: data.ore_lavorate,
+        consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
       });
 
       if (result.error) {
@@ -83,32 +113,57 @@ export function CompletaServizioDialog({
               control={form.control}
               name="metodo_pagamento"
               render={({ field }) => (
-                <FormItem className="space-y-3">
+                <FormItem>
                   <FormLabel>Modalità di pagamento</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Contanti" id="contanti" />
-                        <Label htmlFor="contanti">Contanti</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Carta" id="carta" />
-                        <Label htmlFor="carta">Carta</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Bonifico" id="bonifico" />
-                        <Label htmlFor="bonifico">Bonifico</Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona metodo di pagamento" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Contanti">Contanti</SelectItem>
+                      <SelectItem value="Carta">Carta</SelectItem>
+                      <SelectItem value="Bonifico">Bonifico</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {isContanti && (
+              <FormField
+                control={form.control}
+                name="consegna_contanti_a"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Consegna contanti a</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona un destinatario" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {adminUsers.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}

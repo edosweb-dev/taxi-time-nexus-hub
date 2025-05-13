@@ -7,6 +7,7 @@ interface CompletaServizioParams {
   metodo_pagamento: MetodoPagamento;
   incasso_ricevuto?: number;
   ore_lavorate?: number;
+  consegna_contanti_a?: string;
 }
 
 export async function completaServizio({
@@ -14,6 +15,7 @@ export async function completaServizio({
   metodo_pagamento,
   incasso_ricevuto,
   ore_lavorate,
+  consegna_contanti_a,
 }: CompletaServizioParams) {
   try {
     const { data, error } = await supabase
@@ -23,6 +25,7 @@ export async function completaServizio({
         metodo_pagamento,
         incasso_ricevuto,
         ore_lavorate,
+        consegna_contanti_a,
       })
       .eq('id', id)
       .select();
