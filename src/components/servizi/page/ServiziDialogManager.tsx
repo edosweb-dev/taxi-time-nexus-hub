@@ -50,7 +50,7 @@ export const ServiziDialogManager = ({ onRefetch }: ServiziDialogManagerProps) =
         <>
           <AssegnazioneDialog
             servizio={selectedServizio}
-            utenti={users.filter(u => u.role === 'dipendente' || u.role === 'socio')}
+            users={users.filter(u => u.role === 'dipendente' || u.role === 'socio')}
             open={showAssegnazioneDialog}
             onOpenChange={setShowAssegnazioneDialog}
             onClose={handleDialogClose}
