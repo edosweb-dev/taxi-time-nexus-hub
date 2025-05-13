@@ -32,6 +32,14 @@ export function useFirmaDigitale() {
         return { success: false, error: new Error("Firma troppo semplice") };
       }
       
+      // Verifica la parte base64 (dopo la virgola)
+      const base64Content = firmaBase64.split(',')[1];
+      if (!base64Content || base64Content.length < 100) {
+        console.error("Contenuto base64 non valido o troppo piccolo");
+        toast.error("Firma non valida, prova a firmare nuovamente");
+        return { success: false, error: new Error("Contenuto firma non valido") };
+      }
+      
       console.log("Dimensione dati firma:", firmaBase64.length, "bytes");
       
       const result = await salvaFirmaDigitale(servizioId, firmaBase64);

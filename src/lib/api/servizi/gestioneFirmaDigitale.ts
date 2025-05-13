@@ -34,8 +34,22 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       }
       console.log(`Dati immagine decodificati correttamente: ${binaryData.length} bytes`);
       
-      // Verifica che l'immagine contenga pixel non-trasparenti
-      // Qui potremmo analizzare ulteriormente l'immagine se necessario
+      // Analisi dei dati binari per verificare se è un'immagine completamente bianca
+      // Campione casuale di byte per verificare se sono tutti 0 o 255 (bianco)
+      let allWhite = true;
+      let checkSampleSize = Math.min(1000, binaryData.length);
+      let checkInterval = Math.floor(binaryData.length / checkSampleSize);
+      
+      for (let i = 0; i < binaryData.length; i += checkInterval) {
+        if (binaryData.charCodeAt(i) !== 0 && binaryData.charCodeAt(i) !== 255) {
+          allWhite = false;
+          break;
+        }
+      }
+      
+      if (allWhite) {
+        console.warn("Possibile immagine completamente bianca o trasparente");
+      }
     } catch (error) {
       console.error("Errore nella decodifica base64:", error);
       throw new Error("Formato firma non valido");
@@ -64,9 +78,16 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     console.log(`Caricamento firma: ${fileName}`);
     
     // Carica l'immagine nel bucket "firme"
-    // Nota: usiamo il File constructor per un upload migliore
-    // Converte il base64 in un blob
+    // Converti il base64 in un blob per un upload migliore
     const blob = await fetch(`data:image/png;base64,${base64Data}`).then(res => res.blob());
+    
+    // Verifica che il blob non sia vuoto
+    if (blob.size < 100) {
+      console.error("Blob troppo piccolo:", blob.size);
+      throw new Error("Immagine firma vuota o troppo piccola");
+    }
+    
+    console.log("Dimensione blob per upload:", blob.size, "bytes");
     
     const { data, error: uploadError } = await supabase.storage
       .from('firme')
@@ -87,12 +108,14 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       .from('firme')
       .getPublicUrl(fileName);
     
-    console.log("URL pubblico generato:", publicUrl);
+    // Pulisci URL da eventuali doppie slash
+    const cleanUrl = publicUrl.replace(/([^:]\/)\/+/g, "$1");
+    console.log("URL pubblico generato:", cleanUrl);
     
     // Aggiorna il servizio con l'URL della firma e il timestamp
     const { error: updateError } = await updateFirmaServizio({
       id: servizioId,
-      firma_url: publicUrl,
+      firma_url: cleanUrl,
       firma_timestamp: timestamp
     });
       
@@ -101,7 +124,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       throw updateError;
     }
     
-    return { success: true, url: publicUrl, timestamp };
+    return { success: true, url: cleanUrl, timestamp };
     
   } catch (error: any) {
     console.error('Errore nel salvataggio della firma:', error);

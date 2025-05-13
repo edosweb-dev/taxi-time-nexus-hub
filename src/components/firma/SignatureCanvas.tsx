@@ -11,11 +11,22 @@ interface SignatureCanvasProps {
   height?: number;
 }
 
+interface SignaturePoint {
+  x: number;
+  y: number;
+  time: number;
+  color: string;
+  pressure?: number;
+}
+
+type SignatureStroke = SignaturePoint[];
+
 export function SignatureCanvas({ onSave, width = 500, height = 200 }: SignatureCanvasProps) {
   const signatureRef = useRef<SignaturePad>(null);
   const [hasSignature, setHasSignature] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [points, setPoints] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [strokeCount, setStrokeCount] = useState(0);
 
   // Monitor when drawing begins
   const handleBegin = () => {
@@ -31,11 +42,21 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
       
       // Ottieni i dati grezzi per verificarne la qualità
       const data = signatureRef.current.toData();
-      const pointCount = data.reduce((total, stroke) => total + stroke.points.length, 0);
+      let pointsCount = 0;
       
-      console.log(`Firma: isEmpty=${isEmpty}, punti totali=${pointCount}`);
-      setPoints(pointCount);
-      setHasSignature(!isEmpty && pointCount > 10);
+      // Calcola il numero totale di punti in tutti gli stroke
+      if (Array.isArray(data)) {
+        data.forEach(stroke => {
+          if (Array.isArray(stroke)) {
+            pointsCount += stroke.length;
+          }
+        });
+        setStrokeCount(data.length);
+      }
+      
+      console.log(`Firma: isEmpty=${isEmpty}, punti totali=${pointsCount}, strokes=${data.length}`);
+      setTotalPoints(pointsCount);
+      setHasSignature(!isEmpty && pointsCount > 10 && data.length > 0);
     }
   };
 
@@ -44,7 +65,8 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
       signatureRef.current.clear();
       setHasSignature(false);
       setIsDrawing(false);
-      setPoints(0);
+      setTotalPoints(0);
+      setStrokeCount(0);
       console.log("Firma: canvas pulito");
     }
   };
@@ -66,8 +88,14 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
     }
 
     // Verifica che contenga abbastanza punti 
-    if (points < 20) {
+    if (totalPoints < 20) {
       toast.error("Firma troppo semplice. Prova a firmare in modo più completo.");
+      return false;
+    }
+    
+    // Verifica che contenga abbastanza tratti
+    if (strokeCount < 1) {
+      toast.error("Firma non valida. Deve contenere almeno un tratto completo.");
       return false;
     }
     
@@ -84,13 +112,21 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
       const dataUrl = signatureRef.current!.toDataURL("image/png", 1.0);
       
       // Log dell'inizio del dataUrl per debug
-      console.log("Firma dataUrl generato (primi 100 char):", dataUrl.substring(0, 100));
-      console.log("Lunghezza dataUrl:", dataUrl.length);
+      console.log("Firma dataURL generato (primi 100 char):", dataUrl.substring(0, 100));
+      console.log("Lunghezza dataURL:", dataUrl.length);
       
       // Verifica che i dati siano significativi
       if (dataUrl.length < 1000) {
         console.error("Firma troppo semplice o dati insufficienti:", dataUrl.length);
         toast.error("Firma troppo semplice. Prova a firmare in modo più completo.");
+        return;
+      }
+
+      // Ulteriore verifica base64 per contenuto effettivo
+      const base64Data = dataUrl.split(',')[1];
+      if (!base64Data || base64Data.trim() === '') {
+        console.error("Dati base64 vuoti");
+        toast.error("Errore nel generare l'immagine della firma. Riprova.");
         return;
       }
 
@@ -140,7 +176,7 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
           type="button" 
           onClick={saveSignature}
           className="flex gap-2 items-center"
-          disabled={!hasSignature}
+          disabled={!hasSignature || totalPoints < 20}
         >
           Salva firma
         </Button>
