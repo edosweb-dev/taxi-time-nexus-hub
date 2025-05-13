@@ -61,9 +61,9 @@ export const ShiftEvent = ({ shift, top, height, spanRows, onClick }: ShiftEvent
           {shift.user_first_name} {shift.user_last_name}
         </div>
       )}
-      {shift.note && (
+      {shift.notes && (
         <div className="text-xs truncate">
-          {shift.note}
+          {shift.notes}
         </div>
       )}
     </div>
