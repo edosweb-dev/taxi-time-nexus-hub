@@ -4,13 +4,11 @@ import { getServizioStatusColor } from "./CalendarEvent";
 import { getStatoLabel } from "../utils/statusUtils";
 
 export const CalendarLegend = () => {
-  // All possible service statuses
+  // Only these specific service statuses will be shown in the legend
   const statuses: StatoServizio[] = [
     'da_assegnare',
     'assegnato',
     'completato',
-    'annullato',
-    'non_accettato',
     'consuntivato',
   ];
 
