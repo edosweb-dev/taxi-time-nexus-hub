@@ -7,8 +7,6 @@ import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { getStatoBadge, getUserName } from "./utils";
 import { useQuery } from "@tanstack/react-query";
@@ -185,24 +183,6 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }:
                 Successivo
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>Scegli data</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={currentDate}
-                    onSelect={(date) => date && setCurrentDate(date)}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
             </div>
             
             <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "week" | "day" | "table")}>
@@ -249,24 +229,6 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }:
               Successivo
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>Scegli data</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={currentDate}
-                  onSelect={(date) => date && setCurrentDate(date)}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
           </div>
           
           <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "week" | "day" | "table")}>
