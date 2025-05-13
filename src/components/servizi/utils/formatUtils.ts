@@ -1,11 +1,4 @@
 
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
 /**
  * Formatta un ID come numero progressivo
  * @param id L'UUID del servizio

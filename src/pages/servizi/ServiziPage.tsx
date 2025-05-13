@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,10 @@ import { CalendarView } from "@/components/servizi/CalendarView";
 import { groupServiziByStatus } from "@/components/servizi/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ServizioTable } from "@/components/servizi/ServizioTable";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "@/components/ui/toast";
+import { FirmaServizio } from "@/components/firma/FirmaServizio";
+import { CompletaServizioDialog } from "@/components/servizi/CompletaServizioDialog";
 
 export default function ServiziPage() {
   const navigate = useNavigate();
@@ -26,7 +30,15 @@ export default function ServiziPage() {
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("da_assegnare");
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
+  const [servizioPerCompletamento, setServizioPerCompletamento] = useState<Servizio | null>(null);
+  const [servizioPerFirma, setServizioPerFirma] = useState<Servizio | null>(null);
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const isMobile = useIsMobile();
+  
+  // Imposta la visualizzazione predefinita in base al dispositivo
+  useEffect(() => {
+    setViewMode(isMobile ? "cards" : "table");
+  }, [isMobile]);
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
@@ -40,6 +52,21 @@ export default function ServiziPage() {
   // Function to handle switching to calendar view
   const handleShowCalendarView = () => {
     setActiveTab("calendario");
+  };
+
+  // Funzione per completare un servizio
+  const handleCompleta = (servizio: Servizio) => {
+    setServizioPerCompletamento(servizio);
+  };
+
+  // Funzione per firmare un servizio
+  const handleFirma = (servizio: Servizio) => {
+    setServizioPerFirma(servizio);
+  };
+
+  // Funzione per chiudere la dialog di firma
+  const handleCloseFirma = () => {
+    setServizioPerFirma(null);
   };
 
   return (
@@ -91,7 +118,7 @@ export default function ServiziPage() {
                 onTabChange={setActiveTab} 
               />
               
-              {activeTab !== "calendario" && (
+              {activeTab !== "calendario" && !isMobile && (
                 <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "cards" | "table")}>
                   <ToggleGroupItem value="cards" aria-label="Visualizza schede">
                     <Layout className="h-4 w-4" />
@@ -113,6 +140,8 @@ export default function ServiziPage() {
                     isAdminOrSocio={isAdminOrSocio}
                     onSelectServizio={setSelectedServizio}
                     onNavigateToDetail={handleNavigateToDetail}
+                    onCompleta={handleCompleta}
+                    onFirma={handleFirma}
                   />
                 ) : (
                   <ServizioTable
@@ -120,6 +149,8 @@ export default function ServiziPage() {
                     users={users}
                     onNavigateToDetail={handleNavigateToDetail}
                     onSelect={isAdminOrSocio ? setSelectedServizio : undefined}
+                    onCompleta={handleCompleta}
+                    onFirma={handleFirma}
                     isAdminOrSocio={isAdminOrSocio}
                   />
                 )}
@@ -137,11 +168,32 @@ export default function ServiziPage() {
         )}
       </div>
       
+      {/* Dialog per l'assegnazione */}
       {selectedServizio && (
         <AssegnazioneDialog 
           isOpen={!!selectedServizio} 
           onClose={() => setSelectedServizio(null)} 
           servizio={selectedServizio} 
+        />
+      )}
+
+      {/* Dialog per il completamento */}
+      {servizioPerCompletamento && (
+        <CompletaServizioDialog 
+          open={!!servizioPerCompletamento} 
+          onOpenChange={(open) => {
+            if (!open) setServizioPerCompletamento(null);
+          }} 
+          servizioId={servizioPerCompletamento.id}
+        />
+      )}
+
+      {/* Modale per la firma */}
+      {servizioPerFirma && (
+        <FirmaServizio 
+          servizio={servizioPerFirma}
+          isOpen={!!servizioPerFirma}
+          onClose={handleCloseFirma}
         />
       )}
     </MainLayout>

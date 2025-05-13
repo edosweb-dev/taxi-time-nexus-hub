@@ -1,12 +1,7 @@
 
 import { Servizio, StatoServizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
-import { TabsContent } from "@/components/ui/tabs";
-import { EmptyState } from "./EmptyState";
 import { ServizioCard } from "./ServizioCard";
-import { Button } from "../ui/button";
-import { FileText } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface ServizioTabContentProps {
   status: StatoServizio;
@@ -15,6 +10,8 @@ interface ServizioTabContentProps {
   isAdminOrSocio: boolean;
   onSelectServizio: (servizio: Servizio) => void;
   onNavigateToDetail: (id: string) => void;
+  onCompleta?: (servizio: Servizio) => void;
+  onFirma?: (servizio: Servizio) => void;
 }
 
 export const ServizioTabContent = ({
@@ -23,46 +20,39 @@ export const ServizioTabContent = ({
   users,
   isAdminOrSocio,
   onSelectServizio,
-  onNavigateToDetail
+  onNavigateToDetail,
+  onCompleta,
+  onFirma
 }: ServizioTabContentProps) => {
-  const navigate = useNavigate();
-  
-  const getStatusMessage = (status: StatoServizio) => {
-    switch (status) {
-      case 'da_assegnare':
-        return 'Nessun servizio da assegnare';
-      case 'assegnato':
-        return 'Nessun servizio assegnato';
-      case 'completato':
-        return 'Nessun servizio completato';
-      case 'non_accettato':
-        return 'Nessun servizio non accettato';
-      case 'annullato':
-        return 'Nessun servizio annullato';
-      default:
-        return 'Nessun servizio disponibile';
-    }
-  };
+  if (servizi.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Nessun servizio {status === "da_assegnare" ? "da assegnare" 
+          : status === "assegnato" ? "assegnato" 
+          : status === "completato" ? "completato"
+          : status === "annullato" ? "annullato"
+          : status === "non_accettato" ? "non accettato"
+          : ""}
+      </div>
+    );
+  }
 
   return (
-    <TabsContent key={status} value={status} className="mt-0">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {servizi.length === 0 ? (
-          <EmptyState message={getStatusMessage(status)} />
-        ) : (
-          servizi.map((servizio) => (
-            <ServizioCard
-              key={servizio.id}
-              servizio={servizio}
-              users={users}
-              status={status}
-              isAdminOrSocio={isAdminOrSocio}
-              onSelect={onSelectServizio}
-              onClick={onNavigateToDetail}
-            />
-          ))
-        )}
-      </div>
-    </TabsContent>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {servizi.map((servizio, index) => (
+        <ServizioCard
+          key={servizio.id}
+          servizio={servizio}
+          users={users}
+          status={status}
+          isAdminOrSocio={isAdminOrSocio}
+          index={index}
+          onSelect={onSelectServizio}
+          onClick={onNavigateToDetail}
+          onCompleta={onCompleta}
+          onFirma={onFirma}
+        />
+      ))}
+    </div>
   );
 };

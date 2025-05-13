@@ -12,6 +12,8 @@ interface ServizioTableProps {
   users: Profile[];
   onNavigateToDetail: (id: string) => void;
   onSelect?: (servizio: Servizio) => void;
+  onCompleta?: (servizio: Servizio) => void; // Nuovo handler per completamento
+  onFirma?: (servizio: Servizio) => void; // Nuovo handler per firma
   isAdminOrSocio?: boolean;
 }
 
@@ -20,6 +22,8 @@ export const ServizioTable = ({
   users, 
   onNavigateToDetail,
   onSelect,
+  onCompleta,
+  onFirma,
   isAdminOrSocio = false
 }: ServizioTableProps) => {
   const { aziende } = useAziende();
@@ -42,6 +46,7 @@ export const ServizioTable = ({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>ID</TableHead>
             <TableHead>Commessa</TableHead>
             <TableHead>Azienda</TableHead>
             <TableHead>Data</TableHead>
@@ -55,12 +60,12 @@ export const ServizioTable = ({
         <TableBody>
           {servizi.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-6">
+              <TableCell colSpan={9} className="text-center py-6">
                 Nessun servizio disponibile
               </TableCell>
             </TableRow>
           ) : (
-            servizi.map((servizio) => (
+            servizi.map((servizio, index) => (
               <ServizioTableRow
                 key={servizio.id}
                 servizio={servizio}
@@ -69,9 +74,12 @@ export const ServizioTable = ({
                 passengerCount={passeggeriCounts[servizio.id] || 0}
                 isExpanded={expandedRow === servizio.id}
                 isAdminOrSocio={isAdminOrSocio}
+                index={index}
                 onToggleExpand={toggleRowExpand}
                 onNavigateToDetail={onNavigateToDetail}
                 onSelect={onSelect}
+                onCompleta={onCompleta}
+                onFirma={onFirma}
               />
             ))
           )}

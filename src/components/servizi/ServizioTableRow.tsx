@@ -1,7 +1,7 @@
 
 import React from "react";
 import { format, parseISO } from "date-fns";
-import { Users, ChevronDown } from "lucide-react";
+import { Users, ChevronDown, Clipboard, CheckSquare, Pencil } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { getStatoBadge, getUserName } from "./utils";
 import { ServizioExpandedRow } from "./ServizioExpandedRow";
+import { formatProgressiveId } from "./utils/formatUtils";
 
 interface ServizioTableRowProps {
   servizio: Servizio;
@@ -22,9 +23,12 @@ interface ServizioTableRowProps {
   passengerCount: number;
   isExpanded: boolean;
   isAdminOrSocio: boolean;
+  index: number; // Aggiunto indice per l'ID progressivo
   onToggleExpand: (id: string) => void;
   onNavigateToDetail: (id: string) => void;
   onSelect?: (servizio: Servizio) => void;
+  onCompleta?: (servizio: Servizio) => void; // Nuovo handler per completamento
+  onFirma?: (servizio: Servizio) => void; // Nuovo handler per firma
 }
 
 export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
@@ -34,17 +38,27 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   passengerCount,
   isExpanded,
   isAdminOrSocio,
+  index,
   onToggleExpand,
   onNavigateToDetail,
-  onSelect
+  onSelect,
+  onCompleta,
+  onFirma
 }) => {
+  // Determina se i pulsanti speciali devono essere mostrati
+  const canBeCompleted = servizio.stato === 'assegnato';
+  const canBeSigned = (servizio.stato === 'assegnato' || servizio.stato === 'completato') && !servizio.firma_url;
+
   return (
     <>
-      <TableRow 
+      <TableRow
         key={servizio.id}
         className="cursor-pointer hover:bg-muted/50"
         onClick={() => onToggleExpand(servizio.id)}
       >
+        <TableCell className="font-medium">
+          {formatProgressiveId(servizio.id, index)}
+        </TableCell>
         <TableCell className="font-medium">
           {servizio.numero_commessa || "N/D"}
         </TableCell>
@@ -67,35 +81,67 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
             <span className="text-muted-foreground">Non assegnato</span>
           )}
         </TableCell>
-        <TableCell className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
-                <ChevronDown className="h-4 w-4" />
+        <TableCell>
+          <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+            {canBeCompleted && onCompleta && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCompleta(servizio);
+                }}
+              >
+                <CheckSquare className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Completa</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                onNavigateToDetail(servizio.id);
-              }}>
-                Visualizza dettagli
-              </DropdownMenuItem>
-              {servizio.stato === 'da_assegnare' && isAdminOrSocio && onSelect && (
+            )}
+            
+            {canBeSigned && onFirma && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFirma(servizio);
+                }}
+              >
+                <Clipboard className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Firma</span>
+              </Button>
+            )}
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={(e) => {
                   e.stopPropagation();
-                  onSelect(servizio);
+                  onNavigateToDetail(servizio.id);
                 }}>
-                  Assegna
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Dettagli
                 </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {servizio.stato === 'da_assegnare' && isAdminOrSocio && onSelect && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(servizio);
+                  }}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Assegna
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </TableCell>
       </TableRow>
       {isExpanded && (
         <TableRow>
-          <TableCell colSpan={8} className="bg-muted/30 p-4">
+          <TableCell colSpan={9} className="bg-muted/30 p-4">
             <ServizioExpandedRow 
               servizio={servizio}
               users={users}

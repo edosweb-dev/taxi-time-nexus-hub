@@ -1,5 +1,5 @@
 
-import { Calendar, Clock, MapPin, CreditCard, Users, UserRound, Building, User } from "lucide-react";
+import { Calendar, Clock, MapPin, CreditCard, Users, UserRound, Building, User, Clipboard, CheckSquare } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Servizio, StatoServizio } from "@/lib/types/servizi";
@@ -11,14 +11,18 @@ import { useQuery } from "@tanstack/react-query";
 import { getAziende } from "@/lib/api/aziende";
 import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
+import { formatProgressiveId } from "./utils/formatUtils";
 
 interface ServizioCardProps {
   servizio: Servizio;
   users: Profile[];
   status: StatoServizio;
   isAdminOrSocio: boolean;
+  index: number; // Aggiunto indice per l'ID progressivo
   onSelect: (servizio: Servizio) => void;
   onClick: (id: string) => void;
+  onCompleta?: (servizio: Servizio) => void; // Nuovo handler per completamento
+  onFirma?: (servizio: Servizio) => void; // Nuovo handler per firma
 }
 
 export const ServizioCard = ({
@@ -26,8 +30,11 @@ export const ServizioCard = ({
   users,
   status,
   isAdminOrSocio,
+  index,
   onSelect,
-  onClick
+  onClick,
+  onCompleta,
+  onFirma
 }: ServizioCardProps) => {
   const [passeggeriCount, setPasseggeriCount] = useState<number>(0);
   
@@ -63,6 +70,10 @@ export const ServizioCard = ({
     fetchPasseggeriCount();
   }, [servizio.id]);
 
+  // Determina se i pulsanti speciali devono essere mostrati
+  const canBeCompleted = servizio.stato === 'assegnato';
+  const canBeSigned = (servizio.stato === 'assegnato' || servizio.stato === 'completato') && !servizio.firma_url;
+
   return (
     <Card 
       className="relative cursor-pointer hover:bg-accent/10 transition-colors"
@@ -78,10 +89,15 @@ export const ServizioCard = ({
           </div>
           {getStatoBadge(servizio.stato)}
         </div>
-        <CardTitle className="text-base mt-2">
-          {servizio.numero_commessa 
-            ? `Commessa: ${servizio.numero_commessa}` 
-            : "Servizio di trasporto"}
+        <CardTitle className="text-base mt-2 flex justify-between items-center">
+          <div>
+            {formatProgressiveId(servizio.id, index)}: {servizio.numero_commessa || "Servizio di trasporto"}
+          </div>
+          {getStateIcon(servizio.stato) && (
+            <div className="text-muted-foreground">
+              {getStateIcon(servizio.stato)}
+            </div>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -168,27 +184,54 @@ export const ServizioCard = ({
             </div>
           </div>
 
-          {status === 'da_assegnare' && isAdminOrSocio && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-2 w-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(servizio);
-              }}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              Assegna
-            </Button>
-          )}
+          <div className="flex gap-2 mt-4">
+            {status === 'da_assegnare' && isAdminOrSocio && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(servizio);
+                }}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                Assegna
+              </Button>
+            )}
+            
+            {canBeCompleted && onCompleta && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCompleta(servizio);
+                }}
+              >
+                <CheckSquare className="mr-2 h-4 w-4" />
+                Completa
+              </Button>
+            )}
+            
+            {canBeSigned && onFirma && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFirma(servizio);
+                }}
+              >
+                <Clipboard className="mr-2 h-4 w-4" />
+                Firma
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
-      {getStateIcon(servizio.stato) && (
-        <div className="absolute top-3 right-3">
-          {getStateIcon(servizio.stato)}
-        </div>
-      )}
     </Card>
   );
 };
