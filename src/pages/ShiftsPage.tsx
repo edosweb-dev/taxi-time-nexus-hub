@@ -46,7 +46,7 @@ export default function ShiftsPage() {
                 <UserFilterDropdown 
                   selectedUserId={selectedUserId} 
                   onSelectUser={(userId) => setSelectedUserId(userId)}
-                  showOnlyAdminAndSocio={true}
+                  showOnlyAdminAndSocio={false}
                 />
               )}
               
