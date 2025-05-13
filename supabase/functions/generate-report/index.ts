@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as PDFLib from "https://esm.sh/jspdf@2.5.1";
@@ -47,9 +48,9 @@ serve(async (req: Request) => {
         }
       );
     }
-
-    // Ensure the report_aziende bucket exists
-    const ensureReportBucket = async (supabaseClient) => {
+    
+    // Check if the bucket exists instead of creating it - avoid bucket creation which requires admin rights
+    const checkBucketExists = async (supabaseClient) => {
       try {
         // Check if bucket exists
         const { data: buckets, error: bucketsError } = await supabaseClient.storage.listBuckets();
@@ -59,28 +60,26 @@ serve(async (req: Request) => {
           return false;
         }
         
-        const bucketExists = buckets.some(bucket => bucket.name === 'report_aziende');
-        
-        if (!bucketExists) {
-          // Create the bucket
-          const { error: createError } = await supabaseClient.storage.createBucket('report_aziende', {
-            public: false,
-            fileSizeLimit: 52428800, // 50MB
-          });
-          
-          if (createError) {
-            console.error('Error creating report_aziende bucket:', createError);
-            return false;
-          }
-        }
-        
-        return true;
+        return buckets.some(bucket => bucket.name === 'report_aziende');
       } catch (error) {
-        console.error('Unexpected error ensuring bucket exists:', error);
+        console.error('Unexpected error checking bucket existence:', error);
         return false;
       }
     };
-    await ensureReportBucket(supabaseClient);
+    
+    // Check if bucket exists
+    const bucketExists = await checkBucketExists(supabaseClient);
+    if (!bucketExists) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Storage bucket 'report_aziende' does not exist. Please create it from the Supabase dashboard." 
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     // Fetch servizi details
     const { data: servizi, error: serviziError } = await supabaseClient
@@ -150,150 +149,163 @@ serve(async (req: Request) => {
       return acc;
     }, {} as Record<string, number>);
 
-    // Generate PDF
+    // Generate PDF with smaller table to avoid width issues
     const doc = new PDFLib.default({
       orientation: "landscape",
       unit: "mm",
       format: "a4",
     });
 
-    // Helper functions
-    const formatCurrency = (value?: number | null): string => {
-      if (value === undefined || value === null) return "€ 0,00";
-      return new Intl.NumberFormat("it-IT", {
-        style: "currency",
-        currency: "EUR",
-      }).format(value);
-    };
+    try {
+      // Helper functions
+      const formatCurrency = (value?: number | null): string => {
+        if (value === undefined || value === null) return "€ 0,00";
+        return new Intl.NumberFormat("it-IT", {
+          style: "currency",
+          currency: "EUR",
+        }).format(value);
+      };
 
-    const getUserName = (userId?: string): string => {
-      if (!userId) return "";
-      const user = users.find((u) => u.id === userId);
-      return user ? `${user.first_name || ""} ${user.last_name || ""}` : "";
-    };
+      const getUserName = (userId?: string): string => {
+        if (!userId) return "";
+        const user = users.find((u) => u.id === userId);
+        return user ? `${user.first_name || ""} ${user.last_name || ""}` : "";
+      };
 
-    // Set metadata
-    doc.setProperties({
-      title: `Report Servizi - ${azienda.nome} - ${
-        new Date(year, month - 1).toLocaleString("it-IT", { month: "long" })
-      } ${year}`,
-      author: "TaxiTime",
-      subject: `Report mensile servizi ${month}/${year}`,
-      keywords: "taxitime, report, servizi",
-      creator: "TaxiTime Report Generator",
-    });
+      // Set metadata
+      doc.setProperties({
+        title: `Report Servizi - ${azienda.nome} - ${
+          new Date(year, month - 1).toLocaleString("it-IT", { month: "long" })
+        } ${year}`,
+        author: "TaxiTime",
+        subject: `Report mensile servizi ${month}/${year}`,
+        keywords: "taxitime, report, servizi",
+        creator: "TaxiTime Report Generator",
+      });
 
-    // Add header
-    doc.setFontSize(18);
-    doc.text(
-      `Report Servizi - ${
-        new Date(year, month - 1).toLocaleString("it-IT", { month: "long" })
-      } ${year}`,
-      doc.internal.pageSize.getWidth() / 2,
-      20,
-      { align: "center" }
-    );
+      // Add header
+      doc.setFontSize(18);
+      doc.text(
+        `Report Servizi - ${
+          new Date(year, month - 1).toLocaleString("it-IT", { month: "long" })
+        } ${year}`,
+        doc.internal.pageSize.getWidth() / 2,
+        20,
+        { align: "center" }
+      );
 
-    // Add company info
-    doc.setFontSize(12);
-    doc.text(`Azienda: ${azienda.nome}`, 14, 30);
-    doc.text(
-      `Referente: ${referente.first_name || ""} ${referente.last_name || ""}`,
-      14,
-      36
-    );
-    doc.text(
-      `Data generazione: ${new Date().toLocaleDateString("it-IT")}`,
-      14,
-      42
-    );
+      // Add company info
+      doc.setFontSize(12);
+      doc.text(`Azienda: ${azienda.nome}`, 14, 30);
+      doc.text(
+        `Referente: ${referente.first_name || ""} ${referente.last_name || ""}`,
+        14,
+        36
+      );
+      doc.text(
+        `Data generazione: ${new Date().toLocaleDateString("it-IT")}`,
+        14,
+        42
+      );
 
-    // Create table data
-    const tableData = servizi.map((servizio) => [
-      new Date(servizio.data_servizio).toLocaleDateString("it-IT"),
-      servizio.orario_servizio.substring(0, 5),
-      servizio.indirizzo_presa,
-      servizio.indirizzo_destinazione,
-      passeggeriCounts[servizio.id] || 0,
-      servizio.conducente_esterno
-        ? servizio.conducente_esterno_nome
-        : getUserName(servizio.assegnato_a),
-      servizio.metodo_pagamento,
-      servizio.numero_commessa || "-",
-      servizio.ore_finali || "-",
-      formatCurrency(servizio.incasso_previsto),
-    ]);
+      // Create table data - Using shorter column widths to fit better
+      const tableData = servizi.map((servizio) => [
+        new Date(servizio.data_servizio).toLocaleDateString("it-IT"),
+        servizio.orario_servizio.substring(0, 5),
+        servizio.indirizzo_presa.substring(0, 20) + (servizio.indirizzo_presa.length > 20 ? "..." : ""),
+        servizio.indirizzo_destinazione.substring(0, 20) + (servizio.indirizzo_destinazione.length > 20 ? "..." : ""),
+        passeggeriCounts[servizio.id] || 0,
+        servizio.conducente_esterno
+          ? (servizio.conducente_esterno_nome || "").substring(0, 15) 
+          : getUserName(servizio.assegnato_a).substring(0, 15),
+        servizio.metodo_pagamento,
+        servizio.numero_commessa || "-",
+        servizio.ore_finali || "-",
+        formatCurrency(servizio.incasso_previsto),
+      ]);
 
-    // Add table
-    autoTable(doc, {
-      head: [
-        [
-          "Data",
-          "Orario",
-          "Partenza",
-          "Destinazione",
-          "Pass.",
-          "Autista",
-          "Pagamento",
-          "Commessa",
-          "Ore",
-          "Importo",
+      // Add table with adjusted column widths
+      autoTable(doc, {
+        head: [
+          [
+            "Data",
+            "Ora",
+            "Partenza",
+            "Destinazione",
+            "Pass.",
+            "Autista",
+            "Pagamento",
+            "Commessa",
+            "Ore",
+            "Importo",
+          ],
         ],
-      ],
-      body: tableData,
-      startY: 50,
-      styles: { fontSize: 9, cellPadding: 2 },
-      columnStyles: {
-        0: { cellWidth: 20 }, // Data
-        1: { cellWidth: 15 }, // Orario
-        2: { cellWidth: 40 }, // Partenza
-        3: { cellWidth: 40 }, // Destinazione
-        4: { cellWidth: 10 }, // Passeggeri
-        5: { cellWidth: 25 }, // Autista
-        6: { cellWidth: 20 }, // Pagamento
-        7: { cellWidth: 20 }, // Commessa
-        8: { cellWidth: 10 }, // Ore
-        9: { cellWidth: 20 }, // Importo
-      },
-      headStyles: {
-        fillColor: [41, 128, 185],
-        textColor: 255,
-        fontStyle: "bold",
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240],
-      },
-    });
+        body: tableData,
+        startY: 50,
+        styles: { fontSize: 9, cellPadding: 2 },
+        columnStyles: {
+          0: { cellWidth: 18 }, // Data
+          1: { cellWidth: 12 }, // Orario
+          2: { cellWidth: 35 }, // Partenza
+          3: { cellWidth: 35 }, // Destinazione
+          4: { cellWidth: 9 }, // Passeggeri
+          5: { cellWidth: 23 }, // Autista
+          6: { cellWidth: 18 }, // Pagamento
+          7: { cellWidth: 18 }, // Commessa
+          8: { cellWidth: 9 }, // Ore
+          9: { cellWidth: 18 }, // Importo
+        },
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: 255,
+          fontStyle: "bold",
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240],
+        },
+      });
 
-    // Calculate totals
-    const totalAmount = servizi.reduce(
-      (sum, servizio) => sum + (servizio.incasso_previsto || 0),
-      0
-    );
-    const totalHours = servizi.reduce(
-      (sum, servizio) => sum + (servizio.ore_finali || 0),
-      0
-    );
+      // Calculate totals
+      const totalAmount = servizi.reduce(
+        (sum, servizio) => sum + (servizio.incasso_previsto || 0),
+        0
+      );
+      const totalHours = servizi.reduce(
+        (sum, servizio) => sum + (servizio.ore_finali || 0),
+        0
+      );
 
-    // Add summary
-    const finalY = (doc as any).lastAutoTable.finalY || 200;
-    doc.setFontSize(10);
-    doc.text(`Totale servizi: ${servizi.length}`, 14, finalY + 10);
-    doc.text(`Totale ore: ${totalHours.toFixed(1)}`, 14, finalY + 16);
-    doc.text(`Totale: ${formatCurrency(totalAmount)}`, 14, finalY + 22);
+      // Add summary
+      const finalY = (doc as any).lastAutoTable.finalY || 200;
+      doc.setFontSize(10);
+      doc.text(`Totale servizi: ${servizi.length}`, 14, finalY + 10);
+      doc.text(`Totale ore: ${totalHours.toFixed(1)}`, 14, finalY + 16);
+      doc.text(`Totale: ${formatCurrency(totalAmount)}`, 14, finalY + 22);
 
-    // Add footer
-    const pageHeight = doc.internal.pageSize.getHeight();
-    doc.setFontSize(8);
-    doc.setTextColor(100);
-    doc.text(
-      `TaxiTime - Report generato il ${new Date().toLocaleDateString(
-        "it-IT"
-      )} ${new Date().toLocaleTimeString("it-IT")}`,
-      doc.internal.pageSize.getWidth() / 2,
-      pageHeight - 10,
-      { align: "center" }
-    );
+      // Add footer
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.setFontSize(8);
+      doc.setTextColor(100);
+      doc.text(
+        `TaxiTime - Report generato il ${new Date().toLocaleDateString(
+          "it-IT"
+        )} ${new Date().toLocaleTimeString("it-IT")}`,
+        doc.internal.pageSize.getWidth() / 2,
+        pageHeight - 10,
+        { align: "center" }
+      );
+    } catch (pdfError) {
+      console.error("Error generating PDF:", pdfError);
+      return new Response(
+        JSON.stringify({ 
+          error: `Error generating PDF: ${pdfError.message}` 
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     // Generate PDF blob
     const pdfBytes = doc.output("arraybuffer");
@@ -307,50 +319,90 @@ serve(async (req: Request) => {
     const filePath = `${aziendaId}/${year}/${month}/${fileName}`;
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabaseClient.storage
-      .from("report_aziende")
-      .upload(filePath, pdfBlob, {
-        contentType: "application/pdf",
-        upsert: true,
-      });
+    try {
+      const { data: uploadData, error: uploadError } = await supabaseClient.storage
+        .from("report_aziende")
+        .upload(filePath, pdfBlob, {
+          contentType: "application/pdf",
+          upsert: true,
+        });
 
-    if (uploadError) {
-      throw new Error(`Error uploading PDF: ${uploadError.message}`);
+      if (uploadError) {
+        return new Response(
+          JSON.stringify({ 
+            error: `Error uploading PDF: ${uploadError.message}. Check storage permissions.` 
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    } catch (storageError) {
+      return new Response(
+        JSON.stringify({ 
+          error: `Storage error: ${storageError.message}. Verify 'report_aziende' bucket exists and has correct permissions.` 
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Create report record in database
-    const { data: reportData, error: reportError } = await supabaseClient
-      .from("reports")
-      .insert([
-        {
-          azienda_id: aziendaId,
-          referente_id: referenteId,
-          month,
-          year,
-          created_by: createdBy,
-          file_path: filePath,
-          file_name: fileName,
-          servizi_ids: serviziIds,
-        },
-      ])
-      .select()
-      .single();
+    try {
+      const { data: reportData, error: reportError } = await supabaseClient
+        .from("reports")
+        .insert([
+          {
+            azienda_id: aziendaId,
+            referente_id: referenteId,
+            month,
+            year,
+            created_by: createdBy,
+            file_path: filePath,
+            file_name: fileName,
+            servizi_ids: serviziIds,
+          },
+        ])
+        .select()
+        .single();
 
-    if (reportError) {
-      throw new Error(`Error saving report record: ${reportError.message}`);
-    }
-
-    // Return success response
-    return new Response(
-      JSON.stringify({
-        success: true,
-        reportId: reportData.id,
-        fileName,
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      if (reportError) {
+        return new Response(
+          JSON.stringify({ 
+            error: `Error saving report record: ${reportError.message}` 
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
-    );
+
+      // Return success response
+      return new Response(
+        JSON.stringify({
+          success: true,
+          reportId: reportData.id,
+          fileName,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    } catch (dbError) {
+      return new Response(
+        JSON.stringify({ 
+          error: `Database error: ${dbError.message}` 
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
   } catch (error) {
     // Return error response

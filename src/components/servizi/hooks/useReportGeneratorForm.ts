@@ -77,7 +77,7 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
         return;
       }
       
-      await generateReport({
+      const result = await generateReport({
         aziendaId: data.aziendaId,
         referenteId: data.referenteId,
         month: parseInt(data.month),
@@ -86,7 +86,9 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
         createdBy: profile?.id || ''
       });
       
-      onCancel(); // Close the form after successful generation
+      if (result) {
+        onCancel(); // Close the form after successful generation
+      }
     } catch (error) {
       console.error('Error generating report:', error);
     } finally {

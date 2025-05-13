@@ -84,6 +84,7 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
           onCancel={onCancel}
           isLoading={isLoading}
           isDisabled={!watchReferenteId || selectedServiziCount === 0}
+          selectedServiziCount={selectedServiziCount}
         />
       </form>
     </Form>

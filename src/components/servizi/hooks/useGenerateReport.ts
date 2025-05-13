@@ -106,35 +106,17 @@ export const useGenerateReport = () => {
     try {
       console.log('Generating report with params:', params);
       
-      // Use actual serviziIds from params if provided, otherwise fetch them
-      let serviziIds = params.serviziIds;
-      
-      // Only if serviziIds is empty or not provided, fetch the servizi first
-      if (!serviziIds || serviziIds.length === 0) {
-        console.log('No serviziIds provided, fetching servizi first...');
-        
-        const servizi = await fetchServizi(
-          params.aziendaId,
-          params.referenteId,
-          params.month,
-          params.year
-        );
-        
-        if (!servizi || servizi.length === 0) {
-          toast({
-            title: 'Nessun servizio trovato',
-            description: 'Non ci sono servizi consuntivati per i criteri selezionati.',
-            variant: 'default',
-          });
-          return null;
-        }
-        
-        // Extract IDs from fetched servizi
-        serviziIds = servizi.map(s => s.id);
-        console.log('Fetched servizi IDs:', serviziIds);
+      // Validate required params
+      if (!params.aziendaId || !params.referenteId || !params.month || !params.year || !params.serviziIds || params.serviziIds.length === 0) {
+        toast({
+          title: 'Parametri mancanti',
+          description: 'Verifica di aver selezionato tutti i parametri necessari e almeno un servizio.',
+          variant: 'destructive',
+        });
+        return null;
       }
       
-      // Also update filter params for the UI state
+      // Update filter params for the UI state
       setFilterParams({
         aziendaId: params.aziendaId,
         referenteId: params.referenteId,
@@ -142,21 +124,19 @@ export const useGenerateReport = () => {
         year: params.year
       });
       
-      console.log('Calling edge function with serviziIds:', serviziIds.length);
+      console.log('Calling edge function with serviziIds:', params.serviziIds.length);
       
       // Call Edge Function to generate PDF with the servizi IDs
       const { data, error } = await supabase.functions.invoke('generate-report', {
-        body: {
-          ...params,
-          serviziIds
-        }
+        body: params
       });
       
       if (error) {
         console.error('Error generating report:', error);
         toast({
           title: 'Errore',
-          description: 'Si è verificato un errore nella generazione del report.',
+          description: 'Si è verificato un errore nella generazione del report: ' + 
+            (error.message || 'Verifica i permessi di storage su Supabase'),
           variant: 'destructive',
         });
         throw error;
@@ -173,7 +153,8 @@ export const useGenerateReport = () => {
       console.error('Unexpected error generating report:', error);
       toast({
         title: 'Errore',
-        description: 'Si è verificato un errore nella generazione del report.',
+        description: 'Si è verificato un errore nella generazione del report. ' + 
+          'Potrebbe essere un problema di permessi o di configurazione del bucket di storage.',
         variant: 'destructive',
       });
       throw error;
