@@ -10,12 +10,15 @@ import { Servizio } from "@/lib/types/servizi";
 
 interface FirmaServizioProps {
   servizioId: string;
-  isOpen: boolean;
-  onClose: () => void;
+  onFirmaSalvata: () => void;
 }
 
-export function FirmaServizio({ servizioId, isOpen, onClose }: FirmaServizioProps) {
+export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const { uploadFirma, isLoading } = useFirmaDigitale();
+
+  const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
 
   const handleSalvaFirma = async (signatureData: string) => {
     toast({
@@ -27,13 +30,14 @@ export function FirmaServizio({ servizioId, isOpen, onClose }: FirmaServizioProp
       const result = await uploadFirma(servizioId, signatureData);
       
       if (result.success) {
-        onClose();
+        setIsOpen(false);
         console.log("Firma salvata con successo:", result.url);
         toast({
           title: "Successo",
           description: "Firma salvata con successo",
           variant: "default"
         });
+        onFirmaSalvata();
       } else {
         console.error("Errore nel salvataggio della firma:", result.error);
         toast({
@@ -53,34 +57,45 @@ export function FirmaServizio({ servizioId, isOpen, onClose }: FirmaServizioProp
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Firma digitale</DialogTitle>
-          <DialogDescription>
-            Utilizza il mouse o il touchscreen per apporre la tua firma digitale.
-            Assicurati di firmare in modo chiaro e completo.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <SignatureCanvas
-            onSave={handleSalvaFirma}
-            width={550}
-            height={200}
-          />
-        </div>
-        
-        <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            disabled={isLoading}
-          >
-            Annulla
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Button 
+        onClick={handleOpen} 
+        variant="outline" 
+        className="flex items-center gap-2"
+      >
+        <Signature className="h-4 w-4" />
+        Firma
+      </Button>
+
+      <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Firma digitale</DialogTitle>
+            <DialogDescription>
+              Utilizza il mouse o il touchscreen per apporre la tua firma digitale.
+              Assicurati di firmare in modo chiaro e completo.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <SignatureCanvas
+              onSave={handleSalvaFirma}
+              width={550}
+              height={200}
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={handleClose}
+              disabled={isLoading}
+            >
+              Annulla
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
