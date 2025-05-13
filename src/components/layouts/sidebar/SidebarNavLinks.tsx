@@ -17,10 +17,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/dashboard" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -31,10 +31,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/servizi" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -45,10 +45,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/nuovo-servizio" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -59,10 +59,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/turni" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -73,10 +73,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/reports" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -87,10 +87,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/aziende" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -102,10 +102,10 @@ export function SidebarNavLinks() {
           <NavLink 
             to="/users" 
             className={({ isActive }) => 
-              `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+              `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
                 isActive 
-                  ? 'bg-accent text-accent-foreground' 
-                  : 'text-muted-foreground hover:bg-muted'
+                  ? 'bg-white text-primary' 
+                  : 'text-white hover:bg-white hover:text-primary'
               }`
             }
           >
@@ -124,10 +124,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/dashboard" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -138,10 +138,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/servizi" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -159,10 +159,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/dashboard" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -173,10 +173,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/reports" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >
@@ -187,10 +187,10 @@ export function SidebarNavLinks() {
         <NavLink 
           to="/profilo" 
           className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
-                ? 'bg-accent text-accent-foreground' 
-                : 'text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
             }`
           }
         >

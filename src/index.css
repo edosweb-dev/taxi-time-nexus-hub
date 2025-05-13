@@ -35,10 +35,10 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 0%; /* Changed to black */
-    --sidebar-foreground: 0 0% 100%; /* Changed to white */
-    --sidebar-primary: 210 25% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-background: 210 25% 50%; /* Changed to primary color */
+    --sidebar-foreground: 0 0% 100%; /* White text */
+    --sidebar-primary: 0 0% 100%; /* Inverted for hover */
+    --sidebar-primary-foreground: 210 25% 50%; /* Inverted for hover */
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
@@ -74,10 +74,10 @@
     --input: 210 30% 25%;
     --ring: 210 25% 60%;
 
-    --sidebar-background: 0 0% 0%; /* Changed to black */
-    --sidebar-foreground: 0 0% 100%; /* Changed to white */
-    --sidebar-primary: 210 25% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-background: 210 25% 50%; /* Changed to primary color */
+    --sidebar-foreground: 0 0% 100%; /* White text */
+    --sidebar-primary: 0 0% 100%; /* Inverted for hover */
+    --sidebar-primary-foreground: 210 25% 50%; /* Inverted for hover */
     --sidebar-accent: 210 30% 20%;
     --sidebar-accent-foreground: 0 0% 90%;
     --sidebar-border: 210 30% 25%;
@@ -99,5 +99,14 @@
 @layer components {
   .taxitime-gradient {
     @apply bg-gradient-to-br from-taxitime-400 to-taxitime-600;
+  }
+  
+  /* Adding hover effect for sidebar navigation */
+  .sidebar-nav-link {
+    @apply transition-colors duration-200;
+  }
+  
+  .sidebar-nav-link:hover {
+    @apply bg-white text-primary;
   }
 }
