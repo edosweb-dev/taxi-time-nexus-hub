@@ -8,7 +8,6 @@ import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { ServizioTabs } from "@/components/servizi/ServizioTabs";
 import { ServizioTabContent } from "@/components/servizi/ServizioTabContent";
-import { CalendarView } from "@/components/servizi/CalendarView";
 import { ServizioTable } from "@/components/servizi/ServizioTable";
 import { EmptyState } from "@/components/servizi/EmptyState";
 import { groupServiziByStatus } from "@/components/servizi/utils";
@@ -78,11 +77,6 @@ export function ServiziContent({
     );
   }
 
-  // Function to handle switching to calendar view
-  const handleShowCalendarView = () => {
-    setActiveTab("calendario");
-  };
-
   return (
     <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab}>
       <div className="flex justify-between items-center mb-4">
@@ -92,7 +86,7 @@ export function ServiziContent({
           onTabChange={setActiveTab} 
         />
         
-        {activeTab !== "calendario" && !isMobile && (
+        {!isMobile && (
           <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "cards" | "table")}>
             <ToggleGroupItem value="cards" aria-label="Visualizza schede">
               <Layout className="h-4 w-4" />
@@ -132,15 +126,6 @@ export function ServiziContent({
           )}
         </TabsContent>
       ))}
-      
-      <TabsContent value="calendario" className="mt-0">
-        <CalendarView 
-          servizi={servizi}
-          users={users}
-          onNavigateToDetail={onNavigateToDetail}
-          allServizi={allServizi}
-        />
-      </TabsContent>
     </Tabs>
   );
 }

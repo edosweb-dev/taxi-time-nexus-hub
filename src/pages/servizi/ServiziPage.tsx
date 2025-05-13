@@ -5,6 +5,7 @@ import { ServiziHeader } from "@/components/servizi/page/ServiziHeader";
 import { ServiziDialogManager } from "@/components/servizi/page/ServiziDialogManager";
 import { useServiziPage } from "@/hooks/useServiziPage";
 import { useState } from "react";
+import { CalendarView } from "@/components/servizi/CalendarView";
 
 export default function ServiziPage() {
   const {
@@ -22,7 +23,7 @@ export default function ServiziPage() {
   const [showCalendarView, setShowCalendarView] = useState(false);
   
   const handleShowCalendarView = () => {
-    setShowCalendarView(true);
+    setShowCalendarView(!showCalendarView);
   };
 
   return (
@@ -30,23 +31,33 @@ export default function ServiziPage() {
       <div className="space-y-6">
         <ServiziHeader 
           onShowCalendarView={handleShowCalendarView} 
-          onCreateNewServizio={handleNavigateToNewServizio} 
+          onCreateNewServizio={handleNavigateToNewServizio}
+          isCalendarViewActive={showCalendarView}
         />
         
-        <ServiziContent 
-          servizi={servizi}
-          users={users}
-          isLoading={isLoading}
-          error={error}
-          isAdminOrSocio={isAdminOrSocio}
-          isMobile={isMobile}
-          onNavigateToDetail={handleNavigateToDetail}
-          onNavigateToNewServizio={handleNavigateToNewServizio}
-          onSelectServizio={(servizio) => {}}
-          onCompleta={(servizio) => {}}
-          onFirma={(servizio) => {}}
-          allServizi={servizi} // Pass all servizi for global indexing
-        />
+        {showCalendarView ? (
+          <CalendarView 
+            servizi={servizi}
+            users={users}
+            onNavigateToDetail={handleNavigateToDetail}
+            allServizi={servizi}
+          />
+        ) : (
+          <ServiziContent 
+            servizi={servizi}
+            users={users}
+            isLoading={isLoading}
+            error={error}
+            isAdminOrSocio={isAdminOrSocio}
+            isMobile={isMobile}
+            onNavigateToDetail={handleNavigateToDetail}
+            onNavigateToNewServizio={handleNavigateToNewServizio}
+            onSelectServizio={(servizio) => {}}
+            onCompleta={(servizio) => {}}
+            onFirma={(servizio) => {}}
+            allServizi={servizi}
+          />
+        )}
         
         <ServiziDialogManager 
           onRefetch={refetch}

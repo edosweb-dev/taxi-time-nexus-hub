@@ -40,9 +40,6 @@ export const ServizioTabs = ({
         <TabsTrigger value="annullato">
           Annullati ({counts.annullato})
         </TabsTrigger>
-        <TabsTrigger value="calendario">
-          Calendario
-        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

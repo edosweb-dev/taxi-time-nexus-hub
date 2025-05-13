@@ -1,11 +1,10 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useServizi } from "@/hooks/useServizi";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import { Servizio } from "@/lib/types/servizi";
 
 export function useServiziPage() {
   const navigate = useNavigate();
@@ -26,12 +25,6 @@ export function useServiziPage() {
     navigate("/nuovo-servizio");
   };
 
-  // Function to handle switching to calendar view
-  const handleShowCalendarView = () => {
-    // This will be called from the header
-    // Implementation will be in ServiziContent
-  };
-
   return {
     servizi,
     isLoading,
@@ -42,6 +35,5 @@ export function useServiziPage() {
     refetch,
     handleNavigateToDetail,
     handleNavigateToNewServizio,
-    handleShowCalendarView,
   };
 }

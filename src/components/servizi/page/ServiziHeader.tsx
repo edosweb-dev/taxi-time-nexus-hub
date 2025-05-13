@@ -5,9 +5,14 @@ import { PlusCircle, Calendar } from "lucide-react";
 interface ServiziHeaderProps {
   onShowCalendarView: () => void;
   onCreateNewServizio: () => void;
+  isCalendarViewActive: boolean;
 }
 
-export function ServiziHeader({ onShowCalendarView, onCreateNewServizio }: ServiziHeaderProps) {
+export function ServiziHeader({ 
+  onShowCalendarView, 
+  onCreateNewServizio, 
+  isCalendarViewActive 
+}: ServiziHeaderProps) {
   return (
     <div className="flex justify-between items-center">
       <div>
@@ -17,7 +22,10 @@ export function ServiziHeader({ onShowCalendarView, onCreateNewServizio }: Servi
         </p>
       </div>
       <div className="flex space-x-2">
-        <Button variant="outline" onClick={onShowCalendarView}>
+        <Button 
+          variant={isCalendarViewActive ? "default" : "outline"} 
+          onClick={onShowCalendarView}
+        >
           <Calendar className="mr-2 h-4 w-4" />
           Calendario
         </Button>
