@@ -2,13 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import { ClientDashboardLayout } from '@/components/layouts/ClientDashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart, DownloadIcon } from 'lucide-react';
+import { BarChart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useReports } from '@/components/servizi/hooks/useReports';
-import { format } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { 
+  ClientReportHeader, 
+  ClientReportFilters, 
+  ClientReportList, 
+  ClientEmptyReport 
+} from '@/components/servizi/report/components';
 
 export default function ReportPage() {
   const { profile } = useAuth();
@@ -54,12 +56,10 @@ export default function ReportPage() {
   return (
     <ClientDashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Report Mensili</h1>
-          <p className="text-muted-foreground">
-            Visualizza e scarica i report dei servizi mensili
-          </p>
-        </div>
+        <ClientReportHeader 
+          title="Report Mensili" 
+          description="Visualizza e scarica i report dei servizi mensili" 
+        />
 
         <Card>
           <CardHeader>
@@ -72,76 +72,22 @@ export default function ReportPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4 max-w-md mb-6">
-              <Select 
-                value={selectedMonth}
-                onValueChange={setSelectedMonth}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Mese" />
-                </SelectTrigger>
-                <SelectContent>
-                  {monthOptions.map((month) => (
-                    <SelectItem key={month.value} value={month.value}>
-                      {month.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select 
-                value={selectedYear} 
-                onValueChange={setSelectedYear}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Anno" />
-                </SelectTrigger>
-                <SelectContent>
-                  {yearOptions.map((year) => (
-                    <SelectItem key={year.value} value={year.value}>
-                      {year.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <ClientReportFilters 
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              monthOptions={monthOptions}
+              yearOptions={yearOptions}
+            />
 
             {filteredReports.length > 0 ? (
-              <div className="space-y-4">
-                {filteredReports.map((report) => (
-                  <div 
-                    key={report.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md hover:bg-muted/30 transition-colors"
-                  >
-                    <div className="space-y-1 mb-3 sm:mb-0">
-                      <h3 className="font-medium">
-                        Report {format(new Date(report.year, report.month - 1), 'MMMM yyyy', { locale: it })}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Generato il: {format(new Date(report.created_at), 'dd/MM/yyyy')} | 
-                        Servizi: {report.servizi_ids.length}
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={() => downloadReport(report.id)}
-                    >
-                      <DownloadIcon className="mr-2 h-4 w-4" />
-                      Scarica Report
-                    </Button>
-                  </div>
-                ))}
-              </div>
+              <ClientReportList 
+                filteredReports={filteredReports}
+                downloadReport={downloadReport}
+              />
             ) : (
-              <div className="bg-muted/30 p-6 rounded-lg text-center">
-                <h2 className="text-xl font-medium mb-2">Nessun report disponibile</h2>
-                <p className="text-muted-foreground mb-4">
-                  Non ci sono dati disponibili per il periodo selezionato.
-                </p>
-                <Button variant="outline" disabled>
-                  <DownloadIcon className="mr-2 h-4 w-4" />
-                  Scarica Report
-                </Button>
-              </div>
+              <ClientEmptyReport />
             )}
           </CardContent>
         </Card>
