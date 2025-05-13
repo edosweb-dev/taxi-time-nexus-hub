@@ -5,7 +5,7 @@ import { MainLayout } from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Building, Calendar, Clock, CreditCard, Edit, MapPin, User, Users } from "lucide-react";
+import { ArrowLeft, Building, Calendar, Clock, CreditCard, Edit, MapPin, User, Users, CheckCircle2, FileText } from "lucide-react";
 import { useServizio } from "@/hooks/useServizi";
 import { useAziende } from "@/hooks/useAziende";
 import { useUsers } from "@/hooks/useUsers";
@@ -16,26 +16,64 @@ import { PasseggeroCard } from "@/components/servizi/passeggeri/PasseggeroCard";
 import { Passeggero } from "@/lib/types/servizi";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
+import { FirmaServizio } from "@/components/firma/FirmaServizio";
+import { FirmaDisplay } from "@/components/firma/FirmaDisplay";
+import { CompletaServizioDialog } from "@/components/servizi/CompletaServizioDialog";
+import { ConsuntivaServizioDialog } from "@/components/servizi/ConsuntivaServizioDialog";
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const { data, isLoading, error } = useServizio(id);
+  const { data, isLoading, error, refetch } = useServizio(id);
   const { aziende } = useAziende();
   const { users } = useUsers();
   const [activeTab, setActiveTab] = useState<string>("info");
+  const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
+  const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
   
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  const isAssegnatoToMe = profile?.id === servizio?.assegnato_a;
+  
+  // Check if the service has digital signature enabled for the company
+  const [firmaDigitaleAttiva, setFirmaDigitaleAttiva] = useState(false);
+  
+  useEffect(() => {
+    if (servizio && aziende.length > 0) {
+      const azienda = aziende.find(a => a.id === servizio.azienda_id);
+      setFirmaDigitaleAttiva(!!azienda?.firma_digitale_attiva);
+    }
+  }, [servizio, aziende]);
   
   // Get company name by ID
   const getAziendaName = (aziendaId?: string) => {
     if (!aziendaId) return "Azienda sconosciuta";
     const azienda = aziende.find(a => a.id === aziendaId);
     return azienda ? azienda.nome : "Azienda sconosciuta";
+  };
+  
+  // Service can be edited by admin/socio if not yet completed or consuntivato
+  const canBeEdited = isAdminOrSocio && 
+    servizio && 
+    (servizio.stato !== 'completato' && servizio.stato !== 'consuntivato');
+  
+  // Check if service can be completed (only by assigned user)
+  const canBeCompleted = servizio && 
+    servizio.stato === 'assegnato' && 
+    (isAssegnatoToMe || isAdminOrSocio);
+  
+  // Check if service can be consuntivato (only by admin/socio after completion)
+  const canBeConsuntivato = isAdminOrSocio && 
+    servizio && 
+    servizio.stato === 'completato';
+  
+  // Format currency values
+  const formatCurrency = (value?: number) => {
+    if (value === undefined || value === null) return "-";
+    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
   };
   
   if (isLoading) {
@@ -88,13 +126,56 @@ export default function ServizioDetailPage() {
             </p>
           </div>
           
-          {isAdminOrSocio && (
-            <Button onClick={() => navigate(`/servizi/${id}/edit`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Modifica servizio
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {/* Buttons based on service state */}
+            {canBeCompleted && (
+              <Button 
+                onClick={() => setCompletaDialogOpen(true)} 
+                variant="default"
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Completa servizio
+              </Button>
+            )}
+            
+            {canBeConsuntivato && (
+              <Button 
+                onClick={() => setConsuntivaDialogOpen(true)} 
+                variant="secondary"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Consuntiva
+              </Button>
+            )}
+            
+            {canBeEdited && (
+              <Button onClick={() => navigate(`/servizi/${id}/edit`)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Modifica
+              </Button>
+            )}
+          </div>
         </div>
+        
+        {/* Digital signature action */}
+        {servizio.stato === 'assegnato' && firmaDigitaleAttiva && !servizio.firma_url && (
+          <div className="mb-4 flex justify-end">
+            <FirmaServizio 
+              servizioId={servizio.id}
+              onFirmaSalvata={refetch}
+            />
+          </div>
+        )}
+        
+        {/* Show signature if available */}
+        {servizio.firma_url && (
+          <div className="mb-6">
+            <FirmaDisplay 
+              firmaUrl={servizio.firma_url} 
+              firmaTimestamp={servizio.firma_timestamp}
+            />
+          </div>
+        )}
         
         <Tabs defaultValue="info" value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
@@ -195,6 +276,58 @@ export default function ServizioDetailPage() {
                         )}
                       </div>
                     </div>
+
+                    {/* Dati di completamento e consuntivazione */}
+                    {(servizio.stato === 'completato' || servizio.stato === 'consuntivato') && (
+                      <div>
+                        <h3 className="text-lg font-medium">Dati di completamento</h3>
+                        <Separator className="my-2" />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <div className="font-medium">Incasso ricevuto</div>
+                            <div className="text-muted-foreground">{formatCurrency(servizio.incasso_ricevuto)}</div>
+                          </div>
+                          
+                          <div>
+                            <div className="font-medium">Ore lavorate</div>
+                            <div className="text-muted-foreground">
+                              {servizio.ore_lavorate !== undefined ? `${servizio.ore_lavorate} ore` : "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {servizio.stato === 'consuntivato' && (
+                      <div>
+                        <h3 className="text-lg font-medium">Dati di consuntivazione</h3>
+                        <Separator className="my-2" />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <div className="font-medium">Incasso previsto</div>
+                            <div className="text-muted-foreground">{formatCurrency(servizio.incasso_previsto)}</div>
+                          </div>
+                          
+                          <div>
+                            <div className="font-medium">Ore finali</div>
+                            <div className="text-muted-foreground">
+                              {servizio.ore_finali !== undefined ? `${servizio.ore_finali} ore` : "-"}
+                            </div>
+                          </div>
+                          
+                          {servizio.metodo_pagamento === 'Contanti' && servizio.consegna_contanti_a && (
+                            <div>
+                              <div className="font-medium">Consegna contanti a</div>
+                              <div className="text-muted-foreground">
+                                {getUserName(users, servizio.consegna_contanti_a) || "Utente sconosciuto"}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="space-y-4">
@@ -262,6 +395,26 @@ export default function ServizioDetailPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Completa servizio dialog */}
+      <CompletaServizioDialog
+        open={completaDialogOpen}
+        onOpenChange={setCompletaDialogOpen}
+        servizioId={servizio.id}
+        metodoDefault={servizio.metodo_pagamento}
+        onComplete={refetch}
+      />
+
+      {/* Consuntiva servizio dialog */}
+      <ConsuntivaServizioDialog
+        open={consuntivaDialogOpen}
+        onOpenChange={setConsuntivaDialogOpen}
+        servizioId={servizio.id}
+        isContanti={servizio.metodo_pagamento === 'Contanti'}
+        incassoRicevuto={servizio.incasso_ricevuto}
+        oreLavorate={servizio.ore_lavorate}
+        onComplete={refetch}
+      />
     </MainLayout>
   );
 }

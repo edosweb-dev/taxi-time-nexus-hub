@@ -1,6 +1,5 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createServizio, getServizi, getServizioById } from '@/lib/api/servizi';
+import { createServizio, getServizi, getServizioById, completaServizio, consuntivaServizio } from '@/lib/api/servizi';
 import { CreateServizioRequest } from '@/lib/api/servizi/types';
 import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
@@ -59,6 +58,30 @@ export function useServizi() {
     },
   });
 
+  const completaServizioMutation = useMutation({
+    mutationFn: completaServizio,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      toast.success('Servizio completato con successo');
+    },
+    onError: (error: any) => {
+      console.error('Error completing service:', error);
+      toast.error(`Errore nel completamento del servizio: ${error.message || 'Si è verificato un errore'}`);
+    },
+  });
+
+  const consuntivaServizioMutation = useMutation({
+    mutationFn: consuntivaServizio,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      toast.success('Servizio consuntivato con successo');
+    },
+    onError: (error: any) => {
+      console.error('Error finalizing service:', error);
+      toast.error(`Errore nella consuntivazione del servizio: ${error.message || 'Si è verificato un errore'}`);
+    },
+  });
+
   return {
     servizi,
     isLoading,
@@ -68,8 +91,12 @@ export function useServizi() {
     createServizio: (data: CreateServizioRequest) => createServizioMutation.mutate(data),
     updateStatoServizio: (id: string, stato: StatoServizio) => 
       updateStatoServizioMutation.mutate({ id, stato }),
+    completaServizio: completaServizioMutation.mutate,
+    consuntivaServizio: consuntivaServizioMutation.mutate,
     isCreating: createServizioMutation.isPending,
-    isUpdating: updateStatoServizioMutation.isPending
+    isUpdating: updateStatoServizioMutation.isPending,
+    isCompletando: completaServizioMutation.isPending,
+    isConsuntivando: consuntivaServizioMutation.isPending
   };
 }
 
