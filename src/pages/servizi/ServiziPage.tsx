@@ -19,7 +19,7 @@ import { groupServiziByStatus } from "@/components/servizi/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ServizioTable } from "@/components/servizi/ServizioTable";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/use-toast";
 import { FirmaServizio } from "@/components/firma/FirmaServizio";
 import { CompletaServizioDialog } from "@/components/servizi/CompletaServizioDialog";
 
@@ -67,6 +67,12 @@ export default function ServiziPage() {
   // Funzione per chiudere la dialog di firma
   const handleCloseFirma = () => {
     setServizioPerFirma(null);
+  };
+  
+  // Funzione che viene chiamata quando una firma viene salvata con successo
+  const handleFirmaSalvata = () => {
+    // Aggiorna la lista dei servizi
+    navigate(0); // Ricarica la pagina per semplicità
   };
 
   return (
@@ -185,13 +191,16 @@ export default function ServiziPage() {
             if (!open) setServizioPerCompletamento(null);
           }} 
           servizioId={servizioPerCompletamento.id}
+          metodoDefault={servizioPerCompletamento.metodo_pagamento}
+          onComplete={handleFirmaSalvata}
+          users={users}
         />
       )}
 
       {/* Modale per la firma */}
       {servizioPerFirma && (
         <FirmaServizio 
-          servizio={servizioPerFirma}
+          servizioId={servizioPerFirma.id}
           isOpen={!!servizioPerFirma}
           onClose={handleCloseFirma}
         />
