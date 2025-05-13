@@ -1,11 +1,10 @@
-
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { ServiziContent } from "@/components/servizi/page/ServiziContent";
 import { ServiziHeader } from "@/components/servizi/page/ServiziHeader";
 import { ServiziDialogManager } from "@/components/servizi/page/ServiziDialogManager";
 import { useServiziPage } from "@/hooks/useServiziPage";
 import { useState } from "react";
-import { CalendarView } from "@/components/servizi/CalendarView";
+import { CalendarView } from "@/components/servizi/calendar/CalendarView";
 
 export default function ServiziPage() {
   const {
