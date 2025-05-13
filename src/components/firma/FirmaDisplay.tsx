@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AlertTriangle } from "lucide-react";
 
 interface FirmaDisplayProps {
   firmaUrl?: string | null;
@@ -23,10 +24,21 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
       setImageUrl(correctedUrl);
       setImageError(false);
       
+      console.log("Tentativo caricamento immagine firma:", correctedUrl);
+      
       // Precarica l'immagine per verificare che sia valida
       const img = new Image();
       img.onload = () => {
         console.log("Immagine firma caricata correttamente");
+        
+        // Verifica che l'immagine abbia dimensioni reali
+        if (img.width < 10 || img.height < 10) {
+          console.error("L'immagine è troppo piccola, potrebbe essere vuota");
+          setImageError(true);
+        } else {
+          console.log("Dimensioni immagine firma:", img.width, "x", img.height);
+        }
+        
         setIsLoading(false);
       };
       img.onerror = (e) => {
@@ -35,8 +47,6 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
         setIsLoading(false);
       };
       img.src = correctedUrl;
-      
-      console.log("URL immagine firma:", correctedUrl);
     } else {
       setIsLoading(false);
     }
@@ -62,8 +72,11 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="flex justify-center items-center h-32 text-muted-foreground">
-                {imageError ? "Errore nel caricamento dell'immagine" : "Nessuna firma disponibile"}
+              <div className="flex flex-col justify-center items-center h-32 text-muted-foreground gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                <span>
+                  {imageError ? "Errore nel caricamento dell'immagine" : "Nessuna firma disponibile"}
+                </span>
               </div>
             )}
           </div>

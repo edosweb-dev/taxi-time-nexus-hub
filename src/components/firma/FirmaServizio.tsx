@@ -20,13 +20,15 @@ export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps
     toast.info("Salvataggio firma in corso...");
     
     try {
+      console.log("Elaborazione firma prima dell'upload");
       const result = await uploadFirma(servizioId, signatureData);
       
       if (result.success) {
         setOpen(false);
-        toast.success("Firma salvata con successo");
+        console.log("Firma salvata con successo:", result.url);
         onFirmaSalvata();
       } else {
+        console.error("Errore nel salvataggio della firma:", result.error);
         toast.error(`Errore nel salvataggio della firma: ${result.error?.message || 'Errore sconosciuto'}`);
       }
     } catch (error) {
@@ -51,6 +53,7 @@ export function FirmaServizio({ servizioId, onFirmaSalvata }: FirmaServizioProps
             <DialogTitle>Firma digitale</DialogTitle>
             <DialogDescription>
               Utilizza il mouse o il touchscreen per apporre la tua firma digitale.
+              Assicurati di firmare in modo chiaro e completo.
             </DialogDescription>
           </DialogHeader>
           

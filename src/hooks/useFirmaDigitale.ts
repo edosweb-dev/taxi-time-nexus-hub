@@ -19,6 +19,13 @@ export function useFirmaDigitale() {
         return { success: false, error: new Error("Firma non fornita") };
       }
       
+      // Verifica ulteriormente la validità della firma
+      if (!firmaBase64.startsWith('data:image/png;base64,')) {
+        console.error("Formato firma non valido");
+        toast.error("Formato firma non valido");
+        return { success: false, error: new Error("Formato firma non valido") };
+      }
+      
       if (firmaBase64.length < 1000) {
         console.error("Firma troppo piccola o vuota:", firmaBase64.length);
         toast.error("Firma troppo semplice, prova a firmare nuovamente");
@@ -37,6 +44,7 @@ export function useFirmaDigitale() {
       queryClient.invalidateQueries({ queryKey: ['servizio', servizioId] });
       queryClient.invalidateQueries({ queryKey: ['servizi'] });
       
+      toast.success("Firma salvata con successo");
       return { success: true, url: result.url, timestamp: result.timestamp };
       
     } catch (error: any) {

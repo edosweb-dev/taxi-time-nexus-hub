@@ -15,20 +15,27 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
   const signatureRef = useRef<SignaturePad>(null);
   const [hasSignature, setHasSignature] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [points, setPoints] = useState(0);
 
-  // Monitora l'inizio del disegno
+  // Monitor when drawing begins
   const handleBegin = () => {
     console.log("Firma: inizio disegno");
     setIsDrawing(true);
   };
 
-  // Monitora la fine del disegno
+  // Monitor when drawing ends and count points
   const handleEnd = () => {
     console.log("Firma: fine disegno");
     if (signatureRef.current) {
       const isEmpty = signatureRef.current.isEmpty();
-      console.log("Firma isEmpty dopo disegno:", isEmpty);
-      setHasSignature(!isEmpty);
+      
+      // Ottieni i dati grezzi per verificarne la qualità
+      const data = signatureRef.current.toData();
+      const pointCount = data.reduce((total, stroke) => total + stroke.points.length, 0);
+      
+      console.log(`Firma: isEmpty=${isEmpty}, punti totali=${pointCount}`);
+      setPoints(pointCount);
+      setHasSignature(!isEmpty && pointCount > 10);
     }
   };
 
@@ -37,15 +44,16 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
       signatureRef.current.clear();
       setHasSignature(false);
       setIsDrawing(false);
+      setPoints(0);
       console.log("Firma: canvas pulito");
     }
   };
 
-  const saveSignature = () => {
+  const validateSignature = (): boolean => {
     if (!signatureRef.current) {
       console.error("Riferimento al canvas non disponibile");
       toast.error("Errore nel salvare la firma. Riprova.");
-      return;
+      return false;
     }
     
     // Verifica che la firma non sia vuota
@@ -54,13 +62,26 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
     
     if (isEmpty) {
       toast.error("Firma non valida. Inserisci una firma prima di salvare.");
-      return;
+      return false;
     }
+
+    // Verifica che contenga abbastanza punti 
+    if (points < 20) {
+      toast.error("Firma troppo semplice. Prova a firmare in modo più completo.");
+      return false;
+    }
+    
+    return true;
+  };
+
+  const saveSignature = () => {
+    if (!validateSignature()) return;
 
     // Ottenere i dati dell'immagine con la massima qualità
     try {
       console.log("Tentativo di generare dataURL dalla firma");
-      const dataUrl = signatureRef.current.toDataURL("image/png");
+      // Imposta parametri di qualità elevata
+      const dataUrl = signatureRef.current!.toDataURL("image/png", 1.0);
       
       // Log dell'inizio del dataUrl per debug
       console.log("Firma dataUrl generato (primi 100 char):", dataUrl.substring(0, 100));
@@ -94,6 +115,11 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
           backgroundColor="#fff"
           onBegin={handleBegin}
           onEnd={handleEnd}
+          dotSize={2} // Aumenta la dimensione dei punti
+          minWidth={1.5} // Aumenta lo spessore minimo del tratto
+          maxWidth={4} // Aumenta lo spessore massimo del tratto
+          throttle={16} // Migliora fluidità del tratto (ms)
+          velocityFilterWeight={0.7} // Aumenta sensibilità alla velocità
         />
         {!hasSignature && !isDrawing && (
           <div className="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none">

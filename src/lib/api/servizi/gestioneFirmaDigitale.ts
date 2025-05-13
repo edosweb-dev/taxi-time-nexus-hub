@@ -33,6 +33,9 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
         throw new Error("Firma troppo semplice o vuota");
       }
       console.log(`Dati immagine decodificati correttamente: ${binaryData.length} bytes`);
+      
+      // Verifica che l'immagine contenga pixel non-trasparenti
+      // Qui potremmo analizzare ulteriormente l'immagine se necessario
     } catch (error) {
       console.error("Errore nella decodifica base64:", error);
       throw new Error("Formato firma non valido");
@@ -61,9 +64,13 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     console.log(`Caricamento firma: ${fileName}`);
     
     // Carica l'immagine nel bucket "firme"
+    // Nota: usiamo il File constructor per un upload migliore
+    // Converte il base64 in un blob
+    const blob = await fetch(`data:image/png;base64,${base64Data}`).then(res => res.blob());
+    
     const { data, error: uploadError } = await supabase.storage
       .from('firme')
-      .upload(fileName, base64Data, {
+      .upload(fileName, blob, {
         contentType: 'image/png',
         upsert: true
       });
