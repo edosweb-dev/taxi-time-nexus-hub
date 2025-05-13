@@ -7,3 +7,5 @@ export * from './ShiftDayColumn';
 export * from './ShiftEvent';
 export * from './ShiftCalendarView';
 export * from './ShiftCalendarMonthView';
+export * from './hooks';
+export * from './views/CalendarContent';
