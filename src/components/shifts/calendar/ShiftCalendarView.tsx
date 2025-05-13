@@ -1,5 +1,4 @@
-
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   startOfMonth, 
   endOfMonth, 
@@ -7,7 +6,10 @@ import {
   endOfWeek, 
   format,
   parseISO,
-  isSameDay
+  isSameDay,
+  eachDayOfInterval,
+  subMonths,
+  addMonths
 } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useShifts, Shift } from '../ShiftContext';
@@ -19,6 +21,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useUsers } from '@/hooks/useUsers';
 import { getUserColorClass } from '../filters/UserFilterDropdown';
 import { AddShiftDialog } from '../AddShiftDialog';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ShiftCalendarViewProps {
   currentMonth: Date;

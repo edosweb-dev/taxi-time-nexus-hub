@@ -1,5 +1,5 @@
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { ShiftCalendarView } from './calendar/ShiftCalendarView';
 import { eachDayOfInterval, subMonths, addMonths } from 'date-fns';
 
