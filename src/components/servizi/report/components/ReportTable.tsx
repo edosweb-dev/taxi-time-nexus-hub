@@ -19,6 +19,11 @@ export const ReportTable: React.FC<ReportTableProps> = ({
   passeggeriCounts,
   users,
 }) => {
+  // Sort services by date to ensure chronological order
+  const sortedServizi = [...servizi].sort((a, b) => 
+    new Date(a.data_servizio).getTime() - new Date(b.data_servizio).getTime()
+  );
+
   return (
     <View style={styles.table}>
       {/* Table Headers */}
@@ -37,7 +42,7 @@ export const ReportTable: React.FC<ReportTableProps> = ({
       </View>
 
       {/* Table Rows */}
-      {servizi.map((servizio) => (
+      {sortedServizi.map((servizio) => (
         <View key={servizio.id} style={styles.tableRow}>
           <Text style={[styles.tableCell, styles.cellDate]}>{format(new Date(servizio.data_servizio), 'dd/MM/yyyy')}</Text>
           <Text style={[styles.tableCell, styles.cellTime]}>{servizio.orario_servizio.substring(0, 5)}</Text>

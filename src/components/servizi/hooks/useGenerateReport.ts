@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Servizio } from '@/lib/types/servizi';
 import { toast } from '@/components/ui/use-toast';
 
@@ -30,24 +30,37 @@ export const useGenerateReport = () => {
         return [];
       }
       
-      // Get first and last day of month
+      // Get first and last day of month - proper date range calculation
       const startDate = new Date(filterParams.year, filterParams.month - 1, 1);
-      const endDate = new Date(filterParams.year, filterParams.month, 0);
+      const endDate = new Date(filterParams.year, filterParams.month, 0); // Last day of the month
+      
+      // Format dates as YYYY-MM-DD strings for database comparison
+      const startDateString = startDate.toISOString().split('T')[0];
+      const endDateString = endDate.toISOString().split('T')[0];
+      
+      console.log('Fetching consuntivati servizi with date range:', {
+        startDate: startDateString,
+        endDate: endDateString,
+        aziendaId: filterParams.aziendaId,
+        referenteId: filterParams.referenteId
+      });
       
       const { data, error } = await supabase
         .from('servizi')
         .select('*')
         .eq('azienda_id', filterParams.aziendaId)
         .eq('referente_id', filterParams.referenteId)
-        .eq('stato', 'consuntivato')
-        .gte('data_servizio', startDate.toISOString().split('T')[0])
-        .lte('data_servizio', endDate.toISOString().split('T')[0]);
+        .eq('stato', 'consuntivato') // Explicitly filter only "consuntivato" status
+        .gte('data_servizio', startDateString) // Use the formatted string for proper comparison
+        .lte('data_servizio', endDateString)
+        .order('data_servizio', { ascending: true });
         
       if (error) {
         console.error('Error fetching consuntivati servizi:', error);
         return [];
       }
       
+      console.log('Retrieved servizi count:', data?.length || 0);
       return data as Servizio[];
     },
     enabled: !!(filterParams.aziendaId && filterParams.referenteId && filterParams.month && filterParams.year),
