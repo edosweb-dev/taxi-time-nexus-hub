@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from 'react';
 import { 
   startOfMonth, 
@@ -9,7 +10,9 @@ import {
   isSameDay,
   eachDayOfInterval,
   subMonths,
-  addMonths
+  addMonths,
+  subDays,
+  addDays
 } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useShifts, Shift } from '../ShiftContext';
@@ -78,21 +81,27 @@ export function ShiftCalendarView({
 
   const goToPreviousPeriod = () => {
     if (viewMode === "day") {
-      onMonthChange(subMonths(currentMonth, 1/30)); // One day back
+      // Move one day back
+      onMonthChange(subDays(currentMonth, 1));
     } else if (viewMode === "week") {
-      onMonthChange(subMonths(currentMonth, 1/4)); // One week back
+      // Move one week back
+      onMonthChange(subDays(currentMonth, 7));
     } else {
-      onMonthChange(subMonths(currentMonth, 1)); // One month back
+      // Move one month back
+      onMonthChange(subMonths(currentMonth, 1));
     }
   };
 
   const goToNextPeriod = () => {
     if (viewMode === "day") {
-      onMonthChange(addMonths(currentMonth, 1/30)); // One day forward
+      // Move one day forward
+      onMonthChange(addDays(currentMonth, 1));
     } else if (viewMode === "week") {
-      onMonthChange(addMonths(currentMonth, 1/4)); // One week forward
+      // Move one week forward
+      onMonthChange(addDays(currentMonth, 7));
     } else {
-      onMonthChange(addMonths(currentMonth, 1)); // One month forward
+      // Move one month forward
+      onMonthChange(addMonths(currentMonth, 1));
     }
   };
   
