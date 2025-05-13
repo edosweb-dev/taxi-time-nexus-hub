@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,7 +47,7 @@ export function ConsuntivaServizioDialog({
         .filter(user => user.role === 'admin' || user.role === 'socio')
         .map(user => ({
           id: user.id,
-          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.id,
         }));
       setAdminUsers(filteredUsers);
     }

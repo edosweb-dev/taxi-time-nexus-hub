@@ -7,6 +7,7 @@ export interface Profile {
   last_name: string | null;
   role: UserRole;
   azienda_id?: string | null;
+  email?: string | null; // Added email field
 }
 
 export interface Session {
