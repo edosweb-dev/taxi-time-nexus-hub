@@ -27,7 +27,8 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
     // Crea un timestamp per il nome del file
     const timestamp = new Date().toISOString();
-    const fileName = `firma_${servizioId}_${timestamp}.png`;
+    // Aggiungo timestamp numerico per prevenire cache issues
+    const fileName = `firma_${servizioId}_${timestamp}_${Date.now()}.png`;
     
     console.log(`Caricamento firma: ${fileName}`);
     
@@ -42,8 +43,14 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
     console.log("Dimensione blob per upload:", blob.size, "bytes");
     
-    // Verifica se esiste già il bucket "firme" e crealo se non esiste
-    const { data: buckets } = await supabase.storage.listBuckets();
+    // Verifica se esiste già il bucket "firme"
+    const { data: buckets, error: listBucketsError } = await supabase.storage.listBuckets();
+    
+    if (listBucketsError) {
+      console.error("Errore nel controllare i bucket:", listBucketsError);
+      throw listBucketsError;
+    }
+    
     const firmeBucket = buckets?.find(bucket => bucket.name === 'firme');
     
     if (!firmeBucket) {
@@ -55,6 +62,16 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       if (createBucketError) {
         console.error("Errore nella creazione del bucket:", createBucketError);
         throw createBucketError;
+      }
+      
+      // Set bucket to public after creation
+      const { error: updateBucketError } = await supabase.storage.updateBucket('firme', {
+        public: true,
+        fileSizeLimit: 1024 * 1024 // 1MB limit
+      });
+      
+      if (updateBucketError) {
+        console.error("Errore nell'aggiornamento del bucket:", updateBucketError);
       }
     } else {
       console.log("Bucket 'firme' già esistente");
@@ -72,7 +89,8 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       .from('firme')
       .upload(fileName, blob, {
         contentType: 'image/png',
-        upsert: true
+        upsert: true,
+        cacheControl: 'no-cache, no-store'
       });
       
     if (uploadError) {
@@ -82,7 +100,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
     console.log("Upload completato:", data);
     
-    // Ottieni l'URL pubblico della firma
+    // Ottieni l'URL pubblico della firma con parametro di cache-busting
     const { data: { publicUrl } } = supabase.storage
       .from('firme')
       .getPublicUrl(fileName);

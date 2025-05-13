@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { toast } from "@/components/ui/use-toast";
 
 interface FirmaDisplayProps {
   firmaUrl?: string | null;
@@ -15,17 +16,33 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+  
+  // Function to clean up URL and remove any double slashes
+  const cleanupUrl = (url: string) => {
+    return url.replace(/([^:]\/)\/+/g, "$1");
+  };
   
   useEffect(() => {
-    if (firmaUrl) {
+    if (!firmaUrl) {
+      setIsLoading(false);
+      setImageError(false);
+      setImageUrl(null);
+      return;
+    }
+    
+    const loadImage = () => {
       setIsLoading(true);
       setImageError(false);
       
-      // Verifica se ci sono doppie slash nel URL e le corregge
-      const correctedUrl = firmaUrl.replace(/([^:]\/)\/+/g, "$1");
-      setImageUrl(correctedUrl);
+      // Clean up URL
+      const correctedUrl = cleanupUrl(firmaUrl);
       
-      console.log("Tentativo caricamento immagine firma:", correctedUrl);
+      // Add cache-busting query parameter to force reload
+      const cacheBustUrl = `${correctedUrl}?v=${Date.now()}`;
+      setImageUrl(cacheBustUrl);
+      
+      console.log(`Tentativo ${retryCount + 1} caricamento immagine firma:`, cacheBustUrl);
       
       // Precarica l'immagine per verificare che sia valida
       const img = new Image();
@@ -40,26 +57,50 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
         console.error("Errore caricamento immagine firma:", e);
         setImageError(true);
         setIsLoading(false);
+        
+        // Retry logic
+        if (retryCount < 3) {
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+          }, 1500); // Wait before retrying
+        } else if (retryCount === 3) {
+          toast({
+            title: "Errore di caricamento",
+            description: "Impossibile caricare l'immagine della firma",
+            variant: "destructive"
+          });
+        }
       };
       
-      img.src = correctedUrl;
-      
-      // Timeout in caso l'immagine non si carichi entro 5 secondi
-      const timeout = setTimeout(() => {
-        if (isLoading) {
-          console.error("Timeout caricamento immagine firma");
-          setImageError(true);
-          setIsLoading(false);
+      // Set crossOrigin to anonymous to allow CORS
+      img.crossOrigin = "anonymous";
+      img.src = cacheBustUrl;
+    };
+    
+    loadImage();
+    
+    // Timeout in caso l'immagine non si carichi entro 7 secondi
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.error("Timeout caricamento immagine firma");
+        setImageError(true);
+        setIsLoading(false);
+        
+        if (retryCount < 3) {
+          setRetryCount(prev => prev + 1);
         }
-      }, 5000);
-      
-      return () => clearTimeout(timeout);
-    } else {
-      setIsLoading(false);
-      setImageError(false);
-      setImageUrl(null);
-    }
-  }, [firmaUrl]);
+      }
+    }, 7000);
+    
+    return () => clearTimeout(timeout);
+  }, [firmaUrl, retryCount]);
+  
+  // Function to handle manual retry
+  const handleRetry = () => {
+    setRetryCount(0); // Reset retry count
+    setImageError(false);
+    setIsLoading(true);
+  };
   
   if (!firmaUrl) return null;
   
@@ -89,6 +130,14 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
                 <span>
                   {imageError ? "Errore nel caricamento dell'immagine" : "Nessuna firma disponibile"}
                 </span>
+                {imageError && (
+                  <button 
+                    onClick={handleRetry}
+                    className="text-sm mt-2 text-blue-600 hover:underline"
+                  >
+                    Riprova
+                  </button>
+                )}
               </div>
             )}
           </div>
