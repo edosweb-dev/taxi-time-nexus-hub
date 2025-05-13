@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
@@ -201,8 +200,7 @@ export default function ServiziPage() {
       {servizioPerFirma && (
         <FirmaServizio 
           servizioId={servizioPerFirma.id}
-          isOpen={!!servizioPerFirma}
-          onClose={handleCloseFirma}
+          onFirmaSalvata={handleFirmaSalvata}
         />
       )}
     </MainLayout>
