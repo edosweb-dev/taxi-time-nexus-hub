@@ -7,12 +7,22 @@ import { format, parseISO } from "date-fns";
 import { Building, User, Calendar, Clock, CreditCard, Users, MapPin } from "lucide-react";
 import { User as UserType } from "@/lib/api/users/types";
 
+// Definiamo il tipo User qui visto che non viene esportato da @/lib/api/users/types
+type User = {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  role?: string;
+  created_at?: string;
+};
+
 interface ServizioInfoTabProps {
   servizio: Servizio;
   passeggeri: any[];
-  users: UserType[];
+  users: User[];
   getAziendaName: (aziendaId?: string) => string;
-  getUserName: (users: UserType[], userId?: string) => string;
+  getUserName: (users: User[], userId?: string) => string;
   formatCurrency: (value?: number) => string;
 }
 

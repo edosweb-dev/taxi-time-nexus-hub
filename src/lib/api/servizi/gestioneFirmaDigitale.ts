@@ -11,7 +11,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     const timestamp = new Date().toISOString();
     const fileName = `firma_${servizioId}_${timestamp}.png`;
     
-    // Carica l'immagine nel bucket "firme"
+    // Carica l'immagine nel bucket "firme" - percorso senza slash iniziale
     const { data, error: uploadError } = await supabase.storage
       .from('firme')
       .upload(fileName, base64Data, {
@@ -27,6 +27,8 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     const { data: { publicUrl } } = supabase.storage
       .from('firme')
       .getPublicUrl(fileName);
+    
+    console.log("URL pubblico generato:", publicUrl);
     
     // Aggiorna il servizio con l'URL della firma e il timestamp
     const { error: updateError } = await updateFirmaServizio({

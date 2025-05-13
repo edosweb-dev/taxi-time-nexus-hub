@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase";
 
 interface FirmaDisplayProps {
   firmaUrl?: string | null;
@@ -14,9 +13,10 @@ export function FirmaDisplay({ firmaUrl, firmaTimestamp }: FirmaDisplayProps) {
   
   useEffect(() => {
     if (firmaUrl) {
-      // Utilizza direttamente l'URL pubblico
-      setImageUrl(firmaUrl);
-      console.log("URL immagine firma mostrata:", firmaUrl);
+      // Verifica se ci sono doppie slash nel URL e le corregge
+      const correctedUrl = firmaUrl.replace(/([^:]\/)\/+/g, "$1");
+      setImageUrl(correctedUrl);
+      console.log("URL immagine firma corretta:", correctedUrl);
     }
   }, [firmaUrl]);
   
