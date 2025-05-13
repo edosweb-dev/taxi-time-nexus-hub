@@ -42,7 +42,7 @@ export function ShiftListFilters({ onUserFilter, onDateFilter, isAdminOrSocio, s
           <UserFilterDropdown
             selectedUserId={selectedUserId || null}
             onSelectUser={onUserFilter}
-            showOnlyAdminAndSocio={true}
+            showOnlyAdminAndSocio={false}
           />
         )}
         

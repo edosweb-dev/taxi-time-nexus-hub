@@ -22,7 +22,7 @@ const userColorMap = [
 ];
 
 // Helper function to get a color class based on user ID
-export const getUserColorClass = (users: any[], userId: string) => {
+export const getUserColorClass = (users: any[] | undefined, userId: string) => {
   if (!users || !users.length || !userId) return '';
   
   // Find user index to determine color
@@ -47,10 +47,13 @@ export function UserFilterDropdown({
   const { users, isLoading } = useUsers();
   const [open, setOpen] = useState(false);
   
+  // Safely handle potentially undefined users array
+  const safeUsers = users || [];
+  
   // Filter users based on roles if needed
-  const filteredUsers = showOnlyAdminAndSocio && users 
-    ? users.filter(user => user.role === 'admin' || user.role === 'socio')
-    : users || [];
+  const filteredUsers = showOnlyAdminAndSocio 
+    ? safeUsers.filter(user => user.role === 'admin' || user.role === 'socio')
+    : safeUsers;
   
   // Find the selected user
   const selectedUser = selectedUserId 
@@ -110,7 +113,7 @@ export function UserFilterDropdown({
                 Tutti gli utenti
               </CommandItem>
               
-              {filteredUsers && filteredUsers.map((user) => (
+              {filteredUsers.map((user) => (
                 <CommandItem
                   key={user.id}
                   value={`${user.first_name} ${user.last_name}`}
@@ -120,7 +123,7 @@ export function UserFilterDropdown({
                   }}
                   className={cn(
                     "cursor-pointer",
-                    getUserColorClass(users || [], user.id)
+                    getUserColorClass(safeUsers, user.id)
                   )}
                 >
                   <Check

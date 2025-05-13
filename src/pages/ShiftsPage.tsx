@@ -8,8 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { format } from 'date-fns';
-import { Plus, Calendar, List, Filter } from 'lucide-react';
+import { Plus, Calendar, List } from 'lucide-react';
 import { ShiftProvider, useShifts } from '@/components/shifts/ShiftContext';
 import { UserFilterDropdown } from '@/components/shifts/filters/UserFilterDropdown';
 
@@ -19,7 +18,7 @@ export default function ShiftsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>(isMobile ? 'list' : 'calendar');
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null); // Default to null for all users
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
