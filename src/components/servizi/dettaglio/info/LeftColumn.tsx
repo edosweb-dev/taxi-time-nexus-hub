@@ -42,6 +42,8 @@ export function LeftColumn({
 
       <CompletionDataSection 
         servizio={servizio}
+        users={users}
+        getUserName={getUserName}
         formatCurrency={formatCurrency}
       />
 
