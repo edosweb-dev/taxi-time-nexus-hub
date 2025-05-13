@@ -6,9 +6,12 @@ import { PlusCircle } from 'lucide-react';
 import { ReportsList } from '@/components/servizi/report/ReportsList';
 import { ReportGeneratorDialog } from '@/components/servizi/report/ReportGeneratorDialog';
 import { useAuth } from '@/contexts/AuthContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ConsuntivatiList } from '@/components/servizi/report/ConsuntivatiList';
 
 export default function ReportPage() {
   const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"reports" | "consuntivati">("reports");
   const { profile } = useAuth();
 
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -31,7 +34,20 @@ export default function ReportPage() {
           )}
         </div>
 
-        <ReportsList />
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "reports" | "consuntivati")}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="reports">Report Generati</TabsTrigger>
+            <TabsTrigger value="consuntivati">Servizi Consuntivati</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="reports">
+            <ReportsList />
+          </TabsContent>
+          
+          <TabsContent value="consuntivati">
+            <ConsuntivatiList />
+          </TabsContent>
+        </Tabs>
         
         <ReportGeneratorDialog 
           open={isGenerateDialogOpen} 
