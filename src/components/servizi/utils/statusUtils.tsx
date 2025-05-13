@@ -40,3 +40,23 @@ export const getStateIcon = (stato: StatoServizio) => {
       return <CheckCircle className="h-5 w-5 text-slate-500" />;
   }
 };
+
+// Get text label for service status
+export const getStatoLabel = (stato: StatoServizio): string => {
+  switch (stato) {
+    case 'da_assegnare':
+      return 'Da assegnare';
+    case 'assegnato':
+      return 'Assegnato';
+    case 'completato':
+      return 'Completato';
+    case 'annullato':
+      return 'Annullato';
+    case 'non_accettato':
+      return 'Non accettato';
+    case 'consuntivato':
+      return 'Consuntivato';
+    default:
+      return stato;
+  }
+};

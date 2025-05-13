@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarHeader } from "./CalendarHeader";
 import { CalendarGrid } from "./CalendarGrid";
+import { CalendarLegend } from "./CalendarLegend";
 import { ServizioTable } from "../ServizioTable";
 import { CalendarViewProps, ViewMode } from "./types";
 
@@ -136,6 +137,8 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }:
           formatViewPeriod={formatViewPeriod}
         />
 
+        <CalendarLegend />
+
         <ServizioTable
           servizi={serviziInView}
           users={users}
@@ -158,6 +161,8 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }:
         goToToday={goToToday}
         formatViewPeriod={formatViewPeriod}
       />
+      
+      <CalendarLegend />
       
       <CalendarGrid 
         viewMode={viewMode}
