@@ -20,7 +20,6 @@ export default function ShiftsPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
-  const currentMonthLabel = format(currentMonth, 'MMMM yyyy');
 
   const handleMonthChange = (newMonth: Date) => {
     setCurrentMonth(newMonth);
@@ -35,7 +34,7 @@ export default function ShiftsPage() {
               <h1 className="text-3xl font-bold tracking-tight">Gestione Turni</h1>
               <p className="text-muted-foreground">
                 {viewMode === 'calendar' 
-                  ? `Calendario turni - ${currentMonthLabel}` 
+                  ? `Visualizza e gestisci i turni` 
                   : 'Elenco turni'}
               </p>
             </div>

@@ -12,15 +12,18 @@ import {
   addMonths, 
   subMonths,
   parseISO,
-  isWithinInterval
+  isWithinInterval,
+  isSameDay
 } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useShifts, Shift } from './ShiftContext';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { AddShiftDialog } from './AddShiftDialog';
+import { ShiftCalendarHeader } from './calendar/ShiftCalendarHeader';
+import { ShiftCalendarGrid } from './calendar/ShiftCalendarGrid';
+import { ShiftCalendarLegend } from './calendar/ShiftCalendarLegend';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ShiftCalendarProps {
   currentMonth: Date;
@@ -34,71 +37,56 @@ export function ShiftCalendar({ currentMonth, onMonthChange, isAdminOrSocio }: S
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"week" | "day" | "month">("week");
 
-  // Get days of current month view
-  const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
-  const monthEnd = useMemo(() => endOfMonth(monthStart), [monthStart]);
-  const startDate = useMemo(() => startOfWeek(monthStart, { weekStartsOn: 1 }), [monthStart]); // Monday
-  const endDate = useMemo(() => endOfWeek(monthEnd, { weekStartsOn: 1 }), [monthEnd]);
+  // Get days of current view based on viewMode
+  const viewStart = useMemo(() => {
+    if (viewMode === "day") return currentMonth;
+    if (viewMode === "week") return startOfWeek(currentMonth, { weekStartsOn: 1 }); // Monday
+    return startOfMonth(currentMonth);
+  }, [currentMonth, viewMode]);
   
-  // Memoize days to avoid recalculation
-  const days = useMemo(() => 
-    eachDayOfInterval({ start: startDate, end: endDate }),
-    [startDate, endDate]
+  const viewEnd = useMemo(() => {
+    if (viewMode === "day") return currentMonth;
+    if (viewMode === "week") return endOfWeek(currentMonth, { weekStartsOn: 1 }); // Sunday
+    return endOfMonth(currentMonth);
+  }, [currentMonth, viewMode]);
+  
+  // Generate days for the current view
+  const daysInView = useMemo(() => 
+    eachDayOfInterval({ start: viewStart, end: viewEnd }),
+    [viewStart, viewEnd]
   );
+  
+  // Define time slots (hours) for day and week views
+  const hours = useMemo(() => Array.from({ length: 17 }, (_, i) => i + 6), []);
 
-  // Load shifts when month changes
+  // Load shifts when date range changes
   useMemo(() => {
-    loadShifts(startDate, endDate);
-  }, [startDate, endDate, loadShifts]);
+    loadShifts(viewStart, viewEnd);
+  }, [viewStart, viewEnd, loadShifts]);
 
-  // Get shifts for a specific day
-  const getShiftsForDay = (day: Date) => {
-    const dayFormatted = format(day, 'yyyy-MM-dd');
-    
-    return shifts.filter(shift => {
-      // For single day shifts
-      if (shift.shift_date === dayFormatted) return true;
-      
-      // For multi-day shifts (sick leave, unavailable)
-      if (shift.start_date && shift.shift_type === 'sick_leave' || shift.shift_type === 'unavailable') {
-        const startDateObj = parseISO(shift.start_date);
-        const endDateObj = shift.end_date ? parseISO(shift.end_date) : undefined;
-        
-        if (!endDateObj) return format(startDateObj, 'yyyy-MM-dd') === dayFormatted;
-        
-        return isWithinInterval(day, { 
-          start: startDateObj, 
-          end: endDateObj 
-        });
-      }
-      
-      return false;
-    });
+  const goToPreviousPeriod = () => {
+    if (viewMode === "day") {
+      onMonthChange(subMonths(currentMonth, 1/30)); // One day back
+    } else if (viewMode === "week") {
+      onMonthChange(subMonths(currentMonth, 1/4)); // One week back
+    } else {
+      onMonthChange(subMonths(currentMonth, 1)); // One month back
+    }
   };
 
-  // Group shifts by user for a given day
-  const getShiftsByUserForDay = (day: Date) => {
-    const dayShifts = getShiftsForDay(day);
-    const userShifts: Record<string, Shift[]> = {};
-    
-    dayShifts.forEach(shift => {
-      if (!userShifts[shift.user_id]) {
-        userShifts[shift.user_id] = [];
-      }
-      userShifts[shift.user_id].push(shift);
-    });
-    
-    return userShifts;
+  const goToNextPeriod = () => {
+    if (viewMode === "day") {
+      onMonthChange(addMonths(currentMonth, 1/30)); // One day forward
+    } else if (viewMode === "week") {
+      onMonthChange(addMonths(currentMonth, 1/4)); // One week forward
+    } else {
+      onMonthChange(addMonths(currentMonth, 1)); // One month forward
+    }
   };
-
-  const handlePrevMonth = () => {
-    onMonthChange(subMonths(currentMonth, 1));
-  };
-
-  const handleNextMonth = () => {
-    onMonthChange(addMonths(currentMonth, 1));
-  };
+  
+  const goToToday = () => onMonthChange(new Date());
 
   const handleCellClick = (day: Date, userId: string | null = null) => {
     setSelectedDate(day);
@@ -106,131 +94,173 @@ export function ShiftCalendar({ currentMonth, onMonthChange, isAdminOrSocio }: S
     setIsAddDialogOpen(true);
   };
 
-  const renderShiftBadge = (shift: Shift) => {
-    const shiftTypeMap: Record<string, { label: string, variant: 'default' | 'outline' | 'secondary' | 'destructive' | 'success'}> = {
-      specific_hours: { 
-        label: shift.start_time && shift.end_time 
-          ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}` 
-          : 'Orario specifico', 
-        variant: 'default' 
-      },
-      full_day: { label: 'Giornata intera', variant: 'success' },
-      half_day: { 
-        label: shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio', 
-        variant: 'secondary' 
-      },
-      sick_leave: { label: 'Malattia', variant: 'destructive' },
-      unavailable: { label: 'Non disponibile', variant: 'outline' }
-    };
-    
-    const shiftInfo = shiftTypeMap[shift.shift_type] || { label: shift.shift_type, variant: 'default' };
-    
-    return (
-      <Badge 
-        key={shift.id} 
-        variant={shiftInfo.variant as any}
-        className="text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
-        onClick={(e) => {
-          e.stopPropagation();
-          setSelectedShift(shift);
-          setIsAddDialogOpen(true);
-        }}
-      >
-        {isAdminOrSocio && (
-          <span className="font-medium mr-1">
-            {shift.user_first_name?.substring(0, 1)}.{shift.user_last_name?.substring(0, 1)}.
-          </span>
-        )}
-        {shiftInfo.label}
-      </Badge>
-    );
+  // Helper to format the current view period
+  const formatViewPeriod = () => {
+    if (viewMode === "day") {
+      return format(currentMonth, "EEEE d MMMM yyyy", { locale: it });
+    } else if (viewMode === "week") {
+      const start = format(viewStart, "d MMMM", { locale: it });
+      const end = format(viewEnd, "d MMMM yyyy", { locale: it });
+      return `${start} - ${end}`;
+    } else {
+      return format(currentMonth, "MMMM yyyy", { locale: it });
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center p-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Caricamento turni...</span>
-      </div>
-    );
-  }
+  // Filter shifts relevant to the current view
+  const shiftsInView = useMemo(() => {
+    return shifts.filter(shift => {
+      const shiftDate = parseISO(shift.shift_date);
+      return daysInView.some(day => isSameDay(shiftDate, day));
+    });
+  }, [shifts, daysInView]);
+
+  // Position a shift in the calendar grid based on its time
+  const getShiftPosition = (shift: Shift) => {
+    // Default position is based on shift_type
+    if (shift.shift_type === 'full_day') {
+      return { top: 20, height: 40, spanRows: true };
+    }
+    
+    if (shift.shift_type === 'half_day') {
+      if (shift.half_day_type === 'morning') {
+        return { top: 8 * 60, height: 4 * 60, spanRows: false };
+      } else {
+        return { top: 14 * 60, height: 4 * 60, spanRows: false };
+      }
+    }
+    
+    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
+      const startParts = shift.start_time.split(':').map(Number);
+      const endParts = shift.end_time.split(':').map(Number);
+      
+      const startHour = startParts[0] + (startParts[1] / 60);
+      const endHour = endParts[0] + (endParts[1] / 60);
+      
+      const top = (startHour - 6) * 60; // 6 is the first hour in our view
+      const height = (endHour - startHour) * 60;
+      
+      return { top, height, spanRows: false };
+    }
+    
+    // Default for unavailable and sick leave
+    return { top: 20, height: 40, spanRows: true };
+  };
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">
-          {format(currentMonth, 'MMMM yyyy', { locale: it })}
-        </h2>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={handlePrevMonth}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => onMonthChange(new Date())}
-          >
-            Oggi
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleNextMonth}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-7 gap-px bg-muted mb-1">
-        {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map((day) => (
-          <div
-            key={day}
-            className="bg-background py-2 text-center text-sm font-medium"
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-px bg-muted">
-        {days.map((day) => {
-          const userShifts = getShiftsByUserForDay(day);
-          const dayInMonth = isSameMonth(day, currentMonth);
-          const isCurrentDay = isToday(day);
-          const dayHasShifts = Object.keys(userShifts).length > 0;
-          
-          return (
-            <div
-              key={day.toISOString()}
-              className={`min-h-[100px] bg-background p-1 ${
-                dayInMonth ? '' : 'opacity-50'
-              } ${isCurrentDay ? 'border border-primary' : ''}`}
-              onClick={() => handleCellClick(day, user?.id || null)}
-            >
-              <div className={`text-right text-sm mb-1 ${
-                isCurrentDay ? 'font-bold text-primary' : ''
-              }`}>
-                {format(day, 'd')}
-              </div>
-              <div className="flex flex-col gap-1 overflow-auto max-h-[80px]">
-                {Object.entries(userShifts).map(([userId, userDayShifts]) => (
-                  <div key={userId} className="flex flex-col gap-0.5">
-                    {userDayShifts.map(shift => renderShiftBadge(shift))}
-                  </div>
-                ))}
-                {!dayHasShifts && dayInMonth && (
-                  <div 
-                    className="text-xs text-muted-foreground text-center py-1 px-2 border border-dashed border-muted rounded cursor-pointer hover:border-primary hover:text-primary transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCellClick(day, user?.id || null);
-                    }}
-                  >
-                    + Aggiungi turno
-                  </div>
-                )}
-              </div>
+    <div className="space-y-4">
+      <ShiftCalendarHeader 
+        currentDate={currentMonth}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        goToPreviousPeriod={goToPreviousPeriod}
+        goToNextPeriod={goToNextPeriod}
+        goToToday={goToToday}
+        formatViewPeriod={formatViewPeriod}
+      />
+      
+      <ShiftCalendarLegend />
+      
+      {viewMode === "month" ? (
+        <div className="grid grid-cols-7 gap-px bg-muted">
+          {/* Weekday headers */}
+          {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map((day) => (
+            <div key={day} className="bg-background py-2 text-center text-sm font-medium">
+              {day}
             </div>
-          );
-        })}
-      </div>
+          ))}
+          
+          {/* Month grid */}
+          {daysInView.map((day) => {
+            const dayShifts = shifts.filter(s => {
+              const shiftDate = parseISO(s.shift_date);
+              return isSameDay(shiftDate, day);
+            });
+            const isCurrentMonth = isSameMonth(day, currentMonth);
+            const isCurrentDay = isToday(day);
+            
+            return (
+              <div
+                key={day.toISOString()}
+                className={`min-h-[100px] bg-background p-1 ${
+                  isCurrentMonth ? '' : 'opacity-50'
+                } ${isCurrentDay ? 'border border-primary' : ''}`}
+                onClick={() => handleCellClick(day, user?.id || null)}
+              >
+                <div className={`text-right text-sm mb-1 ${
+                  isCurrentDay ? 'font-bold text-primary' : ''
+                }`}>
+                  {format(day, 'd')}
+                </div>
+                <div className="flex flex-col gap-1 overflow-auto max-h-[80px]">
+                  {dayShifts.map(shift => (
+                    <Badge 
+                      key={shift.id}
+                      variant={
+                        shift.shift_type === 'full_day' ? 'success' : 
+                        shift.shift_type === 'half_day' ? 'secondary' :
+                        shift.shift_type === 'sick_leave' ? 'destructive' :
+                        shift.shift_type === 'unavailable' ? 'outline' : 'default'
+                      }
+                      className="text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedShift(shift);
+                        setIsAddDialogOpen(true);
+                      }}
+                    >
+                      {isAdminOrSocio && (
+                        <span className="font-medium mr-1">
+                          {shift.user_first_name?.substring(0, 1)}.{shift.user_last_name?.substring(0, 1)}.
+                        </span>
+                      )}
+                      {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time
+                        ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
+                        : shift.shift_type === 'half_day'
+                        ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
+                        : shift.shift_type === 'full_day' ? 'Giornata intera'
+                        : shift.shift_type === 'sick_leave' ? 'Malattia'
+                        : 'Non disponibile'}
+                    </Badge>
+                  ))}
+                  {dayShifts.length === 0 && isCurrentMonth && (
+                    <div 
+                      className="text-xs text-muted-foreground text-center py-1 px-2 border border-dashed border-muted rounded cursor-pointer hover:border-primary hover:text-primary transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCellClick(day, user?.id || null);
+                      }}
+                    >
+                      + Aggiungi turno
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <ShiftCalendarGrid
+          viewMode={viewMode}
+          daysInView={daysInView}
+          hours={hours}
+          shiftsInView={shiftsInView}
+          getShiftPosition={getShiftPosition}
+          onSelectShift={(shift) => {
+            setSelectedShift(shift);
+            setIsAddDialogOpen(true);
+          }}
+          onAddShift={(day) => handleCellClick(day, user?.id || null)}
+        />
+      )}
+      
+      {shiftsInView.length === 0 && (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            Nessun turno programmato per questo periodo
+          </CardContent>
+        </Card>
+      )}
       
       <AddShiftDialog 
         open={isAddDialogOpen} 
