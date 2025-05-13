@@ -68,21 +68,21 @@ export default function ReportPage() {
                   <div className="col-span-3 sm:col-span-1">
                     <div className="text-sm font-medium mb-1 text-amber-800">Aziende</div>
                     <div className="text-sm text-amber-700">
-                      {debugInfo?.aziende?.length || 0} aziende trovate
+                      {debugInfo?.aziende ? debugInfo.aziende.length : 0} aziende trovate
                     </div>
                   </div>
                   <div className="col-span-3 sm:col-span-1">
                     <div className="text-sm font-medium mb-1 text-amber-800">Referenti</div>
                     <div className="text-sm text-amber-700">
-                      {debugInfo?.referenti?.length || 0} referenti trovati
+                      {debugInfo?.referenti ? debugInfo.referenti.length : 0} referenti trovati
                     </div>
                   </div>
                   <div className="col-span-3 sm:col-span-1">
                     <div className="text-sm font-medium mb-1 text-amber-800">Servizi</div>
                     <div className="text-sm text-amber-700">
-                      Totali: {debugInfo?.allServizi?.count || 0}
+                      Totali: {debugInfo?.allServizi ? debugInfo.allServizi.count : 0}
                       <br />
-                      Consuntivati: {debugInfo?.consuntivati?.count || 0}
+                      Consuntivati: {debugInfo?.consuntivati ? debugInfo.consuntivati.count : 0}
                     </div>
                   </div>
                 </div>
@@ -93,7 +93,7 @@ export default function ReportPage() {
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(debugInfo.statuses).map(([stato, count]) => (
                         <div key={stato} className="px-2 py-1 bg-amber-100 rounded text-xs">
-                          {stato}: {count}
+                          {stato}: {String(count)}
                         </div>
                       ))}
                     </div>
