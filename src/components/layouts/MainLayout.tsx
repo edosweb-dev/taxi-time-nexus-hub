@@ -15,7 +15,7 @@ export function MainLayout({ children }: PropsWithChildren) {
       <Sidebar className="border-r border-border text-white">
         {/* This container will hold the actual sidebar content with primary background */}
         <div className="flex flex-col h-full bg-primary">
-          <SidebarHeader className="h-14 flex items-center border-b border-white/20">
+          <SidebarHeader className="h-14 flex items-center">
             <AppSidebarHeader />
           </SidebarHeader>
           
