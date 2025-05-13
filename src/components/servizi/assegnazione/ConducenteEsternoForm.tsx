@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { MailIcon, UserIcon } from 'lucide-react';
 import { Servizio } from '@/lib/types/servizi';
+import { useConducenteEsternoForm } from './hooks/useConducenteEsternoForm';
 
 interface ConducenteEsternoFormProps {
   servizio: Servizio;
@@ -20,11 +20,8 @@ export function ConducenteEsternoForm({
   conducenteEsternoEmail,
   setConducenteEsternoEmail
 }: ConducenteEsternoFormProps) {
-  useEffect(() => {
-    // Initialize values from servizio when component mounts
-    setConducenteEsternoNome(servizio.conducente_esterno_nome || '');
-    setConducenteEsternoEmail(servizio.conducente_esterno_email || '');
-  }, [servizio, setConducenteEsternoNome, setConducenteEsternoEmail]);
+  // Using our custom hook for form validation
+  const { isValid } = useConducenteEsternoForm({ servizio });
 
   return (
     <div className="space-y-4">
@@ -37,9 +34,14 @@ export function ConducenteEsternoForm({
             placeholder="Mario Rossi"
             value={conducenteEsternoNome}
             onChange={(e) => setConducenteEsternoNome(e.target.value)}
-            className="pl-10"
+            className={`pl-10 ${!conducenteEsternoNome.trim() ? 'border-red-500' : ''}`}
           />
         </div>
+        {!conducenteEsternoNome.trim() && (
+          <p className="text-xs text-red-500 mt-1">
+            Il nome è obbligatorio
+          </p>
+        )}
       </div>
       
       <div className="grid w-full items-center gap-1.5">

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 import { Servizio, StatoServizio } from '@/lib/types/servizi';
-import { Profile } from '@/lib/types';
+import { Profile, UserRole } from '@/lib/types';
 import { getAvailableUsers } from '../utils/userAvailability';
 import { ConducenteEsternoForm } from './ConducenteEsternoForm';
 import { DipendenteSelectForm } from './DipendenteSelectForm';
@@ -49,7 +49,12 @@ export function AssegnazioneDialog({
         .from('profiles')
         .select('*')
         .in('role', ['admin', 'socio', 'dipendente']);
-      return data || [];
+      
+      // Ensure that the fetched users have the correct UserRole type
+      return (data || []).map(user => ({
+        ...user,
+        role: user.role as UserRole // explicitly casting to UserRole type
+      })) as Profile[];
     },
     enabled: open,
   });
@@ -59,7 +64,8 @@ export function AssegnazioneDialog({
   availableUsers?.forEach(user => availableUserMap.set(user.id, true));
   
   const unavailableUsers = allUsers.filter(
-    user => !availableUserMap.get(user.id) && (user.role === 'admin' || user.role === 'socio' || user.role === 'dipendente')
+    user => !availableUserMap.get(user.id) && 
+    (user.role === 'admin' || user.role === 'socio' || user.role === 'dipendente')
   );
 
   useEffect(() => {
@@ -78,10 +84,10 @@ export function AssegnazioneDialog({
       
       let updateData: {
         stato: StatoServizio;
-        assegnato_a?: string;
+        assegnato_a?: string | null;
         conducente_esterno?: boolean;
-        conducente_esterno_nome?: string;
-        conducente_esterno_email?: string;
+        conducente_esterno_nome?: string | null;
+        conducente_esterno_email?: string | null;
       } = {
         stato: 'assegnato'
       };
