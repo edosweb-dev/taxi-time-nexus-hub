@@ -23,10 +23,12 @@ export const ReportGeneratorForm = ({ onCancel }: { onCancel: () => void }) => {
   const { profile } = useAuth();
   const [referenti, setReferenti] = useState<any[]>([]);
   const [selectedAziendaId, setSelectedAziendaId] = useState<string>('');
+  const [servizi, setServizi] = useState<any[]>([]);
   const [selectedServizi, setSelectedServizi] = useState<{ id: string; selected: boolean }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingServizi, setIsLoadingServizi] = useState(false);
   
-  const { servizi, isLoadingServizi, generateReport } = useGenerateReport();
+  const { fetchServizi, generateReport } = useGenerateReport();
   
   const form = useForm<ReportFormValues>({
     defaultValues: {
@@ -36,6 +38,29 @@ export const ReportGeneratorForm = ({ onCancel }: { onCancel: () => void }) => {
       year: new Date().getFullYear() + '',
     }
   });
+
+  // Function to fetch services when filters change
+  const loadServizi = async () => {
+    const aziendaId = form.watch('aziendaId');
+    const referenteId = form.watch('referenteId');
+    const month = parseInt(form.watch('month'));
+    const year = parseInt(form.watch('year'));
+    
+    if (!aziendaId || !referenteId || !month || !year) {
+      return;
+    }
+    
+    setIsLoadingServizi(true);
+    try {
+      const result = await fetchServizi(aziendaId, referenteId, month, year);
+      setServizi(result);
+      setSelectedServizi(result.map(s => ({ id: s.id, selected: true })));
+    } catch (error) {
+      console.error('Error loading servizi:', error);
+    } finally {
+      setIsLoadingServizi(false);
+    }
+  };
 
   const onSubmit = async (data: ReportFormValues) => {
     setIsLoading(true);
@@ -82,17 +107,27 @@ export const ReportGeneratorForm = ({ onCancel }: { onCancel: () => void }) => {
       
       // Reset referente selection
       form.setValue('referenteId', '');
+      setServizi([]);
+      setSelectedServizi([]);
     }
   }, [form.watch('aziendaId'), users]);
 
-  // When servizi are loaded or filter changes, reset selected servizi
+  // When the filters change, load the servizi
   useEffect(() => {
-    if (servizi) {
-      setSelectedServizi(servizi.map(s => ({ id: s.id, selected: true })));
-    } else {
-      setSelectedServizi([]);
+    const aziendaId = form.watch('aziendaId');
+    const referenteId = form.watch('referenteId');
+    const month = form.watch('month');
+    const year = form.watch('year');
+    
+    if (aziendaId && referenteId && month && year) {
+      loadServizi();
     }
-  }, [servizi]);
+  }, [
+    form.watch('aziendaId'),
+    form.watch('referenteId'),
+    form.watch('month'),
+    form.watch('year')
+  ]);
 
   const toggleSelectAll = (select: boolean) => {
     setSelectedServizi(prev => prev.map(s => ({ ...s, selected: select })));
