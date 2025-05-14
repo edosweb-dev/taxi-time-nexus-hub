@@ -77,7 +77,7 @@ export function MetodiPagamentoForm() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Nessuna IVA predefinita</SelectItem>
+                              <SelectItem value="none">Nessuna IVA predefinita</SelectItem>
                               {aliquoteIva.map((aliquota: any) => (
                                 <SelectItem key={aliquota.id} value={aliquota.id}>
                                   {aliquota.nome} ({aliquota.percentuale}%)
