@@ -1,5 +1,5 @@
 
-import { Profile } from "./auth";
+import { Profile } from "@/lib/types/auth";
 
 export type MovimentoTipo = 'spesa' | 'incasso' | 'prelievo';
 export type MovimentoStato = 'saldato' | 'pending';

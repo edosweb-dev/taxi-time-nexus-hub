@@ -1,6 +1,6 @@
 
 import { supabase } from "@/lib/supabase";
-import { MovimentoAziendale } from "@/lib/types/spese";
+import { MovimentoAziendale, MovimentoTipo, MovimentoStato } from "@/lib/types/spese";
 
 export interface GetMovimentiOptions {
   tipo?: string;
@@ -27,7 +27,11 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
     // Apply filters if provided
     if (options) {
       if (options.tipo) {
-        query = query.eq('tipo', options.tipo);
+        // Validate tipo before using it in query
+        const validTipi: MovimentoTipo[] = ['spesa', 'incasso', 'prelievo'];
+        if (validTipi.includes(options.tipo as MovimentoTipo)) {
+          query = query.eq('tipo', options.tipo as MovimentoTipo);
+        }
       }
       if (options.dateFrom) {
         query = query.gte('data', options.dateFrom);
@@ -48,7 +52,11 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
         query = query.eq('effettuato_da_id', options.userId);
       }
       if (options.stato) {
-        query = query.eq('stato', options.stato);
+        // Validate stato before using it in query
+        const validStati: MovimentoStato[] = ['saldato', 'pending'];
+        if (validStati.includes(options.stato as MovimentoStato)) {
+          query = query.eq('stato', options.stato as MovimentoStato);
+        }
       }
     }
 
@@ -58,7 +66,23 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
       throw error;
     }
 
-    return data || [];
+    // Process and transform the data to match the MovimentoAziendale type
+    const movimenti: MovimentoAziendale[] = data?.map(item => {
+      const movimento: MovimentoAziendale = {
+        ...item,
+        tipo: item.tipo as MovimentoTipo,
+        stato: item.stato as MovimentoStato,
+        metodo_pagamento: item.metodo_pagamento ? {
+          id: item.metodo_pagamento.id,
+          nome: item.metodo_pagamento.nome,
+          descrizione: item.metodo_pagamento.descrizione,
+          created_at: item.metodo_pagamento.created_at || new Date().toISOString()
+        } : undefined
+      };
+      return movimento;
+    }) || [];
+
+    return movimenti;
   } catch (error) {
     console.error('Error fetching movimenti:', error);
     throw error;
