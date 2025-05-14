@@ -1,6 +1,6 @@
 
 import React from "react";
-import { CompletaServizioDialog } from "@/components/servizi/CompletaServizioDialog";
+import { CompletaServizioDialog } from "@/components/servizi/completamento";
 import { ConsuntivaServizioDialog } from "@/components/servizi/ConsuntivaServizioDialog";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
