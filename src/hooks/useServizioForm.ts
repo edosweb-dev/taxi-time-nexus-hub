@@ -15,7 +15,7 @@ export const servizioFormSchema = z.object({
   orario_servizio: z.string().min(1, "Orario servizio obbligatorio"),
   indirizzo_presa: z.string().min(1, "Indirizzo di presa obbligatorio"),
   indirizzo_destinazione: z.string().min(1, "Indirizzo di destinazione obbligatorio"),
-  metodo_pagamento: z.enum(["Contanti", "Carta", "Bonifico"], {
+  metodo_pagamento: z.string({
     required_error: "Metodo di pagamento obbligatorio",
   }),
   note: z.string().optional(),
@@ -45,7 +45,7 @@ export function useServizioForm() {
       orario_servizio: "12:00",
       indirizzo_presa: "",
       indirizzo_destinazione: "",
-      metodo_pagamento: "Bonifico" as MetodoPagamento,
+      metodo_pagamento: "", // Verrà impostato dopo aver caricato le impostazioni
       note: "",
       passeggeri: [],
     },

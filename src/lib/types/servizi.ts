@@ -1,6 +1,7 @@
+
 import { Azienda, UserRole } from "@/lib/types";
 
-export type MetodoPagamento = 'Contanti' | 'Carta' | 'Bonifico';
+export type MetodoPagamento = string;
 export type StatoServizio = 'da_assegnare' | 'assegnato' | 'completato' | 'annullato' | 'non_accettato' | 'consuntivato';
 
 export interface Servizio {

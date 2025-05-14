@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -11,11 +10,34 @@ import { useAuth } from "@/hooks/useAuth";
 import { AziendaSelectField } from "./AziendaSelectField";
 import { ReferenteSelectField } from "./ReferenteSelectField";
 import { MapPin, Clock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getImpostazioni } from "@/lib/api/impostazioni/getImpostazioni";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ServizioDetailsForm() {
-  const { control, watch } = useFormContext<ServizioFormData>();
+  const { control, watch, setValue } = useFormContext<ServizioFormData>();
   const { profile } = useAuth();
   const aziendaId = watch('azienda_id');
+  
+  // Carica le impostazioni per ottenere i metodi di pagamento
+  const { data: impostazioni, isLoading: isLoadingImpostazioni } = useQuery({
+    queryKey: ['impostazioni'],
+    queryFn: getImpostazioni,
+  });
+
+  // Se i metodi di pagamento sono cambiati e il valore attuale non è più valido, imposta il primo valore disponibile
+  useEffect(() => {
+    if (impostazioni?.metodi_pagamento?.length > 0) {
+      const metodo = watch('metodo_pagamento');
+      const metodiDisponibili = impostazioni.metodi_pagamento.map(m => m.nome);
+      
+      if (metodo && !metodiDisponibili.includes(metodo)) {
+        setValue('metodo_pagamento', metodiDisponibili[0]);
+      } else if (!metodo) {
+        setValue('metodo_pagamento', metodiDisponibili[0]);
+      }
+    }
+  }, [impostazioni, setValue, watch]);
   
   return (
     <Card>
@@ -66,21 +88,33 @@ export function ServizioDetailsForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Metodo di pagamento *</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona un metodo di pagamento" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Contanti">Contanti</SelectItem>
-                    <SelectItem value="Carta">Carta</SelectItem>
-                    <SelectItem value="Bonifico">Bonifico</SelectItem>
-                  </SelectContent>
-                </Select>
+                {isLoadingImpostazioni ? (
+                  <Skeleton className="h-10 w-full" />
+                ) : (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona un metodo di pagamento" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {impostazioni?.metodi_pagamento && impostazioni.metodi_pagamento.length > 0 ? (
+                        impostazioni.metodi_pagamento.map((metodo) => (
+                          <SelectItem key={metodo.id} value={metodo.nome}>
+                            {metodo.nome}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem disabled value="nessuno">
+                          Nessun metodo di pagamento disponibile
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
                 <FormMessage />
               </FormItem>
             )}
