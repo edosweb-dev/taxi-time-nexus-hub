@@ -1,8 +1,6 @@
 
-export * from './card';
-export * from './utils';
-export * from './calendar';
+export * from './completamento';
+export * from './consuntivazione';
 export * from './assegnazione';
-export * from './report';
 export * from './hooks';
-// Add any other exports from the servizi folder
+export * from './utils';
