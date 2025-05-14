@@ -24,13 +24,6 @@ export interface MetodoPagamentoSpesa {
   created_at: string;
 }
 
-export interface CategoriaSpesa {
-  id: string;
-  nome: string;
-  descrizione?: string | null;
-  created_at: string;
-}
-
 export interface MovimentoAziendale {
   id: string;
   data: string;
@@ -46,7 +39,7 @@ export interface MovimentoAziendale {
   created_by: string;
   created_at: string;
   updated_at: string;
-  effettuato_da?: Profile;
+  effettuato_da?: Profile | null;
   metodo_pagamento?: MetodoPagamentoSpesa;
 }
 
@@ -59,7 +52,7 @@ export interface SpesaPersonaleFormData {
 
 export interface MovimentoAziendaleFormData {
   data: string;
-  importo: number;
+  importo: number; // This is required
   causale: string;
   note?: string;
   tipo: MovimentoTipo;

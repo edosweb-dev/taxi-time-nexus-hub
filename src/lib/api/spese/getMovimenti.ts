@@ -20,7 +20,7 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
       .select(`
         *,
         effettuato_da:profiles(id, first_name, last_name, role),
-        metodo_pagamento:metodi_pagamento_spese(id, nome, descrizione)
+        metodo_pagamento:metodi_pagamento_spese(id, nome, descrizione, created_at)
       `)
       .order('data', { ascending: false });
 
@@ -72,6 +72,8 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
         ...item,
         tipo: item.tipo as MovimentoTipo,
         stato: item.stato as MovimentoStato,
+        // Handle potential null/undefined values
+        effettuato_da: item.effettuato_da || null,
         metodo_pagamento: item.metodo_pagamento ? {
           id: item.metodo_pagamento.id,
           nome: item.metodo_pagamento.nome,

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,7 +55,7 @@ export function NuovoMovimentoForm({ onMovimentoCreated }: NuovoMovimentoFormPro
     resolver: zodResolver(formSchema),
     defaultValues: {
       data: new Date(),
-      importo: undefined,
+      importo: 0, // Default value to ensure it's never undefined
       causale: "",
       note: "",
       tipo: "spesa",
@@ -95,16 +94,16 @@ export function NuovoMovimentoForm({ onMovimentoCreated }: NuovoMovimentoFormPro
   const onSubmit = async (data: FormValues) => {
     try {
       // Se non è effettuato da un socio, rimuovi il campo effettuato_da_id
-      if (!data.è_effettuato_da_socio) {
-        data.effettuato_da_id = undefined;
-      }
-
-      // Elimina il campo è_effettuato_da_socio che non è nel tipo MovimentoAziendaleFormData
       const { è_effettuato_da_socio, ...movimentoData } = data;
+      
+      if (!è_effettuato_da_socio) {
+        movimentoData.effettuato_da_id = undefined;
+      }
 
       const formattedData: MovimentoAziendaleFormData = {
         ...movimentoData,
         data: format(data.data, "yyyy-MM-dd"),
+        importo: Number(data.importo), // Ensure it's a number and not undefined
       };
 
       await createMovimento(formattedData);
@@ -116,7 +115,7 @@ export function NuovoMovimentoForm({ onMovimentoCreated }: NuovoMovimentoFormPro
 
       form.reset({
         data: new Date(),
-        importo: undefined,
+        importo: 0, // Reset with default value
         causale: "",
         note: "",
         tipo: "spesa",
