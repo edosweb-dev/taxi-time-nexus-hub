@@ -12,9 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/sonner";
 import { completaServizio } from "@/lib/api/servizi";
+import { useQuery } from "@tanstack/react-query";
+import { getImpostazioni } from "@/lib/api/impostazioni/getImpostazioni";
+import { MetodoPagamentoOption } from "@/lib/types/impostazioni";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  metodo_pagamento: z.enum(["Contanti", "Carta", "Bonifico"], {
+  metodo_pagamento: z.string({
     required_error: "Seleziona un metodo di pagamento",
   }),
   incasso_ricevuto: z.coerce.number().min(0, "Deve essere un numero positivo").optional(),
@@ -43,6 +47,14 @@ export function CompletaServizioDialog({
 }: CompletaServizioDialogProps) {
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
   const [isContanti, setIsContanti] = useState(metodoDefault === 'Contanti');
+  
+  const { data: impostazioni, isLoading: impostazioniLoading } = useQuery({
+    queryKey: ['impostazioni'],
+    queryFn: getImpostazioni,
+    enabled: open,
+  });
+
+  const metodiPagamento = impostazioni?.metodi_pagamento || [];
 
   useEffect(() => {
     if (users) {
@@ -115,21 +127,30 @@ export function CompletaServizioDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Modalità di pagamento</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona metodo di pagamento" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Contanti">Contanti</SelectItem>
-                      <SelectItem value="Carta">Carta</SelectItem>
-                      <SelectItem value="Bonifico">Bonifico</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {impostazioniLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Caricamento metodi di pagamento...</span>
+                    </div>
+                  ) : (
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona metodo di pagamento" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {metodiPagamento.map((metodo: MetodoPagamentoOption) => (
+                          <SelectItem key={metodo.id} value={metodo.nome}>
+                            {metodo.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
