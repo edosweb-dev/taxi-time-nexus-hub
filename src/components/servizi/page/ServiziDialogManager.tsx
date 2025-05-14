@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Servizio } from "@/lib/types/servizi";
 import { useUsers } from "@/hooks/useUsers";
 import { AssegnazioneDialog } from "../assegnazione";
-import { CompletaServizioDialog } from "../CompletaServizioDialog";
+import { CompletaServizioDialog } from "../completamento";
 import { FirmaServizio } from "../../firma/FirmaServizio";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
