@@ -29,7 +29,8 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         indirizzo_destinazione: data.servizio.indirizzo_destinazione,
         metodo_pagamento: data.servizio.metodo_pagamento,
         note: data.servizio.note,
-        created_by: userId
+        created_by: userId,
+        iva: data.servizio.iva ? parseFloat(data.servizio.iva) : 22 // Aggiungiamo il campo IVA
       })
       .select()
       .single();

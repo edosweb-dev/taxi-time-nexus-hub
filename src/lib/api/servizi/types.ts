@@ -16,6 +16,7 @@ export interface ServizioInput {
   conducente_esterno_nome?: string;
   conducente_esterno_email?: string;
   stato?: StatoServizio;
+  iva?: string; // Aggiungiamo il campo IVA
 }
 
 export interface CreateServizioRequest {

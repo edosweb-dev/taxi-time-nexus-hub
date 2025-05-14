@@ -1,3 +1,4 @@
+
 import { Azienda, UserRole } from "@/lib/types";
 
 export type MetodoPagamento = 'Contanti' | 'Carta' | 'Bonifico';
@@ -28,6 +29,7 @@ export interface Servizio {
   ore_lavorate?: number;
   ore_finali?: number;
   consegna_contanti_a?: string;
+  iva?: number; // Aggiungiamo il campo IVA
 }
 
 export interface Passeggero {
@@ -54,6 +56,7 @@ export interface ServizioFormData {
   metodo_pagamento: MetodoPagamento;
   note?: string;
   passeggeri: PasseggeroFormData[];
+  iva?: string; // Aggiungiamo il campo IVA al form
 }
 
 export interface PasseggeroFormData {

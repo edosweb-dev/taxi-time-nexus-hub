@@ -11,11 +11,27 @@ import { useAuth } from "@/hooks/useAuth";
 import { AziendaSelectField } from "./AziendaSelectField";
 import { ReferenteSelectField } from "./ReferenteSelectField";
 import { MapPin, Clock } from "lucide-react";
+import { useImpostazioni } from "@/hooks/useImpostazioni";
 
 export function ServizioDetailsForm() {
-  const { control, watch } = useFormContext<ServizioFormData>();
+  const { control, watch, setValue } = useFormContext<ServizioFormData>();
   const { profile } = useAuth();
   const aziendaId = watch('azienda_id');
+  const metodoPagamento = watch('metodo_pagamento');
+  const { impostazioni } = useImpostazioni();
+  
+  // Imposta automaticamente l'IVA in base al metodo di pagamento selezionato
+  useEffect(() => {
+    if (impostazioni && metodoPagamento) {
+      const metodoSelezionato = impostazioni.metodi_pagamento?.find(m => m.nome === metodoPagamento);
+      if (metodoSelezionato?.iva_predefinita) {
+        const aliquotaIva = impostazioni.aliquote_iva?.find(a => a.id === metodoSelezionato.iva_predefinita);
+        if (aliquotaIva) {
+          setValue('iva', aliquotaIva.percentuale.toString());
+        }
+      }
+    }
+  }, [metodoPagamento, impostazioni, setValue]);
   
   return (
     <Card>
@@ -76,9 +92,19 @@ export function ServizioDetailsForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Contanti">Contanti</SelectItem>
-                    <SelectItem value="Carta">Carta</SelectItem>
-                    <SelectItem value="Bonifico">Bonifico</SelectItem>
+                    {impostazioni && impostazioni.metodi_pagamento && impostazioni.metodi_pagamento.length > 0 ? (
+                      impostazioni.metodi_pagamento.map((metodo) => (
+                        <SelectItem key={metodo.id} value={metodo.nome}>
+                          {metodo.nome}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <>
+                        <SelectItem value="Contanti">Contanti</SelectItem>
+                        <SelectItem value="Carta">Carta</SelectItem>
+                        <SelectItem value="Bonifico">Bonifico</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -116,6 +142,44 @@ export function ServizioDetailsForm() {
                     <Input type="time" {...field} className="pl-8" />
                   </div>
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* IVA */}
+          <FormField
+            control={control}
+            name="iva"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>IVA (%)</FormLabel>
+                <Select
+                  value={field.value || ""}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona l'aliquota IVA" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {impostazioni && impostazioni.aliquote_iva && impostazioni.aliquote_iva.length > 0 ? (
+                      impostazioni.aliquote_iva.map((aliquota) => (
+                        <SelectItem key={aliquota.id} value={aliquota.percentuale.toString()}>
+                          {aliquota.nome} ({aliquota.percentuale}%)
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <>
+                        <SelectItem value="22">Standard (22%)</SelectItem>
+                        <SelectItem value="10">Ridotta (10%)</SelectItem>
+                        <SelectItem value="4">Super ridotta (4%)</SelectItem>
+                        <SelectItem value="0">Esente (0%)</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

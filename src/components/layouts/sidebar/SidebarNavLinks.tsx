@@ -1,205 +1,142 @@
 
-import { useAuth } from '@/contexts/AuthContext';
-import { BarChart4, Calendar, ClipboardList, FilePlus, FileText, Home, Settings, ShoppingBag, UserCircle, Users } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { useAuth } from "@/hooks/useAuth";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import {
+  Home,
+  Users,
+  Building2,
+  Calendar,
+  FileBarChart,
+  Settings
+} from "lucide-react";
 
 export function SidebarNavLinks() {
+  const { pathname } = useLocation();
   const { profile } = useAuth();
-  
-  if (!profile) {
-    return null;
+
+  // Link nascosti per ruoli specifici
+  const isAdmin = profile?.role === 'admin';
+  const isSocio = profile?.role === 'socio';
+  const isCliente = profile?.role === 'cliente';
+  const isDipendente = profile?.role === 'dipendente';
+
+  if (isCliente) {
+    return (
+      <nav className="grid gap-1 px-2">
+        <Link
+          to="/cliente"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+            pathname === '/cliente' && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+          )}
+        >
+          <Home className="h-4 w-4" />
+          <span>Dashboard</span>
+        </Link>
+      </nav>
+    );
   }
 
-  // Admin and Socio links
-  if (profile.role === 'admin' || profile.role === 'socio') {
-    return (
-      <nav className="space-y-1">
-        <NavLink 
-          to="/dashboard" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <Home className="mr-3 h-5 w-5" />
-          Dashboard
-        </NavLink>
-        
-        <NavLink 
-          to="/servizi" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <ClipboardList className="mr-3 h-5 w-5" />
-          Servizi
-        </NavLink>
-        
-        <NavLink 
-          to="/nuovo-servizio" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <FilePlus className="mr-3 h-5 w-5" />
-          Nuovo servizio
-        </NavLink>
-        
-        <NavLink 
-          to="/turni" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <Calendar className="mr-3 h-5 w-5" />
-          Turni
-        </NavLink>
-        
-        <NavLink 
-          to="/reports" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <FileText className="mr-3 h-5 w-5" />
-          Report Aziende
-        </NavLink>
-        
-        <NavLink 
-          to="/aziende" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <ShoppingBag className="mr-3 h-5 w-5" />
-          Aziende
-        </NavLink>
-        
-        {profile.role === 'admin' && (
-          <NavLink 
-            to="/users" 
-            className={({ isActive }) => 
-              `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-                isActive 
-                  ? 'bg-white text-primary' 
-                  : 'text-white hover:bg-white hover:text-primary'
-              }`
-            }
-          >
-            <Users className="mr-3 h-5 w-5" />
-            Utenti
-          </NavLink>
+  return (
+    <nav className="grid gap-1 px-2">
+      <Link
+        to="/dashboard"
+        className={cn(
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+          pathname === '/dashboard' && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
         )}
-      </nav>
-    );
-  }
-  
-  // Dipendente links
-  if (profile.role === 'dipendente') {
-    return (
-      <nav className="space-y-1">
-        <NavLink 
-          to="/dashboard" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <Home className="mr-3 h-5 w-5" />
-          Dashboard
-        </NavLink>
-        
-        <NavLink 
-          to="/servizi" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <ClipboardList className="mr-3 h-5 w-5" />
-          Servizi
-        </NavLink>
-      </nav>
-    );
-  }
-  
-  // Cliente links
-  if (profile.role === 'cliente') {
-    return (
-      <nav className="space-y-1">
-        <NavLink 
-          to="/dashboard" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <Home className="mr-3 h-5 w-5" />
-          Dashboard
-        </NavLink>
-        
-        <NavLink 
-          to="/reports" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
-        >
-          <FileText className="mr-3 h-5 w-5" />
-          I miei report
-        </NavLink>
+      >
+        <Home className="h-4 w-4" />
+        <span>Dashboard</span>
+      </Link>
 
-        <NavLink 
-          to="/profilo" 
-          className={({ isActive }) => 
-            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
-              isActive 
-                ? 'bg-white text-primary' 
-                : 'text-white hover:bg-white hover:text-primary'
-            }`
-          }
+      {(isAdmin || isSocio) && (
+        <>
+          <Link
+            to="/servizi"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+              pathname.includes('/servizi') && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+            )}
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Servizi</span>
+          </Link>
+
+          <Link
+            to="/turni"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+              pathname.includes('/turni') && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+            )}
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Turni</span>
+          </Link>
+
+          <Link
+            to="/reports"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+              pathname === '/reports' && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+            )}
+          >
+            <FileBarChart className="h-4 w-4" />
+            <span>Report</span>
+          </Link>
+        </>
+      )}
+
+      {isDipendente && (
+        <Link
+          to="/servizi"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+            pathname.includes('/servizi') && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+          )}
         >
-          <UserCircle className="mr-3 h-5 w-5" />
-          Profilo
-        </NavLink>
-      </nav>
-    );
-  }
-  
-  return null;
+          <Calendar className="h-4 w-4" />
+          <span>I Miei Servizi</span>
+        </Link>
+      )}
+
+      {isAdmin && (
+        <>
+          <Link
+            to="/users"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+              pathname === '/users' && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+            )}
+          >
+            <Users className="h-4 w-4" />
+            <span>Utenti</span>
+          </Link>
+
+          <Link
+            to="/aziende"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+              pathname.includes('/aziende') && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+            )}
+          >
+            <Building2 className="h-4 w-4" />
+            <span>Aziende</span>
+          </Link>
+
+          <Link
+            to="/impostazioni"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+              pathname === '/impostazioni' && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+            )}
+          >
+            <Settings className="h-4 w-4" />
+            <span>Impostazioni</span>
+          </Link>
+        </>
+      )}
+    </nav>
+  );
 }
