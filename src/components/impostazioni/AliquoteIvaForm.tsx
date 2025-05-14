@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash } from "lucide-react";
 import { nanoid } from "nanoid";
+import { AliquotaIvaOption } from "@/lib/api/impostazioni/types";
 
 export function AliquoteIvaForm() {
   const { control } = useFormContext();
@@ -16,6 +17,17 @@ export function AliquoteIvaForm() {
     control,
     name: "aliquote_iva",
   });
+
+  const addNewAliquota = () => {
+    // Ensure we're adding an object with a required id property
+    const newAliquota: AliquotaIvaOption = {
+      id: nanoid(),
+      nome: "",
+      percentuale: 22,
+      descrizione: null
+    };
+    append(newAliquota);
+  };
 
   return (
     <div className="space-y-4">
@@ -27,7 +39,7 @@ export function AliquoteIvaForm() {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append({ id: nanoid(), nome: "", percentuale: 22, descrizione: null })}
+          onClick={addNewAliquota}
         >
           <Plus className="h-4 w-4 mr-1" /> Aggiungi Aliquota
         </Button>

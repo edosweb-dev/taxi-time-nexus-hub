@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/sonner";
-import { Impostazioni } from "@/lib/api/impostazioni/types";
+import { Impostazioni, MetodoPagamentoOption, AliquotaIvaOption } from "@/lib/api/impostazioni/types";
 import { AziendaInfoForm } from "./AziendaInfoForm";
 import { MetodiPagamentoForm } from "./MetodiPagamentoForm";
 import { AliquoteIvaForm } from "./AliquoteIvaForm";
@@ -41,14 +41,25 @@ type ImpostazioniFormValues = z.infer<typeof impostazioniFormSchema>;
 export function ImpostazioniForm({ impostazioni }: { impostazioni: Impostazioni | null }) {
   const { updateImpostazioni, isUpdating } = useImpostazioni();
 
+  // Ensure the metodi_pagamento and aliquote_iva are properly typed arrays
+  const metodi_pagamento: MetodoPagamentoOption[] = 
+    impostazioni?.metodi_pagamento && Array.isArray(impostazioni.metodi_pagamento) 
+      ? impostazioni.metodi_pagamento 
+      : [];
+  
+  const aliquote_iva: AliquotaIvaOption[] = 
+    impostazioni?.aliquote_iva && Array.isArray(impostazioni.aliquote_iva) 
+      ? impostazioni.aliquote_iva 
+      : [];
+
   const defaultValues: ImpostazioniFormValues = {
     nome_azienda: impostazioni?.nome_azienda || "",
     partita_iva: impostazioni?.partita_iva || null,
     indirizzo_sede: impostazioni?.indirizzo_sede || null,
     telefono: impostazioni?.telefono || null,
     email: impostazioni?.email || null,
-    metodi_pagamento: impostazioni?.metodi_pagamento || [],
-    aliquote_iva: impostazioni?.aliquote_iva || [],
+    metodi_pagamento: metodi_pagamento,
+    aliquote_iva: aliquote_iva,
   };
 
   const form = useForm<ImpostazioniFormValues>({

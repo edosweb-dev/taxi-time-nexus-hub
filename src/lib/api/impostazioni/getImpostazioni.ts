@@ -14,7 +14,16 @@ export async function getImpostazioni(): Promise<Impostazioni | null> {
       throw error;
     }
 
-    return data;
+    if (data) {
+      // Convert JSON data to typed arrays
+      return {
+        ...data,
+        metodi_pagamento: Array.isArray(data.metodi_pagamento) ? data.metodi_pagamento : [],
+        aliquote_iva: Array.isArray(data.aliquote_iva) ? data.aliquote_iva : []
+      };
+    }
+
+    return null;
   } catch (error) {
     console.error('[getImpostazioni] Unexpected error:', error);
     throw error;

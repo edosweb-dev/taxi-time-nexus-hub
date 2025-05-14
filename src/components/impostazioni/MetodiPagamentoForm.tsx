@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash } from "lucide-react";
 import { nanoid } from "nanoid";
+import { MetodoPagamentoOption } from "@/lib/api/impostazioni/types";
 
 export function MetodiPagamentoForm() {
   const { control, watch } = useFormContext();
@@ -17,6 +18,16 @@ export function MetodiPagamentoForm() {
     control,
     name: "metodi_pagamento",
   });
+
+  const addNewMetodo = () => {
+    // Ensure we're adding an object with a required id property
+    const newMetodo: MetodoPagamentoOption = {
+      id: nanoid(),
+      nome: "", 
+      iva_predefinita: null
+    };
+    append(newMetodo);
+  };
 
   return (
     <div className="space-y-4">
@@ -28,7 +39,7 @@ export function MetodiPagamentoForm() {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append({ id: nanoid(), nome: "", iva_predefinita: null })}
+          onClick={addNewMetodo}
         >
           <Plus className="h-4 w-4 mr-1" /> Aggiungi Metodo
         </Button>
@@ -68,8 +79,8 @@ export function MetodiPagamentoForm() {
                         <FormItem>
                           <FormLabel>IVA Predefinita</FormLabel>
                           <Select
-                            value={field.value || ""}
-                            onValueChange={(value) => field.onChange(value || null)}
+                            value={field.value || "none"}
+                            onValueChange={(value) => field.onChange(value === "none" ? null : value)}
                           >
                             <FormControl>
                               <SelectTrigger>
