@@ -81,6 +81,114 @@ export type Database = {
         }
         Relationships: []
       }
+      metodi_pagamento_spese: {
+        Row: {
+          created_at: string
+          descrizione: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          descrizione?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          descrizione?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      movimenti_aziendali: {
+        Row: {
+          causale: string
+          created_at: string
+          created_by: string
+          data: string
+          effettuato_da_id: string | null
+          id: string
+          importo: number
+          metodo_pagamento_id: string | null
+          note: string | null
+          servizio_id: string | null
+          spesa_personale_id: string | null
+          stato: Database["public"]["Enums"]["movimento_stato"] | null
+          tipo: Database["public"]["Enums"]["movimento_tipo"]
+          updated_at: string
+        }
+        Insert: {
+          causale: string
+          created_at?: string
+          created_by: string
+          data?: string
+          effettuato_da_id?: string | null
+          id?: string
+          importo: number
+          metodo_pagamento_id?: string | null
+          note?: string | null
+          servizio_id?: string | null
+          spesa_personale_id?: string | null
+          stato?: Database["public"]["Enums"]["movimento_stato"] | null
+          tipo: Database["public"]["Enums"]["movimento_tipo"]
+          updated_at?: string
+        }
+        Update: {
+          causale?: string
+          created_at?: string
+          created_by?: string
+          data?: string
+          effettuato_da_id?: string | null
+          id?: string
+          importo?: number
+          metodo_pagamento_id?: string | null
+          note?: string | null
+          servizio_id?: string | null
+          spesa_personale_id?: string | null
+          stato?: Database["public"]["Enums"]["movimento_stato"] | null
+          tipo?: Database["public"]["Enums"]["movimento_tipo"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimenti_aziendali_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimenti_aziendali_effettuato_da_id_fkey"
+            columns: ["effettuato_da_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimenti_aziendali_metodo_pagamento_id_fkey"
+            columns: ["metodo_pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "metodi_pagamento_spese"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimenti_aziendali_servizio_id_fkey"
+            columns: ["servizio_id"]
+            isOneToOne: false
+            referencedRelation: "servizi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimenti_aziendali_spesa_personale_id_fkey"
+            columns: ["spesa_personale_id"]
+            isOneToOne: false
+            referencedRelation: "spese_personali"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       passeggeri: {
         Row: {
           created_at: string
@@ -364,6 +472,71 @@ export type Database = {
         }
         Relationships: []
       }
+      spese_categorie: {
+        Row: {
+          created_at: string
+          descrizione: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          descrizione?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          descrizione?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      spese_personali: {
+        Row: {
+          causale: string
+          convertita_aziendale: boolean | null
+          created_at: string
+          data: string
+          id: string
+          importo: number
+          note: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          causale: string
+          convertita_aziendale?: boolean | null
+          created_at?: string
+          data?: string
+          id?: string
+          importo: number
+          note?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          causale?: string
+          convertita_aziendale?: boolean | null
+          created_at?: string
+          data?: string
+          id?: string
+          importo?: number
+          note?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spese_personali_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -375,7 +548,8 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      movimento_stato: "saldato" | "pending"
+      movimento_tipo: "spesa" | "incasso" | "prelievo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -490,6 +664,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      movimento_stato: ["saldato", "pending"],
+      movimento_tipo: ["spesa", "incasso", "prelievo"],
+    },
   },
 } as const
