@@ -10,9 +10,10 @@ import { MetodiPagamentoForm } from "./MetodiPagamentoForm";
 import { AliquoteIvaForm } from "./AliquoteIvaForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Save } from "lucide-react";
-import { ImpostazioniFormData } from "@/lib/types/impostazioni";
+import { ImpostazioniFormData, MetodoPagamentoOption, AliquotaIvaOption } from "@/lib/types/impostazioni";
 import { updateImpostazioni } from "@/lib/api/impostazioni/updateImpostazioni";
 import { toast } from "@/components/ui/use-toast";
+import { v4 as uuidv4 } from "uuid";
 
 const formSchema = z.object({
   nome_azienda: z.string().min(1, { message: "Il nome dell'azienda è obbligatorio" }),
@@ -22,7 +23,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Inserisci un indirizzo email valido" }).optional().or(z.literal("")),
   metodi_pagamento: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       nome: z.string(),
       iva_applicabile: z.boolean().optional(),
       aliquota_iva: z.string().optional(),
@@ -30,7 +31,7 @@ const formSchema = z.object({
   ),
   aliquote_iva: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       nome: z.string(),
       percentuale: z.number(),
       descrizione: z.string().optional(),
@@ -47,6 +48,25 @@ interface ImpostazioniFormProps {
 export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Ensure each item has a required id field
+  const ensureMetodiPagamentoIds = (metodi: any[] = []): MetodoPagamentoOption[] => {
+    return metodi.map(metodo => ({
+      id: metodo.id || uuidv4(),
+      nome: metodo.nome || "",
+      iva_applicabile: metodo.iva_applicabile === true,
+      aliquota_iva: metodo.aliquota_iva || "",
+    }));
+  };
+
+  const ensureAliquoteIvaIds = (aliquote: any[] = []): AliquotaIvaOption[] => {
+    return aliquote.map(aliquota => ({
+      id: aliquota.id || uuidv4(),
+      nome: aliquota.nome || "",
+      percentuale: Number(aliquota.percentuale || 0),
+      descrizione: aliquota.descrizione || "",
+    }));
+  };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,18 +76,8 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       telefono: initialData.telefono || "",
       email: initialData.email || "",
       indirizzo_sede: initialData.indirizzo_sede || "",
-      metodi_pagamento: initialData.metodi_pagamento?.map(metodo => ({
-        id: metodo.id,
-        nome: metodo.nome,
-        iva_applicabile: metodo.iva_applicabile || false,
-        aliquota_iva: metodo.aliquota_iva || "",
-      })) || [],
-      aliquote_iva: initialData.aliquote_iva?.map(aliquota => ({
-        id: aliquota.id,
-        nome: aliquota.nome,
-        percentuale: aliquota.percentuale,
-        descrizione: aliquota.descrizione || "",
-      })) || [],
+      metodi_pagamento: initialData.metodi_pagamento || [],
+      aliquote_iva: initialData.aliquote_iva || [],
     },
   });
 
@@ -75,22 +85,19 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
     try {
       setIsSubmitting(true);
       
-      // Ensure all objects have the required properties
+      // Ensure all objects have the required properties with proper types
       const formattedData = {
         ...data,
-        metodi_pagamento: data.metodi_pagamento.map(metodo => ({
-          id: metodo.id,
-          nome: metodo.nome,
-          iva_applicabile: metodo.iva_applicabile || false,
-          aliquota_iva: metodo.aliquota_iva || "",
-        })),
-        aliquote_iva: data.aliquote_iva.map(aliquota => ({
-          id: aliquota.id,
-          nome: aliquota.nome,
-          percentuale: aliquota.percentuale,
-          descrizione: aliquota.descrizione || "",
-        })),
+        // Make sure ID exists for the update operation
+        id: data.id,
+        metodi_pagamento: ensureMetodiPagamentoIds(data.metodi_pagamento),
+        aliquote_iva: ensureAliquoteIvaIds(data.aliquote_iva),
       };
+      
+      // Check if we have an ID for the update
+      if (!formattedData.id) {
+        throw new Error("ID mancante per il salvataggio delle impostazioni");
+      }
       
       await updateImpostazioni(formattedData);
       
@@ -114,8 +121,9 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
     }
   };
 
-  const currentMetodi = form.watch("metodi_pagamento");
-  const currentAliquote = form.watch("aliquote_iva");
+  // Ensure IDs are present when passing to child components
+  const currentMetodi = ensureMetodiPagamentoIds(form.watch("metodi_pagamento"));
+  const currentAliquote = ensureAliquoteIvaIds(form.watch("aliquote_iva"));
 
   return (
     <Form {...form}>
@@ -154,9 +162,9 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
               name="metodi_pagamento"
               render={({ field }) => (
                 <MetodiPagamentoForm
-                  metodi={field.value}
+                  metodi={currentMetodi}
                   aliquoteIva={currentAliquote}
-                  onChange={field.onChange}
+                  onChange={(metodi) => field.onChange(metodi)}
                 />
               )}
             />
@@ -168,8 +176,8 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
               name="aliquote_iva"
               render={({ field }) => (
                 <AliquoteIvaForm
-                  aliquote={field.value}
-                  onChange={field.onChange}
+                  aliquote={currentAliquote}
+                  onChange={(aliquote) => field.onChange(aliquote)}
                 />
               )}
             />

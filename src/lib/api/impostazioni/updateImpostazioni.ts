@@ -2,6 +2,7 @@
 import { supabase } from "@/lib/supabase";
 import { Impostazioni, ImpostazioniFormData, MetodoPagamentoOption, AliquotaIvaOption } from "@/lib/types/impostazioni";
 import { Json } from "@/integrations/supabase/types";
+import { v4 as uuidv4 } from "uuid";
 
 export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): Promise<Impostazioni | null> {
   try {
@@ -10,11 +11,34 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
       throw new Error("Missing ID for settings update");
     }
 
+    // Ensure we have valid data with required fields
+    const ensureMetodiPagamentoIds = (metodi: any[] = []): MetodoPagamentoOption[] => {
+      return metodi.map(metodo => ({
+        id: metodo.id || uuidv4(),
+        nome: metodo.nome || "",
+        iva_applicabile: metodo.iva_applicabile === true,
+        aliquota_iva: metodo.aliquota_iva || "",
+      }));
+    };
+
+    const ensureAliquoteIvaIds = (aliquote: any[] = []): AliquotaIvaOption[] => {
+      return aliquote.map(aliquota => ({
+        id: aliquota.id || uuidv4(),
+        nome: aliquota.nome || "",
+        percentuale: Number(aliquota.percentuale || 0),
+        descrizione: aliquota.descrizione || "",
+      }));
+    };
+
+    // Process and normalize the data
+    const processedMetodi = data.metodi_pagamento ? ensureMetodiPagamentoIds(data.metodi_pagamento) : [];
+    const processedAliquote = data.aliquote_iva ? ensureAliquoteIvaIds(data.aliquote_iva) : [];
+
+    // Convert to format suitable for the database
     const dataToUpdate: Record<string, any> = {
       ...data,
-      // Convert array objects to JSON compatible format
-      metodi_pagamento: data.metodi_pagamento as unknown as Json,
-      aliquote_iva: data.aliquote_iva as unknown as Json,
+      metodi_pagamento: processedMetodi as unknown as Json,
+      aliquote_iva: processedAliquote as unknown as Json,
     };
 
     const { data: updatedData, error } = await supabase
@@ -34,12 +58,14 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
     }
 
     // Parse JSON fields from database response
-    const metodi = Array.isArray(updatedData.metodi_pagamento) 
-      ? updatedData.metodi_pagamento as unknown as MetodoPagamentoOption[]
+    const metodi_raw = updatedData.metodi_pagamento as unknown;
+    const metodi = Array.isArray(metodi_raw) 
+      ? ensureMetodiPagamentoIds(metodi_raw as any[])
       : [];
     
-    const aliquote = Array.isArray(updatedData.aliquote_iva) 
-      ? updatedData.aliquote_iva as unknown as AliquotaIvaOption[]
+    const aliquote_raw = updatedData.aliquote_iva as unknown;
+    const aliquote = Array.isArray(aliquote_raw) 
+      ? ensureAliquoteIvaIds(aliquote_raw as any[])
       : [];
 
     // Return properly typed data
