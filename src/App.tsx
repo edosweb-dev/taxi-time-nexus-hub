@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/sonner";
@@ -17,6 +16,7 @@ import NuovoServizioPage from './pages/servizi/NuovoServizioPage';
 import ServizioDetailPage from './pages/servizi/ServizioDetailPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ReportPage from './pages/ReportPage';
+import ImpostazioniPage from './pages/ImpostazioniPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -90,6 +90,12 @@ function App() {
             <Route path="/reports" element={
               <AuthGuard allowedRoles={['admin', 'socio', 'cliente']}>
                 <ReportPage />
+              </AuthGuard>
+            } />
+            
+            <Route path="/impostazioni" element={
+              <AuthGuard allowedRoles={['admin', 'socio']}>
+                <ImpostazioniPage />
               </AuthGuard>
             } />
             
