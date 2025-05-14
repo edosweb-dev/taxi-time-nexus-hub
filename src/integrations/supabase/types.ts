@@ -42,45 +42,6 @@ export type Database = {
         }
         Relationships: []
       }
-      impostazioni: {
-        Row: {
-          aliquote_iva: Json | null
-          created_at: string | null
-          email: string | null
-          id: string
-          indirizzo_sede: string | null
-          metodi_pagamento: Json | null
-          nome_azienda: string
-          partita_iva: string | null
-          telefono: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          aliquote_iva?: Json | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          indirizzo_sede?: string | null
-          metodi_pagamento?: Json | null
-          nome_azienda?: string
-          partita_iva?: string | null
-          telefono?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          aliquote_iva?: Json | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          indirizzo_sede?: string | null
-          metodi_pagamento?: Json | null
-          nome_azienda?: string
-          partita_iva?: string | null
-          telefono?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       passeggeri: {
         Row: {
           created_at: string
@@ -232,7 +193,6 @@ export type Database = {
           incasso_ricevuto: number | null
           indirizzo_destinazione: string
           indirizzo_presa: string
-          iva: number | null
           metodo_pagamento: string
           note: string | null
           numero_commessa: string | null
@@ -259,7 +219,6 @@ export type Database = {
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
           indirizzo_presa?: string
-          iva?: number | null
           metodo_pagamento: string
           note?: string | null
           numero_commessa?: string | null
@@ -286,7 +245,6 @@ export type Database = {
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
           indirizzo_presa?: string
-          iva?: number | null
           metodo_pagamento?: string
           note?: string | null
           numero_commessa?: string | null

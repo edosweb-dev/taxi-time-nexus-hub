@@ -36,7 +36,6 @@ export function NuovoServizioForm() {
           indirizzo_destinazione: values.indirizzo_destinazione,
           metodo_pagamento: values.metodo_pagamento,
           note: values.note,
-          iva: values.iva // Aggiungiamo il campo IVA
         },
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,
