@@ -36,6 +36,7 @@ const formSchema = z.object({
       descrizione: z.string().optional(),
     })
   ),
+  id: z.string().optional(),
 });
 
 interface ImpostazioniFormProps {
@@ -49,6 +50,7 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      id: initialData.id,
       nome_azienda: initialData.nome_azienda || "",
       partita_iva: initialData.partita_iva || "",
       telefono: initialData.telefono || "",
@@ -76,7 +78,6 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       // Ensure all objects have the required properties
       const formattedData = {
         ...data,
-        id: initialData.id,
         metodi_pagamento: data.metodi_pagamento.map(metodo => ({
           id: metodo.id,
           nome: metodo.nome,

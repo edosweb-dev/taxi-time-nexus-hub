@@ -27,6 +27,7 @@ export interface Impostazioni {
 }
 
 export interface ImpostazioniFormData {
+  id?: string;
   nome_azienda: string;
   partita_iva?: string;
   indirizzo_sede?: string;

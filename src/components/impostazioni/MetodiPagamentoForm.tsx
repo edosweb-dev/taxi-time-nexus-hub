@@ -61,7 +61,7 @@ export function MetodiPagamentoForm({ metodi, aliquoteIva, onChange }: MetodiPag
               <Label htmlFor={`nome-${metodo.id}`}>Nome</Label>
               <Input
                 id={`nome-${metodo.id}`}
-                value={metodo.nome || ""}
+                value={metodo.nome}
                 onChange={(e) =>
                   handleChangeMetodo(metodo.id, "nome", e.target.value)
                 }
