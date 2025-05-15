@@ -60,3 +60,15 @@ export interface MovimentoAziendaleFormData {
   stato?: MovimentoStato;
   effettuato_da_id?: string;
 }
+
+// Add the GetMovimentiOptions interface
+export interface GetMovimentiOptions {
+  tipo?: MovimentoTipo;
+  dateFrom?: string;
+  dateTo?: string;
+  causale?: string;
+  stato?: MovimentoStato;
+  userId?: string;
+  minImporto?: number;
+  maxImporto?: number;
+}

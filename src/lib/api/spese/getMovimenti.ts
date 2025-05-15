@@ -1,14 +1,6 @@
 
 import { supabase } from "@/lib/supabase";
-import { MovimentoAziendale, MovimentoTipo, MovimentoStato } from "@/lib/types/spese";
-
-interface GetMovimentiOptions {
-  tipo?: MovimentoTipo;
-  daData?: string;
-  aData?: string;
-  stato?: MovimentoStato;
-  effettuatoDaId?: string;
-}
+import { MovimentoAziendale, MovimentoTipo, MovimentoStato, GetMovimentiOptions } from "@/lib/types/spese";
 
 export const getMovimenti = async (options?: GetMovimentiOptions): Promise<MovimentoAziendale[]> => {
   try {
@@ -27,20 +19,32 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
         query = query.eq('tipo', options.tipo);
       }
       
-      if (options.daData) {
-        query = query.gte('data', options.daData);
+      if (options.dateFrom) {
+        query = query.gte('data', options.dateFrom);
       }
       
-      if (options.aData) {
-        query = query.lte('data', options.aData);
+      if (options.dateTo) {
+        query = query.lte('data', options.dateTo);
       }
       
       if (options.stato) {
         query = query.eq('stato', options.stato);
       }
       
-      if (options.effettuatoDaId) {
-        query = query.eq('effettuato_da_id', options.effettuatoDaId);
+      if (options.userId) {
+        query = query.eq('effettuato_da_id', options.userId);
+      }
+      
+      if (options.causale) {
+        query = query.ilike('causale', `%${options.causale}%`);
+      }
+      
+      if (options.minImporto !== undefined) {
+        query = query.gte('importo', options.minImporto);
+      }
+      
+      if (options.maxImporto !== undefined) {
+        query = query.lte('importo', options.maxImporto);
       }
     }
 
@@ -62,10 +66,10 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
         tipo: item.tipo as MovimentoTipo,
         stato: item.stato as MovimentoStato | null,
         // Handle potential null/undefined values safely
-        effettuato_da: item.effettuato_da && typeof item.effettuato_da === 'object' && 'id' in item.effettuato_da 
+        effettuato_da: item.effettuato_da && typeof item.effettuato_da === 'object' 
           ? item.effettuato_da 
           : null,
-        metodo_pagamento: item.metodo_pagamento && typeof item.metodo_pagamento === 'object' && 'id' in item.metodo_pagamento
+        metodo_pagamento: item.metodo_pagamento && typeof item.metodo_pagamento === 'object'
           ? {
               id: item.metodo_pagamento.id,
               nome: item.metodo_pagamento.nome,

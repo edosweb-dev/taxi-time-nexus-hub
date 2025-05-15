@@ -16,7 +16,7 @@ import { CalendarIcon, FilterIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { GetMovimentiOptions } from "@/lib/api/spese";
+import { GetMovimentiOptions } from "@/lib/types/spese";
 import { UserFilterDropdown } from "@/components/shifts/filters";
 
 interface MovimentiFiltersProps {
@@ -49,8 +49,8 @@ export function MovimentiFilters({
     if (causale) filters.causale = causale;
     if (minImporto !== undefined) filters.minImporto = minImporto;
     if (maxImporto !== undefined) filters.maxImporto = maxImporto;
-    if (tipo) filters.tipo = tipo;
-    if (stato) filters.stato = stato;
+    if (tipo) filters.tipo = tipo as any;
+    if (stato) filters.stato = stato as any;
     if (selectedUserId) filters.userId = selectedUserId;
 
     onFiltersChange(filters);

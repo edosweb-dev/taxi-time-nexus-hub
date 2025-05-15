@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,8 +5,8 @@ import { MovimentiFilters } from "@/components/spese/MovimentiFilters";
 import { MovimentiList } from "@/components/spese/MovimentiList";
 import { NuovoMovimentoForm } from "@/components/spese/NuovoMovimentoForm";
 import { useAuth } from "@/contexts/AuthContext";
-import { getMovimenti, GetMovimentiOptions } from "@/lib/api/spese";
-import { MovimentoAziendale } from "@/lib/types/spese";
+import { getMovimenti } from "@/lib/api/spese";
+import { MovimentoAziendale, GetMovimentiOptions } from "@/lib/types/spese";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/components/ui/use-toast";
 
