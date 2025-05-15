@@ -5,3 +5,4 @@ export * from './getMetodiPagamento';
 export * from './getMovimenti';
 export * from './createMovimento';
 export * from './convertSpesaToMovimento';
+export * from '../types/spese';
