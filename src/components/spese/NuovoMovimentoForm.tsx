@@ -56,7 +56,7 @@ export function NuovoMovimentoForm({ onMovimentoCreated }: NuovoMovimentoFormPro
     defaultValues: {
       data: new Date(),
       importo: 0, // Default value to ensure it's never undefined
-      causale: "",
+      causale: "", // Empty string as default
       note: "",
       tipo: "spesa",
       stato: "pending",
@@ -100,10 +100,21 @@ export function NuovoMovimentoForm({ onMovimentoCreated }: NuovoMovimentoFormPro
         movimentoData.effettuato_da_id = undefined;
       }
 
+      // Ensure causale is never empty (required by MovimentoAziendaleFormData)
+      if (!movimentoData.causale || movimentoData.causale.trim() === '') {
+        toast({
+          title: "Errore",
+          description: "Il campo causale è obbligatorio.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const formattedData: MovimentoAziendaleFormData = {
         ...movimentoData,
         data: format(data.data, "yyyy-MM-dd"),
-        importo: Number(data.importo), // Ensure it's a number and not undefined
+        importo: Number(data.importo), // Ensure it's a number
+        causale: movimentoData.causale.trim(), // Ensure causale is trimmed and defined
       };
 
       await createMovimento(formattedData);

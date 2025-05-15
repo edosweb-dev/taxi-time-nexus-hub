@@ -53,7 +53,7 @@ export interface SpesaPersonaleFormData {
 export interface MovimentoAziendaleFormData {
   data: string;
   importo: number; // This is required
-  causale: string;
+  causale: string; // This is required
   note?: string;
   tipo: MovimentoTipo;
   metodo_pagamento_id?: string;

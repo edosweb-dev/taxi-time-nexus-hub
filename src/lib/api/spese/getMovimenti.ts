@@ -72,9 +72,9 @@ export const getMovimenti = async (options?: GetMovimentiOptions): Promise<Movim
         ...item,
         tipo: item.tipo as MovimentoTipo,
         stato: item.stato as MovimentoStato,
-        // Handle potential null/undefined values
-        effettuato_da: item.effettuato_da || null,
-        metodo_pagamento: item.metodo_pagamento ? {
+        // Handle potential null/undefined values safely
+        effettuato_da: item.effettuato_da && typeof item.effettuato_da === 'object' && 'id' in item.effettuato_da ? item.effettuato_da : null,
+        metodo_pagamento: item.metodo_pagamento && typeof item.metodo_pagamento === 'object' ? {
           id: item.metodo_pagamento.id,
           nome: item.metodo_pagamento.nome,
           descrizione: item.metodo_pagamento.descrizione,
