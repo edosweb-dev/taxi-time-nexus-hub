@@ -30,7 +30,19 @@ export const createMovimento = async (data: MovimentoAziendaleFormData): Promise
       throw error;
     }
 
-    return newMovimento as MovimentoAziendale;
+    // Ensure the returned data conforms to the MovimentoAziendale type
+    // Handle potentially missing fields or null values
+    const safeMovimento: MovimentoAziendale = {
+      ...newMovimento,
+      tipo: newMovimento.tipo,
+      stato: newMovimento.stato || null,
+      effettuato_da: newMovimento.effettuato_da && typeof newMovimento.effettuato_da === 'object' ? 
+        newMovimento.effettuato_da : null,
+      metodo_pagamento: newMovimento.metodo_pagamento && typeof newMovimento.metodo_pagamento === 'object' ? 
+        newMovimento.metodo_pagamento : undefined
+    };
+
+    return safeMovimento;
   } catch (error) {
     console.error('Error creating movimento:', error);
     throw error;
