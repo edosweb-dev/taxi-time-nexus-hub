@@ -61,6 +61,16 @@ export interface MovimentoAziendaleFormData {
   effettuato_da_id?: string;
 }
 
+// Rename GetSpeseOptions to match our pattern
+export interface GetSpeseOptions {
+  userId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  causale?: string;
+  minImporto?: number;
+  maxImporto?: number;
+}
+
 // Add the GetMovimentiOptions interface
 export interface GetMovimentiOptions {
   tipo?: MovimentoTipo;

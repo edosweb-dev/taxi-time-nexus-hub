@@ -1,15 +1,6 @@
 
 import { supabase } from "@/lib/supabase";
-import { SpesaPersonale } from "@/lib/types/spese";
-
-export interface GetSpeseOptions {
-  userId?: string;
-  dateFrom?: string;
-  dateTo?: string;
-  minImporto?: number;
-  maxImporto?: number;
-  causale?: string;
-}
+import { SpesaPersonale, GetSpeseOptions } from "@/lib/types/spese";
 
 export const getSpese = async (options?: GetSpeseOptions): Promise<SpesaPersonale[]> => {
   try {
