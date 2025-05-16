@@ -52,6 +52,11 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
       setServizi(result);
     } catch (error) {
       console.error('Error loading servizi:', error);
+      toast({
+        title: "Errore",
+        description: 'Si è verificato un errore nel caricamento dei servizi.',
+        variant: "destructive",
+      });
     } finally {
       setIsLoadingServizi(false);
     }
@@ -73,6 +78,14 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
         return;
       }
       
+      console.log("Generando report con i seguenti parametri:", {
+        aziendaId: data.aziendaId,
+        referenteId: data.referenteId,
+        month: parseInt(data.month),
+        year: parseInt(data.year),
+        serviziCount: serviziIds.length
+      });
+      
       const result = await generateReport({
         aziendaId: data.aziendaId,
         referenteId: data.referenteId,
@@ -83,10 +96,12 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
       });
       
       if (result) {
+        console.log("Report generato con successo, chiusura del form");
         onCancel(); // Close the form after successful generation
       }
     } catch (error) {
       console.error('Error generating report:', error);
+      // Toast error is already shown in the useGenerateReport hook
     } finally {
       setIsLoading(false);
     }

@@ -6,7 +6,8 @@ import {
   ReportFormFilters,
   ServizioSelectionHeader,
   ServizioSelectionTable,
-  FormActions
+  FormActions,
+  ReportLoader
 } from './components';
 
 interface ReportGeneratorFormProps {
@@ -39,47 +40,50 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
   const monthName = monthOptions.find(m => m.value === watchMonth)?.label || '';
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <ReportFormFilters 
-          form={form}
-          aziende={aziende}
-          referenti={referenti}
-          selectedAziendaId={selectedAziendaId}
-          monthOptions={monthOptions}
-          yearOptions={yearOptions}
-        />
+    <>
+      <ReportLoader isLoading={isLoading} />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <ReportFormFilters 
+            form={form}
+            aziende={aziende}
+            referenti={referenti}
+            selectedAziendaId={selectedAziendaId}
+            monthOptions={monthOptions}
+            yearOptions={yearOptions}
+          />
 
-        {/* Service display section */}
-        {watchAziendaId && watchReferenteId && watchMonth && watchYear && (
-          <div className="mt-6">
-            <ServizioSelectionHeader 
-              aziendaName={aziendaName}
-              referenteName={referenteName}
-              monthName={monthName}
-              year={watchYear}
-            />
+          {/* Service display section */}
+          {watchAziendaId && watchReferenteId && watchMonth && watchYear && (
+            <div className="mt-6">
+              <ServizioSelectionHeader 
+                aziendaName={aziendaName}
+                referenteName={referenteName}
+                monthName={monthName}
+                year={watchYear}
+              />
 
-            <ServizioSelectionTable 
-              servizi={servizi}
-              isLoading={isLoadingServizi}
-            />
+              <ServizioSelectionTable 
+                servizi={servizi}
+                isLoading={isLoadingServizi}
+              />
 
-            {servizi.length > 0 && (
-              <div className="mt-2 text-sm text-gray-600">
-                Servizi trovati: {servizi.length}
-              </div>
-            )}
-          </div>
-        )}
+              {servizi.length > 0 && (
+                <div className="mt-2 text-sm text-gray-600">
+                  Servizi trovati: {servizi.length}
+                </div>
+              )}
+            </div>
+          )}
 
-        <FormActions 
-          onCancel={onCancel}
-          isLoading={isLoading}
-          isDisabled={!watchReferenteId || servizi.length === 0}
-          serviziCount={servizi.length}
-        />
-      </form>
-    </Form>
+          <FormActions 
+            onCancel={onCancel}
+            isLoading={isLoading}
+            isDisabled={!watchReferenteId || servizi.length === 0}
+            serviziCount={servizi.length}
+          />
+        </form>
+      </Form>
+    </>
   );
 };

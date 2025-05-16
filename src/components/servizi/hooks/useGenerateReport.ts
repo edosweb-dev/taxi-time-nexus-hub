@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { Servizio } from '@/lib/types/servizi';
 import { toast } from '@/components/ui/use-toast';
 
@@ -142,6 +142,8 @@ export const useGenerateReport = () => {
         throw error;
       }
       
+      console.log("Report generato con successo:", data);
+      
       toast({
         title: 'Report generato',
         description: 'Il report è stato generato con successo.',
@@ -149,12 +151,12 @@ export const useGenerateReport = () => {
       
       return data;
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unexpected error generating report:', error);
       toast({
         title: 'Errore',
         description: 'Si è verificato un errore nella generazione del report. ' + 
-          'Potrebbe essere un problema di permessi o di configurazione del bucket di storage.',
+          (error.message || 'Potrebbe essere un problema di permessi o di configurazione del bucket di storage.'),
         variant: 'destructive',
       });
       throw error;
