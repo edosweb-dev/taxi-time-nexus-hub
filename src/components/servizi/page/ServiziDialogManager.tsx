@@ -10,37 +10,32 @@ import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 interface ServiziDialogManagerProps {
   onRefetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Servizio[], Error>>;
+  selectedServizio: Servizio | null;
+  showAssegnazioneDialog: boolean;
+  setShowAssegnazioneDialog: (show: boolean) => void;
+  showCompletaDialog: boolean;
+  setShowCompletaDialog: (show: boolean) => void;
+  showFirmaDialog: boolean;
+  setShowFirmaDialog: (show: boolean) => void;
+  onClose: () => void;
 }
 
-export const ServiziDialogManager = ({ onRefetch }: ServiziDialogManagerProps) => {
+export const ServiziDialogManager = ({ 
+  onRefetch,
+  selectedServizio,
+  showAssegnazioneDialog,
+  setShowAssegnazioneDialog,
+  showCompletaDialog,
+  setShowCompletaDialog,
+  showFirmaDialog,
+  setShowFirmaDialog,
+  onClose
+}: ServiziDialogManagerProps) => {
   const navigate = useNavigate();
   const { users } = useUsers();
   
-  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
-  const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
-  const [showCompletaDialog, setShowCompletaDialog] = useState(false);
-  const [showFirmaDialog, setShowFirmaDialog] = useState(false);
-  
-  const handleSelectServizio = (servizio: Servizio) => {
-    setSelectedServizio(servizio);
-    setShowAssegnazioneDialog(true);
-  };
-  
-  const handleCompleta = (servizio: Servizio) => {
-    setSelectedServizio(servizio);
-    setShowCompletaDialog(true);
-  };
-  
-  const handleFirma = (servizio: Servizio) => {
-    setSelectedServizio(servizio);
-    setShowFirmaDialog(true);
-  };
-  
   const handleDialogClose = () => {
-    setShowAssegnazioneDialog(false);
-    setShowCompletaDialog(false);
-    setShowFirmaDialog(false);
-    setSelectedServizio(null);
+    onClose();
     onRefetch();
   };
 

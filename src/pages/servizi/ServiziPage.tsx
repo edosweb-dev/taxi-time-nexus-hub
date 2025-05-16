@@ -6,6 +6,7 @@ import { ServiziDialogManager } from "@/components/servizi/page/ServiziDialogMan
 import { useServiziPage } from "@/hooks/useServiziPage";
 import { useState } from "react";
 import { CalendarView } from "@/components/servizi/calendar/CalendarView";
+import { Servizio } from "@/lib/types/servizi";
 
 export default function ServiziPage() {
   const {
@@ -21,9 +22,28 @@ export default function ServiziPage() {
   } = useServiziPage();
 
   const [showCalendarView, setShowCalendarView] = useState(false);
+  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
+  const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
+  const [showCompletaDialog, setShowCompletaDialog] = useState(false);
+  const [showFirmaDialog, setShowFirmaDialog] = useState(false);
   
   const handleShowCalendarView = () => {
     setShowCalendarView(!showCalendarView);
+  };
+
+  const handleSelectServizio = (servizio: Servizio) => {
+    setSelectedServizio(servizio);
+    setShowAssegnazioneDialog(true);
+  };
+  
+  const handleCompleta = (servizio: Servizio) => {
+    setSelectedServizio(servizio);
+    setShowCompletaDialog(true);
+  };
+  
+  const handleFirma = (servizio: Servizio) => {
+    setSelectedServizio(servizio);
+    setShowFirmaDialog(true);
   };
 
   return (
@@ -52,15 +72,28 @@ export default function ServiziPage() {
             isMobile={isMobile}
             onNavigateToDetail={handleNavigateToDetail}
             onNavigateToNewServizio={handleNavigateToNewServizio}
-            onSelectServizio={(servizio) => {}}
-            onCompleta={(servizio) => {}}
-            onFirma={(servizio) => {}}
+            onSelectServizio={handleSelectServizio}
+            onCompleta={handleCompleta}
+            onFirma={handleFirma}
             allServizi={servizi}
           />
         )}
         
         <ServiziDialogManager 
           onRefetch={refetch}
+          selectedServizio={selectedServizio}
+          showAssegnazioneDialog={showAssegnazioneDialog}
+          setShowAssegnazioneDialog={setShowAssegnazioneDialog}
+          showCompletaDialog={showCompletaDialog}
+          setShowCompletaDialog={setShowCompletaDialog}
+          showFirmaDialog={showFirmaDialog}
+          setShowFirmaDialog={setShowFirmaDialog}
+          onClose={() => {
+            setShowAssegnazioneDialog(false);
+            setShowCompletaDialog(false);
+            setShowFirmaDialog(false);
+            setSelectedServizio(null);
+          }}
         />
       </div>
     </MainLayout>
