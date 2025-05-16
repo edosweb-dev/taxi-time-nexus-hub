@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Users, Building, Receipt, CreditCard } from 'lucide-react';
+import { Calendar, Clock, Users, Building } from 'lucide-react';
 
 export default function DashboardPage() {
   const { profile } = useAuth();
@@ -97,43 +97,23 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-primary/30 shadow-md">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Receipt className="h-5 w-5 text-primary" />
-                Spese Personali
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                Spese
               </CardTitle>
               <CardDescription>
-                Gestisci le tue spese personali
+                Gestisci le spese aziendali
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col space-y-2">
-              <p className="text-sm">Registra e monitora le tue spese personali di lavoro.</p>
-              <Button onClick={handleNavigate('/spese')} className="mt-2">
-                Vai alle spese personali
+              <p className="text-sm">Monitora e gestisci le spese aziendali.</p>
+              <Button variant="outline" className="mt-2" onClick={handleNavigate('/expenses')}>
+                Vai alle spese
               </Button>
             </CardContent>
           </Card>
-
-          {isAdminOrSocio && (
-            <Card className="border-primary/30 shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-primary" />
-                  Movimenti Aziendali
-                </CardTitle>
-                <CardDescription>
-                  Gestisci le spese e gli incassi aziendali
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col space-y-2">
-                <p className="text-sm">Monitora e gestisci tutti i movimenti finanziari dell'azienda.</p>
-                <Button onClick={handleNavigate('/movimenti')} className="mt-2">
-                  Vai ai movimenti
-                </Button>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </MainLayout>
