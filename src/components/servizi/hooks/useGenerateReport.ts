@@ -48,7 +48,7 @@ export const useGenerateReport = () => {
       referenteId: referenteId
     });
     
-    // First fetch all servizi regardless of status to debug
+    // First fetch all servizi regardless of status for debugging
     const { data: allServizi, error: allServiziError } = await supabase
       .from('servizi')
       .select('*')
@@ -60,6 +60,11 @@ export const useGenerateReport = () => {
       
     if (allServiziError) {
       console.error('Error fetching all servizi:', allServiziError);
+      toast({
+        title: 'Errore',
+        description: `Errore nel recupero dei servizi: ${allServiziError.message}`,
+        variant: 'destructive',
+      });
       return [];
     }
     
@@ -80,6 +85,11 @@ export const useGenerateReport = () => {
       
     if (error) {
       console.error('Error fetching consuntivati servizi:', error);
+      toast({
+        title: 'Errore',
+        description: `Errore nel recupero dei servizi consuntivati: ${error.message}`,
+        variant: 'destructive',
+      });
       return [];
     }
     
@@ -101,7 +111,26 @@ export const useGenerateReport = () => {
     return data as Servizio[];
   };
   
-  // Function to generate PDF report - MODIFIED to fetch data directly
+  // Function to check if storage bucket exists
+  const checkBucketExists = async (): Promise<boolean> => {
+    try {
+      const { data: buckets, error } = await supabase.storage.listBuckets();
+      
+      if (error) {
+        console.error('Error checking storage buckets:', error);
+        return false;
+      }
+      
+      const bucketExists = buckets.some(bucket => bucket.name === 'report_aziende');
+      console.log('Storage bucket check:', bucketExists ? 'report_aziende exists' : 'report_aziende does NOT exist');
+      return bucketExists;
+    } catch (error: any) {
+      console.error('Error checking if bucket exists:', error);
+      return false;
+    }
+  };
+  
+  // Function to generate PDF report
   const generateReport = async (params: GenerateReportParams) => {
     try {
       console.log('Generating report with params:', params);
@@ -111,6 +140,17 @@ export const useGenerateReport = () => {
         toast({
           title: 'Parametri mancanti',
           description: 'Verifica di aver selezionato tutti i parametri necessari e almeno un servizio.',
+          variant: 'destructive',
+        });
+        return null;
+      }
+      
+      // Check if bucket exists
+      const bucketExists = await checkBucketExists();
+      if (!bucketExists) {
+        toast({
+          title: 'Errore',
+          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore.',
           variant: 'destructive',
         });
         return null;
@@ -167,5 +207,6 @@ export const useGenerateReport = () => {
     fetchServizi,
     generateReport,
     setFilterParams,
+    checkBucketExists
   };
 };

@@ -6,23 +6,30 @@ import { useAziende } from '@/hooks/useAziende';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
-import { DownloadIcon, EyeIcon, Loader2 } from 'lucide-react';
+import { DownloadIcon, EyeIcon, Loader2, TrashIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ReportPDF } from './ReportPDF';
 import { usePasseggeriCounts } from '@/components/servizi/hooks/usePasseggeriCounts';
 import { useServizi } from '@/hooks/useServizi';
 import { ReportGeneratorDialog } from './ReportGeneratorDialog';
+import { DeleteReportDialog } from './components/DeleteReportDialog';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const ReportsList = () => {
-  const { reports, isLoading, downloadReport } = useReports();
+  const { reports, isLoading, downloadReport, deleteReport, isDeletingReport } = useReports();
   const { users } = useUsers();
   const { aziende } = useAziende();
   const { servizi } = useServizi();
   const { passeggeriCounts } = usePasseggeriCounts();
+  const { profile } = useAuth();
   
   const [viewingReport, setViewingReport] = useState<string | null>(null);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<string | null>(null);
+  
+  // Check if user is admin or socio
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
   // Get the currently viewed report
   const currentReport = reports.find(r => r.id === viewingReport);
@@ -45,6 +52,17 @@ export const ReportsList = () => {
   
   const getMonthName = (monthNum: number) => {
     return format(new Date(2022, monthNum - 1, 1), 'MMMM', { locale: it });
+  };
+
+  const handleDeleteClick = (reportId: string) => {
+    setReportToDelete(reportId);
+  };
+  
+  const handleConfirmDelete = () => {
+    if (reportToDelete) {
+      deleteReport(reportToDelete);
+      // Dialog will be closed automatically if deletion succeeds due to isDeletingReport
+    }
   };
   
   if (isLoading) {
@@ -107,6 +125,17 @@ export const ReportsList = () => {
                   <DownloadIcon className="h-4 w-4 mr-1" /> 
                   Scarica
                 </Button>
+                
+                {isAdminOrSocio && (
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => handleDeleteClick(report.id)}
+                  >
+                    <TrashIcon className="h-4 w-4 mr-1" /> 
+                    Elimina
+                  </Button>
+                )}
               </div>
             </div>
           ))}
@@ -132,6 +161,14 @@ export const ReportsList = () => {
       
       {/* Report Generator Dialog */}
       <ReportGeneratorDialog open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen} />
+      
+      {/* Delete Confirmation Dialog */}
+      <DeleteReportDialog 
+        open={!!reportToDelete} 
+        onOpenChange={(open) => !open && setReportToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeletingReport}
+      />
     </>
   );
 };

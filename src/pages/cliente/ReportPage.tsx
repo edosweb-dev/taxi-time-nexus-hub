@@ -14,7 +14,7 @@ import {
 
 export default function ReportPage() {
   const { profile } = useAuth();
-  const { reports, downloadReport } = useReports();
+  const { reports, downloadReport, deleteReport, isDeletingReport } = useReports();
   const [selectedMonth, setSelectedMonth] = useState<string>(new Date().getMonth() + 1 + '');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear() + '');
   const [filteredReports, setFilteredReports] = useState<any[]>([]);
@@ -85,6 +85,8 @@ export default function ReportPage() {
               <ClientReportList 
                 filteredReports={filteredReports}
                 downloadReport={downloadReport}
+                deleteReport={profile?.role === 'admin' ? deleteReport : undefined}
+                isDeletingReport={isDeletingReport}
               />
             ) : (
               <ClientEmptyReport />
@@ -94,4 +96,4 @@ export default function ReportPage() {
       </div>
     </ClientDashboardLayout>
   );
-}
+};

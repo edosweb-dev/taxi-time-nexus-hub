@@ -2,19 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
-
-export interface Report {
-  id: string;
-  azienda_id: string;
-  referente_id: string;
-  month: number;
-  year: number;
-  created_at: string;
-  created_by: string;
-  file_path: string;
-  file_name: string;
-  servizi_ids: string[];
-}
+import { Report } from '@/lib/types';
 
 export const useReports = () => {
   const queryClient = useQueryClient();
@@ -91,10 +79,71 @@ export const useReports = () => {
     }
   };
   
+  // New delete report mutation
+  const deleteReportMutation = useMutation({
+    mutationFn: async (reportId: string) => {
+      // Find the report
+      const report = reports.find(r => r.id === reportId);
+      if (!report) {
+        throw new Error('Report non trovato');
+      }
+
+      console.log('Deleting report:', reportId, 'File path:', report.file_path);
+      
+      // First, delete the file from storage
+      const { error: storageError } = await supabase.storage
+        .from('report_aziende')
+        .remove([report.file_path]);
+        
+      if (storageError) {
+        console.error('Error deleting report file:', storageError);
+        throw storageError;
+      }
+      
+      console.log('Report file deleted successfully, now deleting database record');
+      
+      // Then, delete the report record
+      const { error: dbError } = await supabase
+        .from('reports')
+        .delete()
+        .eq('id', reportId);
+        
+      if (dbError) {
+        console.error('Error deleting report record:', dbError);
+        throw dbError;
+      }
+      
+      console.log('Report deleted successfully');
+      return reportId;
+    },
+    onSuccess: () => {
+      // Invalidate the reports query to refetch the updated list
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+      toast({
+        title: 'Successo',
+        description: 'Report eliminato con successo',
+      });
+    },
+    onError: (error: any) => {
+      console.error('Error in delete mutation:', error);
+      toast({
+        title: 'Errore',
+        description: `Impossibile eliminare il report: ${error.message || 'Si è verificato un errore'}`,
+        variant: 'destructive',
+      });
+    }
+  });
+  
+  const deleteReport = (reportId: string) => {
+    deleteReportMutation.mutate(reportId);
+  };
+  
   return {
     reports,
     isLoading,
     error,
     downloadReport,
+    deleteReport,
+    isDeletingReport: deleteReportMutation.isPending
   };
 };
