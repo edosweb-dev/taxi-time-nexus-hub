@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,8 +6,8 @@ import { SpesaListFilters } from "@/components/spese/SpesaListFilters";
 import { SpesaList } from "@/components/spese/SpesaList";
 import { ConvertSpesaDialog } from "@/components/spese/ConvertSpesaDialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSpese, GetSpeseOptions } from "@/lib/api/spese";
-import { SpesaPersonale } from "@/lib/types/spese";
+import { getSpese } from "@/lib/api/spese";
+import { SpesaPersonale, GetSpeseOptions } from "@/lib/types/spese";
 
 export default function SpesePage() {
   const { profile } = useAuth();

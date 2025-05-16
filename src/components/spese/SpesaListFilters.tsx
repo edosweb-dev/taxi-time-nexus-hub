@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { GetSpeseOptions } from "@/lib/api/spese";
 import { format } from "date-fns";
+import { GetSpeseOptions } from "@/lib/types/spese";
 import { UserFilterDropdown } from "@/components/shifts/filters";
 import {
   DateRangeFilter,
