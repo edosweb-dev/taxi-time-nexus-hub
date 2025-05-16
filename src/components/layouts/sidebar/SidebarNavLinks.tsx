@@ -1,5 +1,6 @@
+
 import { useAuth } from '@/contexts/AuthContext';
-import { BarChart4, Calendar, ClipboardList, FilePlus, FileText, Home, Settings, ShoppingBag, UserCircle, Users } from 'lucide-react';
+import { BarChart4, Calendar, ClipboardList, FilePlus, FileText, Home, Settings, ShoppingBag, UserCircle, Users, CreditCard, Wallet } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export function SidebarNavLinks() {
@@ -84,6 +85,34 @@ export function SidebarNavLinks() {
         </NavLink>
         
         <NavLink 
+          to="/spese" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
+              isActive 
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
+            }`
+          }
+        >
+          <CreditCard className="mr-3 h-5 w-5" />
+          Spese
+        </NavLink>
+        
+        <NavLink 
+          to="/movimenti" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
+              isActive 
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
+            }`
+          }
+        >
+          <Wallet className="mr-3 h-5 w-5" />
+          Movimenti
+        </NavLink>
+        
+        <NavLink 
           to="/impostazioni" 
           className={({ isActive }) => 
             `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
@@ -160,6 +189,20 @@ export function SidebarNavLinks() {
         >
           <ClipboardList className="mr-3 h-5 w-5" />
           Servizi
+        </NavLink>
+
+        <NavLink 
+          to="/spese" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
+              isActive 
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
+            }`
+          }
+        >
+          <CreditCard className="mr-3 h-5 w-5" />
+          Spese
         </NavLink>
       </nav>
     );
