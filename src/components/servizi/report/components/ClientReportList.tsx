@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, TrashIcon } from 'lucide-react';
@@ -30,7 +31,8 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   const { profile } = useAuth();
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   
-  const handleDeleteClick = (reportId: string) => {
+  const handleDeleteClick = (reportId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
     console.log('Setting report to delete:', reportId);
     setReportToDelete(reportId);
   };
@@ -39,8 +41,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
     if (reportToDelete && deleteReport) {
       console.log('Confirming delete for report:', reportToDelete);
       deleteReport(reportToDelete);
-      // We'll keep the dialog open until the deletion process completes
-      // When the isDeletingReport becomes false, the dialog will close automatically via useEffect
+      // The dialog will stay open during deletion
     }
   };
 
@@ -74,7 +75,10 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
                 variant="outline"
                 size="icon"
                 title="Scarica Report"
-                onClick={() => downloadReport(report.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  downloadReport(report.id);
+                }}
               >
                 <DownloadIcon className="h-4 w-4" />
               </Button>
@@ -84,7 +88,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
                   variant="destructive" 
                   size="icon"
                   title="Elimina Report"
-                  onClick={() => handleDeleteClick(report.id)}
+                  onClick={(e) => handleDeleteClick(report.id, e)}
                 >
                   <TrashIcon className="h-4 w-4" />
                 </Button>

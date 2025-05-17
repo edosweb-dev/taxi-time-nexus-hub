@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
@@ -90,48 +89,43 @@ export const useReports = () => {
 
       console.log('Deleting report:', reportId, 'File path:', report.file_path);
       
-      try {
-        // First, delete the file from storage
-        const { error: storageError } = await supabase.storage
-          .from('report_aziende')
-          .remove([report.file_path]);
-          
-        if (storageError) {
-          console.error('Error deleting report file:', storageError);
-          throw storageError;
-        }
+      // First, delete the file from storage
+      const { error: storageError } = await supabase.storage
+        .from('report_aziende')
+        .remove([report.file_path]);
         
-        console.log('Report file deleted successfully, now deleting database record');
-        
-        // Then, delete the report record
-        const { error: dbError } = await supabase
-          .from('reports')
-          .delete()
-          .eq('id', reportId);
-          
-        if (dbError) {
-          console.error('Error deleting report record:', dbError);
-          throw dbError;
-        }
-        
-        console.log('Report deleted successfully');
-        return reportId;
-      } catch (error: any) {
-        console.error('Error in deletion process:', error);
-        throw error;
+      if (storageError) {
+        console.error('Error deleting report file:', storageError);
+        throw storageError;
       }
+      
+      console.log('Report file deleted successfully, now deleting database record');
+      
+      // Then, delete the report record
+      const { error: dbError } = await supabase
+        .from('reports')
+        .delete()
+        .eq('id', reportId);
+        
+      if (dbError) {
+        console.error('Error deleting report record:', dbError);
+        throw dbError;
+      }
+      
+      console.log('Report deleted successfully');
+      return reportId;
     },
     onSuccess: (deletedId) => {
       console.log('Mutation completed successfully for report:', deletedId);
-      
-      // Force a refetch to get the updated list
-      queryClient.invalidateQueries({ queryKey: ['reports'] });
       
       // Remove the deleted report from the cache immediately
       queryClient.setQueryData(['reports'], (oldData: Report[] | undefined) => {
         if (!oldData) return [];
         return oldData.filter(report => report.id !== deletedId);
       });
+      
+      // Force a refetch to ensure we have the updated list
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
       
       toast({
         title: 'Successo',

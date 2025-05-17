@@ -30,11 +30,12 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     event.stopPropagation();
     console.log('Delete confirmation button clicked, calling onConfirm');
     onConfirm();
+    // Don't close the dialog here - we'll handle this with useEffect based on isDeleting state
   };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
           <AlertDialogDescription>
@@ -43,7 +44,7 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Annulla</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting} onClick={(e) => e.stopPropagation()}>Annulla</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}

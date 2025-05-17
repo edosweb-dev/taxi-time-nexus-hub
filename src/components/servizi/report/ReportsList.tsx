@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useReports } from '@/components/servizi/hooks/useReports';
 import { useUsers } from '@/hooks/useUsers';
@@ -54,7 +53,8 @@ export const ReportsList = () => {
     return format(new Date(2022, monthNum - 1, 1), 'MMMM', { locale: it });
   };
 
-  const handleDeleteClick = (reportId: string) => {
+  const handleDeleteClick = (reportId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
     console.log('Setting report to delete in ReportsList:', reportId);
     setReportToDelete(reportId);
   };
@@ -123,7 +123,10 @@ export const ReportsList = () => {
                   variant="outline" 
                   size="icon"
                   title="Visualizza"
-                  onClick={() => setViewingReport(report.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setViewingReport(report.id);
+                  }}
                 >
                   <EyeIcon className="h-4 w-4" /> 
                 </Button>
@@ -131,7 +134,10 @@ export const ReportsList = () => {
                   variant="default" 
                   size="icon"
                   title="Scarica"
-                  onClick={() => downloadReport(report.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadReport(report.id);
+                  }}
                 >
                   <DownloadIcon className="h-4 w-4" /> 
                 </Button>
@@ -141,7 +147,7 @@ export const ReportsList = () => {
                     variant="destructive" 
                     size="icon"
                     title="Elimina"
-                    onClick={() => handleDeleteClick(report.id)}
+                    onClick={(e) => handleDeleteClick(report.id, e)}
                   >
                     <TrashIcon className="h-4 w-4" /> 
                   </Button>
