@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useReports } from '@/components/servizi/hooks/useReports';
 import { useUsers } from '@/hooks/useUsers';
 import { useAziende } from '@/hooks/useAziende';
@@ -63,9 +63,17 @@ export const ReportsList = () => {
     if (reportToDelete) {
       console.log('Confirming delete in ReportsList for report:', reportToDelete);
       deleteReport(reportToDelete);
-      // The dialog will be closed automatically when deletion completes
+      // Dialog will stay open until deletion completes
     }
   };
+  
+  // Close the dialog when deletion completes
+  useEffect(() => {
+    if (!isDeletingReport && reportToDelete) {
+      console.log('Deletion completed in ReportsList, closing dialog');
+      setReportToDelete(null);
+    }
+  }, [isDeletingReport]);
   
   if (isLoading) {
     return (

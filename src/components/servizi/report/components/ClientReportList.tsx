@@ -40,9 +40,17 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
       console.log('Confirming delete for report:', reportToDelete);
       deleteReport(reportToDelete);
       // We'll keep the dialog open until the deletion process completes
-      // The dialog will close due to isDeletingReport changing when operation completes
+      // When the isDeletingReport becomes false, the dialog will close automatically via useEffect
     }
   };
+
+  // Close the dialog when deletion completes
+  React.useEffect(() => {
+    if (!isDeletingReport && reportToDelete) {
+      console.log('Deletion completed, closing dialog');
+      setReportToDelete(null);
+    }
+  }, [isDeletingReport]);
 
   return (
     <>

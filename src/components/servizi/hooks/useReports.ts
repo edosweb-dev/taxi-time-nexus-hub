@@ -18,7 +18,7 @@ export const useReports = () => {
         
       if (error) {
         console.error('Error fetching reports:', error);
-        return [];
+        throw error; // This will trigger the error boundary in React Query
       }
       
       console.log(`Retrieved ${data?.length || 0} reports`);
@@ -123,8 +123,16 @@ export const useReports = () => {
     },
     onSuccess: (deletedId) => {
       console.log('Mutation completed successfully for report:', deletedId);
-      // Invalidate the reports query to refetch the updated list
+      
+      // Force a refetch to get the updated list
       queryClient.invalidateQueries({ queryKey: ['reports'] });
+      
+      // Remove the deleted report from the cache immediately
+      queryClient.setQueryData(['reports'], (oldData: Report[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.filter(report => report.id !== deletedId);
+      });
+      
       toast({
         title: 'Successo',
         description: 'Report eliminato con successo',
