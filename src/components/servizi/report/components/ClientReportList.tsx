@@ -49,7 +49,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
             key={report.id}
             className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md hover:bg-muted/30 transition-colors"
           >
-            <div className="space-y-1 mb-3 sm:mb-0">
+            <div className="space-y-1 mb-3 sm:mb-0 flex-grow">
               <h3 className="font-medium">
                 Report {format(new Date(report.year, report.month - 1), 'MMMM yyyy', { locale: it })}
               </h3>
@@ -60,19 +60,22 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
             </div>
             <div className="flex space-x-2">
               <Button 
+                variant="outline"
+                size="icon"
+                title="Scarica Report"
                 onClick={() => downloadReport(report.id)}
               >
-                <DownloadIcon className="mr-2 h-4 w-4" />
-                Scarica Report
+                <DownloadIcon className="h-4 w-4" />
               </Button>
               
               {deleteReport && profile?.role === 'admin' && (
                 <Button 
                   variant="destructive" 
+                  size="icon"
+                  title="Elimina Report"
                   onClick={() => handleDeleteClick(report.id)}
                 >
-                  <TrashIcon className="mr-2 h-4 w-4" />
-                  Elimina
+                  <TrashIcon className="h-4 w-4" />
                 </Button>
               )}
             </div>

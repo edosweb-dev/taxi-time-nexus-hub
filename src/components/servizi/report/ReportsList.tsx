@@ -98,7 +98,7 @@ export const ReportsList = () => {
               key={report.id}
               className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md hover:bg-muted/30 transition-colors"
             >
-              <div className="space-y-1 mb-3 sm:mb-0">
+              <div className="space-y-1 mb-3 sm:mb-0 flex-grow">
                 <h3 className="font-medium">
                   {getCompanyName(report.azienda_id)} - {getMonthName(report.month)} {report.year}
                 </h3>
@@ -111,29 +111,29 @@ export const ReportsList = () => {
               <div className="flex space-x-2">
                 <Button 
                   variant="outline" 
-                  size="sm"
+                  size="icon"
+                  title="Visualizza"
                   onClick={() => setViewingReport(report.id)}
                 >
-                  <EyeIcon className="h-4 w-4 mr-1" /> 
-                  Visualizza
+                  <EyeIcon className="h-4 w-4" /> 
                 </Button>
                 <Button 
                   variant="default" 
-                  size="sm"
+                  size="icon"
+                  title="Scarica"
                   onClick={() => downloadReport(report.id)}
                 >
-                  <DownloadIcon className="h-4 w-4 mr-1" /> 
-                  Scarica
+                  <DownloadIcon className="h-4 w-4" /> 
                 </Button>
                 
                 {isAdminOrSocio && (
                   <Button 
                     variant="destructive" 
-                    size="sm"
+                    size="icon"
+                    title="Elimina"
                     onClick={() => handleDeleteClick(report.id)}
                   >
-                    <TrashIcon className="h-4 w-4 mr-1" /> 
-                    Elimina
+                    <TrashIcon className="h-4 w-4" /> 
                   </Button>
                 )}
               </div>

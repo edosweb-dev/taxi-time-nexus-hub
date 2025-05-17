@@ -22,8 +22,8 @@ export const ReportPageHeader: React.FC<ReportPageHeaderProps> = ({
       </div>
       <div className="flex gap-2">
         {isAdminOrSocio && (
-          <Button onClick={openGenerateDialog}>
-            <PlusCircle className="mr-2 h-4 w-4" />
+          <Button onClick={openGenerateDialog} size="sm">
+            <PlusCircle className="h-4 w-4 mr-1" />
             Genera Report
           </Button>
         )}

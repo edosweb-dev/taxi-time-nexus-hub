@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 
 interface FormActionsProps {
   onCancel: () => void;
@@ -37,17 +37,20 @@ export const FormActions: React.FC<FormActionsProps> = ({
         type="button" 
         onClick={onCancel}
         disabled={isLoading}
+        size="sm"
       >
+        <X className="h-4 w-4 mr-1" />
         Annulla
       </Button>
       <Button 
         type="submit" 
         disabled={isLoading || isDisabled}
         onClick={handleSubmitClick}
+        size="sm"
       >
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
             Generazione...
           </>
         ) : (
