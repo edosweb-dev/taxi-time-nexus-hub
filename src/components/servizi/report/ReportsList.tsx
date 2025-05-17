@@ -55,13 +55,15 @@ export const ReportsList = () => {
   };
 
   const handleDeleteClick = (reportId: string) => {
+    console.log('Setting report to delete in ReportsList:', reportId);
     setReportToDelete(reportId);
   };
   
   const handleConfirmDelete = () => {
     if (reportToDelete) {
+      console.log('Confirming delete in ReportsList for report:', reportToDelete);
       deleteReport(reportToDelete);
-      // Dialog will be closed automatically if deletion succeeds due to isDeletingReport
+      // The dialog will be closed automatically when deletion completes
     }
   };
   
@@ -165,7 +167,10 @@ export const ReportsList = () => {
       {/* Delete Confirmation Dialog */}
       <DeleteReportDialog 
         open={!!reportToDelete} 
-        onOpenChange={(open) => !open && setReportToDelete(null)}
+        onOpenChange={(open) => {
+          console.log('Dialog open state changing in ReportsList:', open);
+          if (!open) setReportToDelete(null);
+        }}
         onConfirm={handleConfirmDelete}
         isDeleting={isDeletingReport}
       />

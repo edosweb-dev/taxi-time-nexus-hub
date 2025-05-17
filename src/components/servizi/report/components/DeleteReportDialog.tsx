@@ -25,10 +25,9 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   onConfirm,
   isDeleting
 }) => {
-  const handleConfirm = (e: React.MouseEvent) => {
-    // Prevent the default action 
-    e.preventDefault();
+  const handleConfirm = () => {
     // Call the onConfirm callback provided by parent
+    console.log('Delete confirmation button clicked');
     onConfirm();
   };
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, TrashIcon } from 'lucide-react';
@@ -32,6 +31,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   
   const handleDeleteClick = (reportId: string) => {
+    console.log('Setting report to delete:', reportId);
     setReportToDelete(reportId);
   };
   
@@ -39,7 +39,8 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
     if (reportToDelete && deleteReport) {
       console.log('Confirming delete for report:', reportToDelete);
       deleteReport(reportToDelete);
-      // Dialog will close automatically due to state change when deletion completes
+      // We'll keep the dialog open until the deletion process completes
+      // The dialog will close due to isDeletingReport changing when operation completes
     }
   };
 
@@ -90,6 +91,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
         <DeleteReportDialog 
           open={!!reportToDelete} 
           onOpenChange={(open) => {
+            console.log('Dialog open state changing to:', open);
             if (!open) setReportToDelete(null);
           }}
           onConfirm={handleConfirmDelete}

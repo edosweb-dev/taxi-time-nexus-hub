@@ -90,33 +90,39 @@ export const useReports = () => {
 
       console.log('Deleting report:', reportId, 'File path:', report.file_path);
       
-      // First, delete the file from storage
-      const { error: storageError } = await supabase.storage
-        .from('report_aziende')
-        .remove([report.file_path]);
+      try {
+        // First, delete the file from storage
+        const { error: storageError } = await supabase.storage
+          .from('report_aziende')
+          .remove([report.file_path]);
+          
+        if (storageError) {
+          console.error('Error deleting report file:', storageError);
+          throw storageError;
+        }
         
-      if (storageError) {
-        console.error('Error deleting report file:', storageError);
-        throw storageError;
-      }
-      
-      console.log('Report file deleted successfully, now deleting database record');
-      
-      // Then, delete the report record
-      const { error: dbError } = await supabase
-        .from('reports')
-        .delete()
-        .eq('id', reportId);
+        console.log('Report file deleted successfully, now deleting database record');
         
-      if (dbError) {
-        console.error('Error deleting report record:', dbError);
-        throw dbError;
+        // Then, delete the report record
+        const { error: dbError } = await supabase
+          .from('reports')
+          .delete()
+          .eq('id', reportId);
+          
+        if (dbError) {
+          console.error('Error deleting report record:', dbError);
+          throw dbError;
+        }
+        
+        console.log('Report deleted successfully');
+        return reportId;
+      } catch (error: any) {
+        console.error('Error in deletion process:', error);
+        throw error;
       }
-      
-      console.log('Report deleted successfully');
-      return reportId;
     },
-    onSuccess: () => {
+    onSuccess: (deletedId) => {
+      console.log('Mutation completed successfully for report:', deletedId);
       // Invalidate the reports query to refetch the updated list
       queryClient.invalidateQueries({ queryKey: ['reports'] });
       toast({
@@ -135,6 +141,7 @@ export const useReports = () => {
   });
   
   const deleteReport = (reportId: string) => {
+    console.log('DeleteReport function called with ID:', reportId);
     deleteReportMutation.mutate(reportId);
   };
   
