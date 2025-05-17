@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
-import { Report } from '@/lib/types';
+import { Report } from '@/lib/types/index';
 
 export const useReports = () => {
   const queryClient = useQueryClient();
@@ -79,7 +79,7 @@ export const useReports = () => {
     }
   };
   
-  // New delete report mutation
+  // Delete report mutation
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
       // Find the report

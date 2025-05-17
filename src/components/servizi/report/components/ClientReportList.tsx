@@ -37,7 +37,9 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   
   const handleConfirmDelete = () => {
     if (reportToDelete && deleteReport) {
+      console.log('Confirming delete for report:', reportToDelete);
       deleteReport(reportToDelete);
+      // Dialog will close automatically due to state change when deletion completes
     }
   };
 
@@ -87,7 +89,9 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
       {deleteReport && (
         <DeleteReportDialog 
           open={!!reportToDelete} 
-          onOpenChange={(open) => !open && setReportToDelete(null)}
+          onOpenChange={(open) => {
+            if (!open) setReportToDelete(null);
+          }}
           onConfirm={handleConfirmDelete}
           isDeleting={isDeletingReport}
         />

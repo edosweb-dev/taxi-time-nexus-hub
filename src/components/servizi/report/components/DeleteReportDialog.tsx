@@ -25,6 +25,13 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   onConfirm,
   isDeleting
 }) => {
+  const handleConfirm = (e: React.MouseEvent) => {
+    // Prevent the default action 
+    e.preventDefault();
+    // Call the onConfirm callback provided by parent
+    onConfirm();
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -38,10 +45,7 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Annulla</AlertDialogCancel>
           <AlertDialogAction
-            onClick={(e) => {
-              e.preventDefault();
-              onConfirm();
-            }}
+            onClick={handleConfirm}
             disabled={isDeleting}
             className="bg-destructive hover:bg-destructive/90"
           >
