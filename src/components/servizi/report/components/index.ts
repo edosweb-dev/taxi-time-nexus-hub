@@ -15,3 +15,4 @@ export * from './ClientReportList';
 export * from './ClientEmptyReport';
 export * from './ReportFormFilters';
 export * from './DeleteReportDialog';
+export * from './ReportGeneratorLoader';
