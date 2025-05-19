@@ -49,14 +49,16 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   // Reset lo stato quando il dialogo si apre
   useEffect(() => {
     if (open) {
+      console.log('[DeleteReportDialog] Dialog opened, resetting delete attempt state');
       setHasAttemptedDelete(false);
     }
   }, [open]);
 
   // Close the dialog when deletion completes (isDeleting goes from true to false)
   useEffect(() => {
+    console.log('[DeleteReportDialog] isDeleting:', isDeleting, 'hasAttemptedDelete:', hasAttemptedDelete, 'open:', open);
     if (!isDeleting && hasAttemptedDelete && open) {
-      console.log('Deletion completed, closing dialog after attempt');
+      console.log('[DeleteReportDialog] Deletion completed, closing dialog after attempt');
       // This timeout ensures that the toast message is visible before the dialog closes
       setTimeout(() => onOpenChange(false), 500);
     }
@@ -66,14 +68,17 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     <AlertDialog 
       open={open} 
       onOpenChange={(newOpen) => {
+        console.log('[DeleteReportDialog] Dialog open state change requested:', newOpen);
+        
         // Blocca la chiusura automatica se sta eliminando
         if (isDeleting && !newOpen) {
-          console.log('Blocking dialog close during deletion');
+          console.log('[DeleteReportDialog] Blocking dialog close during deletion');
           return;
         }
         
         // Se l'utente sta tentando di chiudere senza aver confermato o annullato, permetti la chiusura
         if (!newOpen && !hasAttemptedDelete) {
+          console.log('[DeleteReportDialog] Resetting delete attempt state on dialog close');
           setHasAttemptedDelete(false);
         }
         

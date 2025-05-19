@@ -96,14 +96,17 @@ export const downloadReportFile = async (reportId: string, reports: Report[]): P
 
 // Delete a report by ID
 export const deleteReportFile = async (reportId: string, reports: Report[]): Promise<string> => {
+  console.log('[deleteReportFile] INIZIO con reportId:', reportId);
+  
   // Find the report
   const report = reports.find(r => r.id === reportId);
   if (!report) {
-    console.error('Report not found for ID:', reportId);
+    console.error('[deleteReportFile] Report not found for ID:', reportId);
     throw new Error('Report non trovato');
   }
 
-  console.log('Deleting report:', reportId, 'File path:', report.file_path);
+  console.log('[deleteReportFile] Report trovato:', report);
+  console.log('[deleteReportFile] Eliminazione file da storage:', report.file_path);
   
   try {
     // Show deletion in progress toast
@@ -113,13 +116,15 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
     });
     
     // First, delete the file from storage
-    console.log('Attempting to delete file from storage bucket:', report.file_path);
+    console.log('[deleteReportFile] Tentativo eliminazione file da bucket:', report.file_path);
     const { data: storageData, error: storageError } = await supabase.storage
       .from('report_aziende')
       .remove([report.file_path]);
       
+    console.log('[deleteReportFile] Storage remove result:', storageData);
+      
     if (storageError) {
-      console.error('Error deleting report file from storage:', storageError);
+      console.error('[deleteReportFile] Errore eliminazione file da storage:', storageError);
       toast({
         title: "Errore storage",
         description: `Impossibile eliminare il file report: ${storageError.message}`,
@@ -128,18 +133,18 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
       throw storageError;
     }
     
-    console.log('Report file deleted successfully from storage:', storageData);
-    
     // Then, delete the report record from the database
-    console.log('Attempting to delete report record from database:', reportId);
+    console.log('[deleteReportFile] Tentativo eliminazione record da database:', reportId);
     const { data: dbData, error: dbError } = await supabase
       .from('reports')
       .delete()
       .eq('id', reportId)
       .select();
       
+    console.log('[deleteReportFile] DB delete result:', dbData);
+      
     if (dbError) {
-      console.error('Error deleting report record from database:', dbError);
+      console.error('[deleteReportFile] Errore eliminazione record dal database:', dbError);
       toast({
         title: "Errore database",
         description: `Impossibile eliminare il record del report: ${dbError.message}`,
@@ -148,7 +153,7 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
       throw dbError;
     }
     
-    console.log('Report deleted successfully from database:', dbData);
+    console.log('[deleteReportFile] Report eliminato con successo:', reportId);
     toast({
       title: "Successo",
       description: "Il report è stato eliminato con successo",
@@ -156,7 +161,7 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
     
     return reportId;
   } catch (error: any) {
-    console.error('Error in deletion process:', error);
+    console.error('[deleteReportFile] Errore nel processo di eliminazione:', error);
     toast({
       title: "Errore eliminazione",
       description: `Si è verificato un errore: ${error.message || 'Errore sconosciuto'}`,

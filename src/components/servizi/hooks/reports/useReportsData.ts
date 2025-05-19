@@ -25,12 +25,12 @@ export const useReportsData = () => {
   // Mutation for deleting a report
   const deleteReportMutation = useMutation({
     mutationFn: (reportId: string) => {
-      console.log('DeleteReportMutation executing with reportId:', reportId);
+      console.log('[deleteReport] Chiamata mutation con ID:', reportId);
       return deleteReportFile(reportId, reports);
     },
     onMutate: async (deletedId) => {
       // Cancel any outgoing refetches
-      console.log('Starting delete mutation for report ID:', deletedId);
+      console.log('[deleteReport] Starting delete mutation for report ID:', deletedId);
       await queryClient.cancelQueries({ queryKey: ['reports'] });
       
       // Snapshot the previous value
@@ -38,7 +38,7 @@ export const useReportsData = () => {
       
       // Optimistically update to the new value
       queryClient.setQueryData(['reports'], (old: Report[] | undefined) => {
-        console.log('Optimistically removing report from cache:', deletedId);
+        console.log('[deleteReport] Optimistically removing report from cache:', deletedId);
         return old ? old.filter(report => report.id !== deletedId) : [];
       });
       
@@ -46,7 +46,7 @@ export const useReportsData = () => {
       return { previousReports };
     },
     onSuccess: (deletedId) => {
-      console.log('Mutation completed successfully for report:', deletedId);
+      console.log('[deleteReport] Mutation completed successfully for report:', deletedId);
       
       toast({
         title: 'Successo',
@@ -54,15 +54,15 @@ export const useReportsData = () => {
       });
       
       // Invalidate to ensure we're in sync with the server
-      console.log('Invalidating reports query after successful deletion');
+      console.log('[deleteReport] Invalidating reports query after successful deletion');
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
     onError: (error: any, deletedId, context) => {
-      console.error('Error in delete mutation:', error);
+      console.error('[deleteReport] Errore nella mutation:', error);
       
       // Rollback to the previous state
       if (context?.previousReports) {
-        console.log('Rolling back to previous state due to error');
+        console.log('[deleteReport] Rolling back to previous state due to error');
         queryClient.setQueryData(['reports'], context.previousReports);
       }
       
@@ -73,7 +73,7 @@ export const useReportsData = () => {
       });
     },
     onSettled: () => {
-      console.log('Delete mutation settled, invalidating reports query');
+      console.log('[deleteReport] Mutation conclusa, invalidating reports query');
       // Always refetch after error or success to make sure our local data is correct
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     }
@@ -81,7 +81,7 @@ export const useReportsData = () => {
   
   // Wrapper function for delete mutation
   const deleteReport = (reportId: string) => {
-    console.log('DeleteReport function called with ID:', reportId);
+    console.log('[deleteReport] DeleteReport function called with ID:', reportId);
     deleteReportMutation.mutate(reportId);
   };
   
