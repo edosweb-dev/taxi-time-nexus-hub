@@ -32,8 +32,10 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     // Important: Stop event propagation to prevent other handlers from interfering
     event.preventDefault();
     event.stopPropagation();
+    console.log('[DeleteReportDialog] handleConfirm called');
     console.log('[DeleteReportDialog] Delete confirmation button clicked, calling onConfirm');
     setHasAttemptedDelete(true); // Memorizziamo che l'utente ha tentato l'eliminazione
+    console.log('[DeleteReportDialog] invoking deleteReport');
     onConfirm();
     // Don't close the dialog here - we'll handle this with useEffect based on isDeleting state
   };

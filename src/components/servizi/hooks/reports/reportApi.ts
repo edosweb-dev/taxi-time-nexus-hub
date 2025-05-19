@@ -126,8 +126,8 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
       
     if (storageError) {
       console.error('[deleteReportFile] Errore eliminazione file da storage:', storageError);
-      console.error('[deleteReportFile] Codice errore:', storageError.code);
       console.error('[deleteReportFile] Messaggio errore:', storageError.message);
+      // Rimuoviamo il riferimento a storageError.code che non esiste
       
       toast({
         title: "Errore storage",
@@ -197,4 +197,3 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
     throw error;
   }
 };
-

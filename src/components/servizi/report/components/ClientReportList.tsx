@@ -35,13 +35,14 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   const handleDeleteClick = (reportId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    console.log('Setting report to delete:', reportId);
+    console.log('[ClientReportList] Setting report to delete:', reportId);
     setReportToDelete(reportId);
   };
   
   const handleConfirmDelete = () => {
     if (reportToDelete && deleteReport) {
-      console.log('Confirming delete for report:', reportToDelete);
+      console.log('[ClientReportList] Confirming delete for report:', reportToDelete);
+      console.log('[ClientReportList] invoking deleteReport');
       deleteReport(reportToDelete);
       // The dialog will stay open during deletion
     }
@@ -50,7 +51,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   // Close the dialog when deletion completes
   useEffect(() => {
     if (!isDeletingReport && reportToDelete) {
-      console.log('Deletion completed, closing dialog');
+      console.log('[ClientReportList] Deletion completed, closing dialog');
       setReportToDelete(null);
     }
   }, [isDeletingReport]);
@@ -114,7 +115,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
         <DeleteReportDialog 
           open={!!reportToDelete} 
           onOpenChange={(open) => {
-            console.log('Dialog open state changing to:', open);
+            console.log('[ClientReportList] Dialog open state changing to:', open);
             if (!open) setReportToDelete(null);
           }}
           onConfirm={handleConfirmDelete}
