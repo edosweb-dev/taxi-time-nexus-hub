@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Form } from '@/components/ui/form';
 import { useReportGeneratorForm } from '../hooks/useReportGeneratorForm';
 import {
@@ -28,6 +28,8 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
     aziende
   } = useReportGeneratorForm(onCancel);
 
+  const formRef = useRef<HTMLFormElement>(null);
+  
   const watchAziendaId = form.watch('aziendaId');
   const watchReferenteId = form.watch('referenteId');
   const watchMonth = form.watch('month');
@@ -41,6 +43,9 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
   
   const handleFormSubmit = form.handleSubmit((data) => {
     console.log("Form submitted with data:", data);
+    if (formRef.current) {
+      formRef.current.dataset.submitting = 'true';
+    }
     onSubmit(data);
   });
 
@@ -48,7 +53,7 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
     <>
       <ReportLoader isLoading={isLoading} />
       <Form {...form}>
-        <form onSubmit={handleFormSubmit} className="space-y-6">
+        <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6">
           <ReportFormFilters 
             form={form}
             aziende={aziende}

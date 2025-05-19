@@ -18,8 +18,10 @@ export const FormActions: React.FC<FormActionsProps> = ({
   serviziCount = 0
 }) => {
   // Show a message when there are no services available
-  const handleSubmitClick = () => {
+  const handleSubmitClick = (e: React.MouseEvent) => {
     if (isDisabled) {
+      e.preventDefault(); // Prevent form submission if disabled
+      
       if (serviziCount === 0) {
         toast({
           title: "Nessun servizio disponibile",

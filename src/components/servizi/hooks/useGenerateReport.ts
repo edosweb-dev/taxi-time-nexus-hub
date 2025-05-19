@@ -114,18 +114,40 @@ export const useGenerateReport = () => {
   // Function to check if storage bucket exists
   const checkBucketExists = async (): Promise<boolean> => {
     try {
+      console.log('Checking if report_aziende storage bucket exists...');
+      
       const { data: buckets, error } = await supabase.storage.listBuckets();
       
       if (error) {
         console.error('Error checking storage buckets:', error);
+        toast({
+          title: 'Errore',
+          description: `Errore nel verificare i bucket di storage: ${error.message}`,
+          variant: 'destructive',
+        });
         return false;
       }
       
       const bucketExists = buckets.some(bucket => bucket.name === 'report_aziende');
       console.log('Storage bucket check:', bucketExists ? 'report_aziende exists' : 'report_aziende does NOT exist');
+      
+      if (!bucketExists) {
+        console.error('Storage bucket "report_aziende" does not exist');
+        toast({
+          title: 'Errore',
+          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore.',
+          variant: 'destructive',
+        });
+      }
+      
       return bucketExists;
     } catch (error: any) {
       console.error('Error checking if bucket exists:', error);
+      toast({
+        title: 'Errore',
+        description: `Errore nel verificare il bucket di storage: ${error.message}`,
+        variant: 'destructive',
+      });
       return false;
     }
   };
@@ -137,6 +159,8 @@ export const useGenerateReport = () => {
       
       // Validate required params
       if (!params.aziendaId || !params.referenteId || !params.month || !params.year || !params.serviziIds || params.serviziIds.length === 0) {
+        const errorMessage = 'Parametri mancanti o incompleti per la generazione del report';
+        console.error(errorMessage, params);
         toast({
           title: 'Parametri mancanti',
           description: 'Verifica di aver selezionato tutti i parametri necessari e almeno un servizio.',
@@ -148,12 +172,7 @@ export const useGenerateReport = () => {
       // Check if bucket exists
       const bucketExists = await checkBucketExists();
       if (!bucketExists) {
-        toast({
-          title: 'Errore',
-          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore.',
-          variant: 'destructive',
-        });
-        return null;
+        return null; // Already showed toast in checkBucketExists
       }
       
       // Update filter params for the UI state
@@ -172,7 +191,7 @@ export const useGenerateReport = () => {
       });
       
       if (error) {
-        console.error('Error generating report:', error);
+        console.error('Error generating report from edge function:', error);
         toast({
           title: 'Errore',
           description: 'Si è verificato un errore nella generazione del report: ' + 
@@ -180,6 +199,17 @@ export const useGenerateReport = () => {
           variant: 'destructive',
         });
         throw error;
+      }
+      
+      if (!data) {
+        const errorMessage = 'La edge function non ha restituito dati';
+        console.error(errorMessage);
+        toast({
+          title: 'Errore',
+          description: 'La edge function non ha restituito dati. Controlla i log della edge function.',
+          variant: 'destructive',
+        });
+        throw new Error(errorMessage);
       }
       
       console.log("Report generato con successo:", data);

@@ -17,13 +17,34 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
     onOpenChange(false);
   };
 
+  const handlePointerDownOutside = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Prevent closing the dialog if form is being submitted
+    const form = document.querySelector('form');
+    if (form?.dataset.submitting === 'true') {
+      console.log('Preventing dialog close during form submission');
+      e.preventDefault();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(newOpen) => {
+        // Only allow closing if we're not currently submitting
+        const form = document.querySelector('form');
+        if (form?.dataset.submitting === 'true' && !newOpen) {
+          console.log('Blocking dialog close during submission');
+          return;
+        }
+        onOpenChange(newOpen);
+      }}
+    >
       <DialogContent 
         className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto"
-        onPointerDownOutside={(e) => {
-          // Prevent clicks outside from dismissing if form is being submitted
-          if (document.querySelector('form')?.dataset.submitting === 'true') {
+        onPointerDownOutside={handlePointerDownOutside}
+        onInteractOutside={(e) => {
+          const form = document.querySelector('form');
+          if (form?.dataset.submitting === 'true') {
             e.preventDefault();
           }
         }}

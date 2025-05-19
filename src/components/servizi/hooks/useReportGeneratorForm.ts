@@ -24,7 +24,7 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingServizi, setIsLoadingServizi] = useState(false);
   
-  const { fetchServizi, generateReport } = useGenerateReport();
+  const { fetchServizi, generateReport, checkBucketExists } = useGenerateReport();
   
   const form = useForm<ReportFormValues>({
     defaultValues: {
@@ -65,7 +65,20 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
   const onSubmit = async (data: ReportFormValues) => {
     console.log("Form submitted, starting report generation with data:", data);
     setIsLoading(true);
+    
     try {
+      // Check if bucket exists first
+      const bucketExists = await checkBucketExists();
+      if (!bucketExists) {
+        toast({
+          title: "Errore",
+          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore.',
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       // Use all servizi IDs
       const serviziIds = servizi.map(s => s.id);
       
@@ -104,11 +117,20 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
         });
         onCancel(); // Close the form after successful generation
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating report:', error);
-      // Toast error is already shown in the useGenerateReport hook
+      toast({
+        title: "Errore nella generazione del report",
+        description: error?.message || 'Si è verificato un errore nella generazione del report.',
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
+      // Reset form submitting state
+      const form = document.querySelector('form');
+      if (form) {
+        form.dataset.submitting = 'false';
+      }
     }
   };
 

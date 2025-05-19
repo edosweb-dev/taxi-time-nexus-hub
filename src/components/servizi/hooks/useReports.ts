@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
@@ -89,56 +90,79 @@ export const useReports = () => {
 
       console.log('Deleting report:', reportId, 'File path:', report.file_path);
       
-      // First, delete the file from storage
-      const { error: storageError } = await supabase.storage
-        .from('report_aziende')
-        .remove([report.file_path]);
+      try {
+        // First, delete the file from storage
+        const { error: storageError } = await supabase.storage
+          .from('report_aziende')
+          .remove([report.file_path]);
+          
+        if (storageError) {
+          console.error('Error deleting report file:', storageError);
+          throw storageError;
+        }
         
-      if (storageError) {
-        console.error('Error deleting report file:', storageError);
-        throw storageError;
-      }
-      
-      console.log('Report file deleted successfully, now deleting database record');
-      
-      // Then, delete the report record
-      const { error: dbError } = await supabase
-        .from('reports')
-        .delete()
-        .eq('id', reportId);
+        console.log('Report file deleted successfully, now deleting database record');
         
-      if (dbError) {
-        console.error('Error deleting report record:', dbError);
-        throw dbError;
+        // Then, delete the report record
+        const { error: dbError } = await supabase
+          .from('reports')
+          .delete()
+          .eq('id', reportId);
+          
+        if (dbError) {
+          console.error('Error deleting report record:', dbError);
+          throw dbError;
+        }
+        
+        console.log('Report deleted successfully');
+        return reportId;
+      } catch (error) {
+        console.error('Error in deletion process:', error);
+        throw error;
       }
+    },
+    onMutate: async (deletedId) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['reports'] });
       
-      console.log('Report deleted successfully');
-      return reportId;
+      // Snapshot the previous value
+      const previousReports = queryClient.getQueryData(['reports']);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData(['reports'], (old: Report[] | undefined) => {
+        return old ? old.filter(report => report.id !== deletedId) : [];
+      });
+      
+      // Return a context object with the snapshotted value
+      return { previousReports };
     },
     onSuccess: (deletedId) => {
       console.log('Mutation completed successfully for report:', deletedId);
-      
-      // Remove the deleted report from the cache immediately
-      queryClient.setQueryData(['reports'], (oldData: Report[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.filter(report => report.id !== deletedId);
-      });
-      
-      // Force a refetch to ensure we have the updated list
-      queryClient.invalidateQueries({ queryKey: ['reports'] });
       
       toast({
         title: 'Successo',
         description: 'Report eliminato con successo',
       });
+      
+      // No need to invalidate, we already updated the cache optimistically
     },
-    onError: (error: any) => {
+    onError: (error: any, deletedId, context) => {
       console.error('Error in delete mutation:', error);
+      
+      // Rollback to the previous state
+      if (context?.previousReports) {
+        queryClient.setQueryData(['reports'], context.previousReports);
+      }
+      
       toast({
         title: 'Errore',
         description: `Impossibile eliminare il report: ${error.message || 'Si è verificato un errore'}`,
         variant: 'destructive',
       });
+    },
+    onSettled: () => {
+      // Always refetch after error or success to make sure our local data is correct
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
     }
   });
   

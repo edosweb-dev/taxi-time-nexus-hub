@@ -27,10 +27,18 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
 }) => {
   const handleConfirm = (event: React.MouseEvent) => {
     // Important: Stop event propagation to prevent other handlers from interfering
+    event.preventDefault();
     event.stopPropagation();
     console.log('Delete confirmation button clicked, calling onConfirm');
     onConfirm();
     // Don't close the dialog here - we'll handle this with useEffect based on isDeleting state
+  };
+
+  const handleCancel = (event: React.MouseEvent) => {
+    // Also stop propagation on cancel to prevent any issues
+    event.preventDefault();
+    event.stopPropagation();
+    onOpenChange(false);
   };
 
   return (
@@ -44,7 +52,12 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} onClick={(e) => e.stopPropagation()}>Annulla</AlertDialogCancel>
+          <AlertDialogCancel 
+            disabled={isDeleting} 
+            onClick={handleCancel}
+          >
+            Annulla
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}
