@@ -26,6 +26,7 @@ export const useReportsData = () => {
   const deleteReportMutation = useMutation({
     mutationFn: (reportId: string) => {
       console.log('[deleteReport] Chiamata mutation con ID:', reportId);
+      console.log('[deleteReport] Passando reports con lunghezza:', reports.length);
       return deleteReportFile(reportId, reports);
     },
     onMutate: async (deletedId) => {
@@ -35,11 +36,16 @@ export const useReportsData = () => {
       
       // Snapshot the previous value
       const previousReports = queryClient.getQueryData(['reports']);
+      console.log('[deleteReport] Cached reports before optimistic update:', 
+                 Array.isArray(previousReports) ? previousReports.length : 'no data');
       
       // Optimistically update to the new value
       queryClient.setQueryData(['reports'], (old: Report[] | undefined) => {
         console.log('[deleteReport] Optimistically removing report from cache:', deletedId);
-        return old ? old.filter(report => report.id !== deletedId) : [];
+        console.log('[deleteReport] Old cache size:', old ? old.length : 0);
+        const newData = old ? old.filter(report => report.id !== deletedId) : [];
+        console.log('[deleteReport] New cache size after optimistic update:', newData.length);
+        return newData;
       });
       
       // Return a context object with the snapshotted value
@@ -59,6 +65,8 @@ export const useReportsData = () => {
     },
     onError: (error: any, deletedId, context) => {
       console.error('[deleteReport] Errore nella mutation:', error);
+      console.error('[deleteReport] Error message:', error.message);
+      console.error('[deleteReport] Error stack:', error.stack);
       
       // Rollback to the previous state
       if (context?.previousReports) {
