@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,11 +25,15 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   onConfirm,
   isDeleting
 }) => {
+  // Aggiungiamo uno state per tenere traccia se l'utente ha tentato di eliminare
+  const [hasAttemptedDelete, setHasAttemptedDelete] = useState(false);
+  
   const handleConfirm = (event: React.MouseEvent) => {
     // Important: Stop event propagation to prevent other handlers from interfering
     event.preventDefault();
     event.stopPropagation();
     console.log('Delete confirmation button clicked, calling onConfirm');
+    setHasAttemptedDelete(true); // Memorizziamo che l'utente ha tentato l'eliminazione
     onConfirm();
     // Don't close the dialog here - we'll handle this with useEffect based on isDeleting state
   };
@@ -38,20 +42,44 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     // Also stop propagation on cancel to prevent any issues
     event.preventDefault();
     event.stopPropagation();
+    setHasAttemptedDelete(false); // Reset stato quando annulla
     onOpenChange(false);
   };
 
+  // Reset lo stato quando il dialogo si apre
+  useEffect(() => {
+    if (open) {
+      setHasAttemptedDelete(false);
+    }
+  }, [open]);
+
   // Close the dialog when deletion completes (isDeleting goes from true to false)
   useEffect(() => {
-    if (!isDeleting && open) {
-      console.log('Deletion completed, checking if we should close dialog');
+    if (!isDeleting && hasAttemptedDelete && open) {
+      console.log('Deletion completed, closing dialog after attempt');
       // This timeout ensures that the toast message is visible before the dialog closes
       setTimeout(() => onOpenChange(false), 500);
     }
-  }, [isDeleting, open, onOpenChange]);
+  }, [isDeleting, open, onOpenChange, hasAttemptedDelete]);
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog 
+      open={open} 
+      onOpenChange={(newOpen) => {
+        // Blocca la chiusura automatica se sta eliminando
+        if (isDeleting && !newOpen) {
+          console.log('Blocking dialog close during deletion');
+          return;
+        }
+        
+        // Se l'utente sta tentando di chiudere senza aver confermato o annullato, permetti la chiusura
+        if (!newOpen && !hasAttemptedDelete) {
+          setHasAttemptedDelete(false);
+        }
+        
+        onOpenChange(newOpen);
+      }}
+    >
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
