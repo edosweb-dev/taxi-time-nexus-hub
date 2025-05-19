@@ -95,52 +95,37 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
   // Find the report
   const report = reports.find(r => r.id === reportId);
   if (!report) {
+    console.error('Report not found for ID:', reportId);
     throw new Error('Report non trovato');
   }
 
   console.log('Deleting report:', reportId, 'File path:', report.file_path);
   
   try {
-    // Mostra toast di eliminazione in corso
-    toast({
-      title: "Eliminazione in corso",
-      description: "Eliminazione del report in corso..."
-    });
-    
     // First, delete the file from storage
     const { error: storageError } = await supabase.storage
       .from('report_aziende')
       .remove([report.file_path]);
       
     if (storageError) {
-      console.error('Error deleting report file:', storageError);
-      toast({
-        title: "Errore",
-        description: `Impossibile eliminare il file report: ${storageError.message}`,
-        variant: "destructive",
-      });
+      console.error('Error deleting report file from storage:', storageError);
       throw storageError;
     }
     
-    console.log('Report file deleted successfully, now deleting database record');
+    console.log('Report file deleted successfully from storage, now deleting database record');
     
-    // Then, delete the report record
+    // Then, delete the report record from the database
     const { error: dbError } = await supabase
       .from('reports')
       .delete()
       .eq('id', reportId);
       
     if (dbError) {
-      console.error('Error deleting report record:', dbError);
-      toast({
-        title: "Errore",
-        description: `Impossibile eliminare il record del report: ${dbError.message}`,
-        variant: "destructive",
-      });
+      console.error('Error deleting report record from database:', dbError);
       throw dbError;
     }
     
-    console.log('Report deleted successfully');
+    console.log('Report deleted successfully from database');
     return reportId;
   } catch (error) {
     console.error('Error in deletion process:', error);

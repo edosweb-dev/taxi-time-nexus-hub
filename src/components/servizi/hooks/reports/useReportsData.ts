@@ -27,6 +27,7 @@ export const useReportsData = () => {
     mutationFn: (reportId: string) => deleteReportFile(reportId, reports),
     onMutate: async (deletedId) => {
       // Cancel any outgoing refetches
+      console.log('Starting delete mutation for report ID:', deletedId);
       await queryClient.cancelQueries({ queryKey: ['reports'] });
       
       // Snapshot the previous value
@@ -34,6 +35,7 @@ export const useReportsData = () => {
       
       // Optimistically update to the new value
       queryClient.setQueryData(['reports'], (old: Report[] | undefined) => {
+        console.log('Optimistically removing report from cache:', deletedId);
         return old ? old.filter(report => report.id !== deletedId) : [];
       });
       
@@ -55,6 +57,7 @@ export const useReportsData = () => {
       
       // Rollback to the previous state
       if (context?.previousReports) {
+        console.log('Rolling back to previous state due to error');
         queryClient.setQueryData(['reports'], context.previousReports);
       }
       
@@ -65,6 +68,7 @@ export const useReportsData = () => {
       });
     },
     onSettled: () => {
+      console.log('Delete mutation settled, invalidating reports query');
       // Always refetch after error or success to make sure our local data is correct
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     }
