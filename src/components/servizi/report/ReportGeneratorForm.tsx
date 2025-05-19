@@ -38,12 +38,17 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
   const referenteName = referenti.find(u => u.id === watchReferenteId)?.first_name + ' ' + 
                         referenti.find(u => u.id === watchReferenteId)?.last_name || '';
   const monthName = monthOptions.find(m => m.value === watchMonth)?.label || '';
+  
+  const handleFormSubmit = form.handleSubmit((data) => {
+    console.log("Form submitted with data:", data);
+    onSubmit(data);
+  });
 
   return (
     <>
       <ReportLoader isLoading={isLoading} />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleFormSubmit} className="space-y-6">
           <ReportFormFilters 
             form={form}
             aziende={aziende}

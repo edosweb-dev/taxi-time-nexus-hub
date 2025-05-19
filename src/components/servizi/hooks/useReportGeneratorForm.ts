@@ -63,6 +63,7 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
   };
 
   const onSubmit = async (data: ReportFormValues) => {
+    console.log("Form submitted, starting report generation with data:", data);
     setIsLoading(true);
     try {
       // Use all servizi IDs
@@ -97,6 +98,10 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
       
       if (result) {
         console.log("Report generato con successo, chiusura del form");
+        toast({
+          title: "Successo",
+          description: "Il report è stato generato con successo."
+        });
         onCancel(); // Close the form after successful generation
       }
     } catch (error) {

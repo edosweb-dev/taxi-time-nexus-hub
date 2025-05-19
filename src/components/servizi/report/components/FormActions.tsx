@@ -17,7 +17,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
   isDisabled,
   serviziCount = 0
 }) => {
-  // Funzione per mostrare un messaggio in caso di permessi mancanti
+  // Show a message when there are no services available
   const handleSubmitClick = () => {
     if (isDisabled) {
       if (serviziCount === 0) {
@@ -28,6 +28,8 @@ export const FormActions: React.FC<FormActionsProps> = ({
         });
       }
     }
+    // If not disabled, the form's onSubmit will handle the action
+    console.log('Generate button clicked, disabled:', isDisabled);
   };
 
   return (
