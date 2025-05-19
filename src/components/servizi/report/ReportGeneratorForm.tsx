@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { Form } from '@/components/ui/form';
 import { useReportGeneratorForm } from '../hooks/useReportGeneratorForm';
@@ -7,7 +6,7 @@ import {
   ServizioSelectionHeader,
   ServizioSelectionTable,
   FormActions,
-  ReportLoader
+  ReportGeneratorLoader
 } from './components';
 
 interface ReportGeneratorFormProps {
@@ -51,7 +50,7 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
 
   return (
     <>
-      <ReportLoader isLoading={isLoading} />
+      {isLoading && <ReportGeneratorLoader />}
       <Form {...form}>
         <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6">
           <ReportFormFilters 

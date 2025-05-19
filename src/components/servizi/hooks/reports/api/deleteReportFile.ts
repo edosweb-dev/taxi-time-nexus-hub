@@ -10,8 +10,8 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
   console.log('[deleteReportFile] INIZIO con reportId:', reportId);
   
   try {
-    // Prima recuperiamo il report direttamente dal database per avere i dati più aggiornati
-    // invece di affidarci alla cache locale
+    // First get the report directly from database to have most up-to-date data
+    // instead of relying on the cache
     console.log('[deleteReportFile] Recupero report aggiornato dal database');
     const { data: reportData, error: reportError } = await supabase
       .from('reports')
@@ -38,7 +38,7 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
       description: "Eliminazione del report in corso..."
     });
     
-    // First, delete the file from storage
+    // First delete the file from storage
     console.log('[deleteReportFile] Tentativo eliminazione file da bucket:', report.file_path);
     const { data: storageData, error: storageError } = await supabase.storage
       .from('report_aziende')
@@ -50,7 +50,7 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
       console.error('[deleteReportFile] Errore eliminazione file da storage:', storageError);
       console.error('[deleteReportFile] Messaggio errore:', storageError.message);
       
-      // Controllo se è un problema di permessi
+      // Check if it's a permission issue
       if (storageError.message.includes('permission') || storageError.message.includes('not allowed')) {
         console.error('[deleteReportFile] Problema di permessi sul bucket storage');
         toast({
@@ -59,7 +59,7 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
           variant: "destructive",
         });
       } else if (storageError.message.includes('not found') || storageError.message.includes('does not exist')) {
-        // Se il file non esiste, procediamo comunque con l'eliminazione del record
+        // If the file doesn't exist, proceed with deleting the record anyway
         console.warn('[deleteReportFile] File non trovato nello storage, procedo comunque con eliminazione record');
       } else {
         toast({
@@ -71,7 +71,7 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
       }
     }
     
-    // Then, delete the report record from the database
+    // Then delete the report record from the database
     console.log('[deleteReportFile] Tentativo eliminazione record da database:', reportId);
     const { data: dbData, error: dbError } = await supabase
       .from('reports')

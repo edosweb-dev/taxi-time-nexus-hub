@@ -1,13 +1,11 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as PDFLib from "https://esm.sh/jspdf@2.5.1";
 import autoTable from "https://esm.sh/jspdf-autotable@3.5.29";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 // Handle CORS preflight requests
@@ -346,7 +344,7 @@ serve(async (req: Request) => {
     const filePath = `${aziendaId}/${year}/${month}/${fileName}`;
     console.log("File path for storage:", filePath);
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage with enhanced error handling
     try {
       console.log("Uploading PDF to storage");
       const { data: uploadData, error: uploadError } = await supabaseClient.storage
