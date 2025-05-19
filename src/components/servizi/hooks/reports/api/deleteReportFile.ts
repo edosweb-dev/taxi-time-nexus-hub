@@ -8,19 +8,30 @@ import { toast } from '@/components/ui/use-toast';
  */
 export const deleteReportFile = async (reportId: string, reports: Report[]): Promise<string> => {
   console.log('[deleteReportFile] INIZIO con reportId:', reportId);
-  console.log('[deleteReportFile] Reports disponibili:', reports.length);
-  
-  // Find the report
-  const report = reports.find(r => r.id === reportId);
-  if (!report) {
-    console.error('[deleteReportFile] Report not found for ID:', reportId);
-    throw new Error('Report non trovato');
-  }
-
-  console.log('[deleteReportFile] Report trovato:', report);
-  console.log('[deleteReportFile] Eliminazione file da storage:', report.file_path);
   
   try {
+    // Prima recuperiamo il report direttamente dal database per avere i dati più aggiornati
+    // invece di affidarci alla cache locale
+    console.log('[deleteReportFile] Recupero report aggiornato dal database');
+    const { data: reportData, error: reportError } = await supabase
+      .from('reports')
+      .select('*')
+      .eq('id', reportId)
+      .single();
+      
+    if (reportError) {
+      console.error('[deleteReportFile] Errore nel recuperare il report dal database:', reportError);
+      throw new Error(`Errore nel recuperare il report: ${reportError.message}`);
+    }
+    
+    if (!reportData) {
+      console.error('[deleteReportFile] Report non trovato nel database con ID:', reportId);
+      throw new Error('Report non trovato nel database');
+    }
+    
+    const report = reportData as Report;
+    console.log('[deleteReportFile] Report recuperato dal DB:', report);
+    
     // Show deletion in progress toast
     toast({
       title: "Eliminazione in corso",
@@ -38,20 +49,30 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
     if (storageError) {
       console.error('[deleteReportFile] Errore eliminazione file da storage:', storageError);
       console.error('[deleteReportFile] Messaggio errore:', storageError.message);
-      // Rimuoviamo il riferimento a storageError.code che non esiste
       
-      toast({
-        title: "Errore storage",
-        description: `Impossibile eliminare il file report: ${storageError.message}`,
-        variant: "destructive",
-      });
-      throw storageError;
+      // Controllo se è un problema di permessi
+      if (storageError.message.includes('permission') || storageError.message.includes('not allowed')) {
+        console.error('[deleteReportFile] Problema di permessi sul bucket storage');
+        toast({
+          title: "Errore di permessi",
+          description: "Non hai i permessi necessari per eliminare questo file. Contatta l'amministratore.",
+          variant: "destructive",
+        });
+      } else if (storageError.message.includes('not found') || storageError.message.includes('does not exist')) {
+        // Se il file non esiste, procediamo comunque con l'eliminazione del record
+        console.warn('[deleteReportFile] File non trovato nello storage, procedo comunque con eliminazione record');
+      } else {
+        toast({
+          title: "Errore storage",
+          description: `Impossibile eliminare il file report: ${storageError.message}`,
+          variant: "destructive",
+        });
+        throw storageError;
+      }
     }
     
     // Then, delete the report record from the database
     console.log('[deleteReportFile] Tentativo eliminazione record da database:', reportId);
-    console.log('[deleteReportFile] Parametri query:', { id: reportId });
-    
     const { data: dbData, error: dbError } = await supabase
       .from('reports')
       .delete()
@@ -59,13 +80,9 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
       .select();
       
     console.log('[deleteReportFile] DB delete result:', dbData);
-    console.log('[deleteReportFile] DB delete response status:', dbData ? 'success' : 'empty data');
       
     if (dbError) {
       console.error('[deleteReportFile] Errore eliminazione record dal database:', dbError);
-      console.error('[deleteReportFile] Codice errore DB:', dbError.code);
-      console.error('[deleteReportFile] Messaggio errore DB:', dbError.message);
-      console.error('[deleteReportFile] Dettagli errore DB:', dbError.details);
       
       toast({
         title: "Errore database",
@@ -73,10 +90,6 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
         variant: "destructive",
       });
       throw dbError;
-    }
-    
-    if (!dbData || dbData.length === 0) {
-      console.warn('[deleteReportFile] Record eliminato ma nessun dato restituito');
     }
     
     console.log('[deleteReportFile] Report eliminato con successo:', reportId);
@@ -88,17 +101,6 @@ export const deleteReportFile = async (reportId: string, reports: Report[]): Pro
     return reportId;
   } catch (error: any) {
     console.error('[deleteReportFile] Errore nel processo di eliminazione:', error);
-    console.error('[deleteReportFile] Stack trace:', error.stack);
-    
-    // Check if it's a network error
-    if (error.message && error.message.includes('network')) {
-      console.error('[deleteReportFile] Possibile errore di rete o connessione');
-    }
-    
-    // Log any response status if available
-    if (error.status) {
-      console.error('[deleteReportFile] Status code dell\'errore:', error.status);
-    }
     
     toast({
       title: "Errore eliminazione",
