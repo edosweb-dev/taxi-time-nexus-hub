@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Report } from '@/lib/types/index';
-import { fetchReports, downloadReportFile, deleteReportFile } from './reportApi';
+import { fetchReports, downloadReportFile, deleteReportFile } from './api';
 import { toast } from '@/components/ui/use-toast';
 
 export const useReportsData = () => {
