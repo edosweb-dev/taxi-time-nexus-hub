@@ -2,7 +2,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
-// Rimuovo l'importazione errata di PointerDownOutsideEvent
+// Definiamo un tipo custom compatibile con l'evento di Radix
 
 interface ReportGeneratorDialogProps {
   open: boolean;
@@ -19,12 +19,18 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
   };
 
   // Corretto il tipo dell'evento utilizzando lo standard PointerEvent di React
-  const handlePointerDownOutside = (e: React.MouseEvent | React.PointerEvent) => {
+  const handlePointerDownOutside = (e: CustomEvent<{ originalEvent: PointerEvent }>) => {
     // Prevent closing the dialog if form is being submitted
     const form = document.querySelector('form');
     if (form?.dataset.submitting === 'true') {
       console.log('Preventing dialog close during form submission');
       e.preventDefault();
+      
+      // Accesso all'evento originale se necessario
+      if (e.detail?.originalEvent) {
+        e.detail.originalEvent.preventDefault();
+        console.log('Applied preventDefault to original pointer event');
+      }
     }
   };
 
@@ -43,7 +49,7 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
     >
       <DialogContent 
         className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto"
-        onPointerDownOutside={handlePointerDownOutside}
+        onPointerDownOutside={handlePointerDownOutside as any}
         onInteractOutside={(e) => {
           const form = document.querySelector('form');
           if (form?.dataset.submitting === 'true') {
