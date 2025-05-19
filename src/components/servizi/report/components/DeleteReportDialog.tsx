@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +40,15 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     event.stopPropagation();
     onOpenChange(false);
   };
+
+  // Close the dialog when deletion completes (isDeleting goes from true to false)
+  useEffect(() => {
+    if (!isDeleting && open) {
+      console.log('Deletion completed, checking if we should close dialog');
+      // This timeout ensures that the toast message is visible before the dialog closes
+      setTimeout(() => onOpenChange(false), 500);
+    }
+  }, [isDeleting, open, onOpenChange]);
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

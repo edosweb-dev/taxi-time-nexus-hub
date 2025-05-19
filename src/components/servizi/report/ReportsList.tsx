@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useReports } from '@/components/servizi/hooks/useReports';
 import { useUsers } from '@/hooks/useUsers';
 import { useAziende } from '@/hooks/useAziende';
@@ -54,6 +55,7 @@ export const ReportsList = () => {
   };
 
   const handleDeleteClick = (reportId: string, event: React.MouseEvent) => {
+    event.preventDefault();
     event.stopPropagation();
     console.log('Setting report to delete in ReportsList:', reportId);
     setReportToDelete(reportId);
@@ -66,31 +68,6 @@ export const ReportsList = () => {
       // Dialog will stay open until deletion completes
     }
   };
-  
-  // Close the dialog when deletion completes
-  useEffect(() => {
-    if (!isDeletingReport && reportToDelete) {
-      console.log('Deletion completed in ReportsList, closing dialog');
-      setReportToDelete(null);
-    }
-  }, [isDeletingReport]);
-  
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center space-x-4 p-4 border rounded-md">
-            <Skeleton className="h-12 w-12" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-            <Skeleton className="h-10 w-24" />
-          </div>
-        ))}
-      </div>
-    );
-  }
   
   return (
     <>

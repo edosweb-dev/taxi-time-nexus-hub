@@ -64,6 +64,13 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
 
   const onSubmit = async (data: ReportFormValues) => {
     console.log("Form submitted, starting report generation with data:", data);
+    
+    // Set form submitting state to prevent dialog closure
+    const formElement = document.querySelector('form');
+    if (formElement) {
+      formElement.dataset.submitting = 'true';
+    }
+    
     setIsLoading(true);
     
     try {
@@ -76,6 +83,11 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
           variant: "destructive",
         });
         setIsLoading(false);
+        
+        // Reset form submitting state
+        if (formElement) {
+          formElement.dataset.submitting = 'false';
+        }
         return;
       }
       
@@ -89,6 +101,11 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
           variant: "destructive",
         });
         setIsLoading(false);
+        
+        // Reset form submitting state
+        if (formElement) {
+          formElement.dataset.submitting = 'false';
+        }
         return;
       }
       

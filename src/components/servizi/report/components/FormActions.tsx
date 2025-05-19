@@ -29,6 +29,14 @@ export const FormActions: React.FC<FormActionsProps> = ({
           variant: "destructive",
         });
       }
+    } else {
+      // Quando il pulsante è abilitato e si fa clic su di esso, mostra un toast per dare feedback all'utente
+      if (!isLoading) {
+        toast({
+          title: "Richiesta inviata",
+          description: "Preparazione della generazione del report..."
+        });
+      }
     }
     // If not disabled, the form's onSubmit will handle the action
     console.log('Generate button clicked, disabled:', isDisabled);

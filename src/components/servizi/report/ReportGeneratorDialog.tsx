@@ -2,6 +2,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
+import { PointerDownOutsideEvent } from '@radix-ui/react-dialog';
 
 interface ReportGeneratorDialogProps {
   open: boolean;
@@ -17,7 +18,8 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
     onOpenChange(false);
   };
 
-  const handlePointerDownOutside = (e: React.PointerEvent<HTMLDivElement>) => {
+  // Corretto il tipo del parametro dell'evento per risolvere l'errore TypeScript
+  const handlePointerDownOutside = (e: PointerDownOutsideEvent) => {
     // Prevent closing the dialog if form is being submitted
     const form = document.querySelector('form');
     if (form?.dataset.submitting === 'true') {

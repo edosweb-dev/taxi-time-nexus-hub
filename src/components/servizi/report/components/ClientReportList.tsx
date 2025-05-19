@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, TrashIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { DeleteReportDialog } from './DeleteReportDialog';
+import { toast } from '@/components/ui/use-toast';
 
 interface Report {
   id: string;
@@ -32,6 +33,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   
   const handleDeleteClick = (reportId: string, event: React.MouseEvent) => {
+    event.preventDefault();
     event.stopPropagation();
     console.log('Setting report to delete:', reportId);
     setReportToDelete(reportId);
@@ -46,12 +48,17 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   };
 
   // Close the dialog when deletion completes
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isDeletingReport && reportToDelete) {
       console.log('Deletion completed, closing dialog');
       setReportToDelete(null);
     }
   }, [isDeletingReport]);
+
+  // Helper function to get month name
+  const getMonthName = (month: number) => {
+    return format(new Date(2022, month - 1, 1), 'MMMM', { locale: it });
+  };
 
   return (
     <>
@@ -63,7 +70,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
           >
             <div className="space-y-1 mb-3 sm:mb-0 flex-grow">
               <h3 className="font-medium">
-                Report {format(new Date(report.year, report.month - 1), 'MMMM yyyy', { locale: it })}
+                Report {getMonthName(report.month)} {report.year}
               </h3>
               <p className="text-sm text-muted-foreground">
                 Generato il: {format(new Date(report.created_at), 'dd/MM/yyyy')} | 
@@ -77,6 +84,10 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
                 title="Scarica Report"
                 onClick={(e) => {
                   e.stopPropagation();
+                  toast({
+                    title: "Download richiesto",
+                    description: "Preparazione del report per il download..."
+                  });
                   downloadReport(report.id);
                 }}
               >

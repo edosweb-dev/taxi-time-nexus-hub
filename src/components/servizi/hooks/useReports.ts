@@ -45,6 +45,12 @@ export const useReports = () => {
         throw new Error('Report non trovato');
       }
       
+      // Mostra toast di download in corso
+      toast({
+        title: "Download in corso",
+        description: "Preparazione del download del report..."
+      });
+      
       // Get file from storage
       const { data, error } = await supabase.storage
         .from('report_aziende')
@@ -52,6 +58,11 @@ export const useReports = () => {
         
       if (error) {
         console.error('Error downloading report:', error);
+        toast({
+          title: "Errore",
+          description: `Impossibile scaricare il report: ${error.message}`,
+          variant: "destructive",
+        });
         throw error;
       }
       
@@ -68,6 +79,11 @@ export const useReports = () => {
         URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }, 100);
+      
+      toast({
+        title: "Download completato",
+        description: "Il report è stato scaricato con successo."
+      });
       
     } catch (error: any) {
       console.error('Error downloading report:', error);
@@ -91,6 +107,12 @@ export const useReports = () => {
       console.log('Deleting report:', reportId, 'File path:', report.file_path);
       
       try {
+        // Mostra toast di eliminazione in corso
+        toast({
+          title: "Eliminazione in corso",
+          description: "Eliminazione del report in corso..."
+        });
+        
         // First, delete the file from storage
         const { error: storageError } = await supabase.storage
           .from('report_aziende')
@@ -98,6 +120,11 @@ export const useReports = () => {
           
         if (storageError) {
           console.error('Error deleting report file:', storageError);
+          toast({
+            title: "Errore",
+            description: `Impossibile eliminare il file report: ${storageError.message}`,
+            variant: "destructive",
+          });
           throw storageError;
         }
         
@@ -111,6 +138,11 @@ export const useReports = () => {
           
         if (dbError) {
           console.error('Error deleting report record:', dbError);
+          toast({
+            title: "Errore",
+            description: `Impossibile eliminare il record del report: ${dbError.message}`,
+            variant: "destructive",
+          });
           throw dbError;
         }
         

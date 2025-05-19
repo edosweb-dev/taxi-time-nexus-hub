@@ -185,6 +185,12 @@ export const useGenerateReport = () => {
       
       console.log('Calling edge function with serviziIds:', params.serviziIds.length);
       
+      // Mostra toast di generazione in corso
+      toast({
+        title: 'Generazione in corso',
+        description: 'Generazione del report PDF in corso...',
+      });
+      
       // Call Edge Function to generate PDF with the servizi IDs
       const { data, error } = await supabase.functions.invoke('generate-report', {
         body: params
