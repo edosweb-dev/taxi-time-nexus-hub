@@ -12,7 +12,10 @@ const corsHeaders = {
 
 // Handle CORS preflight requests
 serve(async (req: Request) => {
+  console.log("Edge function called: generate-report");
+  
   if (req.method === "OPTIONS") {
+    console.log("Handling OPTIONS request for CORS");
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -20,9 +23,11 @@ serve(async (req: Request) => {
     // Create a Supabase client with the Auth context of the logged in user
     const authorization = req.headers.get("Authorization");
     if (!authorization) {
+      console.error("No authorization header provided");
       throw new Error("No authorization header");
     }
 
+    console.log("Authorization header received, initializing Supabase client");
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -36,10 +41,13 @@ serve(async (req: Request) => {
     );
 
     // Get params from request
+    console.log("Parsing request body");
     const { aziendaId, referenteId, month, year, serviziIds, createdBy } = await req.json();
+    console.log("Request params:", { aziendaId, referenteId, month, year, serviziIdsCount: serviziIds?.length });
 
     // Validate required params
     if (!aziendaId || !referenteId || !month || !year || !serviziIds || !createdBy) {
+      console.error("Missing required parameters");
       return new Response(
         JSON.stringify({ error: "Missing required parameters" }),
         {
@@ -52,6 +60,7 @@ serve(async (req: Request) => {
     // Check if the bucket exists instead of creating it - avoid bucket creation which requires admin rights
     const checkBucketExists = async (supabaseClient) => {
       try {
+        console.log("Checking if bucket exists");
         // Check if bucket exists
         const { data: buckets, error: bucketsError } = await supabaseClient.storage.listBuckets();
         
@@ -60,7 +69,9 @@ serve(async (req: Request) => {
           return false;
         }
         
-        return buckets.some(bucket => bucket.name === 'report_aziende');
+        const exists = buckets.some(bucket => bucket.name === 'report_aziende');
+        console.log("Bucket 'report_aziende' exists:", exists);
+        return exists;
       } catch (error) {
         console.error('Unexpected error checking bucket existence:', error);
         return false;
@@ -70,6 +81,7 @@ serve(async (req: Request) => {
     // Check if bucket exists
     const bucketExists = await checkBucketExists(supabaseClient);
     if (!bucketExists) {
+      console.error("Storage bucket 'report_aziende' does not exist");
       return new Response(
         JSON.stringify({ 
           error: "Storage bucket 'report_aziende' does not exist. Please create it from the Supabase dashboard." 
@@ -82,6 +94,7 @@ serve(async (req: Request) => {
     }
 
     // Fetch servizi details
+    console.log("Fetching servizi details");
     const { data: servizi, error: serviziError } = await supabaseClient
       .from("servizi")
       .select("*")
@@ -89,10 +102,12 @@ serve(async (req: Request) => {
       .eq("stato", "consuntivato");
 
     if (serviziError) {
+      console.error("Error fetching servizi:", serviziError);
       throw new Error(`Error fetching servizi: ${serviziError.message}`);
     }
 
     if (!servizi || servizi.length === 0) {
+      console.error("No consuntivati servizi found with the provided IDs");
       return new Response(
         JSON.stringify({ error: "No consuntivati servizi found with the provided IDs" }),
         {
@@ -102,7 +117,10 @@ serve(async (req: Request) => {
       );
     }
 
+    console.log(`Found ${servizi.length} servizi for the report`);
+    
     // Fetch azienda details
+    console.log("Fetching azienda details");
     const { data: azienda, error: aziendaError } = await supabaseClient
       .from("aziende")
       .select("*")
@@ -110,10 +128,12 @@ serve(async (req: Request) => {
       .single();
 
     if (aziendaError) {
+      console.error("Error fetching azienda:", aziendaError);
       throw new Error(`Error fetching azienda: ${aziendaError.message}`);
     }
 
     // Fetch referente details
+    console.log("Fetching referente details");
     const { data: referente, error: referenteError } = await supabaseClient
       .from("profiles")
       .select("*")
@@ -121,25 +141,30 @@ serve(async (req: Request) => {
       .single();
 
     if (referenteError) {
+      console.error("Error fetching referente:", referenteError);
       throw new Error(`Error fetching referente: ${referenteError.message}`);
     }
 
     // Fetch users for driver names
+    console.log("Fetching users");
     const { data: users, error: usersError } = await supabaseClient
       .from("profiles")
       .select("*");
 
     if (usersError) {
+      console.error("Error fetching users:", usersError);
       throw new Error(`Error fetching users: ${usersError.message}`);
     }
 
     // Fetch passeggeri counts
+    console.log("Fetching passeggeri counts");
     const { data: passeggeri, error: passeggeriError } = await supabaseClient
       .from("passeggeri")
       .select("servizio_id, id")
       .in("servizio_id", serviziIds);
 
     if (passeggeriError) {
+      console.error("Error fetching passeggeri:", passeggeriError);
       throw new Error(`Error fetching passeggeri: ${passeggeriError.message}`);
     }
 
@@ -150,6 +175,7 @@ serve(async (req: Request) => {
     }, {} as Record<string, number>);
 
     // Generate PDF with smaller table to avoid width issues
+    console.log("Generating PDF");
     const doc = new PDFLib.default({
       orientation: "landscape",
       unit: "mm",
@@ -308,6 +334,7 @@ serve(async (req: Request) => {
     }
 
     // Generate PDF blob
+    console.log("Generating PDF blob");
     const pdfBytes = doc.output("arraybuffer");
     const pdfBlob = new Blob([pdfBytes], { type: "application/pdf" });
 
@@ -317,9 +344,11 @@ serve(async (req: Request) => {
     }_${year}.pdf`.toLowerCase();
     
     const filePath = `${aziendaId}/${year}/${month}/${fileName}`;
+    console.log("File path for storage:", filePath);
 
     // Upload to Supabase Storage
     try {
+      console.log("Uploading PDF to storage");
       const { data: uploadData, error: uploadError } = await supabaseClient.storage
         .from("report_aziende")
         .upload(filePath, pdfBlob, {
@@ -328,6 +357,7 @@ serve(async (req: Request) => {
         });
 
       if (uploadError) {
+        console.error("Error uploading PDF:", uploadError);
         return new Response(
           JSON.stringify({ 
             error: `Error uploading PDF: ${uploadError.message}. Check storage permissions.` 
@@ -338,7 +368,10 @@ serve(async (req: Request) => {
           }
         );
       }
+      
+      console.log("PDF uploaded successfully:", uploadData);
     } catch (storageError) {
+      console.error("Storage error:", storageError);
       return new Response(
         JSON.stringify({ 
           error: `Storage error: ${storageError.message}. Verify 'report_aziende' bucket exists and has correct permissions.` 
@@ -352,6 +385,7 @@ serve(async (req: Request) => {
 
     // Create report record in database
     try {
+      console.log("Creating report record in database");
       const { data: reportData, error: reportError } = await supabaseClient
         .from("reports")
         .insert([
@@ -370,6 +404,7 @@ serve(async (req: Request) => {
         .single();
 
       if (reportError) {
+        console.error("Error saving report record:", reportError);
         return new Response(
           JSON.stringify({ 
             error: `Error saving report record: ${reportError.message}` 
@@ -380,6 +415,8 @@ serve(async (req: Request) => {
           }
         );
       }
+
+      console.log("Report record created successfully:", reportData);
 
       // Return success response
       return new Response(
@@ -393,6 +430,7 @@ serve(async (req: Request) => {
         }
       );
     } catch (dbError) {
+      console.error("Database error:", dbError);
       return new Response(
         JSON.stringify({ 
           error: `Database error: ${dbError.message}` 
@@ -405,6 +443,7 @@ serve(async (req: Request) => {
     }
 
   } catch (error) {
+    console.error("Unexpected error in edge function:", error);
     // Return error response
     return new Response(
       JSON.stringify({ error: error.message }),

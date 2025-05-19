@@ -5,6 +5,7 @@ import { updateFirmaServizio } from './updateFirmaServizio';
 // Function to check if firma digitale is active for an azienda
 export async function checkFirmaDigitaleAttiva(aziendaId: string): Promise<boolean> {
   try {
+    console.log('Checking firma digitale for azienda:', aziendaId);
     const { data, error } = await supabase
       .from('aziende')
       .select('firma_digitale_attiva')
@@ -16,6 +17,7 @@ export async function checkFirmaDigitaleAttiva(aziendaId: string): Promise<boole
       return false;
     }
     
+    console.log('Firma digitale attiva check result:', data?.firma_digitale_attiva);
     return data?.firma_digitale_attiva === true;
   } catch (error) {
     console.error('Unexpected error checking firma digitale:', error);
@@ -26,6 +28,8 @@ export async function checkFirmaDigitaleAttiva(aziendaId: string): Promise<boole
 // Add upload function to handle firma digitale
 export async function uploadFirma(servizioId: string, firmaBase64: string) {
   try {
+    console.log('Upload firma called for servizio:', servizioId);
+    console.log('Base64 length:', firmaBase64?.length || 0);
     return await salvaFirmaDigitale(servizioId, firmaBase64);
   } catch (error) {
     console.error('Error uploading firma:', error);
@@ -35,11 +39,11 @@ export async function uploadFirma(servizioId: string, firmaBase64: string) {
 
 export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string) {
   try {
-    console.log("salvaFirmaDigitale: Inizio processo");
+    console.log("salvaFirmaDigitale: Inizio processo per servizio:", servizioId);
     
     // Verifica se il firmaBase64 è valido
     if (!firmaBase64 || firmaBase64.length < 1000) {
-      console.error("Firma non valida o troppo piccola", firmaBase64.substring(0, 50) + "...");
+      console.error("Firma non valida o troppo piccola", firmaBase64?.substring(0, 50) + "...");
       throw new Error("Firma non valida");
     }
     
@@ -74,7 +78,17 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
     console.log("Dimensione blob per upload:", blob.size, "bytes");
     
-    // Verifica se esiste già il bucket "firme"
+    // Get current auth session
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      console.error("Errore di sessione:", sessionError);
+      throw new Error("Sessione utente non valida. Effettua nuovamente l'accesso.");
+    }
+    
+    console.log("Sessione valida, utente autenticato:", sessionData.session.user.id);
+    
+    // Check if bucket exists
+    console.log("Verifico esistenza bucket 'firme'");
     const { data: buckets, error: listBucketsError } = await supabase.storage.listBuckets();
     
     if (listBucketsError) {
@@ -108,15 +122,9 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       console.log("Bucket 'firme' già esistente");
     }
     
-    // Aggiungiamo l'autenticazione esplicita per assicurarci che l'utente sia autenticato
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !sessionData.session) {
-      console.error("Errore di autenticazione:", sessionError);
-      throw new Error("Sessione utente non valida. Effettua nuovamente l'accesso.");
-    }
-    
     // Upload del file nel bucket storage "firme"
-    const { data, error: uploadError } = await supabase.storage
+    console.log("Iniziando upload file nel bucket 'firme'");
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('firme')
       .upload(fileName, blob, {
         contentType: 'image/png',
@@ -129,7 +137,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       throw uploadError;
     }
     
-    console.log("Upload completato:", data);
+    console.log("Upload completato:", uploadData);
     
     // Ottieni l'URL pubblico della firma con parametro di cache-busting
     const { data: { publicUrl } } = supabase.storage
@@ -141,7 +149,8 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     console.log("URL pubblico generato:", cleanUrl);
     
     // Aggiorna il servizio con l'URL della firma e il timestamp
-    const { error: updateError } = await updateFirmaServizio({
+    console.log("Aggiornando servizio con URL firma:", { id: servizioId, firma_url: cleanUrl, firma_timestamp: timestamp });
+    const { data: updateResult, error: updateError } = await updateFirmaServizio({
       id: servizioId,
       firma_url: cleanUrl,
       firma_timestamp: timestamp
@@ -152,6 +161,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       throw updateError;
     }
     
+    console.log("Servizio aggiornato con successo:", updateResult);
     return { success: true, url: cleanUrl, timestamp };
     
   } catch (error: any) {

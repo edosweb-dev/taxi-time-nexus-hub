@@ -9,14 +9,22 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     console.log('[createServizio] Creating servizio with data:', JSON.stringify(data, null, 2));
 
     // Get current user session for created_by field
-    const { data: sessionData } = await supabase.auth.getSession();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error('[createServizio] Error getting session:', sessionError);
+      throw new Error(`Errore di autenticazione: ${sessionError.message}`);
+    }
+    
     if (!sessionData?.session) {
+      console.error('[createServizio] No session found');
       throw new Error('Utente non autenticato');
     }
 
     const userId = sessionData.session.user.id;
+    console.log('[createServizio] Current user ID:', userId);
 
     // 1. Insert servizio with new fields
+    console.log('[createServizio] Inserting servizio into database');
     const { data: servizioData, error: servizioError } = await supabase
       .from('servizi')
       .insert({
@@ -40,16 +48,17 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     }
 
     if (!servizioData) {
+      console.error('[createServizio] No data returned after servizio creation');
       throw new Error('Errore nella creazione del servizio: nessun dato restituito');
     }
 
-    console.log('[createServizio] Servizio created:', servizioData);
+    console.log('[createServizio] Servizio created successfully:', servizioData);
     
     // Assicuriamoci che il servizio restituito sia del tipo corretto
     const servizio = servizioData as Servizio;
 
     // 2. Insert passeggeri
-    if (data.passeggeri.length > 0) {
+    if (data.passeggeri && data.passeggeri.length > 0) {
       const passeggeriToInsert = data.passeggeri.map(p => ({
         servizio_id: servizio.id,
         nome_cognome: p.nome_cognome,
@@ -74,12 +83,14 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         // Not throwing here, we already created the servizio
         toast.error(`Errore nell'aggiunta dei passeggeri: ${passeggeriError.message}`);
       } else {
-        console.log('[createServizio] Passeggeri created:', passeggeri);
+        console.log('[createServizio] Passeggeri created successfully:', passeggeri);
       }
+    } else {
+      console.log('[createServizio] No passeggeri to insert');
     }
 
     return { servizio, error: null };
-  } catch (error) {
+  } catch (error: any) {
     console.error('[createServizio] Unexpected error:', error);
     return { servizio: null, error: error as Error };
   }

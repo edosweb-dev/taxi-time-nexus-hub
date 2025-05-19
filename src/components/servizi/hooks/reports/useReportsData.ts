@@ -24,7 +24,10 @@ export const useReportsData = () => {
   
   // Mutation for deleting a report
   const deleteReportMutation = useMutation({
-    mutationFn: (reportId: string) => deleteReportFile(reportId, reports),
+    mutationFn: (reportId: string) => {
+      console.log('DeleteReportMutation executing with reportId:', reportId);
+      return deleteReportFile(reportId, reports);
+    },
     onMutate: async (deletedId) => {
       // Cancel any outgoing refetches
       console.log('Starting delete mutation for report ID:', deletedId);
@@ -50,7 +53,9 @@ export const useReportsData = () => {
         description: 'Report eliminato con successo',
       });
       
-      // No need to invalidate, we already updated the cache optimistically
+      // Invalidate to ensure we're in sync with the server
+      console.log('Invalidating reports query after successful deletion');
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
     onError: (error: any, deletedId, context) => {
       console.error('Error in delete mutation:', error);
