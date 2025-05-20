@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Form } from '@/components/ui/form';
 import { useReportGeneratorForm } from '../hooks/report';
 import {
@@ -35,6 +35,15 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
   const watchMonth = form.watch('month');
   const watchYear = form.watch('year');
 
+  // Clean up submitting state when component unmounts
+  useEffect(() => {
+    return () => {
+      if (formRef.current) {
+        formRef.current.dataset.submitting = 'false';
+      }
+    };
+  }, []);
+
   // Get company name and referente name for display
   const aziendaName = aziende.find(a => a.id === watchAziendaId)?.nome || '';
   const referenteName = referenti.find(u => u.id === watchReferenteId)?.first_name + ' ' + 
@@ -53,7 +62,7 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
     <>
       {isLoading && <ReportGeneratorLoader />}
       <Form {...form}>
-        <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6">
+        <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6" data-submitting="false">
           <ReportFormFilters 
             form={form}
             aziende={aziende}

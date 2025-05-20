@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { Loader2, X } from 'lucide-react';
@@ -18,7 +18,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
   serviziCount = 0
 }) => {
   // Show a message when there are no services available
-  const handleSubmitClick = (e: React.MouseEvent) => {
+  const handleSubmitClick = useCallback((e: React.MouseEvent) => {
     // Aggiungiamo il log per debug
     console.log("[DEBUG] Button clicked. isDisabled:", isDisabled, "serviziCount:", serviziCount);
     
@@ -43,14 +43,18 @@ export const FormActions: React.FC<FormActionsProps> = ({
     }
     // If not disabled, the form's onSubmit will handle the action
     console.log('Generate button clicked, disabled:', isDisabled);
-  };
+  }, [isDisabled, isLoading, serviziCount]);
+
+  const handleCancelClick = useCallback(() => {
+    onCancel();
+  }, [onCancel]);
 
   return (
     <div className="flex justify-end space-x-2">
       <Button 
         variant="outline" 
         type="button" 
-        onClick={onCancel}
+        onClick={handleCancelClick}
         disabled={isLoading}
         size="sm"
       >

@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
 
@@ -16,6 +16,9 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
   open, 
   onOpenChange 
 }) => {
+  // Reference to track if we're already handling a state change
+  const isHandlingStateChange = useRef(false);
+  
   const handleCancel = useCallback(() => {
     console.log('Dialog cancel called');
     onOpenChange(false);
@@ -23,13 +26,22 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
 
   // Gestiamo i click all'esterno del dialogo
   const handleOpenChange = useCallback((newOpen: boolean) => {
+    // Prevent recursive state updates
+    if (isHandlingStateChange.current) return;
+    
     // Only allow closing if we're not currently submitting
     const form = document.querySelector('form');
     if (form?.dataset.submitting === 'true' && !newOpen) {
       console.log('Blocking dialog close during submission');
       return;
     }
+    
+    isHandlingStateChange.current = true;
     onOpenChange(newOpen);
+    // Reset the flag after a small delay to ensure React has processed the update
+    setTimeout(() => {
+      isHandlingStateChange.current = false;
+    }, 0);
   }, [onOpenChange]);
 
   // Handler per i click all'esterno del dialogo
