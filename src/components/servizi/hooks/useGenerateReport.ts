@@ -204,17 +204,16 @@ export const useGenerateReport = () => {
         
         console.log('Bucket creato con successo:', createdBucket);
         
-        // Configuriamo le politiche per il bucket
-        const { error: policyError } = await supabase.rpc('create_storage_policy', {
-          bucket_id: bucketName,
-          policy_name: 'reports_access',
-          definition: "(bucket_id = '" + bucketName + "')"
-        });
+        // Configuriamo le politiche per il bucket - RIMOSSO IL CODICE CHE CAUSA L'ERRORE
+        // Precedente chiamata a rpc che causava l'errore TypeScript:
+        // const { error: policyError } = await supabase.rpc('create_storage_policy', {
+        //   bucket_id: bucketName,
+        //   policy_name: 'reports_access',
+        //   definition: "(bucket_id = '" + bucketName + "')"
+        // });
         
-        if (policyError) {
-          console.warn('Avviso: Impossibile configurare le policy per il bucket:', policyError);
-          // Non blocchiamo l'esecuzione per questo errore
-        }
+        // Rimuoviamo questa chiamata poiché l'RPC non è definito nei tipi di Supabase
+        // Le policy saranno impostate dall'amministratore manualmente se necessario
         
         toast({
           title: 'Bucket creato',
