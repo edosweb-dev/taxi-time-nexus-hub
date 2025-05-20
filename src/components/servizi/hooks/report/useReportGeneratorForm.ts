@@ -6,6 +6,7 @@ import { useServizi } from './useServizi';
 import { useReferenti } from './useReferenti';
 import { useReportFormSubmit } from './useReportFormSubmit';
 import { monthOptions, getYearOptions, getDefaultValues } from './constants';
+import { useEffect } from 'react';
 
 export const useReportGeneratorForm = ({ onCancel }: UseReportGeneratorFormProps): UseReportGeneratorFormReturn => {
   const { aziende } = useAziende();
@@ -29,10 +30,19 @@ export const useReportGeneratorForm = ({ onCancel }: UseReportGeneratorFormProps
   );
   const { isLoading, handleSubmit } = useReportFormSubmit(servizi, onCancel);
 
-  // When azienda changes, reset referente selection
-  if (watchAziendaId) {
-    form.setValue('referenteId', '');
-  }
+  // Reset referente when azienda changes - using useEffect to avoid render loop
+  useEffect(() => {
+    // Only reset if there's a watchAziendaId and the current referenteId doesn't belong to this azienda
+    if (watchAziendaId) {
+      // Get current referenteId value
+      const currentReferenteId = form.getValues('referenteId');
+      // Only reset if there's a value and that referente isn't in the current list of referenti
+      if (currentReferenteId && 
+          !referenti.some(ref => ref.id === currentReferenteId)) {
+        form.setValue('referenteId', '');
+      }
+    }
+  }, [watchAziendaId, form, referenti]);
 
   const yearOptions = getYearOptions();
 
@@ -53,3 +63,4 @@ export const useReportGeneratorForm = ({ onCancel }: UseReportGeneratorFormProps
     aziende,
   };
 };
+

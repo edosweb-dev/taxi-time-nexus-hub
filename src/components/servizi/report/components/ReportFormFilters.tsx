@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -12,7 +12,8 @@ interface ReportFormFiltersProps {
   yearOptions: { value: string; label: string }[];
 }
 
-export const ReportFormFilters: React.FC<ReportFormFiltersProps> = ({
+// Memorizziamo il componente per evitare rendering non necessari
+export const ReportFormFilters: React.FC<ReportFormFiltersProps> = memo(({
   form,
   aziende,
   referenti,
@@ -140,4 +141,7 @@ export const ReportFormFilters: React.FC<ReportFormFiltersProps> = ({
       />
     </div>
   );
-};
+});
+
+// Aggiungiamo un display name
+ReportFormFilters.displayName = 'ReportFormFilters';

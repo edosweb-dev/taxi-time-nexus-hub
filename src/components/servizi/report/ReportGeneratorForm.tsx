@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { Form } from '@/components/ui/form';
 import { useReportGeneratorForm } from '../hooks/report';
 import {
@@ -30,6 +30,7 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
 
   const formRef = useRef<HTMLFormElement>(null);
   
+  // Utilizziamo useCallback per memorizzare la funzione
   const watchAziendaId = form.watch('aziendaId');
   const watchReferenteId = form.watch('referenteId');
   const watchMonth = form.watch('month');
@@ -50,13 +51,15 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
                         referenti.find(u => u.id === watchReferenteId)?.last_name || '';
   const monthName = monthOptions.find(m => m.value === watchMonth)?.label || '';
   
-  const handleFormSubmit = form.handleSubmit((data) => {
-    console.log("Form submitted with data:", data);
+  // Utilizziamo useCallback per memorizzare la funzione di submit
+  const handleFormSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted with data:", form.getValues());
     if (formRef.current) {
       formRef.current.dataset.submitting = 'true';
     }
-    onSubmit(data);
-  });
+    form.handleSubmit(onSubmit)(e);
+  }, [form, onSubmit]);
 
   return (
     <>
