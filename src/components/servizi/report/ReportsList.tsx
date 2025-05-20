@@ -88,6 +88,11 @@ export const ReportsList = () => {
       setIsDeleteDialogOpen(open);
     }
   }, [isDeletingReport]);
+
+  // Funzione memoizzata per gestire l'apertura del generatore
+  const handleGeneratorOpenChange = useCallback((open: boolean) => {
+    setIsGeneratorOpen(open);
+  }, []);
   
   // Reset reportToDelete after deletion completes
   useEffect(() => {
@@ -103,6 +108,11 @@ export const ReportsList = () => {
       }, 50);
     }
   }, [isDeletingReport, reportToDelete, isDeleteDialogOpen]);
+
+  // Funzione memoizzata per aprire il dialogo di report generator
+  const openGeneratorDialog = useCallback(() => {
+    setIsGeneratorOpen(true);
+  }, []);
   
   return (
     <>
@@ -188,7 +198,10 @@ export const ReportsList = () => {
       </Dialog>
       
       {/* Report Generator Dialog */}
-      <ReportGeneratorDialog open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen} />
+      <ReportGeneratorDialog 
+        open={isGeneratorOpen} 
+        onOpenChange={handleGeneratorOpenChange} 
+      />
       
       {/* Delete Confirmation Dialog */}
       <DeleteReportDialog 

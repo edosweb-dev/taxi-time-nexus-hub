@@ -45,10 +45,7 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     event.preventDefault();
     event.stopPropagation();
     console.log('[DeleteReportDialog] handleConfirm called');
-    console.log('[DeleteReportDialog] Delete confirmation button clicked, calling onConfirm');
-    console.log('[DeleteReportDialog] invoking deleteReport');
     onConfirm();
-    // Non chiudiamo il dialog qui - lo gestiremo tramite il componente padre ReportsList
   }, [onConfirm]);
 
   // Gestiamo il click di annullamento

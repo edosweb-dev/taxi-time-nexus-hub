@@ -33,7 +33,7 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
   }, [onOpenChange]);
 
   // Handler per i click all'esterno del dialogo
-  const handlePointerDownOutside = useCallback((e: CustomEvent<{ originalEvent: PointerEvent }>) => {
+  const handlePointerDownOutside = useCallback((e: PointerDownOutsideEvent) => {
     // Prevent closing the dialog if form is being submitted
     const form = document.querySelector('form');
     if (form?.dataset.submitting === 'true') {
@@ -63,7 +63,7 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
     >
       <DialogContent 
         className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto"
-        onPointerDownOutside={handlePointerDownOutside as any}
+        onPointerDownOutside={handlePointerDownOutside}
         onInteractOutside={handleInteractOutside}
       >
         <DialogHeader>
