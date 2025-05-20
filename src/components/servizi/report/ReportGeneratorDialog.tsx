@@ -1,6 +1,6 @@
 
 import React, { useCallback, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
 
 // Define types locally instead of importing them
@@ -80,6 +80,9 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
       >
         <DialogHeader>
           <DialogTitle>Genera Report PDF</DialogTitle>
+          <DialogDescription>
+            Seleziona l'azienda, il referente e il periodo per generare un report PDF dei servizi consuntivati.
+          </DialogDescription>
         </DialogHeader>
         <ReportGeneratorForm onCancel={handleCancel} />
       </DialogContent>

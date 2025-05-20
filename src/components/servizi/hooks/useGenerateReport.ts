@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Servizio } from '@/lib/types/servizi';
@@ -171,8 +172,8 @@ export const useGenerateReport = () => {
       if (!bucketExists) {
         console.error('Il bucket "report_aziende" non esiste');
         toast({
-          title: 'Errore',
-          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore.',
+          title: 'Errore di configurazione',
+          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore per crearlo.',
           variant: 'destructive',
         });
         return false;
@@ -330,6 +331,16 @@ export const useGenerateReport = () => {
           variant: 'destructive',
         });
         throw new Error(errorMessage);
+      }
+      
+      if (data.error) {
+        console.error('Errore restituito dalla edge function:', data.error);
+        toast({
+          title: 'Errore',
+          description: 'Si è verificato un errore nella generazione del report: ' + data.error,
+          variant: 'destructive',
+        });
+        throw new Error(data.error);
       }
       
       console.log("Report generato con successo:", data);

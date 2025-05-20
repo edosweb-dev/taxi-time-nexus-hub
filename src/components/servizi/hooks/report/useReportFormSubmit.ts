@@ -30,7 +30,7 @@ export const useReportFormSubmit = (
       if (!bucketExists) {
         toast({
           title: "Errore",
-          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore.',
+          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore per crearlo.',
           variant: "destructive",
         });
         setIsLoading(false);
@@ -91,7 +91,7 @@ export const useReportFormSubmit = (
         console.log("Report generato con successo, chiusura del form");
         toast({
           title: "Successo",
-          description: "Il report è stato generato con successo."
+          description: "Il report è stato generato con successo. Puoi scaricarlo dalla sezione Reports."
         });
         onCancel(); // Close the form after successful generation
       }
@@ -99,7 +99,7 @@ export const useReportFormSubmit = (
       console.error('Error generating report:', error);
       toast({
         title: "Errore nella generazione del report",
-        description: error?.message || 'Si è verificato un errore nella generazione del report.',
+        description: error?.message || 'Si è verificato un errore nella generazione del report. Verifica l\'esistenza del bucket "report_aziende".',
         variant: "destructive",
       });
     } finally {
