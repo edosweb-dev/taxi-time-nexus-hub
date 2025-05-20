@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { ReportListItem } from './ReportListItem';
 import { DeleteReportDialog } from './DeleteReportDialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { Report } from '@/lib/types';
+import { Report } from '@/lib/types/index';
 
 interface ClientReportListProps {
   filteredReports: Report[];

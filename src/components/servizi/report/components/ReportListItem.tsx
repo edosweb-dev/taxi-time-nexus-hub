@@ -5,7 +5,7 @@ import { DownloadIcon, TrashIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
-import { Report } from '@/lib/types';
+import { Report } from '@/lib/types/index';
 
 interface ReportListItemProps {
   report: Report;
