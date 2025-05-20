@@ -2,7 +2,10 @@
 import React, { useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
-import { PointerDownOutsideEvent, FocusOutsideEvent } from "@radix-ui/react-dismissable-layer";
+
+// Define types locally instead of importing them
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+type FocusOutsideEvent = CustomEvent<{ originalEvent: FocusEvent }>;
 
 interface ReportGeneratorDialogProps {
   open: boolean;
