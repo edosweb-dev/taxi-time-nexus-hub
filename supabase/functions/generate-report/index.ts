@@ -41,7 +41,17 @@ serve(async (req: Request) => {
 
     // Get params from request
     console.log("Parsing request body");
-    const { aziendaId, referenteId, month, year, serviziIds, createdBy } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+      console.log("Request body parsed successfully");
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError);
+      return createErrorResponse("Errore nella lettura dei parametri di richiesta", 400);
+    }
+    
+    const { aziendaId, referenteId, month, year, serviziIds, createdBy } = body;
+    
     console.log("Request params:", { 
       aziendaId, 
       referenteId, 
@@ -90,7 +100,22 @@ serve(async (req: Request) => {
         
         const exists = buckets.some(bucket => bucket.name === 'report_aziende');
         console.log("Bucket 'report_aziende' exists:", exists);
-        return exists;
+        
+        if (!exists) {
+          return false;
+        }
+        
+        // Also check if we can list files (permission check)
+        const { error: accessError } = await supabaseClient.storage
+          .from('report_aziende')
+          .list();
+          
+        if (accessError) {
+          console.error('Error accessing bucket (permissions issue):', accessError);
+          return false;
+        }
+        
+        return true;
       } catch (error) {
         console.error('Unexpected error checking bucket existence:', error);
         return false;
@@ -100,10 +125,10 @@ serve(async (req: Request) => {
     // Check if bucket exists
     const bucketExists = await checkBucketExists(supabaseClient);
     if (!bucketExists) {
-      console.error("Storage bucket 'report_aziende' does not exist");
+      console.error("Storage bucket 'report_aziende' does not exist or permissions issues");
       return new Response(
         JSON.stringify({ 
-          error: "Storage bucket 'report_aziende' does not exist. Please create it from the Supabase dashboard." 
+          error: "Storage bucket 'report_aziende' does not exist or you don't have sufficient permissions." 
         }),
         {
           status: 400,
@@ -352,7 +377,7 @@ serve(async (req: Request) => {
 
     // Upload to Supabase Storage with enhanced error handling
     try {
-      console.log("Uploading PDF to storage");
+      console.log("Uploading PDF to storage with path:", filePath);
       const { data: uploadData, error: uploadError } = await supabaseClient.storage
         .from("report_aziende")
         .upload(filePath, pdfBlob, {
