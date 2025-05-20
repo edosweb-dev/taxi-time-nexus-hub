@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as PDFLib from "https://esm.sh/jspdf@2.5.1";
@@ -41,20 +42,40 @@ serve(async (req: Request) => {
     // Get params from request
     console.log("Parsing request body");
     const { aziendaId, referenteId, month, year, serviziIds, createdBy } = await req.json();
-    console.log("Request params:", { aziendaId, referenteId, month, year, serviziIdsCount: serviziIds?.length });
+    console.log("Request params:", { 
+      aziendaId, 
+      referenteId, 
+      month, 
+      year, 
+      serviziIdsCount: serviziIds?.length,
+      createdBy
+    });
 
-    // Validate required params
-    if (!aziendaId || !referenteId || !month || !year || !serviziIds || !createdBy) {
-      console.error("Missing required parameters");
-      return new Response(
-        JSON.stringify({ error: "Missing required parameters" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+    // Validazione parametri
+    if (!aziendaId || typeof aziendaId !== 'string') {
+      return createErrorResponse("aziendaId deve essere una stringa valida", 400);
     }
     
+    if (!referenteId || typeof referenteId !== 'string') {
+      return createErrorResponse("referenteId deve essere una stringa valida", 400);
+    }
+    
+    if (!month || typeof month !== 'number' || month < 1 || month > 12) {
+      return createErrorResponse("month deve essere un numero tra 1 e 12", 400);
+    }
+    
+    if (!year || typeof year !== 'number' || year < 2000 || year > 2100) {
+      return createErrorResponse("year deve essere un anno valido", 400);
+    }
+    
+    if (!serviziIds || !Array.isArray(serviziIds) || serviziIds.length === 0) {
+      return createErrorResponse("serviziIds deve essere un array non vuoto", 400);
+    }
+    
+    if (!createdBy || typeof createdBy !== 'string') {
+      return createErrorResponse("createdBy deve essere una stringa valida", 400);
+    }
+
     // Check if the bucket exists instead of creating it - avoid bucket creation which requires admin rights
     const checkBucketExists = async (supabaseClient) => {
       try {
@@ -101,18 +122,12 @@ serve(async (req: Request) => {
 
     if (serviziError) {
       console.error("Error fetching servizi:", serviziError);
-      throw new Error(`Error fetching servizi: ${serviziError.message}`);
+      return createErrorResponse(`Error fetching servizi: ${serviziError.message}`, 500);
     }
 
     if (!servizi || servizi.length === 0) {
       console.error("No consuntivati servizi found with the provided IDs");
-      return new Response(
-        JSON.stringify({ error: "No consuntivati servizi found with the provided IDs" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      return createErrorResponse("Non sono stati trovati servizi consuntivati con gli ID forniti", 400);
     }
 
     console.log(`Found ${servizi.length} servizi for the report`);
@@ -127,7 +142,7 @@ serve(async (req: Request) => {
 
     if (aziendaError) {
       console.error("Error fetching azienda:", aziendaError);
-      throw new Error(`Error fetching azienda: ${aziendaError.message}`);
+      return createErrorResponse(`Error fetching azienda: ${aziendaError.message}`, 500);
     }
 
     // Fetch referente details
@@ -140,7 +155,7 @@ serve(async (req: Request) => {
 
     if (referenteError) {
       console.error("Error fetching referente:", referenteError);
-      throw new Error(`Error fetching referente: ${referenteError.message}`);
+      return createErrorResponse(`Error fetching referente: ${referenteError.message}`, 500);
     }
 
     // Fetch users for driver names
@@ -151,7 +166,7 @@ serve(async (req: Request) => {
 
     if (usersError) {
       console.error("Error fetching users:", usersError);
-      throw new Error(`Error fetching users: ${usersError.message}`);
+      return createErrorResponse(`Error fetching users: ${usersError.message}`, 500);
     }
 
     // Fetch passeggeri counts
@@ -163,7 +178,7 @@ serve(async (req: Request) => {
 
     if (passeggeriError) {
       console.error("Error fetching passeggeri:", passeggeriError);
-      throw new Error(`Error fetching passeggeri: ${passeggeriError.message}`);
+      return createErrorResponse(`Error fetching passeggeri: ${passeggeriError.message}`, 500);
     }
 
     // Count passeggeri per servizio
@@ -320,29 +335,20 @@ serve(async (req: Request) => {
       );
     } catch (pdfError) {
       console.error("Error generating PDF:", pdfError);
-      return new Response(
-        JSON.stringify({ 
-          error: `Error generating PDF: ${pdfError.message}` 
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      return createErrorResponse(`Error generating PDF: ${pdfError.message}`, 500);
     }
+
+    // Genera un nome file sicuro e consistente
+    const fileName = generateSafeFileName(azienda.nome, month, year);
+    
+    // Create file path seguendo il pattern ${aziendaId}/${year}/${month}/${fileName}
+    const filePath = `${aziendaId}/${year}/${month}/${fileName}`;
+    console.log("File path for storage:", filePath);
 
     // Generate PDF blob
     console.log("Generating PDF blob");
     const pdfBytes = doc.output("arraybuffer");
     const pdfBlob = new Blob([pdfBytes], { type: "application/pdf" });
-
-    // Create file name
-    const fileName = `report_${azienda.nome.replace(/\s+/g, "_").toLowerCase()}_${
-      new Date(year, month - 1).toLocaleString("it-IT", { month: "long" })
-    }_${year}.pdf`.toLowerCase();
-    
-    const filePath = `${aziendaId}/${year}/${month}/${fileName}`;
-    console.log("File path for storage:", filePath);
 
     // Upload to Supabase Storage with enhanced error handling
     try {
@@ -356,28 +362,18 @@ serve(async (req: Request) => {
 
       if (uploadError) {
         console.error("Error uploading PDF:", uploadError);
-        return new Response(
-          JSON.stringify({ 
-            error: `Error uploading PDF: ${uploadError.message}. Check storage permissions.` 
-          }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+        return createErrorResponse(
+          `Error uploading PDF: ${uploadError.message}. Check storage permissions.`,
+          500
         );
       }
       
       console.log("PDF uploaded successfully:", uploadData);
     } catch (storageError) {
       console.error("Storage error:", storageError);
-      return new Response(
-        JSON.stringify({ 
-          error: `Storage error: ${storageError.message}. Verify 'report_aziende' bucket exists and has correct permissions.` 
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+      return createErrorResponse(
+        `Storage error: ${storageError.message}. Verify 'report_aziende' bucket exists and has correct permissions.`,
+        500
       );
     }
 
@@ -403,14 +399,9 @@ serve(async (req: Request) => {
 
       if (reportError) {
         console.error("Error saving report record:", reportError);
-        return new Response(
-          JSON.stringify({ 
-            error: `Error saving report record: ${reportError.message}` 
-          }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+        return createErrorResponse(
+          `Error saving report record: ${reportError.message}`,
+          500
         );
       }
 
@@ -422,6 +413,7 @@ serve(async (req: Request) => {
           success: true,
           reportId: reportData.id,
           fileName,
+          filePath,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -429,26 +421,44 @@ serve(async (req: Request) => {
       );
     } catch (dbError) {
       console.error("Database error:", dbError);
-      return new Response(
-        JSON.stringify({ 
-          error: `Database error: ${dbError.message}` 
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+      return createErrorResponse(
+        `Database error: ${dbError.message}`,
+        500
       );
     }
-
   } catch (error) {
     console.error("Unexpected error in edge function:", error);
     // Return error response
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+    return createErrorResponse(
+      `Unexpected error: ${error.message || 'Unknown error'}`,
+      500
     );
   }
 });
+
+// Helper function to generate a safe and consistent file name
+function generateSafeFileName(aziendaNome: string, month: number, year: number): string {
+  // Sanitizza il nome azienda (rimuove caratteri speciali e spazi)
+  const safeName = aziendaNome.replace(/\s+/g, "_").replace(/[^\w-]/g, "").toLowerCase();
+  
+  // Ottieni il nome del mese in italiano
+  const monthName = new Date(year, month - 1).toLocaleString("it-IT", { month: "long" });
+  
+  // Restituisci un nome file consistente
+  return `report_${safeName}_${monthName}_${year}.pdf`.toLowerCase();
+}
+
+// Helper function to create error responses with consistent format
+function createErrorResponse(message: string, status: number = 500): Response {
+  console.error(`Error response (${status}):`, message);
+  return new Response(
+    JSON.stringify({ 
+      error: message, 
+      success: false 
+    }),
+    {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    }
+  );
+}

@@ -11,7 +11,8 @@ export const useReportsData = () => {
   const { 
     data: reports = [], 
     isLoading, 
-    error 
+    error,
+    refetch: refetchReports 
   } = useQuery({
     queryKey: ['reports'],
     queryFn: fetchReports,
@@ -19,6 +20,7 @@ export const useReportsData = () => {
   
   // Function to download report
   const downloadReport = (reportId: string) => {
+    console.log('[downloadReport] Download requested for report:', reportId);
     downloadReportFile(reportId, reports);
   };
   
@@ -26,8 +28,7 @@ export const useReportsData = () => {
   const deleteReportMutation = useMutation({
     mutationFn: (reportId: string) => {
       console.log('[deleteReport] Chiamata mutation con ID:', reportId);
-      console.log('[deleteReport] Passando reports con lunghezza:', reports.length);
-      return deleteReportFile(reportId, reports);
+      return deleteReportFile(reportId);
     },
     onMutate: async (deletedId) => {
       // Cancel any outgoing refetches
@@ -35,7 +36,7 @@ export const useReportsData = () => {
       await queryClient.cancelQueries({ queryKey: ['reports'] });
       
       // Snapshot the previous value
-      const previousReports = queryClient.getQueryData(['reports']);
+      const previousReports = queryClient.getQueryData(['reports']) as Report[];
       console.log('[deleteReport] Cached reports before optimistic update:', 
                  Array.isArray(previousReports) ? previousReports.length : 'no data');
       
@@ -54,13 +55,8 @@ export const useReportsData = () => {
     onSuccess: (deletedId) => {
       console.log('[deleteReport] Mutation completed successfully for report:', deletedId);
       
-      toast({
-        title: 'Successo',
-        description: 'Report eliminato con successo',
-      });
-      
-      // Invalidate to ensure we're in sync with the server
       console.log('[deleteReport] Invalidating reports query after successful deletion');
+      // Invalidate to ensure we're in sync with the server
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
     onError: (error: any, deletedId, context) => {
@@ -79,11 +75,9 @@ export const useReportsData = () => {
         description: `Impossibile eliminare il report: ${error.message || 'Si è verificato un errore'}`,
         variant: 'destructive',
       });
-    },
-    onSettled: () => {
-      console.log('[deleteReport] Mutation conclusa, invalidating reports query');
-      // Always refetch after error or success to make sure our local data is correct
-      queryClient.invalidateQueries({ queryKey: ['reports'] });
+      
+      // Force a refetch to make sure the UI is synchronized with the server
+      refetchReports();
     }
   });
   
@@ -99,6 +93,7 @@ export const useReportsData = () => {
     error,
     downloadReport,
     deleteReport,
-    isDeletingReport: deleteReportMutation.isPending
+    isDeletingReport: deleteReportMutation.isPending,
+    refetchReports
   };
 };

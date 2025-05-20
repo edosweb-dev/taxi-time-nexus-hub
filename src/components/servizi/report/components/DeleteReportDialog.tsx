@@ -62,7 +62,7 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     if (!isDeleting && hasAttemptedDelete && open) {
       console.log('[DeleteReportDialog] Deletion completed, closing dialog after attempt');
       // This timeout ensures that the toast message is visible before the dialog closes
-      setTimeout(() => onOpenChange(false), 500);
+      setTimeout(() => onOpenChange(false), 1000);
     }
   }, [isDeleting, open, onOpenChange, hasAttemptedDelete]);
 

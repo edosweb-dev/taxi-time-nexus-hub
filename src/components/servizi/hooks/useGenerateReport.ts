@@ -28,8 +28,44 @@ export const useGenerateReport = () => {
     month: number, 
     year: number
   ): Promise<Servizio[]> => {
-    if (!aziendaId || !referenteId || !month || !year) {
-      console.log('Missing required filter params:', { aziendaId, referenteId, month, year });
+    // Validazione parametri
+    if (!aziendaId) {
+      console.error('Invalid aziendaId:', aziendaId);
+      toast({
+        title: 'Parametro mancante',
+        description: 'ID azienda non valido',
+        variant: 'destructive',
+      });
+      return [];
+    }
+    
+    if (!referenteId) {
+      console.error('Invalid referenteId:', referenteId);
+      toast({
+        title: 'Parametro mancante',
+        description: 'ID referente non valido',
+        variant: 'destructive',
+      });
+      return [];
+    }
+    
+    if (!month || month < 1 || month > 12) {
+      console.error('Invalid month:', month);
+      toast({
+        title: 'Parametro mancante',
+        description: 'Mese non valido (deve essere tra 1 e 12)',
+        variant: 'destructive',
+      });
+      return [];
+    }
+    
+    if (!year || year < 2000 || year > 2100) {
+      console.error('Invalid year:', year);
+      toast({
+        title: 'Parametro mancante',
+        description: 'Anno non valido',
+        variant: 'destructive',
+      });
       return [];
     }
     
@@ -157,13 +193,68 @@ export const useGenerateReport = () => {
     try {
       console.log('Generating report with params:', params);
       
-      // Validate required params
-      if (!params.aziendaId || !params.referenteId || !params.month || !params.year || !params.serviziIds || params.serviziIds.length === 0) {
-        const errorMessage = 'Parametri mancanti o incompleti per la generazione del report';
-        console.error(errorMessage, params);
+      // Validazione parametri
+      if (!params.aziendaId) {
+        const errorMessage = 'ID azienda mancante';
+        console.error(errorMessage);
         toast({
-          title: 'Parametri mancanti',
-          description: 'Verifica di aver selezionato tutti i parametri necessari e almeno un servizio.',
+          title: 'Parametro mancante',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return null;
+      }
+      
+      if (!params.referenteId) {
+        const errorMessage = 'ID referente mancante';
+        console.error(errorMessage);
+        toast({
+          title: 'Parametro mancante',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return null;
+      }
+      
+      if (!params.month || params.month < 1 || params.month > 12) {
+        const errorMessage = 'Mese non valido (deve essere tra 1 e 12)';
+        console.error(errorMessage, params.month);
+        toast({
+          title: 'Parametro mancante',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return null;
+      }
+      
+      if (!params.year || params.year < 2000 || params.year > 2100) {
+        const errorMessage = 'Anno non valido';
+        console.error(errorMessage, params.year);
+        toast({
+          title: 'Parametro mancante',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return null;
+      }
+      
+      if (!params.serviziIds || params.serviziIds.length === 0) {
+        const errorMessage = 'Nessun servizio selezionato';
+        console.error(errorMessage);
+        toast({
+          title: 'Parametro mancante',
+          description: 'Verifica di aver selezionato almeno un servizio.',
+          variant: 'destructive',
+        });
+        return null;
+      }
+      
+      if (!params.createdBy) {
+        const errorMessage = 'ID utente creatore mancante';
+        console.error(errorMessage);
+        toast({
+          title: 'Parametro mancante',
+          description: errorMessage,
           variant: 'destructive',
         });
         return null;
