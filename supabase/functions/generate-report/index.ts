@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as PDFLib from "https://esm.sh/jspdf@2.5.1";
@@ -91,10 +90,11 @@ serve(async (req: Request) => {
       return createErrorResponse("createdBy deve essere una stringa valida", 400);
     }
 
-    // Check if the bucket exists instead of creating it - avoid bucket creation which requires admin rights
-    const checkBucketExists = async (supabaseClient) => {
+    // Check if the bucket exists, and create it if it doesn't
+    const checkOrCreateBucket = async (supabaseClient) => {
       try {
         console.log("Checking if bucket exists");
+        
         // Check if bucket exists
         const { data: buckets, error: bucketsError } = await supabaseClient.storage.listBuckets();
         
@@ -111,7 +111,21 @@ serve(async (req: Request) => {
         console.log(`Bucket '${storageBucketName}' exists:`, exists);
         
         if (!exists) {
-          return false;
+          console.log(`Bucket '${storageBucketName}' does not exist, attempting to create it`);
+          
+          // Try to create the bucket
+          const { data: createData, error: createError } = await supabaseClient.storage.createBucket(
+            storageBucketName, 
+            { public: false }
+          );
+          
+          if (createError) {
+            console.error('Error creating bucket:', createError);
+            return false;
+          }
+          
+          console.log(`Bucket '${storageBucketName}' created successfully`);
+          return true;
         }
         
         // Find the actual bucket name with correct casing
@@ -131,18 +145,18 @@ serve(async (req: Request) => {
         
         return true;
       } catch (error) {
-        console.error('Unexpected error checking bucket existence:', error);
+        console.error('Unexpected error checking/creating bucket:', error);
         return false;
       }
     };
     
-    // Check if bucket exists
-    const bucketExists = await checkBucketExists(supabaseClient);
-    if (!bucketExists) {
-      console.error(`Storage bucket '${storageBucketName}' does not exist or permissions issues`);
+    // Check if bucket exists or create it
+    const bucketReady = await checkOrCreateBucket(supabaseClient);
+    if (!bucketReady) {
+      console.error(`Storage bucket '${storageBucketName}' could not be accessed/created or permissions issues`);
       return new Response(
         JSON.stringify({ 
-          error: `Storage bucket '${storageBucketName}' does not exist or you don't have sufficient permissions.` 
+          error: `Storage bucket '${storageBucketName}' could not be accessed/created or you don't have sufficient permissions.` 
         }),
         {
           status: 400,
@@ -396,6 +410,33 @@ serve(async (req: Request) => {
     console.log("Generating PDF blob");
     const pdfBytes = doc.output("arraybuffer");
     const pdfBlob = new Blob([pdfBytes], { type: "application/pdf" });
+
+    // Create directory structure if it doesn't exist
+    try {
+      console.log("Ensuring directory structure exists");
+      // Attempt to list the directory to check if it exists
+      const { error: dirCheckError } = await supabaseClient.storage
+        .from(actualBucketName)
+        .list(`${aziendaId}/${year}/${month}`);
+      
+      if (dirCheckError && dirCheckError.message.includes('not found')) {
+        console.log("Creating directory structure");
+        
+        // Create an empty file in the directory path to ensure structure exists
+        const emptyBlob = new Blob([''], { type: 'text/plain' });
+        await supabaseClient.storage
+          .from(actualBucketName)
+          .upload(`${aziendaId}/${year}/${month}/.directory`, emptyBlob, {
+            contentType: 'text/plain',
+            upsert: true,
+          });
+        
+        console.log("Directory structure created");
+      }
+    } catch (dirError) {
+      console.warn("Warning: Couldn't verify/create directory structure:", dirError);
+      // Continue anyway, the upload might still succeed
+    }
 
     // Upload to Supabase Storage with enhanced error handling
     try {

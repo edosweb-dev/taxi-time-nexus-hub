@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Servizio } from '@/lib/types/servizi';
@@ -147,10 +146,11 @@ export const useGenerateReport = () => {
     return data as Servizio[];
   };
   
-  // Funzione migliorata per verificare il bucket con test di accesso
+  // Funzione migliorata per verificare il bucket e crearlo se non esiste
   const checkBucketExists = async (): Promise<boolean> => {
     try {
       console.log('Verificando esistenza e permessi bucket report_aziende...');
+      const bucketName = 'report_aziende';
       
       // Prima verifichiamo se il bucket esiste nella lista
       const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
@@ -173,18 +173,58 @@ export const useGenerateReport = () => {
       
       console.log('Verifica bucket report_aziende:', bucketExists ? 'TROVATO' : 'NON trovato');
       
-      // Se non esiste nella lista, esce subito
+      // Se non esiste, tentiamo di crearlo
       if (!bucketExists) {
-        console.error('Il bucket "report_aziende" non esiste');
-        toast({
-          title: 'Errore di configurazione',
-          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore per crearlo.',
-          variant: 'destructive',
+        console.log('Tentativo di creazione bucket report_aziende...');
+        
+        const { data: createdBucket, error: createError } = await supabase.storage.createBucket(
+          bucketName,
+          { public: false }  // Non rendere pubblico per sicurezza
+        );
+        
+        if (createError) {
+          console.error('Errore nella creazione del bucket:', createError);
+          
+          // Se non si riesce a creare il bucket (per esempio per permessi insufficienti)
+          if (createError.message.includes('permission') || createError.message.includes('not allowed')) {
+            toast({
+              title: 'Errore di permessi',
+              description: `Non hai i permessi necessari per creare il bucket '${bucketName}'. Contatta l'amministratore.`,
+              variant: 'destructive',
+            });
+          } else {
+            toast({
+              title: 'Errore',
+              description: `Impossibile creare il bucket '${bucketName}': ${createError.message}`,
+              variant: 'destructive',
+            });
+          }
+          return false;
+        }
+        
+        console.log('Bucket creato con successo:', createdBucket);
+        
+        // Configuriamo le politiche per il bucket
+        const { error: policyError } = await supabase.rpc('create_storage_policy', {
+          bucket_id: bucketName,
+          policy_name: 'reports_access',
+          definition: "(bucket_id = '" + bucketName + "')"
         });
-        return false;
+        
+        if (policyError) {
+          console.warn('Avviso: Impossibile configurare le policy per il bucket:', policyError);
+          // Non blocchiamo l'esecuzione per questo errore
+        }
+        
+        toast({
+          title: 'Bucket creato',
+          description: `Il bucket '${bucketName}' è stato creato con successo. Riprova a generare il report.`
+        });
+        
+        return true; // Il bucket è stato creato con successo
       }
       
-      // Anche se il bucket esiste, verifichiamo che possiamo elencare i file (test permessi)
+      // Se il bucket esiste, verifichiamo che possiamo elencare i file (test permessi)
       // Cerca il nome effettivo del bucket (case-insensitive)
       const actualBucketName = buckets.find(bucket => 
         bucket.name.toLowerCase() === 'report_aziende' || 

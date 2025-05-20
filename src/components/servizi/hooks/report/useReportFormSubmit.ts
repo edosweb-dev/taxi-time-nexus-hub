@@ -25,23 +25,6 @@ export const useReportFormSubmit = (
     setIsLoading(true);
     
     try {
-      // Check if bucket exists first
-      const bucketExists = await checkBucketExists();
-      if (!bucketExists) {
-        toast({
-          title: "Errore",
-          description: 'Il bucket di storage "report_aziende" non esiste. Contattare l\'amministratore per crearlo.',
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        
-        // Reset form submitting state
-        if (formElement) {
-          formElement.dataset.submitting = 'false';
-        }
-        return;
-      }
-      
       // Use all servizi IDs
       const serviziIds = servizi.map(s => s.id);
       
@@ -97,11 +80,21 @@ export const useReportFormSubmit = (
       }
     } catch (error: any) {
       console.error('Error generating report:', error);
-      toast({
-        title: "Errore nella generazione del report",
-        description: error?.message || 'Si è verificato un errore nella generazione del report. Verifica l\'esistenza del bucket "report_aziende".',
-        variant: "destructive",
-      });
+      
+      // Gestione specifica dell'errore di bucket mancante
+      if (error.message && error.message.includes('bucket')) {
+        toast({
+          title: "Errore nella generazione del report",
+          description: "Problema con il bucket di storage. Si è tentato di crearlo automaticamente, riprova l'operazione.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Errore nella generazione del report",
+          description: error?.message || 'Si è verificato un errore nella generazione del report.',
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
       // Reset form submitting state

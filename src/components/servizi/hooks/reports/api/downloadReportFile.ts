@@ -16,10 +16,39 @@ export const downloadReportFile = async ({
   console.log(`Downloading file ${fileName} from path ${filePath} in bucket ${bucketName}`);
   
   try {
+    // Verifichiamo prima che il bucket esista
+    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+    
+    if (bucketsError) {
+      console.error('Errore nel recupero dei bucket:', bucketsError);
+      throw new Error(`Errore nel recupero dei bucket: ${bucketsError.message}`);
+    }
+    
+    // Cerca il bucket con qualsiasi case
+    const bucketExists = buckets.some(bucket => 
+      bucket.name.toLowerCase() === bucketName.toLowerCase()
+    );
+    
+    if (!bucketExists) {
+      console.error(`Il bucket "${bucketName}" non esiste`);
+      toast({
+        title: 'Bucket non trovato',
+        description: `Il bucket "${bucketName}" non esiste. Contatta l'amministratore.`,
+        variant: 'destructive',
+      });
+      
+      return false;
+    }
+    
+    // Trova il nome effettivo del bucket con case corretto
+    const actualBucketName = buckets.find(bucket => 
+      bucket.name.toLowerCase() === bucketName.toLowerCase()
+    )?.name || bucketName;
+    
     // Get the file
     const { data, error } = await supabase
       .storage
-      .from(bucketName)
+      .from(actualBucketName)
       .download(filePath);
 
     if (error) {
@@ -42,6 +71,11 @@ export const downloadReportFile = async ({
     // Clean up
     URL.revokeObjectURL(url);
     document.body.removeChild(link);
+    
+    toast({
+      title: 'Download completato',
+      description: `Il file ${fileName} è stato scaricato con successo.`
+    });
     
     console.log('File downloaded successfully');
     return true;
