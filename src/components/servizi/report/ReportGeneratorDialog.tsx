@@ -1,8 +1,7 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
-// Definiamo un tipo custom compatibile con l'evento di Radix
 
 interface ReportGeneratorDialogProps {
   open: boolean;
@@ -13,13 +12,24 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
   open, 
   onOpenChange 
 }) => {
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     console.log('Dialog cancel called');
     onOpenChange(false);
-  };
+  }, [onOpenChange]);
 
-  // Corretto il tipo dell'evento utilizzando lo standard PointerEvent di React
-  const handlePointerDownOutside = (e: CustomEvent<{ originalEvent: PointerEvent }>) => {
+  // Gestiamo i click all'esterno del dialogo
+  const handleOpenChange = useCallback((newOpen: boolean) => {
+    // Only allow closing if we're not currently submitting
+    const form = document.querySelector('form');
+    if (form?.dataset.submitting === 'true' && !newOpen) {
+      console.log('Blocking dialog close during submission');
+      return;
+    }
+    onOpenChange(newOpen);
+  }, [onOpenChange]);
+
+  // Handler per i click all'esterno del dialogo
+  const handlePointerDownOutside = useCallback((e: CustomEvent<{ originalEvent: PointerEvent }>) => {
     // Prevent closing the dialog if form is being submitted
     const form = document.querySelector('form');
     if (form?.dataset.submitting === 'true') {
@@ -32,30 +42,25 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
         console.log('Applied preventDefault to original pointer event');
       }
     }
-  };
+  }, []);
+
+  // Handler per le interazioni esterne
+  const handleInteractOutside = useCallback((e: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>) => {
+    const form = document.querySelector('form');
+    if (form?.dataset.submitting === 'true') {
+      e.preventDefault();
+    }
+  }, []);
 
   return (
     <Dialog 
       open={open} 
-      onOpenChange={(newOpen) => {
-        // Only allow closing if we're not currently submitting
-        const form = document.querySelector('form');
-        if (form?.dataset.submitting === 'true' && !newOpen) {
-          console.log('Blocking dialog close during submission');
-          return;
-        }
-        onOpenChange(newOpen);
-      }}
+      onOpenChange={handleOpenChange}
     >
       <DialogContent 
         className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto"
         onPointerDownOutside={handlePointerDownOutside as any}
-        onInteractOutside={(e) => {
-          const form = document.querySelector('form');
-          if (form?.dataset.submitting === 'true') {
-            e.preventDefault();
-          }
-        }}
+        onInteractOutside={handleInteractOutside}
       >
         <DialogHeader>
           <DialogTitle>Genera Report PDF</DialogTitle>

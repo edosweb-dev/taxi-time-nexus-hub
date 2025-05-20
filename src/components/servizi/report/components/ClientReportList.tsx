@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, TrashIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -31,30 +31,52 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
 }) => {
   const { profile } = useAuth();
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
-  const handleDeleteClick = (reportId: string, event: React.MouseEvent) => {
+  // Handler memoizzato per il click sul pulsante elimina
+  const handleDeleteClick = useCallback((reportId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     console.log('[ClientReportList] Setting report to delete:', reportId);
     setReportToDelete(reportId);
-  };
+    setIsDeleteDialogOpen(true);
+  }, []);
   
-  const handleConfirmDelete = () => {
+  // Handler memoizzato per confermare l'eliminazione
+  const handleConfirmDelete = useCallback(() => {
     if (reportToDelete && deleteReport) {
       console.log('[ClientReportList] Confirming delete for report:', reportToDelete);
       console.log('[ClientReportList] invoking deleteReport');
       deleteReport(reportToDelete);
       // The dialog will stay open during deletion
     }
-  };
+  }, [reportToDelete, deleteReport]);
+
+  // Handler memoizzato per la gestione dell'apertura del dialogo
+  const handleOpenChange = useCallback((open: boolean) => {
+    console.log('[ClientReportList] Dialog open state changing to:', open);
+    
+    // Se stiamo chiudendo il dialogo ma l'eliminazione è in corso, non fare nulla
+    if (!open && isDeletingReport) {
+      return;
+    }
+    
+    setIsDeleteDialogOpen(open);
+  }, [isDeletingReport]);
 
   // Close the dialog when deletion completes
   useEffect(() => {
-    if (!isDeletingReport && reportToDelete) {
+    if (!isDeletingReport && reportToDelete && isDeleteDialogOpen) {
       console.log('[ClientReportList] Deletion completed, closing dialog');
-      setReportToDelete(null);
+      setIsDeleteDialogOpen(false);
+      
+      // Utilizziamo setTimeout per evitare problemi di aggiornamento dello stato
+      setTimeout(() => {
+        console.log('[ClientReportList] Resetting reportToDelete to null');
+        setReportToDelete(null);
+      }, 50);
     }
-  }, [isDeletingReport]);
+  }, [isDeletingReport, reportToDelete, isDeleteDialogOpen]);
 
   // Helper function to get month name
   const getMonthName = (month: number) => {
@@ -113,11 +135,8 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
       {/* Delete Confirmation Dialog */}
       {deleteReport && (
         <DeleteReportDialog 
-          open={!!reportToDelete} 
-          onOpenChange={(open) => {
-            console.log('[ClientReportList] Dialog open state changing to:', open);
-            if (!open) setReportToDelete(null);
-          }}
+          open={isDeleteDialogOpen} 
+          onOpenChange={handleOpenChange}
           onConfirm={handleConfirmDelete}
           isDeleting={isDeletingReport}
         />

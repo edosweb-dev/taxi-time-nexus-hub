@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useReports } from '@/components/servizi/hooks/useReports';
 import { useUsers } from '@/hooks/useUsers';
 import { useAziende } from '@/hooks/useAziende';
@@ -27,7 +27,7 @@ export const ReportsList = () => {
   const [viewingReport, setViewingReport] = useState<string | null>(null);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   
-  // Utilizziamo uno stato separato per il report da eliminare e lo stato del dialog
+  // Stato per il dialogo di eliminazione
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
@@ -57,48 +57,52 @@ export const ReportsList = () => {
     return format(new Date(2022, monthNum - 1, 1), 'MMMM', { locale: it });
   };
 
-  // Funzione per aprire il dialog di eliminazione
-  const handleDeleteClick = (reportId: string, event: React.MouseEvent) => {
+  // Funzione memoizzata per aprire il dialog di eliminazione
+  const handleDeleteClick = useCallback((reportId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     console.log('[ReportsList] Setting report to delete:', reportId);
     setReportToDelete(reportId);
     setIsDeleteDialogOpen(true);
-  };
+  }, []);
   
-  // Funzione per confermare l'eliminazione
-  const handleConfirmDelete = () => {
+  // Funzione memoizzata per confermare l'eliminazione
+  const handleConfirmDelete = useCallback(() => {
     if (reportToDelete) {
       console.log('[ReportsList] Confirming delete in ReportsList for report:', reportToDelete);
       deleteReport(reportToDelete);
       // Dialog rimane aperto fino al completamento dell'eliminazione
     }
-  };
+  }, [reportToDelete, deleteReport]);
 
-  // Quando l'operazione di eliminazione è completata (isDeletingReport passa da true a false),
-  // chiudiamo il dialog e resettiamo lo stato
+  // Funzione memoizzata per gestire la chiusura del dialog
+  const handleDialogOpenChange = useCallback((open: boolean) => {
+    console.log('[ReportsList] Dialog open state changing to:', open);
+    
+    // Se il dialogo viene chiuso e non si sta eliminando un report, resettiamo reportToDelete
+    if (!open && !isDeletingReport) {
+      setIsDeleteDialogOpen(open);
+      // Non resettare reportToDelete qui per evitare un aggiornamento di stato durante il render
+    } else if (open) {
+      // Se stiamo aprendo il dialogo
+      setIsDeleteDialogOpen(open);
+    }
+  }, [isDeletingReport]);
+  
+  // Reset reportToDelete after deletion completes
   useEffect(() => {
+    // Quando l'operazione di eliminazione è completata (isDeletingReport passa da true a false),
+    // chiudiamo il dialog e resettiamo lo stato
     if (!isDeletingReport && reportToDelete && isDeleteDialogOpen) {
       console.log('[ReportsList] Deletion completed, closing dialog and resetting reportToDelete');
+      setIsDeleteDialogOpen(false);
       // Utilizziamo setTimeout per evitare problemi di aggiornamento dello stato
       setTimeout(() => {
-        setIsDeleteDialogOpen(false);
+        console.log('[ReportsList] Resetting reportToDelete to null');
         setReportToDelete(null);
-      }, 500);
+      }, 50);
     }
   }, [isDeletingReport, reportToDelete, isDeleteDialogOpen]);
-  
-  // Funzione per gestire la chiusura del dialog
-  const handleDialogOpenChange = (open: boolean) => {
-    console.log('[ReportsList] Dialog open state changing to:', open);
-    setIsDeleteDialogOpen(open);
-    
-    // Reset reportToDelete solo quando il dialog viene chiuso e non si sta eliminando
-    if (!open && !isDeletingReport) {
-      console.log('[ReportsList] Dialog closed, resetting reportToDelete');
-      setReportToDelete(null);
-    }
-  };
   
   return (
     <>
@@ -186,7 +190,7 @@ export const ReportsList = () => {
       {/* Report Generator Dialog */}
       <ReportGeneratorDialog open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen} />
       
-      {/* Delete Confirmation Dialog - Usiamo isDeleteDialogOpen per controllare la visibilità */}
+      {/* Delete Confirmation Dialog */}
       <DeleteReportDialog 
         open={isDeleteDialogOpen}
         onOpenChange={handleDialogOpenChange}

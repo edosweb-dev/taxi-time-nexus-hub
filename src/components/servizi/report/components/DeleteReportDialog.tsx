@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,8 +25,22 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   onConfirm,
   isDeleting
 }) => {
+  // Usiamo useCallback per evitare che la funzione cambi ad ogni render
+  const handleOpenChange = useCallback((newOpen: boolean) => {
+    console.log('[DeleteReportDialog] Dialog open state change requested:', newOpen);
+    
+    // Blocca la chiusura automatica se sta eliminando
+    if (isDeleting && !newOpen) {
+      console.log('[DeleteReportDialog] Blocking dialog close during deletion');
+      return;
+    }
+    
+    // Altrimenti, permetti la chiusura e passa lo stato al componente genitore
+    onOpenChange(newOpen);
+  }, [isDeleting, onOpenChange]);
+
   // Gestiamo il click di conferma
-  const handleConfirm = (event: React.MouseEvent) => {
+  const handleConfirm = useCallback((event: React.MouseEvent) => {
     // Fermiamo la propagazione dell'evento per evitare interferenze
     event.preventDefault();
     event.stopPropagation();
@@ -35,15 +49,15 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
     console.log('[DeleteReportDialog] invoking deleteReport');
     onConfirm();
     // Non chiudiamo il dialog qui - lo gestiremo tramite il componente padre ReportsList
-  };
+  }, [onConfirm]);
 
   // Gestiamo il click di annullamento
-  const handleCancel = (event: React.MouseEvent) => {
+  const handleCancel = useCallback((event: React.MouseEvent) => {
     // Fermiamo anche qui la propagazione dell'evento
     event.preventDefault();
     event.stopPropagation();
-    onOpenChange(false);
-  };
+    handleOpenChange(false);
+  }, [handleOpenChange]);
 
   // Log per debug quando il dialog cambia stato
   useEffect(() => {
@@ -53,18 +67,7 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   return (
     <AlertDialog 
       open={open} 
-      onOpenChange={(newOpen) => {
-        console.log('[DeleteReportDialog] Dialog open state change requested:', newOpen);
-        
-        // Blocca la chiusura automatica se sta eliminando
-        if (isDeleting && !newOpen) {
-          console.log('[DeleteReportDialog] Blocking dialog close during deletion');
-          return;
-        }
-        
-        // Altrimenti, permetti la chiusura e passa lo stato al componente genitore
-        onOpenChange(newOpen);
-      }}
+      onOpenChange={handleOpenChange}
     >
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>

@@ -55,6 +55,7 @@ export const useReportsData = () => {
     onSuccess: (deletedId) => {
       console.log('[deleteReport] Mutation completed successfully for report:', deletedId);
       
+      // Notifica di successo con toast
       toast({
         title: 'Report eliminato',
         description: 'Il report è stato eliminato con successo.',
@@ -75,6 +76,7 @@ export const useReportsData = () => {
         queryClient.setQueryData(['reports'], context.previousReports);
       }
       
+      // Notifica di errore con toast
       toast({
         title: 'Errore',
         description: `Impossibile eliminare il report: ${error.message || 'Si è verificato un errore'}`,
