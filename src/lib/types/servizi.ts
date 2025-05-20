@@ -1,6 +1,7 @@
 
 import { Azienda, UserRole } from "@/lib/types";
 
+// Cambio da tipo aliasato a stringa semplice per maggiore flessibilità
 export type MetodoPagamento = string;
 export type StatoServizio = 'da_assegnare' | 'assegnato' | 'completato' | 'annullato' | 'non_accettato' | 'consuntivato';
 
