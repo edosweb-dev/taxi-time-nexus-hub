@@ -19,6 +19,9 @@ export const FormActions: React.FC<FormActionsProps> = ({
 }) => {
   // Show a message when there are no services available
   const handleSubmitClick = (e: React.MouseEvent) => {
+    // Aggiungiamo il log per debug
+    console.log("[DEBUG] Button clicked. isDisabled:", isDisabled, "serviziCount:", serviziCount);
+    
     if (isDisabled) {
       e.preventDefault(); // Prevent form submission if disabled
       

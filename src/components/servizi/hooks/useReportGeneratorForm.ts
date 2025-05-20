@@ -117,6 +117,16 @@ export const useReportGeneratorForm = (onCancel: () => void) => {
         serviziCount: serviziIds.length
       });
       
+      // Aggiungiamo il log strategico prima della chiamata
+      console.log("[DEBUG] Chiamo generateReport con:", {
+        aziendaId: data.aziendaId,
+        referenteId: data.referenteId,
+        month: parseInt(data.month),
+        year: parseInt(data.year),
+        serviziIds,
+        createdBy: profile?.id || ''
+      });
+      
       const result = await generateReport({
         aziendaId: data.aziendaId,
         referenteId: data.referenteId,
