@@ -1,13 +1,11 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { useReports } from '@/components/servizi/hooks/useReports';
+import React, { useState, useCallback } from 'react';
+import { useReportsData } from '@/components/servizi/hooks/reports';
 import { useUsers } from '@/hooks/useUsers';
 import { useAziende } from '@/hooks/useAziende';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, EyeIcon, Loader2, TrashIcon } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ReportPDF } from './ReportPDF';
 import { usePasseggeriCounts } from '@/components/servizi/hooks/usePasseggeriCounts';
@@ -17,7 +15,7 @@ import { DeleteReportDialog } from './components/DeleteReportDialog';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const ReportsList = () => {
-  const { reports, isLoading, downloadReport, deleteReport, isDeletingReport } = useReports();
+  const { reports, isLoading, downloadReport, deleteReport, isDeletingReport } = useReportsData();
   const { users } = useUsers();
   const { aziende } = useAziende();
   const { servizi } = useServizi();

@@ -1,10 +1,12 @@
 
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Report } from '@/lib/types/index';
 import { fetchReports, downloadReportFile, deleteReportFile } from './api';
 import { toast } from '@/components/ui/use-toast';
 
 export const useReportsData = () => {
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
   const queryClient = useQueryClient();
   
   // Query per il recupero dei report
@@ -19,49 +21,67 @@ export const useReportsData = () => {
   });
   
   // Funzione per il download del report
-  const downloadReport = (reportId: string) => {
+  const downloadReport = async (reportId: string) => {
     console.log('[downloadReport] Download requested for report:', reportId);
-    const report = reports.find(r => r.id === reportId);
-    if (!report) {
-      console.error('[downloadReport] Report not found:', reportId);
-      toast({
-        title: 'Errore',
-        description: 'Report non trovato',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    
+    if (isDownloading === reportId) return;
+    
+    setIsDownloading(reportId);
     try {
-      downloadReportFile({
-        filePath: report.file_path,
+      const report = reports.find(r => r.id === reportId);
+      if (!report) {
+        console.error('[downloadReport] Report not found:', reportId);
+        toast({
+          title: 'Errore',
+          description: 'Report non trovato',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // Get the actual bucket name from the report record if available
+      const bucketName = report.bucket_name || 'report_aziende';
+      
+      await downloadReportFile({
+        filePath: report.file_path, 
         fileName: report.file_name,
-        bucketName: report.bucket_name || 'report_aziende'
+        bucketName
+      });
+      
+      toast({
+        title: "Download completato",
+        description: "Il report è stato scaricato con successo.",
       });
     } catch (error: any) {
-      console.error('[downloadReport] Error:', error);
+      console.error('[downloadReport] Error downloading report:', error);
       toast({
-        title: 'Errore nel download',
+        title: "Errore nel download",
         description: error.message || 'Si è verificato un errore durante il download del file',
         variant: 'destructive',
       });
+    } finally {
+      setIsDownloading(null);
     }
   };
   
   // Mutation per l'eliminazione di un report
   const deleteReportMutation = useMutation({
-    mutationFn: (reportId: string) => {
+    mutationFn: async (reportId: string) => {
       console.log('[deleteReport] Chiamata mutation con ID:', reportId);
       const report = reports.find(r => r.id === reportId);
       if (!report) {
         throw new Error('Report non trovato');
       }
       
-      return deleteReportFile({
+      // Get the actual bucket name from the report record if available
+      const bucketName = report.bucket_name || 'report_aziende';
+      
+      await deleteReportFile({
         reportId,
         filePath: report.file_path,
-        bucketName: report.bucket_name || 'report_aziende'
+        bucketName
       });
+      return reportId;
     },
     onMutate: async (deletedId) => {
       // Cancella eventuali refetch in uscita
@@ -118,6 +138,10 @@ export const useReportsData = () => {
       
       // Forza un refetch per assicurarsi che l'UI sia sincronizzata con il server
       refetchReports();
+    },
+    onSettled: () => {
+      console.log('[deleteReport] Delete report operation settled');
+      // No need to set additional state as this is handled in the component
     }
   });
   
@@ -134,6 +158,7 @@ export const useReportsData = () => {
     downloadReport,
     deleteReport,
     isDeletingReport: deleteReportMutation.isPending,
+    isDownloading: !!isDownloading,
     refetchReports
   };
 };

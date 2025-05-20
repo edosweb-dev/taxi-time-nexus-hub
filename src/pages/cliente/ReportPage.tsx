@@ -4,7 +4,7 @@ import { ClientDashboardLayout } from '@/components/layouts/ClientDashboardLayou
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useReports } from '@/components/servizi/hooks/useReports';
+import { useReportsData } from '@/components/servizi/hooks/reports';
 import { 
   ClientReportHeader, 
   ClientReportFilters, 
@@ -14,7 +14,7 @@ import {
 
 export default function ReportPage() {
   const { profile } = useAuth();
-  const { reports, downloadReport, deleteReport, isDeletingReport } = useReports();
+  const { reports, downloadReport, deleteReport, isDeletingReport } = useReportsData();
   const [selectedMonth, setSelectedMonth] = useState<string>(new Date().getMonth() + 1 + '');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear() + '');
   const [filteredReports, setFilteredReports] = useState<any[]>([]);
