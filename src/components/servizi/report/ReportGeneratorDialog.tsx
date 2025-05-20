@@ -2,6 +2,7 @@
 import React, { useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
+import { PointerDownOutsideEvent, FocusOutsideEvent } from "@radix-ui/react-dismissable-layer";
 
 interface ReportGeneratorDialogProps {
   open: boolean;
@@ -44,11 +45,11 @@ export const ReportGeneratorDialog: React.FC<ReportGeneratorDialogProps> = ({
     }
   }, []);
 
-  // Handler per le interazioni esterne
-  const handleInteractOutside = useCallback((e: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>) => {
+  // Handler per le interazioni esterne con tipo corretto
+  const handleInteractOutside = useCallback((event: PointerDownOutsideEvent | FocusOutsideEvent) => {
     const form = document.querySelector('form');
     if (form?.dataset.submitting === 'true') {
-      e.preventDefault();
+      event.preventDefault();
     }
   }, []);
 
