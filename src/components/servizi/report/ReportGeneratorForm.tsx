@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { Form } from '@/components/ui/form';
 import { useReportGeneratorForm } from '../hooks/report';
@@ -25,7 +26,7 @@ export const ReportGeneratorForm: React.FC<ReportGeneratorFormProps> = ({ onCanc
     yearOptions,
     onSubmit,
     aziende
-  } = useReportGeneratorForm(onCancel);
+  } = useReportGeneratorForm({ onCancel });
 
   const formRef = useRef<HTMLFormElement>(null);
   
