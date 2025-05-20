@@ -19,3 +19,4 @@ export * from './ReportGeneratorLoader';
 export * from './ReportItem';
 export * from './EmptyReportState';
 export * from './ReportPreviewDialog';
+export * from './ReportListItem';

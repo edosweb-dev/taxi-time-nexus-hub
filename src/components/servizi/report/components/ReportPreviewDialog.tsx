@@ -8,7 +8,7 @@ interface ReportPreviewDialogProps {
   onOpenChange: (open: boolean) => void;
   currentReport: any | null;
   reportServizi: any[];
-  passeggeriCounts: any[];
+  passeggeriCounts: Record<string, number>;
   aziende: any[];
   users: any[];
   getReferenteName: (id: string) => string;

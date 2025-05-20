@@ -1,20 +1,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { DownloadIcon, TrashIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { useAuth } from '@/contexts/AuthContext';
+import { ReportListItem } from './ReportListItem';
 import { DeleteReportDialog } from './DeleteReportDialog';
-import { toast } from '@/components/ui/use-toast';
-
-interface Report {
-  id: string;
-  month: number;
-  year: number;
-  created_at: string;
-  servizi_ids: string[];
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { Report } from '@/lib/types';
 
 interface ClientReportListProps {
   filteredReports: Report[];
@@ -33,7 +22,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
-  // Handler memoizzato per il click sul pulsante elimina
+  // Handler for the click on delete button
   const handleDeleteClick = useCallback((reportId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -42,7 +31,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
     setIsDeleteDialogOpen(true);
   }, []);
   
-  // Handler memoizzato per confermare l'eliminazione
+  // Handler for confirming deletion
   const handleConfirmDelete = useCallback(() => {
     if (reportToDelete && deleteReport) {
       console.log('[ClientReportList] Confirming delete for report:', reportToDelete);
@@ -52,11 +41,11 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
     }
   }, [reportToDelete, deleteReport]);
 
-  // Handler memoizzato per la gestione dell'apertura del dialogo
+  // Handler for dialog open state changes
   const handleOpenChange = useCallback((open: boolean) => {
     console.log('[ClientReportList] Dialog open state changing to:', open);
     
-    // Se stiamo chiudendo il dialogo ma l'eliminazione è in corso, non fare nulla
+    // If we're closing the dialog but deletion is in progress, do nothing
     if (!open && isDeletingReport) {
       return;
     }
@@ -70,7 +59,7 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
       console.log('[ClientReportList] Deletion completed, closing dialog');
       setIsDeleteDialogOpen(false);
       
-      // Utilizziamo setTimeout per evitare problemi di aggiornamento dello stato
+      // Use setTimeout to avoid state update issues
       setTimeout(() => {
         console.log('[ClientReportList] Resetting reportToDelete to null');
         setReportToDelete(null);
@@ -78,57 +67,19 @@ export const ClientReportList: React.FC<ClientReportListProps> = ({
     }
   }, [isDeletingReport, reportToDelete, isDeleteDialogOpen]);
 
-  // Helper function to get month name
-  const getMonthName = (month: number) => {
-    return format(new Date(2022, month - 1, 1), 'MMMM', { locale: it });
-  };
+  const showDeleteButton = profile?.role === 'admin' && !!deleteReport;
 
   return (
     <>
       <div className="space-y-4">
         {filteredReports.map((report) => (
-          <div 
+          <ReportListItem
             key={report.id}
-            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md hover:bg-muted/30 transition-colors"
-          >
-            <div className="space-y-1 mb-3 sm:mb-0 flex-grow">
-              <h3 className="font-medium">
-                Report {getMonthName(report.month)} {report.year}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Generato il: {format(new Date(report.created_at), 'dd/MM/yyyy')} | 
-                Servizi: {report.servizi_ids.length}
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <Button 
-                variant="outline"
-                size="icon"
-                title="Scarica Report"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toast({
-                    title: "Download richiesto",
-                    description: "Preparazione del report per il download..."
-                  });
-                  downloadReport(report.id);
-                }}
-              >
-                <DownloadIcon className="h-4 w-4" />
-              </Button>
-              
-              {deleteReport && profile?.role === 'admin' && (
-                <Button 
-                  variant="destructive" 
-                  size="icon"
-                  title="Elimina Report"
-                  onClick={(e) => handleDeleteClick(report.id, e)}
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
+            report={report}
+            downloadReport={downloadReport}
+            onDeleteClick={handleDeleteClick}
+            showDeleteButton={showDeleteButton}
+          />
         ))}
       </div>
 
