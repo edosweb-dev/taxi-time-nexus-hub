@@ -165,7 +165,12 @@ export const useGenerateReport = () => {
         return false;
       }
       
-      const bucketExists = buckets.some(bucket => bucket.name === 'report_aziende');
+      // Cerca il bucket sia come "report_aziende" che come "Report Aziende" (case-insensitive)
+      const bucketExists = buckets.some(bucket => 
+        bucket.name.toLowerCase() === 'report_aziende' || 
+        bucket.name.toLowerCase() === 'report aziende'
+      );
+      
       console.log('Verifica bucket report_aziende:', bucketExists ? 'TROVATO' : 'NON trovato');
       
       // Se non esiste nella lista, esce subito
@@ -180,22 +185,28 @@ export const useGenerateReport = () => {
       }
       
       // Anche se il bucket esiste, verifichiamo che possiamo elencare i file (test permessi)
-      console.log('Verificando permessi di accesso al bucket...');
+      // Cerca il nome effettivo del bucket (case-insensitive)
+      const actualBucketName = buckets.find(bucket => 
+        bucket.name.toLowerCase() === 'report_aziende' || 
+        bucket.name.toLowerCase() === 'report aziende'
+      )?.name || 'report_aziende';
+      
+      console.log('Verificando permessi di accesso al bucket:', actualBucketName);
       const { error: accessError } = await supabase.storage
-        .from('report_aziende')
+        .from(actualBucketName)
         .list();
         
       if (accessError) {
         console.error('Errore nell\'accesso al bucket (permessi insufficienti):', accessError);
         toast({
           title: 'Errore di permessi',
-          description: `Non hai i permessi necessari per accedere al bucket report_aziende: ${accessError.message}`,
+          description: `Non hai i permessi necessari per accedere al bucket ${actualBucketName}: ${accessError.message}`,
           variant: 'destructive',
         });
         return false;
       }
       
-      console.log('Bucket report_aziende esiste e i permessi sono corretti');
+      console.log(`Bucket ${actualBucketName} esiste e i permessi sono corretti`);
       return true;
     } catch (error: any) {
       console.error('Errore imprevisto nella verifica del bucket:', error);
@@ -287,6 +298,13 @@ export const useGenerateReport = () => {
         return null; // Already showed toast in checkBucketExists
       }
       
+      // Get actual bucket name from list
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const actualBucketName = buckets.find(bucket => 
+        bucket.name.toLowerCase() === 'report_aziende' || 
+        bucket.name.toLowerCase() === 'report aziende'
+      )?.name || 'report_aziende';
+
       // Update filter params for the UI state
       setFilterParams({
         aziendaId: params.aziendaId,
@@ -296,6 +314,7 @@ export const useGenerateReport = () => {
       });
       
       console.log('Chiamata a edge function con serviziIds:', params.serviziIds.length);
+      console.log('Utilizzando bucket name:', actualBucketName);
       
       // Mostra toast di generazione in corso
       toast({
@@ -303,10 +322,13 @@ export const useGenerateReport = () => {
         description: 'Generazione del report PDF in corso...',
       });
       
-      // Call Edge Function to generate PDF with the servizi IDs
+      // Call Edge Function to generate PDF with the servizi IDs and actual bucket name
       console.log('Invio richiesta a edge function generate-report...');
       const { data, error } = await supabase.functions.invoke('generate-report', {
-        body: params
+        body: {
+          ...params,
+          bucketName: actualBucketName
+        }
       });
       
       console.log('Risposta da edge function ricevuta:', { data, error });

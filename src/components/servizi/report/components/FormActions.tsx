@@ -2,7 +2,7 @@
 import React, { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { Loader2, X, FilePdf } from 'lucide-react';
+import { Loader2, X, FileText } from 'lucide-react';
 
 interface FormActionsProps {
   onCancel: () => void;
@@ -74,7 +74,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
           </>
         ) : (
           <>
-            <FilePdf className="h-4 w-4 mr-1" />
+            <FileText className="h-4 w-4 mr-1" />
             Genera Report PDF
           </>
         )}

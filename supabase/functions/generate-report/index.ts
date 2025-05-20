@@ -50,7 +50,7 @@ serve(async (req: Request) => {
       return createErrorResponse("Errore nella lettura dei parametri di richiesta", 400);
     }
     
-    const { aziendaId, referenteId, month, year, serviziIds, createdBy } = body;
+    const { aziendaId, referenteId, month, year, serviziIds, createdBy, bucketName } = body;
     
     console.log("Request params:", { 
       aziendaId, 
@@ -58,8 +58,13 @@ serve(async (req: Request) => {
       month, 
       year, 
       serviziIdsCount: serviziIds?.length,
-      createdBy
+      createdBy,
+      bucketName
     });
+
+    // Use the provided bucket name or fall back to default
+    const storageBucketName = bucketName || 'report_aziende';
+    console.log("Using storage bucket name:", storageBucketName);
 
     // Validazione parametri
     if (!aziendaId || typeof aziendaId !== 'string') {
@@ -98,16 +103,25 @@ serve(async (req: Request) => {
           return false;
         }
         
-        const exists = buckets.some(bucket => bucket.name === 'report_aziende');
-        console.log("Bucket 'report_aziende' exists:", exists);
+        // Look for the bucket with any casing
+        const exists = buckets.some(bucket => 
+          bucket.name.toLowerCase() === storageBucketName.toLowerCase()
+        );
+        
+        console.log(`Bucket '${storageBucketName}' exists:`, exists);
         
         if (!exists) {
           return false;
         }
         
+        // Find the actual bucket name with correct casing
+        const actualBucketName = buckets.find(bucket => 
+          bucket.name.toLowerCase() === storageBucketName.toLowerCase()
+        )?.name || storageBucketName;
+        
         // Also check if we can list files (permission check)
         const { error: accessError } = await supabaseClient.storage
-          .from('report_aziende')
+          .from(actualBucketName)
           .list();
           
         if (accessError) {
@@ -125,10 +139,10 @@ serve(async (req: Request) => {
     // Check if bucket exists
     const bucketExists = await checkBucketExists(supabaseClient);
     if (!bucketExists) {
-      console.error("Storage bucket 'report_aziende' does not exist or permissions issues");
+      console.error(`Storage bucket '${storageBucketName}' does not exist or permissions issues`);
       return new Response(
         JSON.stringify({ 
-          error: "Storage bucket 'report_aziende' does not exist or you don't have sufficient permissions." 
+          error: `Storage bucket '${storageBucketName}' does not exist or you don't have sufficient permissions.` 
         }),
         {
           status: 400,
@@ -136,6 +150,14 @@ serve(async (req: Request) => {
         }
       );
     }
+
+    // Fetch the actual bucket name with correct casing
+    const { data: buckets } = await supabaseClient.storage.listBuckets();
+    const actualBucketName = buckets.find(bucket => 
+      bucket.name.toLowerCase() === storageBucketName.toLowerCase()
+    )?.name || storageBucketName;
+    
+    console.log("Using actual bucket name with correct casing:", actualBucketName);
 
     // Fetch servizi details
     console.log("Fetching servizi details");
@@ -378,8 +400,10 @@ serve(async (req: Request) => {
     // Upload to Supabase Storage with enhanced error handling
     try {
       console.log("Uploading PDF to storage with path:", filePath);
+      console.log("Using bucket name:", actualBucketName);
+      
       const { data: uploadData, error: uploadError } = await supabaseClient.storage
-        .from("report_aziende")
+        .from(actualBucketName)
         .upload(filePath, pdfBlob, {
           contentType: "application/pdf",
           upsert: true,
@@ -397,7 +421,7 @@ serve(async (req: Request) => {
     } catch (storageError) {
       console.error("Storage error:", storageError);
       return createErrorResponse(
-        `Storage error: ${storageError.message}. Verify 'report_aziende' bucket exists and has correct permissions.`,
+        `Storage error: ${storageError.message}. Verify '${actualBucketName}' bucket exists and has correct permissions.`,
         500
       );
     }
@@ -417,6 +441,7 @@ serve(async (req: Request) => {
             file_path: filePath,
             file_name: fileName,
             servizi_ids: serviziIds,
+            bucket_name: actualBucketName, // Store the actual bucket name used
           },
         ])
         .select()
@@ -439,6 +464,7 @@ serve(async (req: Request) => {
           reportId: reportData.id,
           fileName,
           filePath,
+          bucketName: actualBucketName,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
