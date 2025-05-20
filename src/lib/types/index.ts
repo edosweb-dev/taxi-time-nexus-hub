@@ -15,4 +15,5 @@ export interface Report {
   file_path: string;
   file_name: string;
   servizi_ids: string[];
+  bucket_name?: string; // Added optional bucket name to support storage in different buckets
 }

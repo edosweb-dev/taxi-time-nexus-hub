@@ -21,14 +21,47 @@ export const useReportsData = () => {
   // Funzione per il download del report
   const downloadReport = (reportId: string) => {
     console.log('[downloadReport] Download requested for report:', reportId);
-    downloadReportFile(reportId, reports);
+    const report = reports.find(r => r.id === reportId);
+    if (!report) {
+      console.error('[downloadReport] Report not found:', reportId);
+      toast({
+        title: 'Errore',
+        description: 'Report non trovato',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      downloadReportFile({
+        filePath: report.file_path,
+        fileName: report.file_name,
+        bucketName: report.bucket_name || 'report_aziende'
+      });
+    } catch (error: any) {
+      console.error('[downloadReport] Error:', error);
+      toast({
+        title: 'Errore nel download',
+        description: error.message || 'Si è verificato un errore durante il download del file',
+        variant: 'destructive',
+      });
+    }
   };
   
   // Mutation per l'eliminazione di un report
   const deleteReportMutation = useMutation({
     mutationFn: (reportId: string) => {
       console.log('[deleteReport] Chiamata mutation con ID:', reportId);
-      return deleteReportFile(reportId);
+      const report = reports.find(r => r.id === reportId);
+      if (!report) {
+        throw new Error('Report non trovato');
+      }
+      
+      return deleteReportFile({
+        reportId,
+        filePath: report.file_path,
+        bucketName: report.bucket_name || 'report_aziende'
+      });
     },
     onMutate: async (deletedId) => {
       // Cancella eventuali refetch in uscita
