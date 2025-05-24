@@ -64,7 +64,7 @@ export const useReportsData = () => {
     }
   };
   
-  // Mutation per l'eliminazione di un report
+  // Mutation per l'eliminazione di un report - SEMPLIFICATA
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
       console.log('[deleteReport] Chiamata mutation con ID:', reportId);
@@ -83,28 +83,6 @@ export const useReportsData = () => {
       });
       return reportId;
     },
-    onMutate: async (deletedId) => {
-      // Cancella eventuali refetch in uscita
-      console.log('[deleteReport] Starting delete mutation for report ID:', deletedId);
-      await queryClient.cancelQueries({ queryKey: ['reports'] });
-      
-      // Snapshot dello stato precedente
-      const previousReports = queryClient.getQueryData(['reports']) as Report[];
-      console.log('[deleteReport] Cached reports before optimistic update:', 
-                 Array.isArray(previousReports) ? previousReports.length : 'no data');
-      
-      // Aggiornamento ottimistico dell'UI
-      queryClient.setQueryData(['reports'], (old: Report[] | undefined) => {
-        console.log('[deleteReport] Optimistically removing report from cache:', deletedId);
-        console.log('[deleteReport] Old cache size:', old ? old.length : 0);
-        const newData = old ? old.filter(report => report.id !== deletedId) : [];
-        console.log('[deleteReport] New cache size after optimistic update:', newData.length);
-        return newData;
-      });
-      
-      // Ritorna un oggetto context con lo stato precedente
-      return { previousReports };
-    },
     onSuccess: (deletedId) => {
       console.log('[deleteReport] Mutation completed successfully for report:', deletedId);
       
@@ -118,16 +96,9 @@ export const useReportsData = () => {
       // Invalidare per assicurarsi di essere sincronizzati con il server
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
-    onError: (error: any, deletedId, context) => {
+    onError: (error: any, deletedId) => {
       console.error('[deleteReport] Errore nella mutation:', error);
       console.error('[deleteReport] Error message:', error.message);
-      console.error('[deleteReport] Error stack:', error.stack);
-      
-      // Rollback allo stato precedente
-      if (context?.previousReports) {
-        console.log('[deleteReport] Rolling back to previous state due to error');
-        queryClient.setQueryData(['reports'], context.previousReports);
-      }
       
       // Notifica di errore con toast
       toast({
@@ -138,10 +109,6 @@ export const useReportsData = () => {
       
       // Forza un refetch per assicurarsi che l'UI sia sincronizzata con il server
       refetchReports();
-    },
-    onSettled: () => {
-      console.log('[deleteReport] Delete report operation settled');
-      // No need to set additional state as this is handled in the component
     }
   });
   

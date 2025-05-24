@@ -23,7 +23,7 @@ export const ReportsList = () => {
   const [viewingReport, setViewingReport] = useState<string | null>(null);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   
-  // Stato per il dialogo di eliminazione
+  // Stato per il dialogo di eliminazione - SEMPLIFICATO
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
@@ -58,7 +58,7 @@ export const ReportsList = () => {
     setViewingReport(null);
   }, []);
   
-  // Funzione memoizzata per aprire il dialog di eliminazione
+  // Funzione per aprire il dialog di eliminazione
   const handleDeleteClick = useCallback((reportId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -67,7 +67,7 @@ export const ReportsList = () => {
     setIsDeleteDialogOpen(true);
   }, []);
   
-  // Funzione memoizzata per confermare l'eliminazione
+  // Funzione per confermare l'eliminazione
   const handleConfirmDelete = useCallback(() => {
     if (reportToDelete) {
       console.log('[ReportsList] Confirming delete in ReportsList for report:', reportToDelete);
@@ -76,41 +76,37 @@ export const ReportsList = () => {
     }
   }, [reportToDelete, deleteReport]);
 
-  // Funzione memoizzata per gestire la chiusura del dialog
+  // Funzione per gestire la chiusura del dialog - SEMPLIFICATA
   const handleDialogOpenChange = useCallback((open: boolean) => {
     console.log('[ReportsList] Dialog open state changing to:', open);
     
-    // Se il dialogo viene chiuso e non si sta eliminando un report, resettiamo reportToDelete
-    if (!open && !isDeletingReport) {
-      setIsDeleteDialogOpen(open);
-      // Non resettare reportToDelete qui per evitare un aggiornamento di stato durante il render
-    } else if (open) {
-      // Se stiamo aprendo il dialogo
-      setIsDeleteDialogOpen(open);
+    // Se si sta eliminando, non permettere la chiusura
+    if (isDeletingReport && !open) {
+      console.log('[ReportsList] Blocking dialog close during deletion');
+      return;
+    }
+    
+    setIsDeleteDialogOpen(open);
+    if (!open) {
+      setReportToDelete(null);
     }
   }, [isDeletingReport]);
 
-  // Funzione memoizzata per gestire l'apertura del generatore
+  // Funzione per gestire l'apertura del generatore
   const handleGeneratorOpenChange = useCallback((open: boolean) => {
     setIsGeneratorOpen(open);
   }, []);
   
-  // Reset reportToDelete after deletion completes
+  // Reset reportToDelete quando l'eliminazione è completata - SEMPLIFICATO
   useEffect(() => {
-    // Quando l'operazione di eliminazione è completata (isDeletingReport passa da true a false),
-    // chiudiamo il dialog e resettiamo lo stato
     if (!isDeletingReport && reportToDelete && isDeleteDialogOpen) {
-      console.log('[ReportsList] Deletion completed, closing dialog and resetting reportToDelete');
+      console.log('[ReportsList] Deletion completed, closing dialog and resetting state');
       setIsDeleteDialogOpen(false);
-      // Utilizziamo setTimeout per evitare problemi di aggiornamento dello stato
-      setTimeout(() => {
-        console.log('[ReportsList] Resetting reportToDelete to null');
-        setReportToDelete(null);
-      }, 50);
+      setReportToDelete(null);
     }
   }, [isDeletingReport, reportToDelete, isDeleteDialogOpen]);
 
-  // Funzione memoizzata per aprire il dialogo di report generator
+  // Funzione per aprire il dialogo di report generator
   const openGeneratorDialog = useCallback(() => {
     setIsGeneratorOpen(true);
   }, []);

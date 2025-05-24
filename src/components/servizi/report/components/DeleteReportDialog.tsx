@@ -1,5 +1,5 @@
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,41 +25,33 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   onConfirm,
   isDeleting
 }) => {
-  // Usiamo useCallback per evitare che la funzione cambi ad ogni render
+  // Gestione apertura/chiusura dialog - SEMPLIFICATA
   const handleOpenChange = useCallback((newOpen: boolean) => {
     console.log('[DeleteReportDialog] Dialog open state change requested:', newOpen);
     
-    // Blocca la chiusura automatica se sta eliminando
+    // Blocca la chiusura solo se sta eliminando
     if (isDeleting && !newOpen) {
       console.log('[DeleteReportDialog] Blocking dialog close during deletion');
       return;
     }
     
-    // Altrimenti, permetti la chiusura e passa lo stato al componente genitore
     onOpenChange(newOpen);
   }, [isDeleting, onOpenChange]);
 
-  // Gestiamo il click di conferma
+  // Gestione click di conferma
   const handleConfirm = useCallback((event: React.MouseEvent) => {
-    // Fermiamo la propagazione dell'evento per evitare interferenze
     event.preventDefault();
     event.stopPropagation();
     console.log('[DeleteReportDialog] handleConfirm called');
     onConfirm();
   }, [onConfirm]);
 
-  // Gestiamo il click di annullamento
+  // Gestione click di annullamento
   const handleCancel = useCallback((event: React.MouseEvent) => {
-    // Fermiamo anche qui la propagazione dell'evento
     event.preventDefault();
     event.stopPropagation();
     handleOpenChange(false);
   }, [handleOpenChange]);
-
-  // Log per debug quando il dialog cambia stato
-  useEffect(() => {
-    console.log('[DeleteReportDialog] Dialog open state:', open, 'isDeleting:', isDeleting);
-  }, [open, isDeleting]);
 
   return (
     <AlertDialog 
