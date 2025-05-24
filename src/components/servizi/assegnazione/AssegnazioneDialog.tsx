@@ -34,10 +34,19 @@ export function AssegnazioneDialog({
   const [conducenteEsternoEmail, setConducenteEsternoEmail] = useState('');
   const [selectedDipendente, setSelectedDipendente] = useState<string>('');
   
+  console.log('[AssegnazioneDialog] Dialog opened for service:', {
+    id: servizio.id,
+    data_servizio: servizio.data_servizio,
+    stato: servizio.stato
+  });
+  
   // Query for available users based on shifts and existing assignments
-  const { data: availableUsers, isLoading: isLoadingAvailableUsers } = useQuery({
+  const { data: availableUsers, isLoading: isLoadingAvailableUsers, error: availableUsersError } = useQuery({
     queryKey: ['available-users', servizio.data_servizio, servizio.id],
-    queryFn: () => getAvailableUsers(servizio.data_servizio, servizio.id),
+    queryFn: () => {
+      console.log('[AssegnazioneDialog] Fetching available users for:', servizio.data_servizio);
+      return getAvailableUsers(servizio.data_servizio, servizio.id);
+    },
     enabled: open, // Only run the query when the dialog is open
   });
 
@@ -45,19 +54,31 @@ export function AssegnazioneDialog({
   const { data: allUsers = [] } = useQuery({
     queryKey: ['users'],
     queryFn: async () => {
+      console.log('[AssegnazioneDialog] Fetching all users');
       const { data } = await supabase
         .from('profiles')
         .select('*')
         .in('role', ['admin', 'socio', 'dipendente']);
       
       // Ensure that the fetched users have the correct UserRole type
-      return (data || []).map(user => ({
+      const users = (data || []).map(user => ({
         ...user,
         role: user.role as UserRole // explicitly casting to UserRole type
       })) as Profile[];
+      
+      console.log(`[AssegnazioneDialog] Fetched ${users.length} total users`);
+      return users;
     },
     enabled: open,
   });
+
+  // Log any errors
+  useEffect(() => {
+    if (availableUsersError) {
+      console.error('[AssegnazioneDialog] Error loading available users:', availableUsersError);
+      toast.error('Errore nel caricamento degli utenti disponibili');
+    }
+  }, [availableUsersError]);
 
   // Create a list of unavailable users
   const availableUserMap = new Map<string, boolean>();
@@ -68,6 +89,12 @@ export function AssegnazioneDialog({
     (user.role === 'admin' || user.role === 'socio' || user.role === 'dipendente')
   );
 
+  console.log('[AssegnazioneDialog] Users summary:', {
+    availableCount: availableUsers?.length || 0,
+    unavailableCount: unavailableUsers.length,
+    totalCount: allUsers.length
+  });
+
   useEffect(() => {
     if (open) {
       // Reset form when dialog opens
@@ -75,12 +102,17 @@ export function AssegnazioneDialog({
       setConducenteEsternoNome(servizio.conducente_esterno_nome || '');
       setConducenteEsternoEmail(servizio.conducente_esterno_email || '');
       setSelectedDipendente(servizio.assegnato_a || '');
+      console.log('[AssegnazioneDialog] Form reset with existing values:', {
+        conducenteEsterno: !!servizio.conducente_esterno,
+        assegnatoA: servizio.assegnato_a
+      });
     }
   }, [open, servizio]);
 
   const handleAssign = async () => {
     try {
       setIsSubmitting(true);
+      console.log('[AssegnazioneDialog] Starting assignment process');
       
       let updateData: {
         stato: StatoServizio;
@@ -100,6 +132,7 @@ export function AssegnazioneDialog({
           conducente_esterno_email: conducenteEsternoEmail || null,
           assegnato_a: null
         };
+        console.log('[AssegnazioneDialog] Assigning to external driver:', conducenteEsternoNome);
       } else {
         updateData = {
           ...updateData,
@@ -108,6 +141,7 @@ export function AssegnazioneDialog({
           conducente_esterno_email: null,
           assegnato_a: selectedDipendente
         };
+        console.log('[AssegnazioneDialog] Assigning to employee:', selectedDipendente);
       }
       
       const { error } = await supabase
@@ -115,13 +149,17 @@ export function AssegnazioneDialog({
         .update(updateData)
         .eq('id', servizio.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('[AssegnazioneDialog] Assignment error:', error);
+        throw error;
+      }
       
+      console.log('[AssegnazioneDialog] Assignment successful');
       toast.success('Servizio assegnato con successo');
       queryClient.invalidateQueries({ queryKey: ['servizi'] });
       onClose();
     } catch (error: any) {
-      console.error('Error assigning service:', error);
+      console.error('[AssegnazioneDialog] Error assigning service:', error);
       toast.error(`Errore nell'assegnazione del servizio: ${error.message}`);
     } finally {
       setIsSubmitting(false);
@@ -161,6 +199,13 @@ export function AssegnazioneDialog({
               availableUsers={availableUsers}
               unavailableUsers={unavailableUsers}
             />
+          )}
+          
+          {/* Debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
+              Debug: {availableUsers?.length || 0} disponibili, {unavailableUsers.length} non disponibili
+            </div>
           )}
         </div>
         

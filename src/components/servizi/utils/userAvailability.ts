@@ -11,14 +11,25 @@ import { Profile, UserRole } from '@/lib/types';
  */
 export async function getAvailableUsers(date: string, serviceId?: string): Promise<Profile[]> {
   try {
+    console.log('[getAvailableUsers] Starting with params:', { date, serviceId });
+    
     // First get all users with admin, socio, or dipendente roles
     const { data: allUsers, error: usersError } = await supabase
       .from('profiles')
       .select('*')
       .in('role', ['admin', 'socio', 'dipendente']);
     
-    if (usersError) throw usersError;
-    if (!allUsers || allUsers.length === 0) return [];
+    if (usersError) {
+      console.error('[getAvailableUsers] Error fetching users:', usersError);
+      throw usersError;
+    }
+    
+    if (!allUsers || allUsers.length === 0) {
+      console.log('[getAvailableUsers] No users found with required roles');
+      return [];
+    }
+    
+    console.log(`[getAvailableUsers] Found ${allUsers.length} users with required roles`);
     
     const userIds = allUsers.map(user => user.id);
     
@@ -29,43 +40,75 @@ export async function getAvailableUsers(date: string, serviceId?: string): Promi
       .in('user_id', userIds)
       .eq('shift_date', date);
     
-    if (shiftsError) throw shiftsError;
+    if (shiftsError) {
+      console.error('[getAvailableUsers] Error fetching shifts:', shiftsError);
+      throw shiftsError;
+    }
     
-    // Get all services assigned on the specified date
-    const { data: assignedServices, error: servicesError } = await supabase
+    console.log(`[getAvailableUsers] Found ${shifts?.length || 0} shifts for date ${date}`);
+    
+    // Get all services assigned on the specified date (excluding current service if editing)
+    let servicesQuery = supabase
       .from('servizi')
-      .select('*')
+      .select('assegnato_a')
       .in('assegnato_a', userIds)
       .eq('data_servizio', date)
-      .neq('id', serviceId || ''); // Exclude the current service if editing
+      .not('assegnato_a', 'is', null);
     
-    if (servicesError) throw servicesError;
+    // Exclude the current service if we're editing
+    if (serviceId) {
+      servicesQuery = servicesQuery.neq('id', serviceId);
+    }
     
-    // Map of user ID to availability status
-    const userAvailability: Record<string, boolean> = {};
+    const { data: assignedServices, error: servicesError } = await servicesQuery;
     
-    // Process all users' initial availability
-    allUsers.forEach(user => {
-      userAvailability[user.id] = false; // Default to not available
-    });
+    if (servicesError) {
+      console.error('[getAvailableUsers] Error fetching assigned services:', servicesError);
+      throw servicesError;
+    }
     
-    // Process shifts - mark users as available if they have an appropriate shift
+    console.log(`[getAvailableUsers] Found ${assignedServices?.length || 0} users already assigned on ${date}`);
+    
+    // Create sets for faster lookup
+    const usersWithShifts = new Set<string>();
+    const usersAlreadyAssigned = new Set<string>();
+    
+    // Process shifts - mark users as having a valid shift
     shifts?.forEach(shift => {
-      // User is available if they have a shift that is NOT unavailable or sick leave
+      // User has a valid shift if it's NOT unavailable or sick leave
       if (shift.shift_type !== 'unavailable' && shift.shift_type !== 'sick_leave') {
-        userAvailability[shift.user_id] = true;
+        usersWithShifts.add(shift.user_id);
+        console.log(`[getAvailableUsers] User ${shift.user_id} has valid shift: ${shift.shift_type}`);
+      } else {
+        console.log(`[getAvailableUsers] User ${shift.user_id} has blocking shift: ${shift.shift_type}`);
       }
     });
     
-    // Process assigned services - mark users as unavailable if already assigned
+    // Process assigned services - mark users as already assigned
     assignedServices?.forEach(service => {
       if (service.assegnato_a) {
-        userAvailability[service.assegnato_a] = false;
+        usersAlreadyAssigned.add(service.assegnato_a);
+        console.log(`[getAvailableUsers] User ${service.assegnato_a} is already assigned to another service`);
       }
     });
     
-    // Filter users based on availability
-    const availableUsers = allUsers.filter(user => userAvailability[user.id]);
+    // Filter users based on availability criteria
+    const availableUsers = allUsers.filter(user => {
+      const hasValidShift = usersWithShifts.has(user.id);
+      const isAlreadyAssigned = usersAlreadyAssigned.has(user.id);
+      
+      const isAvailable = hasValidShift && !isAlreadyAssigned;
+      
+      console.log(`[getAvailableUsers] User ${user.first_name} ${user.last_name} (${user.id}):`, {
+        hasValidShift,
+        isAlreadyAssigned,
+        isAvailable
+      });
+      
+      return isAvailable;
+    });
+    
+    console.log(`[getAvailableUsers] Final result: ${availableUsers.length} available users`);
     
     // Ensure proper type casting for user roles
     const validRoles: UserRole[] = ['admin', 'socio', 'dipendente', 'cliente'];
@@ -78,7 +121,7 @@ export async function getAvailableUsers(date: string, serviceId?: string): Promi
     
     return sanitizedUsers;
   } catch (error) {
-    console.error('Error getting available users:', error);
+    console.error('[getAvailableUsers] Unexpected error:', error);
     return [];
   }
 }
