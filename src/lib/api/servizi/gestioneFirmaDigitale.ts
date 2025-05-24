@@ -87,42 +87,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
     console.log("Sessione valida, utente autenticato:", sessionData.session.user.id);
     
-    // Check if bucket exists
-    console.log("Verifico esistenza bucket 'firme'");
-    const { data: buckets, error: listBucketsError } = await supabase.storage.listBuckets();
-    
-    if (listBucketsError) {
-      console.error("Errore nel controllare i bucket:", listBucketsError);
-      throw listBucketsError;
-    }
-    
-    const firmeBucket = buckets?.find(bucket => bucket.name === 'firme');
-    
-    if (!firmeBucket) {
-      console.log("Creazione del bucket 'firme'");
-      const { error: createBucketError } = await supabase.storage.createBucket('firme', {
-        public: true
-      });
-      
-      if (createBucketError) {
-        console.error("Errore nella creazione del bucket:", createBucketError);
-        throw createBucketError;
-      }
-      
-      // Imposta il bucket come pubblico dopo la creazione
-      const { error: updateBucketError } = await supabase.storage.updateBucket('firme', {
-        public: true,
-        fileSizeLimit: 1024 * 1024 // 1MB limit
-      });
-      
-      if (updateBucketError) {
-        console.error("Errore nell'aggiornamento del bucket:", updateBucketError);
-      }
-    } else {
-      console.log("Bucket 'firme' già esistente");
-    }
-    
-    // Upload del file nel bucket storage "firme"
+    // Upload del file nel bucket storage "firme" (il bucket deve già esistere)
     console.log("Iniziando upload file nel bucket 'firme'");
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('firme')
@@ -134,7 +99,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       
     if (uploadError) {
       console.error("Errore upload:", uploadError);
-      throw uploadError;
+      throw new Error(`Errore nell'upload del file: ${uploadError.message}`);
     }
     
     console.log("Upload completato:", uploadData);
@@ -158,7 +123,7 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
       
     if (updateError) {
       console.error("Errore aggiornamento servizio:", updateError);
-      throw updateError;
+      throw new Error(`Errore nell'aggiornamento del servizio: ${updateError.message}`);
     }
     
     console.log("Servizio aggiornato con successo:", updateResult);
@@ -166,6 +131,6 @@ export async function salvaFirmaDigitale(servizioId: string, firmaBase64: string
     
   } catch (error: any) {
     console.error('Errore nel salvataggio della firma:', error);
-    return { success: false, error };
+    return { success: false, error: error.message || 'Errore sconosciuto' };
   }
 }
