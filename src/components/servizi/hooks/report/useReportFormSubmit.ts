@@ -11,7 +11,7 @@ export const useReportFormSubmit = (
 ) => {
   const [isLoading, setIsLoading] = useState(false);
   const { profile } = useAuth();
-  const { generateReport, checkBucketExists } = useGenerateReport();
+  const { generateReport } = useGenerateReport();
 
   const handleSubmit = async (data: ReportFormValues) => {
     console.log("Form submitted, starting report generation with data:", data);
@@ -81,11 +81,11 @@ export const useReportFormSubmit = (
     } catch (error: any) {
       console.error('Error generating report:', error);
       
-      // Gestione specifica dell'errore di bucket mancante
+      // Gestione specifica dell'errore di bucket mancante (non più necessaria ma mantenuta per compatibilità)
       if (error.message && error.message.includes('bucket')) {
         toast({
           title: "Errore nella generazione del report",
-          description: "Problema con il bucket di storage. Si è tentato di crearlo automaticamente, riprova l'operazione.",
+          description: "Problema con il bucket di storage. Contatta l'amministratore.",
           variant: "destructive",
         });
       } else {
