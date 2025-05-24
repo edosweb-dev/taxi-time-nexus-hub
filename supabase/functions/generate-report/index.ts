@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as PDFLib from "https://esm.sh/jspdf@2.5.1";
@@ -89,89 +90,6 @@ serve(async (req: Request) => {
     if (!createdBy || typeof createdBy !== 'string') {
       return createErrorResponse("createdBy deve essere una stringa valida", 400);
     }
-
-    // Check if the bucket exists, and create it if it doesn't
-    const checkOrCreateBucket = async (supabaseClient) => {
-      try {
-        console.log("Checking if bucket exists");
-        
-        // Check if bucket exists
-        const { data: buckets, error: bucketsError } = await supabaseClient.storage.listBuckets();
-        
-        if (bucketsError) {
-          console.error('Error checking buckets:', bucketsError);
-          return false;
-        }
-        
-        // Look for the bucket with any casing
-        const exists = buckets.some(bucket => 
-          bucket.name.toLowerCase() === storageBucketName.toLowerCase()
-        );
-        
-        console.log(`Bucket '${storageBucketName}' exists:`, exists);
-        
-        if (!exists) {
-          console.log(`Bucket '${storageBucketName}' does not exist, attempting to create it`);
-          
-          // Try to create the bucket
-          const { data: createData, error: createError } = await supabaseClient.storage.createBucket(
-            storageBucketName, 
-            { public: false }
-          );
-          
-          if (createError) {
-            console.error('Error creating bucket:', createError);
-            return false;
-          }
-          
-          console.log(`Bucket '${storageBucketName}' created successfully`);
-          return true;
-        }
-        
-        // Find the actual bucket name with correct casing
-        const actualBucketName = buckets.find(bucket => 
-          bucket.name.toLowerCase() === storageBucketName.toLowerCase()
-        )?.name || storageBucketName;
-        
-        // Also check if we can list files (permission check)
-        const { error: accessError } = await supabaseClient.storage
-          .from(actualBucketName)
-          .list();
-          
-        if (accessError) {
-          console.error('Error accessing bucket (permissions issue):', accessError);
-          return false;
-        }
-        
-        return true;
-      } catch (error) {
-        console.error('Unexpected error checking/creating bucket:', error);
-        return false;
-      }
-    };
-    
-    // Check if bucket exists or create it
-    const bucketReady = await checkOrCreateBucket(supabaseClient);
-    if (!bucketReady) {
-      console.error(`Storage bucket '${storageBucketName}' could not be accessed/created or permissions issues`);
-      return new Response(
-        JSON.stringify({ 
-          error: `Storage bucket '${storageBucketName}' could not be accessed/created or you don't have sufficient permissions.` 
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // Fetch the actual bucket name with correct casing
-    const { data: buckets } = await supabaseClient.storage.listBuckets();
-    const actualBucketName = buckets.find(bucket => 
-      bucket.name.toLowerCase() === storageBucketName.toLowerCase()
-    )?.name || storageBucketName;
-    
-    console.log("Using actual bucket name with correct casing:", actualBucketName);
 
     // Fetch servizi details
     console.log("Fetching servizi details");
@@ -411,40 +329,13 @@ serve(async (req: Request) => {
     const pdfBytes = doc.output("arraybuffer");
     const pdfBlob = new Blob([pdfBytes], { type: "application/pdf" });
 
-    // Create directory structure if it doesn't exist
-    try {
-      console.log("Ensuring directory structure exists");
-      // Attempt to list the directory to check if it exists
-      const { error: dirCheckError } = await supabaseClient.storage
-        .from(actualBucketName)
-        .list(`${aziendaId}/${year}/${month}`);
-      
-      if (dirCheckError && dirCheckError.message.includes('not found')) {
-        console.log("Creating directory structure");
-        
-        // Create an empty file in the directory path to ensure structure exists
-        const emptyBlob = new Blob([''], { type: 'text/plain' });
-        await supabaseClient.storage
-          .from(actualBucketName)
-          .upload(`${aziendaId}/${year}/${month}/.directory`, emptyBlob, {
-            contentType: 'text/plain',
-            upsert: true,
-          });
-        
-        console.log("Directory structure created");
-      }
-    } catch (dirError) {
-      console.warn("Warning: Couldn't verify/create directory structure:", dirError);
-      // Continue anyway, the upload might still succeed
-    }
-
-    // Upload to Supabase Storage with enhanced error handling
+    // Upload to Supabase Storage - simplified approach
     try {
       console.log("Uploading PDF to storage with path:", filePath);
-      console.log("Using bucket name:", actualBucketName);
+      console.log("Using bucket name:", storageBucketName);
       
       const { data: uploadData, error: uploadError } = await supabaseClient.storage
-        .from(actualBucketName)
+        .from(storageBucketName)
         .upload(filePath, pdfBlob, {
           contentType: "application/pdf",
           upsert: true,
@@ -453,7 +344,7 @@ serve(async (req: Request) => {
       if (uploadError) {
         console.error("Error uploading PDF:", uploadError);
         return createErrorResponse(
-          `Error uploading PDF: ${uploadError.message}. Check storage permissions.`,
+          `Error uploading PDF: ${uploadError.message}. Verifica i permessi di storage.`,
           500
         );
       }
@@ -462,7 +353,7 @@ serve(async (req: Request) => {
     } catch (storageError) {
       console.error("Storage error:", storageError);
       return createErrorResponse(
-        `Storage error: ${storageError.message}. Verify '${actualBucketName}' bucket exists and has correct permissions.`,
+        `Storage error: ${storageError.message}. Verifica che il bucket '${storageBucketName}' abbia i permessi corretti.`,
         500
       );
     }
@@ -482,7 +373,7 @@ serve(async (req: Request) => {
             file_path: filePath,
             file_name: fileName,
             servizi_ids: serviziIds,
-            bucket_name: actualBucketName, // Store the actual bucket name used
+            bucket_name: storageBucketName, // Store the bucket name used
           },
         ])
         .select()
@@ -505,7 +396,7 @@ serve(async (req: Request) => {
           reportId: reportData.id,
           fileName,
           filePath,
-          bucketName: actualBucketName,
+          bucketName: storageBucketName,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },

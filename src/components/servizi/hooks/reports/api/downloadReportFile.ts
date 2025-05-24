@@ -16,48 +16,45 @@ export const downloadReportFile = async ({
   console.log(`Downloading file ${fileName} from path ${filePath} in bucket ${bucketName}`);
   
   try {
-    // Verifichiamo prima che il bucket esista
-    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-    
-    if (bucketsError) {
-      console.error('Errore nel recupero dei bucket:', bucketsError);
-      throw new Error(`Errore nel recupero dei bucket: ${bucketsError.message}`);
-    }
-    
-    // Cerca il bucket con qualsiasi case
-    const bucketExists = buckets.some(bucket => 
-      bucket.name.toLowerCase() === bucketName.toLowerCase()
-    );
-    
-    if (!bucketExists) {
-      console.error(`Il bucket "${bucketName}" non esiste`);
-      toast({
-        title: 'Bucket non trovato',
-        description: `Il bucket "${bucketName}" non esiste. Contatta l'amministratore.`,
-        variant: 'destructive',
-      });
-      
-      return false;
-    }
-    
-    // Trova il nome effettivo del bucket con case corretto
-    const actualBucketName = buckets.find(bucket => 
-      bucket.name.toLowerCase() === bucketName.toLowerCase()
-    )?.name || bucketName;
-    
-    // Get the file
+    // Get the file directly - no need for complex bucket verification
     const { data, error } = await supabase
       .storage
-      .from(actualBucketName)
+      .from(bucketName)
       .download(filePath);
 
     if (error) {
       console.error('Error downloading file:', error);
+      
+      // Provide specific error messages based on error type
+      if (error.message.includes('not found')) {
+        toast({
+          title: 'File non trovato',
+          description: `Il file ${fileName} non è stato trovato nel sistema di storage.`,
+          variant: 'destructive',
+        });
+      } else if (error.message.includes('permission')) {
+        toast({
+          title: 'Errore di permessi',
+          description: 'Non hai i permessi necessari per scaricare questo file.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Errore nel download',
+          description: `Errore nel download del file: ${error.message}`,
+          variant: 'destructive',
+        });
+      }
       throw new Error(`Errore nel download del file: ${error.message}`);
     }
 
     if (!data) {
-      throw new Error('File non trovato');
+      toast({
+        title: 'File vuoto',
+        description: 'Il file richiesto è vuoto o corrotto.',
+        variant: 'destructive',
+      });
+      throw new Error('File non trovato o vuoto');
     }
 
     // Create a download link
@@ -81,11 +78,15 @@ export const downloadReportFile = async ({
     return true;
   } catch (error: any) {
     console.error('Error in downloadReportFile:', error);
-    toast({
-      title: 'Errore nel download',
-      description: error.message || 'Si è verificato un errore durante il download del file',
-      variant: 'destructive',
-    });
+    
+    // Only show toast if not already shown above
+    if (!error.message?.includes('Errore nel download del file:')) {
+      toast({
+        title: 'Errore imprevisto',
+        description: error.message || 'Si è verificato un errore imprevisto durante il download del file',
+        variant: 'destructive',
+      });
+    }
     throw error;
   }
 };

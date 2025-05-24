@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Servizio } from '@/lib/types/servizi';
@@ -146,118 +147,6 @@ export const useGenerateReport = () => {
     return data as Servizio[];
   };
   
-  // Funzione migliorata per verificare il bucket e crearlo se non esiste
-  const checkBucketExists = async (): Promise<boolean> => {
-    try {
-      console.log('Verificando esistenza e permessi bucket report_aziende...');
-      const bucketName = 'report_aziende';
-      
-      // Prima verifichiamo se il bucket esiste nella lista
-      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-      
-      if (bucketsError) {
-        console.error('Errore nella verifica dei bucket:', bucketsError);
-        toast({
-          title: 'Errore',
-          description: `Errore nel verificare i bucket di storage: ${bucketsError.message}`,
-          variant: 'destructive',
-        });
-        return false;
-      }
-      
-      // Cerca il bucket sia come "report_aziende" che come "Report Aziende" (case-insensitive)
-      const bucketExists = buckets.some(bucket => 
-        bucket.name.toLowerCase() === 'report_aziende' || 
-        bucket.name.toLowerCase() === 'report aziende'
-      );
-      
-      console.log('Verifica bucket report_aziende:', bucketExists ? 'TROVATO' : 'NON trovato');
-      
-      // Se non esiste, tentiamo di crearlo
-      if (!bucketExists) {
-        console.log('Tentativo di creazione bucket report_aziende...');
-        
-        const { data: createdBucket, error: createError } = await supabase.storage.createBucket(
-          bucketName,
-          { public: false }  // Non rendere pubblico per sicurezza
-        );
-        
-        if (createError) {
-          console.error('Errore nella creazione del bucket:', createError);
-          
-          // Se non si riesce a creare il bucket (per esempio per permessi insufficienti)
-          if (createError.message.includes('permission') || createError.message.includes('not allowed')) {
-            toast({
-              title: 'Errore di permessi',
-              description: `Non hai i permessi necessari per creare il bucket '${bucketName}'. Contatta l'amministratore.`,
-              variant: 'destructive',
-            });
-          } else {
-            toast({
-              title: 'Errore',
-              description: `Impossibile creare il bucket '${bucketName}': ${createError.message}`,
-              variant: 'destructive',
-            });
-          }
-          return false;
-        }
-        
-        console.log('Bucket creato con successo:', createdBucket);
-        
-        // Configuriamo le politiche per il bucket - RIMOSSO IL CODICE CHE CAUSA L'ERRORE
-        // Precedente chiamata a rpc che causava l'errore TypeScript:
-        // const { error: policyError } = await supabase.rpc('create_storage_policy', {
-        //   bucket_id: bucketName,
-        //   policy_name: 'reports_access',
-        //   definition: "(bucket_id = '" + bucketName + "')"
-        // });
-        
-        // Rimuoviamo questa chiamata poiché l'RPC non è definito nei tipi di Supabase
-        // Le policy saranno impostate dall'amministratore manualmente se necessario
-        
-        toast({
-          title: 'Bucket creato',
-          description: `Il bucket '${bucketName}' è stato creato con successo. Riprova a generare il report.`
-        });
-        
-        return true; // Il bucket è stato creato con successo
-      }
-      
-      // Se il bucket esiste, verifichiamo che possiamo elencare i file (test permessi)
-      // Cerca il nome effettivo del bucket (case-insensitive)
-      const actualBucketName = buckets.find(bucket => 
-        bucket.name.toLowerCase() === 'report_aziende' || 
-        bucket.name.toLowerCase() === 'report aziende'
-      )?.name || 'report_aziende';
-      
-      console.log('Verificando permessi di accesso al bucket:', actualBucketName);
-      const { error: accessError } = await supabase.storage
-        .from(actualBucketName)
-        .list();
-        
-      if (accessError) {
-        console.error('Errore nell\'accesso al bucket (permessi insufficienti):', accessError);
-        toast({
-          title: 'Errore di permessi',
-          description: `Non hai i permessi necessari per accedere al bucket ${actualBucketName}: ${accessError.message}`,
-          variant: 'destructive',
-        });
-        return false;
-      }
-      
-      console.log(`Bucket ${actualBucketName} esiste e i permessi sono corretti`);
-      return true;
-    } catch (error: any) {
-      console.error('Errore imprevisto nella verifica del bucket:', error);
-      toast({
-        title: 'Errore',
-        description: `Errore nella verifica del bucket di storage: ${error.message}`,
-        variant: 'destructive',
-      });
-      return false;
-    }
-  };
-  
   // Function to generate PDF report
   const generateReport = async (params: GenerateReportParams) => {
     try {
@@ -329,20 +218,6 @@ export const useGenerateReport = () => {
         });
         return null;
       }
-      
-      // Check if bucket exists and we have permissions
-      console.log('Verifica esistenza bucket e permessi...');
-      const bucketExists = await checkBucketExists();
-      if (!bucketExists) {
-        return null; // Already showed toast in checkBucketExists
-      }
-      
-      // Get actual bucket name from list
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const actualBucketName = buckets.find(bucket => 
-        bucket.name.toLowerCase() === 'report_aziende' || 
-        bucket.name.toLowerCase() === 'report aziende'
-      )?.name || 'report_aziende';
 
       // Update filter params for the UI state
       setFilterParams({
@@ -353,7 +228,6 @@ export const useGenerateReport = () => {
       });
       
       console.log('Chiamata a edge function con serviziIds:', params.serviziIds.length);
-      console.log('Utilizzando bucket name:', actualBucketName);
       
       // Mostra toast di generazione in corso
       toast({
@@ -361,12 +235,12 @@ export const useGenerateReport = () => {
         description: 'Generazione del report PDF in corso...',
       });
       
-      // Call Edge Function to generate PDF with the servizi IDs and actual bucket name
+      // Call Edge Function to generate PDF with the servizi IDs and bucket name
       console.log('Invio richiesta a edge function generate-report...');
       const { data, error } = await supabase.functions.invoke('generate-report', {
         body: {
           ...params,
-          bucketName: actualBucketName
+          bucketName: 'report_aziende' // Use the fixed bucket name
         }
       });
       
@@ -374,12 +248,27 @@ export const useGenerateReport = () => {
       
       if (error) {
         console.error('Errore dalla edge function:', error);
-        toast({
-          title: 'Errore',
-          description: 'Si è verificato un errore nella generazione del report: ' + 
-            (error.message || 'Verifica i permessi di storage su Supabase'),
-          variant: 'destructive',
-        });
+        
+        // Gestione errori specifici
+        if (error.message?.includes('bucket')) {
+          toast({
+            title: 'Errore di storage',
+            description: 'Problema con il sistema di archiviazione. Contatta l\'amministratore.',
+            variant: 'destructive',
+          });
+        } else if (error.message?.includes('permission')) {
+          toast({
+            title: 'Errore di permessi',
+            description: 'Non hai i permessi necessari per generare il report.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Errore nella generazione',
+            description: error.message || 'Si è verificato un errore durante la generazione del report',
+            variant: 'destructive',
+          });
+        }
         throw error;
       }
       
@@ -415,12 +304,15 @@ export const useGenerateReport = () => {
       
     } catch (error: any) {
       console.error('Errore imprevisto nella generazione report:', error);
-      toast({
-        title: 'Errore',
-        description: 'Si è verificato un errore nella generazione del report. ' + 
-          (error.message || 'Potrebbe essere un problema di permessi o di configurazione del bucket di storage.'),
-        variant: 'destructive',
-      });
+      
+      // Toast di fallback per errori non gestiti
+      if (!error.message?.includes('bucket') && !error.message?.includes('permission')) {
+        toast({
+          title: 'Errore',
+          description: error?.message || 'Si è verificato un errore imprevisto nella generazione del report.',
+          variant: 'destructive',
+        });
+      }
       throw error;
     }
   };
@@ -428,7 +320,6 @@ export const useGenerateReport = () => {
   return {
     fetchServizi,
     generateReport,
-    setFilterParams,
-    checkBucketExists
+    setFilterParams
   };
 };

@@ -271,6 +271,7 @@ export type Database = {
       reports: {
         Row: {
           azienda_id: string
+          bucket_name: string | null
           created_at: string
           created_by: string
           file_name: string
@@ -283,6 +284,7 @@ export type Database = {
         }
         Insert: {
           azienda_id: string
+          bucket_name?: string | null
           created_at?: string
           created_by: string
           file_name: string
@@ -295,6 +297,7 @@ export type Database = {
         }
         Update: {
           azienda_id?: string
+          bucket_name?: string | null
           created_at?: string
           created_by?: string
           file_name?: string
