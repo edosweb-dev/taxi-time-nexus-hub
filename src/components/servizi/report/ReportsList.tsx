@@ -53,7 +53,7 @@ export const ReportsList = () => {
     setViewingReport(reportId);
   }, []);
   
-  const handleDialogClose = useCallback(() => {
+  const handleViewDialogClose = useCallback(() => {
     setViewingReport(null);
   }, []);
   
@@ -73,8 +73,8 @@ export const ReportsList = () => {
     }
   }, [reportToDelete, deleteReport]);
 
-  // Funzione semplificata per chiudere il dialog
-  const handleDialogClose = useCallback(() => {
+  // Funzione semplificata per chiudere il dialog di eliminazione
+  const handleDeleteDialogClose = useCallback(() => {
     if (!isDeletingReport) {
       setReportToDelete(null);
     }
@@ -124,7 +124,7 @@ export const ReportsList = () => {
       {/* PDF Preview Dialog */}
       <ReportPreviewDialog 
         open={!!viewingReport}
-        onOpenChange={(open) => !open && handleDialogClose()}
+        onOpenChange={(open) => !open && handleViewDialogClose()}
         currentReport={currentReport}
         reportServizi={reportServizi}
         passeggeriCounts={passeggeriCounts}
@@ -142,7 +142,7 @@ export const ReportsList = () => {
       {/* Delete Confirmation Dialog - Usando solo reportToDelete come stato */}
       <DeleteReportDialog 
         open={!!reportToDelete}
-        onOpenChange={(open) => !open && handleDialogClose()}
+        onOpenChange={(open) => !open && handleDeleteDialogClose()}
         onConfirm={handleConfirmDelete}
         isDeleting={isDeletingReport}
       />
