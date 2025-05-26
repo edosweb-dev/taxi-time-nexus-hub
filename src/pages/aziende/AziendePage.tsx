@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { AziendaList } from '@/components/aziende/AziendaList';
-import { AziendaDialog } from '@/components/aziende/AziendaDialog';
+import { AziendaSheet } from '@/components/aziende/AziendaSheet';
 import { AziendaDeleteDialog } from '@/components/aziende/AziendaDeleteDialog';
 import { useAziende } from '@/hooks/useAziende';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,20 +25,20 @@ export default function AziendePage() {
     isDeleting,
   } = useAziende();
 
-  const [isAziendaDialogOpen, setIsAziendaDialogOpen] = useState(false);
+  const [isAziendaSheetOpen, setIsAziendaSheetOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
 
   const handleAddAzienda = () => {
     console.log('[AziendePage] Starting creation of new company');
     setSelectedAzienda(null);
-    setIsAziendaDialogOpen(true);
+    setIsAziendaSheetOpen(true);
   };
 
   const handleEditAzienda = (azienda: Azienda) => {
     console.log('[AziendePage] Editing company:', azienda);
     setSelectedAzienda(azienda);
-    setIsAziendaDialogOpen(true);
+    setIsAziendaSheetOpen(true);
   };
 
   const handleDeleteAzienda = (azienda: Azienda) => {
@@ -56,7 +56,7 @@ export default function AziendePage() {
       console.log('[AziendePage] Creating new company');
       createCompany(data);
     }
-    setIsAziendaDialogOpen(false);
+    setIsAziendaSheetOpen(false);
   };
 
   const handleConfirmDelete = () => {
@@ -103,9 +103,9 @@ export default function AziendePage() {
           onAddAzienda={handleAddAzienda}
         />
         
-        <AziendaDialog
-          isOpen={isAziendaDialogOpen}
-          onOpenChange={setIsAziendaDialogOpen}
+        <AziendaSheet
+          isOpen={isAziendaSheetOpen}
+          onOpenChange={setIsAziendaSheetOpen}
           onSubmit={handleSubmitAzienda}
           azienda={selectedAzienda}
           isSubmitting={isCreating || isUpdating}

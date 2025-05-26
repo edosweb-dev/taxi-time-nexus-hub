@@ -12,7 +12,7 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('info');
-  const [isAziendaDialogOpen, setIsAziendaDialogOpen] = useState(false);
+  const [isAziendaSheetOpen, setIsAziendaSheetOpen] = useState(false);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
@@ -50,13 +50,13 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   };
 
   const handleEditAzienda = () => {
-    setIsAziendaDialogOpen(true);
+    setIsAziendaSheetOpen(true);
   };
 
   const handleSubmitAzienda = (data: AziendaFormData) => {
     if (id) {
       updateCompany(id, data);
-      setIsAziendaDialogOpen(false);
+      setIsAziendaSheetOpen(false);
     }
   };
 
@@ -102,8 +102,8 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     setActiveTab,
     referenti,
     isLoadingUsers,
-    isAziendaDialogOpen,
-    setIsAziendaDialogOpen,
+    isAziendaSheetOpen,
+    setIsAziendaSheetOpen,
     isUserDialogOpen,
     setIsUserDialogOpen,
     selectedUser,
