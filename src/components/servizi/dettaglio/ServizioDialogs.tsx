@@ -1,7 +1,7 @@
 
 import React from "react";
-import { CompletaServizioDialog } from "@/components/servizi/completamento";
-import { ConsuntivaServizioDialog } from "@/components/servizi/consuntivazione";
+import { CompletaServizioSheet } from "@/components/servizi/completamento";
+import { ConsuntivaServizioSheet } from "@/components/servizi/consuntivazione";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 
@@ -26,8 +26,8 @@ export function ServizioDialogs({
 }: ServizioDialogsProps) {
   return (
     <>
-      {/* Completa servizio dialog */}
-      <CompletaServizioDialog
+      {/* Completa servizio sheet */}
+      <CompletaServizioSheet
         open={completaDialogOpen}
         onOpenChange={onCompletaOpenChange}
         servizioId={servizio.id}
@@ -36,8 +36,8 @@ export function ServizioDialogs({
         users={users}
       />
 
-      {/* Consuntiva servizio dialog */}
-      <ConsuntivaServizioDialog
+      {/* Consuntiva servizio sheet */}
+      <ConsuntivaServizioSheet
         open={consuntivaDialogOpen}
         onOpenChange={onConsuntivaOpenChange}
         servizioId={servizio.id}

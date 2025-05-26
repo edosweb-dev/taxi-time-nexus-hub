@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAziende } from '@/hooks/useAziende';
@@ -13,7 +12,7 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   
   const [activeTab, setActiveTab] = useState('info');
   const [isAziendaSheetOpen, setIsAziendaSheetOpen] = useState(false);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [isUserSheetOpen, setIsUserSheetOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
   const { 
@@ -62,12 +61,12 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
 
   const handleAddUser = () => {
     setSelectedUser(null);
-    setIsUserDialogOpen(true);
+    setIsUserSheetOpen(true);
   };
 
   const handleEditUser = (user: Profile) => {
     setSelectedUser(user);
-    setIsUserDialogOpen(true);
+    setIsUserSheetOpen(true);
   };
 
   const handleDeleteUser = (user: Profile) => {
@@ -92,7 +91,7 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
       createUser(userDataWithAzienda);
     }
     
-    setIsUserDialogOpen(false);
+    setIsUserSheetOpen(false);
   };
 
   return {
@@ -104,8 +103,8 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     isLoadingUsers,
     isAziendaSheetOpen,
     setIsAziendaSheetOpen,
-    isUserDialogOpen,
-    setIsUserDialogOpen,
+    isUserSheetOpen,
+    setIsUserSheetOpen,
     selectedUser,
     handleBack,
     handleEditAzienda,

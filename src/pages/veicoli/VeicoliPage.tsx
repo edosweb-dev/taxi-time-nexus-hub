@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { VeicoloDialog, VeicoloList } from '@/components/veicoli';
+import { VeicoloSheet, VeicoloList } from '@/components/veicoli';
 import { useVeicoli, useCreateVeicolo, useUpdateVeicolo, useDeleteVeicolo } from '@/hooks/useVeicoli';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
 
@@ -24,18 +24,18 @@ export default function VeicoliPage() {
   const updateVeicoloMutation = useUpdateVeicolo();
   const deleteVeicoloMutation = useDeleteVeicolo();
 
-  const [showDialog, setShowDialog] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
   const [editingVeicolo, setEditingVeicolo] = useState<Veicolo | undefined>();
   const [veicoloToDelete, setVeicoloToDelete] = useState<Veicolo | null>(null);
 
   const handleCreate = () => {
     setEditingVeicolo(undefined);
-    setShowDialog(true);
+    setShowSheet(true);
   };
 
   const handleEdit = (veicolo: Veicolo) => {
     setEditingVeicolo(veicolo);
-    setShowDialog(true);
+    setShowSheet(true);
   };
 
   const handleSubmit = async (data: VeicoloFormData) => {
@@ -48,7 +48,7 @@ export default function VeicoliPage() {
       } else {
         await createVeicoloMutation.mutateAsync(data);
       }
-      setShowDialog(false);
+      setShowSheet(false);
       setEditingVeicolo(undefined);
     } catch (error) {
       console.error('Error saving veicolo:', error);
@@ -107,9 +107,9 @@ export default function VeicoliPage() {
           </CardContent>
         </Card>
 
-        <VeicoloDialog
-          open={showDialog}
-          onOpenChange={setShowDialog}
+        <VeicoloSheet
+          open={showSheet}
+          onOpenChange={setShowSheet}
           veicolo={editingVeicolo}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}

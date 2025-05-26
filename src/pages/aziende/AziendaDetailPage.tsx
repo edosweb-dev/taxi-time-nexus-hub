@@ -1,10 +1,10 @@
-
 import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit } from 'lucide-react';
 import { AziendaSheet } from '@/components/aziende/AziendaSheet';
+import { UserSheet } from '@/components/users/UserSheet';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
 import { ReferentiTab } from '@/components/aziende/detail/ReferentiTab';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
@@ -24,8 +24,8 @@ export default function AziendaDetailPage() {
     isLoadingUsers,
     isAziendaSheetOpen,
     setIsAziendaSheetOpen,
-    isUserDialogOpen,
-    setIsUserDialogOpen,
+    isUserSheetOpen,
+    setIsUserSheetOpen,
     selectedUser,
     handleBack,
     handleEditAzienda,
@@ -99,8 +99,8 @@ export default function AziendaDetailPage() {
               onAddUser={handleAddUser}
               onEditUser={handleEditUser}
               onDeleteUser={handleDeleteUser}
-              isUserDialogOpen={isUserDialogOpen}
-              setIsUserDialogOpen={setIsUserDialogOpen}
+              isUserDialogOpen={isUserSheetOpen}
+              setIsUserDialogOpen={setIsUserSheetOpen}
               selectedUser={selectedUser}
               onSubmitUser={handleSubmitUser}
               isCreatingUser={isCreatingUser}
@@ -115,6 +115,18 @@ export default function AziendaDetailPage() {
           onSubmit={handleSubmitAzienda}
           azienda={azienda}
           isSubmitting={isUpdating}
+        />
+
+        <UserSheet
+          isOpen={isUserSheetOpen}
+          onOpenChange={setIsUserSheetOpen}
+          onSubmit={handleSubmitUser}
+          user={selectedUser}
+          isSubmitting={isCreatingUser || isUpdatingUser}
+          defaultRole="cliente"
+          hiddenRoles={['admin', 'socio', 'dipendente']}
+          isNewUser={!selectedUser}
+          preselectedAzienda={azienda}
         />
       </div>
     </MainLayout>

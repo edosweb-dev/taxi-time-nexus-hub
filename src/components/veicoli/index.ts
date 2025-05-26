@@ -1,5 +1,6 @@
 
-export * from './VeicoloForm';
-export * from './VeicoloDialog';
-export * from './VeicoloList';
-export * from './VeicoloSelectField';
+export { VeicoloDialog } from './VeicoloDialog';
+export { VeicoloSheet } from './VeicoloSheet';
+export { VeicoloForm } from './VeicoloForm';
+export { VeicoloList } from './VeicoloList';
+export { VeicoloSelectField } from './VeicoloSelectField';
