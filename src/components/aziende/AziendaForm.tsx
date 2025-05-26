@@ -32,6 +32,16 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
     indirizzo: z.string().optional().or(z.literal('')),
     firma_digitale_attiva: z.boolean().default(false),
     provvigione: z.boolean().default(false),
+    provvigione_tipo: z.enum(['fisso', 'percentuale']).optional(),
+    provvigione_valore: z.number().min(0, { message: 'Il valore deve essere maggiore o uguale a 0' }).optional(),
+  }).refine((data) => {
+    if (data.provvigione && (!data.provvigione_tipo || data.provvigione_valore === undefined)) {
+      return false;
+    }
+    return true;
+  }, {
+    message: 'Quando le provvigioni sono attive, è necessario specificare tipo e valore',
+    path: ['provvigione_valore'],
   });
 
   const form = useForm<z.infer<typeof aziendaFormSchema>>({
@@ -44,6 +54,8 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       indirizzo: azienda?.indirizzo || '',
       firma_digitale_attiva: azienda?.firma_digitale_attiva || false,
       provvigione: azienda?.provvigione || false,
+      provvigione_tipo: azienda?.provvigione_tipo || 'fisso',
+      provvigione_valore: azienda?.provvigione_valore || 0,
     },
   });
 
@@ -56,6 +68,8 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       indirizzo: values.indirizzo ? values.indirizzo.trim() : undefined,
       firma_digitale_attiva: values.firma_digitale_attiva,
       provvigione: values.provvigione,
+      provvigione_tipo: values.provvigione ? values.provvigione_tipo : undefined,
+      provvigione_valore: values.provvigione ? values.provvigione_valore : undefined,
     };
     
     onSubmit(aziendaData);

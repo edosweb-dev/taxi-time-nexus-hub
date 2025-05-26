@@ -29,5 +29,7 @@ export interface Azienda {
   indirizzo?: string | null;
   firma_digitale_attiva?: boolean | null;
   provvigione?: boolean | null;
+  provvigione_tipo?: 'fisso' | 'percentuale' | null;
+  provvigione_valore?: number | null;
   created_at: string;
 }
