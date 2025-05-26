@@ -1,11 +1,11 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Passeggero } from "@/lib/types/servizi";
+import { PasseggeroConDettagli } from "@/lib/types/servizi";
 import { PasseggeroCard } from "@/components/servizi/passeggeri/PasseggeroCard";
 
 interface ServizioPasseggeriTabProps {
-  passeggeri: Passeggero[];
+  passeggeri: PasseggeroConDettagli[];
   servizioPresa: string;
   servizioDestinazione: string;
   servizioOrario: string;
@@ -29,7 +29,7 @@ export function ServizioPasseggeriTab({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {passeggeri.map((passeggero: Passeggero) => (
+            {passeggeri.map((passeggero: PasseggeroConDettagli) => (
               <PasseggeroCard
                 key={passeggero.id}
                 passeggero={passeggero}

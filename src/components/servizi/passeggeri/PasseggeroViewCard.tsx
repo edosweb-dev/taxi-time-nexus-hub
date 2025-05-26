@@ -1,10 +1,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Passeggero } from "@/lib/types/servizi";
+import { PasseggeroConDettagli } from "@/lib/types/servizi";
 import { MapPin, Clock, Phone, Mail, User } from "lucide-react";
 
 interface PasseggeroViewCardProps {
-  passeggero: Passeggero;
+  passeggero: PasseggeroConDettagli;
   servizioPresa?: string;
   servizioDestinazione?: string;
   servizioOrario?: string;

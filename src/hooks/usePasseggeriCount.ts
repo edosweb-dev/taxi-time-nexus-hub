@@ -7,7 +7,7 @@ export function usePasseggeriCount(servizioId: string) {
     queryKey: ["passeggeriCount", servizioId],
     queryFn: async () => {
       const { data, error, count } = await supabase
-        .from("passeggeri")
+        .from("servizi_passeggeri")
         .select("*", { count: "exact" })
         .eq("servizio_id", servizioId);
 

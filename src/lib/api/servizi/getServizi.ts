@@ -1,6 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
-import { Passeggero, Servizio } from '@/lib/types/servizi';
+import { PasseggeroConDettagli, Servizio } from '@/lib/types/servizi';
 
 export async function getServizi(): Promise<Servizio[]> {
   try {
@@ -21,7 +21,7 @@ export async function getServizi(): Promise<Servizio[]> {
   }
 }
 
-export async function getServizioById(id: string): Promise<{ servizio: Servizio | null; passeggeri: Passeggero[] }> {
+export async function getServizioById(id: string): Promise<{ servizio: Servizio | null; passeggeri: PasseggeroConDettagli[] }> {
   try {
     // Get servizio
     const { data: servizio, error: servizioError } = await supabase
@@ -35,21 +35,41 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
       throw servizioError;
     }
 
-    // Get passeggeri - Corretto la colonna per l'ordinamento da orario_presa a orario_presa_personalizzato
-    const { data: passeggeri, error: passeggeriError } = await supabase
-      .from('passeggeri')
-      .select('*')
+    // Get passeggeri con dettagli del servizio tramite join
+    const { data: passeggeriData, error: passeggeriError } = await supabase
+      .from('servizi_passeggeri')
+      .select(`
+        *,
+        passeggeri:passeggero_id (
+          id,
+          nome_cognome,
+          email,
+          telefono,
+          azienda_id,
+          referente_id,
+          created_at
+        )
+      `)
       .eq('servizio_id', id)
-      .order('created_at', { ascending: true }); // Cambiato l'ordinamento da orario_presa a created_at
+      .order('created_at', { ascending: true });
 
     if (passeggeriError) {
       console.error('[getServizioById] Error fetching passeggeri:', passeggeriError);
       throw passeggeriError;
     }
 
+    // Trasforma i dati per creare PasseggeroConDettagli
+    const passeggeri: PasseggeroConDettagli[] = (passeggeriData || []).map(item => ({
+      ...item.passeggeri,
+      orario_presa_personalizzato: item.orario_presa_personalizzato,
+      luogo_presa_personalizzato: item.luogo_presa_personalizzato,
+      destinazione_personalizzato: item.destinazione_personalizzato,
+      usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
+    }));
+
     return { 
       servizio: servizio as Servizio || null, 
-      passeggeri: passeggeri as Passeggero[] || [] 
+      passeggeri: passeggeri || [] 
     };
   } catch (error) {
     console.error('[getServizioById] Unexpected error:', error);

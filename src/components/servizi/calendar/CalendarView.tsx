@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format, addDays, subDays, isSameDay, parseISO, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
 import { it } from "date-fns/locale";
@@ -53,7 +52,7 @@ export const CalendarView = ({ servizi, users, onNavigateToDetail, allServizi }:
       const servizioIds = serviziInView.map(s => s.id);
       
       const { data, error } = await supabase
-        .from('passeggeri')
+        .from('servizi_passeggeri')
         .select('servizio_id')
         .in('servizio_id', servizioIds);
         

@@ -33,7 +33,7 @@ export interface Servizio {
   veicolo_id?: string;
 }
 
-// Passeggero ora collegato ad azienda e referente
+// Passeggero ora collegato ad azienda e referente (senza più i dettagli specifici del servizio)
 export interface Passeggero {
   id?: string;
   nome_cognome: string;
@@ -56,7 +56,7 @@ export interface ServizioPasseggero {
   created_at?: string;
 }
 
-// Passeggero esteso con i dettagli del servizio
+// Passeggero esteso con i dettagli del servizio per la visualizzazione
 export interface PasseggeroConDettagli extends Passeggero {
   orario_presa_personalizzato?: string;
   luogo_presa_personalizzato?: string;

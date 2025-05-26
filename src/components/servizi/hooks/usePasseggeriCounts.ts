@@ -7,8 +7,8 @@ export const usePasseggeriCounts = (servizi?: Servizio[]) => {
   const { data: passeggeriData, isLoading } = useQuery({
     queryKey: ['passeggeriCounts', servizi?.map(s => s.id)],
     queryFn: async () => {
-      // If specific servizi are provided, filter by their IDs
-      let query = supabase.from('passeggeri').select('servizio_id');
+      // Ora usiamo la tabella servizi_passeggeri per contare i passeggeri
+      let query = supabase.from('servizi_passeggeri').select('servizio_id');
       
       if (servizi && servizi.length > 0) {
         const serviziIds = servizi.map(s => s.id);

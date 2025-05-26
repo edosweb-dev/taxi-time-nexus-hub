@@ -1,10 +1,10 @@
 
-import { Passeggero } from "@/lib/types/servizi";
+import { PasseggeroConDettagli } from "@/lib/types/servizi";
 import { PasseggeroEditCard } from "./PasseggeroEditCard";
 import { PasseggeroViewCard } from "./PasseggeroViewCard";
 
 interface PasseggeroCardProps {
-  passeggero?: Passeggero;
+  passeggero?: PasseggeroConDettagli;
   servizioPresa?: string;
   servizioDestinazione?: string;
   servizioOrario?: string;
