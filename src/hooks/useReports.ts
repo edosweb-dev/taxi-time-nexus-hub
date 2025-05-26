@@ -21,10 +21,10 @@ export function useReports(filters: ReportFilters = {}) {
         `)
         .order('created_at', { ascending: false });
 
-      if (filters.azienda_id) {
+      if (filters.azienda_id && filters.azienda_id !== 'all') {
         query = query.eq('azienda_id', filters.azienda_id);
       }
-      if (filters.tipo_report) {
+      if (filters.tipo_report && filters.tipo_report !== 'all') {
         query = query.eq('tipo_report', filters.tipo_report);
       }
       if (filters.data_inizio) {
@@ -48,7 +48,7 @@ export function useReports(filters: ReportFilters = {}) {
       const reportData = {
         ...data,
         created_by: user.id,
-        nome_file: `report_${data.tipo_report}_${data.data_inizio}_${data.data_fine}.pdf`,
+        nome_file: `${data.is_preview ? 'anteprima_' : ''}report_${data.tipo_report}_${data.data_inizio}_${data.data_fine}.pdf`,
         stato: 'in_generazione' as const,
       };
 
@@ -59,14 +59,55 @@ export function useReports(filters: ReportFilters = {}) {
         .single();
 
       if (error) throw error;
-      return report;
+      return { report, is_preview: data.is_preview };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
-      toast.success('Report in generazione');
+      if (result.is_preview) {
+        toast.success('Anteprima report in generazione');
+      } else {
+        toast.success('Report in generazione');
+      }
     },
     onError: (error: any) => {
       toast.error(`Errore nella generazione del report: ${error.message}`);
+    },
+  });
+
+  const generatePreviewMutation = useMutation({
+    mutationFn: async (data: CreateReportData) => {
+      if (!user) throw new Error('User not authenticated');
+      
+      // Per l'anteprima, generiamo dati mock senza salvare nel database
+      const mockReport: Report = {
+        id: 'preview-' + Date.now(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        azienda_id: data.azienda_id,
+        created_by: user.id,
+        tipo_report: data.tipo_report,
+        nome_file: `anteprima_report_${data.tipo_report}_${data.data_inizio}_${data.data_fine}.pdf`,
+        url_file: undefined, // Verrà generato dal mock
+        data_inizio: data.data_inizio,
+        data_fine: data.data_fine,
+        numero_servizi: Math.floor(Math.random() * 50) + 1,
+        totale_imponibile: Math.floor(Math.random() * 10000) + 1000,
+        totale_iva: 0,
+        totale_documento: 0,
+        stato: 'completato' as const,
+      };
+      
+      // Calcola IVA e totale
+      mockReport.totale_iva = mockReport.totale_imponibile * 0.22;
+      mockReport.totale_documento = mockReport.totale_imponibile + mockReport.totale_iva;
+      
+      return mockReport;
+    },
+    onSuccess: () => {
+      toast.success('Anteprima generata');
+    },
+    onError: (error: any) => {
+      toast.error(`Errore nella generazione dell'anteprima: ${error.message}`);
     },
   });
 
@@ -114,6 +155,8 @@ export function useReports(filters: ReportFilters = {}) {
     error,
     generateReport: generateReportMutation.mutate,
     isGenerating: generateReportMutation.isPending,
+    generatePreview: generatePreviewMutation.mutate,
+    isGeneratingPreview: generatePreviewMutation.isPending,
     deleteReport: deleteReportMutation.mutate,
     isDeleting: deleteReportMutation.isPending,
     downloadReport,

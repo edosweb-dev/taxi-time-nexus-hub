@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -22,8 +23,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { useReports } from '@/hooks/useReports';
 import { useAziende } from '@/hooks/useAziende';
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText, Loader2, Eye } from 'lucide-react';
 import { CreateReportData } from '@/lib/types/reports';
+import { ReportPreview } from './ReportPreview';
 
 const reportSchema = z.object({
   azienda_id: z.string().min(1, 'Seleziona un\'azienda'),
@@ -45,8 +47,10 @@ const reportSchema = z.object({
 type ReportFormData = z.infer<typeof reportSchema>;
 
 export function ReportGenerator() {
-  const { generateReport, isGenerating } = useReports();
+  const { generateReport, isGenerating, generatePreview, isGeneratingPreview } = useReports();
   const { aziende } = useAziende();
+  const [previewReport, setPreviewReport] = useState(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const form = useForm<ReportFormData>({
     resolver: zodResolver(reportSchema),
@@ -59,7 +63,6 @@ export function ReportGenerator() {
   });
 
   const onSubmit = async (data: ReportFormData) => {
-    // Ensure all fields are present and cast to CreateReportData
     const reportData: CreateReportData = {
       azienda_id: data.azienda_id,
       tipo_report: data.tipo_report,
@@ -71,75 +74,56 @@ export function ReportGenerator() {
     form.reset();
   };
 
+  const onPreview = async (data: ReportFormData) => {
+    const reportData: CreateReportData = {
+      azienda_id: data.azienda_id,
+      tipo_report: data.tipo_report,
+      data_inizio: data.data_inizio,
+      data_fine: data.data_fine,
+      is_preview: true,
+    };
+    
+    try {
+      const mockReport = await generatePreview(reportData);
+      setPreviewReport(mockReport);
+      setPreviewOpen(true);
+    } catch (error) {
+      console.error('Errore nella generazione dell\'anteprima:', error);
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Genera Nuovo Report
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="azienda_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Azienda *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona un'azienda" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {aziende.map((azienda) => (
-                        <SelectItem key={azienda.id} value={azienda.id}>
-                          {azienda.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="tipo_report"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo Report *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona il tipo di report" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="servizi">Report Servizi</SelectItem>
-                      <SelectItem value="finanziario">Report Finanziario</SelectItem>
-                      <SelectItem value="veicoli">Report Veicoli</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Genera Nuovo Report
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="data_inizio"
+                name="azienda_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Data Inizio *</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
+                    <FormLabel>Azienda *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona un'azienda" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {aziende.filter(azienda => azienda.id && azienda.id.trim() !== '').map((azienda) => (
+                          <SelectItem key={azienda.id} value={azienda.id}>
+                            {azienda.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -147,26 +131,89 @@ export function ReportGenerator() {
 
               <FormField
                 control={form.control}
-                name="data_fine"
+                name="tipo_report"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Data Fine *</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
+                    <FormLabel>Tipo Report *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona il tipo di report" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="servizi">Report Servizi</SelectItem>
+                        <SelectItem value="finanziario">Report Finanziario</SelectItem>
+                        <SelectItem value="veicoli">Report Veicoli</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
 
-            <Button type="submit" disabled={isGenerating} className="w-full">
-              {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Genera Report
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="data_inizio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data Inizio *</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="data_fine"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data Fine *</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={form.handleSubmit(onPreview)} 
+                  disabled={isGeneratingPreview || isGenerating}
+                  className="flex-1"
+                >
+                  {isGeneratingPreview && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Eye className="mr-2 h-4 w-4" />
+                  Anteprima
+                </Button>
+                
+                <Button 
+                  type="submit" 
+                  disabled={isGenerating || isGeneratingPreview} 
+                  className="flex-1"
+                >
+                  {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Genera Report
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      <ReportPreview
+        report={previewReport}
+        isOpen={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
+    </>
   );
 }

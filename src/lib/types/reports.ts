@@ -28,6 +28,7 @@ export interface CreateReportData {
   tipo_report: 'servizi' | 'finanziario' | 'veicoli';
   data_inizio: string;
   data_fine: string;
+  is_preview?: boolean; // Nuovo campo per identificare anteprime
 }
 
 export interface ReportFilters {
