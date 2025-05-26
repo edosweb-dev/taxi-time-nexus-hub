@@ -1,7 +1,8 @@
-
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Servizio } from '@/lib/types/servizi';
+import { Report } from '@/lib/types/index';
 import { toast } from '@/components/ui/use-toast';
 
 type GenerateReportParams = {
@@ -14,6 +15,7 @@ type GenerateReportParams = {
 };
 
 export const useGenerateReport = () => {
+  const queryClient = useQueryClient();
   const [filterParams, setFilterParams] = useState<{
     aziendaId?: string;
     referenteId?: string;
@@ -147,10 +149,10 @@ export const useGenerateReport = () => {
     return data as Servizio[];
   };
   
-  // Function to generate PDF report
+  // Function to generate PDF report con cache update
   const generateReport = async (params: GenerateReportParams) => {
     try {
-      console.log('Generazione report con parametri:', params);
+      console.log('📊 [generateReport] Starting generation with params:', params);
       
       // Validazione parametri
       if (!params.aziendaId) {
@@ -227,27 +229,26 @@ export const useGenerateReport = () => {
         year: params.year
       });
       
-      console.log('Chiamata a edge function con serviziIds:', params.serviziIds.length);
+      console.log('🔄 [generateReport] Calling edge function...');
       
-      // Mostra toast di generazione in corso
+      // Toast di generazione in corso
       toast({
         title: 'Generazione in corso',
         description: 'Generazione del report PDF in corso...',
       });
       
-      // Call Edge Function to generate PDF with the servizi IDs and bucket name
-      console.log('Invio richiesta a edge function generate-report...');
+      // Call Edge Function to generate PDF
       const { data, error } = await supabase.functions.invoke('generate-report', {
         body: {
           ...params,
-          bucketName: 'report_aziende' // Use the fixed bucket name
+          bucketName: 'report_aziende'
         }
       });
       
-      console.log('Risposta da edge function ricevuta:', { data, error });
+      console.log('📊 [generateReport] Edge function response:', { data, error });
       
       if (error) {
-        console.error('Errore dalla edge function:', error);
+        console.error('❌ [generateReport] Edge function error:', error);
         
         // Gestione errori specifici
         if (error.message?.includes('bucket')) {
@@ -284,7 +285,7 @@ export const useGenerateReport = () => {
       }
       
       if (data.error) {
-        console.error('Errore restituito dalla edge function:', data.error);
+        console.error('❌ [generateReport] Edge function returned error:', data.error);
         toast({
           title: 'Errore',
           description: 'Si è verificato un errore nella generazione del report: ' + data.error,
@@ -293,17 +294,38 @@ export const useGenerateReport = () => {
         throw new Error(data.error);
       }
       
-      console.log("Report generato con successo:", data);
+      console.log("✅ [generateReport] Report generated successfully:", data);
+      
+      // 🔄 Aggiorna immediatamente la cache aggiungendo il nuovo report
+      if (data.report) {
+        console.log('🔄 [generateReport] Updating reports cache...');
+        queryClient.setQueryData(['reports'], (oldReports: Report[] | undefined) => {
+          const currentReports = oldReports || [];
+          const newReports = [data.report, ...currentReports];
+          console.log('📊 [generateReport] Cache updated:', {
+            before: currentReports.length,
+            after: newReports.length,
+            added: data.report.id
+          });
+          return newReports;
+        });
+        
+        // 🔄 Invalida la query per assicurarsi che sia aggiornata
+        await queryClient.invalidateQueries({ 
+          queryKey: ['reports'],
+          refetchType: 'active'
+        });
+      }
       
       toast({
         title: 'Report generato',
-        description: 'Il report è stato generato con successo.',
+        description: 'Il report è stato generato e aggiunto alla lista con successo.',
       });
       
       return data;
       
     } catch (error: any) {
-      console.error('Errore imprevisto nella generazione report:', error);
+      console.error('💥 [generateReport] Unexpected error:', error);
       
       // Toast di fallback per errori non gestiti
       if (!error.message?.includes('bucket') && !error.message?.includes('permission')) {

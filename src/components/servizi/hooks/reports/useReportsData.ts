@@ -20,11 +20,11 @@ export const useReportsData = () => {
     queryFn: fetchReports,
   });
   
-  console.log('[useReportsData] Current reports count:', reports.length);
+  console.log('[useReportsData] 📊 Current reports count:', reports.length);
   
   // Funzione per il download del report
   const downloadReport = async (reportId: string) => {
-    console.log('[downloadReport] Download requested for report:', reportId);
+    console.log('[downloadReport] 📥 Download requested for report:', reportId);
     
     if (isDownloading === reportId) return;
     
@@ -32,7 +32,7 @@ export const useReportsData = () => {
     try {
       const report = reports.find(r => r.id === reportId);
       if (!report) {
-        console.error('[downloadReport] Report not found:', reportId);
+        console.error('[downloadReport] ❌ Report not found:', reportId);
         toast({
           title: 'Errore',
           description: 'Report non trovato',
@@ -41,7 +41,6 @@ export const useReportsData = () => {
         return;
       }
       
-      // Get the actual bucket name from the report record if available
       const bucketName = report.bucket_name || 'report_aziende';
       
       await downloadReportFile({
@@ -55,7 +54,7 @@ export const useReportsData = () => {
         description: "Il report è stato scaricato con successo.",
       });
     } catch (error: any) {
-      console.error('[downloadReport] Error downloading report:', error);
+      console.error('[downloadReport] ❌ Error downloading report:', error);
       toast({
         title: "Errore nel download",
         description: error.message || 'Si è verificato un errore durante il download del file',
@@ -66,10 +65,10 @@ export const useReportsData = () => {
     }
   };
   
-  // Mutation per l'eliminazione di un report
+  // Mutation per l'eliminazione di un report con cache update immediata
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
-      console.log('[deleteReportMutation] 🚀 Starting deletion for report:', reportId);
+      console.log('[deleteReportMutation] 🗑️ Starting deletion for report:', reportId);
       console.log('[deleteReportMutation] 📊 Reports before deletion:', reports.length);
       
       const report = reports.find(r => r.id === reportId);
@@ -79,47 +78,55 @@ export const useReportsData = () => {
       
       const bucketName = report.bucket_name || 'report_aziende';
       
-      await deleteReportFile({
+      const result = await deleteReportFile({
         reportId,
         filePath: report.file_path,
         bucketName
       });
       
-      console.log('[deleteReportMutation] ✅ Deletion completed for report:', reportId);
-      return reportId;
+      if (!result.success) {
+        throw new Error(result.error || 'Eliminazione fallita');
+      }
+      
+      console.log('[deleteReportMutation] ✅ Deletion completed:', result);
+      return { reportId, result };
     },
-    onSuccess: async (deletedId) => {
-      console.log('[deleteReportMutation] ✅ Success callback for report:', deletedId);
-      console.log('[deleteReportMutation] 📊 Reports before cache invalidation:', reports.length);
+    onSuccess: async ({ reportId, result }) => {
+      console.log('[deleteReportMutation] ✅ Success callback for report:', reportId);
+      
+      // 🔄 Aggiorna immediatamente la cache rimuovendo il report
+      console.log('[deleteReportMutation] 🔄 Updating cache immediately...');
+      queryClient.setQueryData(['reports'], (oldReports: Report[] | undefined) => {
+        if (!oldReports) return [];
+        const newReports = oldReports.filter(report => report.id !== reportId);
+        console.log('[deleteReportMutation] 📊 Cache updated:', {
+          before: oldReports.length,
+          after: newReports.length,
+          removed: reportId
+        });
+        return newReports;
+      });
+      
+      // 🔄 Invalida e forza refetch della query
+      console.log('[deleteReportMutation] 🔄 Invalidating query...');
+      await queryClient.invalidateQueries({ 
+        queryKey: ['reports'],
+        refetchType: 'active'
+      });
+      
+      // 🎉 Toast di successo con dettagli
+      const toastMessage = result.storageDeleted && result.databaseDeleted
+        ? 'Report eliminato completamente (file e database)'
+        : result.databaseDeleted
+        ? 'Report eliminato dal database'
+        : 'Report eliminato parzialmente';
       
       toast({
         title: 'Report eliminato',
-        description: 'Il report è stato eliminato con successo.',
+        description: toastMessage,
       });
       
-      // Prima invalida la cache
-      console.log('[deleteReportMutation] 🔄 Invalidating cache...');
-      await queryClient.invalidateQueries({ queryKey: ['reports'] });
-      
-      // Poi forza un refetch immediato
-      console.log('[deleteReportMutation] 🔄 Forcing refetch...');
-      const { data: newReports } = await refetchReports();
-      
-      console.log('[deleteReportMutation] 📊 Reports after refetch:', newReports?.length || 0);
-      console.log('[deleteReportMutation] 🔄 Cache invalidated and refetch completed');
-      
-      // Verifica se il report è ancora presente
-      const stillExists = newReports?.find(r => r.id === deletedId);
-      if (stillExists) {
-        console.error('[deleteReportMutation] ❌ Report still exists after refetch!', stillExists);
-        toast({
-          title: 'Errore',
-          description: 'Il report non è stato eliminato correttamente',
-          variant: 'destructive',
-        });
-      } else {
-        console.log('[deleteReportMutation] ✅ Report successfully removed from list');
-      }
+      console.log('[deleteReportMutation] 🎉 Cache update and invalidation completed');
     },
     onError: (error: any, reportId) => {
       console.error('[deleteReportMutation] ❌ Error deleting report:', reportId, error);
@@ -128,7 +135,7 @@ export const useReportsData = () => {
       
       toast({
         title: 'Errore eliminazione',
-        description: errorMessage,
+        description: `Impossibile eliminare il report: ${errorMessage}`,
         variant: 'destructive',
       });
     }
@@ -136,7 +143,7 @@ export const useReportsData = () => {
   
   // Funzione wrapper per l'eliminazione
   const deleteReport = (reportId: string) => {
-    console.log('[deleteReport] Calling mutation for report:', reportId);
+    console.log('[deleteReport] 🗑️ Calling mutation for report:', reportId);
     deleteReportMutation.mutate(reportId);
   };
   

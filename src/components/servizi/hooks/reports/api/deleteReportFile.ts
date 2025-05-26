@@ -7,109 +7,145 @@ interface DeleteReportParams {
   bucketName?: string;
 }
 
+interface DeleteReportResult {
+  success: boolean;
+  storageDeleted: boolean;
+  databaseDeleted: boolean;
+  deletedReport?: any;
+  error?: string;
+}
+
 export const deleteReportFile = async ({
   reportId,
   filePath,
   bucketName = 'report_aziende'
-}: DeleteReportParams) => {
-  console.log(`[deleteReportFile] 🚀 STARTING deletion for report ID:`, reportId);
+}: DeleteReportParams): Promise<DeleteReportResult> => {
+  console.log(`🚀 [deleteReportFile] STARTING deletion for report ID:`, reportId);
   
   try {
-    // Verifica utente corrente
+    // 🔐 Verifica utente corrente con logging dettagliato
+    console.log('🔐 [deleteReportFile] Checking authentication...');
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log('[deleteReportFile] 👤 Current user:', user?.id);
+    console.log('👤 [deleteReportFile] Current user:', user?.id);
     
     if (authError || !user) {
-      console.error('[deleteReportFile] ❌ Authentication error:', authError);
+      console.error('❌ [deleteReportFile] Authentication failed:', authError);
       throw new Error('Utente non autenticato');
     }
 
-    // Prima verifica che il report esista
-    console.log('[deleteReportFile] 🔍 Checking if report exists...');
+    // 🔍 Verifica esistenza e permessi del report
+    console.log('🔍 [deleteReportFile] Checking report existence and permissions...');
     const { data: existingReport, error: checkError } = await supabase
       .from('reports')
       .select('*')
       .eq('id', reportId)
       .single();
     
-    console.log('[deleteReportFile] 📋 Existing report check:', { existingReport, checkError });
+    console.log('📋 [deleteReportFile] Report check result:', { existingReport, checkError });
     
     if (checkError) {
-      console.error('[deleteReportFile] ❌ Error checking report existence:', checkError);
+      console.error('❌ [deleteReportFile] Error checking report:', checkError);
       throw new Error(`Errore nel verificare l'esistenza del report: ${checkError.message}`);
     }
     
     if (!existingReport) {
-      console.error('[deleteReportFile] ❌ Report not found in database');
+      console.error('❌ [deleteReportFile] Report not found in database');
       throw new Error('Report non trovato nel database');
     }
 
+    // 🗂️ Determina bucket corretto
     const actualBucketName = existingReport.bucket_name || bucketName;
-    console.log(`[deleteReportFile] 🗂️ Using bucket: ${actualBucketName}, file path: ${filePath}`);
+    console.log(`🗂️ [deleteReportFile] Using bucket: ${actualBucketName}, file path: ${filePath}`);
     
-    // Prova a eliminare il file dallo storage (non bloccante se non esiste)
-    console.log('[deleteReportFile] 📁 Attempting to delete file from storage...');
-    const { error: storageError } = await supabase
-      .storage
-      .from(actualBucketName)
-      .remove([filePath]);
+    let storageDeleted = false;
+    
+    // 📁 Tentativo eliminazione storage (non bloccante)
+    console.log('📁 [deleteReportFile] Attempting storage deletion...');
+    try {
+      const { error: storageError } = await supabase
+        .storage
+        .from(actualBucketName)
+        .remove([filePath]);
 
-    if (storageError) {
-      console.warn('[deleteReportFile] ⚠️ Storage deletion warning:', storageError.message);
-      // Non bloccare se il file non esiste
-      if (!storageError.message.includes('not found') && 
-          !storageError.message.includes('Object not found')) {
-        console.error('[deleteReportFile] ❌ Critical storage error:', storageError);
-        // Continuiamo comunque con la cancellazione dal database
+      if (storageError) {
+        console.warn('⚠️ [deleteReportFile] Storage deletion warning:', storageError.message);
+        if (storageError.message.includes('not found') || 
+            storageError.message.includes('Object not found')) {
+          console.log('📁 [deleteReportFile] File not found in storage (acceptable)');
+          storageDeleted = true; // Consideriamo eliminato se non esisteva
+        } else {
+          console.warn('⚠️ [deleteReportFile] Storage error, continuing with database deletion');
+        }
+      } else {
+        console.log('✅ [deleteReportFile] File deleted successfully from storage');
+        storageDeleted = true;
       }
-    } else {
-      console.log('[deleteReportFile] ✅ File deleted successfully from storage');
+    } catch (storageException) {
+      console.warn('⚠️ [deleteReportFile] Storage exception, continuing:', storageException);
     }
 
-    // Eliminazione dal database - FOCUS QUI
-    console.log('[deleteReportFile] 🗄️ Attempting to delete from database...');
-    console.log('[deleteReportFile] 🗄️ Report ID to delete:', reportId);
+    // 🗄️ Eliminazione dal database con logging dettagliato
+    console.log('🗄️ [deleteReportFile] Attempting database deletion...');
+    console.log(`🎯 [deleteReportFile] Target report ID: ${reportId}`);
     
-    const { data: deleteResult, error: deleteError } = await supabase
+    const { data: deletedData, error: deleteError } = await supabase
       .from('reports')
       .delete()
       .eq('id', reportId)
-      .select('*');
+      .select('*'); // Importante: select per vedere cosa è stato eliminato
 
-    console.log('[deleteReportFile] 🗄️ Database deletion result:', { deleteResult, deleteError });
+    console.log('📊 [deleteReportFile] Database deletion result:', { 
+      deletedData, 
+      deleteError,
+      deletedCount: deletedData?.length || 0 
+    });
 
     if (deleteError) {
-      console.error('[deleteReportFile] ❌ Database deletion failed:', deleteError);
+      console.error('❌ [deleteReportFile] Database deletion failed:', deleteError);
       throw new Error(`Errore nell'eliminazione dal database: ${deleteError.message}`);
     }
 
-    // Verifica che sia stato effettivamente eliminato
-    if (!deleteResult || deleteResult.length === 0) {
-      console.error('[deleteReportFile] ❌ No rows were deleted from database');
+    if (!deletedData || deletedData.length === 0) {
+      console.error('❌ [deleteReportFile] No rows deleted from database');
       throw new Error('Nessun record è stato eliminato dal database');
     }
 
-    console.log('[deleteReportFile] ✅ Successfully deleted from database:', deleteResult);
+    console.log('✅ [deleteReportFile] Database deletion successful:', deletedData[0]);
 
-    // Verifica finale
-    console.log('[deleteReportFile] 🔍 Final verification...');
+    // 🔍 Verifica finale con doppio controllo
+    console.log('🔍 [deleteReportFile] Final verification...');
     const { data: finalCheck, error: finalError } = await supabase
       .from('reports')
       .select('id')
       .eq('id', reportId);
     
-    console.log('[deleteReportFile] 🔍 Final check result:', { finalCheck, finalError });
+    console.log('🔍 [deleteReportFile] Final check result:', { 
+      finalCheck, 
+      finalError, 
+      stillExists: finalCheck && finalCheck.length > 0 
+    });
     
     if (finalCheck && finalCheck.length > 0) {
-      console.error('[deleteReportFile] ❌ Report still exists after deletion!');
+      console.error('❌ [deleteReportFile] Report still exists after deletion!');
       throw new Error('Il report è ancora presente nel database dopo l\'eliminazione');
     }
     
-    console.log('[deleteReportFile] 🎉 DELETION COMPLETED SUCCESSFULLY');
-    return true;
+    console.log('🎉 [deleteReportFile] DELETION COMPLETED SUCCESSFULLY');
+    
+    return {
+      success: true,
+      storageDeleted,
+      databaseDeleted: true,
+      deletedReport: deletedData[0]
+    };
     
   } catch (error: any) {
-    console.error('[deleteReportFile] 💥 DELETION FAILED:', error);
-    throw error;
+    console.error('💥 [deleteReportFile] DELETION FAILED:', error);
+    return {
+      success: false,
+      storageDeleted: false,
+      databaseDeleted: false,
+      error: error.message
+    };
   }
 };
