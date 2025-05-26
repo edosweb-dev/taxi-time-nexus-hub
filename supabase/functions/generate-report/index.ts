@@ -310,33 +310,24 @@ serve(async (req) => {
 async function generateEmptyPDF(azienda: any, requestData: ReportData): Promise<Uint8Array> {
   const { jsPDF } = await import('https://esm.sh/jspdf@2.5.1')
   
-  const pdf = new jsPDF()
+  // PDF in formato orizzontale (landscape)
+  const pdf = new jsPDF('landscape', 'mm', 'a4')
   pdf.setFont('helvetica')
   
   // Header
-  pdf.setFontSize(20)
-  pdf.text('REPORT SERVIZI', 20, 30)
-  
-  pdf.setFontSize(14)
-  pdf.text(`Azienda: ${azienda.nome}`, 20, 45)
-  pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 55)
-  
-  // Empty message
-  pdf.setFontSize(16)
-  pdf.text('NESSUN SERVIZIO TROVATO', 20, 90)
+  pdf.setFontSize(18)
+  pdf.text('REPORT SERVIZI', 20, 20)
   
   pdf.setFontSize(12)
-  pdf.text('Non sono stati trovati servizi consuntivati per il periodo selezionato.', 20, 110)
-  pdf.text('Verificare:', 20, 130)
-  pdf.text('- Che ci siano servizi nel periodo indicato', 25, 145)
-  pdf.text('- Che i servizi siano nello stato "Consuntivato"', 25, 160)
-  if (requestData.referente_id) {
-    pdf.text('- Che i servizi siano assegnati al referente selezionato', 25, 175)
-  }
+  pdf.text(`Azienda: ${azienda.nome}`, 20, 35)
+  pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 45)
   
-  // Footer
-  pdf.setFontSize(8)
-  pdf.text('Pagina 1 di 1', 170, 290)
+  // Empty message
+  pdf.setFontSize(14)
+  pdf.text('NESSUN SERVIZIO TROVATO', 20, 70)
+  
+  pdf.setFontSize(10)
+  pdf.text('Non sono stati trovati servizi consuntivati per il periodo selezionato.', 20, 85)
   
   return new Uint8Array(pdf.output('arraybuffer'))
 }
@@ -344,94 +335,151 @@ async function generateEmptyPDF(azienda: any, requestData: ReportData): Promise<
 async function generatePDF(servizi: ServizioData[], azienda: any, requestData: ReportData): Promise<Uint8Array> {
   const { jsPDF } = await import('https://esm.sh/jspdf@2.5.1')
   
-  const pdf = new jsPDF()
+  // PDF in formato orizzontale (landscape)
+  const pdf = new jsPDF('landscape', 'mm', 'a4')
   pdf.setFont('helvetica')
   
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+  
   // Header
-  pdf.setFontSize(20)
-  pdf.text('REPORT SERVIZI', 20, 30)
+  pdf.setFontSize(16)
+  pdf.text('REPORT SERVIZI', 20, 20)
   
-  pdf.setFontSize(14)
-  pdf.text(`Azienda: ${azienda.nome}`, 20, 45)
-  pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 55)
+  pdf.setFontSize(10)
+  pdf.text(`Azienda: ${azienda.nome}`, 20, 30)
+  pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 36)
+  pdf.text(`Firma Digitale: ${azienda.firma_digitale_attiva ? 'Attiva' : 'Non Attiva'}`, 20, 42)
   
-  // Summary
+  // Calculate totals
   const totaleImponibile = servizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
   const totaleIva = totaleImponibile * 0.22
   const totaleDocumento = totaleImponibile + totaleIva
   
-  pdf.setFontSize(12)
-  pdf.text(`Numero servizi: ${servizi.length}`, 20, 75)
-  pdf.text(`Totale imponibile: €${totaleImponibile.toFixed(2)}`, 20, 85)
-  pdf.text(`Totale IVA (22%): €${totaleIva.toFixed(2)}`, 20, 95)
+  pdf.text(`Servizi: ${servizi.length}`, 200, 30)
+  pdf.text(`Netto: €${totaleImponibile.toFixed(2)}`, 200, 36)
+  pdf.text(`IVA: €${totaleIva.toFixed(2)}`, 200, 42)
+  pdf.text(`Totale: €${totaleDocumento.toFixed(2)}`, 200, 48)
   
-  pdf.setFontSize(14)
-  pdf.text(`TOTALE DOCUMENTO: €${totaleDocumento.toFixed(2)}`, 20, 110)
+  // Table header - configurazione colonne
+  let yPosition = 60
+  const rowHeight = 6
+  const fontSize = 8
+  pdf.setFontSize(fontSize)
   
-  // Table header
-  let yPosition = 130
-  pdf.setFontSize(10)
-  pdf.text('Data', 20, yPosition)
-  pdf.text('Orario', 50, yPosition)
-  pdf.text('Referente', 80, yPosition)
-  pdf.text('Da', 120, yPosition)
-  pdf.text('A', 150, yPosition)
-  pdf.text('Importo', 175, yPosition)
+  // Definisci le colonne e le loro larghezze
+  const columns = [
+    { label: 'ID', x: 20, width: 15 },
+    { label: 'Data', x: 35, width: 20 },
+    { label: 'Orario', x: 55, width: 15 },
+    { label: 'Passeggeri', x: 70, width: 35 },
+    { label: 'Partenza', x: 105, width: 30 },
+    { label: 'Destinazione', x: 135, width: 30 },
+    { label: 'Commessa', x: 165, width: 20 },
+    { label: 'Ore Extra', x: 185, width: 15 },
+    { label: 'Veicolo', x: 200, width: 25 },
+    { label: 'Note', x: 225, width: 25 }
+  ]
   
-  // Add line under header
-  pdf.line(20, yPosition + 2, 200, yPosition + 2)
-  
-  // Service details
-  yPosition += 10
-  
-  servizi.forEach((servizio, index) => {
-    if (yPosition > 270) {
-      pdf.addPage()
-      yPosition = 20
-      
-      // Repeat header on new page
-      pdf.setFontSize(10)
-      pdf.text('Data', 20, yPosition)
-      pdf.text('Orario', 50, yPosition)
-      pdf.text('Referente', 80, yPosition)
-      pdf.text('Da', 120, yPosition)
-      pdf.text('A', 150, yPosition)
-      pdf.text('Importo', 175, yPosition)
-      pdf.line(20, yPosition + 2, 200, yPosition + 2)
-      yPosition += 10
-    }
-    
-    const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT')
-    const referenteName = servizio.referente_nome || 'N/A'
-    const importo = (servizio.incasso_ricevuto || servizio.incasso_previsto || 0).toFixed(2)
-    
-    pdf.text(dataFormatted, 20, yPosition)
-    pdf.text(servizio.orario_servizio, 50, yPosition)
-    pdf.text(referenteName.substring(0, 12), 80, yPosition)
-    pdf.text(servizio.indirizzo_presa.substring(0, 15), 120, yPosition)
-    pdf.text(servizio.indirizzo_destinazione.substring(0, 15), 150, yPosition)
-    pdf.text(`€${importo}`, 175, yPosition)
-    
-    yPosition += 8
-  })
-  
-  // Footer with totals on last page
-  const currentPage = pdf.internal.getCurrentPageInfo().pageNumber
-  const pageCount = pdf.internal.getNumberOfPages()
-  
-  if (currentPage === pageCount && yPosition < 250) {
-    yPosition += 20
-    pdf.line(120, yPosition, 200, yPosition)
-    yPosition += 10
-    pdf.setFontSize(12)
-    pdf.text(`Totale: €${totaleDocumento.toFixed(2)}`, 150, yPosition)
+  // Se firma digitale attiva, aggiungi colonna firma
+  if (azienda.firma_digitale_attiva) {
+    columns.push({ label: 'Firma', x: 250, width: 20 })
   }
   
-  // Page numbers
+  // Disegna header della tabella
   pdf.setFontSize(8)
-  for (let i = 1; i <= pageCount; i++) {
+  pdf.setFont('helvetica', 'bold')
+  columns.forEach(col => {
+    pdf.text(col.label, col.x, yPosition)
+  })
+  
+  // Linea sotto l'header
+  pdf.line(20, yPosition + 2, pageWidth - 20, yPosition + 2)
+  
+  // Dati dei servizi
+  pdf.setFont('helvetica', 'normal')
+  yPosition += 8
+  
+  servizi.forEach((servizio, index) => {
+    // Controlla se serve una nuova pagina
+    if (yPosition > pageHeight - 30) {
+      pdf.addPage('landscape')
+      yPosition = 30
+      
+      // Ripeti header su nuova pagina
+      pdf.setFont('helvetica', 'bold')
+      columns.forEach(col => {
+        pdf.text(col.label, col.x, yPosition)
+      })
+      pdf.line(20, yPosition + 2, pageWidth - 20, yPosition + 2)
+      pdf.setFont('helvetica', 'normal')
+      yPosition += 8
+    }
+    
+    // Preparazione dati
+    const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT')
+    const orarioFormatted = servizio.orario_servizio
+    const passeggeriText = (servizio.passeggeri_nomi || []).join(', ')
+    const veicoloText = servizio.veicolo_targa ? `${servizio.veicolo_targa} ${servizio.veicolo_modello || ''}`.trim() : ''
+    const commessaText = servizio.numero_commessa || ''
+    const oreExtraText = servizio.ore_effettive ? servizio.ore_effettive.toString() : ''
+    const noteText = servizio.note || ''
+    
+    // Truncate text to fit columns
+    const truncateText = (text: string, maxLength: number) => {
+      return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text
+    }
+    
+    // Scrivi i dati nelle colonne
+    const rowData = [
+      servizio.id.substring(0, 8),
+      dataFormatted,
+      orarioFormatted,
+      truncateText(passeggeriText, 25),
+      truncateText(servizio.indirizzo_presa, 20),
+      truncateText(servizio.indirizzo_destinazione, 20),
+      truncateText(commessaText, 15),
+      oreExtraText,
+      truncateText(veicoloText, 18),
+      truncateText(noteText, 18)
+    ]
+    
+    // Se firma digitale attiva, aggiungi status firma
+    if (azienda.firma_digitale_attiva) {
+      rowData.push(servizio.firma_url ? '✓' : '✗')
+    }
+    
+    // Scrivi ogni cella
+    columns.forEach((col, colIndex) => {
+      if (rowData[colIndex]) {
+        pdf.text(rowData[colIndex], col.x, yPosition)
+      }
+    })
+    
+    yPosition += rowHeight
+  })
+  
+  // Totali finali nella parte bassa della pagina
+  yPosition = Math.max(yPosition + 20, pageHeight - 40)
+  
+  pdf.setFont('helvetica', 'bold')
+  pdf.setFontSize(10)
+  
+  const totalsX = pageWidth - 100
+  pdf.text('TOTALI:', totalsX, yPosition)
+  pdf.text(`Netto: €${totaleImponibile.toFixed(2)}`, totalsX, yPosition + 8)
+  pdf.text(`IVA (22%): €${totaleIva.toFixed(2)}`, totalsX, yPosition + 16)
+  pdf.text(`TOTALE: €${totaleDocumento.toFixed(2)}`, totalsX, yPosition + 24)
+  
+  // Linea sopra il totale
+  pdf.line(totalsX, yPosition + 20, totalsX + 60, yPosition + 20)
+  
+  // Footer con numero pagina
+  const totalPages = pdf.internal.getNumberOfPages()
+  for (let i = 1; i <= totalPages; i++) {
     pdf.setPage(i)
-    pdf.text(`Pagina ${i} di ${pageCount}`, 170, 290)
+    pdf.setFontSize(8)
+    pdf.text(`Pagina ${i} di ${totalPages}`, pageWidth - 40, pageHeight - 10)
   }
   
   return new Uint8Array(pdf.output('arraybuffer'))
