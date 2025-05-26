@@ -64,7 +64,7 @@ export const useReportsData = () => {
     }
   };
   
-  // Mutation per l'eliminazione di un report - SEMPLIFICATA
+  // Mutation per l'eliminazione di un report
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
       console.log('[deleteReportMutation] 🚀 Starting deletion for report:', reportId);
@@ -85,7 +85,7 @@ export const useReportsData = () => {
       console.log('[deleteReportMutation] ✅ Deletion completed for report:', reportId);
       return reportId;
     },
-    onSuccess: (deletedId) => {
+    onSuccess: async (deletedId) => {
       console.log('[deleteReportMutation] ✅ Success callback for report:', deletedId);
       
       toast({
@@ -93,8 +93,13 @@ export const useReportsData = () => {
         description: 'Il report è stato eliminato con successo.',
       });
       
-      // Invalida la query per ricaricare i dati
-      queryClient.invalidateQueries({ queryKey: ['reports'] });
+      // Prima invalida la cache
+      await queryClient.invalidateQueries({ queryKey: ['reports'] });
+      
+      // Poi forza un refetch immediato
+      await refetchReports();
+      
+      console.log('[deleteReportMutation] 🔄 Cache invalidated and refetch completed');
     },
     onError: (error: any, reportId) => {
       console.error('[deleteReportMutation] ❌ Error deleting report:', reportId, error);
@@ -109,7 +114,7 @@ export const useReportsData = () => {
     }
   });
   
-  // Funzione wrapper per l'eliminazione - SEMPLIFICATA
+  // Funzione wrapper per l'eliminazione
   const deleteReport = (reportId: string) => {
     console.log('[deleteReport] Calling mutation for report:', reportId);
     deleteReportMutation.mutate(reportId);
