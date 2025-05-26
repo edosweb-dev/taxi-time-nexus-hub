@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,19 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { useReports } from '@/hooks/useReports';
+import { Download, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
 import { Report } from '@/lib/types/reports';
-import { Download, Eye, MoreVertical, Trash2 } from 'lucide-react';
 
 interface ReportActionsProps {
   report: Report;
@@ -27,70 +16,47 @@ interface ReportActionsProps {
 }
 
 export function ReportActions({ report, onPreview }: ReportActionsProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const { deleteReport, downloadReport, isDeleting } = useReports();
+  const { deleteReport, downloadReport } = useReports();
 
-  const handleDelete = () => {
-    deleteReport(report.id);
-    setDeleteDialogOpen(false);
+  const handleDownload = () => {
+    downloadReport(report);
   };
 
-  const canDownload = report.stato === 'completato' && report.url_file;
-  const canPreview = report.stato === 'completato' && report.url_file;
+  const handleDelete = () => {
+    if (confirm('Sei sicuro di voler eliminare questo report?')) {
+      deleteReport(report.id);
+    }
+  };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {canPreview && (
-            <DropdownMenuItem onClick={() => onPreview(report)}>
-              <Eye className="mr-2 h-4 w-4" />
-              Anteprima
-            </DropdownMenuItem>
-          )}
-          
-          {canDownload && (
-            <DropdownMenuItem onClick={() => downloadReport(report)}>
-              <Download className="mr-2 h-4 w-4" />
-              Scarica
-            </DropdownMenuItem>
-          )}
-          
-          <DropdownMenuItem 
-            onClick={() => setDeleteDialogOpen(true)}
-            className="text-destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Elimina
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Apri menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onPreview(report)}>
+          <Eye className="mr-2 h-4 w-4" />
+          Anteprima
+        </DropdownMenuItem>
+        
+        {report.url_file && (
+          <DropdownMenuItem onClick={handleDownload}>
+            <Download className="mr-2 h-4 w-4" />
+            Scarica PDF
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
-            <AlertDialogDescription>
-              Sei sicuro di voler eliminare questo report? Questa azione non può essere annullata.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? 'Eliminazione...' : 'Elimina'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        )}
+        
+        <DropdownMenuItem 
+          onClick={handleDelete}
+          className="text-destructive focus:text-destructive"
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          Elimina
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

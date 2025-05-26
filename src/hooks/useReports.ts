@@ -140,6 +140,8 @@ export function useReports(filters: ReportFilters = {}) {
     }
 
     try {
+      console.log('Downloading report:', report.url_file, 'from bucket:', report.bucket_name);
+      
       const { data, error } = await supabase.storage
         .from(report.bucket_name)
         .download(report.url_file);
@@ -147,6 +149,11 @@ export function useReports(filters: ReportFilters = {}) {
       if (error) {
         console.error('Download error:', error);
         toast.error('Errore nel download del report');
+        return;
+      }
+
+      if (!data) {
+        toast.error('File del report non trovato');
         return;
       }
 
@@ -161,7 +168,7 @@ export function useReports(filters: ReportFilters = {}) {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      toast.success('Download avviato');
+      toast.success('Download completato');
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Errore nel download del report');

@@ -26,8 +26,12 @@ interface ServizioData {
   passeggeri: Array<{ nome_cognome: string }>
   firma_url?: string
   incasso_previsto?: number
+  incasso_ricevuto?: number
   iva?: number
   note?: string
+  referente?: { first_name: string, last_name: string }
+  assegnato?: { first_name: string, last_name: string }
+  conducente_esterno_nome?: string
 }
 
 serve(async (req) => {
@@ -68,9 +72,12 @@ serve(async (req) => {
       .from('servizi')
       .select(`
         id, data_servizio, orario_servizio, indirizzo_presa, indirizzo_destinazione,
-        numero_commessa, ore_effettive, firma_url, incasso_previsto, iva, note,
+        numero_commessa, ore_effettive, firma_url, incasso_previsto, incasso_ricevuto, iva, note,
+        conducente_esterno_nome,
         veicoli(targa, modello),
-        servizi_passeggeri(passeggeri(nome_cognome))
+        servizi_passeggeri(passeggeri(nome_cognome)),
+        referente:profiles!referente_id(first_name, last_name),
+        assegnato:profiles!assegnato_a(first_name, last_name)
       `)
       .eq('azienda_id', requestData.azienda_id)
       .eq('stato', 'consuntivato')
@@ -90,13 +97,13 @@ serve(async (req) => {
     console.log(`Found ${servizi.length} servizi`)
 
     // Generate PDF content
-    const pdfContent = await generatePDF(servizi as ServizioData[], azienda, requestData)
+    const pdfBuffer = await generatePDF(servizi as ServizioData[], azienda, requestData)
 
     // Upload PDF to storage
     const fileName = `report_${requestData.azienda_id}_${requestData.data_inizio}_${requestData.data_fine}.pdf`
     const { data: uploadData, error: uploadError } = await supabaseClient.storage
       .from('report_aziende')
-      .upload(fileName, pdfContent, {
+      .upload(fileName, pdfBuffer, {
         contentType: 'application/pdf',
         upsert: true
       })
@@ -108,8 +115,13 @@ serve(async (req) => {
 
     console.log('PDF uploaded successfully:', uploadData.path)
 
+    // Get public URL for the uploaded file
+    const { data: { publicUrl } } = supabaseClient.storage
+      .from('report_aziende')
+      .getPublicUrl(fileName)
+
     // Calculate totals
-    const totaleImponibile = servizi.reduce((sum, s) => sum + (s.incasso_previsto || 0), 0)
+    const totaleImponibile = servizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
     const totaleIva = totaleImponibile * 0.22
     const totaleDocumento = totaleImponibile + totaleIva
 
@@ -169,32 +181,77 @@ serve(async (req) => {
 })
 
 async function generatePDF(servizi: ServizioData[], azienda: any, requestData: ReportData): Promise<Uint8Array> {
-  // Simple PDF generation using basic structure
-  // In a real implementation, you'd use jsPDF or similar
-  const pdfContent = `
-    REPORT SERVIZI - ${azienda.nome}
-    Periodo: ${requestData.data_inizio} - ${requestData.data_fine}
+  // Import jsPDF dynamically
+  const { jsPDF } = await import('https://esm.sh/jspdf@2.5.1')
+  
+  const pdf = new jsPDF()
+  
+  // Set font
+  pdf.setFont('helvetica')
+  
+  // Header
+  pdf.setFontSize(20)
+  pdf.text('REPORT SERVIZI', 20, 30)
+  
+  pdf.setFontSize(14)
+  pdf.text(`Azienda: ${azienda.nome}`, 20, 45)
+  pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 55)
+  
+  // Summary
+  const totaleImponibile = servizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
+  const totaleIva = totaleImponibile * 0.22
+  const totaleDocumento = totaleImponibile + totaleIva
+  
+  pdf.setFontSize(12)
+  pdf.text(`Numero servizi: ${servizi.length}`, 20, 75)
+  pdf.text(`Totale imponibile: €${totaleImponibile.toFixed(2)}`, 20, 85)
+  pdf.text(`Totale IVA (22%): €${totaleIva.toFixed(2)}`, 20, 95)
+  pdf.text(`TOTALE DOCUMENTO: €${totaleDocumento.toFixed(2)}`, 20, 105)
+  
+  // Table header
+  let yPosition = 125
+  pdf.setFontSize(10)
+  pdf.text('Data', 20, yPosition)
+  pdf.text('Orario', 50, yPosition)
+  pdf.text('Referente', 80, yPosition)
+  pdf.text('Presa', 120, yPosition)
+  pdf.text('Importo', 160, yPosition)
+  
+  // Add line under header
+  pdf.line(20, yPosition + 2, 190, yPosition + 2)
+  
+  // Service details
+  yPosition += 10
+  
+  servizi.forEach((servizio, index) => {
+    if (yPosition > 270) {
+      pdf.addPage()
+      yPosition = 20
+    }
     
-    ${servizi.map(servizio => `
-    ID: ${servizio.id}
-    Data: ${servizio.data_servizio} ${servizio.orario_servizio}
-    Passeggeri: ${servizio.passeggeri?.map(p => p.nome_cognome).join(', ') || 'N/A'}
-    Da: ${servizio.indirizzo_presa}
-    A: ${servizio.indirizzo_destinazione}
-    Commessa: ${servizio.numero_commessa || 'N/A'}
-    Ore extra: ${servizio.ore_effettive || 0}
-    Veicolo: ${servizio.veicolo?.targa} ${servizio.veicolo?.modello || ''}
-    Note: ${servizio.note || 'N/A'}
-    ${azienda.firma_digitale_attiva && servizio.firma_url ? 'Firma: Presente' : ''}
-    ---
-    `).join('\n')}
+    const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT')
+    const referenteName = servizio.referente ? 
+      `${servizio.referente.first_name} ${servizio.referente.last_name}` : 
+      'N/A'
+    const importo = (servizio.incasso_ricevuto || servizio.incasso_previsto || 0).toFixed(2)
     
-    TOTALI:
-    Netto: €${servizi.reduce((sum, s) => sum + (s.incasso_previsto || 0), 0).toFixed(2)}
-    IVA: €${(servizi.reduce((sum, s) => sum + (s.incasso_previsto || 0), 0) * 0.22).toFixed(2)}
-    Totale: €${(servizi.reduce((sum, s) => sum + (s.incasso_previsto || 0), 0) * 1.22).toFixed(2)}
-  `
-
-  // Convert to Uint8Array (simple text to bytes conversion)
-  return new TextEncoder().encode(pdfContent)
+    pdf.text(dataFormatted, 20, yPosition)
+    pdf.text(servizio.orario_servizio, 50, yPosition)
+    pdf.text(referenteName.substring(0, 15), 80, yPosition)
+    pdf.text(servizio.indirizzo_presa.substring(0, 20), 120, yPosition)
+    pdf.text(`€${importo}`, 160, yPosition)
+    
+    yPosition += 8
+  })
+  
+  // Footer
+  pdf.setFontSize(8)
+  const pageCount = pdf.internal.getNumberOfPages()
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i)
+    pdf.text(`Pagina ${i} di ${pageCount}`, 170, 290)
+  }
+  
+  // Return PDF as Uint8Array
+  return new Uint8Array(pdf.output('arraybuffer'))
 }
