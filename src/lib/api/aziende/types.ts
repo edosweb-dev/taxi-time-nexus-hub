@@ -6,4 +6,5 @@ export interface AziendaFormData {
   telefono?: string;
   indirizzo?: string;
   firma_digitale_attiva?: boolean;
+  provvigione?: boolean;
 }

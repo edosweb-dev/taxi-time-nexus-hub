@@ -18,6 +18,7 @@ export type Database = {
           indirizzo: string | null
           nome: string
           partita_iva: string
+          provvigione: boolean | null
           telefono: string | null
         }
         Insert: {
@@ -28,6 +29,7 @@ export type Database = {
           indirizzo?: string | null
           nome: string
           partita_iva: string
+          provvigione?: boolean | null
           telefono?: string | null
         }
         Update: {
@@ -38,6 +40,7 @@ export type Database = {
           indirizzo?: string | null
           nome?: string
           partita_iva?: string
+          provvigione?: boolean | null
           telefono?: string | null
         }
         Relationships: []

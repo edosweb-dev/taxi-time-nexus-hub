@@ -28,5 +28,6 @@ export interface Azienda {
   telefono?: string | null;
   indirizzo?: string | null;
   firma_digitale_attiva?: boolean | null;
+  provvigione?: boolean | null;
   created_at: string;
 }

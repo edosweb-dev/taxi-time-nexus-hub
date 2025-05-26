@@ -31,6 +31,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
     telefono: z.string().optional().or(z.literal('')),
     indirizzo: z.string().optional().or(z.literal('')),
     firma_digitale_attiva: z.boolean().default(false),
+    provvigione: z.boolean().default(false),
   });
 
   const form = useForm<z.infer<typeof aziendaFormSchema>>({
@@ -42,6 +43,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       telefono: azienda?.telefono || '',
       indirizzo: azienda?.indirizzo || '',
       firma_digitale_attiva: azienda?.firma_digitale_attiva || false,
+      provvigione: azienda?.provvigione || false,
     },
   });
 
@@ -53,6 +55,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       telefono: values.telefono ? values.telefono.trim() : undefined,
       indirizzo: values.indirizzo ? values.indirizzo.trim() : undefined,
       firma_digitale_attiva: values.firma_digitale_attiva,
+      provvigione: values.provvigione,
     };
     
     onSubmit(aziendaData);
