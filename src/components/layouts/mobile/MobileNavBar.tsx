@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, CalendarDays, FileText, Users, Building, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, CreditCard, Users, Building, LogOut, UserCircle, FileBarChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -8,78 +8,118 @@ export function MobileNavBar() {
   const location = useLocation();
   const { profile, signOut } = useAuth();
   
-  // Check if user is admin or socio for showing users menu
-  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
-  
+  if (!profile) return null;
+
+  // Definizione dei link per ogni ruolo
+  const getNavItems = () => {
+    const baseItems = [
+      {
+        to: "/dashboard",
+        icon: LayoutDashboard,
+        label: "Dashboard",
+        roles: ['admin', 'socio', 'dipendente', 'cliente']
+      }
+    ];
+
+    if (profile.role === 'admin' || profile.role === 'socio') {
+      return [
+        ...baseItems,
+        {
+          to: "/servizi",
+          icon: FileText,
+          label: "Servizi",
+          roles: ['admin', 'socio', 'dipendente']
+        },
+        {
+          to: "/spese",
+          icon: CreditCard,
+          label: "Spese",
+          roles: ['admin', 'socio', 'dipendente']
+        },
+        {
+          to: "/reports",
+          icon: FileBarChart,
+          label: "Report",
+          roles: ['admin', 'socio']
+        },
+        {
+          to: "/aziende",
+          icon: Building,
+          label: "Aziende",
+          roles: ['admin', 'socio']
+        },
+        ...(profile.role === 'admin' ? [{
+          to: "/users",
+          icon: Users,
+          label: "Utenti",
+          roles: ['admin']
+        }] : [])
+      ];
+    } else if (profile.role === 'dipendente') {
+      return [
+        ...baseItems,
+        {
+          to: "/servizi",
+          icon: FileText,
+          label: "Servizi",
+          roles: ['admin', 'socio', 'dipendente']
+        },
+        {
+          to: "/spese",
+          icon: CreditCard,
+          label: "Spese",
+          roles: ['admin', 'socio', 'dipendente']
+        }
+      ];
+    } else if (profile.role === 'cliente') {
+      return [
+        ...baseItems,
+        {
+          to: "/profilo",
+          icon: UserCircle,
+          label: "Profilo",
+          roles: ['cliente']
+        },
+        {
+          to: "/reports",
+          icon: FileBarChart,
+          label: "Report",
+          roles: ['cliente']
+        }
+      ];
+    }
+
+    return baseItems;
+  };
+
+  const navItems = getNavItems().filter(item => 
+    item.roles.includes(profile.role)
+  );
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-primary border-t border-white/20 flex items-center justify-around py-2 px-4 z-50 text-white">
-      <Link 
-        to="/dashboard" 
-        className={cn(
-          "flex flex-col items-center justify-center p-2 rounded-md transition-colors",
-          location.pathname === "/dashboard" ? "bg-white text-primary" : "text-white hover:bg-white hover:text-primary"
-        )}
-      >
-        <LayoutDashboard className="h-5 w-5" />
-        <span className="text-xs mt-1">Dashboard</span>
-      </Link>
-      <Link 
-        to="/shifts" 
-        className={cn(
-          "flex flex-col items-center justify-center p-2 rounded-md transition-colors",
-          location.pathname === "/shifts" ? "bg-white text-primary" : "text-white hover:bg-white hover:text-primary"
-        )}
-      >
-        <CalendarDays className="h-5 w-5" />
-        <span className="text-xs mt-1">Turni</span>
-      </Link>
-      
-      {/* Add Servizi to mobile navigation - visible to all users */}
-      <Link 
-        to="/servizi" 
-        className={cn(
-          "flex flex-col items-center justify-center p-2 rounded-md transition-colors",
-          location.pathname === "/servizi" ? "bg-white text-primary" : "text-white hover:bg-white hover:text-primary"
-        )}
-      >
-        <FileText className="h-5 w-5" />
-        <span className="text-xs mt-1">Servizi</span>
-      </Link>
-      
-      {/* Add Users menu item to mobile navigation - only visible to admin and socio roles */}
-      {isAdminOrSocio && (
+      {navItems.map((item) => (
         <Link 
-          to="/users" 
+          key={item.to}
+          to={item.to} 
           className={cn(
-            "flex flex-col items-center justify-center p-2 rounded-md transition-colors",
-            location.pathname === "/users" ? "bg-white text-primary" : "text-white hover:bg-white hover:text-primary"
+            "flex flex-col items-center justify-center p-2 rounded-md transition-colors min-w-0 flex-1",
+            location.pathname === item.to 
+              ? "bg-white text-primary" 
+              : "text-white hover:bg-white hover:text-primary"
           )}
         >
-          <Users className="h-5 w-5" />
-          <span className="text-xs mt-1">Utenti</span>
+          <item.icon className="h-5 w-5 mb-1" />
+          <span className="text-xs truncate">{item.label}</span>
         </Link>
-      )}
-      
-      {/* Add Aziende menu item to mobile navigation - only visible to admin and socio roles */}
-      {isAdminOrSocio && (
-        <Link 
-          to="/aziende" 
-          className={cn(
-            "flex flex-col items-center justify-center p-2 rounded-md transition-colors",
-            location.pathname === "/aziende" ? "bg-white text-primary" : "text-white hover:bg-white hover:text-primary"
-          )}
-        >
-          <Building className="h-5 w-5" />
-          <span className="text-xs mt-1">Aziende</span>
-        </Link>
-      )}
+      ))}
       
       <button 
         onClick={() => signOut()}
-        className="flex flex-col items-center justify-center p-2 rounded-md text-white hover:bg-white hover:text-primary transition-colors"
+        className="flex flex-col items-center justify-center p-2 rounded-md text-white hover:bg-white hover:text-primary transition-colors min-w-0"
       >
-        <LogOut className="h-5 w-5" />
-        <span className="text-xs mt-1">Esci</span>
+        <LogOut className="h-5 w-5 mb-1" />
+        <span className="text-xs">Esci</span>
       </button>
     </div>
   );

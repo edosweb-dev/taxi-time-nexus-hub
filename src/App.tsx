@@ -84,7 +84,7 @@ function App() {
             } />
 
             <Route path="/veicoli" element={
-              <AuthGuard allowedRoles={['admin']}>
+              <AuthGuard allowedRoles={['admin', 'socio']}>
                 <VeicoliPage />
               </AuthGuard>
             } />
@@ -95,6 +95,34 @@ function App() {
               </AuthGuard>
             } />
             
+            {/* Nuove route aggiunte */}
+            <Route path="/spese" element={
+              <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                <div className="p-4">
+                  <h1 className="text-2xl font-bold">Spese</h1>
+                  <p className="text-muted-foreground">Pagina in sviluppo</p>
+                </div>
+              </AuthGuard>
+            } />
+            
+            <Route path="/movimenti" element={
+              <AuthGuard allowedRoles={['admin', 'socio']}>
+                <div className="p-4">
+                  <h1 className="text-2xl font-bold">Movimenti</h1>
+                  <p className="text-muted-foreground">Pagina in sviluppo</p>
+                </div>
+              </AuthGuard>
+            } />
+            
+            <Route path="/profilo" element={
+              <AuthGuard allowedRoles={['cliente']}>
+                <div className="p-4">
+                  <h1 className="text-2xl font-bold">Profilo</h1>
+                  <p className="text-muted-foreground">Pagina in sviluppo</p>
+                </div>
+              </AuthGuard>
+            } />
+            
             <Route path="/impostazioni" element={
               <AuthGuard allowedRoles={['admin', 'socio']}>
                 <ImpostazioniPage />
@@ -102,7 +130,7 @@ function App() {
             } />
             
             <Route path="/reports" element={
-              <AuthGuard allowedRoles={['admin', 'socio']}>
+              <AuthGuard allowedRoles={['admin', 'socio', 'cliente']}>
                 <ReportsPage />
               </AuthGuard>
             } />
