@@ -5,7 +5,6 @@ export interface Report {
   updated_at: string;
   azienda_id: string;
   created_by: string;
-  tipo_report: 'servizi' | 'finanziario' | 'veicoli';
   nome_file: string;
   url_file?: string;
   data_inizio: string;
@@ -17,6 +16,7 @@ export interface Report {
   stato: string;
   errore_messaggio?: string;
   referente_id?: string;
+  bucket_name?: string;
   // Joined data
   azienda?: {
     id: string;
@@ -31,16 +31,13 @@ export interface Report {
 
 export interface CreateReportData {
   azienda_id: string;
-  tipo_report: 'servizi' | 'finanziario' | 'veicoli';
   data_inizio: string;
   data_fine: string;
   referente_id?: string;
-  is_preview?: boolean;
 }
 
 export interface ReportFilters {
   azienda_id?: string;
-  tipo_report?: string;
   data_inizio?: string;
   data_fine?: string;
   referente_id?: string;

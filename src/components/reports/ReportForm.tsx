@@ -5,16 +5,13 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useReports, useAvailableMonths } from '@/hooks/useReports';
-import { Eye, Loader2 } from 'lucide-react';
+import { Eye, Loader2, FileText } from 'lucide-react';
 import { CreateReportData } from '@/lib/types/reports';
 import { ReportFormFields } from './ReportFormFields';
 
 const reportSchema = z.object({
   azienda_id: z.string().min(1, 'Seleziona un\'azienda'),
   referente_id: z.string().optional(),
-  tipo_report: z.enum(['servizi', 'finanziario', 'veicoli'], {
-    required_error: 'Seleziona un tipo di report',
-  }),
   month_year: z.string().min(1, 'Seleziona un mese'),
 });
 
@@ -24,7 +21,6 @@ interface ReportFormProps {
   onPreview: (data: { 
     aziendaId: string; 
     referenteId?: string; 
-    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
     year: number; 
     month: number;
   }) => void;
@@ -39,7 +35,6 @@ export function ReportForm({ onPreview, onResetPreview }: ReportFormProps) {
     defaultValues: {
       azienda_id: '',
       referente_id: '',
-      tipo_report: 'servizi',
       month_year: '',
     },
   });
@@ -72,7 +67,6 @@ export function ReportForm({ onPreview, onResetPreview }: ReportFormProps) {
 
     const reportData: CreateReportData = {
       azienda_id: data.azienda_id,
-      tipo_report: data.tipo_report,
       data_inizio: dataInizio,
       data_fine: dataFine,
       referente_id: data.referente_id,
@@ -89,7 +83,6 @@ export function ReportForm({ onPreview, onResetPreview }: ReportFormProps) {
     onPreview({
       aziendaId: data.azienda_id,
       referenteId: data.referente_id,
-      tipoReport: data.tipo_report,
       year,
       month
     });
@@ -123,8 +116,12 @@ export function ReportForm({ onPreview, onResetPreview }: ReportFormProps) {
             disabled={isGenerating || !watchedAziendaId || availableMonths.length === 0} 
             className="flex-1"
           >
-            {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Genera Report
+            {isGenerating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <FileText className="mr-2 h-4 w-4" />
+            )}
+            Genera Report PDF
           </Button>
         </div>
       </form>

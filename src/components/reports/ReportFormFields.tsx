@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAziende } from '@/hooks/useAziende';
-import { useAvailableMonths } from '@/hooks/useReports';
 import { ReferenteSelectField } from '../servizi/ReferenteSelectField';
 
 interface ReportFormFieldsProps {
@@ -105,29 +104,6 @@ export function ReportFormFields({
           />
         </div>
       )}
-
-      <FormField
-        control={form.control}
-        name="tipo_report"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Tipo Report *</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona il tipo di report" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="servizi">Report Servizi</SelectItem>
-                <SelectItem value="finanziario">Report Finanziario</SelectItem>
-                <SelectItem value="veicoli">Report Veicoli</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </div>
   );
 }

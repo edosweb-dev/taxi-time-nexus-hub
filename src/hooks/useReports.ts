@@ -1,8 +1,9 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { Report, CreateReportData, ReportFilters, AvailableMonth } from '@/lib/types/reports';
 
 export function useReports(filters: ReportFilters = {}) {
@@ -24,9 +25,6 @@ export function useReports(filters: ReportFilters = {}) {
       if (filters.azienda_id && filters.azienda_id !== 'all') {
         query = query.eq('azienda_id', filters.azienda_id);
       }
-      if (filters.tipo_report && filters.tipo_report !== 'all') {
-        query = query.eq('tipo_report', filters.tipo_report);
-      }
       if (filters.referente_id && filters.referente_id !== 'all') {
         query = query.eq('referente_id', filters.referente_id);
       }
@@ -38,13 +36,12 @@ export function useReports(filters: ReportFilters = {}) {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching reports:', error);
+        throw error;
+      }
       
-      // Type cast to ensure proper typing
-      return (data || []).map(item => ({
-        ...item,
-        tipo_report: item.tipo_report as 'servizi' | 'finanziario' | 'veicoli'
-      })) as Report[];
+      return (data || []) as Report[];
     },
     enabled: !!user,
   });
@@ -53,32 +50,31 @@ export function useReports(filters: ReportFilters = {}) {
     mutationFn: async (data: CreateReportData) => {
       if (!user) throw new Error('User not authenticated');
       
-      const reportData = {
-        ...data,
-        created_by: user.id,
-        nome_file: `${data.is_preview ? 'anteprima_' : ''}report_${data.tipo_report}_${data.data_inizio}_${data.data_fine}.pdf`,
-        stato: 'in_generazione' as const,
-      };
+      console.log('Calling generate-report function with:', data);
+      
+      const { data: result, error } = await supabase.functions.invoke('generate-report', {
+        body: data
+      });
 
-      const { data: report, error } = await supabase
-        .from('reports')
-        .insert(reportData)
-        .select()
-        .single();
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Errore nella generazione del report');
+      }
 
-      if (error) throw error;
-      return { report, is_preview: data.is_preview };
+      if (!result.success) {
+        throw new Error(result.error || 'Errore nella generazione del report');
+      }
+
+      return result;
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
-      if (result.is_preview) {
-        toast.success('Anteprima report in generazione');
-      } else {
-        toast.success('Report in generazione');
-      }
+      toast.success('Report PDF generato con successo!');
+      console.log('Report generated successfully:', result);
     },
     onError: (error: any) => {
-      toast.error(`Errore nella generazione del report: ${error.message}`);
+      console.error('Report generation error:', error);
+      toast.error(`Errore: ${error.message}`);
     },
   });
 
@@ -93,8 +89,7 @@ export function useReports(filters: ReportFilters = {}) {
         updated_at: new Date().toISOString(),
         azienda_id: data.azienda_id,
         created_by: user.id,
-        tipo_report: data.tipo_report,
-        nome_file: `anteprima_report_${data.tipo_report}_${data.data_inizio}_${data.data_fine}.pdf`,
+        nome_file: `anteprima_report_${data.data_inizio}_${data.data_fine}.pdf`,
         url_file: undefined,
         data_inizio: data.data_inizio,
         data_fine: data.data_fine,
@@ -116,7 +111,7 @@ export function useReports(filters: ReportFilters = {}) {
       toast.success('Anteprima generata');
     },
     onError: (error: any) => {
-      toast.error(`Errore nella generazione dell'anteprima: ${error.message}`);
+      toast.error(`Errore nell'anteprima: ${error.message}`);
     },
   });
 
@@ -134,26 +129,41 @@ export function useReports(filters: ReportFilters = {}) {
       toast.success('Report eliminato');
     },
     onError: (error: any) => {
-      toast.error(`Errore nell'eliminazione del report: ${error.message}`);
+      toast.error(`Errore nell'eliminazione: ${error.message}`);
     },
   });
 
   const downloadReport = async (report: Report) => {
-    if (!report.url_file) {
+    if (!report.url_file || !report.bucket_name) {
       toast.error('File del report non disponibile');
       return;
     }
 
     try {
-      // Simuliamo il download - in un'implementazione reale si userebbe un URL o Storage
+      const { data, error } = await supabase.storage
+        .from(report.bucket_name)
+        .download(report.url_file);
+
+      if (error) {
+        console.error('Download error:', error);
+        toast.error('Errore nel download del report');
+        return;
+      }
+
+      // Create download link
+      const blob = new Blob([data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = report.url_file;
+      link.href = url;
       link.download = report.nome_file;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
       toast.success('Download avviato');
     } catch (error) {
+      console.error('Download error:', error);
       toast.error('Errore nel download del report');
     }
   };
