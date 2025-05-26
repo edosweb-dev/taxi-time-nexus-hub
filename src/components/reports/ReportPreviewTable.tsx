@@ -80,6 +80,28 @@ export function ReportPreviewTable({
     }
   };
 
+  const getReferenteName = (referente: any) => {
+    if (!referente) return 'Non specificato';
+    
+    if (Array.isArray(referente)) {
+      const ref = referente[0];
+      return ref ? `${ref.first_name} ${ref.last_name}` : 'Non specificato';
+    }
+    
+    return `${referente.first_name} ${referente.last_name}`;
+  };
+
+  const getAssegnatoName = (assegnato: any) => {
+    if (!assegnato) return null;
+    
+    if (Array.isArray(assegnato)) {
+      const ass = assegnato[0];
+      return ass ? `${ass.first_name} ${ass.last_name}` : null;
+    }
+    
+    return `${assegnato.first_name} ${assegnato.last_name}`;
+  };
+
   const totaleServizi = servizi.length;
   const totaleImponibile = servizi.reduce((sum, servizio) => 
     sum + (servizio.incasso_ricevuto || servizio.incasso_previsto || 0), 0
@@ -172,12 +194,7 @@ export function ReportPreviewTable({
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <User className="h-4 w-4" />
-                              {servizio.referente && Array.isArray(servizio.referente) ? 
-                                `${servizio.referente[0]?.first_name} ${servizio.referente[0]?.last_name}` :
-                                servizio.referente ? 
-                                  `${servizio.referente.first_name} ${servizio.referente.last_name}` :
-                                  'Non specificato'
-                              }
+                              {getReferenteName(servizio.referente)}
                             </div>
                           </TableCell>
                           <TableCell>
@@ -194,15 +211,16 @@ export function ReportPreviewTable({
                             </div>
                           </TableCell>
                           <TableCell>
-                            {servizio.assegnato ? (
-                              Array.isArray(servizio.assegnato) ?
-                                `${servizio.assegnato[0]?.first_name} ${servizio.assegnato[0]?.last_name}` :
-                                `${servizio.assegnato.first_name} ${servizio.assegnato.last_name}`
-                            ) : servizio.conducente_esterno ? (
-                              servizio.conducente_esterno_nome
-                            ) : (
-                              <span className="text-muted-foreground">Non assegnato</span>
-                            )}
+                            {(() => {
+                              const assegnatoName = getAssegnatoName(servizio.assegnato);
+                              if (assegnatoName) {
+                                return assegnatoName;
+                              } else if (servizio.conducente_esterno) {
+                                return servizio.conducente_esterno_nome;
+                              } else {
+                                return <span className="text-muted-foreground">Non assegnato</span>;
+                              }
+                            })()}
                           </TableCell>
                           <TableCell>
                             {getStatusBadge(servizio.stato)}
