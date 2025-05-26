@@ -1,14 +1,14 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Servizio, Passeggero } from "@/lib/types/servizi";
+import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { ServizioInfoTab } from "@/components/servizi/dettaglio/ServizioInfoTab";
 import { ServizioPasseggeriTab } from "@/components/servizi/dettaglio/ServizioPasseggeriTab";
 
 interface ServizioTabsProps {
   servizio: Servizio;
-  passeggeri: Passeggero[];
+  passeggeri: PasseggeroConDettagli[];
   users: Profile[];
   activeTab: string;
   onTabChange: (value: string) => void;

@@ -143,8 +143,8 @@ export function ServizioDetailsForm() {
                   </FormControl>
                   <SelectContent>
                     {metodiPagamento.map((metodo) => (
-                      <SelectItem key={metodo} value={metodo}>
-                        {metodo}
+                      <SelectItem key={metodo.id} value={metodo.nome}>
+                        {metodo.nome}
                       </SelectItem>
                     ))}
                   </SelectContent>
