@@ -30,6 +30,7 @@ export interface Servizio {
   ore_lavorate?: number;
   ore_finali?: number;
   consegna_contanti_a?: string;
+  veicolo_id?: string;
 }
 
 export interface Passeggero {
@@ -55,6 +56,7 @@ export interface ServizioFormData {
   indirizzo_destinazione: string;
   metodo_pagamento: MetodoPagamento;
   note?: string;
+  veicolo_id?: string;
   passeggeri: PasseggeroFormData[];
 }
 

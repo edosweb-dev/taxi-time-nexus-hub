@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -9,6 +10,7 @@ import { ServizioFormData } from "@/lib/types/servizi";
 import { useAuth } from "@/hooks/useAuth";
 import { AziendaSelectField } from "./AziendaSelectField";
 import { ReferenteSelectField } from "./ReferenteSelectField";
+import { VeicoloSelectField } from "@/components/veicoli/VeicoloSelectField";
 import { MapPin, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getImpostazioni } from "@/lib/api/impostazioni/getImpostazioni";
@@ -154,6 +156,9 @@ export function ServizioDetailsForm() {
               </FormItem>
             )}
           />
+
+          {/* Veicolo */}
+          <VeicoloSelectField />
         </div>
 
         <div className="mb-6">

@@ -352,6 +352,7 @@ export type Database = {
           ore_lavorate: number | null
           referente_id: string
           stato: string
+          veicolo_id: string | null
         }
         Insert: {
           assegnato_a?: string | null
@@ -379,6 +380,7 @@ export type Database = {
           ore_lavorate?: number | null
           referente_id: string
           stato?: string
+          veicolo_id?: string | null
         }
         Update: {
           assegnato_a?: string | null
@@ -406,6 +408,7 @@ export type Database = {
           ore_lavorate?: number | null
           referente_id?: string
           stato?: string
+          veicolo_id?: string | null
         }
         Relationships: [
           {
@@ -420,6 +423,13 @@ export type Database = {
             columns: ["azienda_id"]
             isOneToOne: false
             referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servizi_veicolo_id_fkey"
+            columns: ["veicolo_id"]
+            isOneToOne: false
+            referencedRelation: "veicoli"
             referencedColumns: ["id"]
           },
         ]
@@ -539,6 +549,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      veicoli: {
+        Row: {
+          anno: number | null
+          attivo: boolean
+          colore: string | null
+          created_at: string
+          created_by: string
+          id: string
+          modello: string
+          note: string | null
+          numero_posti: number | null
+          targa: string
+          updated_at: string
+        }
+        Insert: {
+          anno?: number | null
+          attivo?: boolean
+          colore?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          modello: string
+          note?: string | null
+          numero_posti?: number | null
+          targa: string
+          updated_at?: string
+        }
+        Update: {
+          anno?: number | null
+          attivo?: boolean
+          colore?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          modello?: string
+          note?: string | null
+          numero_posti?: number | null
+          targa?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

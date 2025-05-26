@@ -11,6 +11,7 @@ export interface ServizioInput {
   indirizzo_destinazione: string;
   metodo_pagamento: MetodoPagamento;
   note?: string;
+  veicolo_id?: string;
   assegnato_a?: string;
   conducente_esterno?: boolean;
   conducente_esterno_nome?: string;

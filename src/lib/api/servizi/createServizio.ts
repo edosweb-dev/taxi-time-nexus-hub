@@ -37,6 +37,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         indirizzo_destinazione: data.servizio.indirizzo_destinazione,
         metodo_pagamento: data.servizio.metodo_pagamento,
         note: data.servizio.note,
+        veicolo_id: data.servizio.veicolo_id,
         created_by: userId
       })
       .select()

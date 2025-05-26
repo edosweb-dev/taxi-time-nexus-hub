@@ -15,6 +15,7 @@ import AziendaDetailPage from './pages/aziende/AziendaDetailPage';
 import ServiziPage from './pages/servizi/ServiziPage';
 import NuovoServizioPage from './pages/servizi/NuovoServizioPage';
 import ServizioDetailPage from './pages/servizi/ServizioDetailPage';
+import VeicoliPage from './pages/veicoli/VeicoliPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ImpostazioniPage from './pages/ImpostazioniPage';
 
@@ -78,6 +79,12 @@ function App() {
             <Route path="/servizi/:id" element={
               <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                 <ServizioDetailPage />
+              </AuthGuard>
+            } />
+
+            <Route path="/veicoli" element={
+              <AuthGuard allowedRoles={['admin']}>
+                <VeicoliPage />
               </AuthGuard>
             } />
 
