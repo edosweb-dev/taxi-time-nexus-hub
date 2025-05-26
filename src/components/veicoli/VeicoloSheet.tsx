@@ -40,7 +40,7 @@ export function VeicoloSheet({
         </SheetHeader>
         <div className="mt-6">
           <VeicoloForm
-            veicolo={veicolo}
+            initialData={veicolo}
             onSubmit={onSubmit}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isSubmitting}
