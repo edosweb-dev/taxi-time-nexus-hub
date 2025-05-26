@@ -9,9 +9,13 @@ export interface ServizioInput {
   orario_servizio: string;
   indirizzo_presa: string;
   indirizzo_destinazione: string;
+  citta_presa?: string;
+  citta_destinazione?: string;
   metodo_pagamento: MetodoPagamento;
   note?: string;
   veicolo_id?: string;
+  ore_effettive?: number;
+  ore_fatturate?: number;
   assegnato_a?: string;
   conducente_esterno?: boolean;
   conducente_esterno_nome?: string;

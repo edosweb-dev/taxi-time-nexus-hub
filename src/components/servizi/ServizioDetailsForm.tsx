@@ -38,7 +38,7 @@ export function ServizioDetailsForm() {
           <ReferenteSelectField aziendaId={azienda_id || ""} />
         </div>
 
-        {/* Data e orario */}
+        {/* Data servizio, Orario servizio, Numero commessa */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={control}
@@ -94,44 +94,7 @@ export function ServizioDetailsForm() {
           />
         </div>
 
-        {/* Indirizzi */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={control}
-            name="indirizzo_presa"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Indirizzo di presa *</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Via Roma 123, Milano"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={control}
-            name="indirizzo_destinazione"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Indirizzo di destinazione *</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Aeroporto di Malpensa, Ferno"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Città */}
+        {/* Città (Presa) e Indirizzo di presa */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={control}
@@ -152,6 +115,26 @@ export function ServizioDetailsForm() {
           
           <FormField
             control={control}
+            name="indirizzo_presa"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Indirizzo di presa *</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Via Roma 123"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Città (Destinazione) e Indirizzo di destinazione */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={control}
             name="citta_destinazione"
             render={({ field }) => (
               <FormItem>
@@ -166,10 +149,27 @@ export function ServizioDetailsForm() {
               </FormItem>
             )}
           />
+          
+          <FormField
+            control={control}
+            name="indirizzo_destinazione"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Indirizzo di destinazione *</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Aeroporto di Malpensa"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        {/* Metodo pagamento e veicolo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Metodo pagamento, Ore effettive, Ore fatturate, Veicolo */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <FormField
             control={control}
             name="metodo_pagamento"
@@ -179,7 +179,7 @@ export function ServizioDetailsForm() {
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleziona metodo di pagamento" />
+                      <SelectValue placeholder="Seleziona metodo" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -195,12 +195,8 @@ export function ServizioDetailsForm() {
             )}
           />
 
-          <VeicoloSelectField />
-        </div>
-
-        {/* Ore effettive e fatturate - solo per admin e soci */}
-        {canEditOreFields && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Ore effettive - solo per admin e soci */}
+          {canEditOreFields ? (
             <FormField
               control={control}
               name="ore_effettive"
@@ -220,7 +216,12 @@ export function ServizioDetailsForm() {
                 </FormItem>
               )}
             />
-            
+          ) : (
+            <div></div>
+          )}
+
+          {/* Ore fatturate - solo per admin e soci */}
+          {canEditOreFields ? (
             <FormField
               control={control}
               name="ore_fatturate"
@@ -240,8 +241,12 @@ export function ServizioDetailsForm() {
                 </FormItem>
               )}
             />
-          </div>
-        )}
+          ) : (
+            <div></div>
+          )}
+
+          <VeicoloSelectField />
+        </div>
 
         {/* Note */}
         <FormField
