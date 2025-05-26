@@ -34,9 +34,13 @@ export function ReportPreviewTable({
   const dataInizio = new Date(year, month - 1, 1).toISOString().split('T')[0];
   const dataFine = new Date(year, month, 0).toISOString().split('T')[0];
 
+  console.log('ReportPreviewTable params:', { aziendaId, referenteId, year, month, dataInizio, dataFine });
+
   const { data: servizi = [], isLoading } = useQuery({
     queryKey: ['servizi-preview', aziendaId, referenteId, year, month],
     queryFn: async () => {
+      console.log('Executing servizi query with params:', { aziendaId, referenteId, dataInizio, dataFine });
+      
       let query = supabase
         .from('servizi')
         .select(`
@@ -52,12 +56,18 @@ export function ReportPreviewTable({
         .lte('data_servizio', dataFine)
         .order('data_servizio', { ascending: false });
 
-      if (referenteId) {
+      if (referenteId && referenteId.trim() !== '') {
+        console.log('Adding referente_id filter:', referenteId);
         query = query.eq('referente_id', referenteId);
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      console.log('Query result:', { data, error, count: data?.length });
+      
+      if (error) {
+        console.error('Query error:', error);
+        throw error;
+      }
       return data || [];
     },
     enabled: !!aziendaId && !!year && !!month,
@@ -128,6 +138,8 @@ export function ReportPreviewTable({
                 <Calendar className="h-4 w-4" />
                 {monthName}
               </span>
+              <span>Azienda ID: {aziendaId}</span>
+              {referenteId && <span>Referente ID: {referenteId}</span>}
             </div>
           </div>
         </CardHeader>
@@ -179,6 +191,7 @@ export function ReportPreviewTable({
                           <div className="text-muted-foreground">
                             <FileText className="mx-auto h-12 w-12 mb-2" />
                             <p>Nessun servizio consuntivato trovato per il mese selezionato</p>
+                            <p className="text-xs mt-2">Parametri: {dataInizio} - {dataFine}</p>
                           </div>
                         </TableCell>
                       </TableRow>

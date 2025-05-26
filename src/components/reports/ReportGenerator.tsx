@@ -118,7 +118,7 @@ export function ReportGenerator() {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export function ReportGenerator() {
       </Card>
 
       {showPreview && previewData && (
-        <div className="w-full">
+        <div className="col-span-full mt-6">
           <ReportPreviewTable 
             aziendaId={previewData.aziendaId}
             referenteId={previewData.referenteId}
@@ -257,6 +257,6 @@ export function ReportGenerator() {
           />
         </div>
       )}
-    </div>
+    </>
   );
 }
