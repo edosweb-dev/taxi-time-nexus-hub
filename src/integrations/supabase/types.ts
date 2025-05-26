@@ -272,42 +272,57 @@ export type Database = {
       reports: {
         Row: {
           azienda_id: string
-          bucket_name: string | null
           created_at: string
           created_by: string
-          file_name: string
-          file_path: string
+          data_fine: string
+          data_inizio: string
+          errore_messaggio: string | null
           id: string
-          month: number
-          referente_id: string
-          servizi_ids: string[]
-          year: number
+          nome_file: string
+          numero_servizi: number | null
+          stato: string
+          tipo_report: string
+          totale_documento: number | null
+          totale_imponibile: number | null
+          totale_iva: number | null
+          updated_at: string
+          url_file: string | null
         }
         Insert: {
           azienda_id: string
-          bucket_name?: string | null
           created_at?: string
           created_by: string
-          file_name: string
-          file_path: string
+          data_fine: string
+          data_inizio: string
+          errore_messaggio?: string | null
           id?: string
-          month: number
-          referente_id: string
-          servizi_ids: string[]
-          year: number
+          nome_file: string
+          numero_servizi?: number | null
+          stato?: string
+          tipo_report: string
+          totale_documento?: number | null
+          totale_imponibile?: number | null
+          totale_iva?: number | null
+          updated_at?: string
+          url_file?: string | null
         }
         Update: {
           azienda_id?: string
-          bucket_name?: string | null
           created_at?: string
           created_by?: string
-          file_name?: string
-          file_path?: string
+          data_fine?: string
+          data_inizio?: string
+          errore_messaggio?: string | null
           id?: string
-          month?: number
-          referente_id?: string
-          servizi_ids?: string[]
-          year?: number
+          nome_file?: string
+          numero_servizi?: number | null
+          stato?: string
+          tipo_report?: string
+          totale_documento?: number | null
+          totale_imponibile?: number | null
+          totale_iva?: number | null
+          updated_at?: string
+          url_file?: string | null
         }
         Relationships: [
           {
@@ -315,13 +330,6 @@ export type Database = {
             columns: ["azienda_id"]
             isOneToOne: false
             referencedRelation: "aziende"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reports_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { BarChart4, Calendar, ClipboardList, FilePlus, Home, Settings, ShoppingBag, UserCircle, Users, CreditCard, Wallet, Car } from 'lucide-react';
+import { BarChart4, Calendar, ClipboardList, FilePlus, Home, Settings, ShoppingBag, UserCircle, Users, CreditCard, Wallet, Car, FileBarChart } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export function SidebarNavLinks() {
@@ -109,6 +109,20 @@ export function SidebarNavLinks() {
         >
           <Car className="mr-3 h-5 w-5" />
           Veicoli
+        </NavLink>
+        
+        <NavLink 
+          to="/reports" 
+          className={({ isActive }) => 
+            `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
+              isActive 
+                ? 'bg-white text-primary' 
+                : 'text-white hover:bg-white hover:text-primary'
+            }`
+          }
+        >
+          <FileBarChart className="mr-3 h-5 w-5" />
+          Report
         </NavLink>
         
         <NavLink 

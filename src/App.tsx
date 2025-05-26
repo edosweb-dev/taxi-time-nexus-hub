@@ -8,6 +8,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import UsersPage from './pages/UsersPage';
 import ClientDashboardPage from './pages/ClientDashboardPage';
 import RecuperaPasswordPage from './pages/RecuperaPasswordPage';
+import ReportsPage from './pages/ReportsPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { AuthGuard } from './components/AuthGuard';
 import AziendePage from './pages/aziende/AziendePage';
@@ -97,6 +98,12 @@ function App() {
             <Route path="/impostazioni" element={
               <AuthGuard allowedRoles={['admin', 'socio']}>
                 <ImpostazioniPage />
+              </AuthGuard>
+            } />
+            
+            <Route path="/reports" element={
+              <AuthGuard allowedRoles={['admin', 'socio']}>
+                <ReportsPage />
               </AuthGuard>
             } />
             
