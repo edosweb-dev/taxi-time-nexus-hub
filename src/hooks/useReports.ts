@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +18,7 @@ export function useReports(filters: ReportFilters = {}) {
         .select(`
           *,
           azienda:aziende(id, nome),
-          referente:profiles!referente_id(id, first_name, last_name)
+          referente:profiles!reports_referente_id_fkey(id, first_name, last_name)
         `)
         .order('created_at', { ascending: false });
 
@@ -39,7 +40,7 @@ export function useReports(filters: ReportFilters = {}) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Report[];
+      return data || [];
     },
     enabled: !!user,
   });

@@ -43,6 +43,7 @@ export function ReportPreviewTable({
           veicolo:veicoli(modello, targa)
         `)
         .eq('azienda_id', aziendaId)
+        .eq('stato', 'consuntivato')
         .gte('data_servizio', dataInizio)
         .lte('data_servizio', dataFine)
         .order('data_servizio', { ascending: false });
@@ -83,124 +84,126 @@ export function ReportPreviewTable({
   const totaleDocumento = totaleImponibile + totaleIva;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Anteprima Report {tipoReport.charAt(0).toUpperCase() + tipoReport.slice(1)}
-        </CardTitle>
-        <div className="text-sm text-muted-foreground">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              {format(new Date(dataInizio), 'dd/MM/yyyy')} - {format(new Date(dataFine), 'dd/MM/yyyy')}
-            </span>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        ) : (
-          <>
-            {/* Riepilogo */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-muted/50 rounded-lg">
-              <div className="text-center">
-                <div className="text-2xl font-bold">{totaleServizi}</div>
-                <div className="text-sm text-muted-foreground">Servizi</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">€{totaleImponibile.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>
-                <div className="text-sm text-muted-foreground">Imponibile</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">€{totaleIva.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>
-                <div className="text-sm text-muted-foreground">IVA (22%)</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">€{totaleDocumento.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>
-                <div className="text-sm text-muted-foreground">Totale</div>
-              </div>
+    <div className="w-full">
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Anteprima Report {tipoReport.charAt(0).toUpperCase() + tipoReport.slice(1)}
+          </CardTitle>
+          <div className="text-sm text-muted-foreground">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                {format(new Date(dataInizio), 'dd/MM/yyyy')} - {format(new Date(dataFine), 'dd/MM/yyyy')}
+              </span>
             </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
+            <>
+              {/* Riepilogo */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-muted/50 rounded-lg">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{totaleServizi}</div>
+                  <div className="text-sm text-muted-foreground">Servizi Consuntivati</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">€{totaleImponibile.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-sm text-muted-foreground">Imponibile</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">€{totaleIva.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-sm text-muted-foreground">IVA (22%)</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">€{totaleDocumento.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-sm text-muted-foreground">Totale</div>
+                </div>
+              </div>
 
-            {/* Tabella servizi */}
-            <div className="border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Orario</TableHead>
-                    <TableHead>Referente</TableHead>
-                    <TableHead>Percorso</TableHead>
-                    <TableHead>Assegnato a</TableHead>
-                    <TableHead>Stato</TableHead>
-                    <TableHead className="text-right">Importo</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {servizi.length === 0 ? (
+              {/* Tabella servizi */}
+              <div className="border rounded-lg overflow-x-auto">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          <FileText className="mx-auto h-12 w-12 mb-2" />
-                          <p>Nessun servizio trovato per i criteri selezionati</p>
-                        </div>
-                      </TableCell>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Orario</TableHead>
+                      <TableHead>Referente</TableHead>
+                      <TableHead>Percorso</TableHead>
+                      <TableHead>Assegnato a</TableHead>
+                      <TableHead>Stato</TableHead>
+                      <TableHead className="text-right">Importo</TableHead>
                     </TableRow>
-                  ) : (
-                    servizi.map((servizio) => (
-                      <TableRow key={servizio.id}>
-                        <TableCell>
-                          {format(new Date(servizio.data_servizio), 'dd/MM/yyyy')}
-                        </TableCell>
-                        <TableCell>
-                          {servizio.orario_servizio}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <User className="h-4 w-4" />
-                            {servizio.referente?.first_name} {servizio.referente?.last_name}
+                  </TableHeader>
+                  <TableBody>
+                    {servizi.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8">
+                          <div className="text-muted-foreground">
+                            <FileText className="mx-auto h-12 w-12 mb-2" />
+                            <p>Nessun servizio consuntivato trovato per i criteri selezionati</p>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm">
-                            <MapPin className="h-4 w-4" />
-                            <div>
-                              <div className="truncate max-w-[200px]">
-                                {servizio.indirizzo_presa}
-                              </div>
-                              <div className="text-muted-foreground truncate max-w-[200px]">
-                                → {servizio.indirizzo_destinazione}
+                      )
+                    ) : (
+                      servizi.map((servizio) => (
+                        <TableRow key={servizio.id}>
+                          <TableCell>
+                            {format(new Date(servizio.data_servizio), 'dd/MM/yyyy')}
+                          </TableCell>
+                          <TableCell>
+                            {servizio.orario_servizio}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <User className="h-4 w-4" />
+                              {servizio.referente?.first_name} {servizio.referente?.last_name}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 text-sm">
+                              <MapPin className="h-4 w-4" />
+                              <div>
+                                <div className="truncate max-w-[200px]">
+                                  {servizio.indirizzo_presa}
+                                </div>
+                                <div className="text-muted-foreground truncate max-w-[200px]">
+                                  → {servizio.indirizzo_destinazione}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {servizio.assegnato ? (
-                            `${servizio.assegnato.first_name} ${servizio.assegnato.last_name}`
-                          ) : servizio.conducente_esterno ? (
-                            servizio.conducente_esterno_nome
-                          ) : (
-                            <span className="text-muted-foreground">Non assegnato</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(servizio.stato)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          €{(servizio.incasso_ricevuto || servizio.incasso_previsto || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+                          </TableCell>
+                          <TableCell>
+                            {servizio.assegnato ? (
+                              `${servizio.assegnato.first_name} ${servizio.assegnato.last_name}`
+                            ) : servizio.conducente_esterno ? (
+                              servizio.conducente_esterno_nome
+                            ) : (
+                              <span className="text-muted-foreground">Non assegnato</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(servizio.stato)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            €{(servizio.incasso_ricevuto || servizio.incasso_previsto || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
