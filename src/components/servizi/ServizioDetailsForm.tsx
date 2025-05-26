@@ -6,21 +6,25 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarIcon } from "lucide-react";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { AziendaSelectField } from "./AziendaSelectField";
 import { ReferenteSelectField } from "./ReferenteSelectField";
 import { VeicoloSelectField } from "@/components/veicoli/VeicoloSelectField";
 import { useImpostazioni } from "@/hooks/useImpostazioni";
+import { useAuth } from "@/hooks/useAuth";
 
 export function ServizioDetailsForm() {
   const { control } = useFormContext<ServizioFormData>();
   const { impostazioni } = useImpostazioni();
+  const { profile } = useAuth();
   
   // Watch azienda_id per abilitare/disabilitare il campo referente
   const azienda_id = useWatch({ control, name: "azienda_id" });
 
   const metodiPagamento = impostazioni?.metodi_pagamento || [];
+  
+  // Check if user can edit ore fields (only admin or socio)
+  const canEditOreFields = profile?.role === 'admin' || profile?.role === 'socio';
 
   return (
     <Card>
@@ -127,6 +131,43 @@ export function ServizioDetailsForm() {
           />
         </div>
 
+        {/* Città */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="citta_presa"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Città (Presa)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Milano"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={control}
+            name="citta_destinazione"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Città (Destinazione)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Ferno"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         {/* Metodo pagamento e veicolo */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -156,6 +197,51 @@ export function ServizioDetailsForm() {
 
           <VeicoloSelectField />
         </div>
+
+        {/* Ore effettive e fatturate - solo per admin e soci */}
+        {canEditOreFields && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="ore_effettive"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ore effettive</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number"
+                      step="0.5"
+                      placeholder="0"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={control}
+              name="ore_fatturate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ore fatturate</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number"
+                      step="0.5"
+                      placeholder="0"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
 
         {/* Note */}
         <FormField

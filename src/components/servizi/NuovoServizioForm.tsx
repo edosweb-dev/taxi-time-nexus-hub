@@ -34,9 +34,13 @@ export function NuovoServizioForm() {
           orario_servizio: values.orario_servizio,
           indirizzo_presa: values.indirizzo_presa,
           indirizzo_destinazione: values.indirizzo_destinazione,
+          citta_presa: values.citta_presa,
+          citta_destinazione: values.citta_destinazione,
           metodo_pagamento: values.metodo_pagamento,
           note: values.note,
           veicolo_id: values.veicolo_id,
+          ore_effettive: values.ore_effettive,
+          ore_fatturate: values.ore_fatturate,
         },
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,

@@ -14,6 +14,8 @@ export interface Servizio {
   orario_servizio: string;
   indirizzo_presa: string;
   indirizzo_destinazione: string;
+  citta_presa?: string;
+  citta_destinazione?: string;
   metodo_pagamento: MetodoPagamento;
   note?: string;
   stato: StatoServizio;
@@ -29,6 +31,8 @@ export interface Servizio {
   incasso_previsto?: number;
   ore_lavorate?: number;
   ore_finali?: number;
+  ore_effettive?: number;
+  ore_fatturate?: number;
   consegna_contanti_a?: string;
   veicolo_id?: string;
 }
@@ -72,9 +76,13 @@ export interface ServizioFormData {
   orario_servizio: string;
   indirizzo_presa: string;
   indirizzo_destinazione: string;
+  citta_presa?: string;
+  citta_destinazione?: string;
   metodo_pagamento: MetodoPagamento;
   note?: string;
   veicolo_id?: string;
+  ore_effettive?: number;
+  ore_fatturate?: number;
   passeggeri: PasseggeroFormData[];
 }
 

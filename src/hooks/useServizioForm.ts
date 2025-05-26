@@ -15,10 +15,15 @@ export const servizioFormSchema = z.object({
   orario_servizio: z.string().min(1, "Orario servizio obbligatorio"),
   indirizzo_presa: z.string().min(1, "Indirizzo di presa obbligatorio"),
   indirizzo_destinazione: z.string().min(1, "Indirizzo di destinazione obbligatorio"),
+  citta_presa: z.string().optional(),
+  citta_destinazione: z.string().optional(),
   metodo_pagamento: z.string({
     required_error: "Metodo di pagamento obbligatorio",
   }),
   note: z.string().optional(),
+  veicolo_id: z.string().optional(),
+  ore_effettive: z.number().min(0).optional(),
+  ore_fatturate: z.number().min(0).optional(),
   passeggeri: z.array(
     z.object({
       nome_cognome: z.string().min(1, "Nome e cognome obbligatorio"),
@@ -45,8 +50,13 @@ export function useServizioForm() {
       orario_servizio: "12:00",
       indirizzo_presa: "",
       indirizzo_destinazione: "",
+      citta_presa: "",
+      citta_destinazione: "",
       metodo_pagamento: "", // Verrà impostato dopo aver caricato le impostazioni
       note: "",
+      veicolo_id: "",
+      ore_effettive: undefined,
+      ore_fatturate: undefined,
       passeggeri: [],
     },
   });

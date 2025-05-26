@@ -327,6 +327,8 @@ export type Database = {
         Row: {
           assegnato_a: string | null
           azienda_id: string
+          citta_destinazione: string | null
+          citta_presa: string | null
           conducente_esterno: boolean | null
           conducente_esterno_email: string | null
           conducente_esterno_nome: string | null
@@ -346,6 +348,8 @@ export type Database = {
           note: string | null
           numero_commessa: string | null
           orario_servizio: string
+          ore_effettive: number | null
+          ore_fatturate: number | null
           ore_finali: number | null
           ore_lavorate: number | null
           referente_id: string
@@ -355,6 +359,8 @@ export type Database = {
         Insert: {
           assegnato_a?: string | null
           azienda_id: string
+          citta_destinazione?: string | null
+          citta_presa?: string | null
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
           conducente_esterno_nome?: string | null
@@ -374,6 +380,8 @@ export type Database = {
           note?: string | null
           numero_commessa?: string | null
           orario_servizio?: string
+          ore_effettive?: number | null
+          ore_fatturate?: number | null
           ore_finali?: number | null
           ore_lavorate?: number | null
           referente_id: string
@@ -383,6 +391,8 @@ export type Database = {
         Update: {
           assegnato_a?: string | null
           azienda_id?: string
+          citta_destinazione?: string | null
+          citta_presa?: string | null
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
           conducente_esterno_nome?: string | null
@@ -402,6 +412,8 @@ export type Database = {
           note?: string | null
           numero_commessa?: string | null
           orario_servizio?: string
+          ore_effettive?: number | null
+          ore_fatturate?: number | null
           ore_finali?: number | null
           ore_lavorate?: number | null
           referente_id?: string
