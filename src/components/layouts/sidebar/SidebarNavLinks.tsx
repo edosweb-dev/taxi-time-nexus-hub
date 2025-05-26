@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import { BarChart4, Calendar, ClipboardList, FilePlus, Home, Settings, ShoppingBag, UserCircle, Users, CreditCard, Wallet, Car } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -57,7 +56,7 @@ export function SidebarNavLinks() {
         </NavLink>
         
         <NavLink 
-          to="/turni" 
+          to="/shifts" 
           className={({ isActive }) => 
             `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
