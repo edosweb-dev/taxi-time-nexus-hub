@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,30 +50,34 @@ export function useReports(filters: ReportFilters = {}) {
     mutationFn: async (data: CreateReportData) => {
       if (!user) throw new Error('User not authenticated');
       
-      console.log('Calling generate-report function with:', data);
+      console.log('🚀 Inizio generazione report con dati:', data);
       
       const { data: result, error } = await supabase.functions.invoke('generate-report', {
         body: data
       });
 
+      console.log('📡 Risposta Edge Function:', { result, error });
+
       if (error) {
-        console.error('Edge function error:', error);
+        console.error('❌ Errore Edge Function:', error);
         throw new Error(error.message || 'Errore nella generazione del report');
       }
 
-      if (!result.success) {
-        throw new Error(result.error || 'Errore nella generazione del report');
+      if (!result || !result.success) {
+        console.error('❌ Risultato non valido:', result);
+        throw new Error(result?.error || 'Errore nella generazione del report');
       }
 
+      console.log('✅ Report generato con successo:', result);
       return result;
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
       toast.success(result.message || 'Report generato con successo!');
-      console.log('Report generated successfully:', result);
+      console.log('✅ Report generation completed:', result);
     },
     onError: (error: any) => {
-      console.error('Report generation error:', error);
+      console.error('💥 Errore generazione report:', error);
       toast.error(`Errore: ${error.message}`);
     },
   });
@@ -139,14 +144,14 @@ export function useReports(filters: ReportFilters = {}) {
     }
 
     try {
-      console.log('Downloading report:', report.url_file, 'from bucket:', report.bucket_name);
+      console.log('📥 Download report:', report.url_file, 'dal bucket:', report.bucket_name);
       
       const { data, error } = await supabase.storage
         .from(report.bucket_name)
         .download(report.url_file);
 
       if (error) {
-        console.error('Download error:', error);
+        console.error('❌ Errore download:', error);
         toast.error('Errore nel download del report');
         return;
       }
@@ -169,7 +174,7 @@ export function useReports(filters: ReportFilters = {}) {
       
       toast.success('Download completato');
     } catch (error) {
-      console.error('Download error:', error);
+      console.error('💥 Errore download:', error);
       toast.error('Errore nel download del report');
     }
   };

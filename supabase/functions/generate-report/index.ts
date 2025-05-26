@@ -22,16 +22,17 @@ interface ServizioData {
   indirizzo_destinazione: string
   numero_commessa?: string
   ore_effettive?: number
-  veicolo?: { targa: string, modello: string }
-  passeggeri: Array<{ nome_cognome: string }>
   firma_url?: string
   incasso_previsto?: number
   incasso_ricevuto?: number
   iva?: number
   note?: string
-  referente?: { first_name: string, last_name: string }
-  assegnato?: { first_name: string, last_name: string }
   conducente_esterno_nome?: string
+  veicolo_targa?: string
+  veicolo_modello?: string
+  referente_nome?: string
+  assegnato_nome?: string
+  passeggeri_nomi?: string[]
 }
 
 serve(async (req) => {
@@ -40,6 +41,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('=== INIZIO GENERAZIONE REPORT ===')
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -50,13 +53,15 @@ serve(async (req) => {
     const { data: { user } } = await supabaseClient.auth.getUser(token)
 
     if (!user) {
+      console.error('❌ Utente non autorizzato')
       throw new Error('Non autorizzato')
     }
 
     const requestData: ReportData = await req.json()
-    console.log('Generating report for:', requestData)
+    console.log('📋 Parametri ricevuti:', requestData)
 
-    // Fetch azienda info
+    // 1. Fetch azienda info
+    console.log('🏢 Recupero informazioni azienda...')
     const { data: azienda, error: aziendaError } = await supabaseClient
       .from('aziende')
       .select('nome, firma_digitale_attiva')
@@ -64,24 +69,16 @@ serve(async (req) => {
       .single()
 
     if (aziendaError || !azienda) {
-      console.error('Azienda error:', aziendaError)
+      console.error('❌ Errore azienda:', aziendaError)
       throw new Error('Azienda non trovata')
     }
+    console.log('✅ Azienda trovata:', azienda.nome)
 
-    console.log('Azienda found:', azienda.nome)
-
-    // Build query for servizi
+    // 2. Query servizi semplificata (senza JOIN complessi)
+    console.log('🔍 Ricerca servizi...')
     let query = supabaseClient
       .from('servizi')
-      .select(`
-        id, data_servizio, orario_servizio, indirizzo_presa, indirizzo_destinazione,
-        numero_commessa, ore_effettive, firma_url, incasso_previsto, incasso_ricevuto, iva, note,
-        conducente_esterno_nome,
-        veicoli(targa, modello),
-        servizi_passeggeri(passeggeri(nome_cognome)),
-        referente:profiles!referente_id(first_name, last_name),
-        assegnato:profiles!assegnato_a(first_name, last_name)
-      `)
+      .select('*')
       .eq('azienda_id', requestData.azienda_id)
       .eq('stato', 'consuntivato')
       .gte('data_servizio', requestData.data_inizio)
@@ -91,29 +88,19 @@ serve(async (req) => {
       query = query.eq('referente_id', requestData.referente_id)
     }
 
-    console.log('Executing query with filters:', {
-      azienda_id: requestData.azienda_id,
-      stato: 'consuntivato',
-      data_inizio: requestData.data_inizio,
-      data_fine: requestData.data_fine,
-      referente_id: requestData.referente_id || 'none'
-    })
-
     const { data: servizi, error: serviziError } = await query
-
     if (serviziError) {
-      console.error('Servizi query error:', serviziError)
+      console.error('❌ Errore query servizi:', serviziError)
       throw new Error(`Errore nel recupero servizi: ${serviziError.message}`)
     }
 
-    console.log(`Query result: ${servizi?.length || 0} servizi found`)
+    console.log(`📊 Servizi trovati: ${servizi?.length || 0}`)
 
     if (!servizi || servizi.length === 0) {
-      // Instead of throwing error, create empty report
-      console.log('No services found, creating empty report')
+      console.log('📝 Nessun servizio trovato, genero report vuoto')
       const emptyPdfBuffer = await generateEmptyPDF(azienda, requestData)
       
-      const fileName = `report_vuoto_${requestData.azienda_id}_${requestData.data_inizio}_${requestData.data_fine}.pdf`
+      const fileName = `report_vuoto_${requestData.azienda_id}_${Date.now()}.pdf`
       const { data: uploadData, error: uploadError } = await supabaseClient.storage
         .from('report_aziende')
         .upload(fileName, emptyPdfBuffer, {
@@ -122,11 +109,12 @@ serve(async (req) => {
         })
 
       if (uploadError) {
-        console.error('Upload error:', uploadError)
+        console.error('❌ Errore upload PDF vuoto:', uploadError)
         throw new Error(`Errore upload PDF: ${uploadError.message}`)
       }
 
-      // Save empty report to database
+      console.log('✅ PDF vuoto caricato:', uploadData.path)
+
       const { data: reportData, error: reportError } = await supabaseClient
         .from('reports')
         .insert({
@@ -148,15 +136,16 @@ serve(async (req) => {
         .single()
 
       if (reportError) {
-        console.error('Database error:', reportError)
+        console.error('❌ Errore salvataggio report vuoto:', reportError)
         throw new Error(`Errore salvataggio report: ${reportError.message}`)
       }
 
+      console.log('✅ Report vuoto salvato con successo')
       return new Response(
         JSON.stringify({ 
           success: true, 
           report: reportData,
-          message: 'Report vuoto generato con successo (nessun servizio nel periodo)'
+          message: 'Report vuoto generato (nessun servizio nel periodo)'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -165,11 +154,82 @@ serve(async (req) => {
       )
     }
 
-    // Generate PDF with services
-    const pdfBuffer = await generatePDF(servizi as ServizioData[], azienda, requestData)
+    // 3. Enrichment dei dati con lookup manuali
+    console.log('🔄 Arricchimento dati servizi...')
+    const enrichedServizi: ServizioData[] = []
 
-    // Upload PDF to storage
-    const fileName = `report_${requestData.azienda_id}_${requestData.data_inizio}_${requestData.data_fine}.pdf`
+    for (const servizio of servizi) {
+      const enrichedServizio: ServizioData = { ...servizio }
+
+      // Lookup referente
+      if (servizio.referente_id) {
+        const { data: referente } = await supabaseClient
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', servizio.referente_id)
+          .single()
+        
+        if (referente) {
+          enrichedServizio.referente_nome = `${referente.first_name || ''} ${referente.last_name || ''}`.trim()
+        }
+      }
+
+      // Lookup assegnato
+      if (servizio.assegnato_a) {
+        const { data: assegnato } = await supabaseClient
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', servizio.assegnato_a)
+          .single()
+        
+        if (assegnato) {
+          enrichedServizio.assegnato_nome = `${assegnato.first_name || ''} ${assegnato.last_name || ''}`.trim()
+        }
+      }
+
+      // Lookup veicolo
+      if (servizio.veicolo_id) {
+        const { data: veicolo } = await supabaseClient
+          .from('veicoli')
+          .select('targa, modello')
+          .eq('id', servizio.veicolo_id)
+          .single()
+        
+        if (veicolo) {
+          enrichedServizio.veicolo_targa = veicolo.targa
+          enrichedServizio.veicolo_modello = veicolo.modello
+        }
+      }
+
+      // Lookup passeggeri
+      const { data: serviziPasseggeri } = await supabaseClient
+        .from('servizi_passeggeri')
+        .select(`
+          passeggeri:passeggero_id (
+            nome_cognome
+          )
+        `)
+        .eq('servizio_id', servizio.id)
+
+      if (serviziPasseggeri) {
+        enrichedServizio.passeggeri_nomi = serviziPasseggeri
+          .map(sp => sp.passeggeri?.nome_cognome)
+          .filter(Boolean)
+      }
+
+      enrichedServizi.push(enrichedServizio)
+    }
+
+    console.log('✅ Dati arricchiti completati')
+
+    // 4. Generate PDF with enriched data
+    console.log('📄 Generazione PDF...')
+    const pdfBuffer = await generatePDF(enrichedServizi, azienda, requestData)
+
+    // 5. Upload PDF to storage
+    const fileName = `report_${requestData.azienda_id}_${Date.now()}.pdf`
+    console.log('⬆️ Upload PDF:', fileName)
+    
     const { data: uploadData, error: uploadError } = await supabaseClient.storage
       .from('report_aziende')
       .upload(fileName, pdfBuffer, {
@@ -178,18 +238,20 @@ serve(async (req) => {
       })
 
     if (uploadError) {
-      console.error('Upload error:', uploadError)
+      console.error('❌ Errore upload PDF:', uploadError)
       throw new Error(`Errore upload PDF: ${uploadError.message}`)
     }
 
-    console.log('PDF uploaded successfully:', uploadData.path)
+    console.log('✅ PDF caricato:', uploadData.path)
 
-    // Calculate totals
-    const totaleImponibile = servizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
+    // 6. Calculate totals
+    const totaleImponibile = enrichedServizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
     const totaleIva = totaleImponibile * 0.22
     const totaleDocumento = totaleImponibile + totaleIva
 
-    // Save report to database
+    console.log('💰 Totali calcolati:', { totaleImponibile, totaleIva, totaleDocumento })
+
+    // 7. Save report to database
     const { data: reportData, error: reportError } = await supabaseClient
       .from('reports')
       .insert({
@@ -201,7 +263,7 @@ serve(async (req) => {
         bucket_name: 'report_aziende',
         data_inizio: requestData.data_inizio,
         data_fine: requestData.data_fine,
-        numero_servizi: servizi.length,
+        numero_servizi: enrichedServizi.length,
         totale_imponibile: totaleImponibile,
         totale_iva: totaleIva,
         totale_documento: totaleDocumento,
@@ -211,11 +273,12 @@ serve(async (req) => {
       .single()
 
     if (reportError) {
-      console.error('Database error:', reportError)
+      console.error('❌ Errore salvataggio report:', reportError)
       throw new Error(`Errore salvataggio report: ${reportError.message}`)
     }
 
-    console.log('Report saved successfully:', reportData.id)
+    console.log('✅ Report salvato con successo:', reportData.id)
+    console.log('=== FINE GENERAZIONE REPORT ===')
 
     return new Response(
       JSON.stringify({ 
@@ -230,7 +293,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error generating report:', error)
+    console.error('💥 ERRORE GENERALE:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Errore durante la generazione del report',
@@ -248,8 +311,6 @@ async function generateEmptyPDF(azienda: any, requestData: ReportData): Promise<
   const { jsPDF } = await import('https://esm.sh/jspdf@2.5.1')
   
   const pdf = new jsPDF()
-  
-  // Set font
   pdf.setFont('helvetica')
   
   // Header
@@ -284,8 +345,6 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
   const { jsPDF } = await import('https://esm.sh/jspdf@2.5.1')
   
   const pdf = new jsPDF()
-  
-  // Set font
   pdf.setFont('helvetica')
   
   // Header
@@ -343,9 +402,7 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     }
     
     const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT')
-    const referenteName = servizio.referente ? 
-      `${servizio.referente.first_name} ${servizio.referente.last_name}` : 
-      'N/A'
+    const referenteName = servizio.referente_nome || 'N/A'
     const importo = (servizio.incasso_ricevuto || servizio.incasso_previsto || 0).toFixed(2)
     
     pdf.text(dataFormatted, 20, yPosition)
