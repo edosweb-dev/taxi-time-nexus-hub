@@ -13,7 +13,7 @@ import { EmptyReportState } from './components/EmptyReportState';
 import { ReportPreviewDialog } from './components/ReportPreviewDialog';
 
 export const ReportsList = () => {
-  const { reports, isLoading, downloadReport, deleteReport, isDeletingReport } = useReportsData();
+  const { reports, isLoading, downloadReport, deleteReport, isDeletingReport, isDeleteSuccess } = useReportsData();
   const { users } = useUsers();
   const { aziende } = useAziende();
   const { servizi } = useServizi();
@@ -85,15 +85,16 @@ export const ReportsList = () => {
     setIsGeneratorOpen(open);
   }, []);
   
-  // Auto-chiusura semplificata dopo eliminazione completata
+  // Auto-chiusura quando la deletion è completata con successo
   useEffect(() => {
-    if (!isDeletingReport && reportToDelete) {
+    if (isDeleteSuccess && reportToDelete && !isDeletingReport) {
+      console.log('[ReportsList] Delete successful, closing dialog');
       const timer = setTimeout(() => {
         setReportToDelete(null);
-      }, 1000);
+      }, 100); // Chiusura rapida dopo successo
       return () => clearTimeout(timer);
     }
-  }, [isDeletingReport, reportToDelete]);
+  }, [isDeleteSuccess, reportToDelete, isDeletingReport]);
 
   // Funzione per aprire il dialogo di report generator
   const openGeneratorDialog = useCallback(() => {

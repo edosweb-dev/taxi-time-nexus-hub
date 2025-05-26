@@ -64,7 +64,7 @@ export const useReportsData = () => {
     }
   };
   
-  // Mutation per l'eliminazione di un report - SEMPLIFICATA
+  // Mutation per l'eliminazione di un report
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
       console.log('[deleteReport] Chiamata mutation con ID:', reportId);
@@ -126,6 +126,8 @@ export const useReportsData = () => {
     deleteReport,
     isDeletingReport: deleteReportMutation.isPending,
     isDownloading: !!isDownloading,
-    refetchReports
+    refetchReports,
+    // Aggiungiamo un flag per indicare quando la deletion è appena completata
+    isDeleteSuccess: deleteReportMutation.isSuccess
   };
 };
