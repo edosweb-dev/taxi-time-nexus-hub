@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { useReports } from '@/hooks/useReports';
 import { useAziende } from '@/hooks/useAziende';
 import { FileText, Loader2 } from 'lucide-react';
+import { CreateReportData } from '@/lib/types/reports';
 
 const reportSchema = z.object({
   azienda_id: z.string().min(1, 'Seleziona un\'azienda'),
@@ -58,7 +59,15 @@ export function ReportGenerator() {
   });
 
   const onSubmit = async (data: ReportFormData) => {
-    generateReport(data);
+    // Ensure all fields are present and cast to CreateReportData
+    const reportData: CreateReportData = {
+      azienda_id: data.azienda_id,
+      tipo_report: data.tipo_report,
+      data_inizio: data.data_inizio,
+      data_fine: data.data_fine,
+    };
+    
+    generateReport(reportData);
     form.reset();
   };
 

@@ -65,7 +65,7 @@ export const ShiftCalendarMonthView = ({
                   <Badge 
                     key={shift.id}
                     variant={
-                      shift.shift_type === 'full_day' ? 'success' : 
+                      shift.shift_type === 'full_day' ? 'default' : 
                       shift.shift_type === 'half_day' ? 'secondary' :
                       shift.shift_type === 'sick_leave' ? 'destructive' :
                       shift.shift_type === 'unavailable' ? 'outline' : 'default'
