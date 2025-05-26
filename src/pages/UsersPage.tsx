@@ -4,6 +4,7 @@ import { MainLayout } from "@/components/layouts/MainLayout";
 import { UserList } from "@/components/users/UserList";
 import { UserSheet } from "@/components/users/UserSheet";
 import { UserDeleteDialog } from "@/components/users/UserDeleteDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/contexts/AuthContext";
 import { Profile } from "@/lib/types";
@@ -54,6 +55,11 @@ export default function UsersPage() {
   const [isUserSheetOpen, setIsUserSheetOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("clienti");
+
+  // Filtra utenti per tipo
+  const clientUsers = users.filter(user => user.role === 'cliente');
+  const systemUsers = users.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role));
 
   const handleAddUser = () => {
     console.log('[UsersPage] Avvio creazione nuovo utente');
@@ -119,19 +125,42 @@ export default function UsersPage() {
     );
   }
 
-  console.log('[UsersPage] Rendering lista utenti, numero utenti:', users.length);
+  console.log('[UsersPage] Rendering lista utenti con tabs, numero utenti:', users.length);
   return (
     <MainLayout>
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Gestione Utenti</h1>
         
-        <UserList
-          users={users}
-          onEdit={handleEditUser}
-          onDelete={handleDeleteUser}
-          onAddUser={handleAddUser}
-          currentUserId={user?.id || ""}
-        />
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="clienti">
+              Clienti ({clientUsers.length})
+            </TabsTrigger>
+            <TabsTrigger value="sistema">
+              Sistema ({systemUsers.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="clienti">
+            <UserList
+              users={clientUsers}
+              onEdit={handleEditUser}
+              onDelete={handleDeleteUser}
+              onAddUser={handleAddUser}
+              currentUserId={user?.id || ""}
+            />
+          </TabsContent>
+          
+          <TabsContent value="sistema">
+            <UserList
+              users={systemUsers}
+              onEdit={handleEditUser}
+              onDelete={handleDeleteUser}
+              onAddUser={handleAddUser}
+              currentUserId={user?.id || ""}
+            />
+          </TabsContent>
+        </Tabs>
         
         <UserSheet
           isOpen={isUserSheetOpen}
