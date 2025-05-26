@@ -18,6 +18,7 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
         nome: metodo.nome || "",
         iva_applicabile: metodo.iva_applicabile === true,
         aliquota_iva: metodo.aliquota_iva || "",
+        report_attivo: metodo.report_attivo === true,
       }));
     };
 

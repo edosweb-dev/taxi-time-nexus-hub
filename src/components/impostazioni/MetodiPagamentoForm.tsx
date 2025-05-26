@@ -22,7 +22,8 @@ export function MetodiPagamentoForm({ metodi, aliquoteIva, onChange }: MetodiPag
       id: uuidv4(),
       nome: "",
       iva_applicabile: false,
-      aliquota_iva: aliquoteIva.length > 0 ? aliquoteIva[0].id : undefined
+      aliquota_iva: aliquoteIva.length > 0 ? aliquoteIva[0].id : undefined,
+      report_attivo: false
     };
     
     onChange([...metodi, newMetodo]);
@@ -57,7 +58,7 @@ export function MetodiPagamentoForm({ metodi, aliquoteIva, onChange }: MetodiPag
       <CardContent className="space-y-4">
         {metodi.map((metodo) => (
           <div key={metodo.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center border-b pb-4">
-            <div className="md:col-span-5">
+            <div className="md:col-span-4">
               <Label htmlFor={`nome-${metodo.id}`}>Nome</Label>
               <Input
                 id={`nome-${metodo.id}`}
@@ -80,7 +81,7 @@ export function MetodiPagamentoForm({ metodi, aliquoteIva, onChange }: MetodiPag
               <Label htmlFor={`iva-${metodo.id}`}>Applica IVA</Label>
             </div>
             
-            <div className="md:col-span-4">
+            <div className="md:col-span-3">
               <Label htmlFor={`aliquota-${metodo.id}`}>Aliquota IVA</Label>
               <Select
                 disabled={!metodo.iva_applicabile}
@@ -105,6 +106,17 @@ export function MetodiPagamentoForm({ metodi, aliquoteIva, onChange }: MetodiPag
                   )}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="md:col-span-2 flex items-center space-x-2 mt-4 md:mt-0">
+              <Checkbox
+                id={`report-${metodo.id}`}
+                checked={metodo.report_attivo === true}
+                onCheckedChange={(checked) =>
+                  handleChangeMetodo(metodo.id, "report_attivo", checked === true)
+                }
+              />
+              <Label htmlFor={`report-${metodo.id}`}>Report attivo</Label>
             </div>
             
             <div className="md:col-span-1 flex justify-end">

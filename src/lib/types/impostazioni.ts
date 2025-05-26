@@ -11,6 +11,7 @@ export interface MetodoPagamentoOption {
   nome: string;
   iva_applicabile?: boolean;
   aliquota_iva?: string; // ID dell'aliquota IVA associata
+  report_attivo?: boolean;
 }
 
 export interface Impostazioni {

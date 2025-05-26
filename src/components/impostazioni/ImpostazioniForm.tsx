@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -27,6 +26,7 @@ const formSchema = z.object({
       nome: z.string(),
       iva_applicabile: z.boolean().optional(),
       aliquota_iva: z.string().optional(),
+      report_attivo: z.boolean().optional(),
     })
   ),
   aliquote_iva: z.array(
@@ -55,6 +55,7 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       nome: metodo.nome || "",
       iva_applicabile: metodo.iva_applicabile === true,
       aliquota_iva: metodo.aliquota_iva || "",
+      report_attivo: metodo.report_attivo === true,
     }));
   };
 
