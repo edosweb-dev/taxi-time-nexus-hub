@@ -150,7 +150,7 @@ export function ReportPreviewTable({
                             <p>Nessun servizio consuntivato trovato per i criteri selezionati</p>
                           </div>
                         </TableCell>
-                      )
+                      </TableRow>
                     ) : (
                       servizi.map((servizio) => (
                         <TableRow key={servizio.id}>
