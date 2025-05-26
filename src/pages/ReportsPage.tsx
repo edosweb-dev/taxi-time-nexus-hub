@@ -1,7 +1,7 @@
 
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ReportList } from '@/components/reports/ReportList';
-import { ReportGenerator } from '@/components/reports/ReportGenerator';
+import { ReportGeneratorWithPreview } from '@/components/reports/ReportGenerator';
 import { FileBarChart } from 'lucide-react';
 
 export default function ReportsPage() {
@@ -16,15 +16,13 @@ export default function ReportsPage() {
           Genera e gestisci i report PDF per servizi, dati finanziari e veicoli.
         </p>
 
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <ReportGenerator />
-            </div>
-            
-            <div className="lg:col-span-2">
-              <ReportList />
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <ReportGeneratorWithPreview />
+          </div>
+          
+          <div className="lg:col-span-2">
+            <ReportList />
           </div>
         </div>
       </div>

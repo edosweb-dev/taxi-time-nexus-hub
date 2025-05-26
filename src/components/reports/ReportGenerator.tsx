@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,7 +37,17 @@ const reportSchema = z.object({
 
 type ReportFormData = z.infer<typeof reportSchema>;
 
-export function ReportGenerator() {
+interface ReportGeneratorProps {
+  onPreviewGenerated?: (data: { 
+    aziendaId: string; 
+    referenteId?: string; 
+    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
+    year: number; 
+    month: number;
+  } | null) => void;
+}
+
+export function ReportGenerator({ onPreviewGenerated }: ReportGeneratorProps = {}) {
   const { generateReport, isGenerating } = useReports();
   const { aziende } = useAziende();
   const [showPreview, setShowPreview] = useState(false);
@@ -73,16 +82,14 @@ export function ReportGenerator() {
     form.setValue('azienda_id', value);
     form.setValue('referente_id', '');
     form.setValue('month_year', '');
-    setShowPreview(false);
-    setPreviewData(null);
+    resetPreview();
   };
 
   // Reset month when referente changes
   const handleReferenteChange = (value: string) => {
     form.setValue('referente_id', value);
     form.setValue('month_year', '');
-    setShowPreview(false);
-    setPreviewData(null);
+    resetPreview();
   };
 
   const onSubmit = async (data: ReportFormData) => {
@@ -107,147 +114,173 @@ export function ReportGenerator() {
   const onPreview = async (data: ReportFormData) => {
     const [year, month] = data.month_year.split('-').map(Number);
     
-    setPreviewData({
+    const newPreviewData = {
       aziendaId: data.azienda_id,
       referenteId: data.referente_id,
       tipoReport: data.tipo_report,
       year,
       month
-    });
+    };
+    
+    setPreviewData(newPreviewData);
     setShowPreview(true);
+    
+    // Notifica il parent component
+    onPreviewGenerated?.(newPreviewData);
+  };
+
+  const resetPreview = () => {
+    setShowPreview(false);
+    setPreviewData(null);
+    onPreviewGenerated?.(null);
   };
 
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Genera Nuovo Report
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="azienda_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Azienda *</FormLabel>
-                    <Select onValueChange={handleAziendaChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona un'azienda" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {aziende.filter(azienda => azienda.id && azienda.id.trim() !== '').map((azienda) => (
-                          <SelectItem key={azienda.id} value={azienda.id}>
-                            {azienda.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {watchedAziendaId && (
-                <div className="space-y-4">
-                  <ReferenteSelectField 
-                    aziendaId={watchedAziendaId} 
-                    onValueChange={handleReferenteChange}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="month_year"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mese di Riferimento *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={
-                                isLoadingMonths 
-                                  ? "Caricamento..." 
-                                  : availableMonths.length === 0 
-                                    ? "Nessun mese disponibile"
-                                    : "Seleziona un mese"
-                              } />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {availableMonths.map((monthData) => (
-                              <SelectItem 
-                                key={`${monthData.year}-${monthData.month}`} 
-                                value={`${monthData.year}-${monthData.month}`}
-                              >
-                                {monthData.monthName} ({monthData.servicesCount} servizi)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Genera Nuovo Report
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="azienda_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Azienda *</FormLabel>
+                  <Select onValueChange={handleAziendaChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona un'azienda" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {aziende.filter(azienda => azienda.id && azienda.id.trim() !== '').map((azienda) => (
+                        <SelectItem key={azienda.id} value={azienda.id}>
+                          {azienda.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
 
-              <FormField
-                control={form.control}
-                name="tipo_report"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo Report *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona il tipo di report" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="servizi">Report Servizi</SelectItem>
-                        <SelectItem value="finanziario">Report Finanziario</SelectItem>
-                        <SelectItem value="veicoli">Report Veicoli</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {watchedAziendaId && (
+              <div className="space-y-4">
+                <ReferenteSelectField 
+                  aziendaId={watchedAziendaId} 
+                  onValueChange={handleReferenteChange}
+                />
 
-              <div className="flex gap-3">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={form.handleSubmit(onPreview)} 
-                  className="flex-1"
-                  disabled={!watchedAziendaId || availableMonths.length === 0}
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  Anteprima
-                </Button>
-                
-                <Button 
-                  type="submit" 
-                  disabled={isGenerating || !watchedAziendaId || availableMonths.length === 0} 
-                  className="flex-1"
-                >
-                  {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Genera Report
-                </Button>
+                <FormField
+                  control={form.control}
+                  name="month_year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mese di Riferimento *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={
+                              isLoadingMonths 
+                                ? "Caricamento..." 
+                                : availableMonths.length === 0 
+                                  ? "Nessun mese disponibile"
+                                  : "Seleziona un mese"
+                            } />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {availableMonths.map((monthData) => (
+                            <SelectItem 
+                              key={`${monthData.year}-${monthData.month}`} 
+                              value={`${monthData.year}-${monthData.month}`}
+                            >
+                              {monthData.monthName} ({monthData.servicesCount} servizi)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            )}
 
-      {showPreview && previewData && (
-        <div className="col-span-full mt-6">
+            <FormField
+              control={form.control}
+              name="tipo_report"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo Report *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona il tipo di report" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="servizi">Report Servizi</SelectItem>
+                      <SelectItem value="finanziario">Report Finanziario</SelectItem>
+                      <SelectItem value="veicoli">Report Veicoli</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-3">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={form.handleSubmit(onPreview)} 
+                className="flex-1"
+                disabled={!watchedAziendaId || availableMonths.length === 0}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Anteprima
+              </Button>
+              
+              <Button 
+                type="submit" 
+                disabled={isGenerating || !watchedAziendaId || availableMonths.length === 0} 
+                className="flex-1"
+              >
+                {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Genera Report
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Componente wrapper che gestisce sia il generatore che l'anteprima
+export function ReportGeneratorWithPreview() {
+  const [previewData, setPreviewData] = useState<{ 
+    aziendaId: string; 
+    referenteId?: string; 
+    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
+    year: number; 
+    month: number;
+  } | null>(null);
+
+  return (
+    <div className="space-y-6">
+      <ReportGenerator onPreviewGenerated={setPreviewData} />
+      
+      {previewData && (
+        <div className="w-full">
           <ReportPreviewTable 
             aziendaId={previewData.aziendaId}
             referenteId={previewData.referenteId}
@@ -257,6 +290,6 @@ export function ReportGenerator() {
           />
         </div>
       )}
-    </>
+    </div>
   );
 }
