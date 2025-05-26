@@ -64,16 +64,16 @@ export const useReportsData = () => {
     }
   };
   
-  // Mutation per l'eliminazione di un report
+  // Mutation per l'eliminazione di un report - SEMPLIFICATA
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
-      console.log('[deleteReport] 🚀 Chiamata mutation con ID:', reportId);
+      console.log('[deleteReportMutation] 🚀 Starting deletion for report:', reportId);
+      
       const report = reports.find(r => r.id === reportId);
       if (!report) {
         throw new Error('Report non trovato');
       }
       
-      // Get the actual bucket name from the report record if available
       const bucketName = report.bucket_name || 'report_aziende';
       
       await deleteReportFile({
@@ -81,42 +81,37 @@ export const useReportsData = () => {
         filePath: report.file_path,
         bucketName
       });
+      
+      console.log('[deleteReportMutation] ✅ Deletion completed for report:', reportId);
       return reportId;
     },
     onSuccess: (deletedId) => {
-      console.log('[deleteReport] ✅ Mutation completed successfully for report:', deletedId);
+      console.log('[deleteReportMutation] ✅ Success callback for report:', deletedId);
       
-      // Notifica di successo con toast
       toast({
         title: 'Report eliminato',
         description: 'Il report è stato eliminato con successo.',
       });
       
-      console.log('[deleteReport] 🔄 Invalidating reports query after successful deletion');
-      // Invalidare per assicurarsi di essere sincronizzati con il server
+      // Invalida la query per ricaricare i dati
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
-    onError: (error: any, deletedId) => {
-      console.error('[useReportsData] ❌ ERROR deleting report:', deletedId, error);
+    onError: (error: any, reportId) => {
+      console.error('[deleteReportMutation] ❌ Error deleting report:', reportId, error);
       
       const errorMessage = error.message || 'Errore sconosciuto durante eliminazione';
       
-      // Notifica di errore con toast migliorata
       toast({
         title: 'Errore eliminazione',
         description: errorMessage,
         variant: 'destructive',
       });
-      
-      // Forza un refetch per assicurarsi che l'UI sia sincronizzata con il server
-      console.log('[deleteReport] 🔄 Forcing refetch after error');
-      refetchReports();
     }
   });
   
-  // Funzione wrapper per la mutation di eliminazione
+  // Funzione wrapper per l'eliminazione - SEMPLIFICATA
   const deleteReport = (reportId: string) => {
-    console.log('[deleteReport] DeleteReport function called with ID:', reportId);
+    console.log('[deleteReport] Calling mutation for report:', reportId);
     deleteReportMutation.mutate(reportId);
   };
   
@@ -129,7 +124,5 @@ export const useReportsData = () => {
     isDeletingReport: deleteReportMutation.isPending,
     isDownloading: !!isDownloading,
     refetchReports,
-    // Aggiungiamo un flag per indicare quando la deletion è appena completata
-    isDeleteSuccess: deleteReportMutation.isSuccess
   };
 };

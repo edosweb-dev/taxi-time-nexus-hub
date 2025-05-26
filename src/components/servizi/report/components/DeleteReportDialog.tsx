@@ -27,22 +27,17 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
 }) => {
   // Gestione apertura/chiusura dialog - SEMPLIFICATA
   const handleOpenChange = useCallback((newOpen: boolean) => {
-    console.log('[DeleteReportDialog] Dialog open state change requested:', newOpen);
+    console.log('[DeleteReportDialog] Dialog state change:', newOpen);
     
-    // Blocca la chiusura solo se sta eliminando
-    if (isDeleting && !newOpen) {
-      console.log('[DeleteReportDialog] Blocking dialog close during deletion');
-      return;
-    }
-    
+    // Non bloccare mai la chiusura del dialog
     onOpenChange(newOpen);
-  }, [isDeleting, onOpenChange]);
+  }, [onOpenChange]);
 
   // Gestione click di conferma
   const handleConfirm = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    console.log('[DeleteReportDialog] handleConfirm called');
+    console.log('[DeleteReportDialog] Confirm button clicked');
     onConfirm();
   }, [onConfirm]);
 
@@ -50,6 +45,7 @@ export const DeleteReportDialog: React.FC<DeleteReportDialogProps> = ({
   const handleCancel = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
+    console.log('[DeleteReportDialog] Cancel button clicked');
     handleOpenChange(false);
   }, [handleOpenChange]);
 

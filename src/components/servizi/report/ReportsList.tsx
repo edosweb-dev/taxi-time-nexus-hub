@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useReportsData } from '@/components/servizi/hooks/reports';
 import { useUsers } from '@/hooks/useUsers';
 import { useAziende } from '@/hooks/useAziende';
@@ -13,7 +13,7 @@ import { EmptyReportState } from './components/EmptyReportState';
 import { ReportPreviewDialog } from './components/ReportPreviewDialog';
 
 export const ReportsList = () => {
-  const { reports, isLoading, downloadReport, deleteReport, isDeletingReport, isDeleteSuccess } = useReportsData();
+  const { reports, isLoading, downloadReport, deleteReport, isDeletingReport } = useReportsData();
   const { users } = useUsers();
   const { aziende } = useAziende();
   const { servizi } = useServizi();
@@ -22,12 +22,7 @@ export const ReportsList = () => {
   
   const [viewingReport, setViewingReport] = useState<string | null>(null);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
-  
-  // Stato semplificato per il dialogo di eliminazione - solo reportToDelete
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
-  
-  // Protezione anti-click multipli
-  const [isDeletePending, setIsDeletePending] = useState(false);
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -60,59 +55,37 @@ export const ReportsList = () => {
     setViewingReport(null);
   }, []);
   
-  // Funzione con protezione anti-click multipli per aprire il dialog di eliminazione
+  // Handler per aprire il dialog di eliminazione - SEMPLIFICATO
   const handleDeleteClick = useCallback((reportId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     
-    // Protezione anti-click multipli
-    if (isDeletePending || isDeletingReport) {
-      console.log('[ReportsList] Click blocked - operation in progress');
-      return;
-    }
-    
-    console.log('[ReportsList] Setting report to delete:', reportId);
-    setIsDeletePending(true);
+    console.log('[ReportsList] Opening delete dialog for report:', reportId);
     setReportToDelete(reportId);
-    
-    // Reset protezione dopo 1 secondo
-    setTimeout(() => setIsDeletePending(false), 1000);
-  }, [isDeletePending, isDeletingReport]);
+  }, []);
   
-  // Funzione per confermare l'eliminazione
+  // Handler per confermare l'eliminazione - SEMPLIFICATO
   const handleConfirmDelete = useCallback(() => {
-    if (reportToDelete) {
-      console.log('[ReportsList] Confirming delete in ReportsList for report:', reportToDelete);
-      deleteReport(reportToDelete);
-    }
+    if (!reportToDelete) return;
+    
+    console.log('[ReportsList] Confirming delete for report:', reportToDelete);
+    deleteReport(reportToDelete);
+    
+    // Chiudi il dialog immediatamente dopo aver avviato l'eliminazione
+    setReportToDelete(null);
   }, [reportToDelete, deleteReport]);
 
-  // Funzione per chiudere il dialog di eliminazione
+  // Handler per chiudere il dialog di eliminazione
   const handleDeleteDialogClose = useCallback(() => {
-    if (!isDeletingReport) {
-      console.log('[ReportsList] Closing delete dialog');
-      setReportToDelete(null);
-      setIsDeletePending(false);
-    }
-  }, [isDeletingReport]);
+    console.log('[ReportsList] Closing delete dialog');
+    setReportToDelete(null);
+  }, []);
 
-  // Funzione per gestire l'apertura del generatore
+  // Handler per gestire l'apertura del generatore
   const handleGeneratorOpenChange = useCallback((open: boolean) => {
     setIsGeneratorOpen(open);
   }, []);
   
-  // Auto-chiusura quando la deletion è completata con successo
-  useEffect(() => {
-    if (isDeleteSuccess && reportToDelete && !isDeletingReport) {
-      console.log('[ReportsList] Delete successful, closing dialog');
-      const timer = setTimeout(() => {
-        setReportToDelete(null);
-        setIsDeletePending(false);
-      }, 300); // Chiusura più rapida
-      return () => clearTimeout(timer);
-    }
-  }, [isDeleteSuccess, reportToDelete, isDeletingReport]);
-
   // Funzione per aprire il dialogo di report generator
   const openGeneratorDialog = useCallback(() => {
     setIsGeneratorOpen(true);
@@ -157,7 +130,7 @@ export const ReportsList = () => {
         onOpenChange={handleGeneratorOpenChange} 
       />
       
-      {/* Delete Confirmation Dialog - Usando solo reportToDelete come stato */}
+      {/* Delete Confirmation Dialog - SEMPLIFICATO */}
       <DeleteReportDialog 
         open={!!reportToDelete}
         onOpenChange={(open) => !open && handleDeleteDialogClose()}
