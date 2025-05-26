@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,7 +68,7 @@ export function useReports(filters: ReportFilters = {}) {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
-      toast.success('Report PDF generato con successo!');
+      toast.success(result.message || 'Report generato con successo!');
       console.log('Report generated successfully:', result);
     },
     onError: (error: any) => {
