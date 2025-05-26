@@ -71,12 +71,6 @@ function App() {
               </AuthGuard>
             } />
             
-            <Route path="/nuovo-servizio" element={
-              <AuthGuard allowedRoles={['admin', 'socio']}>
-                <NuovoServizioPage />
-              </AuthGuard>
-            } />
-            
             <Route path="/servizi/:id" element={
               <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                 <ServizioDetailPage />
