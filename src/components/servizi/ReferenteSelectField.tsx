@@ -1,259 +1,84 @@
 
-import { useState, useEffect } from 'react';
-import { useFormContext } from "react-hook-form";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2, PlusCircle, User } from "lucide-react";
-import { ServizioFormData } from "@/lib/types/servizi";
-import { supabase } from '@/lib/supabase';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { UserFormData } from "@/lib/api/users/types";
-import { createUser } from "@/lib/usersApi";
-import { toast } from "@/components/ui/use-toast";
+import { useQuery } from '@tanstack/react-query';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { useFormContext } from 'react-hook-form';
 
-interface Referente {
-  id: string;
-  first_name: string;
-  last_name: string;
+interface ReferenteSelectFieldProps {
+  aziendaId: string;
+  onValueChange?: (value: string) => void;
 }
 
-export function ReferenteSelectField({ aziendaId }: { aziendaId: string }) {
-  const { control, setValue } = useFormContext<ServizioFormData>();
-  const [referenti, setReferenti] = useState<Referente[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [newReferente, setNewReferente] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
+export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSelectFieldProps) {
+  const form = useFormContext();
+
+  const { data: referenti = [], isLoading } = useQuery({
+    queryKey: ['referenti', aziendaId],
+    queryFn: async () => {
+      if (!aziendaId) return [];
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .eq('azienda_id', aziendaId)
+        .eq('role', 'cliente');
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!aziendaId,
   });
-  const [isCreatingReferente, setIsCreatingReferente] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  // Carica la lista di referenti dell'azienda selezionata
-  useEffect(() => {
-    if (!aziendaId) {
-      setReferenti([]);
-      setIsLoading(false);
-      return;
-    }
-
-    async function fetchReferenti() {
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, first_name, last_name')
-          .eq('azienda_id', aziendaId)
-          .eq('role', 'cliente')
-          .order('first_name');
-
-        if (error) throw error;
-        setReferenti(data || []);
-      } catch (error) {
-        console.error('Error fetching referenti:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchReferenti();
-  }, [aziendaId]);
-
-  const filteredReferenti = referenti.filter(
-    (referente) => 
-      `${referente.first_name} ${referente.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleCreateReferente = async () => {
-    if (!newReferente.firstName || !newReferente.lastName || !newReferente.email) {
-      toast({
-        title: "Errore",
-        description: "Tutti i campi sono obbligatori",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsCreatingReferente(true);
-
-      // Utilizziamo l'API esistente per la creazione dell'utente
-      const userData: UserFormData = {
-        first_name: newReferente.firstName,
-        last_name: newReferente.lastName,
-        email: newReferente.email,
-        role: 'cliente',
-        azienda_id: aziendaId,
-      };
-
-      // Chiamiamo la funzione API esistente per creare l'utente
-      const response = await createUser(userData);
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      if (response.user) {
-        // Aggiungi il nuovo referente alla lista e selezionalo
-        const newReferenteData = {
-          id: response.user.id,
-          first_name: newReferente.firstName,
-          last_name: newReferente.lastName,
-        };
-        
-        setReferenti(prev => [...prev, newReferenteData]);
-        setValue('referente_id', response.user.id);
-        setNewReferente({ firstName: '', lastName: '', email: '' });
-        setIsDialogOpen(false);
-        
-        toast({
-          title: "Successo",
-          description: "Referente creato con successo",
-        });
-      }
-    } catch (error: any) {
-      console.error('Error creating referente:', error);
-      toast({
-        title: "Errore durante la creazione del referente",
-        description: error.message || "Si è verificato un errore",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCreatingReferente(false);
-    }
-  };
 
   return (
-    <>
-      <FormField
-        control={control}
-        name="referente_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Referente *</FormLabel>
-            <Select
-              value={field.value}
-              onValueChange={field.onChange}
-              disabled={!aziendaId}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona un referente" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {aziendaId ? (
-                  <>
-                    <div className="p-2">
-                      <Input
-                        placeholder="Cerca referente..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="mb-2"
-                      />
-                    </div>
-                    
-                    {isLoading ? (
-                      <div className="flex items-center justify-center p-4">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : filteredReferenti.length > 0 ? (
-                      filteredReferenti.map((referente) => (
-                        <SelectItem key={referente.id} value={referente.id}>
-                          {`${referente.first_name} ${referente.last_name}`}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="p-2 text-center text-sm text-muted-foreground">
-                        Nessun referente trovato
-                      </div>
-                    )}
-                    
-                    <div className="p-2 border-t">
-                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="w-full flex items-center justify-center"
-                            type="button"
-                          >
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Crea nuovo referente
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Crea nuovo referente</DialogTitle>
-                          </DialogHeader>
-                          
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <FormLabel htmlFor="first_name">Nome</FormLabel>
-                                <Input
-                                  id="first_name"
-                                  value={newReferente.firstName}
-                                  onChange={(e) => setNewReferente(prev => ({ ...prev, firstName: e.target.value }))}
-                                  placeholder="Mario"
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <FormLabel htmlFor="last_name">Cognome</FormLabel>
-                                <Input
-                                  id="last_name"
-                                  value={newReferente.lastName}
-                                  onChange={(e) => setNewReferente(prev => ({ ...prev, lastName: e.target.value }))}
-                                  placeholder="Rossi"
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <FormLabel htmlFor="email">Email</FormLabel>
-                              <Input
-                                id="email"
-                                type="email"
-                                value={newReferente.email}
-                                onChange={(e) => setNewReferente(prev => ({ ...prev, email: e.target.value }))}
-                                placeholder="mario.rossi@example.com"
-                                className="mt-1"
-                              />
-                            </div>
-                          </div>
-
-                          <DialogFooter className="sm:justify-end">
-                            <DialogClose asChild>
-                              <Button type="button" variant="outline">Annulla</Button>
-                            </DialogClose>
-                            <Button 
-                              type="button" 
-                              onClick={handleCreateReferente}
-                              disabled={isCreatingReferente || !newReferente.firstName || !newReferente.lastName || !newReferente.email}
-                            >
-                              {isCreatingReferente && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                              Crea referente
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </>
-                ) : (
-                  <div className="p-2 text-center text-sm text-muted-foreground">
-                    Seleziona prima un'azienda
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </>
+    <FormField
+      control={form.control}
+      name="referente_id"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Referente (opzionale)</FormLabel>
+          <Select 
+            onValueChange={(value) => {
+              field.onChange(value);
+              onValueChange?.(value);
+            }} 
+            value={field.value}
+          >
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder={
+                  isLoading 
+                    ? "Caricamento..." 
+                    : referenti.length === 0 
+                      ? "Nessun referente disponibile"
+                      : "Seleziona un referente (opzionale)"
+                } />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              <SelectItem value="">Tutti i referenti</SelectItem>
+              {referenti.map((referente) => (
+                <SelectItem key={referente.id} value={referente.id}>
+                  {referente.first_name} {referente.last_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }

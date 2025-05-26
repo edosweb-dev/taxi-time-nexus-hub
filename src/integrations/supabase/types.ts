@@ -280,6 +280,7 @@ export type Database = {
           id: string
           nome_file: string
           numero_servizi: number | null
+          referente_id: string | null
           stato: string
           tipo_report: string
           totale_documento: number | null
@@ -298,6 +299,7 @@ export type Database = {
           id?: string
           nome_file: string
           numero_servizi?: number | null
+          referente_id?: string | null
           stato?: string
           tipo_report: string
           totale_documento?: number | null
@@ -316,6 +318,7 @@ export type Database = {
           id?: string
           nome_file?: string
           numero_servizi?: number | null
+          referente_id?: string | null
           stato?: string
           tipo_report?: string
           totale_documento?: number | null
@@ -330,6 +333,13 @@ export type Database = {
             columns: ["azienda_id"]
             isOneToOne: false
             referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_referente_id_fkey"
+            columns: ["referente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

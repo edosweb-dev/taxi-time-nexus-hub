@@ -5,7 +5,7 @@ export interface Report {
   updated_at: string;
   azienda_id: string;
   created_by: string;
-  tipo_report: string;
+  tipo_report: 'servizi' | 'finanziario' | 'veicoli';
   nome_file: string;
   url_file?: string;
   data_inizio: string;

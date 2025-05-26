@@ -172,7 +172,10 @@ export function ReportPreviewTable({
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <User className="h-4 w-4" />
-                              {servizio.referente?.first_name} {servizio.referente?.last_name}
+                              {servizio.referente ? 
+                                `${servizio.referente.first_name} ${servizio.referente.last_name}` :
+                                'Non specificato'
+                              }
                             </div>
                           </TableCell>
                           <TableCell>

@@ -17,7 +17,7 @@ export function useReports(filters: ReportFilters = {}) {
         .select(`
           *,
           azienda:aziende(id, nome),
-          referente:profiles!referente_id(id, first_name, last_name)
+          referente:profiles!reports_referente_id_fkey(id, first_name, last_name)
         `)
         .order('created_at', { ascending: false });
 
