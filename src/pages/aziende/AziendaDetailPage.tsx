@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit } from 'lucide-react';
-import { AziendaDialog } from '@/components/aziende/AziendaDialog';
+import { AziendaSheet } from '@/components/aziende/AziendaSheet';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
 import { ReferentiTab } from '@/components/aziende/detail/ReferentiTab';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
@@ -22,8 +22,8 @@ export default function AziendaDetailPage() {
     setActiveTab,
     referenti,
     isLoadingUsers,
-    isAziendaDialogOpen,
-    setIsAziendaDialogOpen,
+    isAziendaSheetOpen,
+    setIsAziendaSheetOpen,
     isUserDialogOpen,
     setIsUserDialogOpen,
     selectedUser,
@@ -109,9 +109,9 @@ export default function AziendaDetailPage() {
           </TabsContent>
         </Tabs>
         
-        <AziendaDialog
-          isOpen={isAziendaDialogOpen}
-          onOpenChange={setIsAziendaDialogOpen}
+        <AziendaSheet
+          isOpen={isAziendaSheetOpen}
+          onOpenChange={setIsAziendaSheetOpen}
           onSubmit={handleSubmitAzienda}
           azienda={azienda}
           isSubmitting={isUpdating}
