@@ -67,7 +67,7 @@ export const useReportsData = () => {
   // Mutation per l'eliminazione di un report
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
-      console.log('[deleteReport] Chiamata mutation con ID:', reportId);
+      console.log('[deleteReport] 🚀 Chiamata mutation con ID:', reportId);
       const report = reports.find(r => r.id === reportId);
       if (!report) {
         throw new Error('Report non trovato');
@@ -84,7 +84,7 @@ export const useReportsData = () => {
       return reportId;
     },
     onSuccess: (deletedId) => {
-      console.log('[deleteReport] Mutation completed successfully for report:', deletedId);
+      console.log('[deleteReport] ✅ Mutation completed successfully for report:', deletedId);
       
       // Notifica di successo con toast
       toast({
@@ -92,22 +92,24 @@ export const useReportsData = () => {
         description: 'Il report è stato eliminato con successo.',
       });
       
-      console.log('[deleteReport] Invalidating reports query after successful deletion');
+      console.log('[deleteReport] 🔄 Invalidating reports query after successful deletion');
       // Invalidare per assicurarsi di essere sincronizzati con il server
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
     onError: (error: any, deletedId) => {
-      console.error('[deleteReport] Errore nella mutation:', error);
-      console.error('[deleteReport] Error message:', error.message);
+      console.error('[useReportsData] ❌ ERROR deleting report:', deletedId, error);
       
-      // Notifica di errore con toast
+      const errorMessage = error.message || 'Errore sconosciuto durante eliminazione';
+      
+      // Notifica di errore con toast migliorata
       toast({
-        title: 'Errore',
-        description: `Impossibile eliminare il report: ${error.message || 'Si è verificato un errore'}`,
+        title: 'Errore eliminazione',
+        description: errorMessage,
         variant: 'destructive',
       });
       
       // Forza un refetch per assicurarsi che l'UI sia sincronizzata con il server
+      console.log('[deleteReport] 🔄 Forcing refetch after error');
       refetchReports();
     }
   });

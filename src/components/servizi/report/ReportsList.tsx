@@ -26,6 +26,9 @@ export const ReportsList = () => {
   // Stato semplificato per il dialogo di eliminazione - solo reportToDelete
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   
+  // Protezione anti-click multipli
+  const [isDeletePending, setIsDeletePending] = useState(false);
+  
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
@@ -57,13 +60,24 @@ export const ReportsList = () => {
     setViewingReport(null);
   }, []);
   
-  // Funzione semplificata per aprire il dialog di eliminazione
+  // Funzione con protezione anti-click multipli per aprire il dialog di eliminazione
   const handleDeleteClick = useCallback((reportId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
+    
+    // Protezione anti-click multipli
+    if (isDeletePending || isDeletingReport) {
+      console.log('[ReportsList] Click blocked - operation in progress');
+      return;
+    }
+    
     console.log('[ReportsList] Setting report to delete:', reportId);
+    setIsDeletePending(true);
     setReportToDelete(reportId);
-  }, []);
+    
+    // Reset protezione dopo 1 secondo
+    setTimeout(() => setIsDeletePending(false), 1000);
+  }, [isDeletePending, isDeletingReport]);
   
   // Funzione per confermare l'eliminazione
   const handleConfirmDelete = useCallback(() => {
@@ -73,10 +87,12 @@ export const ReportsList = () => {
     }
   }, [reportToDelete, deleteReport]);
 
-  // Funzione semplificata per chiudere il dialog di eliminazione
+  // Funzione per chiudere il dialog di eliminazione
   const handleDeleteDialogClose = useCallback(() => {
     if (!isDeletingReport) {
+      console.log('[ReportsList] Closing delete dialog');
       setReportToDelete(null);
+      setIsDeletePending(false);
     }
   }, [isDeletingReport]);
 
@@ -91,7 +107,8 @@ export const ReportsList = () => {
       console.log('[ReportsList] Delete successful, closing dialog');
       const timer = setTimeout(() => {
         setReportToDelete(null);
-      }, 100); // Chiusura rapida dopo successo
+        setIsDeletePending(false);
+      }, 300); // Chiusura più rapida
       return () => clearTimeout(timer);
     }
   }, [isDeleteSuccess, reportToDelete, isDeletingReport]);
