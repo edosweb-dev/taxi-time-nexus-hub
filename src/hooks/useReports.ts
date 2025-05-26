@@ -39,7 +39,12 @@ export function useReports(filters: ReportFilters = {}) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      
+      // Type cast to ensure proper typing
+      return (data || []).map(item => ({
+        ...item,
+        tipo_report: item.tipo_report as 'servizi' | 'finanziario' | 'veicoli'
+      })) as Report[];
     },
     enabled: !!user,
   });

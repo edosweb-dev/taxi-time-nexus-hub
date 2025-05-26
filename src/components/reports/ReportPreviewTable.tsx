@@ -172,9 +172,11 @@ export function ReportPreviewTable({
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <User className="h-4 w-4" />
-                              {servizio.referente ? 
-                                `${servizio.referente.first_name} ${servizio.referente.last_name}` :
-                                'Non specificato'
+                              {servizio.referente && Array.isArray(servizio.referente) ? 
+                                `${servizio.referente[0]?.first_name} ${servizio.referente[0]?.last_name}` :
+                                servizio.referente ? 
+                                  `${servizio.referente.first_name} ${servizio.referente.last_name}` :
+                                  'Non specificato'
                               }
                             </div>
                           </TableCell>
@@ -193,7 +195,9 @@ export function ReportPreviewTable({
                           </TableCell>
                           <TableCell>
                             {servizio.assegnato ? (
-                              `${servizio.assegnato.first_name} ${servizio.assegnato.last_name}`
+                              Array.isArray(servizio.assegnato) ?
+                                `${servizio.assegnato[0]?.first_name} ${servizio.assegnato[0]?.last_name}` :
+                                `${servizio.assegnato.first_name} ${servizio.assegnato.last_name}`
                             ) : servizio.conducente_esterno ? (
                               servizio.conducente_esterno_nome
                             ) : (

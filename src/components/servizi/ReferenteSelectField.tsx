@@ -51,10 +51,10 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
           <FormLabel>Referente (opzionale)</FormLabel>
           <Select 
             onValueChange={(value) => {
-              field.onChange(value);
-              onValueChange?.(value);
+              field.onChange(value === 'all' ? '' : value);
+              onValueChange?.(value === 'all' ? '' : value);
             }} 
-            value={field.value}
+            value={field.value || 'all'}
           >
             <FormControl>
               <SelectTrigger>
@@ -68,7 +68,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="">Tutti i referenti</SelectItem>
+              <SelectItem value="all">Tutti i referenti</SelectItem>
               {referenti.map((referente) => (
                 <SelectItem key={referente.id} value={referente.id}>
                   {referente.first_name} {referente.last_name}
