@@ -25,10 +25,12 @@ import { useReports } from '@/hooks/useReports';
 import { useAziende } from '@/hooks/useAziende';
 import { FileText, Loader2, Eye } from 'lucide-react';
 import { CreateReportData } from '@/lib/types/reports';
-import { ReportPreview } from './ReportPreview';
+import { ReportPreviewTable } from './ReportPreviewTable';
+import { ReferenteSelectField } from '../servizi/ReferenteSelectField';
 
 const reportSchema = z.object({
   azienda_id: z.string().min(1, 'Seleziona un\'azienda'),
+  referente_id: z.string().optional(),
   tipo_report: z.enum(['servizi', 'finanziario', 'veicoli'], {
     required_error: 'Seleziona un tipo di report',
   }),
@@ -47,20 +49,29 @@ const reportSchema = z.object({
 type ReportFormData = z.infer<typeof reportSchema>;
 
 export function ReportGenerator() {
-  const { generateReport, isGenerating, generatePreview, isGeneratingPreview } = useReports();
+  const { generateReport, isGenerating } = useReports();
   const { aziende } = useAziende();
-  const [previewReport, setPreviewReport] = useState(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState<ReportFormData | null>(null);
 
   const form = useForm<ReportFormData>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
       azienda_id: '',
+      referente_id: '',
       tipo_report: 'servizi',
       data_inizio: '',
       data_fine: '',
     },
   });
+
+  const watchedAziendaId = form.watch('azienda_id');
+
+  // Reset referente when azienda changes
+  const handleAziendaChange = (value: string) => {
+    form.setValue('azienda_id', value);
+    form.setValue('referente_id', '');
+  };
 
   const onSubmit = async (data: ReportFormData) => {
     const reportData: CreateReportData = {
@@ -68,32 +79,22 @@ export function ReportGenerator() {
       tipo_report: data.tipo_report,
       data_inizio: data.data_inizio,
       data_fine: data.data_fine,
+      referente_id: data.referente_id,
     };
     
     generateReport(reportData);
     form.reset();
+    setShowPreview(false);
+    setPreviewData(null);
   };
 
   const onPreview = async (data: ReportFormData) => {
-    const reportData: CreateReportData = {
-      azienda_id: data.azienda_id,
-      tipo_report: data.tipo_report,
-      data_inizio: data.data_inizio,
-      data_fine: data.data_fine,
-      is_preview: true,
-    };
-    
-    try {
-      const mockReport = await generatePreview(reportData);
-      setPreviewReport(mockReport);
-      setPreviewOpen(true);
-    } catch (error) {
-      console.error('Errore nella generazione dell\'anteprima:', error);
-    }
+    setPreviewData(data);
+    setShowPreview(true);
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -110,7 +111,7 @@ export function ReportGenerator() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Azienda *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={handleAziendaChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleziona un'azienda" />
@@ -128,6 +129,10 @@ export function ReportGenerator() {
                   </FormItem>
                 )}
               />
+
+              {watchedAziendaId && (
+                <ReferenteSelectField aziendaId={watchedAziendaId} />
+              )}
 
               <FormField
                 control={form.control}
@@ -187,17 +192,15 @@ export function ReportGenerator() {
                   type="button" 
                   variant="outline" 
                   onClick={form.handleSubmit(onPreview)} 
-                  disabled={isGeneratingPreview || isGenerating}
                   className="flex-1"
                 >
-                  {isGeneratingPreview && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   <Eye className="mr-2 h-4 w-4" />
                   Anteprima
                 </Button>
                 
                 <Button 
                   type="submit" 
-                  disabled={isGenerating || isGeneratingPreview} 
+                  disabled={isGenerating} 
                   className="flex-1"
                 >
                   {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -209,11 +212,15 @@ export function ReportGenerator() {
         </CardContent>
       </Card>
 
-      <ReportPreview
-        report={previewReport}
-        isOpen={previewOpen}
-        onOpenChange={setPreviewOpen}
-      />
-    </>
+      {showPreview && previewData && (
+        <ReportPreviewTable 
+          aziendaId={previewData.azienda_id}
+          referenteId={previewData.referente_id}
+          tipoReport={previewData.tipo_report}
+          dataInizio={previewData.data_inizio}
+          dataFine={previewData.data_fine}
+        />
+      )}
+    </div>
   );
 }

@@ -16,10 +16,16 @@ export interface Report {
   totale_documento: number;
   stato: 'in_generazione' | 'completato' | 'errore';
   errore_messaggio?: string;
+  referente_id?: string;
   // Joined data
   azienda?: {
     id: string;
     nome: string;
+  };
+  referente?: {
+    id: string;
+    first_name: string;
+    last_name: string;
   };
 }
 
@@ -28,7 +34,8 @@ export interface CreateReportData {
   tipo_report: 'servizi' | 'finanziario' | 'veicoli';
   data_inizio: string;
   data_fine: string;
-  is_preview?: boolean; // Nuovo campo per identificare anteprime
+  referente_id?: string;
+  is_preview?: boolean;
 }
 
 export interface ReportFilters {
@@ -36,4 +43,5 @@ export interface ReportFilters {
   tipo_report?: string;
   data_inizio?: string;
   data_fine?: string;
+  referente_id?: string;
 }

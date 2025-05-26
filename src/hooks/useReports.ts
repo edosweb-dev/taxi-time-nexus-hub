@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +16,8 @@ export function useReports(filters: ReportFilters = {}) {
         .from('reports')
         .select(`
           *,
-          azienda:aziende(id, nome)
+          azienda:aziende(id, nome),
+          referente:profiles!referente_id(id, first_name, last_name)
         `)
         .order('created_at', { ascending: false });
 
@@ -26,6 +26,9 @@ export function useReports(filters: ReportFilters = {}) {
       }
       if (filters.tipo_report && filters.tipo_report !== 'all') {
         query = query.eq('tipo_report', filters.tipo_report);
+      }
+      if (filters.referente_id && filters.referente_id !== 'all') {
+        query = query.eq('referente_id', filters.referente_id);
       }
       if (filters.data_inizio) {
         query = query.gte('data_inizio', filters.data_inizio);
@@ -95,6 +98,7 @@ export function useReports(filters: ReportFilters = {}) {
         totale_iva: 0,
         totale_documento: 0,
         stato: 'completato' as const,
+        referente_id: data.referente_id,
       };
       
       // Calcola IVA e totale
