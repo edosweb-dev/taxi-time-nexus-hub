@@ -1,13 +1,7 @@
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useReports } from '@/hooks/useReports';
-import { Download, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Download, Eye, Trash2 } from 'lucide-react';
 import { Report } from '@/lib/types/reports';
 
 interface ReportActionsProps {
@@ -29,34 +23,37 @@ export function ReportActions({ report, onPreview }: ReportActionsProps) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Apri menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onPreview(report)}>
-          <Eye className="mr-2 h-4 w-4" />
-          Anteprima
-        </DropdownMenuItem>
-        
-        {report.url_file && (
-          <DropdownMenuItem onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Scarica PDF
-          </DropdownMenuItem>
-        )}
-        
-        <DropdownMenuItem 
-          onClick={handleDelete}
-          className="text-destructive focus:text-destructive"
+    <div className="flex gap-2 w-full">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => onPreview(report)}
+        className="flex-1"
+      >
+        <Eye className="mr-2 h-4 w-4" />
+        Anteprima
+      </Button>
+      
+      {report.url_file && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleDownload}
+          className="flex-1"
         >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Elimina
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <Download className="mr-2 h-4 w-4" />
+          Scarica
+        </Button>
+      )}
+      
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={handleDelete}
+        className="text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
   );
 }

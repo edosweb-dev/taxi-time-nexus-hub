@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { FileText, Info } from 'lucide-react';
 import { ReportPreviewTable } from './ReportPreviewTable';
 import { ReportForm } from './ReportForm';
 
@@ -41,17 +41,35 @@ export function ReportGenerator({ onPreviewGenerated }: ReportGeneratorProps = {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Genera Nuovo Report
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ReportForm onPreview={handlePreview} onResetPreview={resetPreview} />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Genera Nuovo Report
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Seleziona un'azienda e un mese per generare un report PDF dei servizi consuntivati.
+            </AlertDescription>
+          </Alert>
+          
+          <ReportForm onPreview={handlePreview} onResetPreview={resetPreview} />
+        </CardContent>
+      </Card>
+      
+      {showPreview && previewData && (
+        <ReportPreviewTable 
+          aziendaId={previewData.aziendaId}
+          referenteId={previewData.referenteId}
+          year={previewData.year}
+          month={previewData.month}
+        />
+      )}
+    </div>
   );
 }
 
