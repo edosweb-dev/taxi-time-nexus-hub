@@ -6,6 +6,12 @@ export async function createVeicolo(data: CreateVeicoloRequest): Promise<Veicolo
   try {
     console.log('[createVeicolo] Creating veicolo with data:', data);
 
+    // Get current user for created_by field
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data: veicoloData, error } = await supabase
       .from('veicoli')
       .insert({
@@ -15,6 +21,7 @@ export async function createVeicolo(data: CreateVeicoloRequest): Promise<Veicolo
         colore: data.colore,
         numero_posti: data.numero_posti,
         note: data.note,
+        created_by: user.id,
       })
       .select()
       .single();

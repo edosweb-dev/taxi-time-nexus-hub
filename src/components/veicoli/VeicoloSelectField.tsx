@@ -20,14 +20,17 @@ export function VeicoloSelectField() {
           {isLoading ? (
             <Skeleton className="h-10 w-full" />
           ) : (
-            <Select value={field.value || ''} onValueChange={field.onChange}>
+            <Select 
+              value={field.value || 'none'} 
+              onValueChange={(value) => field.onChange(value === 'none' ? '' : value)}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleziona un veicolo" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="">Nessun veicolo</SelectItem>
+                <SelectItem value="none">Nessun veicolo</SelectItem>
                 {veicoli.map((veicolo) => (
                   <SelectItem key={veicolo.id} value={veicolo.id}>
                     {veicolo.modello} - {veicolo.targa}
