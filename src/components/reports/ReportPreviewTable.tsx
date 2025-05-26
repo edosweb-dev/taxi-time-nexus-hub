@@ -17,7 +17,6 @@ import { format } from 'date-fns';
 interface ReportPreviewTableProps {
   aziendaId: string;
   referenteId?: string;
-  tipoReport: 'servizi' | 'finanziario' | 'veicoli';
   year: number;
   month: number;
 }
@@ -25,7 +24,6 @@ interface ReportPreviewTableProps {
 export function ReportPreviewTable({ 
   aziendaId, 
   referenteId, 
-  tipoReport, 
   year,
   month
 }: ReportPreviewTableProps) {
@@ -130,7 +128,7 @@ export function ReportPreviewTable({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Anteprima Report {tipoReport.charAt(0).toUpperCase() + tipoReport.slice(1)}
+            Anteprima Report Servizi
           </CardTitle>
           <div className="text-sm text-muted-foreground">
             <div className="flex items-center gap-4">

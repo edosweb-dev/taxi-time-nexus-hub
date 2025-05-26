@@ -9,7 +9,6 @@ interface ReportGeneratorProps {
   onPreviewGenerated?: (data: { 
     aziendaId: string; 
     referenteId?: string; 
-    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
     year: number; 
     month: number;
   } | null) => void;
@@ -20,7 +19,6 @@ export function ReportGenerator({ onPreviewGenerated }: ReportGeneratorProps = {
   const [previewData, setPreviewData] = useState<{ 
     aziendaId: string; 
     referenteId?: string; 
-    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
     year: number; 
     month: number;
   } | null>(null);
@@ -28,7 +26,6 @@ export function ReportGenerator({ onPreviewGenerated }: ReportGeneratorProps = {
   const handlePreview = (data: { 
     aziendaId: string; 
     referenteId?: string; 
-    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
     year: number; 
     month: number;
   }) => {
@@ -63,7 +60,6 @@ export function ReportGeneratorWithPreview() {
   const [previewData, setPreviewData] = useState<{ 
     aziendaId: string; 
     referenteId?: string; 
-    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
     year: number; 
     month: number;
   } | null>(null);
@@ -77,7 +73,6 @@ export function ReportGeneratorWithPreview() {
           <ReportPreviewTable 
             aziendaId={previewData.aziendaId}
             referenteId={previewData.referenteId}
-            tipoReport={previewData.tipoReport}
             year={previewData.year}
             month={previewData.month}
           />
