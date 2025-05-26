@@ -33,17 +33,35 @@ export interface Servizio {
   veicolo_id?: string;
 }
 
+// Passeggero ora collegato ad azienda e referente
 export interface Passeggero {
   id?: string;
-  servizio_id: string;
   nome_cognome: string;
   email?: string;
   telefono?: string;
+  azienda_id: string;
+  referente_id: string;
+  created_at?: string;
+}
+
+// Collegamento tra servizio e passeggero con dettagli specifici del servizio
+export interface ServizioPasseggero {
+  id?: string;
+  servizio_id: string;
+  passeggero_id: string;
   orario_presa_personalizzato?: string;
   luogo_presa_personalizzato?: string;
-  usa_indirizzo_personalizzato: boolean;
   destinazione_personalizzato?: string;
+  usa_indirizzo_personalizzato: boolean;
   created_at?: string;
+}
+
+// Passeggero esteso con i dettagli del servizio
+export interface PasseggeroConDettagli extends Passeggero {
+  orario_presa_personalizzato?: string;
+  luogo_presa_personalizzato?: string;
+  destinazione_personalizzato?: string;
+  usa_indirizzo_personalizzato: boolean;
 }
 
 export interface ServizioFormData {
@@ -62,6 +80,7 @@ export interface ServizioFormData {
 
 export interface PasseggeroFormData {
   id?: string;
+  passeggero_id?: string; // Per passeggeri esistenti
   nome_cognome: string;
   email?: string;
   telefono?: string;
@@ -69,4 +88,5 @@ export interface PasseggeroFormData {
   luogo_presa_personalizzato?: string;
   usa_indirizzo_personalizzato: boolean;
   destinazione_personalizzato?: string;
+  is_existing?: boolean; // Flag per distinguere tra nuovo e esistente
 }

@@ -191,47 +191,45 @@ export type Database = {
       }
       passeggeri: {
         Row: {
+          azienda_id: string
           created_at: string
-          destinazione_personalizzato: string | null
           email: string | null
           id: string
-          luogo_presa_personalizzato: string | null
           nome_cognome: string
-          orario_presa_personalizzato: string | null
-          servizio_id: string
+          referente_id: string
           telefono: string | null
-          usa_indirizzo_personalizzato: boolean
         }
         Insert: {
+          azienda_id: string
           created_at?: string
-          destinazione_personalizzato?: string | null
           email?: string | null
           id?: string
-          luogo_presa_personalizzato?: string | null
           nome_cognome: string
-          orario_presa_personalizzato?: string | null
-          servizio_id: string
+          referente_id: string
           telefono?: string | null
-          usa_indirizzo_personalizzato?: boolean
         }
         Update: {
+          azienda_id?: string
           created_at?: string
-          destinazione_personalizzato?: string | null
           email?: string | null
           id?: string
-          luogo_presa_personalizzato?: string | null
           nome_cognome?: string
-          orario_presa_personalizzato?: string | null
-          servizio_id?: string
+          referente_id?: string
           telefono?: string | null
-          usa_indirizzo_personalizzato?: boolean
         }
         Relationships: [
           {
-            foreignKeyName: "passeggeri_servizio_id_fkey"
-            columns: ["servizio_id"]
+            foreignKeyName: "passeggeri_azienda_id_fkey"
+            columns: ["azienda_id"]
             isOneToOne: false
-            referencedRelation: "servizi"
+            referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passeggeri_referente_id_fkey"
+            columns: ["referente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -430,6 +428,54 @@ export type Database = {
             columns: ["veicolo_id"]
             isOneToOne: false
             referencedRelation: "veicoli"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      servizi_passeggeri: {
+        Row: {
+          created_at: string
+          destinazione_personalizzato: string | null
+          id: string
+          luogo_presa_personalizzato: string | null
+          orario_presa_personalizzato: string | null
+          passeggero_id: string
+          servizio_id: string
+          usa_indirizzo_personalizzato: boolean
+        }
+        Insert: {
+          created_at?: string
+          destinazione_personalizzato?: string | null
+          id?: string
+          luogo_presa_personalizzato?: string | null
+          orario_presa_personalizzato?: string | null
+          passeggero_id: string
+          servizio_id: string
+          usa_indirizzo_personalizzato?: boolean
+        }
+        Update: {
+          created_at?: string
+          destinazione_personalizzato?: string | null
+          id?: string
+          luogo_presa_personalizzato?: string | null
+          orario_presa_personalizzato?: string | null
+          passeggero_id?: string
+          servizio_id?: string
+          usa_indirizzo_personalizzato?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servizi_passeggeri_passeggero_id_fkey"
+            columns: ["passeggero_id"]
+            isOneToOne: false
+            referencedRelation: "passeggeri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servizi_passeggeri_servizio_id_fkey"
+            columns: ["servizio_id"]
+            isOneToOne: false
+            referencedRelation: "servizi"
             referencedColumns: ["id"]
           },
         ]

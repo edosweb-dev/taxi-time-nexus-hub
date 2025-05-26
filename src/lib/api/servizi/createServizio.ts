@@ -1,6 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
-import { Passeggero, Servizio } from '@/lib/types/servizi';
+import { Servizio } from '@/lib/types/servizi';
 import { CreateServizioRequest } from './types';
 import { toast } from '@/components/ui/sonner';
 
@@ -23,7 +23,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     const userId = sessionData.session.user.id;
     console.log('[createServizio] Current user ID:', userId);
 
-    // 1. Insert servizio with new fields
+    // 1. Insert servizio
     console.log('[createServizio] Inserting servizio into database');
     const { data: servizioData, error: servizioError } = await supabase
       .from('servizi')
@@ -54,40 +54,56 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     }
 
     console.log('[createServizio] Servizio created successfully:', servizioData);
-    
-    // Assicuriamoci che il servizio restituito sia del tipo corretto
     const servizio = servizioData as Servizio;
 
-    // 2. Insert passeggeri
+    // 2. Handle passengers
     if (data.passeggeri && data.passeggeri.length > 0) {
-      const passeggeriToInsert = data.passeggeri.map(p => ({
-        servizio_id: servizio.id,
-        nome_cognome: p.nome_cognome,
-        email: p.email,
-        telefono: p.telefono,
-        // Use personalized fields only when personalization is enabled
-        orario_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.orario_presa_personalizzato : null,
-        luogo_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.luogo_presa_personalizzato : null,
-        destinazione_personalizzato: p.usa_indirizzo_personalizzato ? p.destinazione_personalizzato : null,
-        usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato
-      }));
+      for (const passeggeroData of data.passeggeri) {
+        let passeggeroId = passeggeroData.passeggero_id;
 
-      console.log('[createServizio] Inserting passeggeri:', passeggeriToInsert);
+        // Se è un nuovo passeggero, crealo prima
+        if (!passeggeroData.is_existing || !passeggeroId) {
+          console.log('[createServizio] Creating new passeggero:', passeggeroData.nome_cognome);
+          
+          const { data: newPasseggero, error: passeggeroError } = await supabase
+            .from('passeggeri')
+            .insert({
+              nome_cognome: passeggeroData.nome_cognome,
+              email: passeggeroData.email,
+              telefono: passeggeroData.telefono,
+              azienda_id: data.servizio.azienda_id,
+              referente_id: data.servizio.referente_id,
+            })
+            .select()
+            .single();
 
-      const { data: passeggeri, error: passeggeriError } = await supabase
-        .from('passeggeri')
-        .insert(passeggeriToInsert)
-        .select();
+          if (passeggeroError) {
+            console.error('[createServizio] Error creating passeggero:', passeggeroError);
+            toast.error(`Errore nella creazione del passeggero ${passeggeroData.nome_cognome}: ${passeggeroError.message}`);
+            continue;
+          }
 
-      if (passeggeriError) {
-        console.error('[createServizio] Error creating passeggeri:', passeggeriError);
-        // Not throwing here, we already created the servizio
-        toast.error(`Errore nell'aggiunta dei passeggeri: ${passeggeriError.message}`);
-      } else {
-        console.log('[createServizio] Passeggeri created successfully:', passeggeri);
+          passeggeroId = newPasseggero.id;
+          console.log('[createServizio] New passeggero created with ID:', passeggeroId);
+        }
+
+        // Crea il collegamento servizio-passeggero
+        const { error: collegiamentoError } = await supabase
+          .from('servizi_passeggeri')
+          .insert({
+            servizio_id: servizio.id,
+            passeggero_id: passeggeroId,
+            orario_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.orario_presa_personalizzato : null,
+            luogo_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.luogo_presa_personalizzato : null,
+            destinazione_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.destinazione_personalizzato : null,
+            usa_indirizzo_personalizzato: passeggeroData.usa_indirizzo_personalizzato
+          });
+
+        if (collegiamentoError) {
+          console.error('[createServizio] Error creating servizio-passeggero link:', collegiamentoError);
+          toast.error(`Errore nel collegamento del passeggero ${passeggeroData.nome_cognome}: ${collegiamentoError.message}`);
+        }
       }
-    } else {
-      console.log('[createServizio] No passeggeri to insert');
     }
 
     return { servizio, error: null };
