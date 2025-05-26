@@ -296,9 +296,11 @@ export const useGenerateReport = () => {
       
       console.log("✅ [generateReport] Report generated successfully:", data);
       
-      // 🔄 Aggiorna immediatamente la cache aggiungendo il nuovo report
+      // 🔄 AGGIORNAMENTO CACHE MIGLIORATO
       if (data.report) {
-        console.log('🔄 [generateReport] Updating reports cache...');
+        console.log('🔄 [generateReport] Updating reports cache immediately...');
+        
+        // 1. Prima aggiorna la cache aggiungendo il nuovo report
         queryClient.setQueryData(['reports'], (oldReports: Report[] | undefined) => {
           const currentReports = oldReports || [];
           const newReports = [data.report, ...currentReports];
@@ -310,11 +312,20 @@ export const useGenerateReport = () => {
           return newReports;
         });
         
-        // 🔄 Invalida la query per assicurarsi che sia aggiornata
+        // 2. Poi invalida e forza il refetch per sincronizzare con il database
+        console.log('🔄 [generateReport] Invalidating and refetching reports query...');
         await queryClient.invalidateQueries({ 
           queryKey: ['reports'],
           refetchType: 'active'
         });
+        
+        // 3. Forza anche un refetch esplicito per essere sicuri
+        await queryClient.refetchQueries({
+          queryKey: ['reports'],
+          type: 'active'
+        });
+        
+        console.log('✅ [generateReport] Cache update and invalidation completed successfully');
       }
       
       toast({
