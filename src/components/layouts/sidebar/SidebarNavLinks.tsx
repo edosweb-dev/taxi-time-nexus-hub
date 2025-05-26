@@ -56,7 +56,7 @@ export function SidebarNavLinks() {
         </NavLink>
         
         <NavLink 
-          to="/shifts" 
+          to="/turni" 
           className={({ isActive }) => 
             `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg sidebar-nav-link ${
               isActive 
