@@ -20,6 +20,8 @@ export const useReportsData = () => {
     queryFn: fetchReports,
   });
   
+  console.log('[useReportsData] Current reports count:', reports.length);
+  
   // Funzione per il download del report
   const downloadReport = async (reportId: string) => {
     console.log('[downloadReport] Download requested for report:', reportId);
@@ -68,10 +70,11 @@ export const useReportsData = () => {
   const deleteReportMutation = useMutation({
     mutationFn: async (reportId: string) => {
       console.log('[deleteReportMutation] 🚀 Starting deletion for report:', reportId);
+      console.log('[deleteReportMutation] 📊 Reports before deletion:', reports.length);
       
       const report = reports.find(r => r.id === reportId);
       if (!report) {
-        throw new Error('Report non trovato');
+        throw new Error('Report non trovato nella cache locale');
       }
       
       const bucketName = report.bucket_name || 'report_aziende';
@@ -87,6 +90,7 @@ export const useReportsData = () => {
     },
     onSuccess: async (deletedId) => {
       console.log('[deleteReportMutation] ✅ Success callback for report:', deletedId);
+      console.log('[deleteReportMutation] 📊 Reports before cache invalidation:', reports.length);
       
       toast({
         title: 'Report eliminato',
@@ -94,12 +98,28 @@ export const useReportsData = () => {
       });
       
       // Prima invalida la cache
+      console.log('[deleteReportMutation] 🔄 Invalidating cache...');
       await queryClient.invalidateQueries({ queryKey: ['reports'] });
       
       // Poi forza un refetch immediato
-      await refetchReports();
+      console.log('[deleteReportMutation] 🔄 Forcing refetch...');
+      const { data: newReports } = await refetchReports();
       
+      console.log('[deleteReportMutation] 📊 Reports after refetch:', newReports?.length || 0);
       console.log('[deleteReportMutation] 🔄 Cache invalidated and refetch completed');
+      
+      // Verifica se il report è ancora presente
+      const stillExists = newReports?.find(r => r.id === deletedId);
+      if (stillExists) {
+        console.error('[deleteReportMutation] ❌ Report still exists after refetch!', stillExists);
+        toast({
+          title: 'Errore',
+          description: 'Il report non è stato eliminato correttamente',
+          variant: 'destructive',
+        });
+      } else {
+        console.log('[deleteReportMutation] ✅ Report successfully removed from list');
+      }
     },
     onError: (error: any, reportId) => {
       console.error('[deleteReportMutation] ❌ Error deleting report:', reportId, error);
