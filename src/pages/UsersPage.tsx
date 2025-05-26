@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { UserList } from "@/components/users/UserList";
-import { UserDialog } from "@/components/users/UserDialog";
+import { UserSheet } from "@/components/users/UserSheet";
 import { UserDeleteDialog } from "@/components/users/UserDeleteDialog";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/contexts/AuthContext";
@@ -51,20 +51,20 @@ export default function UsersPage() {
     }
   }, [users, isLoading, isError, error]);
 
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [isUserSheetOpen, setIsUserSheetOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
   const handleAddUser = () => {
     console.log('[UsersPage] Avvio creazione nuovo utente');
     setSelectedUser(null);
-    setIsUserDialogOpen(true);
+    setIsUserSheetOpen(true);
   };
 
   const handleEditUser = (user: Profile) => {
     console.log('[UsersPage] Modifica utente:', user);
     setSelectedUser(user);
-    setIsUserDialogOpen(true);
+    setIsUserSheetOpen(true);
   };
 
   const handleDeleteUser = (user: Profile) => {
@@ -82,7 +82,7 @@ export default function UsersPage() {
       console.log('[UsersPage] Creazione nuovo utente');
       createUser(data);
     }
-    setIsUserDialogOpen(false);
+    setIsUserSheetOpen(false);
   };
 
   const handleConfirmDelete = () => {
@@ -133,9 +133,9 @@ export default function UsersPage() {
           currentUserId={user?.id || ""}
         />
         
-        <UserDialog
-          isOpen={isUserDialogOpen}
-          onOpenChange={setIsUserDialogOpen}
+        <UserSheet
+          isOpen={isUserSheetOpen}
+          onOpenChange={setIsUserSheetOpen}
           onSubmit={handleSubmitUser}
           user={selectedUser}
           isSubmitting={isCreating || isUpdating}
