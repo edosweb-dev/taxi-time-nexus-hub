@@ -18,20 +18,24 @@ interface ReportPreviewTableProps {
   aziendaId: string;
   referenteId?: string;
   tipoReport: 'servizi' | 'finanziario' | 'veicoli';
-  dataInizio: string;
-  dataFine: string;
+  year: number;
+  month: number;
 }
 
 export function ReportPreviewTable({ 
   aziendaId, 
   referenteId, 
   tipoReport, 
-  dataInizio, 
-  dataFine 
+  year,
+  month
 }: ReportPreviewTableProps) {
   
+  // Calcola primo e ultimo giorno del mese
+  const dataInizio = new Date(year, month - 1, 1).toISOString().split('T')[0];
+  const dataFine = new Date(year, month, 0).toISOString().split('T')[0];
+
   const { data: servizi = [], isLoading } = useQuery({
-    queryKey: ['servizi-preview', aziendaId, referenteId, dataInizio, dataFine],
+    queryKey: ['servizi-preview', aziendaId, referenteId, year, month],
     queryFn: async () => {
       let query = supabase
         .from('servizi')
@@ -56,7 +60,7 @@ export function ReportPreviewTable({
       if (error) throw error;
       return data || [];
     },
-    enabled: !!aziendaId && !!dataInizio && !!dataFine,
+    enabled: !!aziendaId && !!year && !!month,
   });
 
   const getStatusBadge = (stato: string) => {
@@ -83,6 +87,11 @@ export function ReportPreviewTable({
   const totaleIva = totaleImponibile * 0.22;
   const totaleDocumento = totaleImponibile + totaleIva;
 
+  const monthName = new Date(year, month - 1).toLocaleDateString('it-IT', { 
+    month: 'long', 
+    year: 'numeric' 
+  });
+
   return (
     <div className="w-full">
       <Card className="w-full">
@@ -95,7 +104,7 @@ export function ReportPreviewTable({
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                {format(new Date(dataInizio), 'dd/MM/yyyy')} - {format(new Date(dataFine), 'dd/MM/yyyy')}
+                {monthName}
               </span>
             </div>
           </div>
@@ -147,7 +156,7 @@ export function ReportPreviewTable({
                         <TableCell colSpan={7} className="text-center py-8">
                           <div className="text-muted-foreground">
                             <FileText className="mx-auto h-12 w-12 mb-2" />
-                            <p>Nessun servizio consuntivato trovato per i criteri selezionati</p>
+                            <p>Nessun servizio consuntivato trovato per il mese selezionato</p>
                           </div>
                         </TableCell>
                       </TableRow>

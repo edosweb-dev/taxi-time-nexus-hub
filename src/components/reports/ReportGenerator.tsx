@@ -20,8 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { useReports } from '@/hooks/useReports';
+import { useReports, useAvailableMonths } from '@/hooks/useReports';
 import { useAziende } from '@/hooks/useAziende';
 import { FileText, Loader2, Eye } from 'lucide-react';
 import { CreateReportData } from '@/lib/types/reports';
@@ -34,16 +33,7 @@ const reportSchema = z.object({
   tipo_report: z.enum(['servizi', 'finanziario', 'veicoli'], {
     required_error: 'Seleziona un tipo di report',
   }),
-  data_inizio: z.string().min(1, 'Inserisci la data di inizio'),
-  data_fine: z.string().min(1, 'Inserisci la data di fine'),
-}).refine((data) => {
-  if (data.data_inizio && data.data_fine) {
-    return new Date(data.data_inizio) <= new Date(data.data_fine);
-  }
-  return true;
-}, {
-  message: 'La data di fine deve essere successiva alla data di inizio',
-  path: ['data_fine'],
+  month_year: z.string().min(1, 'Seleziona un mese'),
 });
 
 type ReportFormData = z.infer<typeof reportSchema>;
@@ -52,7 +42,13 @@ export function ReportGenerator() {
   const { generateReport, isGenerating } = useReports();
   const { aziende } = useAziende();
   const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<ReportFormData | null>(null);
+  const [previewData, setPreviewData] = useState<{ 
+    aziendaId: string; 
+    referenteId?: string; 
+    tipoReport: 'servizi' | 'finanziario' | 'veicoli'; 
+    year: number; 
+    month: number;
+  } | null>(null);
 
   const form = useForm<ReportFormData>({
     resolver: zodResolver(reportSchema),
@@ -60,25 +56,45 @@ export function ReportGenerator() {
       azienda_id: '',
       referente_id: '',
       tipo_report: 'servizi',
-      data_inizio: '',
-      data_fine: '',
+      month_year: '',
     },
   });
 
   const watchedAziendaId = form.watch('azienda_id');
+  const watchedReferenteId = form.watch('referente_id');
+
+  const { data: availableMonths = [], isLoading: isLoadingMonths } = useAvailableMonths(
+    watchedAziendaId,
+    watchedReferenteId
+  );
 
   // Reset referente when azienda changes
   const handleAziendaChange = (value: string) => {
     form.setValue('azienda_id', value);
     form.setValue('referente_id', '');
+    form.setValue('month_year', '');
+    setShowPreview(false);
+    setPreviewData(null);
+  };
+
+  // Reset month when referente changes
+  const handleReferenteChange = (value: string) => {
+    form.setValue('referente_id', value);
+    form.setValue('month_year', '');
+    setShowPreview(false);
+    setPreviewData(null);
   };
 
   const onSubmit = async (data: ReportFormData) => {
+    const [year, month] = data.month_year.split('-').map(Number);
+    const dataInizio = new Date(year, month - 1, 1).toISOString().split('T')[0];
+    const dataFine = new Date(year, month, 0).toISOString().split('T')[0];
+
     const reportData: CreateReportData = {
       azienda_id: data.azienda_id,
       tipo_report: data.tipo_report,
-      data_inizio: data.data_inizio,
-      data_fine: data.data_fine,
+      data_inizio: dataInizio,
+      data_fine: dataFine,
       referente_id: data.referente_id,
     };
     
@@ -89,7 +105,15 @@ export function ReportGenerator() {
   };
 
   const onPreview = async (data: ReportFormData) => {
-    setPreviewData(data);
+    const [year, month] = data.month_year.split('-').map(Number);
+    
+    setPreviewData({
+      aziendaId: data.azienda_id,
+      referenteId: data.referente_id,
+      tipoReport: data.tipo_report,
+      year,
+      month
+    });
     setShowPreview(true);
   };
 
@@ -131,7 +155,46 @@ export function ReportGenerator() {
               />
 
               {watchedAziendaId && (
-                <ReferenteSelectField aziendaId={watchedAziendaId} />
+                <div className="space-y-4">
+                  <ReferenteSelectField 
+                    aziendaId={watchedAziendaId} 
+                    onValueChange={handleReferenteChange}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="month_year"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mese di Riferimento *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={
+                                isLoadingMonths 
+                                  ? "Caricamento..." 
+                                  : availableMonths.length === 0 
+                                    ? "Nessun mese disponibile"
+                                    : "Seleziona un mese"
+                              } />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {availableMonths.map((monthData) => (
+                              <SelectItem 
+                                key={`${monthData.year}-${monthData.month}`} 
+                                value={`${monthData.year}-${monthData.month}`}
+                              >
+                                {monthData.monthName} ({monthData.servicesCount} servizi)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               )}
 
               <FormField
@@ -157,42 +220,13 @@ export function ReportGenerator() {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="data_inizio"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data Inizio *</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="data_fine"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data Fine *</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
               <div className="flex gap-3">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={form.handleSubmit(onPreview)} 
                   className="flex-1"
+                  disabled={!watchedAziendaId || availableMonths.length === 0}
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   Anteprima
@@ -200,7 +234,7 @@ export function ReportGenerator() {
                 
                 <Button 
                   type="submit" 
-                  disabled={isGenerating} 
+                  disabled={isGenerating || !watchedAziendaId || availableMonths.length === 0} 
                   className="flex-1"
                 >
                   {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -215,11 +249,11 @@ export function ReportGenerator() {
       {showPreview && previewData && (
         <div className="w-full">
           <ReportPreviewTable 
-            aziendaId={previewData.azienda_id}
-            referenteId={previewData.referente_id}
-            tipoReport={previewData.tipo_report}
-            dataInizio={previewData.data_inizio}
-            dataFine={previewData.data_fine}
+            aziendaId={previewData.aziendaId}
+            referenteId={previewData.referenteId}
+            tipoReport={previewData.tipoReport}
+            year={previewData.year}
+            month={previewData.month}
           />
         </div>
       )}

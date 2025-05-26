@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
-import { Report, CreateReportData, ReportFilters } from '@/lib/types/reports';
+import { Report, CreateReportData, ReportFilters, AvailableMonth } from '@/lib/types/reports';
 
 export function useReports(filters: ReportFilters = {}) {
   const { user } = useAuth();
@@ -91,7 +90,7 @@ export function useReports(filters: ReportFilters = {}) {
         created_by: user.id,
         tipo_report: data.tipo_report,
         nome_file: `anteprima_report_${data.tipo_report}_${data.data_inizio}_${data.data_fine}.pdf`,
-        url_file: undefined, // Verrà generato dal mock
+        url_file: undefined,
         data_inizio: data.data_inizio,
         data_fine: data.data_fine,
         numero_servizi: Math.floor(Math.random() * 50) + 1,
@@ -166,4 +165,61 @@ export function useReports(filters: ReportFilters = {}) {
     isDeleting: deleteReportMutation.isPending,
     downloadReport,
   };
+}
+
+export function useAvailableMonths(aziendaId: string, referenteId?: string) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['available-months', aziendaId, referenteId],
+    queryFn: async (): Promise<AvailableMonth[]> => {
+      let query = supabase
+        .from('servizi')
+        .select('data_servizio')
+        .eq('azienda_id', aziendaId)
+        .eq('stato', 'consuntivato');
+
+      if (referenteId) {
+        query = query.eq('referente_id', referenteId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      // Raggruppa per mese e anno
+      const monthsMap = new Map<string, { year: number; month: number; count: number }>();
+      
+      data?.forEach((servizio) => {
+        const date = new Date(servizio.data_servizio);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1; // JavaScript months are 0-based
+        const key = `${year}-${month}`;
+        
+        if (monthsMap.has(key)) {
+          monthsMap.get(key)!.count += 1;
+        } else {
+          monthsMap.set(key, { year, month, count: 1 });
+        }
+      });
+
+      // Converti in array e ordina
+      const months: AvailableMonth[] = Array.from(monthsMap.values())
+        .map(({ year, month, count }) => ({
+          year,
+          month,
+          monthName: new Date(year, month - 1).toLocaleDateString('it-IT', { 
+            month: 'long', 
+            year: 'numeric' 
+          }),
+          servicesCount: count
+        }))
+        .sort((a, b) => {
+          if (a.year !== b.year) return b.year - a.year;
+          return b.month - a.month;
+        });
+
+      return months;
+    },
+    enabled: !!user && !!aziendaId,
+  });
 }

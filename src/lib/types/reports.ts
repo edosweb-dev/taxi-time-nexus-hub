@@ -5,7 +5,7 @@ export interface Report {
   updated_at: string;
   azienda_id: string;
   created_by: string;
-  tipo_report: string; // Changed from union type to string to match database
+  tipo_report: string;
   nome_file: string;
   url_file?: string;
   data_inizio: string;
@@ -14,7 +14,7 @@ export interface Report {
   totale_imponibile: number;
   totale_iva: number;
   totale_documento: number;
-  stato: 'in_generazione' | 'completato' | 'errore';
+  stato: string;
   errore_messaggio?: string;
   referente_id?: string;
   // Joined data
@@ -44,4 +44,11 @@ export interface ReportFilters {
   data_inizio?: string;
   data_fine?: string;
   referente_id?: string;
+}
+
+export interface AvailableMonth {
+  year: number;
+  month: number;
+  monthName: string;
+  servicesCount: number;
 }
