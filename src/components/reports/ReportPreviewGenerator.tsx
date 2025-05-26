@@ -3,7 +3,6 @@ import { Report } from '@/lib/types/reports';
 
 export function generateMockReportData(
   aziendaId: string,
-  tipoReport: 'servizi' | 'finanziario' | 'veicoli',
   dataInizio: string,
   dataFine: string,
   userId: string
@@ -14,7 +13,7 @@ export function generateMockReportData(
   const totaleDocumento = totaleImponibile + totaleIva;
 
   // Genera contenuto mock per l'anteprima PDF
-  const mockPdfContent = generateMockPdfContent(tipoReport, numeroServizi, totaleImponibile, totaleIva, totaleDocumento);
+  const mockPdfContent = generateMockPdfContent(numeroServizi, totaleImponibile, totaleIva, totaleDocumento);
 
   return {
     id: 'preview-' + Date.now(),
@@ -22,8 +21,7 @@ export function generateMockReportData(
     updated_at: new Date().toISOString(),
     azienda_id: aziendaId,
     created_by: userId,
-    tipo_report: tipoReport,
-    nome_file: `anteprima_report_${tipoReport}_${dataInizio}_${dataFine}.pdf`,
+    nome_file: `anteprima_report_${dataInizio}_${dataFine}.pdf`,
     url_file: mockPdfContent,
     data_inizio: dataInizio,
     data_fine: dataFine,
@@ -36,7 +34,6 @@ export function generateMockReportData(
 }
 
 function generateMockPdfContent(
-  tipoReport: string,
   numeroServizi: number,
   totaleImponibile: number,
   totaleIva: number,
@@ -47,7 +44,7 @@ function generateMockPdfContent(
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Anteprima Report ${tipoReport.toUpperCase()}</title>
+        <title>Anteprima Report Servizi</title>
         <style>
             body { font-family: Arial, sans-serif; margin: 40px; }
             .header { text-align: center; margin-bottom: 30px; }
@@ -68,7 +65,7 @@ function generateMockPdfContent(
         </div>
         
         <div class="header">
-            <h1>Report ${tipoReport.toUpperCase()}</h1>
+            <h1>Report Servizi</h1>
             <p>Periodo: ${new Date().toLocaleDateString('it-IT')} - ${new Date().toLocaleDateString('it-IT')}</p>
         </div>
         
@@ -84,7 +81,7 @@ function generateMockPdfContent(
         </div>
         
         <div class="section">
-            <h2>Dettagli ${tipoReport}</h2>
+            <h2>Dettagli Servizi</h2>
             <p>I dati dettagliati del report appariranno qui nel documento finale.</p>
             <p>Questa anteprima mostra la struttura e il formato del report che verrà generato.</p>
         </div>

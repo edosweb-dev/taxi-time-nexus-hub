@@ -36,7 +36,7 @@ export function ReportPreview({ report, isOpen, onOpenChange }: ReportPreviewPro
             <div className="text-sm text-muted-foreground">
               <p>Azienda: {report.azienda?.nome}</p>
               <p>Periodo: {report.data_inizio} - {report.data_fine}</p>
-              <p>Tipo: {report.tipo_report}</p>
+              <p>Servizi: {report.numero_servizi}</p>
             </div>
             
             {report.url_file && (

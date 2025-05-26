@@ -60,19 +60,6 @@ export function ReportList() {
     }
   };
 
-  const getTipoReportLabel = (tipo: string) => {
-    switch (tipo) {
-      case 'servizi':
-        return 'Report Servizi';
-      case 'finanziario':
-        return 'Report Finanziario';
-      case 'veicoli':
-        return 'Report Veicoli';
-      default:
-        return tipo;
-    }
-  };
-
   return (
     <>
       <Card>
@@ -84,7 +71,7 @@ export function ReportList() {
         </CardHeader>
         <CardContent>
           {/* Filtri */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label className="text-sm font-medium mb-2 block">Azienda</label>
               <Select onValueChange={(value) => handleFilterChange('azienda_id', value)}>
@@ -98,21 +85,6 @@ export function ReportList() {
                       {azienda.nome}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Tipo Report</label>
-              <Select onValueChange={(value) => handleFilterChange('tipo_report', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Tutti i tipi" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tutti i tipi</SelectItem>
-                  <SelectItem value="servizi">Report Servizi</SelectItem>
-                  <SelectItem value="finanziario">Report Finanziario</SelectItem>
-                  <SelectItem value="veicoli">Report Veicoli</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -141,8 +113,8 @@ export function ReportList() {
                 <TableRow>
                   <TableHead>Data Creazione</TableHead>
                   <TableHead>Azienda</TableHead>
-                  <TableHead>Tipo Report</TableHead>
                   <TableHead>Periodo</TableHead>
+                  <TableHead>Servizi</TableHead>
                   <TableHead>Stato</TableHead>
                   <TableHead>File</TableHead>
                   <TableHead className="text-right">Azioni</TableHead>
@@ -172,11 +144,11 @@ export function ReportList() {
                         {format(new Date(report.created_at), 'dd/MM/yyyy HH:mm')}
                       </TableCell>
                       <TableCell>{report.azienda?.nome}</TableCell>
-                      <TableCell>{getTipoReportLabel(report.tipo_report)}</TableCell>
                       <TableCell>
                         {format(new Date(report.data_inizio), 'dd/MM/yyyy')} - {' '}
                         {format(new Date(report.data_fine), 'dd/MM/yyyy')}
                       </TableCell>
+                      <TableCell>{report.numero_servizi}</TableCell>
                       <TableCell>{getStatusBadge(report.stato)}</TableCell>
                       <TableCell>
                         <span className="text-sm text-muted-foreground">
