@@ -8,6 +8,7 @@ import { NuovoMovimentoSheet } from './NuovoMovimentoSheet';
 import { IncassiDipendenteSheet } from './IncassiDipendenteSheet';
 import { PagamentiPendingSheet } from './PagamentiPendingSheet';
 import { ReportMensile } from './ReportMensile';
+import { TabellaSpeseMensili } from './TabellaSpeseMensili';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 
 export function SpeseAziendaliDashboard() {
@@ -19,59 +20,67 @@ export function SpeseAziendaliDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Griglia dei pulsanti principali */}
+      {/* Card principali - Griglia 2x2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setNuovoMovimentoOpen(true)}>
-          <CardContent className="flex items-center justify-center p-6">
-            <div className="text-center space-y-2">
-              <div className="mx-auto w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Plus className="h-6 w-6 text-primary" />
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setNuovoMovimentoOpen(true)}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Plus className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-semibold">Registra nuovo movimento</h3>
-              <p className="text-sm text-muted-foreground">Aggiungi spese, incassi o prelievi</p>
+              <div>
+                <h3 className="text-lg font-semibold">Registra nuovo movimento</h3>
+                <p className="text-sm text-muted-foreground">Aggiungi spesa, incasso o prelievo</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow opacity-60">
-          <CardContent className="flex items-center justify-center p-6">
-            <div className="text-center space-y-2">
-              <div className="mx-auto w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-gray-400" />
+        <Card className="hover:shadow-md transition-shadow cursor-not-allowed opacity-60">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="p-3 bg-gray-100 rounded-full">
+                <Users className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-400">Stipendio dipendente</h3>
-              <Badge variant="outline" className="text-xs">Coming soon</Badge>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-500">Stipendio dipendente</h3>
+                <p className="text-sm text-muted-foreground">Coming soon...</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIncassiDipendenteOpen(true)}>
-          <CardContent className="flex items-center justify-center p-6">
-            <div className="text-center space-y-2">
-              <div className="mx-auto w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <ArrowUpDown className="h-6 w-6 text-green-600" />
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setIncassiDipendenteOpen(true)}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="p-3 bg-green-100 rounded-full">
+                <ArrowUpDown className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="font-semibold">Incassi da dipendente</h3>
-              <p className="text-sm text-muted-foreground">Converti spese dipendenti</p>
+              <div>
+                <h3 className="text-lg font-semibold">Incassi da dipendente</h3>
+                <p className="text-sm text-muted-foreground">Converti spese dipendenti</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer relative" onClick={() => setPagamentiPendingOpen(true)}>
-          <CardContent className="flex items-center justify-center p-6">
-            <div className="text-center space-y-2">
-              <div className="mx-auto w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center relative">
-                <AlertCircle className="h-6 w-6 text-red-600" />
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setPagamentiPendingOpen(true)}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="p-3 bg-red-100 rounded-full relative">
+                <AlertCircle className="h-8 w-8 text-red-600" />
                 {pendingCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-white text-xs">
+                  <Badge className="absolute -top-2 -right-2 bg-red-600 text-white min-w-[20px] h-5 text-xs flex items-center justify-center">
                     {pendingCount}
                   </Badge>
                 )}
               </div>
-              <h3 className="font-semibold">Pagamenti pending</h3>
-              <p className="text-sm text-muted-foreground">
-                {pendingCount > 0 ? `${pendingCount} in sospeso` : 'Nessun pagamento in sospeso'}
-              </p>
+              <div>
+                <h3 className="text-lg font-semibold">Pagamenti pending</h3>
+                <p className="text-sm text-muted-foreground">
+                  {pendingCount > 0 ? `${pendingCount} pagamenti in sospeso` : 'Nessun pagamento in sospeso'}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -80,15 +89,20 @@ export function SpeseAziendaliDashboard() {
       {/* Report mensile */}
       <ReportMensile />
 
+      {/* Tabella spese mensili */}
+      <TabellaSpeseMensili />
+
       {/* Sheets */}
       <NuovoMovimentoSheet 
         open={nuovoMovimentoOpen} 
         onOpenChange={setNuovoMovimentoOpen} 
       />
+      
       <IncassiDipendenteSheet 
         open={incassiDipendenteOpen} 
         onOpenChange={setIncassiDipendenteOpen} 
       />
+      
       <PagamentiPendingSheet 
         open={pagamentiPendingOpen} 
         onOpenChange={setPagamentiPendingOpen} 
