@@ -2,7 +2,7 @@
 import React from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { SpeseList } from '@/components/spese/SpeseList';
-import { SpesaModal } from '@/components/spese/SpesaModal';
+import { SpesaSheet } from '@/components/spese/SpesaSheet';
 import { ChevronRight, Home } from 'lucide-react';
 
 export default function SpeseDipendentePage() {
@@ -26,8 +26,8 @@ export default function SpeseDipendentePage() {
                 </p>
               </div>
               
-              {/* Pulsante prominente per registrare nuova spesa */}
-              <SpesaModal />
+              {/* Pulsante per aprire il sheet */}
+              <SpesaSheet />
             </div>
           </div>
 
