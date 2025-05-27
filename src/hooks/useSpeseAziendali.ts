@@ -3,9 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { SpesaAziendale, MovimentoFormData, TotaliMese } from '@/lib/types/spese-aziendali';
 import { toast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useSpeseAziendali = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const fetchMovimenti = useQuery({
     queryKey: ['spese-aziendali'],
@@ -28,7 +30,10 @@ export const useSpeseAziendali = () => {
     mutationFn: async (data: MovimentoFormData) => {
       const { data: result, error } = await supabase
         .from('spese_aziendali')
-        .insert([data])
+        .insert([{
+          ...data,
+          created_by: user?.id || ''
+        }])
         .select()
         .single();
 

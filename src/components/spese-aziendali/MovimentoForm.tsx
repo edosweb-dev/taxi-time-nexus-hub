@@ -19,6 +19,7 @@ import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { MovimentoFormData } from '@/lib/types/spese-aziendali';
 
 const formSchema = z.object({
   data_movimento: z.string(),
@@ -68,14 +69,18 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
   });
 
   const tipologia = form.watch('tipologia');
-  const isPending = form.watch('is_pending');
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const formData = {
-      ...values,
-      stato_pagamento: (values.tipologia === 'spesa' && values.is_pending) ? 'pending' as const : 'completato' as const,
+    const formData: MovimentoFormData = {
+      data_movimento: values.data_movimento,
+      importo: values.importo,
+      causale: values.causale,
+      tipologia: values.tipologia,
+      modalita_pagamento_id: values.modalita_pagamento_id,
+      socio_id: values.socio_id || undefined,
+      note: values.note || undefined,
+      stato_pagamento: (values.tipologia === 'spesa' && values.is_pending) ? 'pending' : 'completato',
     };
-    delete formData.is_pending;
 
     await addMovimento.mutateAsync(formData);
     onSuccess();
