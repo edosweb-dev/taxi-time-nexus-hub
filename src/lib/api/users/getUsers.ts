@@ -7,33 +7,16 @@ export async function getUsers(): Promise<Profile[]> {
     // Log debug completi
     console.log("[getUsers] Iniziando il recupero degli utenti dalla tabella profiles");
     
-    // Includiamo anche l'email dell'utente dalla tabella auth.users
+    // Query semplice senza join problematici
     const { data, error } = await supabase
       .from('profiles')
-      .select(`
-        *,
-        email:auth.users(email)
-      `)
+      .select('*')
       .order('last_name', { ascending: true });
 
     if (error) {
       console.error('[getUsers] Errore nel recupero degli utenti:', error);
       console.error('[getUsers] Dettagli completi errore:', JSON.stringify(error, null, 2));
-      
-      // Fallback: proviamo senza join se la query con join fallisce
-      console.log('[getUsers] Tentativo fallback senza join email');
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('last_name', { ascending: true });
-      
-      if (fallbackError) {
-        console.error('[getUsers] Anche il fallback è fallito:', fallbackError);
-        throw fallbackError;
-      }
-      
-      console.log(`[getUsers] Fallback riuscito, recuperati ${fallbackData?.length || 0} utenti senza email`);
-      return fallbackData as Profile[] || [];
+      throw error;
     }
     
     if (!data || data.length === 0) {
@@ -45,6 +28,7 @@ export async function getUsers(): Promise<Profile[]> {
       // Verifichiamo i valori effettivi dei campi critici
       const missingFirstNames = data.filter(user => !user.first_name).length;
       const missingLastNames = data.filter(user => !user.last_name).length;
+      const missingEmails = data.filter(user => !user.email).length;
       const roleDistribution = data.reduce((acc, user) => {
         acc[user.role] = (acc[user.role] || 0) + 1;
         return acc;
@@ -52,6 +36,7 @@ export async function getUsers(): Promise<Profile[]> {
       
       console.log(`[getUsers] Utenti senza first_name: ${missingFirstNames}`);
       console.log(`[getUsers] Utenti senza last_name: ${missingLastNames}`);
+      console.log(`[getUsers] Utenti senza email: ${missingEmails}`);
       console.log(`[getUsers] Distribuzione dei ruoli:`, roleDistribution);
     }
     
@@ -67,10 +52,7 @@ export async function getUserById(id: string): Promise<Profile | null> {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select(`
-        *,
-        email:auth.users(email)
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 

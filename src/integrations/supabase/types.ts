@@ -261,6 +261,7 @@ export type Database = {
       profiles: {
         Row: {
           azienda_id: string | null
+          email: string | null
           first_name: string | null
           id: string
           last_name: string | null
@@ -268,6 +269,7 @@ export type Database = {
         }
         Insert: {
           azienda_id?: string | null
+          email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
@@ -275,6 +277,7 @@ export type Database = {
         }
         Update: {
           azienda_id?: string | null
+          email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
