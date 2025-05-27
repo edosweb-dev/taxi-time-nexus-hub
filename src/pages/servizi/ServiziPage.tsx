@@ -1,100 +1,36 @@
 
-import { MainLayout } from "@/components/layouts/MainLayout";
-import { ServiziContent } from "@/components/servizi/page/ServiziContent";
-import { ServiziHeader } from "@/components/servizi/page/ServiziHeader";
-import { ServiziDialogManager } from "@/components/servizi/page/ServiziDialogManager";
-import { useServiziPage } from "@/hooks/useServiziPage";
-import { useState } from "react";
-import { CalendarView } from "@/components/servizi/calendar/CalendarView";
-import { Servizio } from "@/lib/types/servizi";
+import React from 'react';
+import { MainLayout } from '@/components/layouts/MainLayout';
+import { ServiziContent } from '@/components/servizi/page/ServiziContent';
+import { ServiziDialogManager } from '@/components/servizi/page/ServiziDialogManager';
+import { ChevronRight, Home } from 'lucide-react';
 
 export default function ServiziPage() {
-  const {
-    servizi,
-    isLoading,
-    error,
-    users,
-    isAdminOrSocio,
-    isMobile,
-    refetch,
-    handleNavigateToDetail,
-    handleNavigateToNewServizio,
-  } = useServiziPage();
-
-  const [showCalendarView, setShowCalendarView] = useState(false);
-  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
-  const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
-  const [showCompletaDialog, setShowCompletaDialog] = useState(false);
-  const [showFirmaDialog, setShowFirmaDialog] = useState(false);
-  
-  const handleShowCalendarView = () => {
-    setShowCalendarView(!showCalendarView);
-  };
-
-  const handleSelectServizio = (servizio: Servizio) => {
-    setSelectedServizio(servizio);
-    setShowAssegnazioneDialog(true);
-  };
-  
-  const handleCompleta = (servizio: Servizio) => {
-    setSelectedServizio(servizio);
-    setShowCompletaDialog(true);
-  };
-  
-  const handleFirma = (servizio: Servizio) => {
-    setSelectedServizio(servizio);
-    setShowFirmaDialog(true);
-  };
-
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <ServiziHeader 
-          onShowCalendarView={handleShowCalendarView} 
-          onCreateNewServizio={handleNavigateToNewServizio}
-          isCalendarViewActive={showCalendarView}
-        />
-        
-        {showCalendarView ? (
-          <CalendarView 
-            servizi={servizi}
-            users={users}
-            onNavigateToDetail={handleNavigateToDetail}
-            allServizi={servizi}
-          />
-        ) : (
-          <ServiziContent 
-            servizi={servizi}
-            users={users}
-            isLoading={isLoading}
-            error={error}
-            isAdminOrSocio={isAdminOrSocio}
-            isMobile={isMobile}
-            onNavigateToDetail={handleNavigateToDetail}
-            onNavigateToNewServizio={handleNavigateToNewServizio}
-            onSelectServizio={handleSelectServizio}
-            onCompleta={handleCompleta}
-            onFirma={handleFirma}
-            allServizi={servizi}
-          />
-        )}
-        
-        <ServiziDialogManager 
-          onRefetch={refetch}
-          selectedServizio={selectedServizio}
-          showAssegnazioneDialog={showAssegnazioneDialog}
-          setShowAssegnazioneDialog={setShowAssegnazioneDialog}
-          showCompletaDialog={showCompletaDialog}
-          setShowCompletaDialog={setShowCompletaDialog}
-          showFirmaDialog={showFirmaDialog}
-          setShowFirmaDialog={setShowFirmaDialog}
-          onClose={() => {
-            setShowAssegnazioneDialog(false);
-            setShowCompletaDialog(false);
-            setShowFirmaDialog(false);
-            setSelectedServizio(null);
-          }}
-        />
+      <div className="min-h-screen bg-gray-50/30">
+        <div className="container mx-auto p-4 md:p-6 space-y-6">
+          {/* Header con breadcrumb */}
+          <div className="space-y-4">
+            <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Home className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
+              <span className="font-medium text-foreground">Servizi</span>
+            </nav>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Servizi</h1>
+                <p className="text-muted-foreground text-lg">
+                  Gestisci i servizi di trasporto
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <ServiziContent />
+          <ServiziDialogManager />
+        </div>
       </div>
     </MainLayout>
   );

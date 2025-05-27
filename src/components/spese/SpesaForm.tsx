@@ -69,7 +69,16 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
   };
 
   const onSubmit = (data: SpesaFormData) => {
-    addSpesa(data, {
+    // Ensure all required fields are present
+    const submitData = {
+      user_id: data.user_id,
+      importo: data.importo,
+      causale: data.causale,
+      note: data.note,
+      data_spesa: data.data_spesa
+    };
+
+    addSpesa(submitData, {
       onSuccess: () => {
         form.reset();
         setImportoInput('');
