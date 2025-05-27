@@ -113,7 +113,7 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data || [];
+      return (data || []) as SpesaDipendente[];
     },
     enabled: !!profile
   });
@@ -137,7 +137,7 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as SpesaDipendente;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spese-dipendenti'] });
@@ -167,7 +167,7 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as SpesaDipendente;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spese-dipendenti'] });

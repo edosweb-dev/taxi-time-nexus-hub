@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -39,13 +39,14 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
   const { profile } = useAuth();
   const { addSpesa, isAddingSpesa } = useSpeseDipendenti();
   const { data: dipendenti = [] } = useDipendenti();
+  const [importoInput, setImportoInput] = useState('');
 
   const isAdminOrSocio = ['admin', 'socio'].includes(profile?.role || '');
 
   const form = useForm<SpesaFormData>({
     resolver: zodResolver(spesaSchema),
     defaultValues: {
-      user_id: !isAdminOrSocio ? profile?.id : undefined,
+      user_id: isAdminOrSocio ? '' : profile?.id,
       importo: 0,
       causale: '',
       note: '',
@@ -53,16 +54,25 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
     }
   });
 
+  const formatCurrency = (value: string) => {
+    const number = parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.'));
+    if (isNaN(number)) return '';
+    return number.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const handleImportoChange = (value: string) => {
+    setImportoInput(value);
+    const number = parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.'));
+    if (!isNaN(number)) {
+      form.setValue('importo', number);
+    }
+  };
+
   const onSubmit = (data: SpesaFormData) => {
-    addSpesa({
-      user_id: data.user_id,
-      importo: data.importo,
-      causale: data.causale,
-      note: data.note,
-      data_spesa: data.data_spesa
-    }, {
+    addSpesa(data, {
       onSuccess: () => {
         form.reset();
+        setImportoInput('');
         onSuccess?.();
       }
     });
@@ -77,17 +87,17 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
             name="user_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base font-medium">Registra spesa per *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <FormLabel>Registra spesa per</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleziona un dipendente" />
+                      <SelectValue placeholder="Seleziona dipendente" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {dipendenti.map((dipendente) => (
                       <SelectItem key={dipendente.id} value={dipendente.id}>
-                        {dipendente.first_name} {dipendente.last_name}
+                        {`${dipendente.first_name || ''} ${dipendente.last_name || ''}`.trim() || 'Dipendente senza nome'}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -103,13 +113,9 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
           name="data_spesa"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-medium">Data spesa *</FormLabel>
+              <FormLabel>Data spesa</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  className="h-12 border-2 border-gray-200 focus:border-primary"
-                  {...field}
-                />
+                <Input type="date" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -121,23 +127,24 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
           name="importo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-medium">Importo *</FormLabel>
+              <FormLabel>Importo</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground text-lg font-medium">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground text-lg">
                     €
                   </span>
                   <Input
-                    type="number"
-                    step="0.01"
+                    type="text"
                     placeholder="0,00"
-                    className="pl-10 h-14 text-xl font-medium border-2 border-gray-200 focus:border-primary"
-                    {...field}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value) || 0;
-                      field.onChange(value);
-                    }}
+                    className="pl-8 text-lg font-semibold"
+                    value={importoInput}
+                    onChange={(e) => handleImportoChange(e.target.value)}
                   />
+                  {importoInput && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+                      € {formatCurrency(importoInput)}
+                    </div>
+                  )}
                 </div>
               </FormControl>
               <FormMessage />
@@ -150,13 +157,9 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
           name="causale"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-medium">Causale *</FormLabel>
+              <FormLabel>Causale</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Descrizione della spesa..."
-                  className="h-12 border-2 border-gray-200 focus:border-primary"
-                  {...field}
-                />
+                <Input placeholder="Descrivi la spesa..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -168,11 +171,11 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
           name="note"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-medium">Note (opzionale)</FormLabel>
+              <FormLabel>Note (opzionale)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Note aggiuntive..."
-                  className="resize-none border-2 border-gray-200 focus:border-primary"
+                  placeholder="Aggiungi eventuali note..."
+                  className="resize-none"
                   rows={3}
                   {...field}
                 />
@@ -182,18 +185,20 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
           )}
         />
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button 
-            type="submit" 
-            disabled={isAddingSpesa}
-            className="px-8 h-12 text-base font-medium bg-primary hover:bg-primary/90"
-          >
-            {isAddingSpesa ? (
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            ) : null}
-            {isAddingSpesa ? 'Registrando...' : 'Registra spesa'}
-          </Button>
-        </div>
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={isAddingSpesa}
+        >
+          {isAddingSpesa ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Registrazione in corso...
+            </>
+          ) : (
+            'Registra spesa'
+          )}
+        </Button>
       </form>
     </Form>
   );

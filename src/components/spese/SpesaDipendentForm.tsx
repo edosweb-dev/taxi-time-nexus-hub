@@ -27,6 +27,8 @@ const spesaSchema = z.object({
 
 type SpesaFormData = z.infer<typeof spesaSchema>;
 
+// This component is now deprecated - functionality moved to SpesaForm and SpesaModal
+// Keeping file to avoid import errors, but it's no longer used
 export function SpesaDipendentForm() {
   return null;
 }

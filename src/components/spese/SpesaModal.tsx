@@ -19,6 +19,8 @@ export function SpesaModal({ onSpesaAdded }: SpesaModalProps) {
     onSpesaAdded?.();
   };
 
+  const isAdminOrSocio = ['admin', 'socio'].includes(profile?.role || '');
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -30,7 +32,7 @@ export function SpesaModal({ onSpesaAdded }: SpesaModalProps) {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {['admin', 'socio'].includes(profile?.role || '') ? 'Registra spesa dipendente' : 'Registra nuova spesa'}
+            {isAdminOrSocio ? 'Registra spesa dipendente' : 'Registra nuova spesa'}
           </DialogTitle>
         </DialogHeader>
         <SpesaForm onSuccess={handleSpesaAdded} />
