@@ -585,6 +585,44 @@ export type Database = {
         }
         Relationships: []
       }
+      spese_dipendenti: {
+        Row: {
+          causale: string
+          converted_to_spesa_aziendale: boolean
+          created_at: string
+          id: string
+          importo: number
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          causale: string
+          converted_to_spesa_aziendale?: boolean
+          created_at?: string
+          id?: string
+          importo: number
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          causale?: string
+          converted_to_spesa_aziendale?: boolean
+          created_at?: string
+          id?: string
+          importo?: number
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spese_dipendenti_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spese_personali: {
         Row: {
           causale: string

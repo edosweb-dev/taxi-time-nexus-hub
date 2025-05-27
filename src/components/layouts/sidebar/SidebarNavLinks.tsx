@@ -15,7 +15,8 @@ import {
   Car, 
   FileBarChart,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
@@ -63,6 +64,7 @@ export function SidebarNavLinks() {
         { title: 'Nuovo Servizio', path: '/nuovo-servizio', icon: FilePlus },
         { title: 'Turni', path: '/turni', icon: Calendar },
         { title: 'Spese', path: '/spese', icon: CreditCard },
+        { title: 'Report Spese', path: '/spese-aziendali', icon: FileText },
         { title: 'Movimenti', path: '/movimenti', icon: Wallet },
         { title: 'Veicoli', path: '/veicoli', icon: Car }
       ]
@@ -95,7 +97,7 @@ export function SidebarNavLinks() {
       title: 'Operazioni',
       items: [
         { title: 'Servizi', path: '/servizi', icon: ClipboardList },
-        { title: 'Spese', path: '/spese', icon: CreditCard }
+        { title: 'Le mie spese', path: '/spese-dipendente', icon: Wallet }
       ]
     }
   ];

@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/sonner";
@@ -19,6 +18,8 @@ import ServizioDetailPage from './pages/servizi/ServizioDetailPage';
 import VeicoliPage from './pages/veicoli/VeicoliPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ImpostazioniPage from './pages/ImpostazioniPage';
+import SpeseDipendentePage from './pages/SpeseDipendentePage';
+import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 
 // Create a client
 const queryClient = new QueryClient({

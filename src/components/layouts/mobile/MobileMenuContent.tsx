@@ -9,7 +9,8 @@ import {
   Building, 
   Users, 
   Settings, 
-  UserCircle 
+  UserCircle,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,6 +40,8 @@ export function MobileMenuContent() {
       items: [
         { title: 'Nuovo Servizio', path: '/nuovo-servizio', icon: FilePlus, roles: ['admin', 'socio'] },
         { title: 'Turni', path: '/turni', icon: Calendar, roles: ['admin', 'socio'] },
+        { title: 'Le mie spese', path: '/spese-dipendente', icon: Wallet, roles: ['dipendente'] },
+        { title: 'Report Spese', path: '/spese-aziendali', icon: FileText, roles: ['admin', 'socio'] },
         { title: 'Movimenti', path: '/movimenti', icon: Wallet, roles: ['admin', 'socio'] },
         { title: 'Veicoli', path: '/veicoli', icon: Car, roles: ['admin', 'socio'] }
       ]
