@@ -133,7 +133,7 @@ export function UserForm({
         <UserEmailField 
           control={form.control} 
           isEditing={isEditing} 
-          userEmail={user?.email || undefined}
+          userEmail={user?.email}
         />
         <UserRoleField 
           control={form.control} 

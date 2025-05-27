@@ -18,12 +18,12 @@ interface UserEmailFieldProps {
 
 export function UserEmailField({ control, isEditing = false, userEmail }: UserEmailFieldProps) {
   // Se stiamo modificando un utente esistente, mostriamo l'email in sola lettura
-  if (isEditing && userEmail) {
+  if (isEditing) {
     return (
       <div className="space-y-2">
         <FormLabel>Email</FormLabel>
         <Input
-          value={userEmail}
+          value={userEmail || 'Email non disponibile'}
           disabled
           className="bg-muted"
           placeholder="Email non disponibile"
