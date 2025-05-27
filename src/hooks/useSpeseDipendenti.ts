@@ -11,24 +11,48 @@ export interface SpesaDipendente {
   causale: string;
   note?: string;
   created_at: string;
+  data_spesa: string;
+  stato: 'in_attesa' | 'approvata' | 'non_autorizzata' | 'in_revisione';
+  registered_by: string;
+  approved_by?: string;
+  approved_at?: string;
+  note_revisione?: string;
   converted_to_spesa_aziendale: boolean;
-  // Dati del profilo quando fetchati insieme
-  profiles?: {
+  // Dati dei profili quando fetchati insieme
+  user_profile?: {
+    first_name: string | null;
+    last_name: string | null;
+  };
+  registered_by_profile?: {
+    first_name: string | null;
+    last_name: string | null;
+  };
+  approved_by_profile?: {
     first_name: string | null;
     last_name: string | null;
   };
 }
 
 export interface CreateSpesaData {
+  user_id?: string; // Per admin/socio che registrano per altri
   importo: number;
   causale: string;
   note?: string;
+  data_spesa?: string;
+}
+
+export interface UpdateSpesaStatusData {
+  id: string;
+  stato: 'in_attesa' | 'approvata' | 'non_autorizzata' | 'in_revisione';
+  note_revisione?: string;
 }
 
 export interface SpeseFilters {
   user_id?: string;
+  stato?: string;
   startDate?: string;
   endDate?: string;
+  registered_by?: string;
 }
 
 export function useSpeseDipendenti(filters?: SpeseFilters) {
@@ -50,29 +74,40 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
         .from('spese_dipendenti')
         .select(`
           *,
-          profiles:user_id (
+          user_profile:profiles!user_id (
+            first_name,
+            last_name
+          ),
+          registered_by_profile:profiles!registered_by (
+            first_name,
+            last_name
+          ),
+          approved_by_profile:profiles!approved_by (
             first_name,
             last_name
           )
         `)
         .order('created_at', { ascending: false });
 
-      // Se è un dipendente, mostra solo le sue spese
-      if (profile.role === 'dipendente') {
-        query = query.eq('user_id', profile.id);
-      }
-
-      // Applicazione filtri per admin/socio
-      if (filters?.user_id && ['admin', 'socio'].includes(profile.role)) {
+      // Applicazione filtri
+      if (filters?.user_id) {
         query = query.eq('user_id', filters.user_id);
       }
 
+      if (filters?.stato) {
+        query = query.eq('stato', filters.stato);
+      }
+
+      if (filters?.registered_by) {
+        query = query.eq('registered_by', filters.registered_by);
+      }
+
       if (filters?.startDate) {
-        query = query.gte('created_at', filters.startDate);
+        query = query.gte('data_spesa', filters.startDate);
       }
 
       if (filters?.endDate) {
-        query = query.lte('created_at', filters.endDate);
+        query = query.lte('data_spesa', filters.endDate);
       }
 
       const { data, error } = await query;
@@ -91,10 +126,12 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
       const { data, error } = await supabase
         .from('spese_dipendenti')
         .insert({
-          user_id: profile.id,
+          user_id: spesaData.user_id || profile.id,
           importo: spesaData.importo,
           causale: spesaData.causale,
-          note: spesaData.note || null
+          note: spesaData.note || null,
+          data_spesa: spesaData.data_spesa || new Date().toISOString().split('T')[0],
+          registered_by: profile.id
         })
         .select()
         .single();
@@ -112,6 +149,36 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
     }
   });
 
+  // Mutation per aggiornare lo stato di una spesa
+  const updateSpesaStatusMutation = useMutation({
+    mutationFn: async (updateData: UpdateSpesaStatusData): Promise<SpesaDipendente> => {
+      if (!profile) throw new Error('Utente non autenticato');
+
+      const { data, error } = await supabase
+        .from('spese_dipendenti')
+        .update({
+          stato: updateData.stato,
+          approved_by: profile.id,
+          approved_at: new Date().toISOString(),
+          note_revisione: updateData.note_revisione || null
+        })
+        .eq('id', updateData.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spese-dipendenti'] });
+      toast.success('Stato spesa aggiornato con successo');
+    },
+    onError: (error: any) => {
+      console.error('Errore durante l\'aggiornamento dello stato:', error);
+      toast.error('Errore durante l\'aggiornamento dello stato');
+    }
+  });
+
   // Query per le statistiche del mese corrente (solo per dipendenti)
   const { data: statsCurrentMonth } = useQuery({
     queryKey: ['spese-stats-current-month', profile?.id],
@@ -126,7 +193,7 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
         .from('spese_dipendenti')
         .select('importo')
         .eq('user_id', profile.id)
-        .gte('created_at', startOfMonth.toISOString());
+        .gte('data_spesa', startOfMonth.toISOString().split('T')[0]);
 
       if (error) throw error;
 
@@ -143,11 +210,13 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
     refetch,
     addSpesa: addSpesaMutation.mutate,
     isAddingSpesa: addSpesaMutation.isPending,
+    updateSpesaStatus: updateSpesaStatusMutation.mutate,
+    isUpdatingSpesaStatus: updateSpesaStatusMutation.isPending,
     statsCurrentMonth
   };
 }
 
-// Hook specifico per ottenere gli utenti dipendenti (per i filtri admin/socio)
+// Hook per ottenere gli utenti dipendenti (per i filtri e select admin/socio)
 export function useDipendenti() {
   const { profile } = useAuth();
 

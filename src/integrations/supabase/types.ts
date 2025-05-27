@@ -587,33 +587,65 @@ export type Database = {
       }
       spese_dipendenti: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           causale: string
           converted_to_spesa_aziendale: boolean
           created_at: string
+          data_spesa: string | null
           id: string
           importo: number
           note: string | null
+          note_revisione: string | null
+          registered_by: string
+          stato: string | null
           user_id: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           causale: string
           converted_to_spesa_aziendale?: boolean
           created_at?: string
+          data_spesa?: string | null
           id?: string
           importo: number
           note?: string | null
+          note_revisione?: string | null
+          registered_by: string
+          stato?: string | null
           user_id: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           causale?: string
           converted_to_spesa_aziendale?: boolean
           created_at?: string
+          data_spesa?: string | null
           id?: string
           importo?: number
           note?: string | null
+          note_revisione?: string | null
+          registered_by?: string
+          stato?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "spese_dipendenti_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spese_dipendenti_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "spese_dipendenti_user_id_fkey"
             columns: ["user_id"]

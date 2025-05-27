@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { SpesaDipendentForm } from '@/components/spese/SpesaDipendentForm';
-import { SpeseDipendentiList } from '@/components/spese/SpeseDipendentiList';
+import { SpeseList } from '@/components/spese/SpeseList';
+import { SpesaModal } from '@/components/spese/SpesaModal';
 import { ChevronRight, Home } from 'lucide-react';
 
 export default function SpeseDipendentePage() {
@@ -18,27 +18,21 @@ export default function SpeseDipendentePage() {
               <span className="font-medium text-foreground">Le mie spese</span>
             </nav>
             
-            <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Le mie spese</h1>
-              <p className="text-muted-foreground text-lg">
-                Gestisci e monitora le tue spese personali
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-            {/* Form inserimento spesa - 40% width su desktop */}
-            <div className="lg:col-span-2">
-              <div className="sticky top-6">
-                <SpesaDipendentForm />
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Le mie spese</h1>
+                <p className="text-muted-foreground text-lg">
+                  Gestisci e monitora le tue spese personali
+                </p>
               </div>
-            </div>
-
-            {/* Lista storico spese - 60% width su desktop */}
-            <div className="lg:col-span-3">
-              <SpeseDipendentiList />
+              
+              {/* Pulsante prominente per registrare nuova spesa */}
+              <SpesaModal />
             </div>
           </div>
+
+          {/* Lista spese unificata */}
+          <SpeseList />
         </div>
       </div>
     </MainLayout>
