@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -118,6 +117,35 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
     enabled: !!profile
   });
 
+  // Query per le spese convertibili (approvate e non ancora convertite)
+  const {
+    data: speseConvertibili = [],
+    isLoading: isLoadingSpeseConvertibili,
+    refetch: refetchSpeseConvertibili
+  } = useQuery({
+    queryKey: ['spese-dipendenti-convertibili'],
+    queryFn: async (): Promise<SpesaDipendente[]> => {
+      if (!profile) throw new Error('Utente non autenticato');
+
+      const { data, error } = await supabase
+        .from('spese_dipendenti')
+        .select(`
+          *,
+          user_profile:profiles!user_id (
+            first_name,
+            last_name
+          )
+        `)
+        .eq('stato', 'approvata')
+        .eq('converted_to_spesa_aziendale', false)
+        .order('data_spesa', { ascending: false });
+
+      if (error) throw error;
+      return (data || []) as SpesaDipendente[];
+    },
+    enabled: !!profile && ['admin', 'socio'].includes(profile.role)
+  });
+
   // Mutation per aggiungere una spesa
   const addSpesaMutation = useMutation({
     mutationFn: async (spesaData: CreateSpesaData): Promise<SpesaDipendente> => {
@@ -212,7 +240,10 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
     isAddingSpesa: addSpesaMutation.isPending,
     updateSpesaStatus: updateSpesaStatusMutation.mutate,
     isUpdatingSpesaStatus: updateSpesaStatusMutation.isPending,
-    statsCurrentMonth
+    statsCurrentMonth,
+    speseConvertibili,
+    isLoadingSpeseConvertibili,
+    refetchSpeseConvertibili
   };
 }
 

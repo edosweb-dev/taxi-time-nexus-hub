@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { SpesaAziendale, MovimentoFormData, TotaliMese } from '@/lib/types/spese-aziendali';
@@ -77,6 +76,82 @@ export const useSpeseAziendali = () => {
     },
   });
 
+  // Mutation per convertire spese dipendenti in incassi aziendali
+  const convertiSpeseDipendenti = useMutation({
+    mutationFn: async (speseIds: string[]) => {
+      if (!user?.id) throw new Error('Utente non autenticato');
+
+      // Inizia transazione manuale
+      const { data: spese, error: fetchError } = await supabase
+        .from('spese_dipendenti')
+        .select('*')
+        .in('id', speseIds)
+        .eq('stato', 'approvata')
+        .eq('converted_to_spesa_aziendale', false);
+
+      if (fetchError) throw fetchError;
+      if (!spese || spese.length === 0) throw new Error('Nessuna spesa valida trovata');
+
+      // Ottieni modalità pagamento "Fondo Cassa" o la prima disponibile
+      const { data: modalita, error: modalitaError } = await supabase
+        .from('modalita_pagamenti')
+        .select('id')
+        .eq('attivo', true)
+        .order('nome')
+        .limit(1)
+        .single();
+
+      if (modalitaError) throw modalitaError;
+
+      // Crea movimenti aziendali per ogni spesa
+      const movimenti = spese.map(spesa => ({
+        data_movimento: new Date().toISOString().split('T')[0],
+        importo: spesa.importo,
+        causale: `Conversione spesa dipendente - ${spesa.causale}`,
+        tipologia: 'incasso' as const,
+        modalita_pagamento_id: modalita.id,
+        stato_pagamento: 'completato' as const,
+        note: `Convertito da spesa dipendente ID: ${spesa.id}`,
+        created_by: user.id
+      }));
+
+      // Inserisci movimenti aziendali
+      const { error: insertError } = await supabase
+        .from('spese_aziendali')
+        .insert(movimenti);
+
+      if (insertError) throw insertError;
+
+      // Aggiorna spese dipendenti come convertite
+      const { error: updateError } = await supabase
+        .from('spese_dipendenti')
+        .update({ converted_to_spesa_aziendale: true })
+        .in('id', speseIds);
+
+      if (updateError) throw updateError;
+
+      return { convertedCount: spese.length, totalAmount: spese.reduce((sum, s) => sum + Number(s.importo), 0) };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
+      queryClient.invalidateQueries({ queryKey: ['spese-dipendenti'] });
+      queryClient.invalidateQueries({ queryKey: ['spese-dipendenti-convertibili'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-count'] });
+      queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      toast({
+        title: "Conversione completata",
+        description: `${result.convertedCount} spese convertite per un totale di €${result.totalAmount.toFixed(2)}`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore nella conversione",
+        description: error.message || "Errore durante la conversione delle spese.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const getPendingCount = useQuery({
     queryKey: ['pending-count'],
     queryFn: async () => {
@@ -135,6 +210,7 @@ export const useSpeseAziendali = () => {
     error: fetchMovimenti.error,
     addMovimento,
     updateStatoPagamento,
+    convertiSpeseDipendenti,
     pendingCount: getPendingCount.data || 0,
     totaliMese: getTotaliMese.data,
   };
