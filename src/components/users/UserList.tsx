@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { 
   Table, 
@@ -26,9 +25,19 @@ interface UserListProps {
   onDelete: (user: Profile) => void;
   onAddUser: () => void;
   currentUserId: string;
+  title?: string;
+  description?: string;
 }
 
-export function UserList({ users, onEdit, onDelete, onAddUser, currentUserId }: UserListProps) {
+export function UserList({ 
+  users, 
+  onEdit, 
+  onDelete, 
+  onAddUser, 
+  currentUserId, 
+  title = "Utenti",
+  description 
+}: UserListProps) {
   // Log quando la lista degli utenti cambia
   useEffect(() => {
     console.log('[UserList] Lista utenti ricevuta, numero utenti:', users.length);
@@ -93,7 +102,12 @@ export function UserList({ users, onEdit, onDelete, onAddUser, currentUserId }: 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Utenti</h2>
+        <div>
+          <h2 className="text-xl font-bold">{title}</h2>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
         <Button onClick={onAddUser}>
           <UserPlusIcon className="mr-2 h-4 w-4" />
           Nuovo Utente

@@ -10,6 +10,7 @@ import { Profile } from '@/lib/types';
 import { UserFormData } from '@/lib/api/users/types';
 import { toast } from '@/components/ui/use-toast';
 import { createUser, updateUser, deleteUser } from '@/lib/api/users';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function UsersPage() {
   const { users, isLoading, refetch } = useUsers();
@@ -76,6 +77,10 @@ export default function UsersPage() {
     }
   };
 
+  // Filter users by role
+  const clienti = users.filter(user => user.role === 'cliente');
+  const utenti = users.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role));
+
   return (
     <MainLayout>
       <div className="min-h-screen bg-gray-50/30">
@@ -98,13 +103,36 @@ export default function UsersPage() {
             </div>
           </div>
 
-          <UserList 
-            users={users}
-            onEdit={handleEditUser}
-            onDelete={handleDeleteUser}
-            onAddUser={handleAddUser}
-            currentUserId={profile?.id || ''}
-          />
+          <Tabs defaultValue="utenti" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="utenti">Utenti</TabsTrigger>
+              <TabsTrigger value="clienti">Clienti</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="utenti" className="space-y-4">
+              <UserList 
+                users={utenti}
+                onEdit={handleEditUser}
+                onDelete={handleDeleteUser}
+                onAddUser={handleAddUser}
+                currentUserId={profile?.id || ''}
+                title="Utenti"
+                description="Amministratori, soci e dipendenti"
+              />
+            </TabsContent>
+            
+            <TabsContent value="clienti" className="space-y-4">
+              <UserList 
+                users={clienti}
+                onEdit={handleEditUser}
+                onDelete={handleDeleteUser}
+                onAddUser={handleAddUser}
+                currentUserId={profile?.id || ''}
+                title="Clienti"
+                description="Utenti clienti del sistema"
+              />
+            </TabsContent>
+          </Tabs>
 
           <UserDialog
             isOpen={isDialogOpen}
