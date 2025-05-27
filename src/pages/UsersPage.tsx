@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { UserList } from '@/components/users/UserList';
@@ -138,6 +139,7 @@ export default function UsersPage() {
                 currentUserId={profile?.id || ''}
                 title="Clienti"
                 description="Utenti clienti del sistema"
+                showEmailColumn={true}
               />
             </TabsContent>
           </Tabs>

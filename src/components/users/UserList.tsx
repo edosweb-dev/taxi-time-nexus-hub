@@ -32,6 +32,7 @@ interface UserListProps {
   showRoleFilter?: boolean;
   selectedRole?: UserRole | 'all';
   onRoleChange?: (role: UserRole | 'all') => void;
+  showEmailColumn?: boolean;
 }
 
 export function UserList({ 
@@ -44,7 +45,8 @@ export function UserList({
   description,
   showRoleFilter = false,
   selectedRole = 'all',
-  onRoleChange
+  onRoleChange,
+  showEmailColumn = false
 }: UserListProps) {
   // Log quando la lista degli utenti cambia
   useEffect(() => {
@@ -135,6 +137,7 @@ export function UserList({
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead>Cognome</TableHead>
+            {showEmailColumn && <TableHead>Email</TableHead>}
             <TableHead>Ruolo</TableHead>
             <TableHead className="text-right">Azioni</TableHead>
           </TableRow>
@@ -142,7 +145,7 @@ export function UserList({
         <TableBody>
           {users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={showEmailColumn ? 5 : 4} className="text-center py-8 text-muted-foreground">
                 Nessun utente trovato. Creane uno!
               </TableCell>
             </TableRow>
@@ -151,6 +154,7 @@ export function UserList({
               <TableRow key={user.id}>
                 <TableCell>{user.first_name || '-'}</TableCell>
                 <TableCell>{user.last_name || '-'}</TableCell>
+                {showEmailColumn && <TableCell>{user.email || '-'}</TableCell>}
                 <TableCell>
                   <div className="flex items-center gap-2">
                     {user.role ? getRoleIcon(user.role) : null}
