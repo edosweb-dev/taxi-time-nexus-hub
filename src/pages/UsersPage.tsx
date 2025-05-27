@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { UserList } from '@/components/users/UserList';
@@ -6,7 +5,7 @@ import { UserDialog } from '@/components/users/UserDialog';
 import { ChevronRight, Home } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { useAuth } from '@/contexts/AuthContext';
-import { Profile } from '@/lib/types';
+import { Profile, UserRole } from '@/lib/types';
 import { UserFormData } from '@/lib/api/users/types';
 import { toast } from '@/components/ui/use-toast';
 import { createUser, updateUser, deleteUser } from '@/lib/api/users';
@@ -18,6 +17,7 @@ export default function UsersPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
 
   const handleAddUser = () => {
     setSelectedUser(null);
@@ -80,6 +80,11 @@ export default function UsersPage() {
   // Filter users by role
   const clienti = users.filter(user => user.role === 'cliente');
   const utenti = users.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role));
+  
+  // Filter utenti based on selected role
+  const filteredUtenti = selectedRole === 'all' 
+    ? utenti 
+    : utenti.filter(user => user.role === selectedRole);
 
   return (
     <MainLayout>
@@ -111,13 +116,16 @@ export default function UsersPage() {
             
             <TabsContent value="utenti" className="space-y-4">
               <UserList 
-                users={utenti}
+                users={filteredUtenti}
                 onEdit={handleEditUser}
                 onDelete={handleDeleteUser}
                 onAddUser={handleAddUser}
                 currentUserId={profile?.id || ''}
                 title="Utenti"
                 description="Amministratori, soci e dipendenti"
+                showRoleFilter={true}
+                selectedRole={selectedRole}
+                onRoleChange={setSelectedRole}
               />
             </TabsContent>
             

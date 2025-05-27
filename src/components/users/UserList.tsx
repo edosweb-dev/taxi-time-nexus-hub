@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { 
   Table, 
@@ -17,7 +18,8 @@ import {
   Users2Icon, 
   ShoppingBagIcon 
 } from 'lucide-react';
-import { Profile } from '@/lib/types';
+import { Profile, UserRole } from '@/lib/types';
+import { UserRoleFilter } from './UserRoleFilter';
 
 interface UserListProps {
   users: Profile[];
@@ -27,6 +29,9 @@ interface UserListProps {
   currentUserId: string;
   title?: string;
   description?: string;
+  showRoleFilter?: boolean;
+  selectedRole?: UserRole | 'all';
+  onRoleChange?: (role: UserRole | 'all') => void;
 }
 
 export function UserList({ 
@@ -36,7 +41,10 @@ export function UserList({
   onAddUser, 
   currentUserId, 
   title = "Utenti",
-  description 
+  description,
+  showRoleFilter = false,
+  selectedRole = 'all',
+  onRoleChange
 }: UserListProps) {
   // Log quando la lista degli utenti cambia
   useEffect(() => {
@@ -113,6 +121,14 @@ export function UserList({
           Nuovo Utente
         </Button>
       </div>
+
+      {showRoleFilter && onRoleChange && (
+        <UserRoleFilter 
+          selectedRole={selectedRole}
+          onRoleChange={onRoleChange}
+          availableRoles={['admin', 'socio', 'dipendente']}
+        />
+      )}
       
       <Table>
         <TableHeader>
