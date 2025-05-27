@@ -105,6 +105,27 @@ export type Database = {
         }
         Relationships: []
       }
+      modalita_pagamenti: {
+        Row: {
+          attivo: boolean
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          attivo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          attivo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       movimenti_aziendali: {
         Row: {
           causale: string
@@ -563,6 +584,63 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      spese_aziendali: {
+        Row: {
+          causale: string
+          created_at: string
+          created_by: string
+          data_movimento: string
+          id: string
+          importo: number
+          modalita_pagamento_id: string
+          note: string | null
+          socio_id: string | null
+          stato_pagamento: string
+          tipologia: string
+        }
+        Insert: {
+          causale: string
+          created_at?: string
+          created_by: string
+          data_movimento: string
+          id?: string
+          importo: number
+          modalita_pagamento_id: string
+          note?: string | null
+          socio_id?: string | null
+          stato_pagamento?: string
+          tipologia: string
+        }
+        Update: {
+          causale?: string
+          created_at?: string
+          created_by?: string
+          data_movimento?: string
+          id?: string
+          importo?: number
+          modalita_pagamento_id?: string
+          note?: string | null
+          socio_id?: string | null
+          stato_pagamento?: string
+          tipologia?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spese_aziendali_modalita_pagamento_id_fkey"
+            columns: ["modalita_pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "modalita_pagamenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spese_aziendali_socio_id_fkey"
+            columns: ["socio_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       spese_categorie: {
         Row: {
