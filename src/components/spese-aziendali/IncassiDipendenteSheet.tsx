@@ -89,7 +89,6 @@ export function IncassiDipendenteSheet({ open, onOpenChange }: IncassiDipendente
   };
 
   const isAllSelected = selectedSpese.length === speseConvertibili.length && speseConvertibili.length > 0;
-  const isIndeterminate = selectedSpese.length > 0 && selectedSpese.length < speseConvertibili.length;
 
   return (
     <>
@@ -134,9 +133,6 @@ export function IncassiDipendenteSheet({ open, onOpenChange }: IncassiDipendente
                   <div className="flex items-center space-x-3">
                     <Checkbox
                       checked={isAllSelected}
-                      ref={(ref) => {
-                        if (ref) ref.indeterminate = isIndeterminate;
-                      }}
                       onCheckedChange={handleSelectAll}
                     />
                     <span className="font-medium">Seleziona tutto</span>
