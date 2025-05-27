@@ -96,13 +96,22 @@ function App() {
               </AuthGuard>
             } />
             
-            {/* Nuove route aggiunte */}
+            {/* Route spese con logica basata sul ruolo */}
             <Route path="/spese" element={
               <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                <div className="p-4">
-                  <h1 className="text-2xl font-bold">Spese</h1>
-                  <p className="text-muted-foreground">Pagina in sviluppo</p>
-                </div>
+                <SpeseDipendentePage />
+              </AuthGuard>
+            } />
+            
+            <Route path="/spese-dipendente" element={
+              <AuthGuard allowedRoles={['dipendente']}>
+                <SpeseDipendentePage />
+              </AuthGuard>
+            } />
+            
+            <Route path="/spese-aziendali" element={
+              <AuthGuard allowedRoles={['admin', 'socio']}>
+                <SpeseAziendaliPage />
               </AuthGuard>
             } />
             
