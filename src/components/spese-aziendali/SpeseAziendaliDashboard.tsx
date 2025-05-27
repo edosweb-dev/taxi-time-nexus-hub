@@ -7,7 +7,6 @@ import { Plus, Users, ArrowUpDown, AlertCircle } from 'lucide-react';
 import { NuovoMovimentoSheet } from './NuovoMovimentoSheet';
 import { IncassiDipendenteSheet } from './IncassiDipendenteSheet';
 import { PagamentiPendingSheet } from './PagamentiPendingSheet';
-import { ReportMensile } from './ReportMensile';
 import { TabellaSpeseMensili } from './TabellaSpeseMensili';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 
@@ -85,9 +84,6 @@ export function SpeseAziendaliDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Report mensile */}
-      <ReportMensile />
 
       {/* Tabella spese mensili */}
       <TabellaSpeseMensili />
