@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   BarChart4, 
@@ -65,7 +64,6 @@ export function SidebarNavLinks() {
         { title: 'Turni', path: '/turni', icon: Calendar },
         { title: 'Spese', path: '/spese', icon: CreditCard },
         { title: 'Report Spese', path: '/spese-aziendali', icon: FileText },
-        { title: 'Movimenti', path: '/movimenti', icon: Wallet },
         { title: 'Veicoli', path: '/veicoli', icon: Car }
       ]
     },
