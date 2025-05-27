@@ -130,7 +130,11 @@ export function UserForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <UserNameFields control={form.control} isEditing={isEditing} />
-        <UserEmailField control={form.control} isEditing={isEditing} />
+        <UserEmailField 
+          control={form.control} 
+          isEditing={isEditing} 
+          userEmail={user?.email || undefined}
+        />
         <UserRoleField 
           control={form.control} 
           hiddenRoles={hiddenRoles} 

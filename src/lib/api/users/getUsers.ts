@@ -7,16 +7,33 @@ export async function getUsers(): Promise<Profile[]> {
     // Log debug completi
     console.log("[getUsers] Iniziando il recupero degli utenti dalla tabella profiles");
     
-    // Log della query che verrà eseguita senza toJSON() che causa errore
-    const query = supabase.from('profiles').select('*').order('last_name', { ascending: true });
-    console.log("[getUsers] Query in esecuzione:", "SELECT * FROM profiles ORDER BY last_name ASC");
-    
-    const { data, error } = await query;
+    // Includiamo anche l'email dell'utente dalla tabella auth.users
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(`
+        *,
+        email:auth.users(email)
+      `)
+      .order('last_name', { ascending: true });
 
     if (error) {
       console.error('[getUsers] Errore nel recupero degli utenti:', error);
       console.error('[getUsers] Dettagli completi errore:', JSON.stringify(error, null, 2));
-      throw error;
+      
+      // Fallback: proviamo senza join se la query con join fallisce
+      console.log('[getUsers] Tentativo fallback senza join email');
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('last_name', { ascending: true });
+      
+      if (fallbackError) {
+        console.error('[getUsers] Anche il fallback è fallito:', fallbackError);
+        throw fallbackError;
+      }
+      
+      console.log(`[getUsers] Fallback riuscito, recuperati ${fallbackData?.length || 0} utenti senza email`);
+      return fallbackData as Profile[] || [];
     }
     
     if (!data || data.length === 0) {
@@ -50,7 +67,10 @@ export async function getUserById(id: string): Promise<Profile | null> {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select(`
+        *,
+        email:auth.users(email)
+      `)
       .eq('id', id)
       .single();
 
