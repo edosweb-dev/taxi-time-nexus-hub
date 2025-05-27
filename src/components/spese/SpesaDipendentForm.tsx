@@ -34,18 +34,29 @@ export function SpesaDipendentForm() {
   const form = useForm<SpesaFormData>({
     resolver: zodResolver(spesaSchema),
     defaultValues: {
-      importo: undefined,
+      importo: 0,
       causale: '',
       note: ''
     }
   });
 
   const onSubmit = (data: SpesaFormData) => {
-    addSpesa(data, {
-      onSuccess: () => {
-        form.reset();
-      }
-    });
+    // Assicuriamoci che importo e causale siano definiti prima di chiamare addSpesa
+    if (data.importo && data.causale) {
+      addSpesa({
+        importo: data.importo,
+        causale: data.causale,
+        note: data.note || undefined
+      }, {
+        onSuccess: () => {
+          form.reset({
+            importo: 0,
+            causale: '',
+            note: ''
+          });
+        }
+      });
+    }
   };
 
   return (
@@ -74,7 +85,7 @@ export function SpesaDipendentForm() {
                         placeholder="0,00"
                         className="pl-10"
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </div>
                   </FormControl>
