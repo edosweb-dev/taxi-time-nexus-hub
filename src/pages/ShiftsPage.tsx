@@ -1,12 +1,22 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ShiftCalendar } from '@/components/shifts/ShiftCalendar';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
-import { ShiftContext } from '@/components/shifts/ShiftContext';
 import { ChevronRight, Home } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ShiftsPage() {
+  const { profile } = useAuth();
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+
+  const handleMonthChange = (date: Date) => {
+    setCurrentMonth(date);
+  };
+
   return (
     <MainLayout>
       <div className="min-h-screen bg-gray-50/30">
@@ -27,13 +37,19 @@ export default function ShiftsPage() {
                 </p>
               </div>
               
-              <AddShiftDialog />
+              <AddShiftDialog 
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                isAdminOrSocio={isAdminOrSocio}
+              />
             </div>
           </div>
 
-          <ShiftContext>
-            <ShiftCalendar />
-          </ShiftContext>
+          <ShiftCalendar 
+            currentMonth={currentMonth}
+            onMonthChange={handleMonthChange}
+            isAdminOrSocio={isAdminOrSocio}
+          />
         </div>
       </div>
     </MainLayout>

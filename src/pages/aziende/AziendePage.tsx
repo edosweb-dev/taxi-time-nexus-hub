@@ -1,11 +1,79 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { AziendaList } from '@/components/aziende/AziendaList';
 import { AziendaDialog } from '@/components/aziende/AziendaDialog';
 import { ChevronRight, Home } from 'lucide-react';
+import { useAziende } from '@/hooks/useAziende';
+import { Azienda } from '@/lib/types';
+import { AziendaFormData } from '@/lib/api/aziende';
+import { toast } from '@/components/ui/use-toast';
+import { createAzienda, updateAzienda, deleteAzienda } from '@/lib/api/aziende';
 
 export default function AziendePage() {
+  const { aziende, refetch } = useAziende();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleAddAzienda = () => {
+    setSelectedAzienda(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleEditAzienda = (azienda: Azienda) => {
+    setSelectedAzienda(azienda);
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteAzienda = async (azienda: Azienda) => {
+    if (confirm('Sei sicuro di voler eliminare questa azienda?')) {
+      try {
+        await deleteAzienda(azienda.id);
+        toast({
+          title: "Azienda eliminata",
+          description: "L'azienda è stata eliminata con successo.",
+        });
+        refetch();
+      } catch (error) {
+        toast({
+          title: "Errore",
+          description: "Si è verificato un errore durante l'eliminazione dell'azienda.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleSubmit = async (data: AziendaFormData) => {
+    try {
+      setIsSubmitting(true);
+      if (selectedAzienda) {
+        await updateAzienda(selectedAzienda.id, data);
+        toast({
+          title: "Azienda aggiornata",
+          description: "L'azienda è stata aggiornata con successo.",
+        });
+      } else {
+        await createAzienda(data);
+        toast({
+          title: "Azienda creata",
+          description: "L'azienda è stata creata con successo.",
+        });
+      }
+      setIsDialogOpen(false);
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio dell'azienda.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="min-h-screen bg-gray-50/30">
@@ -25,12 +93,23 @@ export default function AziendePage() {
                   Gestisci le aziende clienti
                 </p>
               </div>
-              
-              <AziendaDialog />
             </div>
           </div>
 
-          <AziendaList />
+          <AziendaList 
+            aziende={aziende}
+            onEdit={handleEditAzienda}
+            onDelete={handleDeleteAzienda}
+            onAddAzienda={handleAddAzienda}
+          />
+
+          <AziendaDialog
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            onSubmit={handleSubmit}
+            azienda={selectedAzienda}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
     </MainLayout>

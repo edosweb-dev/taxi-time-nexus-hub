@@ -3,8 +3,33 @@ import React from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ImpostazioniForm } from '@/components/impostazioni/ImpostazioniForm';
 import { ChevronRight, Home } from 'lucide-react';
+import { useImpostazioni } from '@/hooks/useImpostazioni';
+import { Loader2 } from 'lucide-react';
 
 export default function ImpostazioniPage() {
+  const { impostazioni, isLoading } = useImpostazioni();
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="min-h-screen bg-gray-50/30 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const defaultImpostazioni = {
+    id: impostazioni?.id || '',
+    nome_azienda: impostazioni?.nome_azienda || '',
+    partita_iva: impostazioni?.partita_iva || '',
+    indirizzo_sede: impostazioni?.indirizzo_sede || '',
+    telefono: impostazioni?.telefono || '',
+    email: impostazioni?.email || '',
+    metodi_pagamento: impostazioni?.metodi_pagamento || [],
+    aliquote_iva: impostazioni?.aliquote_iva || [],
+  };
+
   return (
     <MainLayout>
       <div className="min-h-screen bg-gray-50/30">
@@ -27,7 +52,7 @@ export default function ImpostazioniPage() {
             </div>
           </div>
 
-          <ImpostazioniForm />
+          <ImpostazioniForm initialData={defaultImpostazioni} />
         </div>
       </div>
     </MainLayout>
