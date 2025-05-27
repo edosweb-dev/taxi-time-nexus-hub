@@ -1,19 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { SpeseList } from '@/components/spese/SpeseList';
-import { SpesaForm } from '@/components/spese/SpesaForm';
-import { ChevronRight, Home, Plus, List } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SpesaModal } from '@/components/spese/SpesaModal';
+import { ChevronRight, Home } from 'lucide-react';
 
 export default function SpeseDipendentePage() {
-  const [showForm, setShowForm] = useState(false);
-
-  const handleSpesaAdded = () => {
-    setShowForm(false);
-  };
-
   return (
     <MainLayout>
       <div className="min-h-screen bg-gray-50/30">
@@ -34,46 +26,13 @@ export default function SpeseDipendentePage() {
                 </p>
               </div>
               
-              {/* Toggle buttons */}
-              <div className="flex gap-2">
-                <Button 
-                  variant={showForm ? "outline" : "default"}
-                  onClick={() => setShowForm(false)}
-                  className="flex items-center gap-2"
-                >
-                  <List className="h-4 w-4" />
-                  Lista spese
-                </Button>
-                <Button 
-                  variant={showForm ? "default" : "outline"}
-                  onClick={() => setShowForm(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Nuova spesa
-                </Button>
-              </div>
+              {/* Pulsante prominente per registrare nuova spesa */}
+              <SpesaModal />
             </div>
           </div>
 
-          {/* Contenuto principale */}
-          {showForm ? (
-            <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-xl">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Plus className="h-5 w-5 text-primary" />
-                  </div>
-                  Registra nuova spesa
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SpesaForm onSuccess={handleSpesaAdded} />
-              </CardContent>
-            </Card>
-          ) : (
-            <SpeseList />
-          )}
+          {/* Lista spese unificata */}
+          <SpeseList />
         </div>
       </div>
     </MainLayout>
