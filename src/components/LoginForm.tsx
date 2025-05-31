@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -5,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { LogIn, HelpCircle, Mail } from 'lucide-react';
+import { LogIn, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { RecuperaPasswordDialog } from './RecuperaPasswordDialog';
 
 export function LoginForm() {
   // Login state
@@ -107,11 +109,11 @@ export function LoginForm() {
           </Button>
           
           <div className="flex w-full justify-between text-sm">
-            <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0 font-medium">
-              <Link to="/recupera-password">
-                <Mail className="mr-1 h-3.5 w-3.5" /> Recupera password
-              </Link>
-            </Button>
+            <RecuperaPasswordDialog>
+              <Button variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0 font-medium">
+                <span className="mr-1 h-3.5 w-3.5">🔑</span> Recupera password
+              </Button>
+            </RecuperaPasswordDialog>
             <Button asChild variant="link" size="sm" className="text-taxitime-600 hover:text-taxitime-800 px-0 font-medium">
               <Link to="/assistenza">
                 <HelpCircle className="mr-1 h-3.5 w-3.5" /> Richiedi assistenza
