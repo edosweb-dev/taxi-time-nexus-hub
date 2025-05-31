@@ -6,5 +6,6 @@ export {
   createUser,
   updateUser,
   deleteUser,
+  resetUserPassword,
 } from './api/users';
 export type { UserFormData } from './api/users';

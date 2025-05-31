@@ -1,6 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUsers, getUserById, createUser, updateUser, deleteUser, UserFormData } from '@/lib/api/users';
+import { getUsers, getUserById, createUser, updateUser, deleteUser, resetUserPassword, UserFormData } from '@/lib/api/users';
 import { toast } from '@/components/ui/sonner';
 import { Profile } from '@/lib/types';
 
@@ -85,6 +85,21 @@ export function useUsers() {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: (email: string) => resetUserPassword(email),
+    onSuccess: (data, email) => {
+      if (data.success) {
+        toast.success(`Email di reset password inviata a ${email}`);
+      } else if (data.error) {
+        toast.error(`Errore nell'invio dell'email: ${data.error.message}`);
+      }
+    },
+    onError: (error: any, email) => {
+      console.error('Error resetting password:', error);
+      toast.error(`Errore nell'invio dell'email di reset a ${email}: ${error.message || 'Si è verificato un errore'}`);
+    },
+  });
+
   return {
     users,
     isLoading,
@@ -95,8 +110,10 @@ export function useUsers() {
     createUser: (data: UserFormData) => createUserMutation.mutate(data),
     updateUser: (id: string, data: Partial<UserFormData>) => updateUserMutation.mutate({ id, data }),
     deleteUser: (id: string) => deleteUserMutation.mutate(id),
+    resetPassword: (email: string) => resetPasswordMutation.mutate(email),
     isCreating: createUserMutation.isPending,
     isUpdating: updateUserMutation.isPending,
     isDeleting: deleteUserMutation.isPending,
+    isResettingPassword: resetPasswordMutation.isPending,
   };
 }

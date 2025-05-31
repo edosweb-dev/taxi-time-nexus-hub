@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Profile, UserRole } from '@/lib/types';
 import { UserFormData } from '@/lib/api/users/types';
 import { toast } from '@/components/ui/use-toast';
-import { createUser, updateUser, deleteUser } from '@/lib/api/users';
+import { createUser, updateUser, deleteUser, resetUserPassword } from '@/lib/api/users';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function UsersPage() {
@@ -43,6 +43,42 @@ export default function UsersPage() {
         toast({
           title: "Errore",
           description: "Si è verificato un errore durante l'eliminazione dell'utente.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleResetPassword = async (user: Profile) => {
+    if (!user.email) {
+      toast({
+        title: "Errore",
+        description: "Email non disponibile per questo utente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (confirm(`Sei sicuro di voler inviare un'email di reset password a ${user.email}?`)) {
+      try {
+        const { success, error } = await resetUserPassword(user.email);
+        
+        if (success) {
+          toast({
+            title: "Email inviata",
+            description: `Un'email di reset password è stata inviata a ${user.email}.`,
+          });
+        } else {
+          toast({
+            title: "Errore",
+            description: error?.message || "Si è verificato un errore durante l'invio dell'email.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Errore",
+          description: "Si è verificato un errore durante l'invio dell'email di reset.",
           variant: "destructive",
         });
       }
@@ -121,6 +157,7 @@ export default function UsersPage() {
                 onEdit={handleEditUser}
                 onDelete={handleDeleteUser}
                 onAddUser={handleAddUser}
+                onResetPassword={handleResetPassword}
                 currentUserId={profile?.id || ''}
                 title="Utenti"
                 description="Amministratori, soci e dipendenti"
@@ -136,6 +173,7 @@ export default function UsersPage() {
                 onEdit={handleEditUser}
                 onDelete={handleDeleteUser}
                 onAddUser={handleAddUser}
+                onResetPassword={handleResetPassword}
                 currentUserId={profile?.id || ''}
                 title="Clienti"
                 description="Utenti clienti del sistema"
