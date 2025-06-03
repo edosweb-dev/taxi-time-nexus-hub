@@ -1,6 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
-import { Stipendio } from './types';
+import { Stipendio, TipoCalcolo } from './types';
 
 export async function getStipendi(filters?: {
   anno?: number;
@@ -45,7 +45,12 @@ export async function getStipendi(filters?: {
     }
 
     console.log(`[getStipendi] Found ${data?.length || 0} stipendi`);
-    return data || [];
+    
+    // Cast esplicito del tipo_calcolo per ogni elemento
+    return data?.map(item => ({
+      ...item,
+      tipo_calcolo: item.tipo_calcolo as TipoCalcolo
+    })) || [];
   } catch (error) {
     console.error('[getStipendi] Error fetching stipendi:', error);
     throw error;
@@ -75,7 +80,12 @@ export async function getStipendioById(id: string): Promise<Stipendio | null> {
     }
 
     console.log('[getStipendioById] Found stipendio');
-    return data;
+    
+    // Cast esplicito del tipo_calcolo per il singolo elemento
+    return {
+      ...data,
+      tipo_calcolo: data.tipo_calcolo as TipoCalcolo
+    };
   } catch (error) {
     console.error('[getStipendioById] Error fetching stipendio:', error);
     throw error;
