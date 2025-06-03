@@ -1,5 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
+import { Json } from '@/integrations/supabase/types';
 
 export interface DeleteUserSummary {
   success: boolean;
@@ -41,12 +42,12 @@ export interface UserBackup {
   deleted_user_id: string;
   deleted_at: string;
   deleted_by: string;
-  user_data: any;
-  servizi_data: any[];
-  stipendi_data: any[];
-  spese_data: any[];
-  turni_data: any[];
-  altri_dati: any;
+  user_data: Json;
+  servizi_data: Json;
+  stipendi_data: Json;
+  spese_data: Json;
+  turni_data: Json;
+  altri_dati: Json;
   created_at: string;
 }
 
