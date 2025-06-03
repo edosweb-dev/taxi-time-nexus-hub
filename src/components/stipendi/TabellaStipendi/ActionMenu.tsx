@@ -4,15 +4,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye, Edit, Trash } from 'lucide-react';
+import { MoreHorizontal, Eye, Edit, Trash, CheckCircle, CreditCard } from 'lucide-react';
 import { Stipendio } from '@/lib/api/stipendi';
-import { getStatusOptions } from './utils';
 
 interface ActionMenuProps {
   stipendio: Stipendio;
@@ -41,29 +37,28 @@ export function ActionMenu({
           <Eye className="mr-2 h-4 w-4" />
           Visualizza dettaglio
         </DropdownMenuItem>
+        
         {stipendio.stato === 'bozza' && (
-          <DropdownMenuItem onClick={() => onEdit(stipendio)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Modifica
+          <>
+            <DropdownMenuItem onClick={() => onEdit(stipendio)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Modifica
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onChangeStatus(stipendio, 'confermato')}>
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Conferma stipendio
+            </DropdownMenuItem>
+          </>
+        )}
+        
+        {stipendio.stato === 'confermato' && (
+          <DropdownMenuItem onClick={() => onChangeStatus(stipendio, 'pagato')}>
+            <CreditCard className="mr-2 h-4 w-4" />
+            Segna come pagato
           </DropdownMenuItem>
         )}
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            Cambia stato
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            {getStatusOptions(stipendio.stato).map((status) => (
-              <DropdownMenuItem 
-                key={status}
-                onClick={() => onChangeStatus(stipendio, status)}
-              >
-                {status === 'bozza' && 'Bozza'}
-                {status === 'confermato' && 'Confermato'}
-                {status === 'pagato' && 'Pagato'}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
+        
         {stipendio.stato === 'bozza' && (
           <>
             <DropdownMenuSeparator />

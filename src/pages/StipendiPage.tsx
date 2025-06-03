@@ -1,3 +1,4 @@
+
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useStipendi } from '@/hooks/useStipendi';
+import { useStipendi, useUpdateStatoStipendio } from '@/hooks/useStipendi';
 import { 
   TabellaStipendi, 
   StipendiStats, 
@@ -19,8 +20,9 @@ import {
   NuovoStipendioSheet,
   DettaglioStipendioSheet
 } from '@/components/stipendi';
+import { ConfermaStatoDialog } from '@/components/stipendi/ConfermaStatoDialog';
 import { useState, useMemo } from 'react';
-import { Stipendio } from '@/lib/api/stipendi';
+import { Stipendio, StatoStipendio } from '@/lib/api/stipendi';
 import { toast } from '@/components/ui/sonner';
 
 export default function StipendiPage() {
@@ -33,6 +35,14 @@ export default function StipendiPage() {
   const [nuovoStipendioOpen, setNuovoStipendioOpen] = useState(false);
   const [dettaglioStipendioOpen, setDettaglioStipendioOpen] = useState(false);
   const [selectedStipendioId, setSelectedStipendioId] = useState<string>('');
+  
+  // Stati per il dialog di conferma cambio stato
+  const [confermaStatoOpen, setConfermaStatoOpen] = useState(false);
+  const [stipendioPerCambioStato, setStipendioPerCambioStato] = useState<Stipendio | null>(null);
+  const [nuovoStatoSelezionato, setNuovoStatoSelezionato] = useState<StatoStipendio>('confermato');
+
+  // Hook per cambio stato
+  const updateStatoMutation = useUpdateStatoStipendio();
 
   // Verifica accesso solo per admin
   if (profile && profile.role !== 'admin') {
@@ -95,7 +105,9 @@ export default function StipendiPage() {
 
   const handleChangeStatus = (stipendio: Stipendio, newStatus: string) => {
     console.log('Cambia stato:', stipendio, 'to', newStatus);
-    toast.info(`Stato cambiato a ${newStatus} - Feature in sviluppo`);
+    setStipendioPerCambioStato(stipendio);
+    setNuovoStatoSelezionato(newStatus as StatoStipendio);
+    setConfermaStatoOpen(true);
   };
 
   const handleDelete = (stipendio: Stipendio) => {
@@ -118,15 +130,46 @@ export default function StipendiPage() {
   };
 
   const handleConfirmStipendio = (stipendioId: string) => {
-    toast.info('Conferma stipendio - Feature in sviluppo');
+    const stipendio = stipendi.find(s => s.id === stipendioId);
+    if (stipendio) {
+      setStipendioPerCambioStato(stipendio);
+      setNuovoStatoSelezionato('confermato');
+      setConfermaStatoOpen(true);
+      setDettaglioStipendioOpen(false);
+    }
   };
 
   const handleMarkPaid = (stipendioId: string) => {
-    toast.info('Segna come pagato - Feature in sviluppo');
+    const stipendio = stipendi.find(s => s.id === stipendioId);
+    if (stipendio) {
+      setStipendioPerCambioStato(stipendio);
+      setNuovoStatoSelezionato('pagato');
+      setConfermaStatoOpen(true);
+      setDettaglioStipendioOpen(false);
+    }
   };
 
   const handlePrintStipendio = (stipendioId: string) => {
     toast.info('Stampa stipendio - Feature in sviluppo');
+  };
+
+  // Conferma cambio stato
+  const handleConfirmaCambioStato = () => {
+    if (!stipendioPerCambioStato) return;
+
+    updateStatoMutation.mutate(
+      {
+        stipendioId: stipendioPerCambioStato.id,
+        nuovoStato: nuovoStatoSelezionato
+      },
+      {
+        onSuccess: () => {
+          setConfermaStatoOpen(false);
+          setStipendioPerCambioStato(null);
+          refetch(); // Ricarica la lista
+        }
+      }
+    );
   };
 
   return (
@@ -201,6 +244,16 @@ export default function StipendiPage() {
           onConfirm={handleConfirmStipendio}
           onMarkPaid={handleMarkPaid}
           onPrint={handlePrintStipendio}
+        />
+
+        {/* Dialog conferma cambio stato */}
+        <ConfermaStatoDialog
+          open={confermaStatoOpen}
+          onOpenChange={setConfermaStatoOpen}
+          stipendio={stipendioPerCambioStato}
+          nuovoStato={nuovoStatoSelezionato}
+          onConfirm={handleConfirmaCambioStato}
+          isLoading={updateStatoMutation.isPending}
         />
       </div>
     </MainLayout>

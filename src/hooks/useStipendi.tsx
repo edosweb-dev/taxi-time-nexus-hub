@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getStipendi, getStipendioById, getTariffeKm, getConfigurazioneStipendi } from '@/lib/api/stipendi';
 import { createStipendio, CreateStipendioParams } from '@/lib/api/stipendi/createStipendio';
 import { updateStipendio, UpdateStipendioParams } from '@/lib/api/stipendi/updateStipendio';
+import { updateStatoStipendio, UpdateStatoStipendioParams } from '@/lib/api/stipendi/updateStatoStipendio';
 import { toast } from '@/components/ui/sonner';
-import type { Stipendio, TariffaKm, ConfigurazioneStipendi } from '@/lib/api/stipendi';
+import type { Stipendio, TariffaKm, ConfigurazioneStipendi, StatoStipendio } from '@/lib/api/stipendi';
 
 export function useStipendi(filters?: {
   anno?: number;
@@ -116,6 +117,47 @@ export function useUpdateStipendio() {
       } else {
         toast.error('Errore durante la modifica dello stipendio');
       }
+    },
+  });
+}
+
+// Mutation for updating stipendio stato
+export function useUpdateStatoStipendio() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateStatoStipendio,
+    onSuccess: (result, variables) => {
+      // Invalida le query degli stipendi per ricaricare la lista
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      
+      // Invalida anche il dettaglio specifico
+      queryClient.invalidateQueries({ queryKey: ['stipendio', variables.stipendioId] });
+      
+      // Se è stato creato un movimento aziendale, invalida anche quelle query
+      if (result.spesaAziendaleCreata) {
+        queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-count'] });
+        queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      }
+      
+      // Mostra toast di successo specifico per il nuovo stato
+      const messaggi = {
+        'confermato': 'Stipendio confermato con successo',
+        'pagato': result.spesaAziendaleCreata 
+          ? 'Stipendio segnato come pagato e spesa aziendale creata'
+          : 'Stipendio segnato come pagato'
+      };
+      
+      toast.success(messaggi[variables.nuovoStato as keyof typeof messaggi] || 'Stato aggiornato con successo');
+      
+      console.log('[useUpdateStatoStipendio] Stato updated successfully:', variables.nuovoStato);
+    },
+    onError: (error: Error) => {
+      console.error('[useUpdateStatoStipendio] Error updating stato:', error);
+      
+      // Mostra toast di errore
+      toast.error(error.message || 'Errore durante il cambio di stato');
     },
   });
 }
