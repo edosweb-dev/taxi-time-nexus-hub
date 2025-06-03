@@ -1,4 +1,3 @@
-
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
@@ -22,6 +21,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { useStipendi } from '@/hooks/useStipendi';
+import { TabellaStipendi } from '@/components/stipendi/TabellaStipendi';
 import { 
   Banknote, 
   Users, 
@@ -30,6 +30,8 @@ import {
   Plus 
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { Stipendio } from '@/lib/api/stipendi';
+import { toast } from '@/components/ui/sonner';
 
 export default function StipendiPage() {
   const { profile } = useAuth();
@@ -99,6 +101,27 @@ export default function StipendiPage() {
       style: 'currency', 
       currency: 'EUR' 
     }).format(value);
+  };
+
+  // Gestori azioni tabella
+  const handleViewDetails = (stipendio: Stipendio) => {
+    console.log('Visualizza dettaglio:', stipendio);
+    toast.info('Dettaglio stipendio - Feature in sviluppo');
+  };
+
+  const handleEdit = (stipendio: Stipendio) => {
+    console.log('Modifica stipendio:', stipendio);
+    toast.info('Modifica stipendio - Feature in sviluppo');
+  };
+
+  const handleChangeStatus = (stipendio: Stipendio, newStatus: string) => {
+    console.log('Cambia stato:', stipendio, 'to', newStatus);
+    toast.info(`Stato cambiato a ${newStatus} - Feature in sviluppo`);
+  };
+
+  const handleDelete = (stipendio: Stipendio) => {
+    console.log('Elimina stipendio:', stipendio);
+    toast.info('Elimina stipendio - Feature in sviluppo');
   };
 
   return (
@@ -271,22 +294,15 @@ export default function StipendiPage() {
             <CardTitle>Stipendi {months.find(m => m.value === selectedMonth)?.label} {selectedYear}</CardTitle>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <div className="space-y-3">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-              </div>
-            ) : stipendiFiltrati.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                Nessun stipendio trovato per il periodo selezionato.
-              </p>
-            ) : (
-              <p className="text-muted-foreground">
-                Tabella stipendi verrà implementata nel prossimo step. 
-                Trovati {stipendiFiltrati.length} stipendi.
-              </p>
-            )}
+            <TabellaStipendi
+              stipendi={stipendiFiltrati}
+              isLoading={isLoading}
+              selectedTab={selectedTab}
+              onViewDetails={handleViewDetails}
+              onEdit={handleEdit}
+              onChangeStatus={handleChangeStatus}
+              onDelete={handleDelete}
+            />
           </CardContent>
         </Card>
       </div>
