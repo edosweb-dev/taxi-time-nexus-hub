@@ -45,6 +45,36 @@ export type Database = {
         }
         Relationships: []
       }
+      configurazione_stipendi: {
+        Row: {
+          anno: number
+          coefficiente_aumento: number
+          created_at: string
+          id: string
+          tariffa_km_extra: number
+          tariffa_oraria_attesa: number
+          updated_at: string
+        }
+        Insert: {
+          anno: number
+          coefficiente_aumento: number
+          created_at?: string
+          id?: string
+          tariffa_km_extra?: number
+          tariffa_oraria_attesa?: number
+          updated_at?: string
+        }
+        Update: {
+          anno?: number
+          coefficiente_aumento?: number
+          created_at?: string
+          id?: string
+          tariffa_km_extra?: number
+          tariffa_oraria_attesa?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       impostazioni: {
         Row: {
           aliquote_iva: Json | null
@@ -779,6 +809,113 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stipendi: {
+        Row: {
+          anno: number
+          base_calcolo: number | null
+          coefficiente_applicato: number | null
+          created_at: string
+          created_by: string
+          id: string
+          incassi_da_dipendenti: number | null
+          mese: number
+          note: string | null
+          percentuale_su_totale: number | null
+          riporto_mese_precedente: number | null
+          stato: string
+          tipo_calcolo: string
+          totale_km: number | null
+          totale_lordo: number | null
+          totale_netto: number | null
+          totale_ore_attesa: number | null
+          totale_ore_lavorate: number | null
+          totale_prelievi: number | null
+          totale_spese: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anno: number
+          base_calcolo?: number | null
+          coefficiente_applicato?: number | null
+          created_at?: string
+          created_by: string
+          id?: string
+          incassi_da_dipendenti?: number | null
+          mese: number
+          note?: string | null
+          percentuale_su_totale?: number | null
+          riporto_mese_precedente?: number | null
+          stato?: string
+          tipo_calcolo: string
+          totale_km?: number | null
+          totale_lordo?: number | null
+          totale_netto?: number | null
+          totale_ore_attesa?: number | null
+          totale_ore_lavorate?: number | null
+          totale_prelievi?: number | null
+          totale_spese?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          anno?: number
+          base_calcolo?: number | null
+          coefficiente_applicato?: number | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          incassi_da_dipendenti?: number | null
+          mese?: number
+          note?: string | null
+          percentuale_su_totale?: number | null
+          riporto_mese_precedente?: number | null
+          stato?: string
+          tipo_calcolo?: string
+          totale_km?: number | null
+          totale_lordo?: number | null
+          totale_netto?: number | null
+          totale_ore_attesa?: number | null
+          totale_ore_lavorate?: number | null
+          totale_prelievi?: number | null
+          totale_spese?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stipendi_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tariffe_km: {
+        Row: {
+          anno: number
+          created_at: string
+          id: string
+          km: number
+          tariffa_base: number
+        }
+        Insert: {
+          anno?: number
+          created_at?: string
+          id?: string
+          km: number
+          tariffa_base: number
+        }
+        Update: {
+          anno?: number
+          created_at?: string
+          id?: string
+          km?: number
+          tariffa_base?: number
+        }
+        Relationships: []
       }
       veicoli: {
         Row: {
