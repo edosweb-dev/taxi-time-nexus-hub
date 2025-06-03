@@ -16,7 +16,8 @@ import {
   StipendiStats, 
   StipendiFilters, 
   StipendiHeader,
-  NuovoStipendioSheet
+  NuovoStipendioSheet,
+  DettaglioStipendioSheet
 } from '@/components/stipendi';
 import { useState, useMemo } from 'react';
 import { Stipendio } from '@/lib/api/stipendi';
@@ -30,6 +31,8 @@ export default function StipendiPage() {
   const [selectedTab, setSelectedTab] = useState<'tutti' | 'dipendenti' | 'soci'>('tutti');
   const [selectedStato, setSelectedStato] = useState<string>('tutti');
   const [nuovoStipendioOpen, setNuovoStipendioOpen] = useState(false);
+  const [dettaglioStipendioOpen, setDettaglioStipendioOpen] = useState(false);
+  const [selectedStipendioId, setSelectedStipendioId] = useState<string>('');
 
   // Verifica accesso solo per admin
   if (profile && profile.role !== 'admin') {
@@ -81,8 +84,8 @@ export default function StipendiPage() {
 
   // Gestori azioni tabella
   const handleViewDetails = (stipendio: Stipendio) => {
-    console.log('Visualizza dettaglio:', stipendio);
-    toast.info('Dettaglio stipendio - Feature in sviluppo');
+    setSelectedStipendioId(stipendio.id);
+    setDettaglioStipendioOpen(true);
   };
 
   const handleEdit = (stipendio: Stipendio) => {
@@ -106,6 +109,24 @@ export default function StipendiPage() {
 
   const handleStipendioCreated = () => {
     refetch();
+  };
+
+  // Gestori azioni dettaglio
+  const handleEditFromDetail = (stipendioId: string) => {
+    setDettaglioStipendioOpen(false);
+    toast.info('Modifica stipendio - Feature in sviluppo');
+  };
+
+  const handleConfirmStipendio = (stipendioId: string) => {
+    toast.info('Conferma stipendio - Feature in sviluppo');
+  };
+
+  const handleMarkPaid = (stipendioId: string) => {
+    toast.info('Segna come pagato - Feature in sviluppo');
+  };
+
+  const handlePrintStipendio = (stipendioId: string) => {
+    toast.info('Stampa stipendio - Feature in sviluppo');
   };
 
   return (
@@ -169,6 +190,17 @@ export default function StipendiPage() {
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}
           onStipendioCreated={handleStipendioCreated}
+        />
+
+        {/* Dettaglio Stipendio Sheet */}
+        <DettaglioStipendioSheet
+          stipendioId={selectedStipendioId}
+          open={dettaglioStipendioOpen}
+          onOpenChange={setDettaglioStipendioOpen}
+          onEdit={handleEditFromDetail}
+          onConfirm={handleConfirmStipendio}
+          onMarkPaid={handleMarkPaid}
+          onPrint={handlePrintStipendio}
         />
       </div>
     </MainLayout>
