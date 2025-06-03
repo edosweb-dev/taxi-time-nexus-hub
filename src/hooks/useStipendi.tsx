@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getStipendi, getStipendioById, getTariffeKm, getConfigurazioneStipendi } from '@/lib/api/stipendi';
 import { createStipendio, CreateStipendioParams } from '@/lib/api/stipendi/createStipendio';
+import { updateStipendio, UpdateStipendioParams } from '@/lib/api/stipendi/updateStipendio';
 import { toast } from '@/components/ui/sonner';
 import type { Stipendio, TariffaKm, ConfigurazioneStipendi } from '@/lib/api/stipendi';
 
@@ -81,6 +82,39 @@ export function useCreateStipendio() {
         toast.error('Non hai i permessi per questa operazione');
       } else {
         toast.error('Errore durante il salvataggio dello stipendio');
+      }
+    },
+  });
+}
+
+// Mutation for updating stipendio
+export function useUpdateStipendio() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateStipendio,
+    onSuccess: (updatedStipendio) => {
+      // Invalida le query degli stipendi per ricaricare la lista
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      
+      // Invalida anche il dettaglio specifico
+      queryClient.invalidateQueries({ queryKey: ['stipendio', updatedStipendio.id] });
+      
+      // Mostra toast di successo
+      toast.success('Stipendio modificato con successo');
+      
+      console.log('[useUpdateStipendio] Stipendio updated successfully:', updatedStipendio.id);
+    },
+    onError: (error: Error) => {
+      console.error('[useUpdateStipendio] Error updating stipendio:', error);
+      
+      // Gestisci errori specifici
+      if (error.message === 'CANNOT_MODIFY_CONFIRMED') {
+        toast.error('Non è possibile modificare uno stipendio già confermato');
+      } else if (error.message === 'PERMISSION_DENIED') {
+        toast.error('Non hai i permessi per questa operazione');
+      } else {
+        toast.error('Errore durante la modifica dello stipendio');
       }
     },
   });
