@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,7 +63,11 @@ export function NuovoStipendioSheet({
   selectedYear,
   onStipendioCreated,
 }: NuovoStipendioSheetProps) {
-  const { users } = useUsers();
+  // Filter users to include only admin, socio, and dipendente roles
+  const { users } = useUsers({ 
+    includeRoles: ['admin', 'socio', 'dipendente'] 
+  });
+  
   const { data: configurazione } = useConfigurazioneStipendi(selectedYear);
   const createStipendioMutation = useCreateStipendio();
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -116,11 +119,11 @@ export function NuovoStipendioSheet({
 
   // Group users by role
   const groupedUsers = users.reduce((groups, user) => {
-    const role = user.role === 'socio' ? 'soci' : 'dipendenti';
+    const role = user.role === 'socio' ? 'soci' : user.role === 'admin' ? 'admin' : 'dipendenti';
     if (!groups[role]) groups[role] = [];
     groups[role].push(user);
     return groups;
-  }, {} as { soci?: any[]; dipendenti?: any[] });
+  }, {} as { soci?: any[]; dipendenti?: any[]; admin?: any[] });
 
   const handleSubmit = async (data: StipendioFormData) => {
     try {
@@ -159,7 +162,7 @@ export function NuovoStipendioSheet({
   };
 
   const isFormValid = form.formState.isValid && selectedUser && 
-    (selectedUser.role === 'dipendente' || (selectedUser.role === 'socio' && watchedValues.km && watchedValues.km >= 12));
+    (selectedUser.role === 'dipendente' || selectedUser.role === 'admin' || (selectedUser.role === 'socio' && watchedValues.km && watchedValues.km >= 12));
 
   const isLoading = createStipendioMutation.isPending || isCalculating;
 
@@ -195,6 +198,26 @@ export function NuovoStipendioSheet({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        {groupedUsers.admin && groupedUsers.admin.length > 0 && (
+                          <>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                              AMMINISTRATORI
+                            </div>
+                            {groupedUsers.admin.map((user) => (
+                              <SelectItem key={user.id} value={user.id}>
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-6 w-6">
+                                    <AvatarFallback className="text-xs">
+                                      {getInitials(user.first_name, user.last_name)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span>{user.first_name} {user.last_name}</span>
+                                  {getRuoloBadge(user.role)}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </>
+                        )}
                         {groupedUsers.soci && groupedUsers.soci.length > 0 && (
                           <>
                             <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
@@ -293,7 +316,7 @@ export function NuovoStipendioSheet({
                   </div>
                 )}
 
-                {selectedUser.role === 'dipendente' && (
+                {(selectedUser.role === 'dipendente' || selectedUser.role === 'admin') && (
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -410,7 +433,7 @@ export function NuovoStipendioSheet({
               </div>
             )}
 
-            {selectedUser?.role === 'dipendente' && watchedValues.ore_lavorate && watchedValues.tariffa_oraria && (
+            {(selectedUser?.role === 'dipendente' || selectedUser?.role === 'admin') && watchedValues.ore_lavorate && watchedValues.tariffa_oraria && (
               <div className="space-y-4">
                 <h3 className="text-sm font-medium">Preview Calcolo</h3>
                 <Card>

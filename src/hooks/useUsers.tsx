@@ -1,14 +1,16 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, getUserById, createUser, updateUser, deleteUser, resetUserPassword, UserFormData } from '@/lib/api/users';
 import { toast } from '@/components/ui/sonner';
 import { Profile } from '@/lib/types';
 
-export function useUsers() {
+export function useUsers(options?: { 
+  excludeRoles?: string[];
+  includeRoles?: string[];
+}) {
   const queryClient = useQueryClient();
 
   const {
-    data: users = [],
+    data: allUsers = [],
     isLoading,
     isError,
     error,
@@ -26,6 +28,17 @@ export function useUsers() {
         throw err;
       }
     },
+  });
+
+  // Apply filtering based on options
+  const users = allUsers.filter(user => {
+    if (options?.excludeRoles && options.excludeRoles.includes(user.role)) {
+      return false;
+    }
+    if (options?.includeRoles && !options.includeRoles.includes(user.role)) {
+      return false;
+    }
+    return true;
   });
 
   const getUserDetails = (id: string) => {
