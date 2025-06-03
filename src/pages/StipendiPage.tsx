@@ -1,4 +1,3 @@
-
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
@@ -16,7 +15,8 @@ import {
   TabellaStipendi, 
   StipendiStats, 
   StipendiFilters, 
-  StipendiHeader 
+  StipendiHeader,
+  NuovoStipendioSheet
 } from '@/components/stipendi';
 import { useState, useMemo } from 'react';
 import { Stipendio } from '@/lib/api/stipendi';
@@ -29,6 +29,7 @@ export default function StipendiPage() {
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [selectedTab, setSelectedTab] = useState<'tutti' | 'dipendenti' | 'soci'>('tutti');
   const [selectedStato, setSelectedStato] = useState<string>('tutti');
+  const [nuovoStipendioOpen, setNuovoStipendioOpen] = useState(false);
 
   // Verifica accesso solo per admin
   if (profile && profile.role !== 'admin') {
@@ -36,7 +37,7 @@ export default function StipendiPage() {
   }
 
   // Recupera stipendi per il mese/anno selezionato
-  const { stipendi, isLoading } = useStipendi({
+  const { stipendi, isLoading, refetch } = useStipendi({
     anno: selectedYear,
     mese: selectedMonth,
     ...(selectedTab !== 'tutti' && { tipo_calcolo: selectedTab === 'dipendenti' ? 'dipendente' : 'socio' })
@@ -100,7 +101,11 @@ export default function StipendiPage() {
   };
 
   const handleNewStipendio = () => {
-    toast.info('Nuovo stipendio - Feature in sviluppo');
+    setNuovoStipendioOpen(true);
+  };
+
+  const handleStipendioCreated = () => {
+    refetch();
   };
 
   return (
@@ -156,6 +161,15 @@ export default function StipendiPage() {
             />
           </CardContent>
         </Card>
+
+        {/* Nuovo Stipendio Sheet */}
+        <NuovoStipendioSheet
+          open={nuovoStipendioOpen}
+          onOpenChange={setNuovoStipendioOpen}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          onStipendioCreated={handleStipendioCreated}
+        />
       </div>
     </MainLayout>
   );
