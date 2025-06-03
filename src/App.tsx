@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/sonner";
@@ -8,6 +9,7 @@ import UsersPage from './pages/UsersPage';
 import ClientDashboardPage from './pages/ClientDashboardPage';
 import RecuperaPasswordPage from './pages/RecuperaPasswordPage';
 import ReportsPage from './pages/ReportsPage';
+import StipendiPage from './pages/StipendiPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { AuthGuard } from './components/AuthGuard';
 import AziendePage from './pages/aziende/AziendePage';
@@ -112,6 +114,12 @@ function App() {
             <Route path="/spese-aziendali" element={
               <AuthGuard allowedRoles={['admin', 'socio']}>
                 <SpeseAziendaliPage />
+              </AuthGuard>
+            } />
+            
+            <Route path="/stipendi" element={
+              <AuthGuard allowedRoles={['admin']}>
+                <StipendiPage />
               </AuthGuard>
             } />
             

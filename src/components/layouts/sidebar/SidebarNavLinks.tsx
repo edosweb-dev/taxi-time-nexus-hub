@@ -1,3 +1,4 @@
+
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   BarChart4, 
@@ -15,7 +16,8 @@ import {
   FileBarChart,
   ChevronDown,
   ChevronRight,
-  FileText
+  FileText,
+  Calculator
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
@@ -64,6 +66,7 @@ export function SidebarNavLinks() {
         { title: 'Turni', path: '/turni', icon: Calendar },
         { title: 'Spese', path: '/spese', icon: CreditCard },
         { title: 'Report Spese', path: '/spese-aziendali', icon: FileText },
+        { title: 'Stipendi', path: '/stipendi', icon: Calculator, adminOnly: true },
         { title: 'Veicoli', path: '/veicoli', icon: Car }
       ]
     },
