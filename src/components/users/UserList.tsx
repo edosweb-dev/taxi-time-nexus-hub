@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, KeyRound } from 'lucide-react';
 import { Profile, UserRole } from '@/lib/types';
 import { UserRoleFilter } from './UserRoleFilter';
+import { UserDeleteConfirmDialog } from './UserDeleteConfirmDialog';
 
 interface UserListProps {
   users: Profile[];
@@ -20,6 +21,7 @@ interface UserListProps {
   selectedRole?: UserRole | 'all';
   onRoleChange?: (role: UserRole | 'all') => void;
   showEmailColumn?: boolean;
+  isDeleting?: boolean;
 }
 
 const getRoleBadgeVariant = (role: UserRole) => {
@@ -64,96 +66,124 @@ export function UserList({
   showRoleFilter = false,
   selectedRole = 'all',
   onRoleChange,
-  showEmailColumn = false
+  showEmailColumn = false,
+  isDeleting = false
 }: UserListProps) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<Profile | null>(null);
+
+  const handleDeleteClick = (user: Profile) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (userToDelete) {
+      onDelete(userToDelete);
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-xl">{title}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {description}
-            </p>
-          </div>
-          <Button onClick={onAddUser}>
-            <Plus className="mr-2 h-4 w-4" />
-            Aggiungi Utente
-          </Button>
-        </div>
-        
-        {showRoleFilter && onRoleChange && (
-          <div className="pt-4">
-            <UserRoleFilter
-              selectedRole={selectedRole}
-              onRoleChange={onRoleChange}
-            />
-          </div>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {users.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Nessun utente trovato
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-xl">{title}</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {description}
+              </p>
             </div>
-          ) : (
-            <div className="grid gap-4">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-medium text-foreground">
-                        {user.first_name} {user.last_name}
-                      </h3>
-                      <Badge variant={getRoleBadgeVariant(user.role)}>
-                        {getRoleDisplayName(user.role)}
-                      </Badge>
-                    </div>
-                    {showEmailColumn && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {user.email || 'Email non disponibile'}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    {onResetPassword && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onResetPassword(user)}
-                        title="Reset Password"
-                      >
-                        <KeyRound className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(user)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    {user.id !== currentUserId && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onDelete(user)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <Button onClick={onAddUser}>
+              <Plus className="mr-2 h-4 w-4" />
+              Aggiungi Utente
+            </Button>
+          </div>
+          
+          {showRoleFilter && onRoleChange && (
+            <div className="pt-4">
+              <UserRoleFilter
+                selectedRole={selectedRole}
+                onRoleChange={onRoleChange}
+              />
             </div>
           )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {users.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nessun utente trovato
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-medium text-foreground">
+                          {user.first_name} {user.last_name}
+                        </h3>
+                        <Badge variant={getRoleBadgeVariant(user.role)}>
+                          {getRoleDisplayName(user.role)}
+                        </Badge>
+                      </div>
+                      {showEmailColumn && (
+                        <p className="text-sm text-muted-foreground truncate">
+                          {user.email || 'Email non disponibile'}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {onResetPassword && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onResetPassword(user)}
+                          title="Reset Password"
+                        >
+                          <KeyRound className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(user)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      {user.id !== currentUserId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteClick(user)}
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <UserDeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        user={userToDelete}
+        isDeleting={isDeleting}
+      />
+    </>
   );
 }

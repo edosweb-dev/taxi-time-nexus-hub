@@ -917,6 +917,56 @@ export type Database = {
         }
         Relationships: []
       }
+      user_deletion_backup: {
+        Row: {
+          altri_dati: Json | null
+          created_at: string
+          deleted_at: string
+          deleted_by: string
+          deleted_user_id: string
+          id: string
+          servizi_data: Json | null
+          spese_data: Json | null
+          stipendi_data: Json | null
+          turni_data: Json | null
+          user_data: Json | null
+        }
+        Insert: {
+          altri_dati?: Json | null
+          created_at?: string
+          deleted_at?: string
+          deleted_by: string
+          deleted_user_id: string
+          id?: string
+          servizi_data?: Json | null
+          spese_data?: Json | null
+          stipendi_data?: Json | null
+          turni_data?: Json | null
+          user_data?: Json | null
+        }
+        Update: {
+          altri_dati?: Json | null
+          created_at?: string
+          deleted_at?: string
+          deleted_by?: string
+          deleted_user_id?: string
+          id?: string
+          servizi_data?: Json | null
+          spese_data?: Json | null
+          stipendi_data?: Json | null
+          turni_data?: Json | null
+          user_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_deletion_backup_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       veicoli: {
         Row: {
           anno: number | null

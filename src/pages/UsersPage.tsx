@@ -9,11 +9,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Profile, UserRole } from '@/lib/types';
 import { UserFormData } from '@/lib/api/users/types';
 import { toast } from '@/components/ui/use-toast';
-import { createUser, updateUser, deleteUser, resetUserPassword } from '@/lib/api/users';
+import { createUser, updateUser, resetUserPassword } from '@/lib/api/users';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function UsersPage() {
-  const { users, isLoading, refetch } = useUsers();
+  const { users, isLoading, refetch, deleteUser, isDeleting } = useUsers();
   const { profile } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
@@ -31,22 +31,8 @@ export default function UsersPage() {
   };
 
   const handleDeleteUser = async (user: Profile) => {
-    if (confirm('Sei sicuro di voler eliminare questo utente?')) {
-      try {
-        await deleteUser(user.id);
-        toast({
-          title: "Utente eliminato",
-          description: "L'utente è stato eliminato con successo.",
-        });
-        refetch();
-      } catch (error) {
-        toast({
-          title: "Errore",
-          description: "Si è verificato un errore durante l'eliminazione dell'utente.",
-          variant: "destructive",
-        });
-      }
-    }
+    console.log('Deleting user with backup:', user.id);
+    deleteUser(user.id);
   };
 
   const handleResetPassword = async (user: Profile) => {
@@ -164,6 +150,7 @@ export default function UsersPage() {
                 showRoleFilter={true}
                 selectedRole={selectedRole}
                 onRoleChange={setSelectedRole}
+                isDeleting={isDeleting}
               />
             </TabsContent>
             
@@ -178,6 +165,7 @@ export default function UsersPage() {
                 title="Clienti"
                 description="Utenti clienti del sistema"
                 showEmailColumn={true}
+                isDeleting={isDeleting}
               />
             </TabsContent>
           </Tabs>

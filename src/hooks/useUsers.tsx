@@ -1,5 +1,6 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUsers, getUserById, createUser, updateUser, deleteUser, resetUserPassword, UserFormData } from '@/lib/api/users';
+import { getUsers, getUserById, createUser, updateUser, backupAndDeleteUser, resetUserPassword, UserFormData } from '@/lib/api/users';
 import { toast } from '@/components/ui/sonner';
 import { Profile } from '@/lib/types';
 
@@ -83,13 +84,16 @@ export function useUsers(options?: {
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: (id: string) => deleteUser(id),
+    mutationFn: (id: string) => backupAndDeleteUser(id),
     onSuccess: (data) => {
-      if (data.success) {
+      if (data.success && data.data) {
         queryClient.invalidateQueries({ queryKey: ['users'] });
-        toast.success('Utente eliminato con successo');
+        const summary = data.data.summary;
+        const totalRecords = summary.servizi + summary.stipendi + summary.spese + summary.turni + summary.movimenti + summary.spese_aziendali;
+        
+        toast.success(`Utente ${data.data.deleted_user} eliminato con successo. Backup di ${totalRecords} record creato.`);
       } else if (data.error) {
-        toast.error(`Errore nell'eliminazione dell'utente: ${data.error.message}`);
+        toast.error(`Errore nell'eliminazione dell'utente: ${data.error.message || 'Si è verificato un errore'}`);
       }
     },
     onError: (error: any) => {
