@@ -18,7 +18,8 @@ import {
   StipendiFilters, 
   StipendiHeader,
   NuovoStipendioSheet,
-  DettaglioStipendioSheet
+  DettaglioStipendioSheet,
+  StipendiGuida
 } from '@/components/stipendi';
 import { ConfermaStatoDialog } from '@/components/stipendi/ConfermaStatoDialog';
 import { useState, useMemo } from 'react';
@@ -189,13 +190,18 @@ export default function StipendiPage() {
         </Breadcrumb>
 
         {/* Header con controlli */}
-        <StipendiHeader
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          onMonthChange={setSelectedMonth}
-          onYearChange={setSelectedYear}
-          onNewStipendio={handleNewStipendio}
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <StipendiHeader
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            onMonthChange={setSelectedMonth}
+            onYearChange={setSelectedYear}
+            onNewStipendio={handleNewStipendio}
+          />
+          
+          {/* Guida al calcolo stipendi */}
+          <StipendiGuida />
+        </div>
 
         {/* Card riassuntive */}
         <StipendiStats stats={stats} isLoading={isLoading} />

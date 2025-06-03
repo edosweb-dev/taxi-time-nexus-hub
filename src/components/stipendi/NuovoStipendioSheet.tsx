@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -36,6 +37,7 @@ import { useCalcoloStipendio } from '@/hooks/useCalcoloStipendio';
 import { useConfigurazioneStipendi, useCreateStipendio } from '@/hooks/useStipendi';
 import { getInitials, getRuoloBadge } from './TabellaStipendi/utils';
 import { toast } from '@/components/ui/sonner';
+import { ServiziUtilityButtons } from './ServiziUtilityButtons';
 
 const stipendioSchema = z.object({
   user_id: z.string().min(1, 'Seleziona un utente'),
@@ -165,6 +167,23 @@ export function NuovoStipendioSheet({
     (selectedUser.role === 'dipendente' || selectedUser.role === 'admin' || (selectedUser.role === 'socio' && watchedValues.km && watchedValues.km >= 12));
 
   const isLoading = createStipendioMutation.isPending || isCalculating;
+  
+  // Handlers for ServiziUtilityButtons
+  const handleKmCalculated = (km: number) => {
+    if (km > 0) {
+      form.setValue('km', km);
+    }
+  };
+  
+  const handleOreCalculated = (ore: number) => {
+    if (ore > 0) {
+      if (selectedUser?.role === 'socio') {
+        form.setValue('ore_attesa', ore);
+      } else {
+        form.setValue('ore_lavorate', ore);
+      }
+    }
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -264,6 +283,17 @@ export function NuovoStipendioSheet({
                   </FormItem>
                 )}
               />
+              
+              {selectedUser && (
+                <ServiziUtilityButtons 
+                  userId={selectedUser.id}
+                  mese={selectedMonth}
+                  anno={selectedYear}
+                  onKmCalculated={handleKmCalculated}
+                  onOreCalculated={handleOreCalculated}
+                  size="sm"
+                />
+              )}
             </div>
 
             {/* Sezione 2 - Dati calcolo */}

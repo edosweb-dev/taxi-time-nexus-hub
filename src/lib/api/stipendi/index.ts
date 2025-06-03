@@ -21,3 +21,9 @@ export {
   type CalcoloStipendioCompleto,
   type DetrazioniStipendio
 } from './calcolaStipendio';
+
+export {
+  getDatiServiziUtente,
+  getKmServiziMese,
+  getOreLavorateServiziMese
+} from './calcolaServiziUtente';
