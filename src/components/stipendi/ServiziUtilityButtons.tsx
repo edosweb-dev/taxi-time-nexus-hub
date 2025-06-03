@@ -24,7 +24,7 @@ export function ServiziUtilityButtons({
   className = "",
   size = "default"
 }: ServiziUtilityButtonsProps) {
-  const { data, isLoading, isFetching, refetch } = useServiziUtente(userId, mese, anno);
+  const { data, isLoading: isLoadingQuery, isFetching, refetch } = useServiziUtente(userId, mese, anno);
   const [isFetchingKm, setIsFetchingKm] = useState(false);
   const [isFetchingOre, setIsFetchingOre] = useState(false);
 
@@ -68,7 +68,7 @@ export function ServiziUtilityButtons({
     }
   };
 
-  const isLoading = isFetching || isFetchingKm || isFetchingOre;
+  const isButtonsDisabled = isFetching || isFetchingKm || isFetchingOre || isLoadingQuery;
 
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
@@ -77,7 +77,7 @@ export function ServiziUtilityButtons({
         variant="outline"
         size={size}
         onClick={handleCalculateKm}
-        disabled={!userId || isLoading}
+        disabled={!userId || isButtonsDisabled}
         className="flex items-center gap-2 text-xs"
       >
         {isFetchingKm ? (
@@ -93,7 +93,7 @@ export function ServiziUtilityButtons({
         variant="outline"
         size={size}
         onClick={handleCalculateOre}
-        disabled={!userId || isLoading}
+        disabled={!userId || isButtonsDisabled}
         className="flex items-center gap-2 text-xs"
       >
         {isFetchingOre ? (
