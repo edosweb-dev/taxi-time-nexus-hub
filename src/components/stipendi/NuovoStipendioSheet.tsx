@@ -34,7 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { useCalcoloStipendio } from '@/hooks/useCalcoloStipendio';
-import { useConfigurazioneStipendi } from '@/hooks/useStipendi';
+import { useConfigurazioneStipendi, useCreateStipendio } from '@/hooks/useStipendi';
 import { getInitials, getRuoloBadge } from './TabellaStipendi/utils';
 import { toast } from '@/components/ui/sonner';
 
@@ -66,6 +66,7 @@ export function NuovoStipendioSheet({
 }: NuovoStipendioSheetProps) {
   const { users } = useUsers();
   const { data: configurazione } = useConfigurazioneStipendi(selectedYear);
+  const createStipendioMutation = useCreateStipendio();
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const form = useForm<StipendioFormData>({
@@ -123,19 +124,32 @@ export function NuovoStipendioSheet({
 
   const handleSubmit = async (data: StipendioFormData) => {
     try {
-      console.log('Saving stipendio:', data);
-      toast.success('Stipendio salvato come bozza');
+      console.log('[NuovoStipendioSheet] Submitting stipendio:', data);
+      
+      await createStipendioMutation.mutateAsync({
+        formData: data,
+        mese: selectedMonth,
+        anno: selectedYear,
+        calcolo: selectedUser?.role === 'socio' ? calcolo : null,
+      });
+
+      // Close sheet and notify parent
       onOpenChange(false);
       onStipendioCreated();
+      
+      // Reset form
       form.reset();
+      setSelectedUser(null);
     } catch (error) {
-      console.error('Error saving stipendio:', error);
-      toast.error('Errore durante il salvataggio');
+      console.error('[NuovoStipendioSheet] Error submitting stipendio:', error);
+      // Error handling is done in the mutation onError callback
     }
   };
 
   const isFormValid = form.formState.isValid && selectedUser && 
     (selectedUser.role === 'dipendente' || (selectedUser.role === 'socio' && watchedValues.km && watchedValues.km >= 12));
+
+  const isLoading = createStipendioMutation.isPending || isCalculating;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -158,7 +172,11 @@ export function NuovoStipendioSheet({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Dipendente/Socio *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value}
+                      disabled={isLoading}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleziona un utente..." />
@@ -231,6 +249,7 @@ export function NuovoStipendioSheet({
                               type="number"
                               min={12}
                               step={5}
+                              disabled={isLoading}
                               {...field}
                               onChange={(e) => field.onChange(Number(e.target.value))}
                             />
@@ -250,6 +269,7 @@ export function NuovoStipendioSheet({
                               type="number"
                               min={0}
                               step={0.5}
+                              disabled={isLoading}
                               {...field}
                               onChange={(e) => field.onChange(Number(e.target.value))}
                             />
@@ -274,6 +294,7 @@ export function NuovoStipendioSheet({
                               type="number"
                               min={0}
                               step={0.5}
+                              disabled={isLoading}
                               {...field}
                               onChange={(e) => field.onChange(Number(e.target.value))}
                             />
@@ -293,6 +314,7 @@ export function NuovoStipendioSheet({
                               type="number"
                               min={0}
                               step={0.01}
+                              disabled={isLoading}
                               {...field}
                               onChange={(e) => field.onChange(Number(e.target.value))}
                             />
@@ -416,6 +438,7 @@ export function NuovoStipendioSheet({
                       <Textarea
                         placeholder="Inserisci eventuali note..."
                         className="resize-none"
+                        disabled={isLoading}
                         {...field}
                       />
                     </FormControl>
@@ -432,15 +455,16 @@ export function NuovoStipendioSheet({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 className="flex-1"
+                disabled={isLoading}
               >
                 Annulla
               </Button>
               <Button
                 type="submit"
-                disabled={!isFormValid || isCalculating}
+                disabled={!isFormValid || isLoading}
                 className="flex-1"
               >
-                {isCalculating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Salva come bozza
               </Button>
             </div>
