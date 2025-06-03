@@ -126,8 +126,20 @@ export function NuovoStipendioSheet({
     try {
       console.log('[NuovoStipendioSheet] Submitting stipendio:', data);
       
+      // Ensure user_id is present before calling mutation
+      if (!data.user_id) {
+        throw new Error('User ID is required');
+      }
+
       await createStipendioMutation.mutateAsync({
-        formData: data,
+        formData: {
+          user_id: data.user_id, // Now guaranteed to be string
+          km: data.km,
+          ore_attesa: data.ore_attesa,
+          ore_lavorate: data.ore_lavorate,
+          tariffa_oraria: data.tariffa_oraria,
+          note: data.note,
+        },
         mese: selectedMonth,
         anno: selectedYear,
         calcolo: selectedUser?.role === 'socio' ? calcolo : null,

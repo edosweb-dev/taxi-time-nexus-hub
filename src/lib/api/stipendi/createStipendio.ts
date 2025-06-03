@@ -23,6 +23,12 @@ export async function createStipendio(params: CreateStipendioParams): Promise<St
 
     const { formData, mese, anno, calcolo } = params;
 
+    // Get current user for created_by field
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
     // Determina il tipo di calcolo basato sui campi presenti
     const tipoCalcolo = formData.km ? 'socio' : 'dipendente';
 
@@ -31,7 +37,7 @@ export async function createStipendio(params: CreateStipendioParams): Promise<St
       user_id: formData.user_id,
       mese,
       anno,
-      tipo_calcolo: tipoCalcolo,
+      tipo_calcolo: tipoCalcolo as 'socio' | 'dipendente',
       // Dati input
       totale_km: formData.km || null,
       totale_ore_attesa: formData.ore_attesa || null,
@@ -48,6 +54,7 @@ export async function createStipendio(params: CreateStipendioParams): Promise<St
       percentuale_su_totale: null, // Da calcolare successivamente se necessario
       stato: 'bozza' as const,
       note: formData.note || null,
+      created_by: user.id,
     };
 
     console.log('[createStipendio] Prepared stipendio data:', stipendioData);
