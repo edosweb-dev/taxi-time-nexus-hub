@@ -1,4 +1,3 @@
-
 export type { 
   Stipendio, 
   StipendioFormData, 
@@ -15,3 +14,9 @@ export interface StipendioCalculationResult {
   totale_netto: number;
   percentuale_su_totale?: number;
 }
+
+export type {
+  CalcoloStipendioParams,
+  CalcoloStipendioCompleto,
+  DetrazioniStipendio
+} from './calcolaStipendio';

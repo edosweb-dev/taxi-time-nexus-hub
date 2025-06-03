@@ -1,4 +1,3 @@
-
 export { getStipendi, getStipendioById } from './getStipendi';
 export { getTariffeKm, getConfigurazioneStipendi } from './getTariffe';
 export type { 
@@ -10,3 +9,11 @@ export type {
   StatoStipendio,
   StipendioCalculationResult
 } from './types';
+
+export { 
+  calcolaStipendioCompleto, 
+  getDetrazioniStipendio,
+  type CalcoloStipendioParams,
+  type CalcoloStipendioCompleto,
+  type DetrazioniStipendio
+} from './calcolaStipendio';
