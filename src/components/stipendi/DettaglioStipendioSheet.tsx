@@ -28,7 +28,7 @@ import {
 import { useStipendioDetail } from '@/hooks/useStipendi';
 import { formatCurrency } from '@/lib/utils';
 import { getInitials, getRuoloBadge, getStatoBadge } from './TabellaStipendi/utils';
-import { ModificaStipendioSheet } from './ModificaStipendioSheet';
+import { ModificaStipendioSheet } from './modifica/ModificaStipendioSheet';
 
 interface DettaglioStipendioSheetProps {
   stipendioId: string;
