@@ -1,4 +1,5 @@
 
-export { FeedbackButton } from './FeedbackButton';
-export { FeedbackDialog } from './FeedbackDialog';
-export { FeedbackForm } from './FeedbackForm';
+export * from './FeedbackButton';
+export * from './FeedbackDialog';
+export * from './FeedbackSheet';
+export * from './FeedbackForm';

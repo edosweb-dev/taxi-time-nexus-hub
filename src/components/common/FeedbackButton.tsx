@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
-import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { FeedbackSheet } from '@/components/feedback/FeedbackSheet';
 
 export function FeedbackButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +27,7 @@ export function FeedbackButton() {
         </div>
       </Button>
       
-      <FeedbackDialog 
+      <FeedbackSheet 
         open={isOpen} 
         onOpenChange={setIsOpen} 
       />
