@@ -10,7 +10,8 @@ import {
   Users, 
   Settings, 
   UserCircle,
-  FileText
+  FileText,
+  MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,7 +50,8 @@ export function MobileMenuContent() {
     {
       title: 'Reportistica',
       items: [
-        { title: 'Report', path: '/reports', icon: FileBarChart, roles: ['admin', 'socio', 'cliente'] }
+        { title: 'Report', path: '/reports', icon: FileBarChart, roles: ['admin', 'socio', 'cliente'] },
+        { title: 'Feedback', path: '/feedback', icon: MessageCircle, roles: ['admin', 'socio'] }
       ]
     },
     {

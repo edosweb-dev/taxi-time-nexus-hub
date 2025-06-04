@@ -10,6 +10,7 @@ import ClientDashboardPage from './pages/ClientDashboardPage';
 import RecuperaPasswordPage from './pages/RecuperaPasswordPage';
 import ReportsPage from './pages/ReportsPage';
 import StipendiPage from './pages/StipendiPage';
+import FeedbackPage from './pages/FeedbackPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { AuthGuard } from './components/AuthGuard';
 import AziendePage from './pages/aziende/AziendePage';
@@ -150,6 +151,12 @@ function App() {
             <Route path="/reports" element={
               <AuthGuard allowedRoles={['admin', 'socio', 'cliente']}>
                 <ReportsPage />
+              </AuthGuard>
+            } />
+            
+            <Route path="/feedback" element={
+              <AuthGuard allowedRoles={['admin', 'socio']}>
+                <FeedbackPage />
               </AuthGuard>
             } />
             

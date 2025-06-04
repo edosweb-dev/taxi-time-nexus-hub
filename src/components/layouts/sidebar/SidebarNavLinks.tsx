@@ -17,7 +17,8 @@ import {
   ChevronDown,
   ChevronRight,
   FileText,
-  Calculator
+  Calculator,
+  MessageCircle
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
@@ -73,7 +74,8 @@ export function SidebarNavLinks() {
     {
       title: 'Reportistica',
       items: [
-        { title: 'Report', path: '/reports', icon: FileBarChart }
+        { title: 'Report', path: '/reports', icon: FileBarChart },
+        { title: 'Feedback', path: '/feedback', icon: MessageCircle }
       ]
     },
     {
