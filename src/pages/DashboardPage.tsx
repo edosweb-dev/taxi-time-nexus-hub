@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Users, Building } from 'lucide-react';
-import { FeedbackButton } from '@/components/feedback';
 
 export default function DashboardPage() {
   const { profile } = useAuth();
@@ -23,7 +22,7 @@ export default function DashboardPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50/30 relative">
+      <div className="min-h-screen bg-gray-50/30">
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -118,9 +117,6 @@ export default function DashboardPage() {
             </Card>
           </div>
         </div>
-        
-        {/* Feedback button posizionato all'interno della sezione */}
-        <FeedbackButton />
       </div>
     </MainLayout>
   );

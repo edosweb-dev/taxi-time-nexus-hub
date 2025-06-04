@@ -1,0 +1,36 @@
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { MessageCircle } from 'lucide-react';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+
+export function FeedbackButton() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 
+                   rounded-none rounded-r-lg shadow-lg 
+                   h-24 w-8 p-0 
+                   bg-primary hover:bg-primary/90
+                   border-r border-t border-b border-primary-foreground/20
+                   transition-all duration-200 hover:w-10"
+        size="sm"
+      >
+        <div className="flex flex-col items-center justify-center gap-1">
+          <MessageCircle className="h-4 w-4" />
+          <span className="text-xs font-medium -rotate-90 whitespace-nowrap">
+            Feedback
+          </span>
+        </div>
+      </Button>
+      
+      <FeedbackDialog 
+        open={isOpen} 
+        onOpenChange={setIsOpen} 
+      />
+    </>
+  );
+}

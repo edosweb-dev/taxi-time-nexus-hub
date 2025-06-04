@@ -9,7 +9,6 @@ import { useVeicoli } from '@/hooks/useVeicoli';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
 import { toast } from '@/components/ui/use-toast';
 import { createVeicolo, updateVeicolo, deleteVeicolo } from '@/lib/api/veicoli';
-import { FeedbackButton } from '@/components/feedback';
 
 export default function VeicoliPage() {
   const { veicoli, refetch } = useVeicoli();
@@ -77,7 +76,7 @@ export default function VeicoliPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50/30 relative">
+      <div className="min-h-screen bg-gray-50/30">
         <div className="container mx-auto p-4 md:p-6 space-y-6">
           {/* Header con breadcrumb */}
           <div className="space-y-4">
@@ -116,9 +115,6 @@ export default function VeicoliPage() {
             isSubmitting={isSubmitting}
           />
         </div>
-        
-        {/* Feedback button posizionato all'interno della sezione */}
-        <FeedbackButton />
       </div>
     </MainLayout>
   );
