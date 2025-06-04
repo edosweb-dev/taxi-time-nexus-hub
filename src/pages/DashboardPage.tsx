@@ -5,10 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Users, Building } from 'lucide-react';
+import { TourGuide } from '@/components/tour/TourGuide';
+import { dashboardSteps } from '@/components/tour/tourSteps';
+import { useTour } from '@/hooks/useTour';
 
 export default function DashboardPage() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const { isFirstLogin } = useTour();
   
   const fullName = profile?.first_name && profile?.last_name 
     ? `${profile.first_name} ${profile.last_name}`
@@ -32,7 +36,7 @@ export default function DashboardPage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {isAdminOrSocio && (
-            <Card className={isAdminOrSocio ? "border-primary/30 shadow-md" : ""}>
+            <Card className={isAdminOrSocio ? "border-primary/30 shadow-md" : ""} data-tour="users-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className={`h-5 w-5 ${isAdminOrSocio ? "text-primary" : "text-muted-foreground"}`} />
@@ -56,7 +60,7 @@ export default function DashboardPage() {
           )}
 
           {isAdminOrSocio && (
-            <Card className={isAdminOrSocio ? "border-primary/30 shadow-md" : ""}>
+            <Card className={isAdminOrSocio ? "border-primary/30 shadow-md" : ""} data-tour="companies-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building className={`h-5 w-5 ${isAdminOrSocio ? "text-primary" : "text-muted-foreground"}`} />
@@ -79,7 +83,7 @@ export default function DashboardPage() {
             </Card>
           )}
 
-          <Card className="border-primary/30 shadow-md">
+          <Card className="border-primary/30 shadow-md" data-tour="shifts-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
@@ -116,6 +120,12 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      <TourGuide 
+        steps={dashboardSteps} 
+        tourKey="dashboard" 
+        autoStart={isFirstLogin}
+      />
     </MainLayout>
   );
 }

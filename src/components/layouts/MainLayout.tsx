@@ -12,7 +12,7 @@ export function MainLayout({ children }: PropsWithChildren) {
   
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar className="border-r border-border text-white">
+      <Sidebar className="border-r border-border text-white" data-tour="sidebar">
         {/* This container will hold the actual sidebar content with primary background */}
         <div className="flex flex-col h-full bg-primary">
           <SidebarHeader className="h-14 flex items-center">

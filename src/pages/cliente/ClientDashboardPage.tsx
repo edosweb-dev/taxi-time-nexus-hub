@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { ClientDashboardLayout } from '@/components/layouts/ClientDashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,12 +7,16 @@ import { useNavigate } from 'react-router-dom';
 import { Azienda } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { TourGuide } from '@/components/tour/TourGuide';
+import { clientDashboardSteps } from '@/components/tour/tourSteps';
+import { useTour } from '@/hooks/useTour';
 
 export default function ClientDashboardPage() {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [azienda, setAzienda] = useState<Azienda | null>(null);
   const [loading, setLoading] = useState(true);
+  const { isFirstLogin } = useTour();
 
   const fullName = profile?.first_name && profile?.last_name 
     ? `${profile.first_name} ${profile.last_name}`
@@ -70,7 +73,7 @@ export default function ClientDashboardPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="border-primary/30 shadow-md">
+          <Card className="border-primary/30 shadow-md" data-tour="new-service-card">
             <CardHeader>
               <CardTitle>Richiedi Servizio</CardTitle>
               <CardDescription>
@@ -85,7 +88,7 @@ export default function ClientDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card data-tour="my-services-card">
             <CardHeader>
               <CardTitle>I Miei Servizi</CardTitle>
               <CardDescription>
@@ -100,7 +103,7 @@ export default function ClientDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card data-tour="reports-card">
             <CardHeader>
               <CardTitle>Report Mensili</CardTitle>
               <CardDescription>
@@ -116,6 +119,12 @@ export default function ClientDashboardPage() {
           </Card>
         </div>
       </div>
+
+      <TourGuide 
+        steps={clientDashboardSteps} 
+        tourKey="client-dashboard" 
+        autoStart={isFirstLogin}
+      />
     </ClientDashboardLayout>
   );
 }
