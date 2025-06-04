@@ -35,6 +35,12 @@ export function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('[LoginForm] Tentativo di login con:', { 
+      email, 
+      passwordLength: password.length,
+      timestamp: new Date().toISOString()
+    });
+    
     // Save or remove credentials based on rememberMe state
     if (rememberMe) {
       localStorage.setItem('rememberedEmail', email);
@@ -46,7 +52,12 @@ export function LoginForm() {
       localStorage.setItem('rememberMe', 'false');
     }
     
-    await signIn(email, password);
+    try {
+      await signIn(email, password);
+      console.log('[LoginForm] SignIn completato senza errori');
+    } catch (error) {
+      console.error('[LoginForm] Errore durante signIn:', error);
+    }
   };
 
   return (

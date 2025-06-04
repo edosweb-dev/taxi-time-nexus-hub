@@ -74,13 +74,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('[AuthContext] Fetching profile for user:', userId);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[AuthContext] Error fetching profile:', error);
+        throw error;
+      }
+      
+      console.log('[AuthContext] Profile fetched successfully:', data);
       
       // Cast the role to UserRole type explicitly
       setProfile({
@@ -91,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         azienda_id: data.azienda_id || null
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('[AuthContext] Error fetching profile:', error);
     } finally {
       setLoading(false);
     }
@@ -100,29 +107,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
+      console.log('[AuthContext] Iniziando signIn per:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      console.log('[AuthContext] Risposta da signInWithPassword:', { 
+        hasUser: !!data.user, 
+        hasSession: !!data.session,
+        error: error?.message 
+      });
+
       if (error) {
-        toast.error(error.message);
+        console.error('[AuthContext] Errore di autenticazione:', error);
+        toast.error(`Errore di accesso: ${error.message}`);
         return;
       }
 
       if (data.user) {
+        console.log('[AuthContext] Utente autenticato, ID:', data.user.id);
+        
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', data.user.id)
           .single();
 
+        console.log('[AuthContext] Ricerca profilo per utente:', data.user.id);
+        console.log('[AuthContext] Risultato ricerca profilo:', { 
+          hasProfile: !!profileData, 
+          error: profileError?.message 
+        });
+
         if (profileError) {
+          console.error('[AuthContext] Errore nel recupero del profilo:', profileError);
           toast.error('Errore nel recupero del profilo');
           return;
         }
 
         if (profileData) {
+          console.log('[AuthContext] Profilo trovato:', profileData);
+          
           // Cast the role to UserRole type explicitly
           setProfile({
             id: profileData.id,
@@ -134,15 +161,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           // Reindirizza in base al ruolo
           if (profileData.role === 'cliente') {
+            console.log('[AuthContext] Reindirizzamento a dashboard cliente');
             navigate('/dashboard-cliente');
           } else {
+            console.log('[AuthContext] Reindirizzamento a dashboard principale');
             navigate('/dashboard');
           }
           toast.success('Accesso effettuato con successo');
+        } else {
+          console.error('[AuthContext] Profilo non trovato per utente:', data.user.id);
+          toast.error('Profilo utente non trovato');
         }
       }
     } catch (error: any) {
-      console.error('Error signing in:', error);
+      console.error('[AuthContext] Errore imprevisto durante signIn:', error);
       toast.error(error.message || 'Errore durante l\'accesso');
     } finally {
       setLoading(false);
