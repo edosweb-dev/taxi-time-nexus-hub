@@ -11,11 +11,11 @@ export function FeedbackButton() {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 
-                   rounded-none rounded-r-lg shadow-lg 
+        className="fixed right-0 top-1/2 transform -translate-y-1/2 z-50 
+                   rounded-none rounded-l-lg shadow-lg 
                    h-24 w-8 p-0 
                    bg-primary hover:bg-primary/90
-                   border-r border-t border-b border-primary-foreground/20
+                   border-l border-t border-b border-primary-foreground/20
                    transition-all duration-200 hover:w-10"
         size="sm"
       >
