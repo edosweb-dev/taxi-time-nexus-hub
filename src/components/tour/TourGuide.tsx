@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import Joyride, { Step, CallBackProps, STATUS, EVENTS } from 'react-joyride';
+import Joyride, { Step, CallBackProps } from 'react-joyride';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,11 +35,11 @@ export function TourGuide({ steps, tourKey, autoStart = false }: TourGuideProps)
   const handleTourCallback = (data: CallBackProps) => {
     const { status, type } = data;
     
-    if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+    if (['step:after', 'error:target_not_found'].includes(type)) {
       // Aggiorna l'indice dello step
     }
     
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+    if (['finished', 'skipped'].includes(status)) {
       setRunTour(false);
       localStorage.setItem(storageKey, 'true');
       setTourCompleted(true);
