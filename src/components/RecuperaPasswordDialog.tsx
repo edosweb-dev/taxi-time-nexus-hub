@@ -38,7 +38,7 @@ export function RecuperaPasswordDialog({ children }: RecuperaPasswordDialogProps
       const { success, error } = await resetUserPassword(email);
       
       if (success) {
-        toast.success(`Email di recupero password inviata a ${email}`);
+        toast.success(`Link per reimpostare la password inviato a ${email}. Controlla la tua email.`);
         setEmail('');
         setIsOpen(false);
       } else {
@@ -99,7 +99,7 @@ export function RecuperaPasswordDialog({ children }: RecuperaPasswordDialogProps
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  Invia Email
+                  Invia Link
                 </>
               )}
             </Button>

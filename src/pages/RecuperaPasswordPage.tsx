@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, ArrowLeft, Send } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Link } from "react-router-dom";
+import { resetUserPassword } from "@/lib/api/users";
 
 export default function RecuperaPasswordPage() {
   const [email, setEmail] = useState("");
@@ -17,14 +18,26 @@ export default function RecuperaPasswordPage() {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email) {
+      toast.error('Inserisci un indirizzo email valido');
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-      toast.success("Se l'indirizzo email esiste nel sistema, riceverai istruzioni per reimpostare la password.");
-      setTimeout(() => navigate("/login"), 2000);
-    } catch (error) {
-      toast.error("Si è verificato un errore. Riprova più tardi.");
+      const { success, error } = await resetUserPassword(email);
+      
+      if (success) {
+        toast.success(`Link per reimpostare la password inviato a ${email}. Controlla la tua email.`);
+        setTimeout(() => navigate("/login"), 3000);
+      } else {
+        toast.error(`Errore nell'invio dell'email: ${error?.message || 'Si è verificato un errore'}`);
+      }
+    } catch (error: any) {
+      console.error('Error resetting password:', error);
+      toast.error(`Errore nell'invio dell'email: ${error.message || 'Si è verificato un errore'}`);
     } finally {
       setLoading(false);
     }
@@ -36,7 +49,7 @@ export default function RecuperaPasswordPage() {
         <CardHeader className="pb-2">
           <h2 className="text-xl font-medium text-center text-taxitime-800">Recupera Password</h2>
           <p className="text-sm text-center text-muted-foreground mt-1">
-            Inserisci la tua email per reimpostare la password
+            Inserisci la tua email per ricevere un link di reset
           </p>
         </CardHeader>
         
@@ -64,11 +77,11 @@ export default function RecuperaPasswordPage() {
               {loading ? (
                 <>
                   <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                  Elaborazione in corso...
+                  Invio in corso...
                 </>
               ) : (
                 <>
-                  <Send className="mr-2 h-4 w-4" /> Invia istruzioni
+                  <Send className="mr-2 h-4 w-4" /> Invia link di reset
                 </>
               )}
             </Button>
