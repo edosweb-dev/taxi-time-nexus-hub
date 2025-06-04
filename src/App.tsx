@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
@@ -8,22 +9,26 @@ import Index from "@/pages/Index";
 import LoginPage from "@/pages/LoginPage";
 import RecuperaPasswordPage from "@/pages/RecuperaPasswordPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
-import Dashboard from "@/pages/Dashboard";
-import DashboardCliente from "@/pages/DashboardCliente";
-import AziendePage from "@/pages/AziendePage";
-import UtentiPage from "@/pages/UtentiPage";
-import ServiziPage from "@/pages/ServiziPage";
-import AddServizioPage from "@/pages/AddServizioPage";
-import EditServizioPage from "@/pages/EditServizioPage";
-import ServizioDetailPage from "@/pages/ServizioDetailPage";
-import AddAziendaPage from "@/pages/AddAziendaPage";
-import EditAziendaPage from "@/pages/EditAziendaPage";
-import AddUserPage from "@/pages/AddUserPage";
-import EditUserPage from "@/pages/EditUserPage";
-import ProfilePage from "@/pages/ProfilePage";
+import DashboardPage from "@/pages/DashboardPage";
+import ClientDashboardPage from "@/pages/cliente/ClientDashboardPage";
+import AziendePage from "@/pages/aziende/AziendePage";
+import AziendaDetailPage from "@/pages/aziende/AziendaDetailPage";
+import UsersPage from "@/pages/UsersPage";
+import ServiziPage from "@/pages/servizi/ServiziPage";
+import ServizioDetailPage from "@/pages/servizi/ServizioDetailPage";
+import NuovoServizioPage from "@/pages/servizi/NuovoServizioPage";
 import AssistenzaPage from "@/pages/AssistenzaPage";
-import UserBackupsPage from "@/pages/UserBackupsPage";
-import UserBackupDetailPage from "@/pages/UserBackupDetailPage";
+import VeicoliPage from "@/pages/veicoli/VeicoliPage";
+import ShiftsPage from "@/pages/ShiftsPage";
+import SpeseDipendentePage from "@/pages/SpeseDipendentePage";
+import SpeseAziendaliPage from "@/pages/SpeseAziendaliPage";
+import ImpostazioniPage from "@/pages/ImpostazioniPage";
+import ReportsPage from "@/pages/ReportsPage";
+import FeedbackPage from "@/pages/FeedbackPage";
+import NotFoundPage from "@/pages/NotFoundPage";
+import ClientServiziPage from "@/pages/cliente/ServiziPage";
+import ClientNuovoServizioPage from "@/pages/cliente/NuovoServizioPage";
+import ClientProfiloPage from "@/pages/cliente/ProfiloPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,22 +49,26 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/recupera-password" element={<RecuperaPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard-cliente" element={<DashboardCliente />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard-cliente" element={<ClientDashboardPage />} />
+            <Route path="/dashboard-cliente/servizi" element={<ClientServiziPage />} />
+            <Route path="/dashboard-cliente/nuovo-servizio" element={<ClientNuovoServizioPage />} />
+            <Route path="/dashboard-cliente/profilo" element={<ClientProfiloPage />} />
             <Route path="/aziende" element={<AziendePage />} />
-            <Route path="/utenti" element={<UtentiPage />} />
+            <Route path="/aziende/:id" element={<AziendaDetailPage />} />
+            <Route path="/users" element={<UsersPage />} />
             <Route path="/servizi" element={<ServiziPage />} />
-            <Route path="/servizi/add" element={<AddServizioPage />} />
-            <Route path="/servizi/edit/:id" element={<EditServizioPage />} />
             <Route path="/servizi/:id" element={<ServizioDetailPage />} />
-            <Route path="/aziende/add" element={<AddAziendaPage />} />
-            <Route path="/aziende/edit/:id" element={<EditAziendaPage />} />
-            <Route path="/utenti/add" element={<AddUserPage />} />
-            <Route path="/utenti/edit/:id" element={<EditUserPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/servizi/nuovo" element={<NuovoServizioPage />} />
+            <Route path="/veicoli" element={<VeicoliPage />} />
+            <Route path="/turni" element={<ShiftsPage />} />
+            <Route path="/expenses" element={<SpeseDipendentePage />} />
+            <Route path="/spese-aziendali" element={<SpeseAziendaliPage />} />
+            <Route path="/impostazioni" element={<ImpostazioniPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/feedback" element={<FeedbackPage />} />
             <Route path="/assistenza" element={<AssistenzaPage />} />
-            <Route path="/user-backups" element={<UserBackupsPage />} />
-            <Route path="/user-backups/:id" element={<UserBackupDetailPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
           <Toaster />
         </AuthProvider>
