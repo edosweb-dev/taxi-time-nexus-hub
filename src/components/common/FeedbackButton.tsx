@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { MessageCircle } from 'lucide-react';
 import { FeedbackSheet } from '@/components/feedback/FeedbackSheet';
 
 export function FeedbackButton() {
@@ -19,8 +18,7 @@ export function FeedbackButton() {
                    transition-all duration-200 hover:w-12"
         size="sm"
       >
-        <div className="flex flex-col items-center justify-center gap-2">
-          <MessageCircle className="h-5 w-5 text-primary-foreground" />
+        <div className="flex flex-col items-center justify-center">
           <span className="text-xs font-medium -rotate-90 whitespace-nowrap text-primary-foreground">
             Feedback
           </span>
