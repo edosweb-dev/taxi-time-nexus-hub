@@ -22,7 +22,9 @@ Deno.serve(async (req) => {
     // Initialize Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
 
     // Get authorization header
     const authHeader = req.headers.get('Authorization');
@@ -34,23 +36,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Extract token from header
+    // Extract and verify the JWT token
     const token = authHeader.replace('Bearer ', '');
     
-    // Create a client with anon key to verify the user token
-    const supabaseAnon = createClient(
-      supabaseUrl, 
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    );
-
-    // Verify user token
-    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
+    // Verify the user directly with the service role client
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       console.log('[backup-and-delete-user] Auth error:', authError);
@@ -59,6 +49,8 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+
+    console.log('[backup-and-delete-user] User authenticated:', user.id);
 
     // Check if user is admin
     const { data: profile, error: profileError } = await supabase
@@ -238,6 +230,14 @@ Deno.serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
+    }
+
+    // Also delete from auth.users using admin API
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
+    
+    if (authDeleteError) {
+      console.log('[backup-and-delete-user] Error deleting auth user:', authDeleteError);
+      // Non blocchiamo per questo errore, ma lo logghiamo
     }
 
     console.log('[backup-and-delete-user] User deleted successfully');
