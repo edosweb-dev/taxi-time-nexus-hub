@@ -38,7 +38,15 @@ export function FeedbackForm({ onSuccess }: FeedbackFormProps) {
 
   const onSubmit = async (data: FeedbackFormData) => {
     try {
-      await createFeedback(data);
+      // Ensure all required fields are present
+      const feedbackData = {
+        tipo: data.tipo,
+        pagina: data.pagina,
+        messaggio: data.messaggio,
+        email: data.email || undefined,
+      };
+      
+      await createFeedback(feedbackData);
       onSuccess();
       form.reset();
     } catch (error) {

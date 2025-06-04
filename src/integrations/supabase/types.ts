@@ -75,6 +75,45 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          messaggio: string
+          pagina: string
+          timestamp: string
+          tipo: string
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          messaggio: string
+          pagina: string
+          timestamp?: string
+          tipo: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          messaggio?: string
+          pagina?: string
+          timestamp?: string
+          tipo?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       impostazioni: {
         Row: {
           aliquote_iva: Json | null
