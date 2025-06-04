@@ -6,7 +6,6 @@ import { SidebarNavLinks } from "./sidebar/SidebarNavLinks";
 import { SidebarHeader as AppSidebarHeader } from "./sidebar/SidebarHeader";
 import { SidebarFooterContent } from "./sidebar/SidebarFooter";
 import { MobileNavBar } from "./mobile/MobileNavBar";
-import { FeedbackButton } from "@/components/feedback";
 
 export function ClientDashboardLayout({ children }: PropsWithChildren) {
   const isMobile = useIsMobile();
@@ -36,9 +35,6 @@ export function ClientDashboardLayout({ children }: PropsWithChildren) {
       </main>
       
       {isMobile && <MobileNavBar />}
-      
-      {/* Feedback button per clienti */}
-      <FeedbackButton />
     </div>
   );
 }
