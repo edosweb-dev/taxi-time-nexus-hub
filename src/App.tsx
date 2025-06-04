@@ -56,8 +56,10 @@ function App() {
             <Route path="/dashboard-cliente" element={<ClienteDashboardPage />} />
             <Route path="/aziende" element={<AziendePage />} />
             <Route path="/aziende/:id" element={<AziendaDetailPage />} />
+            <Route path="/users" element={<UsersPage />} />
             <Route path="/utenti" element={<UsersPage />} />
             <Route path="/servizi" element={<ServiziPage />} />
+            <Route path="/nuovo-servizio" element={<NuovoServizioPage />} />
             <Route path="/servizi/nuovo" element={<NuovoServizioPage />} />
             <Route path="/servizi/:id" element={<ServizioDetailPage />} />
             <Route path="/veicoli" element={<VeicoliPage />} />
@@ -66,6 +68,7 @@ function App() {
             <Route path="/spese" element={<SpeseDipendentePage />} />
             <Route path="/spese-aziendali" element={<SpeseAziendaliPage />} />
             <Route path="/impostazioni" element={<ImpostazioniPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route path="/report" element={<ReportsPage />} />
             <Route path="/feedback" element={<FeedbackPage />} />
             <Route path="/assistenza" element={<AssistenzaPage />} />
