@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Step } from 'react-joyride';
 
 // Tour per la Dashboard principale (admin/socio)
