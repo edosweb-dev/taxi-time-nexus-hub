@@ -20,8 +20,15 @@ export async function backupAndDeleteUser(userId: string): Promise<{ success: bo
   try {
     console.log("[backupAndDeleteUser] Starting backup and deletion for user:", userId);
     
+    // Get current user ID for the deletedBy field
+    const { data: { user } } = await supabase.auth.getUser();
+    const deletedBy = user?.id;
+    
     const { data, error } = await supabase.functions.invoke('backup-and-delete-user', {
-      body: { userId }
+      body: { 
+        userId,
+        deletedBy 
+      }
     });
     
     if (error) {
