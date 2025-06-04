@@ -9,8 +9,6 @@ import { useVeicoli } from '@/hooks/useVeicoli';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
 import { toast } from '@/components/ui/use-toast';
 import { createVeicolo, updateVeicolo, deleteVeicolo } from '@/lib/api/veicoli';
-import { TourGuide } from '@/components/tour/TourGuide';
-import { veicoliPageSteps } from '@/components/tour/tourSteps';
 
 export default function VeicoliPage() {
   const { veicoli, refetch } = useVeicoli();
@@ -96,20 +94,18 @@ export default function VeicoliPage() {
                 </p>
               </div>
               
-              <Button onClick={handleAddVeicolo} className="flex items-center gap-2" data-tour="add-vehicle-btn">
+              <Button onClick={handleAddVeicolo} className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Aggiungi Veicolo
               </Button>
             </div>
           </div>
 
-          <div data-tour="vehicles-list">
-            <VeicoloList 
-              veicoli={veicoli}
-              onEdit={handleEditVeicolo}
-              onDelete={handleDeleteVeicolo}
-            />
-          </div>
+          <VeicoloList 
+            veicoli={veicoli}
+            onEdit={handleEditVeicolo}
+            onDelete={handleDeleteVeicolo}
+          />
 
           <VeicoloDialog
             open={isDialogOpen}
@@ -120,12 +116,6 @@ export default function VeicoliPage() {
           />
         </div>
       </div>
-
-      <TourGuide 
-        steps={veicoliPageSteps} 
-        tourKey="veicoli" 
-        autoStart={false}
-      />
     </MainLayout>
   );
 }
