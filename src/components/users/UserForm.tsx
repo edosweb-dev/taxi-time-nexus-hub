@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 import { UserFormData } from '@/lib/usersApi';
 import { Profile, UserRole, Azienda } from '@/lib/types';
 import {
@@ -45,12 +47,13 @@ export function UserForm({
     role: z.enum(['admin', 'socio', 'dipendente', 'cliente'], {
       required_error: 'Seleziona un ruolo',
     }),
-    password: z.string()
-      .min(8, { message: 'La password deve contenere almeno 8 caratteri' })
-      .regex(/[A-Z]/, { message: 'La password deve contenere almeno una lettera maiuscola' })
-      .regex(/[0-9]/, { message: 'La password deve contenere almeno un numero' })
-      .optional()
-      .or(z.literal('')),
+    password: isEditing 
+      ? z.string().optional().or(z.literal('')) // In modifica, password opzionale
+      : z.string()
+          .min(8, { message: 'La password deve contenere almeno 8 caratteri' })
+          .regex(/[A-Z]/, { message: 'La password deve contenere almeno una lettera maiuscola' })
+          .regex(/[0-9]/, { message: 'La password deve contenere almeno un numero' })
+          .optional(), // Opzionale anche in creazione - se non fornita, sarà generata
     confirm_password: z.string().optional().or(z.literal('')),
   }).refine((data) => {
     if (data.password && data.confirm_password) {
@@ -75,10 +78,8 @@ export function UserForm({
   });
 
   const handleSubmit = (values: z.infer<typeof userFormSchema>) => {
-    // Log dettagliato dei valori del form
     console.log("Form values before submit:", values);
     
-    // In modalità modifica, includi i campi necessari
     if (isEditing) {
       const userData: Partial<UserFormData> = {};
       
@@ -87,7 +88,7 @@ export function UserForm({
       
       console.log(`Updating role: ${user?.role} -> ${values.role}`);
       
-      // Opzionalmente includi altre modifiche se vengono fornite
+      // Includi altre modifiche se vengono fornite
       if (values.first_name) {
         userData.first_name = values.first_name.trim();
       }
@@ -140,6 +141,16 @@ export function UserForm({
           hiddenRoles={hiddenRoles} 
           defaultRole={defaultRole}
         />
+        
+        {!isEditing && (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Se non inserisci una password, ne verrà generata una temporanea e l'utente riceverà un'email per impostarla.
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <UserPasswordFields control={form.control} isEditing={isEditing} />
 
         {preselectedAzienda && (

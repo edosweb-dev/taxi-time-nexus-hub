@@ -6,6 +6,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -28,12 +29,14 @@ export function UserPasswordFields({ control, isEditing }: UserPasswordFieldsPro
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{isEditing ? 'Nuova Password (lasciare vuoto per non modificare)' : 'Password'}</FormLabel>
+            <FormLabel>
+              {isEditing ? 'Nuova Password (lasciare vuoto per non modificare)' : 'Password (opzionale)'}
+            </FormLabel>
             <FormControl>
               <div className="relative">
                 <Input 
                   type={showPassword ? "text" : "password"} 
-                  placeholder="Inserisci la password" 
+                  placeholder={isEditing ? "Inserisci la nuova password" : "Inserisci la password o lascia vuoto"} 
                   {...field} 
                   className="pr-10"
                 />
@@ -52,6 +55,11 @@ export function UserPasswordFields({ control, isEditing }: UserPasswordFieldsPro
                 </Button>
               </div>
             </FormControl>
+            {!isEditing && (
+              <FormDescription>
+                Se non inserisci una password, ne verrà generata una temporanea
+              </FormDescription>
+            )}
             <FormMessage />
           </FormItem>
         )}

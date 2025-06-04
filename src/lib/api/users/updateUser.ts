@@ -38,10 +38,15 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
       console.log("[updateUser] No profile data to update");
     }
 
-    // 2. If password is provided, update it using the auth.updateUser API
+    // 2. Se password è fornita, usa la edge function per aggiornare la password
     if (userData.password) {
-      const { error: passwordError } = await supabase.auth.updateUser({
-        password: userData.password
+      console.log("[updateUser] Updating password via edge function");
+      
+      const { data, error: passwordError } = await supabase.functions.invoke('update-user-password', {
+        body: {
+          userId: id,
+          newPassword: userData.password
+        }
       });
 
       if (passwordError) {
@@ -49,7 +54,7 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
         return { success: false, error: passwordError };
       }
       
-      console.log("[updateUser] Password updated successfully");
+      console.log("[updateUser] Password updated successfully via edge function");
     }
 
     console.log("[updateUser] User updated successfully");

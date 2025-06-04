@@ -1,12 +1,11 @@
-
 import { UserCreationResult, UserData, UserProfileResult } from "./types.ts";
 
 export async function createNewUser(supabase: any, userData: UserData): Promise<UserCreationResult> {
-  // Genera una password casuale se non fornita
-  const password = userData.password || Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10).toUpperCase() + '!1';
+  // Se non è fornita una password, genera una password temporanea
+  const password = userData.password || `TempPass${Math.random().toString(36).substring(2, 8).toUpperCase()}!${new Date().getFullYear()}`;
   
   console.log("Edge function: Creazione utente con email:", userData.email);
-  console.log("Edge function: Password generata:", userData.password ? "Fornita dall'utente" : "Generata automaticamente");
+  console.log("Edge function: Password:", userData.password ? "Fornita dall'utente" : "Generata temporaneamente");
   
   // Verifica che l'azienda esista se è stato fornito un azienda_id
   if (userData.azienda_id) {
@@ -23,12 +22,11 @@ export async function createNewUser(supabase: any, userData: UserData): Promise<
     
     console.log("Edge function: Azienda verificata:", userData.azienda_id);
   } else if (userData.role === 'cliente') {
-    // Doppio controllo: un utente cliente deve avere un'azienda associata
     console.error("Edge function: Tentativo di creare utente cliente senza azienda_id");
     return { user: null, error: "Per gli utenti con ruolo cliente è necessario specificare azienda_id" };
   }
 
-  // Creazione utente con metadati
+  // Creazione utente con metadati e password specifica
   console.log("Edge function: Creazione utente con ruolo:", userData.role);
   console.log("Edge function: Metadati user:", {
     first_name: userData.first_name,
@@ -55,6 +53,23 @@ export async function createNewUser(supabase: any, userData: UserData): Promise<
   }
 
   console.log("Edge function: Utente creato con successo:", authData.user.id);
+  
+  // Se la password era generata automaticamente, forza il reset password
+  if (!userData.password) {
+    console.log("Edge function: Invio email di reset password per password temporanea");
+    const { error: resetError } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
+      email: userData.email,
+    });
+    
+    if (resetError) {
+      console.error("Edge function: Errore nell'invio del reset password:", resetError);
+      // Non blocchiamo la creazione dell'utente per questo errore
+    } else {
+      console.log("Edge function: Email di reset password inviata");
+    }
+  }
+  
   return { user: authData.user, error: null };
 }
 
