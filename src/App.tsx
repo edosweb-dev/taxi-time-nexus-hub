@@ -28,9 +28,9 @@ import SpeseAziendaliPage from "@/pages/SpeseAziendaliPage";
 import ImpostazioniPage from "@/pages/ImpostazioniPage";
 import ReportsPage from "@/pages/ReportsPage";
 import FeedbackPage from "@/pages/FeedbackPage";
-import ServiziPage as ClienteServiziPage from "@/pages/cliente/ServiziPage";
-import ClientDashboardPage as ClienteDashboardPage from "@/pages/cliente/ClientDashboardPage";
-import NuovoServizioPage as ClienteNuovoServizioPage from "@/pages/cliente/NuovoServizioPage";
+import ClienteServiziPage from "@/pages/cliente/ServiziPage";
+import ClienteDashboardPage from "@/pages/cliente/ClientDashboardPage";
+import ClienteNuovoServizioPage from "@/pages/cliente/NuovoServizioPage";
 import ProfiloPage from "@/pages/cliente/ProfiloPage";
 
 const queryClient = new QueryClient({
