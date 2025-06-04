@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { VeicoloList } from '@/components/veicoli/VeicoloList';
-import { VeicoloDialog } from '@/components/veicoli/VeicoloDialog';
+import { VeicoloSheet } from '@/components/veicoli/VeicoloSheet';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Home, Plus } from 'lucide-react';
 import { useVeicoli } from '@/hooks/useVeicoli';
@@ -12,18 +12,18 @@ import { createVeicolo, updateVeicolo, deleteVeicolo } from '@/lib/api/veicoli';
 
 export default function VeicoliPage() {
   const { veicoli, refetch } = useVeicoli();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedVeicolo, setSelectedVeicolo] = useState<Veicolo | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddVeicolo = () => {
     setSelectedVeicolo(undefined);
-    setIsDialogOpen(true);
+    setIsSheetOpen(true);
   };
 
   const handleEditVeicolo = (veicolo: Veicolo) => {
     setSelectedVeicolo(veicolo);
-    setIsDialogOpen(true);
+    setIsSheetOpen(true);
   };
 
   const handleDeleteVeicolo = async (veicolo: Veicolo) => {
@@ -61,7 +61,7 @@ export default function VeicoliPage() {
           description: "Il veicolo è stato creato con successo.",
         });
       }
-      setIsDialogOpen(false);
+      setIsSheetOpen(false);
       refetch();
     } catch (error) {
       toast({
@@ -107,9 +107,9 @@ export default function VeicoliPage() {
             onDelete={handleDeleteVeicolo}
           />
 
-          <VeicoloDialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
+          <VeicoloSheet
+            open={isSheetOpen}
+            onOpenChange={setIsSheetOpen}
             veicolo={selectedVeicolo}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}

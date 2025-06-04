@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { UserList } from '@/components/users/UserList';
-import { UserDialog } from '@/components/users/UserDialog';
+import { UserSheet } from '@/components/users/UserSheet';
 import { ChevronRight, Home } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,19 +15,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function UsersPage() {
   const { users, isLoading, refetch, deleteUser, isDeleting } = useUsers();
   const { profile } = useAuth();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
 
   const handleAddUser = () => {
     setSelectedUser(null);
-    setIsDialogOpen(true);
+    setIsSheetOpen(true);
   };
 
   const handleEditUser = (user: Profile) => {
     setSelectedUser(user);
-    setIsDialogOpen(true);
+    setIsSheetOpen(true);
   };
 
   const handleDeleteUser = async (user: Profile) => {
@@ -87,7 +87,7 @@ export default function UsersPage() {
           description: "L'utente è stato creato con successo.",
         });
       }
-      setIsDialogOpen(false);
+      setIsSheetOpen(false);
       refetch();
     } catch (error) {
       toast({
@@ -170,9 +170,9 @@ export default function UsersPage() {
             </TabsContent>
           </Tabs>
 
-          <UserDialog
-            isOpen={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
+          <UserSheet
+            isOpen={isSheetOpen}
+            onOpenChange={setIsSheetOpen}
             onSubmit={handleSubmit}
             user={selectedUser}
             isSubmitting={isSubmitting}

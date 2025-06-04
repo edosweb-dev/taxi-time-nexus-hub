@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { AziendaList } from '@/components/aziende/AziendaList';
-import { AziendaDialog } from '@/components/aziende/AziendaDialog';
+import { AziendaSheet } from '@/components/aziende/AziendaSheet';
 import { ChevronRight, Home } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
 import { Azienda } from '@/lib/types';
@@ -12,18 +12,18 @@ import { createAzienda, updateAzienda, deleteAzienda } from '@/lib/api/aziende';
 
 export default function AziendePage() {
   const { aziende, refetch } = useAziende();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddAzienda = () => {
     setSelectedAzienda(null);
-    setIsDialogOpen(true);
+    setIsSheetOpen(true);
   };
 
   const handleEditAzienda = (azienda: Azienda) => {
     setSelectedAzienda(azienda);
-    setIsDialogOpen(true);
+    setIsSheetOpen(true);
   };
 
   const handleDeleteAzienda = async (azienda: Azienda) => {
@@ -61,7 +61,7 @@ export default function AziendePage() {
           description: "L'azienda è stata creata con successo.",
         });
       }
-      setIsDialogOpen(false);
+      setIsSheetOpen(false);
       refetch();
     } catch (error) {
       toast({
@@ -103,9 +103,9 @@ export default function AziendePage() {
             onAddAzienda={handleAddAzienda}
           />
 
-          <AziendaDialog
-            isOpen={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
+          <AziendaSheet
+            isOpen={isSheetOpen}
+            onOpenChange={setIsSheetOpen}
             onSubmit={handleSubmit}
             azienda={selectedAzienda}
             isSubmitting={isSubmitting}
