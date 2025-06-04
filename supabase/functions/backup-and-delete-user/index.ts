@@ -19,12 +19,12 @@ Deno.serve(async (req) => {
   try {
     console.log('[backup-and-delete-user] Starting function');
     
-    // Initialize Supabase client
+    // Initialize Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify user is authenticated and is admin
+    // Get authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       console.log('[backup-and-delete-user] No authorization header');
@@ -34,10 +34,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get current user from auth token
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
+    // Extract token from header
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Create a client with anon key to verify the user token
+    const supabaseAnon = createClient(
+      supabaseUrl, 
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
     );
+
+    // Verify user token
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token);
 
     if (authError || !user) {
       console.log('[backup-and-delete-user] Auth error:', authError);
@@ -187,7 +200,6 @@ Deno.serve(async (req) => {
 
     // Now proceed with deletion - order matters for foreign key constraints
     
-    // Delete from user_deletion_backup if needed (shouldn't happen but safety first)
     // Delete shifts
     await supabase.from('shifts').delete().eq('user_id', userId);
     
