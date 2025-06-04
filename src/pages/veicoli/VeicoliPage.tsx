@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { VeicoloList } from '@/components/veicoli/VeicoloList';
 import { VeicoloDialog } from '@/components/veicoli/VeicoloDialog';
-import { ChevronRight, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ChevronRight, Home, Plus } from 'lucide-react';
 import { useVeicoli } from '@/hooks/useVeicoli';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
 import { toast } from '@/components/ui/use-toast';
@@ -92,6 +93,11 @@ export default function VeicoliPage() {
                   Gestisci la flotta veicoli
                 </p>
               </div>
+              
+              <Button onClick={handleAddVeicolo} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Aggiungi Veicolo
+              </Button>
             </div>
           </div>
 
