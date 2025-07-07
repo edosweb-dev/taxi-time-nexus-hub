@@ -32,16 +32,7 @@ export function CalendarContent({
 }: CalendarContentProps) {
   const { user } = useAuth();
   
-  // Empty state
-  if (shiftsInView.length === 0) {
-    return (
-      <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          Nessun turno programmato per questo periodo
-        </CardContent>
-      </Card>
-    );
-  }
+  // Always show the calendar, regardless of shifts
 
   // Show calendar based on view mode
   if (viewMode === "month") {

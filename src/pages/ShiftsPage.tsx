@@ -4,7 +4,8 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { ShiftCalendar } from '@/components/shifts/ShiftCalendar';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
 import { ShiftProvider } from '@/components/shifts/ShiftContext';
-import { ChevronRight, Home } from 'lucide-react';
+import { ChevronRight, Home, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function ShiftsPage() {
@@ -39,11 +40,13 @@ export default function ShiftsPage() {
                   </p>
                 </div>
                 
-                <AddShiftDialog 
-                  open={isDialogOpen}
-                  onOpenChange={setIsDialogOpen}
-                  isAdminOrSocio={isAdminOrSocio}
-                />
+                <Button 
+                  onClick={() => setIsDialogOpen(true)}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Aggiungi Turno
+                </Button>
               </div>
             </div>
 
@@ -54,6 +57,12 @@ export default function ShiftsPage() {
             />
           </div>
         </div>
+
+        <AddShiftDialog 
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          isAdminOrSocio={isAdminOrSocio}
+        />
       </ShiftProvider>
     </MainLayout>
   );
