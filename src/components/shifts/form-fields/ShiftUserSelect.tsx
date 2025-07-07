@@ -28,17 +28,27 @@ export function ShiftUserSelect({ control, isAdminOrSocio, isEditing }: ShiftUse
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        console.log('ShiftUserSelect: Fetching users, isAdminOrSocio:', isAdminOrSocio);
         if (isAdminOrSocio) {
           const { data, error } = await supabase
             .from('profiles')
             .select('id, first_name, last_name, role')
-            .in('role', ['admin', 'socio', 'dipendente']);
+            .in('role', ['admin', 'socio', 'dipendente'])
+            .order('first_name');
 
-          if (error) throw error;
+          if (error) {
+            console.error('ShiftUserSelect: Error fetching users:', error);
+            throw error;
+          }
+          
+          console.log('ShiftUserSelect: Fetched users:', data);
           setUsers(data || []);
+        } else {
+          console.log('ShiftUserSelect: Not admin/socio, clearing users');
+          setUsers([]);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('ShiftUserSelect: Error in fetchUsers:', error);
         toast.error('Errore nel caricamento degli utenti');
       }
     };
@@ -73,11 +83,6 @@ export function ShiftUserSelect({ control, isAdminOrSocio, isEditing }: ShiftUse
                   {user.first_name} {user.last_name}
                 </SelectItem>
               ))}
-              {profile && (
-                <SelectItem value={profile.id}>
-                  {profile.first_name} {profile.last_name} (Tu)
-                </SelectItem>
-              )}
             </SelectContent>
           </Select>
           <FormMessage />

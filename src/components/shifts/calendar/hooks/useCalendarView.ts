@@ -57,7 +57,7 @@ export function useCalendarView(
   const hours = useMemo(() => Array.from({ length: 17 }, (_, i) => i + 6), []);
 
   // Load shifts when date range changes
-  useMemo(() => {
+  useEffect(() => {
     loadShifts(viewStart, viewEnd);
   }, [viewStart, viewEnd, loadShifts]);
 
