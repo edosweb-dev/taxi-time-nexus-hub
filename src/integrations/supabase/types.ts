@@ -50,6 +50,50 @@ export type Database = {
         }
         Relationships: []
       }
+      conducenti_esterni: {
+        Row: {
+          attivo: boolean
+          created_at: string
+          created_by: string
+          email: string | null
+          id: string
+          nome_cognome: string
+          note: string | null
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          attivo?: boolean
+          created_at?: string
+          created_by: string
+          email?: string | null
+          id?: string
+          nome_cognome: string
+          note?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attivo?: boolean
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          id?: string
+          nome_cognome?: string
+          note?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conducenti_esterni_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       configurazione_stipendi: {
         Row: {
           anno: number
@@ -450,6 +494,7 @@ export type Database = {
           citta_presa: string | null
           conducente_esterno: boolean | null
           conducente_esterno_email: string | null
+          conducente_esterno_id: string | null
           conducente_esterno_nome: string | null
           consegna_contanti_a: string | null
           created_at: string
@@ -482,6 +527,7 @@ export type Database = {
           citta_presa?: string | null
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
+          conducente_esterno_id?: string | null
           conducente_esterno_nome?: string | null
           consegna_contanti_a?: string | null
           created_at?: string
@@ -514,6 +560,7 @@ export type Database = {
           citta_presa?: string | null
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
+          conducente_esterno_id?: string | null
           conducente_esterno_nome?: string | null
           consegna_contanti_a?: string | null
           created_at?: string
@@ -552,6 +599,13 @@ export type Database = {
             columns: ["azienda_id"]
             isOneToOne: false
             referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servizi_conducente_esterno_id_fkey"
+            columns: ["conducente_esterno_id"]
+            isOneToOne: false
+            referencedRelation: "conducenti_esterni"
             referencedColumns: ["id"]
           },
           {

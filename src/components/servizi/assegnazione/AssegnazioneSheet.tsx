@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-react';
 import { Servizio, StatoServizio } from '@/lib/types/servizi';
 import { Profile, UserRole } from '@/lib/types';
 import { getAvailableUsers } from '../utils/userAvailability';
-import { ConducenteEsternoForm } from './ConducenteEsternoForm';
+import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
 import { DipendenteSelectForm } from './DipendenteSelectForm';
 
 interface AssegnazioneSheetProps {
@@ -30,8 +30,7 @@ export function AssegnazioneSheet({
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConducenteEsterno, setIsConducenteEsterno] = useState(false);
-  const [conducenteEsternoNome, setConducenteEsternoNome] = useState('');
-  const [conducenteEsternoEmail, setConducenteEsternoEmail] = useState('');
+  const [selectedConducenteEsternoId, setSelectedConducenteEsternoId] = useState('');
   const [selectedDipendente, setSelectedDipendente] = useState<string>('');
   
   console.log('[AssegnazioneSheet] Sheet opened for service:', {
@@ -99,11 +98,11 @@ export function AssegnazioneSheet({
     if (open) {
       // Reset form when sheet opens
       setIsConducenteEsterno(!!servizio.conducente_esterno);
-      setConducenteEsternoNome(servizio.conducente_esterno_nome || '');
-      setConducenteEsternoEmail(servizio.conducente_esterno_email || '');
+      setSelectedConducenteEsternoId(servizio.conducente_esterno_id || '');
       setSelectedDipendente(servizio.assegnato_a || '');
       console.log('[AssegnazioneSheet] Form reset with existing values:', {
         conducenteEsterno: !!servizio.conducente_esterno,
+        conducenteEsternoId: servizio.conducente_esterno_id,
         assegnatoA: servizio.assegnato_a
       });
     }
@@ -118,6 +117,7 @@ export function AssegnazioneSheet({
         stato: StatoServizio;
         assegnato_a?: string | null;
         conducente_esterno?: boolean;
+        conducente_esterno_id?: string | null;
         conducente_esterno_nome?: string | null;
         conducente_esterno_email?: string | null;
       } = {
@@ -128,15 +128,17 @@ export function AssegnazioneSheet({
         updateData = {
           ...updateData,
           conducente_esterno: true,
-          conducente_esterno_nome: conducenteEsternoNome,
-          conducente_esterno_email: conducenteEsternoEmail || null,
+          conducente_esterno_id: selectedConducenteEsternoId,
+          conducente_esterno_nome: null, // Clear old manual fields
+          conducente_esterno_email: null, // Clear old manual fields
           assegnato_a: null
         };
-        console.log('[AssegnazioneSheet] Assigning to external driver:', conducenteEsternoNome);
+        console.log('[AssegnazioneSheet] Assigning to external driver ID:', selectedConducenteEsternoId);
       } else {
         updateData = {
           ...updateData,
           conducente_esterno: false,
+          conducente_esterno_id: null,
           conducente_esterno_nome: null,
           conducente_esterno_email: null,
           assegnato_a: selectedDipendente
@@ -184,12 +186,9 @@ export function AssegnazioneSheet({
           </div>
           
           {isConducenteEsterno ? (
-            <ConducenteEsternoForm
-              servizio={servizio}
-              conducenteEsternoNome={conducenteEsternoNome}
-              setConducenteEsternoNome={setConducenteEsternoNome}
-              conducenteEsternoEmail={conducenteEsternoEmail}
-              setConducenteEsternoEmail={setConducenteEsternoEmail}
+            <ConducenteEsternoSelect
+              selectedConducenteId={selectedConducenteEsternoId}
+              setSelectedConducenteId={setSelectedConducenteEsternoId}
             />
           ) : (
             <DipendenteSelectForm
@@ -217,7 +216,7 @@ export function AssegnazioneSheet({
             onClick={handleAssign}
             disabled={
               isSubmitting || 
-              (isConducenteEsterno ? !conducenteEsternoNome : !selectedDipendente)
+              (isConducenteEsterno ? !selectedConducenteEsternoId : !selectedDipendente)
             }
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

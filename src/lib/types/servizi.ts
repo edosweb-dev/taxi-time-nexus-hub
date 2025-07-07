@@ -25,6 +25,7 @@ export interface Servizio {
   conducente_esterno?: boolean;
   conducente_esterno_nome?: string;
   conducente_esterno_email?: string;
+  conducente_esterno_id?: string;
   firma_url?: string;
   firma_timestamp?: string;
   incasso_ricevuto?: number;

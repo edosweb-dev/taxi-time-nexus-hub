@@ -68,7 +68,8 @@ export function SidebarNavLinks() {
         { title: 'Spese', path: '/spese', icon: CreditCard },
         { title: 'Report Spese', path: '/spese-aziendali', icon: FileText },
         { title: 'Stipendi', path: '/stipendi', icon: Calculator, adminOnly: true },
-        { title: 'Veicoli', path: '/veicoli', icon: Car }
+        { title: 'Veicoli', path: '/veicoli', icon: Car },
+        { title: 'Conducenti Esterni', path: '/conducenti-esterni', icon: UserCircle }
       ]
     },
     {

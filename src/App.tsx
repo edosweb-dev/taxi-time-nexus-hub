@@ -21,6 +21,7 @@ import AssistenzaPage from "@/pages/AssistenzaPage";
 import UserBackupsPage from "@/pages/UserBackupsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import VeicoliPage from "@/pages/veicoli/VeicoliPage";
+import ConducentiEsterniPage from "@/pages/conducenti-esterni/ConducentiEsterniPage";
 import StipendiPage from "@/pages/StipendiPage";
 import ShiftsPage from "@/pages/ShiftsPage";
 import SpeseDipendentePage from "@/pages/SpeseDipendentePage";
@@ -63,6 +64,7 @@ function App() {
             <Route path="/servizi/nuovo" element={<NuovoServizioPage />} />
             <Route path="/servizi/:id" element={<ServizioDetailPage />} />
             <Route path="/veicoli" element={<VeicoliPage />} />
+            <Route path="/conducenti-esterni" element={<ConducentiEsterniPage />} />
             <Route path="/stipendi" element={<StipendiPage />} />
             <Route path="/turni" element={<ShiftsPage />} />
             <Route path="/spese" element={<SpeseDipendentePage />} />

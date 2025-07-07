@@ -3,6 +3,8 @@ import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { Profile } from "@/lib/types";
 import { Servizio } from "@/lib/types/servizi";
+import { useQuery } from "@tanstack/react-query";
+import { getConducenteEsterno } from "@/lib/api/conducenti-esterni";
 
 interface AssignmentSectionProps {
   servizio: Servizio;
@@ -15,6 +17,13 @@ export function AssignmentSection({
   users,
   getUserName,
 }: AssignmentSectionProps) {
+  // Query per caricare il conducente esterno se presente
+  const { data: conducenteEsterno } = useQuery({
+    queryKey: ['conducente-esterno', servizio.conducente_esterno_id],
+    queryFn: () => getConducenteEsterno(servizio.conducente_esterno_id!),
+    enabled: !!servizio.conducente_esterno_id,
+  });
+
   return (
     <div>
       <h3 className="text-lg font-medium">Assegnazione</h3>
@@ -24,13 +33,27 @@ export function AssignmentSection({
         {servizio.conducente_esterno ? (
           <div className="space-y-2">
             <div>
-              <span className="font-medium">Nome conducente esterno:</span>{" "}
-              <span>{servizio.conducente_esterno_nome || "Non specificato"}</span>
+              <span className="font-medium">Conducente esterno:</span>{" "}
+              <span>
+                {conducenteEsterno?.nome_cognome || 
+                 servizio.conducente_esterno_nome || 
+                 "Conducente esterno (non specificato)"}
+              </span>
             </div>
-            <div>
-              <span className="font-medium">Email conducente esterno:</span>{" "}
-              <span>{servizio.conducente_esterno_email || "Non specificato"}</span>
-            </div>
+            {(conducenteEsterno?.email || servizio.conducente_esterno_email) && (
+              <div>
+                <span className="font-medium">Email:</span>{" "}
+                <span>
+                  {conducenteEsterno?.email || servizio.conducente_esterno_email}
+                </span>
+              </div>
+            )}
+            {conducenteEsterno?.telefono && (
+              <div>
+                <span className="font-medium">Telefono:</span>{" "}
+                <span>{conducenteEsterno.telefono}</span>
+              </div>
+            )}
           </div>
         ) : servizio.assegnato_a ? (
           <div>

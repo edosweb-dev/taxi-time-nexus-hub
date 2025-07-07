@@ -20,6 +20,7 @@ export interface ServizioInput {
   conducente_esterno?: boolean;
   conducente_esterno_nome?: string;
   conducente_esterno_email?: string;
+  conducente_esterno_id?: string;
   stato?: StatoServizio;
 }
 
