@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/table";
 import { Azienda } from "@/lib/types";
 import { Edit, Trash2, Eye, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface AziendaListProps {
   aziende: Azienda[];
   onEdit: (azienda: Azienda) => void;
   onDelete: (azienda: Azienda) => void;
+  onView: (azienda: Azienda) => void;
   onAddAzienda: () => void;
 }
 
@@ -23,13 +23,9 @@ export function AziendaList({
   aziende,
   onEdit,
   onDelete,
+  onView,
   onAddAzienda,
 }: AziendaListProps) {
-  const navigate = useNavigate();
-
-  const handleViewAzienda = (azienda: Azienda) => {
-    navigate(`/aziende/${azienda.id}`);
-  };
 
   return (
     <div className="space-y-4">
@@ -72,7 +68,7 @@ export function AziendaList({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleViewAzienda(azienda)}
+                        onClick={() => onView(azienda)}
                       >
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">Visualizza</span>
