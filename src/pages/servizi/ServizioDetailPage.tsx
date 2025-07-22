@@ -19,8 +19,6 @@ export default function ServizioDetailPage() {
     isLoading,
     error,
     refetch,
-    activeTab,
-    setActiveTab,
     completaDialogOpen,
     setCompletaDialogOpen,
     consuntivaDialogOpen,
@@ -66,8 +64,8 @@ export default function ServizioDetailPage() {
               servizio={servizio}
               passeggeri={passeggeri}
               users={users}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
+              activeTab=""
+              onTabChange={() => {}}
               getAziendaName={getAziendaName}
               getUserName={getUserName}
               formatCurrency={formatCurrency}

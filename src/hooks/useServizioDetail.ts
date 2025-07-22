@@ -15,7 +15,7 @@ export function useServizioDetail(id?: string) {
   const { aziende } = useAziende();
   const { isFirmaDigitaleAttiva } = useFirmaDigitale();
   
-  const [activeTab, setActiveTab] = useState("info");
+  
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
   const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
   
@@ -53,8 +53,6 @@ export function useServizioDetail(id?: string) {
     isLoading,
     isError,
     error,
-    activeTab,
-    setActiveTab,
     canBeEdited,
     canBeCompleted,
     canBeConsuntivato,
