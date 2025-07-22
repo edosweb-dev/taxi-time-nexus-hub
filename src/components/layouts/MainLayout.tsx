@@ -35,7 +35,11 @@ export function MainLayout({ children }: PropsWithChildren) {
         </Sidebar>
         
         <main className="flex-1 flex flex-col overflow-hidden bg-background">
-          {children}
+          <div className="flex-1 overflow-auto">
+            <div className="w-[90%] max-w-7xl mx-auto p-6">
+              {children}
+            </div>
+          </div>
         </main>
         
         {isMobile && <MobileNavBar />}
