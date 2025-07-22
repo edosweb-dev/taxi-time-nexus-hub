@@ -6,7 +6,6 @@ import { useUsers } from "@/hooks/useUsers";
 import { getUserName } from "@/components/servizi/utils/userUtils";
 import { ServizioHeader } from "@/components/servizi/dettaglio/ServizioHeader";
 import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/ServizioLoadingError";
-import { FirmaDigitaleSection } from "@/components/servizi/dettaglio/FirmaDigitaleSection";
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
 import { ServizioDialogs } from "@/components/servizi/dettaglio/ServizioDialogs";
 
@@ -74,13 +73,6 @@ export default function ServizioDetailPage() {
 
           {/* Sidebar - Takes 1/3 of space on large screens */}
           <div className="xl:col-span-1 space-y-6">
-            {/* Firma Digitale Card */}
-            <FirmaDigitaleSection 
-              servizio={servizio} 
-              firmaDigitaleAttiva={firmaDigitaleAttiva}
-              refetch={refetch}
-            />
-
             {/* Passengers Card */}
             <div className="bg-card border rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
