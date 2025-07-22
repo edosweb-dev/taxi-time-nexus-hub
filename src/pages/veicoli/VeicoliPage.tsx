@@ -1,10 +1,8 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { VeicoloList } from '@/components/veicoli/VeicoloList';
-import { VeicoloSheet } from '@/components/veicoli/VeicoloSheet';
-import { Button } from '@/components/ui/button';
-import { ChevronRight, Home, Plus } from 'lucide-react';
+import { VeicoliContent } from '@/components/veicoli/VeicoliContent';
+import { ChevronRight, Home } from 'lucide-react';
 import { useVeicoli } from '@/hooks/useVeicoli';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
 import { toast } from '@/components/ui/use-toast';
@@ -86,31 +84,24 @@ export default function VeicoliPage() {
           </nav>
           
           <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Veicoli</h1>
-              <p className="text-muted-foreground text-lg">
-                Gestisci la flotta veicoli
+            <div className="space-y-3">
+              <h1 className="page-title">Gestione Veicoli</h1>
+              <p className="text-description">
+                Amministra la flotta veicoli aziendale: modelli, targhe e disponibilità
               </p>
             </div>
-            
-            <Button onClick={handleAddVeicolo} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Aggiungi Veicolo
-            </Button>
           </div>
         </div>
 
-        <VeicoloList 
+        <VeicoliContent
           veicoli={veicoli}
           onEdit={handleEditVeicolo}
           onDelete={handleDeleteVeicolo}
-        />
-
-        <VeicoloSheet
-          open={isSheetOpen}
-          onOpenChange={setIsSheetOpen}
-          veicolo={selectedVeicolo}
+          onAddVeicolo={handleAddVeicolo}
           onSubmit={handleSubmit}
+          isSheetOpen={isSheetOpen}
+          setIsSheetOpen={setIsSheetOpen}
+          selectedVeicolo={selectedVeicolo}
           isSubmitting={isSubmitting}
         />
       </div>
