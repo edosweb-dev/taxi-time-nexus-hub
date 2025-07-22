@@ -45,6 +45,37 @@ export const getShiftTypeBadge = (shift: Shift) => {
   );
 };
 
+// Helper function to get the display text for shift type
+export const getShiftTypeDisplay = (shift: Shift) => {
+  const shiftTypeMap: Record<string, string> = {
+    specific_hours: 'Orario specifico',
+    full_day: 'Giornata intera',
+    half_day: shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio',
+    sick_leave: 'Malattia',
+    unavailable: 'Non disponibile'
+  };
+  
+  return shiftTypeMap[shift.shift_type] || shift.shift_type;
+};
+
+// Helper function to get the appropriate color variant for a shift status
+export const getShiftStatusColor = (shiftType: string): 'default' | 'outline' | 'secondary' | 'destructive' | 'success' => {
+  switch (shiftType) {
+    case 'specific_hours':
+      return 'default';
+    case 'full_day':
+      return 'success';
+    case 'half_day':
+      return 'secondary';
+    case 'sick_leave':
+      return 'destructive';
+    case 'unavailable':
+      return 'outline';
+    default:
+      return 'default';
+  }
+};
+
 // Helper function to get the display text for shift time
 export const getShiftTimeDisplay = (shift: Shift) => {
   switch (shift.shift_type) {

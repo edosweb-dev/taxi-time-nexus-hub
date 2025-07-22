@@ -1,15 +1,12 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { useShifts } from './ShiftContext';
 import { ShiftFormData, Shift } from './types';
-import { ShiftFormSchema } from './dialogs/ShiftFormSchema';
+import { shiftFormSchema } from './dialogs/ShiftFormSchema';
 import { ShiftUserSelect } from './form-fields/ShiftUserSelect';
 import { ShiftDateField } from './form-fields/ShiftDateField';
 import { ShiftTypeSelect } from './form-fields/ShiftTypeSelect';
@@ -43,7 +40,7 @@ export function AddShiftSheet({
   const { createShift, updateShift } = useShifts();
 
   const form = useForm<ShiftFormData>({
-    resolver: zodResolver(ShiftFormSchema),
+    resolver: zodResolver(shiftFormSchema),
     defaultValues: {
       user_id: defaultUserId || (isAdminOrSocio ? '' : user?.id || ''),
       shift_date: defaultDate || new Date(),
@@ -107,24 +104,51 @@ export function AddShiftSheet({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <ShiftUserSelect 
-            form={form} 
             isAdminOrSocio={isAdminOrSocio}
             currentUserId={user?.id}
+            value={form.watch('user_id')}
+            onChange={(value) => form.setValue('user_id', value)}
           />
           
-          <ShiftDateField form={form} />
+          <ShiftDateField 
+            value={form.watch('shift_date')}
+            onChange={(value) => form.setValue('shift_date', value)}
+          />
           
-          <ShiftTypeSelect form={form} />
+          <ShiftTypeSelect 
+            value={form.watch('shift_type')}
+            onChange={(value) => form.setValue('shift_type', value)}
+          />
           
-          {shiftType === 'specific_hours' && <ShiftTimeFields form={form} />}
-          
-          {shiftType === 'half_day' && <HalfDayTypeField form={form} />}
-          
-          {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
-            <DateRangeFields form={form} />
+          {shiftType === 'specific_hours' && (
+            <ShiftTimeFields 
+              startTime={form.watch('start_time')}
+              endTime={form.watch('end_time')}
+              onStartTimeChange={(value) => form.setValue('start_time', value)}
+              onEndTimeChange={(value) => form.setValue('end_time', value)}
+            />
           )}
           
-          <ShiftNotesField form={form} />
+          {shiftType === 'half_day' && (
+            <HalfDayTypeField 
+              value={form.watch('half_day_type')}
+              onChange={(value) => form.setValue('half_day_type', value)}
+            />
+          )}
+          
+          {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
+            <DateRangeFields 
+              startDate={form.watch('start_date')}
+              endDate={form.watch('end_date')}
+              onStartDateChange={(value) => form.setValue('start_date', value)}
+              onEndDateChange={(value) => form.setValue('end_date', value)}
+            />
+          )}
+          
+          <ShiftNotesField 
+            value={form.watch('notes')}
+            onChange={(value) => form.setValue('notes', value)}
+          />
           
           <div className="flex justify-end gap-2 pt-4">
             <Button 

@@ -5,7 +5,7 @@ import { ShiftCalendarGrid } from '../ShiftCalendarGrid';
 import { ShiftDetailsDialog } from '../../dialogs/ShiftDetailsDialog';
 import { EditShiftDialog } from '../../dialogs/EditShiftDialog';
 import { Shift } from '../../types';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CalendarContentProps {
   viewMode: "week" | "day" | "month";
