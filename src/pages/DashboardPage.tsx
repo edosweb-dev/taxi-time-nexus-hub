@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Users, Building } from 'lucide-react';
+import { Calendar, Clock, Users, Building, MessageCircle } from 'lucide-react';
 
 export default function DashboardPage() {
   const { profile } = useAuth();
@@ -75,6 +75,30 @@ export default function DashboardPage() {
                     variant={isAdminOrSocio ? "default" : "outline"}
                   >
                     Vai alla gestione aziende
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {isAdminOrSocio && (
+              <Card className={isAdminOrSocio ? "border-primary/30 shadow-md" : ""}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageCircle className={`h-5 w-5 ${isAdminOrSocio ? "text-primary" : "text-muted-foreground"}`} />
+                    Gestione Feedback
+                  </CardTitle>
+                  <CardDescription>
+                    Visualizza e gestisci i feedback utenti
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col space-y-2">
+                  <p className="text-sm">Gestisci i feedback ricevuti dagli utenti della piattaforma.</p>
+                  <Button 
+                    onClick={handleNavigate('/feedback')} 
+                    className="mt-2"
+                    variant={isAdminOrSocio ? "default" : "outline"}
+                  >
+                    Vai ai feedback
                   </Button>
                 </CardContent>
               </Card>

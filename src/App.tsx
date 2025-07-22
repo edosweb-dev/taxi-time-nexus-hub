@@ -21,6 +21,7 @@ import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
 import AziendePage from './pages/aziende/AziendePage';
+import FeedbackPage from './pages/FeedbackPage';
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,13 @@ function App() {
               <Route path="/users" element={
                 <AuthGuard allowedRoles={['admin', 'socio']}>
                   <UsersPage />
+                </AuthGuard>
+              } />
+
+              {/* Feedback Routes */}
+              <Route path="/feedback" element={
+                <AuthGuard allowedRoles={['admin', 'socio']}>
+                  <FeedbackPage />
                 </AuthGuard>
               } />
 
