@@ -200,12 +200,6 @@ export function AssegnazioneSheet({
             />
           )}
           
-          {/* Debug info in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-              Debug: {availableUsers?.length || 0} disponibili, {unavailableUsers.length} non disponibili
-            </div>
-          )}
         </div>
         
         <SheetFooter className="flex justify-between sm:justify-between mt-6">

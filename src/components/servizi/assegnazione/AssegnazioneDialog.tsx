@@ -201,12 +201,6 @@ export function AssegnazioneDialog({
             />
           )}
           
-          {/* Debug info in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-              Debug: {availableUsers?.length || 0} disponibili, {unavailableUsers.length} non disponibili
-            </div>
-          )}
         </div>
         
         <DialogFooter className="flex justify-between sm:justify-between">
