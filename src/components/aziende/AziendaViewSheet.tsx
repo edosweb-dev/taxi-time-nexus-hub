@@ -7,8 +7,20 @@ import {
 } from "@/components/ui/sheet";
 import { Azienda } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, MapPin, Building2, CreditCard, CheckCircle, XCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Building2, 
+  CreditCard, 
+  CheckCircle, 
+  XCircle,
+  Calendar,
+  ExternalLink
+} from "lucide-react";
 
 interface AziendaViewSheetProps {
   isOpen: boolean;
@@ -23,129 +35,231 @@ export function AziendaViewSheet({
 }: AziendaViewSheetProps) {
   if (!azienda) return null;
 
+  // Helper function to get company initials
+  const getCompanyInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[600px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-3">
-            <Building2 className="h-5 w-5 text-primary" />
-            {azienda.nome}
-          </SheetTitle>
-          <SheetDescription>
-            Dettagli e informazioni dell'azienda
+      <SheetContent className="sm:max-w-[700px] overflow-y-auto">
+        <SheetHeader className="space-y-4 pb-6 border-b">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
+                {getCompanyInitials(azienda.nome)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1 space-y-2">
+              <SheetTitle className="text-2xl font-bold text-left">
+                {azienda.nome}
+              </SheetTitle>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CreditCard className="h-4 w-4" />
+                <span className="font-mono text-sm">{azienda.partita_iva}</span>
+              </div>
+            </div>
+          </div>
+          
+          <SheetDescription className="text-left">
+            Visualizzazione completa delle informazioni aziendali e configurazioni attive
           </SheetDescription>
         </SheetHeader>
         
-        <div className="mt-6 space-y-6">
-          {/* Informazioni principali */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Informazioni principali</h3>
-            <div className="grid gap-4">
-              <div className="flex items-start gap-3">
-                <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Nome Azienda</p>
-                  <p className="text-base">{azienda.nome}</p>
+        <div className="space-y-6 pt-6">
+          {/* Contact Information Card */}
+          <Card className="border-l-4 border-l-blue-500">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Phone className="h-5 w-5 text-blue-500" />
+                Informazioni di Contatto
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {azienda.email ? (
+                <div className="flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Email</p>
+                      <p className="text-base">{azienda.email}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => window.open(`mailto:${azienda.email}`, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
                 </div>
-              </div>
-              
-              <div className="flex items-start gap-3">
-                <CreditCard className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Partita IVA</p>
-                  <p className="text-base font-mono">{azienda.partita_iva}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Contatti */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Contatti</h3>
-            <div className="grid gap-4">
-              {azienda.email && (
-                <div className="flex items-start gap-3">
-                  <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+              ) : (
+                <div className="flex items-center gap-3 opacity-50">
+                  <div className="p-2 rounded-lg bg-gray-100 text-gray-400">
+                    <Mail className="h-4 w-4" />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">Email</p>
-                    <p className="text-base">{azienda.email}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Email</p>
+                    <p className="text-sm text-muted-foreground">Non specificata</p>
                   </div>
                 </div>
               )}
-              
-              {azienda.telefono && (
-                <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
+
+              {azienda.telefono ? (
+                <div className="flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-green-50 text-green-600">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Telefono</p>
+                      <p className="text-base">{azienda.telefono}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => window.open(`tel:${azienda.telefono}`, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 opacity-50">
+                  <div className="p-2 rounded-lg bg-gray-100 text-gray-400">
+                    <Phone className="h-4 w-4" />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">Telefono</p>
-                    <p className="text-base">{azienda.telefono}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Telefono</p>
+                    <p className="text-sm text-muted-foreground">Non specificato</p>
                   </div>
                 </div>
               )}
-              
-              {azienda.indirizzo && (
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+
+              {azienda.indirizzo ? (
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
+                    <MapPin className="h-4 w-4" />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">Indirizzo</p>
+                    <p className="text-sm font-medium text-muted-foreground">Indirizzo</p>
                     <p className="text-base">{azienda.indirizzo}</p>
                   </div>
                 </div>
+              ) : (
+                <div className="flex items-center gap-3 opacity-50">
+                  <div className="p-2 rounded-lg bg-gray-100 text-gray-400">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Indirizzo</p>
+                    <p className="text-sm text-muted-foreground">Non specificato</p>
+                  </div>
+                </div>
               )}
-            </div>
-            
-            {!azienda.email && !azienda.telefono && !azienda.indirizzo && (
-              <p className="text-muted-foreground text-sm">Nessun contatto disponibile</p>
-            )}
-          </div>
+            </CardContent>
+          </Card>
 
-          <Separator />
-
-          {/* Configurazioni */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Configurazioni</h3>
-            <div className="grid gap-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Firma digitale</p>
-                  <p className="text-xs text-muted-foreground">Richiede firma digitale per i servizi</p>
+          {/* Configuration Settings Card */}
+          <Card className="border-l-4 border-l-amber-500">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Building2 className="h-5 w-5 text-amber-500" />
+                Configurazioni Azienda
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-lg border bg-card">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1 rounded-full ${azienda.firma_digitale_attiva ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                        {azienda.firma_digitale_attiva ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <XCircle className="h-4 w-4" />
+                        )}
+                      </div>
+                      <p className="font-medium">Firma Digitale</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground ml-7">
+                      {azienda.firma_digitale_attiva 
+                        ? "I servizi richiedono firma digitale obbligatoria"
+                        : "Firma digitale non richiesta per i servizi"
+                      }
+                    </p>
+                  </div>
+                  <Badge 
+                    variant={azienda.firma_digitale_attiva ? "default" : "secondary"}
+                    className={azienda.firma_digitale_attiva ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}
+                  >
+                    {azienda.firma_digitale_attiva ? "Attiva" : "Disattivata"}
+                  </Badge>
                 </div>
-                <Badge variant={azienda.firma_digitale_attiva ? "default" : "secondary"} className="flex items-center gap-2">
-                  {azienda.firma_digitale_attiva ? (
-                    <CheckCircle className="h-3 w-3" />
-                  ) : (
-                    <XCircle className="h-3 w-3" />
-                  )}
-                  {azienda.firma_digitale_attiva ? "Attiva" : "Disattivata"}
-                </Badge>
               </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Sistema provvigioni</p>
-                  <p className="text-xs text-muted-foreground">Calcolo automatico delle provvigioni</p>
-                </div>
-                <Badge variant={azienda.provvigione ? "default" : "secondary"} className="flex items-center gap-2">
-                  {azienda.provvigione ? (
-                    <CheckCircle className="h-3 w-3" />
-                  ) : (
-                    <XCircle className="h-3 w-3" />
-                  )}
-                  {azienda.provvigione ? "Attivo" : "Disattivo"}
-                </Badge>
-              </div>
-            </div>
-          </div>
 
+              <div className="p-4 rounded-lg border bg-card">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1 rounded-full ${azienda.provvigione ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                        {azienda.provvigione ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <XCircle className="h-4 w-4" />
+                        )}
+                      </div>
+                      <p className="font-medium">Sistema Provvigioni</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground ml-7">
+                      {azienda.provvigione 
+                        ? "Calcolo automatico delle provvigioni abilitato"
+                        : "Calcolo provvigioni non attivo per questa azienda"
+                      }
+                    </p>
+                  </div>
+                  <Badge 
+                    variant={azienda.provvigione ? "default" : "secondary"}
+                    className={azienda.provvigione ? "bg-blue-100 text-blue-700 hover:bg-blue-100" : ""}
+                  >
+                    {azienda.provvigione ? "Attivo" : "Disattivo"}
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Timeline Card */}
           {azienda.created_at && (
-            <>
-              <Separator />
-              <div className="text-xs text-muted-foreground">
-                Creata il {new Date(azienda.created_at).toLocaleDateString('it-IT')}
-              </div>
-            </>
+            <Card className="border-l-4 border-l-gray-400">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <div className="p-2 rounded-lg bg-gray-100">
+                    <Calendar className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Azienda creata il</p>
+                    <p className="text-base">
+                      {new Date(azienda.created_at).toLocaleDateString('it-IT', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       </SheetContent>
