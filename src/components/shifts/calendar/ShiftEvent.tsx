@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { Shift } from "../types";
 import { getShiftTypeIcon } from "../utils/shiftDisplayUtils";
+import { getUserDisplayName } from "../utils/userDisplayUtils";
 import { useUsers } from "@/hooks/useUsers";
 import { useEffect, useState } from "react";
 import { getUserColorClass } from "../filters/UserFilterDropdown";
@@ -48,6 +49,10 @@ export const ShiftEvent = ({
     }
   };
 
+  const userDisplayName = getUserDisplayName(shift);
+
+  console.log(`[ShiftEvent] Rendering shift ${shift.id} - User: ${userDisplayName}`);
+
   return (
     <div
       className={cn(
@@ -65,36 +70,37 @@ export const ShiftEvent = ({
       style={{
         top: `${top}px`,
         height: `${height}px`,
-        minHeight: "20px",
+        minHeight: "28px", // Increased minimum height to better accommodate text
         maxHeight: spanRows ? "auto" : undefined
       }}
       onClick={onClick}
     >
-      <div className="flex items-center gap-1">
-        {getShiftTypeIcon(shift.shift_type)}
-        <span className="font-medium">
-          {shift.start_time && shift.end_time
-            ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
-            : shift.shift_type === 'half_day'
-            ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
-            : shift.shift_type === 'full_day' ? 'Giornata intera'
-            : shift.shift_type === 'sick_leave' ? 'Malattia'
-            : 'Non disponibile'
-          }
-        </span>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-1">
+          {getShiftTypeIcon(shift.shift_type)}
+          <span className="font-medium text-xs leading-tight">
+            {shift.start_time && shift.end_time
+              ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
+              : shift.shift_type === 'half_day'
+              ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
+              : shift.shift_type === 'full_day' ? 'Giornata intera'
+              : shift.shift_type === 'sick_leave' ? 'Malattia'
+              : 'Non disponibile'
+            }
+          </span>
+        </div>
+        
+        {/* Always show user name with better styling */}
+        <div className="text-xs font-semibold truncate leading-tight bg-black/10 px-1 py-0.5 rounded">
+          {userDisplayName}
+        </div>
+        
+        {shift.notes && (
+          <div className="text-xs truncate leading-tight opacity-80">
+            {shift.notes}
+          </div>
+        )}
       </div>
-      
-      {shift.user_first_name && (
-        <div className="text-xs font-medium truncate">
-          {shift.user_first_name} {shift.user_last_name}
-        </div>
-      )}
-      
-      {shift.notes && (
-        <div className="text-xs truncate">
-          {shift.notes}
-        </div>
-      )}
     </div>
   );
 };

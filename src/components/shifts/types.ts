@@ -1,4 +1,3 @@
-
 import { Profile } from '@/lib/types';
 
 export type ShiftType = 'specific_hours' | 'full_day' | 'half_day' | 'sick_leave' | 'unavailable';
@@ -21,6 +20,7 @@ export interface Shift {
   updated_by: string;
   user_first_name?: string | null;
   user_last_name?: string | null;
+  user_email?: string | null; // Added email as fallback
 }
 
 export interface ShiftFormData {
