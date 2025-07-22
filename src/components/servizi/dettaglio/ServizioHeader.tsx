@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, CheckCircle2, FileText, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, Edit, CheckCircle2, FileText } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
 import { Servizio } from "@/lib/types/servizi";
@@ -52,40 +52,33 @@ export function ServizioHeader({
                 : `Servizio N° ${formatProgressiveId(servizio.id, index)}`}
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                {format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}
-              </div>
+              <span>{format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}</span>
               {servizio.orario_servizio && (
-                <div className="flex items-center">
-                  <span className="h-1 w-1 bg-muted-foreground rounded-full mr-2" />
-                  <Clock className="h-4 w-4 mr-1" />
-                  ore {servizio.orario_servizio}
-                </div>
+                <>
+                  <span className="h-1 w-1 bg-muted-foreground rounded-full" />
+                  <span>ore {servizio.orario_servizio}</span>
+                </>
               )}
             </div>
           </div>
         </div>
         
         {/* Right Side - Desktop Actions */}
-        <div className="hidden sm:flex gap-2">
+        <div className="hidden sm:flex gap-3">
           {canBeCompleted && (
-            <Button onClick={onCompleta} className="whitespace-nowrap">
-              <CheckCircle2 className="mr-2 h-4 w-4" />
+            <Button onClick={onCompleta} size="lg" className="whitespace-nowrap">
               Completa servizio
             </Button>
           )}
           
           {canBeConsuntivato && (
-            <Button onClick={onConsuntiva} variant="secondary" className="whitespace-nowrap">
-              <FileText className="mr-2 h-4 w-4" />
+            <Button onClick={onConsuntiva} variant="secondary" size="lg" className="whitespace-nowrap">
               Consuntiva servizio
             </Button>
           )}
           
           {canBeEdited && (
-            <Button onClick={() => navigate(`/servizi/${servizio.id}/edit`)} variant="outline" className="whitespace-nowrap">
-              <Edit className="mr-2 h-4 w-4" />
+            <Button onClick={() => navigate(`/servizi/${servizio.id}/edit`)} variant="outline" size="lg" className="whitespace-nowrap">
               Modifica servizio
             </Button>
           )}

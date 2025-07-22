@@ -22,36 +22,37 @@ export function CompletionDataSection({
   }
   
   return (
-    <div>
-      <h3 className="text-lg font-medium">Dati di completamento</h3>
-      <Separator className="my-2" />
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-foreground mb-1">Dati di completamento</h3>
+        <p className="text-sm text-muted-foreground mb-4">Informazioni inserite al completamento del servizio</p>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <div className="font-medium">Metodo pagamento</div>
-          <div className="text-muted-foreground">{servizio.metodo_pagamento}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Modalità pagamento</div>
+          <div className="text-base text-foreground">{servizio.metodo_pagamento}</div>
         </div>
         
-        <div>
-          <div className="font-medium">Incasso ricevuto</div>
-          <div className="text-muted-foreground">
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Importo incassato</div>
+          <div className="text-base text-foreground font-medium">
             {formatCurrency(servizio.incasso_ricevuto)}
           </div>
         </div>
         
-        <div>
-          <div className="font-medium">Ore lavorate</div>
-          <div className="text-muted-foreground">
-            {servizio.ore_lavorate !== undefined ? `${servizio.ore_lavorate} ore` : "-"}
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Tempo impiegato</div>
+          <div className="text-base text-foreground">
+            {servizio.ore_lavorate !== undefined ? `${servizio.ore_lavorate} ore` : "Non specificato"}
           </div>
         </div>
         
-        {/* Display cash recipient information */}
         {servizio.metodo_pagamento === 'Contanti' && servizio.consegna_contanti_a && getUserName && (
-          <div>
-            <div className="font-medium">Contanti consegnati a</div>
-            <div className="text-muted-foreground">
-              {getUserName(users, servizio.consegna_contanti_a) || "Utente sconosciuto"}
+          <div className="space-y-1">
+            <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Consegna contanti</div>
+            <div className="text-base text-foreground">
+              {getUserName(users, servizio.consegna_contanti_a) || "Operatore non trovato"}
             </div>
           </div>
         )}
