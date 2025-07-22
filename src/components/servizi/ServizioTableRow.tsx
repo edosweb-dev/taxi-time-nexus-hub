@@ -45,9 +45,9 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   onCompleta,
   onFirma
 }) => {
-  // Pulsanti sempre visibili per consistenza UI
-  const canBeCompleted = onCompleta && (servizio.stato === 'assegnato');
-  const canBeSigned = onFirma && ((servizio.stato === 'assegnato' || servizio.stato === 'completato') && !servizio.firma_url);
+  // Logica pulsanti: sempre visibili ma attivati/disattivati in base allo stato
+  const canBeCompleted = onCompleta && servizio.stato === 'assegnato';
+  const canBeSigned = onFirma && ['assegnato', 'completato'].includes(servizio.stato) && !servizio.firma_url;
 
   return (
     <>
@@ -83,37 +83,33 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
         </TableCell>
         <TableCell className="w-48">
           <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-            {onCompleta && (
-              <Button 
-                variant={canBeCompleted ? "outline" : "ghost"} 
-                size="sm"
-                disabled={!canBeCompleted}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (canBeCompleted) onCompleta(servizio);
-                }}
-                className="min-w-[80px]"
-              >
-                <CheckSquare className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Completa</span>
-              </Button>
-            )}
+            <Button 
+              variant={canBeCompleted ? "outline" : "ghost"} 
+              size="sm"
+              disabled={!canBeCompleted}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canBeCompleted) onCompleta?.(servizio);
+              }}
+              className="min-w-[80px] opacity-100"
+            >
+              <CheckSquare className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Completa</span>
+            </Button>
             
-            {onFirma && (
-              <Button 
-                variant={canBeSigned ? "outline" : "ghost"}
-                size="sm"
-                disabled={!canBeSigned}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (canBeSigned) onFirma(servizio);
-                }}
-                className="min-w-[70px]"
-              >
-                <Clipboard className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Firma</span>
-              </Button>
-            )}
+            <Button 
+              variant={canBeSigned ? "outline" : "ghost"}
+              size="sm"
+              disabled={!canBeSigned}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canBeSigned) onFirma?.(servizio);
+              }}
+              className="min-w-[70px] opacity-100"
+            >
+              <Clipboard className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Firma</span>
+            </Button>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
