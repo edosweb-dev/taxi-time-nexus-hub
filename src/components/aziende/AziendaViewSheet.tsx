@@ -19,18 +19,21 @@ import {
   CheckCircle, 
   XCircle,
   Calendar,
+  Edit,
   ExternalLink
 } from "lucide-react";
 
 interface AziendaViewSheetProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit: (azienda: Azienda) => void;
   azienda: Azienda | null;
 }
 
 export function AziendaViewSheet({
   isOpen,
   onOpenChange,
+  onEdit,
   azienda,
 }: AziendaViewSheetProps) {
   if (!azienda) return null;
@@ -42,6 +45,11 @@ export function AziendaViewSheet({
       .map(word => word.charAt(0).toUpperCase())
       .slice(0, 2)
       .join('');
+  };
+
+  const handleEdit = () => {
+    onEdit(azienda);
+    onOpenChange(false);
   };
 
   return (
@@ -64,6 +72,17 @@ export function AziendaViewSheet({
                 <span className="font-mono text-sm">{azienda.partita_iva}</span>
               </div>
             </div>
+            
+            {/* Edit Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEdit}
+              className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary hover:border-primary/20"
+            >
+              <Edit className="h-4 w-4" />
+              Modifica
+            </Button>
           </div>
           
           <SheetDescription className="text-left">

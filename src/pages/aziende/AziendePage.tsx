@@ -29,6 +29,12 @@ export default function AziendePage() {
     setIsViewSheetOpen(true);
   };
 
+  const handleViewEdit = (azienda: Azienda) => {
+    setIsViewSheetOpen(false);
+    setSelectedAzienda(azienda);
+    setIsSheetOpen(true);
+  };
+
   const handleEditAzienda = (azienda: Azienda) => {
     setSelectedAzienda(azienda);
     setIsSheetOpen(true);
@@ -122,6 +128,7 @@ export default function AziendePage() {
           <AziendaViewSheet
             isOpen={isViewSheetOpen}
             onOpenChange={setIsViewSheetOpen}
+            onEdit={handleViewEdit}
             azienda={viewAzienda}
           />
       </div>
