@@ -2,9 +2,14 @@
 import React from "react";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
-import { LeftColumn } from "./info/LeftColumn";
-import { RightColumn } from "./info/RightColumn";
-import { FirmaDisplay } from "@/components/firma/FirmaDisplay";
+import {
+  BasicInfoSection,
+  RouteSection,
+  AssignmentInfoSection,
+  FinancialSection,
+  OperationalSection,
+  NotesSignatureSection,
+} from "./sections";
 
 interface ServizioInfoTabProps {
   servizio: Servizio;
@@ -13,6 +18,7 @@ interface ServizioInfoTabProps {
   getAziendaName: (aziendaId?: string) => string;
   getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
+  firmaDigitaleAttiva: boolean;
 }
 
 export function ServizioInfoTab({
@@ -21,35 +27,48 @@ export function ServizioInfoTab({
   users,
   getAziendaName,
   getUserName,
-  formatCurrency
+  formatCurrency,
+  firmaDigitaleAttiva,
 }: ServizioInfoTabProps) {
   return (
     <div className="space-y-6">
-      {/* Main Service Details Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LeftColumn 
-          servizio={servizio}
-          passeggeri={passeggeri}
-          users={users}
-          getAziendaName={getAziendaName}
-          getUserName={getUserName}
-          formatCurrency={formatCurrency}
-        />
-        
-        <RightColumn servizio={servizio} />
-      </div>
+      {/* Informazioni principali */}
+      <BasicInfoSection 
+        servizio={servizio}
+        users={users}
+        getAziendaName={getAziendaName}
+        getUserName={getUserName}
+      />
       
-      {/* Digital Signature Section */}
-      {servizio.firma_url && (
-        <div className="bg-muted/30 rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 text-foreground">Firma digitale</h3>
-          <FirmaDisplay 
-            firmaUrl={servizio.firma_url} 
-            firmaTimestamp={servizio.firma_timestamp} 
-          />
-        </div>
-      )}
-
+      {/* Percorso */}
+      <RouteSection servizio={servizio} />
+      
+      {/* Assegnazione */}
+      <AssignmentInfoSection 
+        servizio={servizio}
+        users={users}
+        getUserName={getUserName}
+      />
+      
+      {/* Informazioni finanziarie */}
+      <FinancialSection 
+        servizio={servizio}
+        users={users}
+        getUserName={getUserName}
+        formatCurrency={formatCurrency}
+      />
+      
+      {/* Dati operativi */}
+      <OperationalSection 
+        servizio={servizio}
+        passeggeriCount={passeggeri.length}
+      />
+      
+      {/* Note e firma */}
+      <NotesSignatureSection 
+        servizio={servizio}
+        firmaDigitaleAttiva={firmaDigitaleAttiva}
+      />
     </div>
   );
 }

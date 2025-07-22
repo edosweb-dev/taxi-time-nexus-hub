@@ -69,6 +69,7 @@ export default function ServizioDetailPage() {
               getAziendaName={getAziendaName}
               getUserName={getUserName}
               formatCurrency={formatCurrency}
+              firmaDigitaleAttiva={firmaDigitaleAttiva}
             />
           </div>
 

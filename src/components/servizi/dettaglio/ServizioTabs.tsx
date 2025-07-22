@@ -13,6 +13,7 @@ interface ServizioTabsProps {
   getAziendaName: (aziendaId?: string) => string;
   getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
+  firmaDigitaleAttiva: boolean;
 }
 
 export function ServizioTabs({
@@ -22,6 +23,7 @@ export function ServizioTabs({
   getAziendaName,
   getUserName,
   formatCurrency,
+  firmaDigitaleAttiva,
 }: ServizioTabsProps) {
   return (
     <div className="bg-card border rounded-lg overflow-hidden">
@@ -33,6 +35,7 @@ export function ServizioTabs({
           getAziendaName={getAziendaName}
           getUserName={getUserName}
           formatCurrency={formatCurrency}
+          firmaDigitaleAttiva={firmaDigitaleAttiva}
         />
       </div>
     </div>
