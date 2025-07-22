@@ -4,8 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AziendaFormData } from '@/lib/api/aziende';
 import { Azienda } from '@/lib/types';
+import { Building2, Mail, Phone, MapPin, Settings, Save, X } from 'lucide-react';
 import {
   AziendaNameFields,
   AziendaContactFields,
@@ -78,27 +80,63 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Informazioni principali</h3>
-          <AziendaNameFields control={form.control} />
-        </div>
+        {/* Main Information Card */}
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Building2 className="h-5 w-5 text-primary" />
+              Informazioni Principali
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AziendaNameFields control={form.control} />
+          </CardContent>
+        </Card>
         
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Contatti</h3>
-          <AziendaContactFields control={form.control} />
-        </div>
+        {/* Contact Information Card */}
+        <Card className="border-l-4 border-l-blue-500">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Phone className="h-5 w-5 text-blue-500" />
+              Informazioni di Contatto
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AziendaContactFields control={form.control} />
+          </CardContent>
+        </Card>
         
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Impostazioni</h3>
-          <AziendaSettingsFields control={form.control} />
-        </div>
+        {/* Settings Card */}
+        <Card className="border-l-4 border-l-amber-500">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Settings className="h-5 w-5 text-amber-500" />
+              Configurazioni Azienda
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AziendaSettingsFields control={form.control} />
+          </CardContent>
+        </Card>
 
-        <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            className="flex items-center gap-2"
+          >
+            <X className="h-4 w-4" />
             Annulla
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Salvataggio in corso...' : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {isSubmitting ? 'Salvataggio...' : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
           </Button>
         </div>
       </form>
