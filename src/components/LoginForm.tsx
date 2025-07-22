@@ -63,14 +63,14 @@ export function LoginForm() {
     <div className="w-full">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-3 tracking-tight">Accedi a Taxitime</h1>
-        <p className="text-gray-600 leading-relaxed">Inserisci le tue credenziali per continuare</p>
+        <h1 className="text-3xl font-bold text-foreground mb-3 tracking-tight">Accedi a Taxitime</h1>
+        <p className="text-muted-foreground leading-relaxed">Inserisci le tue credenziali per continuare</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleLogin} className="space-y-6">
         <div className="space-y-3">
-          <Label htmlFor="email" className="text-gray-700 font-semibold text-sm">Email</Label>
+          <Label htmlFor="email" className="text-foreground font-semibold text-sm">Email</Label>
           <Input
             id="email"
             type="email"
@@ -78,12 +78,12 @@ export function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="bg-white/50 border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-12 text-base transition-all duration-200 hover:bg-white"
+            className="h-12 text-base transition-all duration-200"
           />
         </div>
 
         <div className="space-y-3">
-          <Label htmlFor="password" className="text-gray-700 font-semibold text-sm">Password</Label>
+          <Label htmlFor="password" className="text-foreground font-semibold text-sm">Password</Label>
           <div className="relative">
             <Input
               id="password"
@@ -91,7 +91,7 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-white/50 border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-12 text-base pr-12 transition-all duration-200 hover:bg-white"
+              className="h-12 text-base pr-12 transition-all duration-200"
             />
             <Button
               type="button"
@@ -101,9 +101,9 @@ export function LoginForm() {
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4 text-gray-400" />
+                <EyeOff className="h-4 w-4 text-muted-foreground" />
               ) : (
-                <Eye className="h-4 w-4 text-gray-400" />
+                <Eye className="h-4 w-4 text-muted-foreground" />
               )}
             </Button>
           </div>
@@ -114,21 +114,20 @@ export function LoginForm() {
             id="rememberMe" 
             checked={rememberMe}
             onCheckedChange={(checked) => setRememberMe(checked === true)}
-            className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
           />
-          <Label htmlFor="rememberMe" className="font-normal cursor-pointer text-gray-700 text-sm">
+          <Label htmlFor="rememberMe" className="font-normal cursor-pointer text-foreground text-sm">
             Ricorda credenziali
           </Label>
         </div>
 
         <Button 
           type="submit" 
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 text-base h-12 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" 
+          className="w-full h-12 text-base font-semibold transition-all duration-200 hover:scale-[1.02]" 
           disabled={loading}
         >
           {loading ? (
             <>
-              <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span> 
+              <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></span> 
               Accesso in corso...
             </>
           ) : (
@@ -138,13 +137,13 @@ export function LoginForm() {
           )}
         </Button>
         
-        <div className="flex w-full justify-between text-sm pt-6 border-t border-gray-100">
+        <div className="flex w-full justify-between text-sm pt-6 border-t border-border">
           <RecuperaPasswordDialog>
-            <Button variant="link" size="sm" className="text-blue-600 hover:text-blue-800 px-0 font-medium transition-colors">
+            <Button variant="link" size="sm" className="px-0 font-medium transition-colors">
               <span className="mr-1 h-3.5 w-3.5">🔑</span> Recupera password
             </Button>
           </RecuperaPasswordDialog>
-          <Button asChild variant="link" size="sm" className="text-blue-600 hover:text-blue-800 px-0 font-medium transition-colors">
+          <Button asChild variant="link" size="sm" className="px-0 font-medium transition-colors">
             <Link to="/assistenza">
               <HelpCircle className="mr-1 h-3.5 w-3.5" /> Richiedi assistenza
             </Link>
