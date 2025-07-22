@@ -1,18 +1,17 @@
-import { useState, useMemo } from "react";
-import { Loader2, Layout, Table as TableIcon, Plus, Calendar } from "lucide-react";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Servizio } from "@/lib/types/servizi";
-import { Profile } from "@/lib/types";
-import { ServizioTabs } from "@/components/servizi/ServizioTabs";
-import { ServizioTabContent } from "@/components/servizi/ServizioTabContent";
-import { ServizioTable } from "@/components/servizi/ServizioTable";
-import { EmptyState } from "@/components/servizi/EmptyState";
-import { ServizioStats } from "@/components/servizi/ServizioStats";
-import { ServiziFilters, ServiziFiltersState } from "@/components/servizi/filters/ServiziFilters";
-import { groupServiziByStatus } from "@/components/servizi/utils";
+import { useState, useMemo } from 'react';
+import { Loader2, Plus, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { ServizioStats } from '../ServizioStats';
+import { ServizioTabs } from '../ServizioTabs';
+import { ServiziFilters, type ServiziFiltersState } from '../filters/ServiziFilters';
+import { ServizioTable } from '../ServizioTable';
+import { EmptyState } from '../EmptyState';
+import { groupServiziByStatus } from '../utils/groupingUtils';
+import { Servizio } from '@/lib/types/servizi';
+import { Profile } from '@/lib/types';
+import { Azienda } from '@/lib/types';
 
 interface ServiziContentProps {
   servizi: Servizio[];
@@ -26,7 +25,7 @@ interface ServiziContentProps {
   onSelectServizio: (servizio: Servizio) => void;
   onCompleta: (servizio: Servizio) => void;
   onFirma: (servizio: Servizio) => void;
-  allServizi: Servizio[]; // Added this prop for global indexing
+  allServizi: Servizio[];
 }
 
 export function ServiziContent({
@@ -43,8 +42,7 @@ export function ServiziContent({
   onFirma,
   allServizi
 }: ServiziContentProps) {
-  const [activeTab, setActiveTab] = useState<string>("da_assegnare");
-  const [viewMode, setViewMode] = useState<"cards" | "table">(isMobile ? "cards" : "table");
+  const [activeTab, setActiveTab] = useState<string>('da_assegnare');
   const [filters, setFilters] = useState<ServiziFiltersState>({
     search: '',
     aziendaId: '',
@@ -153,7 +151,7 @@ export function ServiziContent({
       {/* Header with Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-foreground">Gestione Servizi</h2>
+          <h2 className="text-2xl font-semibold text-foreground text-enhanced">Gestione Servizi</h2>
           <p className="text-sm text-muted-foreground">
             {filteredServizi.length} servizi totali
             {filteredServizi.length !== servizi.length && ` (${servizi.length} senza filtri)`}
@@ -184,54 +182,33 @@ export function ServiziContent({
         />
       </div>
 
-      <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex justify-between items-center">
+      <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="flex justify-center mb-6">
           <ServizioTabs 
             servizi={filteredServizi} 
             activeTab={activeTab} 
             onTabChange={setActiveTab} 
           />
-          
-          {!isMobile && (
-            <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "cards" | "table")}>
-              <ToggleGroupItem value="cards" aria-label="Visualizza schede">
-                <Layout className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="table" aria-label="Visualizza tabella">
-                <TableIcon className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-          )}
         </div>
         
         {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
-          <TabsContent key={status} value={status} className="mt-6 min-h-[600px]">
-            {viewMode === "cards" ? (
-              <ServizioTabContent
-                status={status}
+          <TabsContent 
+            key={status} 
+            value={status} 
+            className="mt-0 min-h-[600px] animate-fade-in smooth-transition"
+          >
+            <div className="min-h-[500px] max-h-[600px] overflow-y-auto border rounded-lg bg-card shadow-sm">
+              <ServizioTable
                 servizi={serviziByStatus[status]}
                 users={users}
-                isAdminOrSocio={isAdminOrSocio}
-                onSelectServizio={onSelectServizio}
                 onNavigateToDetail={onNavigateToDetail}
+                onSelect={isAdminOrSocio ? onSelectServizio : undefined}
                 onCompleta={onCompleta}
                 onFirma={onFirma}
+                isAdminOrSocio={isAdminOrSocio}
                 allServizi={allServizi}
               />
-            ) : (
-              <div className="min-h-[500px] max-h-[600px] overflow-y-auto">
-                <ServizioTable
-                  servizi={serviziByStatus[status]}
-                  users={users}
-                  onNavigateToDetail={onNavigateToDetail}
-                  onSelect={isAdminOrSocio ? onSelectServizio : undefined}
-                  onCompleta={onCompleta}
-                  onFirma={onFirma}
-                  isAdminOrSocio={isAdminOrSocio}
-                  allServizi={allServizi}
-                />
-              </div>
-            )}
+            </div>
           </TabsContent>
         ))}
       </Tabs>
