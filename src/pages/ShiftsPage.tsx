@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ShiftCalendar } from '@/components/shifts/ShiftCalendar';
@@ -23,9 +24,9 @@ export default function ShiftsPage() {
   return (
     <MainLayout>
       <ShiftProvider>
-        <div className="min-h-screen bg-gray-50/30 flex flex-col">
-          {/* Header con breadcrumb */}
-          <div className="flex-shrink-0 px-6 py-4 space-y-4 border-b bg-background/95 backdrop-blur">
+        <div className="h-full flex flex-col bg-gray-50/30">
+          {/* Header con breadcrumb - fixed height */}
+          <div className="flex-shrink-0 px-4 md:px-6 py-4 space-y-4 border-b bg-background/95 backdrop-blur">
             <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Home className="h-4 w-4" />
               <ChevronRight className="h-4 w-4" />
@@ -60,8 +61,8 @@ export default function ShiftsPage() {
             </div>
           </div>
 
-          {/* Calendar content - full screen */}
-          <div className="flex-1 px-6 py-4 overflow-hidden">
+          {/* Calendar content - fills remaining space */}
+          <div className="flex-1 px-2 md:px-4 py-2 md:py-4 overflow-hidden">
             <ShiftCalendar 
               currentMonth={currentMonth}
               onMonthChange={handleMonthChange}
