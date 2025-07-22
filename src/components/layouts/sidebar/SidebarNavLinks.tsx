@@ -101,7 +101,7 @@ export function SidebarNavLinks() {
       title: 'Operazioni',
       items: [
         { title: 'Servizi', path: '/servizi', icon: ClipboardList },
-        { title: 'Le mie spese', path: '/spese-dipendente', icon: Wallet }
+        { title: 'Le mie spese', path: '/spese', icon: Wallet }
       ]
     }
   ];
@@ -111,13 +111,13 @@ export function SidebarNavLinks() {
     {
       title: 'Dashboard',
       items: [
-        { title: 'Dashboard', path: '/dashboard', icon: Home }
+        { title: 'Dashboard', path: '/dashboard-cliente', icon: Home }
       ]
     },
     {
       title: 'Account',
       items: [
-        { title: 'Profilo', path: '/profilo', icon: UserCircle },
+        { title: 'Profilo', path: '/dashboard-cliente/profilo', icon: UserCircle },
         { title: 'Report', path: '/reports', icon: FileBarChart }
       ]
     }
