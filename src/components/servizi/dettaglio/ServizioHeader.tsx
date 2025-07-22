@@ -31,59 +31,62 @@ export function ServizioHeader({
   const navigate = useNavigate();
   
   return (
-    <div className="flex justify-between items-start">
-      <div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate("/servizi")}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Indietro
-          </Button>
-          {getStatoBadge(servizio.stato)}
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight mt-4">
-          {servizio.numero_commessa 
-            ? `Commessa: ${servizio.numero_commessa}` 
-            : "Dettaglio servizio"}
-        </h1>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <div className="flex items-center">
-            <FileDigit className="h-4 w-4 mr-1" />
-            ID: {formatProgressiveId(servizio.id, index)}
+    <div className="bg-card border rounded-lg p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Left Side - Title and Info */}
+        <div className="space-y-3">
+          {/* Breadcrumb and Status */}
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/servizi")} className="text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Torna ai servizi
+            </Button>
+            {getStatoBadge(servizio.stato)}
           </div>
-          <span>•</span>
+          
+          {/* Main Title */}
           <div>
-            {format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+              {servizio.numero_commessa 
+                ? `Commessa ${servizio.numero_commessa}` 
+                : "Dettaglio servizio"}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <FileDigit className="h-4 w-4 mr-1" />
+                ID: {formatProgressiveId(servizio.id, index)}
+              </div>
+              <div className="flex items-center">
+                <span className="h-1 w-1 bg-muted-foreground rounded-full mr-2" />
+                {format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="flex gap-2">
-        {canBeCompleted && (
-          <Button 
-            onClick={onCompleta} 
-            variant="default"
-          >
-            <CheckCircle2 className="mr-2 h-4 w-4" />
-            Completa servizio
-          </Button>
-        )}
         
-        {canBeConsuntivato && (
-          <Button 
-            onClick={onConsuntiva} 
-            variant="secondary"
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Consuntiva
-          </Button>
-        )}
-        
-        {canBeEdited && (
-          <Button onClick={() => navigate(`/servizi/${servizio.id}/edit`)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Modifica
-          </Button>
-        )}
+        {/* Right Side - Desktop Actions */}
+        <div className="hidden sm:flex gap-2">
+          {canBeCompleted && (
+            <Button onClick={onCompleta} className="whitespace-nowrap">
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Completa
+            </Button>
+          )}
+          
+          {canBeConsuntivato && (
+            <Button onClick={onConsuntiva} variant="secondary" className="whitespace-nowrap">
+              <FileText className="mr-2 h-4 w-4" />
+              Consuntiva
+            </Button>
+          )}
+          
+          {canBeEdited && (
+            <Button onClick={() => navigate(`/servizi/${servizio.id}/edit`)} variant="outline" className="whitespace-nowrap">
+              <Edit className="mr-2 h-4 w-4" />
+              Modifica
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

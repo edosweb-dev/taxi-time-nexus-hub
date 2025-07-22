@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { LeftColumn } from "./info/LeftColumn";
@@ -25,34 +24,31 @@ export function ServizioInfoTab({
   formatCurrency
 }: ServizioInfoTabProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Dettagli del servizio</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <LeftColumn 
-            servizio={servizio}
-            passeggeri={passeggeri}
-            users={users}
-            getAziendaName={getAziendaName}
-            getUserName={getUserName}
-            formatCurrency={formatCurrency}
-          />
-          
-          <RightColumn servizio={servizio} />
-        </div>
+    <div className="space-y-6">
+      {/* Main Service Details Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LeftColumn 
+          servizio={servizio}
+          passeggeri={passeggeri}
+          users={users}
+          getAziendaName={getAziendaName}
+          getUserName={getUserName}
+          formatCurrency={formatCurrency}
+        />
         
-        {/* Firma digitale sezione */}
-        {servizio.firma_url && (
-          <div className="pt-2">
-            <FirmaDisplay 
-              firmaUrl={servizio.firma_url} 
-              firmaTimestamp={servizio.firma_timestamp} 
-            />
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        <RightColumn servizio={servizio} />
+      </div>
+      
+      {/* Digital Signature Section */}
+      {servizio.firma_url && (
+        <div className="bg-muted/30 rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-4 text-foreground">Firma digitale</h3>
+          <FirmaDisplay 
+            firmaUrl={servizio.firma_url} 
+            firmaTimestamp={servizio.firma_timestamp} 
+          />
+        </div>
+      )}
+    </div>
   );
 }

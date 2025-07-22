@@ -28,33 +28,52 @@ export function ServizioTabs({
   formatCurrency,
 }: ServizioTabsProps) {
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange}>
-      <TabsList>
-        <TabsTrigger value="info">Informazioni</TabsTrigger>
-        <TabsTrigger value="passeggeri">
-          Passeggeri ({passeggeri.length})
-        </TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="info" className="space-y-6">
-        <ServizioInfoTab 
-          servizio={servizio}
-          passeggeri={passeggeri}
-          users={users}
-          getAziendaName={getAziendaName}
-          getUserName={getUserName}
-          formatCurrency={formatCurrency}
-        />
-      </TabsContent>
-      
-      <TabsContent value="passeggeri" className="space-y-4">
-        <ServizioPasseggeriTab
-          passeggeri={passeggeri}
-          servizioPresa={servizio.indirizzo_presa}
-          servizioDestinazione={servizio.indirizzo_destinazione}
-          servizioOrario={servizio.orario_servizio}
-        />
-      </TabsContent>
-    </Tabs>
+    <div className="bg-card border rounded-lg overflow-hidden">
+      <Tabs value={activeTab} onValueChange={onTabChange}>
+        <div className="border-b bg-muted/30 px-6">
+          <TabsList className="bg-transparent border-none h-12 w-full justify-start p-0">
+            <TabsTrigger 
+              value="info" 
+              className="data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent py-3 px-4"
+            >
+              <div className="flex items-center gap-2">
+                <span>Informazioni del servizio</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="passeggeri"
+              className="data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent py-3 px-4"
+            >
+              <div className="flex items-center gap-2">
+                <span>Passeggeri</span>
+                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">
+                  {passeggeri.length}
+                </span>
+              </div>
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        
+        <TabsContent value="info" className="p-6 m-0">
+          <ServizioInfoTab 
+            servizio={servizio}
+            passeggeri={passeggeri}
+            users={users}
+            getAziendaName={getAziendaName}
+            getUserName={getUserName}
+            formatCurrency={formatCurrency}
+          />
+        </TabsContent>
+        
+        <TabsContent value="passeggeri" className="p-6 m-0">
+          <ServizioPasseggeriTab
+            passeggeri={passeggeri}
+            servizioPresa={servizio.indirizzo_presa}
+            servizioDestinazione={servizio.indirizzo_destinazione}
+            servizioOrario={servizio.orario_servizio}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
