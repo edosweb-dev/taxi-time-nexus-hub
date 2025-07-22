@@ -42,15 +42,15 @@ export function VeicoliContent({
     : veicoliInattivi;
 
   return (
-    <div className="space-y-6">
-      <VeicoliStats veicoli={veicoli} />
+      <div className="space-y-6">
+        <VeicoliStats veicoli={veicoli} />
 
-      <Tabs defaultValue="tutti" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="tutti">Tutti i Veicoli</TabsTrigger>
-          <TabsTrigger value="attivi">Attivi ({veicoliAttivi.length})</TabsTrigger>
-          <TabsTrigger value="inattivi">Inattivi ({veicoliInattivi.length})</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="tutti" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 max-w-md">
+            <TabsTrigger value="tutti">Tutti</TabsTrigger>
+            <TabsTrigger value="attivi">Attivi ({veicoliAttivi.length})</TabsTrigger>
+            <TabsTrigger value="inattivi">Inattivi ({veicoliInattivi.length})</TabsTrigger>
+          </TabsList>
         
         <TabsContent value="tutti" className="space-y-4">
           <VeicoloList 

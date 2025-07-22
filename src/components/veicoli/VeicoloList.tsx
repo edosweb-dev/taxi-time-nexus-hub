@@ -43,9 +43,10 @@ export function VeicoloList({
             <h3 className="subsection-title">{title}</h3>
             <p className="text-body-sm">{description}</p>
           </div>
-          <Button onClick={onAddVeicolo} className="flex items-center gap-2">
+          <Button onClick={onAddVeicolo} className="flex items-center gap-2 shrink-0">
             <Plus className="h-4 w-4" />
-            Aggiungi Veicolo
+            <span className="hidden sm:inline">Aggiungi Veicolo</span>
+            <span className="sm:hidden">Aggiungi</span>
           </Button>
         </div>
       </CardHeader>
@@ -60,56 +61,58 @@ export function VeicoloList({
             </p>
           </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Modello</TableHead>
-                  <TableHead>Targa</TableHead>
-                  <TableHead>Anno</TableHead>
-                  <TableHead>Colore</TableHead>
-                  <TableHead>Posti</TableHead>
-                  <TableHead>Stato</TableHead>
-                  <TableHead className="text-right">Azioni</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {veicoli.map((veicolo) => (
-                  <TableRow key={veicolo.id}>
-                    <TableCell className="font-medium">{veicolo.modello}</TableCell>
-                    <TableCell className="font-mono">{veicolo.targa}</TableCell>
-                    <TableCell>{veicolo.anno || '-'}</TableCell>
-                    <TableCell>{veicolo.colore || '-'}</TableCell>
-                    <TableCell>{veicolo.numero_posti || '-'}</TableCell>
-                    <TableCell>
-                      <Badge variant={veicolo.attivo ? 'default' : 'secondary'}>
-                        {veicolo.attivo ? 'Attivo' : 'Inattivo'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEdit(veicolo)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        {veicolo.attivo && (
+          <div className="overflow-x-auto">
+            <div className="rounded-md border min-w-[800px]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">Modello</TableHead>
+                    <TableHead className="w-[120px]">Targa</TableHead>
+                    <TableHead className="w-[80px]">Anno</TableHead>
+                    <TableHead className="w-[100px]">Colore</TableHead>
+                    <TableHead className="w-[80px] text-center">Posti</TableHead>
+                    <TableHead className="w-[100px]">Stato</TableHead>
+                    <TableHead className="w-[120px] text-right">Azioni</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {veicoli.map((veicolo) => (
+                    <TableRow key={veicolo.id}>
+                      <TableCell className="font-medium">{veicolo.modello}</TableCell>
+                      <TableCell className="font-mono">{veicolo.targa}</TableCell>
+                      <TableCell>{veicolo.anno || '-'}</TableCell>
+                      <TableCell>{veicolo.colore || '-'}</TableCell>
+                      <TableCell className="text-center">{veicolo.numero_posti || '-'}</TableCell>
+                      <TableCell>
+                        <Badge variant={veicolo.attivo ? 'default' : 'secondary'}>
+                          {veicolo.attivo ? 'Attivo' : 'Inattivo'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onDelete(veicolo)}
+                            onClick={() => onEdit(veicolo)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Edit className="h-4 w-4" />
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                          {veicolo.attivo && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onDelete(veicolo)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )}
       </CardContent>

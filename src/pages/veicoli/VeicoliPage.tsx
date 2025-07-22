@@ -74,7 +74,7 @@ export default function VeicoliPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-7xl mx-auto">
         {/* Header con breadcrumb */}
         <div className="space-y-4">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
