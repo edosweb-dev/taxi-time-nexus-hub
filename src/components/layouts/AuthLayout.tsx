@@ -3,8 +3,8 @@ import { PropsWithChildren } from "react";
 
 export function AuthLayout({ children }: PropsWithChildren) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background px-4 py-6">
-      <div className="w-full max-w-[400px] mx-auto">
+    <div className="h-screen w-screen flex items-center justify-center bg-background overflow-hidden">
+      <div className="w-full max-w-[400px] px-6">
         {/* Logo Section - Flat and minimal */}
         <div className="text-center mb-8">
           <img 
