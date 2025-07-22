@@ -45,9 +45,11 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   onCompleta,
   onFirma
 }) => {
-  // Logica pulsanti: sempre visibili ma attivati/disattivati in base allo stato
-  const canBeCompleted = onCompleta && servizio.stato === 'assegnato';
-  const canBeSigned = onFirma && ['assegnato', 'completato'].includes(servizio.stato) && !servizio.firma_url;
+  // Logica ottimizzata per pulsanti in base allo stato
+  const isToAssign = servizio.stato === 'da_assegnare';
+  const canBeAssigned = isAdminOrSocio && onSelect && isToAssign;
+  const canBeCompleted = !isToAssign && onCompleta && servizio.stato === 'assegnato';
+  const canBeSigned = !isToAssign && onFirma && ['assegnato', 'completato'].includes(servizio.stato) && !servizio.firma_url;
 
   return (
     <>
@@ -83,34 +85,60 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
         </TableCell>
         <TableCell className="w-48">
           <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-            <Button 
-              variant={canBeCompleted ? "outline" : "ghost"} 
-              size="sm"
-              disabled={!canBeCompleted}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (canBeCompleted) onCompleta?.(servizio);
-              }}
-              className="min-w-[80px] opacity-100"
-            >
-              <CheckSquare className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Completa</span>
-            </Button>
+            {/* Se da assegnare: mostra solo pulsante Assegna */}
+            {isToAssign ? (
+              <>
+                {canBeAssigned && (
+                  <Button 
+                    variant="default" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(servizio);
+                    }}
+                    className="min-w-[80px]"
+                  >
+                    <Users className="h-4 w-4 mr-1" />
+                    <span className="hidden sm:inline">Assegna</span>
+                  </Button>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Se già assegnato: mostra pulsanti Completa e Firma */}
+                <Button 
+                  variant={canBeCompleted ? "outline" : "ghost"} 
+                  size="sm"
+                  disabled={!canBeCompleted}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (canBeCompleted) onCompleta?.(servizio);
+                  }}
+                  className="min-w-[80px]"
+                  style={{ opacity: canBeCompleted ? 1 : 0.5 }}
+                >
+                  <CheckSquare className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Completa</span>
+                </Button>
+                
+                <Button 
+                  variant={canBeSigned ? "outline" : "ghost"}
+                  size="sm"
+                  disabled={!canBeSigned}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (canBeSigned) onFirma?.(servizio);
+                  }}
+                  className="min-w-[70px]"
+                  style={{ opacity: canBeSigned ? 1 : 0.5 }}
+                >
+                  <Clipboard className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Firma</span>
+                </Button>
+              </>
+            )}
             
-            <Button 
-              variant={canBeSigned ? "outline" : "ghost"}
-              size="sm"
-              disabled={!canBeSigned}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (canBeSigned) onFirma?.(servizio);
-              }}
-              className="min-w-[70px] opacity-100"
-            >
-              <Clipboard className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Firma</span>
-            </Button>
-            
+            {/* Menu dropdown sempre presente per dettagli */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
@@ -125,15 +153,6 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
                   <Pencil className="h-4 w-4 mr-2" />
                   Dettagli
                 </DropdownMenuItem>
-                {servizio.stato === 'da_assegnare' && isAdminOrSocio && onSelect && (
-                  <DropdownMenuItem onClick={(e) => {
-                    e.stopPropagation();
-                    onSelect(servizio);
-                  }}>
-                    <Users className="h-4 w-4 mr-2" />
-                    Assegna
-                  </DropdownMenuItem>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
