@@ -19,7 +19,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
               }
             }}
           />
-          <h1 className="text-xl font-medium text-foreground">Benvenuto</h1>
+          <h1 className="subsection-title text-foreground">Benvenuto</h1>
           <p className="text-sm text-muted-foreground mt-1">Accedi al tuo account</p>
         </div>
 

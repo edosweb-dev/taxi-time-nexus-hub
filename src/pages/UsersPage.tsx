@@ -111,8 +111,8 @@ export default function UsersPage() {
           
           <div className="flex items-center justify-between">
             <div className="space-y-3">
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground">Gestione Utenti</h1>
-              <p className="text-muted-foreground text-xl max-w-2xl">
+              <h1 className="page-title">Gestione Utenti</h1>
+              <p className="text-description">
                 Amministra tutti gli utenti del sistema: staff interno e clienti aziendali
               </p>
             </div>

@@ -64,7 +64,7 @@ export function AziendaViewSheet({
             </Avatar>
             
             <div className="flex-1 space-y-2">
-              <SheetTitle className="text-2xl font-bold text-left">
+              <SheetTitle className="section-title">
                 {azienda.nome}
               </SheetTitle>
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -94,7 +94,7 @@ export function AziendaViewSheet({
           {/* Contact Information Card */}
           <Card className="border-l-4 border-l-blue-500">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="card-title flex items-center gap-2">
                 <Phone className="h-5 w-5 text-blue-500" />
                 Informazioni di Contatto
               </CardTitle>
@@ -191,7 +191,7 @@ export function AziendaViewSheet({
           {/* Configuration Settings Card */}
           <Card className="border-l-4 border-l-amber-500">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
+              <CardTitle className="card-title flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-amber-500" />
                 Configurazioni Azienda
               </CardTitle>

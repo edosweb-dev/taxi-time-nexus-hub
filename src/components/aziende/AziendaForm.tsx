@@ -83,7 +83,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
         {/* Main Information Card */}
         <Card className="border-l-4 border-l-primary">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="card-title flex items-center gap-2">
               <Building2 className="h-5 w-5 text-primary" />
               Informazioni Principali
             </CardTitle>
@@ -96,7 +96,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
         {/* Contact Information Card */}
         <Card className="border-l-4 border-l-blue-500">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="card-title flex items-center gap-2">
               <Phone className="h-5 w-5 text-blue-500" />
               Informazioni di Contatto
             </CardTitle>
@@ -109,7 +109,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
         {/* Settings Card */}
         <Card className="border-l-4 border-l-amber-500">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="card-title flex items-center gap-2">
               <Settings className="h-5 w-5 text-amber-500" />
               Configurazioni Azienda
             </CardTitle>

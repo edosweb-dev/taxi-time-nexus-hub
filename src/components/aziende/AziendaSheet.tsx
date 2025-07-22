@@ -59,7 +59,7 @@ export function AziendaSheet({
             </Avatar>
             
             <div className="flex-1 space-y-2">
-              <SheetTitle className="text-2xl font-bold text-left flex items-center gap-3">
+              <SheetTitle className="section-title flex items-center gap-3">
                 {isEditing ? (
                   <>
                     <Edit className="h-6 w-6 text-amber-500" />

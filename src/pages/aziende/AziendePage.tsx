@@ -100,12 +100,12 @@ export default function AziendePage() {
             </nav>
             
             <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Aziende</h1>
-                <p className="text-muted-foreground text-lg">
-                  Gestisci le aziende clienti
-                </p>
-              </div>
+            <div className="space-y-3">
+              <h1 className="page-title">Aziende</h1>
+              <p className="text-description">
+                Gestisci le aziende clienti
+              </p>
+            </div>
             </div>
           </div>
 
