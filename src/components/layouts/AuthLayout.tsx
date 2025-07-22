@@ -3,7 +3,7 @@ import { PropsWithChildren } from "react";
 
 export function AuthLayout({ children }: PropsWithChildren) {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-white p-4">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center justify-center bg-white p-4">
       <div className="flex justify-center mb-8">
         <div className="h-32 w-32 bg-white rounded-full flex items-center justify-center shadow-lg">
           <img 
@@ -21,7 +21,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
           />
         </div>
       </div>
-      <div className="w-full max-w-md bg-gray-50 rounded-xl shadow-2xl p-8">
+      <div className="w-full max-w-sm sm:max-w-md bg-gray-50 rounded-xl shadow-2xl p-6 sm:p-8">
         {children}
       </div>
     </div>
