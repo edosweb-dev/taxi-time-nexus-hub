@@ -126,11 +126,15 @@ export type Database = {
       }
       feedback: {
         Row: {
+          admin_comment: string | null
           created_at: string
           email: string | null
           id: string
           messaggio: string
           pagina: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
           timestamp: string
           tipo: string
           url: string | null
@@ -138,11 +142,15 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          admin_comment?: string | null
           created_at?: string
           email?: string | null
           id?: string
           messaggio: string
           pagina: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
           timestamp?: string
           tipo: string
           url?: string | null
@@ -150,11 +158,15 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          admin_comment?: string | null
           created_at?: string
           email?: string | null
           id?: string
           messaggio?: string
           pagina?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
           timestamp?: string
           tipo?: string
           url?: string | null

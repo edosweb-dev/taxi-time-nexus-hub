@@ -11,8 +11,14 @@ interface FeedbackData {
   email?: string;
 }
 
+interface UpdateFeedbackData {
+  status?: string;
+  admin_comment?: string;
+}
+
 export function useFeedback() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const { user } = useAuth();
 
   const createFeedback = async (data: FeedbackData) => {
@@ -51,8 +57,46 @@ export function useFeedback() {
     }
   };
 
+  const updateFeedback = async (feedbackId: string, data: UpdateFeedbackData) => {
+    try {
+      setIsUpdating(true);
+      
+      const updateData: any = { ...data };
+      
+      if (data.status === 'risolto' || data.status === 'chiuso') {
+        updateData.resolved_at = new Date().toISOString();
+        updateData.resolved_by = user?.id;
+      }
+
+      const { error } = await supabase
+        .from('feedback')
+        .update(updateData)
+        .eq('id', feedbackId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Feedback aggiornato!",
+        description: "Le modifiche sono state salvate con successo.",
+      });
+
+    } catch (error) {
+      console.error('Errore aggiornamento feedback:', error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante l'aggiornamento del feedback.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return {
     createFeedback,
+    updateFeedback,
     isSubmitting,
+    isUpdating,
   };
 }
