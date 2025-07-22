@@ -1,15 +1,16 @@
-
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ShiftCalendar } from '@/components/shifts/ShiftCalendar';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
 import { ShiftProvider } from '@/components/shifts/ShiftContext';
-import { ChevronRight, Home, Plus } from 'lucide-react';
+import { ChevronRight, Home, Plus, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function ShiftsPage() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -40,13 +41,23 @@ export default function ShiftsPage() {
                   </p>
                 </div>
                 
-                <Button 
-                  onClick={() => setIsDialogOpen(true)}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi Turno
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/turni/report')}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Report
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => setIsDialogOpen(true)}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Aggiungi Turno
+                  </Button>
+                </div>
               </div>
             </div>
 
