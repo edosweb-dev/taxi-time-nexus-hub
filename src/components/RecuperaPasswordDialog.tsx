@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,7 +88,7 @@ export function RecuperaPasswordDialog({ children }: RecuperaPasswordDialogProps
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-taxitime-600 hover:bg-taxitime-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isLoading ? (
                 <>
