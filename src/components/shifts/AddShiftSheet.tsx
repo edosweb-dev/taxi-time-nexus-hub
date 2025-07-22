@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { useShifts } from './ShiftContext';
 import { ShiftFormData, Shift } from './types';
-import { shiftFormSchema } from './dialogs/ShiftFormSchema';
+import { shiftFormSchema, ShiftFormValues } from './dialogs/ShiftFormSchema';
 import { ShiftUserSelect } from './form-fields/ShiftUserSelect';
 import { ShiftDateField } from './form-fields/ShiftDateField';
 import { ShiftTypeSelect } from './form-fields/ShiftTypeSelect';
@@ -39,7 +39,7 @@ export function AddShiftSheet({
   const { user } = useAuth();
   const { createShift, updateShift } = useShifts();
 
-  const form = useForm<ShiftFormData>({
+  const form = useForm<ShiftFormValues>({
     resolver: zodResolver(shiftFormSchema),
     defaultValues: {
       user_id: defaultUserId || (isAdminOrSocio ? '' : user?.id || ''),
@@ -85,12 +85,24 @@ export function AddShiftSheet({
     }
   }, [editingShift, defaultDate, defaultUserId, form, isAdminOrSocio, user?.id]);
 
-  const onSubmit = async (data: ShiftFormData) => {
+  const onSubmit = async (data: ShiftFormValues) => {
     try {
+      const formData: ShiftFormData = {
+        user_id: data.user_id,
+        shift_date: data.shift_date,
+        shift_type: data.shift_type,
+        start_time: data.start_time,
+        end_time: data.end_time,
+        half_day_type: data.half_day_type,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        notes: data.notes,
+      };
+
       if (editingShift) {
-        await updateShift(editingShift.id, data);
+        await updateShift(editingShift.id, formData);
       } else {
-        await createShift(data);
+        await createShift(formData);
       }
       onOpenChange(false);
       form.reset();
@@ -104,50 +116,42 @@ export function AddShiftSheet({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <ShiftUserSelect 
+            control={form.control}
             isAdminOrSocio={isAdminOrSocio}
-            currentUserId={user?.id}
-            value={form.watch('user_id')}
-            onChange={(value) => form.setValue('user_id', value)}
+            isEditing={!!editingShift}
           />
           
           <ShiftDateField 
-            value={form.watch('shift_date')}
-            onChange={(value) => form.setValue('shift_date', value)}
+            control={form.control}
+            name="shift_date"
+            label="Data turno"
           />
           
           <ShiftTypeSelect 
-            value={form.watch('shift_type')}
-            onChange={(value) => form.setValue('shift_type', value)}
+            control={form.control}
+            setValue={form.setValue}
           />
           
           {shiftType === 'specific_hours' && (
             <ShiftTimeFields 
-              startTime={form.watch('start_time')}
-              endTime={form.watch('end_time')}
-              onStartTimeChange={(value) => form.setValue('start_time', value)}
-              onEndTimeChange={(value) => form.setValue('end_time', value)}
+              control={form.control}
             />
           )}
           
           {shiftType === 'half_day' && (
             <HalfDayTypeField 
-              value={form.watch('half_day_type')}
-              onChange={(value) => form.setValue('half_day_type', value)}
+              control={form.control}
             />
           )}
           
           {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
             <DateRangeFields 
-              startDate={form.watch('start_date')}
-              endDate={form.watch('end_date')}
-              onStartDateChange={(value) => form.setValue('start_date', value)}
-              onEndDateChange={(value) => form.setValue('end_date', value)}
+              control={form.control}
             />
           )}
           
           <ShiftNotesField 
-            value={form.watch('notes')}
-            onChange={(value) => form.setValue('notes', value)}
+            control={form.control}
           />
           
           <div className="flex justify-end gap-2 pt-4">
