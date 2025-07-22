@@ -32,39 +32,115 @@ export function ServizioInfoTab({
 }: ServizioInfoTabProps) {
   return (
     <div className="space-y-6">
-      {/* Informazioni principali */}
-      <BasicInfoSection 
-        servizio={servizio}
-        users={users}
-        getAziendaName={getAziendaName}
-        getUserName={getUserName}
-      />
+      {/* Row 1: Informazioni principali | Stato attuale */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <BasicInfoSection 
+          servizio={servizio}
+          users={users}
+          getAziendaName={getAziendaName}
+          getUserName={getUserName}
+        />
+        
+        {/* Service Status Card */}
+        <div className="bg-card border rounded-lg p-6">
+          <div className="text-center space-y-4">
+            <div>
+              <div className="text-sm font-medium text-muted-foreground mb-3">Stato attuale</div>
+              {(() => {
+                switch (servizio.stato) {
+                  case 'da_assegnare':
+                    return <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-base font-medium">Da assegnare</div>;
+                  case 'assegnato':
+                    return <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-base font-medium">Assegnato</div>;
+                  case 'completato':
+                    return <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-base font-medium">Completato</div>;
+                  case 'consuntivato':
+                    return <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-base font-medium">Consuntivato</div>;
+                  default:
+                    return <div className="bg-gray-100 text-gray-800 px-4 py-2 rounded-full text-base font-medium">{servizio.stato}</div>;
+                }
+              })()}
+            </div>
+            
+            {servizio.created_at && (
+              <div className="text-sm text-muted-foreground">
+                Creato il {new Date(servizio.created_at).toLocaleDateString('it-IT')}
+              </div>
+            )}
+            
+            {servizio.firma_timestamp && (
+              <div className="text-sm text-green-600 font-medium">
+                ✓ Firmato il {new Date(servizio.firma_timestamp).toLocaleDateString('it-IT')} alle {new Date(servizio.firma_timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       
-      {/* Percorso */}
-      <RouteSection servizio={servizio} />
+      {/* Row 2: Percorso | Assegnazione e veicolo | Passeggeri */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <RouteSection servizio={servizio} />
+        
+        <AssignmentInfoSection 
+          servizio={servizio}
+          users={users}
+          getUserName={getUserName}
+        />
+        
+        {/* Passengers Summary */}
+        <div className="bg-card border rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-lg font-semibold">Passeggeri</div>
+            <span className="bg-primary/10 text-primary px-3 py-2 rounded-full text-sm font-medium">
+              {passeggeri.length}
+            </span>
+          </div>
+          
+          {passeggeri.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-4xl mb-2">👥</div>
+              <p className="text-sm text-muted-foreground">Nessun passeggero</p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {passeggeri.map((passeggero: any, index: number) => (
+                <div key={passeggero.id} className="bg-muted/30 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
+                      #{index + 1}
+                    </span>
+                    <div className="font-medium text-sm truncate">{passeggero.nome_cognome}</div>
+                  </div>
+                  
+                  {(passeggero.email || passeggero.telefono) && (
+                    <div className="text-xs space-y-1 text-muted-foreground">
+                      {passeggero.email && <div className="truncate">{passeggero.email}</div>}
+                      {passeggero.telefono && <div>{passeggero.telefono}</div>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       
-      {/* Assegnazione */}
-      <AssignmentInfoSection 
-        servizio={servizio}
-        users={users}
-        getUserName={getUserName}
-      />
+      {/* Row 3: Informazioni finanziarie | Dati operativi */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <FinancialSection 
+          servizio={servizio}
+          users={users}
+          getUserName={getUserName}
+          formatCurrency={formatCurrency}
+        />
+        
+        <OperationalSection 
+          servizio={servizio}
+          passeggeriCount={passeggeri.length}
+        />
+      </div>
       
-      {/* Informazioni finanziarie */}
-      <FinancialSection 
-        servizio={servizio}
-        users={users}
-        getUserName={getUserName}
-        formatCurrency={formatCurrency}
-      />
-      
-      {/* Dati operativi */}
-      <OperationalSection 
-        servizio={servizio}
-        passeggeriCount={passeggeri.length}
-      />
-      
-      {/* Note e firma */}
+      {/* Note e firma - Full width */}
       <NotesSignatureSection 
         servizio={servizio}
         firmaDigitaleAttiva={firmaDigitaleAttiva}
