@@ -31,9 +31,17 @@ export function ShiftCalendarView({
     shiftsInView,
     isAddDialogOpen,
     setIsAddDialogOpen,
+    isDetailsDialogOpen,
+    setIsDetailsDialogOpen,
+    isEditDialogOpen,
+    setIsEditDialogOpen,
     selectedDate,
     selectedShiftUserId,
+    selectedShift,
+    selectedDateShifts,
     handleCellClick,
+    handleEditShift,
+    handleDeleteShift,
     formatViewPeriod,
     goToPreviousPeriod,
     goToNextPeriod,
@@ -67,6 +75,15 @@ export function ShiftCalendarView({
         handleCellClick={handleCellClick}
         setSelectedShift={setSelectedShift}
         getShiftPosition={getShiftPosition}
+        isDetailsDialogOpen={isDetailsDialogOpen}
+        setIsDetailsDialogOpen={setIsDetailsDialogOpen}
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        selectedDate={selectedDate}
+        selectedDateShifts={selectedDateShifts}
+        selectedShift={selectedShift}
+        handleEditShift={handleEditShift}
+        handleDeleteShift={handleDeleteShift}
       />
       
       <AddShiftDialog 

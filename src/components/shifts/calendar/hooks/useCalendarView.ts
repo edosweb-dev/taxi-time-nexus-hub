@@ -12,7 +12,9 @@ import {
   addDays,
   parseISO,
   isSameDay,
-  format
+  format,
+  isBefore,
+  isToday
 } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Shift } from '../../types';
@@ -23,10 +25,13 @@ export function useCalendarView(
   onMonthChange: (date: Date) => void,
   selectedUserId?: string | null
 ) {
-  const { shifts, isLoading, loadShifts, setSelectedShift, setUserFilter } = useShifts();
+  const { shifts, isLoading, loadShifts, setSelectedShift, setUserFilter, deleteShift } = useShifts();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedShiftUserId, setSelectedShiftUserId] = useState<string | null>(null);
+  const [selectedShift, setSelectedShiftForEdit] = useState<Shift | null>(null);
   const [viewMode, setViewMode] = useState<"week" | "day" | "month">("week");
 
   // Apply the user filter if provided
@@ -63,26 +68,20 @@ export function useCalendarView(
 
   const goToPreviousPeriod = () => {
     if (viewMode === "day") {
-      // Move one day back
       onMonthChange(subDays(currentMonth, 1));
     } else if (viewMode === "week") {
-      // Move one week back
       onMonthChange(subDays(currentMonth, 7));
     } else {
-      // Move one month back
       onMonthChange(subMonths(currentMonth, 1));
     }
   };
 
   const goToNextPeriod = () => {
     if (viewMode === "day") {
-      // Move one day forward
       onMonthChange(addDays(currentMonth, 1));
     } else if (viewMode === "week") {
-      // Move one week forward
       onMonthChange(addDays(currentMonth, 7));
     } else {
-      // Move one month forward
       onMonthChange(addMonths(currentMonth, 1));
     }
   };
@@ -92,7 +91,40 @@ export function useCalendarView(
   const handleCellClick = (day: Date, userId: string | null = null) => {
     setSelectedDate(day);
     setSelectedShiftUserId(userId);
-    setIsAddDialogOpen(true);
+    
+    // Get shifts for the selected day
+    const dayShifts = shifts.filter(shift => {
+      const shiftDate = parseISO(shift.shift_date);
+      return isSameDay(shiftDate, day);
+    });
+
+    // Logic for determining which dialog to open
+    const isPastOrToday = isBefore(day, new Date()) || isToday(day);
+    
+    if (isPastOrToday && dayShifts.length > 0) {
+      // Past/today with existing shifts: show details
+      setIsDetailsDialogOpen(true);
+    } else if (!isPastOrToday) {
+      // Future date: allow adding shifts
+      setIsAddDialogOpen(true);
+    } else {
+      // Past date with no shifts: show details dialog anyway (will show "no shifts" message)
+      setIsDetailsDialogOpen(true);
+    }
+  };
+
+  const handleEditShift = (shift: Shift) => {
+    setSelectedShiftForEdit(shift);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteShift = async (shiftId: string) => {
+    try {
+      await deleteShift(shiftId);
+      setIsDetailsDialogOpen(false);
+    } catch (error) {
+      console.error('Error deleting shift:', error);
+    }
   };
 
   // Helper to format the current view period
@@ -115,6 +147,15 @@ export function useCalendarView(
       return daysInView.some(day => isSameDay(shiftDate, day));
     });
   }, [shifts, daysInView]);
+
+  // Get shifts for selected date
+  const selectedDateShifts = useMemo(() => {
+    if (!selectedDate) return [];
+    return shifts.filter(shift => {
+      const shiftDate = parseISO(shift.shift_date);
+      return isSameDay(shiftDate, selectedDate);
+    });
+  }, [shifts, selectedDate]);
 
   // Position a shift in the calendar grid based on its time
   const getShiftPosition = (shift: Shift) => {
@@ -158,9 +199,17 @@ export function useCalendarView(
     shiftsInView,
     isAddDialogOpen,
     setIsAddDialogOpen,
+    isDetailsDialogOpen,
+    setIsDetailsDialogOpen,
+    isEditDialogOpen,
+    setIsEditDialogOpen,
     selectedDate,
     selectedShiftUserId,
+    selectedShift,
+    selectedDateShifts,
     handleCellClick,
+    handleEditShift,
+    handleDeleteShift,
     formatViewPeriod,
     goToPreviousPeriod,
     goToNextPeriod,

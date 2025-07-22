@@ -2,6 +2,8 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { ShiftCalendarMonthView } from '../ShiftCalendarMonthView';
 import { ShiftCalendarGrid } from '../ShiftCalendarGrid';
+import { ShiftDetailsDialog } from '../../dialogs/ShiftDetailsDialog';
+import { EditShiftDialog } from '../../dialogs/EditShiftDialog';
 import { Shift } from '../../types';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -16,6 +18,15 @@ interface CalendarContentProps {
   handleCellClick: (day: Date, userId: string | null) => void;
   setSelectedShift: (shift: Shift) => void;
   getShiftPosition: (shift: Shift) => { top: number; height: number; spanRows: boolean };
+  isDetailsDialogOpen: boolean;
+  setIsDetailsDialogOpen: (open: boolean) => void;
+  isEditDialogOpen: boolean;
+  setIsEditDialogOpen: (open: boolean) => void;
+  selectedDate: Date | null;
+  selectedDateShifts: Shift[];
+  selectedShift: Shift | null;
+  handleEditShift: (shift: Shift) => void;
+  handleDeleteShift: (shiftId: string) => Promise<void>;
 }
 
 export function CalendarContent({
@@ -28,36 +39,81 @@ export function CalendarContent({
   isAdminOrSocio,
   handleCellClick,
   setSelectedShift,
-  getShiftPosition
+  getShiftPosition,
+  isDetailsDialogOpen,
+  setIsDetailsDialogOpen,
+  isEditDialogOpen,
+  setIsEditDialogOpen,
+  selectedDate,
+  selectedDateShifts,
+  selectedShift,
+  handleEditShift,
+  handleDeleteShift
 }: CalendarContentProps) {
   const { user } = useAuth();
   
-  // Always show the calendar, regardless of shifts
-
   // Show calendar based on view mode
   if (viewMode === "month") {
     return (
-      <ShiftCalendarMonthView 
-        daysInView={daysInView}
-        currentMonth={currentMonth}
-        shifts={shifts}
-        isAdminOrSocio={isAdminOrSocio}
-        onCellClick={handleCellClick}
-        onSelectShift={setSelectedShift}
-        userId={user?.id}
-      />
+      <>
+        <ShiftCalendarMonthView 
+          daysInView={daysInView}
+          currentMonth={currentMonth}
+          shifts={shifts}
+          isAdminOrSocio={isAdminOrSocio}
+          onCellClick={handleCellClick}
+          onSelectShift={setSelectedShift}
+          userId={user?.id}
+        />
+        
+        <ShiftDetailsDialog
+          open={isDetailsDialogOpen}
+          onOpenChange={setIsDetailsDialogOpen}
+          shifts={selectedDateShifts}
+          selectedDate={selectedDate || new Date()}
+          onEditShift={handleEditShift}
+          onDeleteShift={handleDeleteShift}
+          canEdit={isAdminOrSocio || selectedDateShifts.some(s => s.user_id === user?.id)}
+        />
+        
+        <EditShiftDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          shift={selectedShift}
+          isAdminOrSocio={isAdminOrSocio}
+        />
+      </>
     );
   }
   
   return (
-    <ShiftCalendarGrid
-      viewMode={viewMode}
-      daysInView={daysInView}
-      hours={hours}
-      shiftsInView={shiftsInView}
-      getShiftPosition={getShiftPosition}
-      onSelectShift={setSelectedShift}
-      onAddShift={(day) => handleCellClick(day, user?.id || null)}
-    />
+    <>
+      <ShiftCalendarGrid
+        viewMode={viewMode}
+        daysInView={daysInView}
+        hours={hours}
+        shiftsInView={shiftsInView}
+        getShiftPosition={getShiftPosition}
+        onSelectShift={setSelectedShift}
+        onAddShift={(day) => handleCellClick(day, user?.id || null)}
+      />
+      
+      <ShiftDetailsDialog
+        open={isDetailsDialogOpen}
+        onOpenChange={setIsDetailsDialogOpen}
+        shifts={selectedDateShifts}
+        selectedDate={selectedDate || new Date()}
+        onEditShift={handleEditShift}
+        onDeleteShift={handleDeleteShift}
+        canEdit={isAdminOrSocio || selectedDateShifts.some(s => s.user_id === user?.id)}
+      />
+      
+      <EditShiftDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        shift={selectedShift}
+        isAdminOrSocio={isAdminOrSocio}
+      />
+    </>
   );
 }
