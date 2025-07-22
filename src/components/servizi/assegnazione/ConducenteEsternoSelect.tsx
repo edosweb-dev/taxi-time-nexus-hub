@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2 } from 'lucide-react';
 import { useConducentiEsterniAttivi } from '@/hooks/useConducentiEsterni';
-import { ConducenteEsternoDialog } from '@/components/conducenti-esterni/ConducenteEsternoDialog';
+import { ConducenteEsternoSheet } from '@/components/conducenti-esterni/ConducenteEsternoSheet';
 
 interface ConducenteEsternoSelectProps {
   selectedConducenteId: string;
@@ -18,13 +18,13 @@ export function ConducenteEsternoSelect({
   onCreateNew
 }: ConducenteEsternoSelectProps) {
   const { data: conducenti = [], isLoading } = useConducentiEsterniAttivi();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showCreateSheet, setShowCreateSheet] = useState(false);
 
   const handleCreateNew = () => {
     if (onCreateNew) {
       onCreateNew();
     } else {
-      setShowCreateDialog(true);
+      setShowCreateSheet(true);
     }
   };
 
@@ -70,9 +70,9 @@ export function ConducenteEsternoSelect({
         </p>
       </div>
 
-      <ConducenteEsternoDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
+      <ConducenteEsternoSheet
+        open={showCreateSheet}
+        onOpenChange={setShowCreateSheet}
         mode="create"
       />
     </>
