@@ -239,7 +239,7 @@ export function ServiziContent({
             value={status} 
             className="mt-0"
           >
-            <div className="rounded-md border">
+            <div className="rounded-md border h-[600px] flex flex-col">
               <ServizioTable
                 servizi={serviziByStatus[status]}
                 users={users}
