@@ -76,8 +76,7 @@ export default function AziendePage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50/30">
-        <div className="container mx-auto p-4 md:p-6 space-y-6">
+      <div className="space-y-6">
           {/* Header con breadcrumb */}
           <div className="space-y-4">
             <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -110,7 +109,6 @@ export default function AziendePage() {
             azienda={selectedAzienda}
             isSubmitting={isSubmitting}
           />
-        </div>
       </div>
     </MainLayout>
   );

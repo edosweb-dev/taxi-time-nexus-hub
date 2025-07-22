@@ -36,7 +36,7 @@ export function MainLayout({ children }: PropsWithChildren) {
         
         <main className="flex-1 flex flex-col overflow-hidden bg-background">
           <div className="flex-1 overflow-auto">
-            <div className="w-[90%] max-w-7xl mx-auto p-6">
+            <div className="w-[90%] max-w-7xl mx-auto" style={{ padding: '10px' }}>
               {children}
             </div>
           </div>

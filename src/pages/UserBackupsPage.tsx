@@ -43,7 +43,7 @@ export default function UserBackupsPage() {
   if (profile?.role !== 'admin') {
     return (
       <MainLayout>
-        <div className="container mx-auto p-6">
+        <div style={{ padding: '10px' }}>
           <div className="text-center py-8">
             <h1 className="text-2xl font-bold text-foreground mb-2">Accesso Negato</h1>
             <p className="text-muted-foreground">Solo gli amministratori possono accedere a questa pagina.</p>
@@ -80,7 +80,7 @@ export default function UserBackupsPage() {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="container mx-auto p-6">
+        <div style={{ padding: '10px' }}>
           <div className="text-center py-8">
             <p>Caricamento backup...</p>
           </div>
@@ -92,7 +92,7 @@ export default function UserBackupsPage() {
   if (error) {
     return (
       <MainLayout>
-        <div className="container mx-auto p-6">
+        <div style={{ padding: '10px' }}>
           <div className="text-center py-8">
             <p className="text-destructive">Errore nel caricamento dei backup</p>
           </div>
@@ -103,8 +103,7 @@ export default function UserBackupsPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50/30">
-        <div className="container mx-auto p-4 md:p-6 space-y-6">
+      <div className="space-y-6">
           {/* Header con breadcrumb */}
           <div className="space-y-4">
             <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -199,79 +198,78 @@ export default function UserBackupsPage() {
               )}
             </CardContent>
           </Card>
-        </div>
+        
+          {/* Dialog per visualizzazione dettagli backup */}
+          <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  Dettagli Backup - {getAsObject(selectedBackup?.user_data)?.first_name || 'N/A'} {getAsObject(selectedBackup?.user_data)?.last_name || ''}
+                </DialogTitle>
+              </DialogHeader>
+              
+              {selectedBackup && (
+                <div className="space-y-6">
+                  {/* Informazioni generali */}
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+                    <div>
+                      <strong>Nome:</strong> {getAsObject(selectedBackup.user_data)?.first_name || 'N/A'} {getAsObject(selectedBackup.user_data)?.last_name || ''}
+                    </div>
+                    <div>
+                      <strong>Ruolo:</strong> {getAsObject(selectedBackup.user_data)?.role || 'N/A'}
+                    </div>
+                    <div>
+                      <strong>Email:</strong> {getAsObject(selectedBackup.user_data)?.email || 'N/A'}
+                    </div>
+                    <div>
+                      <strong>Eliminato il:</strong> {new Date(selectedBackup.deleted_at).toLocaleString('it-IT')}
+                    </div>
+                  </div>
+
+                  {/* Statistiche dati */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Servizi</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{getAsArray(selectedBackup.servizi_data).length}</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Stipendi</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{getAsArray(selectedBackup.stipendi_data).length}</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Spese</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{getAsArray(selectedBackup.spese_data).length}</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Dati dettagliati in formato JSON (collassabile) */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Dati Completi (JSON)</h3>
+                    <div className="bg-muted p-4 rounded-lg">
+                      <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
+                        {JSON.stringify(selectedBackup, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
       </div>
-
-      {/* Dialog per visualizzazione dettagli backup */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              Dettagli Backup - {getAsObject(selectedBackup?.user_data)?.first_name || 'N/A'} {getAsObject(selectedBackup?.user_data)?.last_name || ''}
-            </DialogTitle>
-          </DialogHeader>
-          
-          {selectedBackup && (
-            <div className="space-y-6">
-              {/* Informazioni generali */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
-                <div>
-                  <strong>Nome:</strong> {getAsObject(selectedBackup.user_data)?.first_name || 'N/A'} {getAsObject(selectedBackup.user_data)?.last_name || ''}
-                </div>
-                <div>
-                  <strong>Ruolo:</strong> {getAsObject(selectedBackup.user_data)?.role || 'N/A'}
-                </div>
-                <div>
-                  <strong>Email:</strong> {getAsObject(selectedBackup.user_data)?.email || 'N/A'}
-                </div>
-                <div>
-                  <strong>Eliminato il:</strong> {new Date(selectedBackup.deleted_at).toLocaleString('it-IT')}
-                </div>
-              </div>
-
-              {/* Statistiche dati */}
-              <div className="grid grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Servizi</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{getAsArray(selectedBackup.servizi_data).length}</div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Stipendi</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{getAsArray(selectedBackup.stipendi_data).length}</div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Spese</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{getAsArray(selectedBackup.spese_data).length}</div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Dati dettagliati in formato JSON (collassabile) */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Dati Completi (JSON)</h3>
-                <div className="bg-muted p-4 rounded-lg">
-                  <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
-                    {JSON.stringify(selectedBackup, null, 2)}
-                  </pre>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </MainLayout>
   );
 }
