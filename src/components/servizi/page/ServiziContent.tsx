@@ -197,7 +197,7 @@ export function ServiziContent({
             value={status} 
             className="mt-0 min-h-[600px] animate-fade-in smooth-transition"
           >
-            <div className="min-h-[500px] max-h-[600px] overflow-y-auto border rounded-lg bg-card shadow-sm">
+            <div className="w-full min-h-[600px] max-h-[600px] overflow-y-auto border rounded-lg bg-card shadow-sm">
               <ServizioTable
                 servizi={serviziByStatus[status]}
                 users={users}

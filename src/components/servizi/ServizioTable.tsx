@@ -45,8 +45,8 @@ export const ServizioTable = ({
   };
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div className="w-full">
+      <Table className="w-full">
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>

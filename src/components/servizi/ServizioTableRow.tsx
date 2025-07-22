@@ -45,9 +45,9 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   onCompleta,
   onFirma
 }) => {
-  // Determina se i pulsanti speciali devono essere mostrati
-  const canBeCompleted = servizio.stato === 'assegnato';
-  const canBeSigned = (servizio.stato === 'assegnato' || servizio.stato === 'completato') && !servizio.firma_url;
+  // Pulsanti sempre visibili per consistenza UI
+  const canBeCompleted = onCompleta && (servizio.stato === 'assegnato');
+  const canBeSigned = onFirma && ((servizio.stato === 'assegnato' || servizio.stato === 'completato') && !servizio.firma_url);
 
   return (
     <>
@@ -81,30 +81,34 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
             <span className="text-muted-foreground">Non assegnato</span>
           )}
         </TableCell>
-        <TableCell>
+        <TableCell className="w-48">
           <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-            {canBeCompleted && onCompleta && (
+            {onCompleta && (
               <Button 
-                variant="outline" 
+                variant={canBeCompleted ? "outline" : "ghost"} 
                 size="sm"
+                disabled={!canBeCompleted}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onCompleta(servizio);
+                  if (canBeCompleted) onCompleta(servizio);
                 }}
+                className="min-w-[80px]"
               >
                 <CheckSquare className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">Completa</span>
               </Button>
             )}
             
-            {canBeSigned && onFirma && (
+            {onFirma && (
               <Button 
-                variant="outline" 
+                variant={canBeSigned ? "outline" : "ghost"}
                 size="sm"
+                disabled={!canBeSigned}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onFirma(servizio);
+                  if (canBeSigned) onFirma(servizio);
                 }}
+                className="min-w-[70px]"
               >
                 <Clipboard className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">Firma</span>
