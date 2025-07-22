@@ -1,16 +1,14 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { UserList } from '@/components/users/UserList';
-import { UserSheet } from '@/components/users/UserSheet';
+import { UsersContent } from '@/components/users/UsersContent';
 import { ChevronRight, Home } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { useAuth } from '@/contexts/AuthContext';
-import { Profile, UserRole } from '@/lib/types';
+import { Profile } from '@/lib/types';
 import { UserFormData } from '@/lib/api/users/types';
 import { toast } from '@/components/ui/use-toast';
 import { createUser, updateUser, resetUserPassword } from '@/lib/api/users';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function UsersPage() {
   const { users, isLoading, refetch, deleteUser, isDeleting } = useUsers();
@@ -18,7 +16,7 @@ export default function UsersPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
+  
 
   const handleAddUser = () => {
     setSelectedUser(null);
@@ -100,84 +98,41 @@ export default function UsersPage() {
     }
   };
 
-  // Filter users by role
-  const clienti = users.filter(user => user.role === 'cliente');
-  const utenti = users.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role));
-  
-  // Filter utenti based on selected role
-  const filteredUtenti = selectedRole === 'all' 
-    ? utenti 
-    : utenti.filter(user => user.role === selectedRole);
-
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50/30">
-        <div className="container mx-auto p-4 md:p-6 space-y-6">
-          {/* Header con breadcrumb */}
-          <div className="space-y-4">
-            <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Home className="h-4 w-4" />
-              <ChevronRight className="h-4 w-4" />
-              <span className="font-medium text-foreground">Utenti</span>
-            </nav>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Utenti</h1>
-                <p className="text-muted-foreground text-lg">
-                  Gestisci gli utenti del sistema
-                </p>
-              </div>
+      <div className="space-y-6">
+        {/* Header con breadcrumb */}
+        <div className="space-y-4">
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Home className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" />
+            <span className="font-medium text-foreground">Utenti</span>
+          </nav>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Utenti</h1>
+              <p className="text-muted-foreground text-lg">
+                Gestisci gli utenti del sistema
+              </p>
             </div>
           </div>
-
-          <Tabs defaultValue="utenti" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="utenti">Utenti</TabsTrigger>
-              <TabsTrigger value="clienti">Clienti</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="utenti" className="space-y-4">
-              <UserList 
-                users={filteredUtenti}
-                onEdit={handleEditUser}
-                onDelete={handleDeleteUser}
-                onAddUser={handleAddUser}
-                onResetPassword={handleResetPassword}
-                currentUserId={profile?.id || ''}
-                title="Utenti"
-                description="Amministratori, soci e dipendenti"
-                showRoleFilter={true}
-                selectedRole={selectedRole}
-                onRoleChange={setSelectedRole}
-                isDeleting={isDeleting}
-              />
-            </TabsContent>
-            
-            <TabsContent value="clienti" className="space-y-4">
-              <UserList 
-                users={clienti}
-                onEdit={handleEditUser}
-                onDelete={handleDeleteUser}
-                onAddUser={handleAddUser}
-                onResetPassword={handleResetPassword}
-                currentUserId={profile?.id || ''}
-                title="Clienti"
-                description="Utenti clienti del sistema"
-                showEmailColumn={true}
-                isDeleting={isDeleting}
-              />
-            </TabsContent>
-          </Tabs>
-
-          <UserSheet
-            isOpen={isSheetOpen}
-            onOpenChange={setIsSheetOpen}
-            onSubmit={handleSubmit}
-            user={selectedUser}
-            isSubmitting={isSubmitting}
-          />
         </div>
+
+        <UsersContent
+          users={users}
+          onEdit={handleEditUser}
+          onDelete={handleDeleteUser}
+          onAddUser={handleAddUser}
+          onResetPassword={handleResetPassword}
+          onSubmit={handleSubmit}
+          currentUserId={profile?.id || ''}
+          isDeleting={isDeleting}
+          isSheetOpen={isSheetOpen}
+          setIsSheetOpen={setIsSheetOpen}
+          selectedUser={selectedUser}
+          isSubmitting={isSubmitting}
+        />
       </div>
     </MainLayout>
   );
