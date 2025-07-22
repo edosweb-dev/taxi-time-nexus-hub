@@ -4,6 +4,7 @@ import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
 import { useUsers } from "@/hooks/useUsers";
 import { getUserName } from "@/components/servizi/utils/userUtils";
+import { Users } from "lucide-react";
 import { ServizioHeader } from "@/components/servizi/dettaglio/ServizioHeader";
 import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/ServizioLoadingError";
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
@@ -76,21 +77,25 @@ export default function ServizioDetailPage() {
             {/* Passengers Card */}
             <div className="bg-card border rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Passeggeri del servizio</h3>
-                <span className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium">
+                <h3 className="text-lg font-semibold">👥 Passeggeri</h3>
+                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
                   {passeggeri.length}
                 </span>
               </div>
               
               {passeggeri.length === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-sm text-muted-foreground">Nessun passeggero associato</p>
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nessun passeggero registrato</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-80 overflow-y-auto">
-                  {passeggeri.map((passeggero: any) => (
-                    <div key={passeggero.id} className="bg-muted/30 rounded-lg p-3">
-                      <div className="font-medium text-sm mb-2">{passeggero.nome_cognome}</div>
+                  {passeggeri.map((passeggero: any, index: number) => (
+                    <div key={passeggero.id} className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">#{index + 1}</span>
+                        <div className="font-medium text-sm">{passeggero.nome_cognome}</div>
+                      </div>
                       
                       <div className="space-y-1 text-xs">
                         {passeggero.email && (
@@ -135,7 +140,7 @@ export default function ServizioDetailPage() {
             
             {/* Quick Actions Card */}
             <div className="bg-card border rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold">Azioni rapide</h3>
+              <h3 className="text-lg font-semibold">⚡ Azioni rapide</h3>
               <div className="space-y-2">
                 {canBeCompleted && (
                   <button 

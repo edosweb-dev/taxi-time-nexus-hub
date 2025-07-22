@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, CheckCircle2, FileText, FileDigit } from "lucide-react";
+import { ArrowLeft, Edit, CheckCircle2, FileText, Clock, Calendar } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
 import { Servizio } from "@/lib/types/servizi";
@@ -39,7 +39,7 @@ export function ServizioHeader({
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => navigate("/servizi")} className="text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Torna ai servizi
+              ← Elenco servizi
             </Button>
             {getStatoBadge(servizio.stato)}
           </div>
@@ -48,18 +48,21 @@ export function ServizioHeader({
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               {servizio.numero_commessa 
-                ? `Commessa ${servizio.numero_commessa}` 
-                : "Dettaglio servizio"}
+                ? `Commessa N° ${servizio.numero_commessa}` 
+                : `Servizio N° ${formatProgressiveId(servizio.id, index)}`}
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
               <div className="flex items-center">
-                <FileDigit className="h-4 w-4 mr-1" />
-                ID: {formatProgressiveId(servizio.id, index)}
-              </div>
-              <div className="flex items-center">
-                <span className="h-1 w-1 bg-muted-foreground rounded-full mr-2" />
+                <Calendar className="h-4 w-4 mr-1" />
                 {format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}
               </div>
+              {servizio.orario_servizio && (
+                <div className="flex items-center">
+                  <span className="h-1 w-1 bg-muted-foreground rounded-full mr-2" />
+                  <Clock className="h-4 w-4 mr-1" />
+                  ore {servizio.orario_servizio}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -69,21 +72,21 @@ export function ServizioHeader({
           {canBeCompleted && (
             <Button onClick={onCompleta} className="whitespace-nowrap">
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Completa
+              Completa servizio
             </Button>
           )}
           
           {canBeConsuntivato && (
             <Button onClick={onConsuntiva} variant="secondary" className="whitespace-nowrap">
               <FileText className="mr-2 h-4 w-4" />
-              Consuntiva
+              Consuntiva servizio
             </Button>
           )}
           
           {canBeEdited && (
             <Button onClick={() => navigate(`/servizi/${servizio.id}/edit`)} variant="outline" className="whitespace-nowrap">
               <Edit className="mr-2 h-4 w-4" />
-              Modifica
+              Modifica servizio
             </Button>
           )}
         </div>
