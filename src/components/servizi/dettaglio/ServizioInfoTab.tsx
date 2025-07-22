@@ -2,6 +2,7 @@
 import React from "react";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
+import { getStatoBadge, getStateIcon } from "@/components/servizi/utils/statusUtils";
 import {
   BasicInfoSection,
   RouteSection,
@@ -43,36 +44,35 @@ export function ServizioInfoTab({
         
         {/* Service Status Card */}
         <div className="bg-card border rounded-lg p-6">
-          <div className="text-center space-y-4">
-            <div>
-              <div className="text-sm font-medium text-muted-foreground mb-3">Stato attuale</div>
-              {(() => {
-                switch (servizio.stato) {
-                  case 'da_assegnare':
-                    return <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-base font-medium">Da assegnare</div>;
-                  case 'assegnato':
-                    return <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-base font-medium">Assegnato</div>;
-                  case 'completato':
-                    return <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-base font-medium">Completato</div>;
-                  case 'consuntivato':
-                    return <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-base font-medium">Consuntivato</div>;
-                  default:
-                    return <div className="bg-gray-100 text-gray-800 px-4 py-2 rounded-full text-base font-medium">{servizio.stato}</div>;
-                }
-              })()}
+          <div className="space-y-4">
+            <div className="text-lg font-semibold mb-4">Stato attuale</div>
+            
+            <div className="flex items-center justify-center gap-3 p-4 bg-muted/30 rounded-lg">
+              {getStateIcon(servizio.stato)}
+              <div className="text-lg">
+                {getStatoBadge(servizio.stato)}
+              </div>
             </div>
             
-            {servizio.created_at && (
-              <div className="text-sm text-muted-foreground">
-                Creato il {new Date(servizio.created_at).toLocaleDateString('it-IT')}
-              </div>
-            )}
-            
-            {servizio.firma_timestamp && (
-              <div className="text-sm text-green-600 font-medium">
-                ✓ Firmato il {new Date(servizio.firma_timestamp).toLocaleDateString('it-IT')} alle {new Date(servizio.firma_timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-              </div>
-            )}
+            <div className="space-y-2 pt-2 border-t">
+              {servizio.created_at && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Creato il:</span>
+                  <span className="font-medium">
+                    {new Date(servizio.created_at).toLocaleDateString('it-IT')}
+                  </span>
+                </div>
+              )}
+              
+              {servizio.firma_timestamp && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Firmato il:</span>
+                  <span className="font-medium text-green-700">
+                    {new Date(servizio.firma_timestamp).toLocaleDateString('it-IT')} - {new Date(servizio.firma_timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
