@@ -101,12 +101,33 @@
     @apply bg-gradient-to-br from-taxitime-400 to-taxitime-600;
   }
   
-  /* Adding hover effect for sidebar navigation */
-  .sidebar-nav-link {
-    @apply transition-colors duration-200;
+  /* Smooth transitions for all interactive elements */
+  .smooth-transition {
+    @apply transition-all duration-200 ease-out;
   }
   
-  .sidebar-nav-link:hover {
-    @apply bg-white text-primary;
+  /* Enhanced hover effects for cards */
+  .card-hover {
+    @apply transition-all duration-200 ease-out hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  /* Enhanced button styles */
+  .btn-enhanced {
+    @apply transition-all duration-200 ease-out hover:scale-105 active:scale-95;
+  }
+  
+  /* Smooth animations for page loads */
+  .page-enter {
+    @apply animate-fade-in;
+  }
+  
+  /* Interactive underline animation */
+  .underline-animation {
+    @apply relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+  
+  /* Enhanced typography */
+  .text-enhanced {
+    @apply leading-relaxed tracking-wide;
   }
 }

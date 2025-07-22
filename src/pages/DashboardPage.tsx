@@ -23,14 +23,14 @@ export default function DashboardPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight text-enhanced">Dashboard</h1>
+            <p className="text-xl text-muted-foreground text-enhanced">
               Benvenuto, {fullName}
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {isAdminOrSocio && (
               <Card className={isAdminOrSocio ? "border-primary/30 shadow-md" : ""}>
                 <CardHeader>
