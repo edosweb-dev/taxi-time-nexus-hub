@@ -10,7 +10,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
           <img 
             src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
             alt="Taxitime Logo" 
-            className="h-[100px] w-[100px] object-contain mx-auto mb-4"
+            className="h-[150px] w-[150px] object-contain mx-auto mb-4"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
               const parent = (e.target as HTMLElement).parentElement;
