@@ -2,9 +2,8 @@ import { useState, useMemo } from 'react';
 import { Loader2, Plus, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServizioStats } from '../ServizioStats';
-import { ServizioTabs } from '../ServizioTabs';
 import { ServiziFilters, type ServiziFiltersState } from '../filters/ServiziFilters';
 import { ServizioTable } from '../ServizioTable';
 import { EmptyState } from '../EmptyState';
@@ -96,6 +95,16 @@ export function ServiziContent({
   // Group filtered services by status
   const serviziByStatus = groupServiziByStatus(filteredServizi);
 
+  // Count servizi by status for tab badges
+  const statusCounts = {
+    da_assegnare: serviziByStatus.da_assegnare.length,
+    assegnato: serviziByStatus.assegnato.length,
+    completato: serviziByStatus.completato.length,
+    annullato: serviziByStatus.annullato.length,
+    non_accettato: serviziByStatus.non_accettato.length,
+    consuntivato: serviziByStatus.consuntivato.length,
+  };
+
   const handleApplyFilters = () => {
     // Filters are applied automatically via useMemo
   };
@@ -183,21 +192,77 @@ export function ServiziContent({
       </div>
 
       <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-center mb-6">
-          <ServizioTabs 
-            servizi={filteredServizi} 
-            activeTab={activeTab} 
-            onTabChange={setActiveTab} 
-          />
+        <div className="flex justify-center mb-8">
+          <TabsList className="grid w-full max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-2">
+            <TabsTrigger 
+              value="da_assegnare" 
+              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <span className="text-center">Da assegnare</span>
+              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
+                {statusCounts.da_assegnare}
+              </span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="assegnato" 
+              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <span className="text-center">Assegnati</span>
+              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
+                {statusCounts.assegnato}
+              </span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="completato" 
+              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <span className="text-center">Completati</span>
+              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
+                {statusCounts.completato}
+              </span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="non_accettato" 
+              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <span className="text-center">Non accettati</span>
+              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
+                {statusCounts.non_accettato}
+              </span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="annullato" 
+              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <span className="text-center">Annullati</span>
+              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
+                {statusCounts.annullato}
+              </span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="consuntivato" 
+              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <span className="text-center">Consuntivati</span>
+              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
+                {statusCounts.consuntivato}
+              </span>
+            </TabsTrigger>
+          </TabsList>
         </div>
         
         {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
           <TabsContent 
             key={status} 
             value={status} 
-            className="mt-0 min-h-[600px] animate-fade-in smooth-transition"
+            className="mt-0 animate-fade-in"
           >
-            <div className="w-full min-h-[600px] max-h-[600px] overflow-y-auto border rounded-lg bg-card shadow-sm">
+            <div className="w-full min-h-[500px] max-h-[75vh] overflow-y-auto border rounded-lg bg-card shadow-sm">
               <ServizioTable
                 servizi={serviziByStatus[status]}
                 users={users}
