@@ -192,66 +192,43 @@ export function ServiziContent({
       </div>
 
       <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-center mb-8">
-          <TabsList className="grid w-full max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-2">
+        <div className="mb-6">
+          <TabsList className="grid w-full grid-cols-6 h-10">
             <TabsTrigger 
               value="da_assegnare" 
-              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-sm"
             >
-              <span className="text-center">Da assegnare</span>
-              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
-                {statusCounts.da_assegnare}
-              </span>
+              Da assegnare ({statusCounts.da_assegnare})
             </TabsTrigger>
-            
             <TabsTrigger 
               value="assegnato" 
-              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-sm"
             >
-              <span className="text-center">Assegnati</span>
-              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
-                {statusCounts.assegnato}
-              </span>
+              Assegnati ({statusCounts.assegnato})
             </TabsTrigger>
-            
             <TabsTrigger 
               value="completato" 
-              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-sm"
             >
-              <span className="text-center">Completati</span>
-              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
-                {statusCounts.completato}
-              </span>
+              Completati ({statusCounts.completato})
             </TabsTrigger>
-            
             <TabsTrigger 
               value="non_accettato" 
-              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-sm"
             >
-              <span className="text-center">Non accettati</span>
-              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
-                {statusCounts.non_accettato}
-              </span>
+              Non accettati ({statusCounts.non_accettato})
             </TabsTrigger>
-            
             <TabsTrigger 
               value="annullato" 
-              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-sm"
             >
-              <span className="text-center">Annullati</span>
-              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
-                {statusCounts.annullato}
-              </span>
+              Annullati ({statusCounts.annullato})
             </TabsTrigger>
-            
             <TabsTrigger 
               value="consuntivato" 
-              className="flex flex-col items-center gap-1 py-3 px-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-sm"
             >
-              <span className="text-center">Consuntivati</span>
-              <span className="px-2 py-0.5 text-xs bg-muted rounded-full min-w-[20px] text-center">
-                {statusCounts.consuntivato}
-              </span>
+              Consuntivati ({statusCounts.consuntivato})
             </TabsTrigger>
           </TabsList>
         </div>
@@ -260,9 +237,9 @@ export function ServiziContent({
           <TabsContent 
             key={status} 
             value={status} 
-            className="mt-0 animate-fade-in"
+            className="mt-0"
           >
-            <div className="w-full min-h-[500px] max-h-[75vh] overflow-y-auto border rounded-lg bg-card shadow-sm">
+            <div className="rounded-md border">
               <ServizioTable
                 servizi={serviziByStatus[status]}
                 users={users}
