@@ -4,8 +4,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from './contexts/AuthContext';
-import { useAuth } from './contexts/AuthContext';
+import { AuthGuard } from './components/AuthGuard';
 import LoginPage from './pages/LoginPage';
+import Index from './pages/Index';
+import DashboardPage from './pages/DashboardPage';
+import ClientDashboardPage from './pages/cliente/ClientDashboardPage';
 import ImpostazioniPage from './pages/ImpostazioniPage';
 import ServiziPage from './pages/servizi/ServiziPage';
 import NuovoServizioPage from './pages/servizi/NuovoServizioPage';
@@ -17,24 +20,9 @@ import StipendiPage from './pages/StipendiPage';
 import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
+import AziendePage from './pages/aziende/AziendePage';
 
 const queryClient = new QueryClient();
-
-function AuthGuard({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) {
-  const { profile } = useAuth();
-
-  if (!profile) {
-    // Redirect to login if not authenticated
-    return <Navigate to="/login" />;
-  }
-
-  if (allowedRoles && !allowedRoles.includes(profile.role)) {
-    // Redirect to a forbidden page or home if the user doesn't have the required role
-    return <div>Forbidden</div>; // Or <Navigate to="/" />
-  }
-
-  return children;
-}
 
 function App() {
   return (
@@ -46,6 +34,22 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<LoginPage />} />
+
+              {/* Index Route - handles role-based redirections */}
+              <Route path="/" element={<Index />} />
+
+              {/* Dashboard Routes */}
+              <Route path="/dashboard" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <DashboardPage />
+                </AuthGuard>
+              } />
+              
+              <Route path="/dashboard-cliente" element={
+                <AuthGuard allowedRoles={['cliente']}>
+                  <ClientDashboardPage />
+                </AuthGuard>
+              } />
 
               {/* Impostazioni Routes */}
               <Route path="/impostazioni" element={
@@ -71,8 +75,15 @@ function App() {
                 </AuthGuard>
               } />
 
+              {/* Aziende Routes */}
+              <Route path="/aziende" element={
+                <AuthGuard allowedRoles={['admin', 'socio']}>
+                  <AziendePage />
+                </AuthGuard>
+              } />
+
               {/* Users Routes */}
-              <Route path="/utenti" element={
+              <Route path="/users" element={
                 <AuthGuard allowedRoles={['admin', 'socio']}>
                   <UsersPage />
                 </AuthGuard>
@@ -118,8 +129,8 @@ function App() {
                 </AuthGuard>
               } />
               
-              {/* Default Route - Redirect to login if no other route matches */}
-              <Route path="*" element={<Navigate to="/login" />} />
+              {/* 404 Route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </QueryClientProvider>
         </AuthProvider>

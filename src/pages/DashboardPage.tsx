@@ -102,7 +102,7 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-muted-foreground" />
-                  Spese
+                  Spese Aziendali
                 </CardTitle>
                 <CardDescription>
                   Gestisci le spese aziendali
@@ -110,7 +110,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="flex flex-col space-y-2">
                 <p className="text-sm">Monitora e gestisci le spese aziendali.</p>
-                <Button variant="outline" className="mt-2" onClick={handleNavigate('/expenses')}>
+                <Button variant="outline" className="mt-2" onClick={handleNavigate('/spese-aziendali')}>
                   Vai alle spese
                 </Button>
               </CardContent>
