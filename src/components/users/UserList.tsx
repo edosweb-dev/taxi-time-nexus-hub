@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, KeyRound } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Plus, Edit, Trash2, KeyRound, User, Mail, Building } from 'lucide-react';
 import { Profile, UserRole } from '@/lib/types';
 import { UserRoleFilter } from './UserRoleFilter';
 import { UserDeleteConfirmDialog } from './UserDeleteConfirmDialog';
@@ -54,7 +56,14 @@ const getRoleDisplayName = (role: UserRole) => {
   }
 };
 
-export function UserList({ 
+// Helper function to get user initials
+const getUserInitials = (firstName?: string, lastName?: string) => {
+  const first = firstName?.charAt(0)?.toUpperCase() || '';
+  const last = lastName?.charAt(0)?.toUpperCase() || '';
+  return `${first}${last}` || 'U';
+};
+
+export function UserList({
   users, 
   onEdit, 
   onDelete, 
@@ -87,18 +96,23 @@ export function UserList({
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-muted/30">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-xl">{title}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {description}
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <User className="h-6 w-6 text-primary" />
+                </div>
+                {title}
+              </CardTitle>
+              <p className="text-muted-foreground">
+                {description} • {users.length} utent{users.length !== 1 ? 'i' : 'e'}
               </p>
             </div>
-            <Button onClick={onAddUser}>
+            <Button onClick={onAddUser} size="lg" className="shadow-md">
               <Plus className="mr-2 h-4 w-4" />
-              Aggiungi Utente
+              Nuovo Utente
             </Button>
           </div>
           
@@ -111,69 +125,137 @@ export function UserList({
             </div>
           )}
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {users.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                Nessun utente trovato
+        
+        <CardContent className="p-0">
+          {users.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="mx-auto w-24 h-24 bg-muted/30 rounded-full flex items-center justify-center mb-4">
+                <User className="h-12 w-12 text-muted-foreground" />
               </div>
-            ) : (
-              <div className="grid gap-4">
-                {users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-medium text-foreground">
-                          {user.first_name} {user.last_name}
-                        </h3>
-                        <Badge variant={getRoleBadgeVariant(user.role)}>
+              <h3 className="text-lg font-medium text-muted-foreground mb-2">
+                Nessun utente trovato
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Non ci sono utenti che corrispondono ai criteri di ricerca
+              </p>
+              <Button onClick={onAddUser} variant="outline">
+                <Plus className="mr-2 h-4 w-4" />
+                Aggiungi il primo utente
+              </Button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/20 hover:bg-muted/20">
+                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="font-semibold">Nome</TableHead>
+                    <TableHead className="font-semibold">Ruolo</TableHead>
+                    {showEmailColumn && (
+                      <TableHead className="font-semibold">Email</TableHead>
+                    )}
+                    <TableHead className="font-semibold">Azienda</TableHead>
+                    <TableHead className="text-right font-semibold w-[200px]">Azioni</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user, index) => (
+                    <TableRow 
+                      key={user.id} 
+                      className="hover:bg-muted/50 transition-colors border-b"
+                    >
+                      <TableCell>
+                        <Avatar className="h-10 w-10 border-2 border-primary/20">
+                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                            {getUserInitials(user.first_name, user.last_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TableCell>
+                      
+                      <TableCell>
+                        <div className="space-y-1">
+                          <p className="font-medium">
+                            {user.first_name} {user.last_name}
+                          </p>
+                          {!showEmailColumn && user.email && (
+                            <p className="text-sm text-muted-foreground">
+                              {user.email}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      
+                      <TableCell>
+                        <Badge 
+                          variant={getRoleBadgeVariant(user.role)}
+                          className="font-medium"
+                        >
                           {getRoleDisplayName(user.role)}
                         </Badge>
-                      </div>
+                      </TableCell>
+                      
                       {showEmailColumn && (
-                        <p className="text-sm text-muted-foreground truncate">
-                          {user.email || 'Email non disponibile'}
-                        </p>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-mono text-sm">
+                              {user.email || 'Non disponibile'}
+                            </span>
+                          </div>
+                        </TableCell>
                       )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {onResetPassword && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onResetPassword(user)}
-                          title="Reset Password"
-                        >
-                          <KeyRound className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onEdit(user)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      {user.id !== currentUserId && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteClick(user)}
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                      
+                      <TableCell>
+                        {user.azienda_id ? (
+                          <div className="flex items-center gap-2 text-sm">
+                            <Building className="h-4 w-4 text-blue-500" />
+                            <span className="text-muted-foreground">Collegato</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Nessuna azienda</span>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {onResetPassword && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onResetPassword(user)}
+                              title="Reset Password"
+                              className="hover:bg-amber-50 hover:text-amber-700"
+                            >
+                              <KeyRound className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onEdit(user)}
+                            className="hover:bg-blue-50 hover:text-blue-700"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {user.id !== currentUserId && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteClick(user)}
+                              disabled={isDeleting}
+                              className="hover:bg-red-50 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
