@@ -205,7 +205,7 @@ export function ServiziContent({
         </div>
         
         {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
-          <TabsContent key={status} value={status} className="mt-6">
+          <TabsContent key={status} value={status} className="mt-6 min-h-[600px]">
             {viewMode === "cards" ? (
               <ServizioTabContent
                 status={status}
@@ -219,16 +219,18 @@ export function ServiziContent({
                 allServizi={allServizi}
               />
             ) : (
-              <ServizioTable
-                servizi={serviziByStatus[status]}
-                users={users}
-                onNavigateToDetail={onNavigateToDetail}
-                onSelect={isAdminOrSocio ? onSelectServizio : undefined}
-                onCompleta={onCompleta}
-                onFirma={onFirma}
-                isAdminOrSocio={isAdminOrSocio}
-                allServizi={allServizi}
-              />
+              <div className="min-h-[500px] max-h-[600px] overflow-y-auto">
+                <ServizioTable
+                  servizi={serviziByStatus[status]}
+                  users={users}
+                  onNavigateToDetail={onNavigateToDetail}
+                  onSelect={isAdminOrSocio ? onSelectServizio : undefined}
+                  onCompleta={onCompleta}
+                  onFirma={onFirma}
+                  isAdminOrSocio={isAdminOrSocio}
+                  allServizi={allServizi}
+                />
+              </div>
             )}
           </TabsContent>
         ))}

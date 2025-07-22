@@ -31,14 +31,17 @@ export const ServizioTabContent = ({
 }: ServizioTabContentProps) => {
   if (servizi.length === 0) {
     return (
-      <div className="text-center py-8 border rounded-md bg-muted/30">
-        Nessun servizio {getLocalizedStatus(status)}
+      <div className="min-h-[500px] flex items-center justify-center">
+        <div className="text-center py-8 border rounded-md bg-muted/30 px-8">
+          Nessun servizio {getLocalizedStatus(status)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="min-h-[500px] max-h-[600px] overflow-y-auto">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 pb-4">
       {servizi.map((servizio) => {
         // Get index for global progressive ID
         const globalIndex = allServizi 
@@ -60,6 +63,7 @@ export const ServizioTabContent = ({
           />
         );
       })}
+      </div>
     </div>
   );
 };
