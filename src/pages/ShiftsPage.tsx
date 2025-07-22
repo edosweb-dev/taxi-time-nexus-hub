@@ -23,44 +23,45 @@ export default function ShiftsPage() {
   return (
     <MainLayout>
       <ShiftProvider>
-        <div className="min-h-screen bg-gray-50/30">
-          <div className="container mx-auto p-4 md:p-6 space-y-6">
-            {/* Header con breadcrumb */}
-            <div className="space-y-4">
-              <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Home className="h-4 w-4" />
-                <ChevronRight className="h-4 w-4" />
-                <span className="font-medium text-foreground">Turni</span>
-              </nav>
+        <div className="min-h-screen bg-gray-50/30 flex flex-col">
+          {/* Header con breadcrumb */}
+          <div className="flex-shrink-0 px-6 py-4 space-y-4 border-b bg-background/95 backdrop-blur">
+            <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Home className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
+              <span className="font-medium text-foreground">Turni</span>
+            </nav>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Turni</h1>
+                <p className="text-muted-foreground">
+                  Gestisci i turni di lavoro
+                </p>
+              </div>
               
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <h1 className="text-3xl md:text-4xl font-bold text-foreground">Turni</h1>
-                  <p className="text-muted-foreground text-lg">
-                    Gestisci i turni di lavoro
-                  </p>
-                </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate('/turni/report')}
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Report
+                </Button>
                 
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline"
-                    onClick={() => navigate('/turni/report')}
-                  >
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Report
-                  </Button>
-                  
-                  <Button 
-                    onClick={() => setIsDialogOpen(true)}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Aggiungi Turno
-                  </Button>
-                </div>
+                <Button 
+                  onClick={() => setIsDialogOpen(true)}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Aggiungi Turno
+                </Button>
               </div>
             </div>
+          </div>
 
+          {/* Calendar content - full screen */}
+          <div className="flex-1 px-6 py-4 overflow-hidden">
             <ShiftCalendar 
               currentMonth={currentMonth}
               onMonthChange={handleMonthChange}
