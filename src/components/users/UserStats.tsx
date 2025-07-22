@@ -54,21 +54,21 @@ export function UserStats({ users }: UserStatsProps) {
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {statsConfig.map((stat, index) => (
-        <Card key={index} className={`${stat.borderColor} border-l-4 hover:shadow-md transition-shadow`}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <Card key={index} className={`${stat.borderColor} border-l-4 hover:shadow-md transition-all duration-200 hover:-translate-y-1`}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               {stat.title}
             </CardTitle>
-            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            <div className={`p-2 rounded-md ${stat.bgColor}`}>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </div>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="text-3xl font-bold">{stat.value}</div>
+          <CardContent className="pb-3">
+            <div className="text-2xl font-bold mb-1">{stat.value}</div>
             {stat.subtitle && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground leading-none">
                 {stat.subtitle}
               </p>
             )}
