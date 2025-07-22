@@ -196,10 +196,9 @@ export function UserShiftDetailReport({
                       </TableCell>
                       <TableCell>
                         <Badge 
-                          variant="outline" 
-                          className={getShiftTypeColor(shift.shift_type)}
+                          variant={getShiftTypeColor(shift.shift_type)}
                         >
-                          {getShiftTypeDisplay(shift.shift_type, shift.half_day_type)}
+                          {getShiftTypeDisplay(shift)}
                         </Badge>
                       </TableCell>
                       <TableCell>

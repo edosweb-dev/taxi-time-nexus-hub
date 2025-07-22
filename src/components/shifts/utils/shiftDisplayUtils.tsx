@@ -76,6 +76,9 @@ export const getShiftStatusColor = (shiftType: string): 'default' | 'outline' | 
   }
 };
 
+// Helper function to get the appropriate color variant for a shift status (alias for compatibility)
+export const getShiftTypeColor = getShiftStatusColor;
+
 // Helper function to get the display text for shift time
 export const getShiftTimeDisplay = (shift: Shift) => {
   switch (shift.shift_type) {
