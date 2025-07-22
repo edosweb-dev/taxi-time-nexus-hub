@@ -60,23 +60,70 @@ export function NuovoServizioForm() {
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <ServizioDetailsForm />
-        <PasseggeroForm />
-        
-        <IndirizziIntermediSummary />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Step 1: Service Details */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
+              1
+            </div>
+            <h2 className="text-xl font-semibold">Dettagli del servizio</h2>
+          </div>
+          <ServizioDetailsForm />
+        </div>
 
-        <div className="flex justify-end space-x-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            Annulla
-          </Button>
-          <Button type="submit" disabled={isCreating}>
-            {isCreating ? "Creazione in corso..." : "Crea servizio"}
-          </Button>
+        {/* Step 2: Passengers */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
+              2
+            </div>
+            <h2 className="text-xl font-semibold">Gestione passeggeri</h2>
+          </div>
+          <div className="bg-card border rounded-lg p-6">
+            <PasseggeroForm />
+          </div>
+        </div>
+
+        {/* Step 3: Summary */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
+              3
+            </div>
+            <h2 className="text-xl font-semibold">Riepilogo</h2>
+          </div>
+          <div className="bg-muted/30 border rounded-lg p-6">
+            <IndirizziIntermediSummary />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="sticky bottom-0 bg-background border-t p-4 -mx-4 mt-8">
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="order-2 sm:order-1"
+            >
+              Annulla
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isCreating}
+              className="order-1 sm:order-2 min-w-[140px]"
+            >
+              {isCreating ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
+                  Creazione...
+                </div>
+              ) : (
+                "Crea servizio"
+              )}
+            </Button>
+          </div>
         </div>
       </form>
     </FormProvider>
