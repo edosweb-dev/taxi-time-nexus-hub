@@ -51,11 +51,33 @@ export function UserSheet({
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-[500px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>
-            {user ? "Modifica Utente" : "Crea Nuovo Utente"}
-          </SheetTitle>
-          <SheetDescription>
+        <SheetHeader className="space-y-4 pb-6 border-b">
+          <div className="flex items-start gap-4">
+            <div className="p-3 rounded-lg bg-blue-100 text-blue-600">
+              {user ? (
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              )}
+            </div>
+            
+            <div className="flex-1 space-y-2">
+              <SheetTitle className="section-title">
+                {user ? "Modifica Utente" : "Crea Nuovo Utente"}
+              </SheetTitle>
+              {preselectedAzienda && (
+                <div className="text-sm text-muted-foreground">
+                  {preselectedAzienda.nome}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <SheetDescription className="text-left">
             {user 
               ? "Modifica i dettagli dell'utente esistente. Lascia vuoto il campo password per non modificarla."
               : isNewUser && preselectedAzienda
@@ -63,7 +85,8 @@ export function UserSheet({
                 : "Inserisci i dettagli del nuovo utente."}
           </SheetDescription>
         </SheetHeader>
-        <div className="mt-6">
+        
+        <div className="pt-6">
           <UserForm
             user={user}
             onSubmit={handleUserFormSubmit}
