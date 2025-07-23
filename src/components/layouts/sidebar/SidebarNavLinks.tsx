@@ -126,7 +126,7 @@ export function SidebarNavLinks() {
             )}
             title={isCollapsed ? item.title : undefined}
           >
-            <Icon className={cn(isCollapsed ? "h-6 w-6" : "h-4 w-4", !isCollapsed && "mr-3")} />
+            <Icon className={cn(isCollapsed ? "h-8 w-8" : "h-4 w-4", !isCollapsed && "mr-3")} />
             {!isCollapsed && item.title}
           </Link>
         );
