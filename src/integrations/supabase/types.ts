@@ -356,7 +356,7 @@ export type Database = {
           email: string | null
           id: string
           nome_cognome: string
-          referente_id: string
+          referente_id: string | null
           telefono: string | null
         }
         Insert: {
@@ -365,7 +365,7 @@ export type Database = {
           email?: string | null
           id?: string
           nome_cognome: string
-          referente_id: string
+          referente_id?: string | null
           telefono?: string | null
         }
         Update: {
@@ -374,7 +374,7 @@ export type Database = {
           email?: string | null
           id?: string
           nome_cognome?: string
-          referente_id?: string
+          referente_id?: string | null
           telefono?: string | null
         }
         Relationships: [
