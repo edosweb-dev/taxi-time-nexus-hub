@@ -148,23 +148,26 @@ export default function ShiftReportsPage() {
               </nav>
               
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="space-y-2">
-                  <h1 className="text-3xl md:text-4xl font-bold text-foreground">Report Turni</h1>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-6 w-6 text-primary" />
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground">Report Turni</h1>
+                  </div>
                   <p className="text-muted-foreground text-lg">
-                    Analisi dettagliata dei turni per ogni utente
+                    Analisi dettagliata dei turni per ogni utente con filtri avanzati
                   </p>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-56">
                       <SelectValue placeholder="Seleziona periodo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="current_month">Mese corrente</SelectItem>
-                      <SelectItem value="last_month">Mese scorso</SelectItem>
-                      <SelectItem value="last_3_months">Ultimi 3 mesi</SelectItem>
-                      <SelectItem value="current_year">Anno corrente</SelectItem>
+                      <SelectItem value="current_month">📅 Mese corrente</SelectItem>
+                      <SelectItem value="last_month">📆 Mese scorso</SelectItem>
+                      <SelectItem value="last_3_months">📊 Ultimi 3 mesi</SelectItem>
+                      <SelectItem value="current_year">🗓️ Anno corrente</SelectItem>
                     </SelectContent>
                   </Select>
                   
@@ -172,8 +175,9 @@ export default function ShiftReportsPage() {
                     variant="outline"
                     onClick={handleExportCSV}
                     disabled={!allUsersStats || allUsersStats.users.length === 0}
+                    className="flex items-center gap-2"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="h-4 w-4" />
                     Esporta CSV
                   </Button>
                 </div>
@@ -181,7 +185,7 @@ export default function ShiftReportsPage() {
             </div>
 
             {/* Layout principale a due colonne */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Colonna sinistra - Lista utenti */}
               <div className="lg:col-span-1">
                 <UserShiftReportList
