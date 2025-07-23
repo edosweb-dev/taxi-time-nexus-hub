@@ -51,40 +51,48 @@ export function ShiftCalendarView({
   } = useCalendarView(currentMonth, onMonthChange, selectedUserId);
 
   return (
-    <div className="space-y-4">
-      <ShiftCalendarHeader 
-        currentDate={currentMonth}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        goToPreviousPeriod={goToPreviousPeriod}
-        goToNextPeriod={goToNextPeriod}
-        goToToday={goToToday}
-        formatViewPeriod={formatViewPeriod}
-      />
-      
-      <ShiftCalendarLegend />
-      
-      <CalendarContent 
-        viewMode={viewMode}
-        daysInView={daysInView}
-        hours={hours}
-        shiftsInView={shiftsInView}
-        currentMonth={currentMonth}
-        shifts={shifts}
-        isAdminOrSocio={isAdminOrSocio}
-        handleCellClick={handleCellClick}
-        setSelectedShift={setSelectedShift}
-        getShiftPosition={getShiftPosition}
-        isDetailsDialogOpen={isDetailsDialogOpen}
-        setIsDetailsDialogOpen={setIsDetailsDialogOpen}
-        isEditDialogOpen={isEditDialogOpen}
-        setIsEditDialogOpen={setIsEditDialogOpen}
-        selectedDate={selectedDate}
-        selectedDateShifts={selectedDateShifts}
-        selectedShift={selectedShift}
-        handleEditShift={handleEditShift}
-        handleDeleteShift={handleDeleteShift}
-      />
+    <div className="space-y-6">
+      <div className="bg-background border rounded-lg">
+        <div className="p-4 border-b">
+          <ShiftCalendarHeader 
+            currentDate={currentMonth}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            goToPreviousPeriod={goToPreviousPeriod}
+            goToNextPeriod={goToNextPeriod}
+            goToToday={goToToday}
+            formatViewPeriod={formatViewPeriod}
+          />
+        </div>
+        
+        <div className="p-4">
+          <ShiftCalendarLegend />
+        </div>
+        
+        <div className="p-4 pt-0">
+          <CalendarContent 
+            viewMode={viewMode}
+            daysInView={daysInView}
+            hours={hours}
+            shiftsInView={shiftsInView}
+            currentMonth={currentMonth}
+            shifts={shifts}
+            isAdminOrSocio={isAdminOrSocio}
+            handleCellClick={handleCellClick}
+            setSelectedShift={setSelectedShift}
+            getShiftPosition={getShiftPosition}
+            isDetailsDialogOpen={isDetailsDialogOpen}
+            setIsDetailsDialogOpen={setIsDetailsDialogOpen}
+            isEditDialogOpen={isEditDialogOpen}
+            setIsEditDialogOpen={setIsEditDialogOpen}
+            selectedDate={selectedDate}
+            selectedDateShifts={selectedDateShifts}
+            selectedShift={selectedShift}
+            handleEditShift={handleEditShift}
+            handleDeleteShift={handleDeleteShift}
+          />
+        </div>
+      </div>
       
       <AddShiftDialog 
         open={isAddDialogOpen} 
