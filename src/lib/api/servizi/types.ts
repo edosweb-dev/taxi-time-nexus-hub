@@ -28,3 +28,8 @@ export interface CreateServizioRequest {
   servizio: ServizioInput;
   passeggeri: PasseggeroFormData[];
 }
+
+export interface UpdateServizioRequest {
+  servizio: ServizioInput & { id: string };
+  passeggeri: PasseggeroFormData[];
+}

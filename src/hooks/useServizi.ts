@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createServizio, getServizi, getServizioById, completaServizio, consuntivaServizio } from '@/lib/api/servizi';
-import { CreateServizioRequest } from '@/lib/api/servizi/types';
+import { createServizio, getServizi, getServizioById, completaServizio, consuntivaServizio, updateServizio } from '@/lib/api/servizi';
+import { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/types';
 import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
@@ -82,6 +82,19 @@ export function useServizi() {
     },
   });
 
+  const updateServizioMutation = useMutation({
+    mutationFn: (data: UpdateServizioRequest) => updateServizio(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ queryKey: ['servizio'] });
+      toast.success('Servizio aggiornato con successo');
+    },
+    onError: (error: any) => {
+      console.error('Error updating servizio:', error);
+      toast.error(`Errore nell'aggiornamento del servizio: ${error.message || 'Si è verificato un errore'}`);
+    },
+  });
+
   return {
     servizi,
     isLoading,
@@ -89,12 +102,14 @@ export function useServizi() {
     error,
     refetch,
     createServizio: (data: CreateServizioRequest) => createServizioMutation.mutate(data),
+    updateServizio: (data: UpdateServizioRequest) => updateServizioMutation.mutate(data),
     updateStatoServizio: (id: string, stato: StatoServizio) => 
       updateStatoServizioMutation.mutate({ id, stato }),
     completaServizio: completaServizioMutation.mutate,
     consuntivaServizio: consuntivaServizioMutation.mutate,
     isCreating: createServizioMutation.isPending,
     isUpdating: updateStatoServizioMutation.isPending,
+    isUpdatingServizio: updateServizioMutation.isPending,
     isCompletando: completaServizioMutation.isPending,
     isConsuntivando: consuntivaServizioMutation.isPending
   };
