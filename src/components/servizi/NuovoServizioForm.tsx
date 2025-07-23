@@ -60,7 +60,7 @@ export function NuovoServizioForm() {
 
   return (
     <FormProvider {...form}>
-      <div className="min-h-full">
+      <div className="relative min-h-full">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
           {/* Step 1: Service Details */}
           <div className="space-y-6">
@@ -99,35 +99,32 @@ export function NuovoServizioForm() {
             </div>
           </div>
         </form>
-
-        {/* Action Buttons - Fixed Bottom */}
-        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-4">
-            <div className="flex flex-col sm:flex-row justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(-1)}
-                className="order-2 sm:order-1"
-              >
-                Annulla
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isCreating}
-                className="order-1 sm:order-2 min-w-[140px]"
-                onClick={form.handleSubmit(onSubmit)}
-              >
-                {isCreating ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
-                    Creazione...
-                  </div>
-                ) : (
-                  "Crea servizio"
-                )}
-              </Button>
-            </div>
+        
+        {/* Action Buttons - Sticky Bottom */}
+        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 mt-6">
+          <div className="flex justify-end space-x-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(-1)}
+            >
+              Annulla
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isCreating}
+              className="min-w-[140px]"
+              onClick={form.handleSubmit(onSubmit)}
+            >
+              {isCreating ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
+                  Creazione...
+                </div>
+              ) : (
+                "Crea servizio"
+              )}
+            </Button>
           </div>
         </div>
       </div>
