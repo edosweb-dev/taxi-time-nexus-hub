@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ShiftsStats } from './ShiftsStats';
 import { ShiftCalendarView } from './calendar/ShiftCalendarView';
-import { AddShiftDialog } from './AddShiftDialog';
+import { AddShiftSheet } from './AddShiftSheet';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
 import { ViewFilterDropdown } from './filters/ViewFilterDropdown';
 
@@ -86,7 +86,7 @@ export function ShiftsContent({
         />
       </div>
 
-      <AddShiftDialog 
+      <AddShiftSheet 
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         isAdminOrSocio={isAdminOrSocio}
