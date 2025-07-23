@@ -26,7 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useReferenti } from "@/hooks/useReferenti";
 import { ReferentiSheet } from "./ReferentiSheet";
-import { UserDialog } from "@/components/users/UserDialog";
+import { UserSheet } from "@/components/users/UserSheet";
 import { UserFormData } from "@/lib/api/users/types";
 import { useUsers } from "@/hooks/useUsers";
 import { useState } from "react";
@@ -46,7 +46,7 @@ export function AziendaViewSheet({
 }: AziendaViewSheetProps) {
   const navigate = useNavigate();
   const [isReferentiSheetOpen, setIsReferentiSheetOpen] = useState(false);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [isUserSheetOpen, setIsUserSheetOpen] = useState(false);
   
   // Recupera i referenti dell'azienda
   const { data: referenti = [], refetch: refetchReferenti } = useReferenti(azienda?.id);
@@ -78,7 +78,7 @@ export function AziendaViewSheet({
   const handleManageReferenti = () => {
     if (referenti.length === 0) {
       // Se non ci sono referenti, apri direttamente il form
-      setIsUserDialogOpen(true);
+      setIsUserSheetOpen(true);
     } else {
       // Se ci sono referenti, apri la sidebar di gestione
       setIsReferentiSheetOpen(true);
@@ -92,7 +92,7 @@ export function AziendaViewSheet({
         azienda_id: azienda.id,
         role: 'cliente' as const,
       });
-      setIsUserDialogOpen(false);
+      setIsUserSheetOpen(false);
       refetchReferenti();
     } catch (error) {
       console.error('Error creating user:', error);
@@ -483,10 +483,10 @@ export function AziendaViewSheet({
         azienda={azienda}
       />
 
-      {/* Dialog per aggiungere nuovo referente */}
-      <UserDialog
-        isOpen={isUserDialogOpen}
-        onOpenChange={setIsUserDialogOpen}
+      {/* Sheet per aggiungere nuovo referente */}
+      <UserSheet
+        isOpen={isUserSheetOpen}
+        onOpenChange={setIsUserSheetOpen}
         onSubmit={handleSubmitUser}
         user={null}
         isSubmitting={isCreating}
