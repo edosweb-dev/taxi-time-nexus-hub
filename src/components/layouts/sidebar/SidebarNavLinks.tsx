@@ -116,9 +116,9 @@ export function SidebarNavLinks() {
             key={item.href}
             to={item.href}
             className={cn(
-              "flex items-center text-sm font-medium rounded-md transition-colors",
+              "flex items-center text-sm font-medium rounded-md transition-colors relative group",
               isCollapsed 
-                ? "justify-center py-3 px-2 mx-1" 
+                ? "justify-center py-4 px-2 mx-1" 
                 : "px-3 py-2",
               isActive
                 ? "bg-white/20 text-white"
@@ -126,7 +126,7 @@ export function SidebarNavLinks() {
             )}
             title={isCollapsed ? item.title : undefined}
           >
-            <Icon className={cn("h-4 w-4", !isCollapsed && "mr-3")} />
+            <Icon className={cn(isCollapsed ? "h-6 w-6" : "h-4 w-4", !isCollapsed && "mr-3")} />
             {!isCollapsed && item.title}
           </Link>
         );
