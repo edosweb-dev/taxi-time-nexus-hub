@@ -101,72 +101,77 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Step 1: Service Details */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
-              1
+      <div className="min-h-full">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
+          {/* Step 1: Service Details */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
+                1
+              </div>
+              <h2 className="text-xl font-semibold">Dettagli del servizio</h2>
             </div>
-            <h2 className="text-xl font-semibold">Dettagli del servizio</h2>
+            <ServizioDetailsForm />
           </div>
-          <ServizioDetailsForm />
-        </div>
 
-        {/* Step 2: Passengers */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
-              2
+          {/* Step 2: Passengers */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
+                2
+              </div>
+              <h2 className="text-xl font-semibold">Gestione passeggeri</h2>
             </div>
-            <h2 className="text-xl font-semibold">Gestione passeggeri</h2>
-          </div>
-          <div className="bg-card border rounded-lg p-6">
-            <PasseggeroForm />
-          </div>
-        </div>
-
-        {/* Step 3: Summary */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
-              3
+            <div className="bg-card border rounded-lg p-6">
+              <PasseggeroForm />
             </div>
-            <h2 className="text-xl font-semibold">Riepilogo</h2>
           </div>
-          <div className="bg-muted/30 border rounded-lg p-6">
-            <IndirizziIntermediSummary />
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="sticky bottom-0 bg-background border-t p-4 -mx-4 mt-8">
-          <div className="flex flex-col sm:flex-row justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate(`/servizi/${servizio.id}`)}
-              className="order-2 sm:order-1"
-            >
-              Annulla
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isUpdatingServizio}
-              className="order-1 sm:order-2 min-w-[140px]"
-            >
-              {isUpdatingServizio ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
-                  Aggiornamento...
-                </div>
-              ) : (
-                "Salva modifiche"
-              )}
-            </Button>
+          {/* Step 3: Summary */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
+                3
+              </div>
+              <h2 className="text-xl font-semibold">Riepilogo</h2>
+            </div>
+            <div className="bg-muted/30 border rounded-lg p-6">
+              <IndirizziIntermediSummary />
+            </div>
+          </div>
+        </form>
+
+        {/* Action Buttons - Fixed Bottom */}
+        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(`/servizi/${servizio.id}`)}
+                className="order-2 sm:order-1"
+              >
+                Annulla
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isUpdatingServizio}
+                className="order-1 sm:order-2 min-w-[140px]"
+                onClick={form.handleSubmit(onSubmit)}
+              >
+                {isUpdatingServizio ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
+                    Aggiornamento...
+                  </div>
+                ) : (
+                  "Salva modifiche"
+                )}
+              </Button>
+            </div>
           </div>
         </div>
-      </form>
+      </div>
     </FormProvider>
   );
 }
