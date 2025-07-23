@@ -66,7 +66,7 @@ export default function AziendaDetailPage() {
 
   return (
     <MainLayout>
-      <div className="w-full">
+      <div className="space-y-6">
         <div className="flex items-center mb-6">
           <Button variant="outline" onClick={handleBack} className="mr-4">
             <ArrowLeft className="mr-2 h-4 w-4" /> Indietro

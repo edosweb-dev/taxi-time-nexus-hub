@@ -42,7 +42,7 @@ export default function ServizioDetailPage() {
   
   return (
     <MainLayout>
-      <div className="w-full">
+      <div className="space-y-6">
         {/* Header Section */}
         <div className="mb-8">
           <ServizioHeader
@@ -104,17 +104,17 @@ export default function ServizioDetailPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      <ServizioDialogs
-        servizio={servizio}
-        completaDialogOpen={completaDialogOpen}
-        consuntivaDialogOpen={consuntivaDialogOpen}
-        onCompletaOpenChange={setCompletaDialogOpen}
-        onConsuntivaOpenChange={setConsuntivaDialogOpen}
-        onComplete={refetch}
-        users={users}
-      />
+        <ServizioDialogs
+          servizio={servizio}
+          completaDialogOpen={completaDialogOpen}
+          consuntivaDialogOpen={consuntivaDialogOpen}
+          onCompletaOpenChange={setCompletaDialogOpen}
+          onConsuntivaOpenChange={setConsuntivaDialogOpen}
+          onComplete={refetch}
+          users={users}
+        />
+      </div>
     </MainLayout>
   );
 }

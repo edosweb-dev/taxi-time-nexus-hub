@@ -24,7 +24,7 @@ export default function ConducentiEsterniPage() {
 
   return (
     <MainLayout>
-      <div className="w-full space-y-6">
+      <div className="space-y-6">
         {/* Header con breadcrumb */}
         <div className="space-y-4">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">

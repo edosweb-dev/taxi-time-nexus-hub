@@ -67,7 +67,7 @@ export default function NuovoServizioPage() {
           </p>
         </div>
 
-        <Card className="w-full">
+        <Card>
           <CardHeader>
             <CardTitle>Dettagli del Servizio</CardTitle>
             <CardDescription>

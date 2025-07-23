@@ -5,7 +5,7 @@ import { NuovoServizioForm } from "@/components/servizi/NuovoServizioForm";
 export default function NuovoServizioPage() {
   return (
     <MainLayout>
-      <div className="w-full">
+      <div className="space-y-6">
         {/* Header con progresso */}
         <div className="mb-8">
           <div className="bg-card border rounded-lg p-6">
