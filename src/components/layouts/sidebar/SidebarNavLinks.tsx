@@ -121,8 +121,8 @@ export function SidebarNavLinks() {
                 ? "justify-center py-6 px-2 mx-1" 
                 : "px-3 py-2",
               isActive
-                ? "bg-white/20 text-white"
-                : "text-white/70 hover:text-white hover:bg-white/10"
+                ? "bg-primary text-primary-foreground"
+                : "text-white/80 hover:text-white hover:bg-white/15"
             )}
             title={isCollapsed ? item.title : undefined}
           >
