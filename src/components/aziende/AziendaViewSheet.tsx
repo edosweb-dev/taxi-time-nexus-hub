@@ -24,6 +24,9 @@ import {
   Users
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useReferenti } from "@/hooks/useReferenti";
+import { ReferentiSheet } from "./ReferentiSheet";
+import { useState } from "react";
 
 interface AziendaViewSheetProps {
   isOpen: boolean;
@@ -39,6 +42,10 @@ export function AziendaViewSheet({
   azienda,
 }: AziendaViewSheetProps) {
   const navigate = useNavigate();
+  const [isReferentiSheetOpen, setIsReferentiSheetOpen] = useState(false);
+  
+  // Recupera i referenti dell'azienda
+  const { data: referenti = [] } = useReferenti(azienda?.id);
   
   if (!azienda) return null;
 
@@ -51,14 +58,20 @@ export function AziendaViewSheet({
       .join('');
   };
 
+  // Helper function to get user initials
+  const getUserInitials = (firstName: string | null, lastName: string | null) => {
+    const first = firstName?.charAt(0)?.toUpperCase() || '';
+    const last = lastName?.charAt(0)?.toUpperCase() || '';
+    return first + last || 'U';
+  };
+
   const handleEdit = () => {
     onEdit(azienda);
     onOpenChange(false);
   };
 
   const handleManageReferenti = () => {
-    navigate(`/aziende/${azienda.id}`);
-    onOpenChange(false);
+    setIsReferentiSheetOpen(true);
   };
 
   return (
@@ -266,6 +279,83 @@ export function AziendaViewSheet({
             </CardContent>
           </Card>
 
+          {/* Referenti Card */}
+          <Card className="border-l-4 border-l-green-500">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="card-title flex items-center gap-2">
+                  <Users className="h-5 w-5 text-green-500" />
+                  Referenti Aziendali
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleManageReferenti}
+                  className="flex items-center gap-2 hover:bg-green-50 hover:text-green-600 hover:border-green-200"
+                >
+                  <Users className="h-4 w-4" />
+                  {referenti.length === 0 ? 'Aggiungi Referenti' : 'Gestisci Referenti'}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {referenti.length === 0 ? (
+                <div className="text-center py-6">
+                  <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <Users className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Nessun referente associato a questa azienda
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {referenti.slice(0, 3).map((referente) => (
+                    <div key={referente.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+                      <Avatar className="h-10 w-10 border-2 border-primary/20">
+                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                          {getUserInitials(referente.first_name, referente.last_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 space-y-1">
+                        <p className="font-medium text-sm">
+                          {referente.first_name && referente.last_name 
+                            ? `${referente.first_name} ${referente.last_name}`
+                            : referente.first_name || referente.last_name || 'Nome non specificato'
+                          }
+                        </p>
+                        {referente.email && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Mail className="h-3 w-3" />
+                            <span>{referente.email}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <Badge variant="outline" className="text-xs">
+                        Referente
+                      </Badge>
+                    </div>
+                  ))}
+                  
+                  {referenti.length > 3 && (
+                    <div className="text-center pt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleManageReferenti}
+                        className="text-sm text-muted-foreground"
+                      >
+                        Visualizza tutti i {referenti.length} referenti
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Configuration Settings Card */}
           <Card className="border-l-4 border-l-amber-500">
             <CardHeader className="pb-4">
@@ -360,6 +450,13 @@ export function AziendaViewSheet({
           )}
         </div>
       </SheetContent>
+      
+      {/* Sidebar annidata per i referenti */}
+      <ReferentiSheet
+        isOpen={isReferentiSheetOpen}
+        onOpenChange={setIsReferentiSheetOpen}
+        azienda={azienda}
+      />
     </Sheet>
   );
 }
