@@ -261,9 +261,9 @@ export default function FeedbackPage() {
                       <TableCell className="font-mono text-sm">
                         {feedback.pagina}
                       </TableCell>
-                      <TableCell className="max-w-md">
+                      <TableCell className="max-w-lg">
                         <div className="space-y-1">
-                          <div className="truncate" title={feedback.messaggio}>
+                          <div className="whitespace-pre-wrap text-sm">
                             {feedback.messaggio}
                           </div>
                           {feedback.admin_comment && (
