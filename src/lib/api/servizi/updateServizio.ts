@@ -61,7 +61,7 @@ export async function updateServizio({ servizio, passeggeri }: UpdateServizioReq
               email: passeggeroData.email,
               telefono: passeggeroData.telefono,
               azienda_id: servizio.azienda_id,
-              referente_id: servizio.referente_id,
+              referente_id: servizio.referente_id || null, // Può essere null ora
             })
             .select()
             .single();

@@ -76,7 +76,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
               email: passeggeroData.email,
               telefono: passeggeroData.telefono,
               azienda_id: data.servizio.azienda_id,
-              referente_id: data.servizio.referente_id,
+              referente_id: data.servizio.referente_id || null, // Può essere null ora
             })
             .select()
             .single();
