@@ -19,7 +19,7 @@ export default function ShiftsPage() {
   return (
     <MainLayout>
       <ShiftProvider>
-        <div className="space-y-6">
+        <div className="max-w-none w-full space-y-6">
           {/* Header con breadcrumb */}
           <div className="space-y-4">
             <nav className="flex items-center space-x-2 text-sm text-muted-foreground">

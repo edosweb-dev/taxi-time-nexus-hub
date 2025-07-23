@@ -26,14 +26,14 @@ export function ShiftsContent({
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       {/* Statistics Dashboard */}
       <ShiftsStats />
 
       {/* Main Content */}
       <Tabs defaultValue="calendar" className="w-full">
         <div className="flex items-center justify-between">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-xs grid-cols-2">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               Calendario
@@ -81,8 +81,8 @@ export function ShiftsContent({
           </div>
         </div>
 
-        <TabsContent value="calendar" className="space-y-4">
-          <div className="bg-background border rounded-lg p-4">
+        <TabsContent value="calendar" className="w-full space-y-4">
+          <div className="w-full bg-background border rounded-lg p-4">
             <ShiftCalendarView 
               currentMonth={currentMonth}
               onMonthChange={onMonthChange}
