@@ -5,9 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useShifts } from './ShiftContext';
-import { Loader2, Trash2, Info, Clock, Calendar as CalendarIcon, User } from 'lucide-react';
+import { Loader2, Trash2, Info, Clock, Calendar as CalendarIcon, User, Save, X, Settings, MapPin } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -178,8 +179,8 @@ export function AddShiftDialog({
         }
         onOpenChange(value);
       }}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="space-y-3">
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-3 pb-6">
             <DialogTitle className="flex items-center gap-2">
               <CalendarIcon className="h-5 w-5 text-primary" />
               {isEditing ? 'Modifica Turno' : 'Aggiungi Nuovo Turno'}
@@ -191,16 +192,17 @@ export function AddShiftDialog({
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Sezione Utente e Data */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <User className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold text-sm">Assegnazione e Data</h3>
-                  </div>
-                  
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Card Assegnazione e Data */}
+              <Card className="border-l-4 border-l-primary">
+                <CardHeader className="pb-4">
+                  <CardTitle className="card-title flex items-center gap-2">
+                    <User className="h-5 w-5 text-primary" />
+                    Assegnazione e Data
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* User selection (for admins and soci) */}
                     <ShiftUserSelect 
@@ -216,15 +218,18 @@ export function AddShiftDialog({
                       label="Data del turno"
                     />
                   </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                {/* Sezione Tipo e Orari */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold text-sm">Tipo di Turno e Orari</h3>
-                  </div>
-
+              {/* Card Tipo e Orari */}
+              <Card className="border-l-4 border-l-blue-500">
+                <CardHeader className="pb-4">
+                  <CardTitle className="card-title flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-blue-500" />
+                    Tipo di Turno e Orari
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   {/* Shift type */}
                   <ShiftTypeSelect 
                     control={form.control} 
@@ -255,63 +260,82 @@ export function AddShiftDialog({
                       <HalfDayTypeField control={form.control} />
                     </div>
                   )}
+                </CardContent>
+              </Card>
 
-                  {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
-                    <div className="space-y-4">
-                      <Alert>
-                        <Info className="h-4 w-4" />
-                        <AlertDescription>
-                          Specifica il periodo di {shiftType === 'sick_leave' ? 'malattia' : 'indisponibilità'}. 
-                          Se non specifichi una data di fine, verrà considerato solo il giorno selezionato.
-                        </AlertDescription>
-                      </Alert>
-                      <DateRangeFields control={form.control} />
-                    </div>
-                  )}
-                </div>
+              {/* Card Periodi Speciali - solo per malattia/indisponibilità */}
+              {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
+                <Card className="border-l-4 border-l-amber-500">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="card-title flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-amber-500" />
+                      Periodo di {shiftType === 'sick_leave' ? 'Malattia' : 'Indisponibilità'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Alert>
+                      <Info className="h-4 w-4" />
+                      <AlertDescription>
+                        Specifica il periodo di {shiftType === 'sick_leave' ? 'malattia' : 'indisponibilità'}. 
+                        Se non specifichi una data di fine, verrà considerato solo il giorno selezionato.
+                      </AlertDescription>
+                    </Alert>
+                    <DateRangeFields control={form.control} />
+                  </CardContent>
+                </Card>
+              )}
 
-                {/* Note */}
-                <div className="space-y-4">
+              {/* Card Note */}
+              <Card className="border-l-4 border-l-green-500">
+                <CardHeader className="pb-4">
+                  <CardTitle className="card-title flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-green-500" />
+                    Note Aggiuntive
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <ShiftNotesField control={form.control} />
-                </div>
+                </CardContent>
+              </Card>
 
-                {/* Footer con pulsanti */}
-                <div className="flex justify-between items-center pt-6 border-t">
-                  {isEditing && (
-                    <Button 
-                      type="button" 
-                      variant="destructive"
-                      onClick={() => setConfirmDelete(true)}
-                      disabled={isLoading}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Elimina Turno
-                    </Button>
-                  )}
-                  
-                  <div className="flex gap-3 ml-auto">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => onOpenChange(false)}
-                      disabled={isLoading}
-                    >
-                      Annulla
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      disabled={isLoading}
-                      className="flex items-center gap-2"
-                    >
-                      {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                      {isEditing ? 'Aggiorna Turno' : 'Salva Turno'}
-                    </Button>
-                  </div>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t gap-3">
+                {isEditing && (
+                  <Button 
+                    type="button" 
+                    variant="destructive"
+                    onClick={() => setConfirmDelete(true)}
+                    disabled={isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Elimina Turno
+                  </Button>
+                )}
+                
+                <div className="flex gap-3 ml-auto">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => onOpenChange(false)}
+                    disabled={isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Annulla
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {isEditing ? 'Aggiorna Turno' : 'Salva Turno'}
+                  </Button>
                 </div>
-              </form>
-            </Form>
-          </div>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
