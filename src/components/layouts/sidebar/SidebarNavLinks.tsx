@@ -96,17 +96,14 @@ const navItems: NavItem[] = [
 export function SidebarNavLinks() {
   const { profile } = useAuth();
   const location = useLocation();
-  const { state } = useSidebar();
 
   // Filter nav items based on user role
   const filteredNavItems = navItems.filter(item => 
     profile?.role && item.roles.includes(profile.role)
   );
 
-  const isCollapsed = state === "collapsed";
-
   return (
-    <div className={cn("space-y-1", isCollapsed && "space-y-2")}>
+    <div className="space-y-1">
       {filteredNavItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.href;
@@ -116,18 +113,14 @@ export function SidebarNavLinks() {
             key={item.href}
             to={item.href}
             className={cn(
-              "flex items-center text-sm font-medium rounded-md transition-colors relative group",
-              isCollapsed 
-                ? "justify-center py-6 px-2 mx-1" 
-                : "px-3 py-2",
+              "flex items-center text-sm font-medium rounded-md transition-colors px-3 py-2",
               isActive
                 ? "bg-primary text-primary-foreground"
                 : "text-white/80 hover:text-white hover:bg-white/15"
             )}
-            title={isCollapsed ? item.title : undefined}
           >
-            <Icon className={cn(isCollapsed ? "h-12 w-12" : "h-4 w-4", !isCollapsed && "mr-3")} />
-            {!isCollapsed && item.title}
+            <Icon className="h-4 w-4 mr-3" />
+            {item.title}
           </Link>
         );
       })}
