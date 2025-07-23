@@ -16,10 +16,10 @@ interface ShiftListProps {
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
   isAdminOrSocio: boolean;
-  selectedUserId?: string | null;
+  selectedUserIds?: string[];
 }
 
-export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio, selectedUserId }: ShiftListProps) {
+export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio, selectedUserIds }: ShiftListProps) {
   const { shifts, isLoading, setSelectedShift, deleteShift, setUserFilter, setDateFilter } = useShifts();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
@@ -27,8 +27,10 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio, selecte
 
   // Apply the user filter if provided
   useEffect(() => {
-    setUserFilter(selectedUserId || null);
-  }, [selectedUserId, setUserFilter]);
+    // For backward compatibility, use first selected user or null
+    const firstUserId = selectedUserIds && selectedUserIds.length > 0 ? selectedUserIds[0] : null;
+    setUserFilter(firstUserId);
+  }, [selectedUserIds, setUserFilter]);
   
   // Handler for selecting a shift
   const handleSelectShift = (shift: Shift) => {
@@ -68,10 +70,14 @@ export function ShiftList({ currentMonth, onMonthChange, isAdminOrSocio, selecte
       />
       
       <ShiftListFilters 
-        onUserFilter={setUserFilter}
+        onUserFilter={(userIds) => {
+          // For backward compatibility, update first user selection
+          const firstUserId = userIds.length > 0 ? userIds[0] : null;
+          setUserFilter(firstUserId);
+        }}
         onDateFilter={setDateFilter}
         isAdminOrSocio={isAdminOrSocio}
-        selectedUserId={selectedUserId}
+        selectedUserIds={selectedUserIds}
       />
 
       {shifts.length > 0 ? (

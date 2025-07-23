@@ -10,13 +10,13 @@ import { cn } from '@/lib/utils';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
 
 interface ShiftListFiltersProps {
-  onUserFilter: (userId: string | null) => void;
+  onUserFilter: (userIds: string[]) => void;
   onDateFilter: (date: Date | null) => void;
   isAdminOrSocio: boolean;
-  selectedUserId?: string | null;
+  selectedUserIds?: string[];
 }
 
-export function ShiftListFilters({ onUserFilter, onDateFilter, isAdminOrSocio, selectedUserId }: ShiftListFiltersProps) {
+export function ShiftListFilters({ onUserFilter, onDateFilter, isAdminOrSocio, selectedUserIds }: ShiftListFiltersProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
   // Handle date filter change
@@ -27,12 +27,12 @@ export function ShiftListFilters({ onUserFilter, onDateFilter, isAdminOrSocio, s
   
   // Clear all filters
   const clearFilters = () => {
-    onUserFilter(null);
+    onUserFilter([]);
     setSelectedDate(null);
     onDateFilter(null);
   };
   
-  const hasActiveFilters = selectedUserId || selectedDate;
+  const hasActiveFilters = (selectedUserIds && selectedUserIds.length > 0) || selectedDate;
   
   return (
     <div className="flex flex-col sm:flex-row gap-2 mb-4">
@@ -40,8 +40,8 @@ export function ShiftListFilters({ onUserFilter, onDateFilter, isAdminOrSocio, s
         {/* User filter - only for admin/socio */}
         {isAdminOrSocio && (
           <UserFilterDropdown
-            selectedUserId={selectedUserId || null}
-            onSelectUser={onUserFilter}
+            selectedUserIds={selectedUserIds || []}
+            onSelectUsers={onUserFilter}
             showOnlyAdminAndSocio={false}
           />
         )}

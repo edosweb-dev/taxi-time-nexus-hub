@@ -22,7 +22,7 @@ export function ShiftsContent({
 }: ShiftsContentProps) {
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
 
   return (
@@ -44,8 +44,8 @@ export function ShiftsContent({
             <Filter className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium text-muted-foreground">Filtri:</span>
             <UserFilterDropdown 
-              selectedUserId={selectedUserId}
-              onSelectUser={setSelectedUserId}
+              selectedUserIds={selectedUserIds}
+              onSelectUsers={setSelectedUserIds}
               showOnlyAdminAndSocio={false}
             />
             <ViewFilterDropdown 
@@ -82,7 +82,7 @@ export function ShiftsContent({
           currentMonth={currentMonth}
           onMonthChange={onMonthChange}
           isAdminOrSocio={isAdminOrSocio}
-          selectedUserId={selectedUserId}
+          selectedUserIds={selectedUserIds}
         />
       </div>
 

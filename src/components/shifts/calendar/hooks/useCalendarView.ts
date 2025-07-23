@@ -23,7 +23,7 @@ import { useShifts } from '../../ShiftContext';
 export function useCalendarView(
   currentMonth: Date, 
   onMonthChange: (date: Date) => void,
-  selectedUserId?: string | null
+  selectedUserIds?: string[]
 ) {
   const { shifts, isLoading, loadShifts, setSelectedShift, setUserFilter, deleteShift } = useShifts();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -36,8 +36,11 @@ export function useCalendarView(
 
   // Apply the user filter if provided
   useEffect(() => {
-    setUserFilter(selectedUserId || null);
-  }, [selectedUserId, setUserFilter]);
+    // For now, we'll convert the array to a single user (first selected) or null
+    // This maintains backward compatibility while allowing for future enhancement
+    const firstUserId = selectedUserIds && selectedUserIds.length > 0 ? selectedUserIds[0] : null;
+    setUserFilter(firstUserId);
+  }, [selectedUserIds, setUserFilter]);
 
   // Get days of current view based on viewMode
   const viewStart = useMemo(() => {

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Check, ChevronsUpDown, User } from 'lucide-react';
+import { Check, ChevronsUpDown, User, X } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -34,14 +34,14 @@ export const getUserColorClass = (users: any[] | undefined, userId: string) => {
 };
 
 interface UserFilterDropdownProps {
-  selectedUserId: string | null;
-  onSelectUser: (userId: string | null) => void;
+  selectedUserIds: string[];
+  onSelectUsers: (userIds: string[]) => void;
   showOnlyAdminAndSocio?: boolean;
 }
 
 export function UserFilterDropdown({ 
-  selectedUserId, 
-  onSelectUser, 
+  selectedUserIds, 
+  onSelectUsers, 
   showOnlyAdminAndSocio = false
 }: UserFilterDropdownProps) {
   const { users, isLoading } = useUsers();
@@ -55,17 +55,22 @@ export function UserFilterDropdown({
     ? safeUsers.filter(user => user.role === 'admin' || user.role === 'socio')
     : safeUsers;
   
-  // Find the selected user
-  const selectedUser = selectedUserId 
-    ? filteredUsers.find(user => user.id === selectedUserId) 
-    : null;
+  // Find the selected users
+  const selectedUsers = selectedUserIds.length > 0 
+    ? filteredUsers.filter(user => selectedUserIds.includes(user.id)) 
+    : [];
   
-  // Handle the case where the selected user doesn't exist in the filtered list
+  // Handle the case where some selected users don't exist in the filtered list
   useEffect(() => {
-    if (selectedUserId && filteredUsers.length > 0 && !filteredUsers.some(user => user.id === selectedUserId)) {
-      onSelectUser(null);
+    if (selectedUserIds.length > 0 && filteredUsers.length > 0) {
+      const validUserIds = selectedUserIds.filter(id => 
+        filteredUsers.some(user => user.id === id)
+      );
+      if (validUserIds.length !== selectedUserIds.length) {
+        onSelectUsers(validUserIds);
+      }
     }
-  }, [selectedUserId, filteredUsers, onSelectUser]);
+  }, [selectedUserIds, filteredUsers, onSelectUsers]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -76,11 +81,18 @@ export function UserFilterDropdown({
           aria-expanded={open}
           className="w-full sm:w-[200px] justify-between"
         >
-          {selectedUser ? (
-            <>
-              <User className="mr-2 h-4 w-4" />
-              {selectedUser.first_name} {selectedUser.last_name}
-            </>
+          {selectedUsers.length > 0 ? (
+            selectedUsers.length === 1 ? (
+              <>
+                <User className="mr-2 h-4 w-4" />
+                {selectedUsers[0].first_name} {selectedUsers[0].last_name}
+              </>
+            ) : (
+              <>
+                <User className="mr-2 h-4 w-4" />
+                {selectedUsers.length} utenti selezionati
+              </>
+            )
           ) : (
             <>
               <User className="mr-2 h-4 w-4" />
@@ -90,7 +102,7 @@ export function UserFilterDropdown({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full sm:w-[200px] p-0">
+      <PopoverContent className="w-full sm:w-[250px] p-0 bg-background border z-50">
         <Command>
           <CommandInput placeholder="Cerca utente..." />
           <CommandList>
@@ -99,43 +111,80 @@ export function UserFilterDropdown({
               <CommandItem
                 value="all-users"
                 onSelect={() => {
-                  onSelectUser(null);
-                  setOpen(false);
+                  onSelectUsers([]);
                 }}
                 className="cursor-pointer"
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    !selectedUserId ? "opacity-100" : "opacity-0"
+                    selectedUserIds.length === 0 ? "opacity-100" : "opacity-0"
                   )}
                 />
                 Tutti gli utenti
               </CommandItem>
               
-              {filteredUsers.map((user) => (
-                <CommandItem
-                  key={user.id}
-                  value={`${user.first_name} ${user.last_name}`}
-                  onSelect={() => {
-                    onSelectUser(user.id);
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    "cursor-pointer",
-                    getUserColorClass(safeUsers, user.id)
-                  )}
-                >
-                  <Check
+              {filteredUsers.map((user) => {
+                const isSelected = selectedUserIds.includes(user.id);
+                return (
+                  <CommandItem
+                    key={user.id}
+                    value={`${user.first_name} ${user.last_name}`}
+                    onSelect={() => {
+                      if (isSelected) {
+                        // Remove user from selection
+                        onSelectUsers(selectedUserIds.filter(id => id !== user.id));
+                      } else {
+                        // Add user to selection
+                        onSelectUsers([...selectedUserIds, user.id]);
+                      }
+                      // Don't close dropdown for multi-select
+                    }}
                     className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedUserId === user.id ? "opacity-100" : "opacity-0"
+                      "cursor-pointer",
+                      getUserColorClass(safeUsers, user.id)
                     )}
-                  />
-                  {user.first_name} {user.last_name}
-                </CommandItem>
-              ))}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        isSelected ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {user.first_name} {user.last_name}
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
+            
+            {/* Footer with action buttons */}
+            {selectedUserIds.length > 0 && (
+              <div className="p-2 border-t bg-muted/30">
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    {selectedUserIds.length} utente{selectedUserIds.length > 1 ? 'i' : ''} selezionat{selectedUserIds.length > 1 ? 'i' : 'o'}
+                  </span>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onSelectUsers([])}
+                      className="h-6 px-2 text-xs"
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      Pulisci
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setOpen(false)}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Applica
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

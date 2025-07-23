@@ -12,14 +12,14 @@ interface ShiftCalendarViewProps {
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
   isAdminOrSocio: boolean;
-  selectedUserId?: string | null;
+  selectedUserIds?: string[];
 }
 
 export function ShiftCalendarView({ 
   currentMonth, 
   onMonthChange, 
   isAdminOrSocio,
-  selectedUserId
+  selectedUserIds
 }: ShiftCalendarViewProps) {
   const { shifts } = useShifts();
   
@@ -48,7 +48,7 @@ export function ShiftCalendarView({
     goToToday,
     getShiftPosition,
     setSelectedShift
-  } = useCalendarView(currentMonth, onMonthChange, selectedUserId);
+  } = useCalendarView(currentMonth, onMonthChange, selectedUserIds);
 
   return (
     <div className="space-y-6">
