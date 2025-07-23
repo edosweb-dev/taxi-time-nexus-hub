@@ -7,6 +7,7 @@ import { getServizioIndex } from "@/components/servizi/utils/formatUtils";
 import { useQuery } from "@tanstack/react-query";
 import { formatCurrency as formatCurrencyUtil } from "@/components/servizi/utils/formatUtils";
 import { useFirmaDigitale } from "./useFirmaDigitale";
+import { useAuth } from "./useAuth";
 
 export function useServizioDetail(id?: string) {
   const { data, isLoading, isError, error, refetch } = useServizio(id);
@@ -14,7 +15,7 @@ export function useServizioDetail(id?: string) {
   const { users } = useUsers();
   const { aziende } = useAziende();
   const { isFirmaDigitaleAttiva } = useFirmaDigitale();
-  
+  const { profile } = useAuth();
   
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
   const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
@@ -22,7 +23,14 @@ export function useServizioDetail(id?: string) {
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
   
-  const canBeEdited = servizio?.stato === "da_assegnare";
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  
+  // Admin e socio possono modificare servizi non ancora consuntivati
+  // Altri utenti possono modificare solo servizi da assegnare
+  const canBeEdited = isAdminOrSocio 
+    ? servizio?.stato !== "consuntivato" && servizio?.stato !== "annullato"
+    : servizio?.stato === "da_assegnare";
+    
   const canBeCompleted = servizio?.stato === "assegnato";
   const canBeConsuntivato = servizio?.stato === "completato";
   
