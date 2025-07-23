@@ -49,8 +49,13 @@ export async function updateAzienda(id: string, data: Partial<AziendaFormData>):
         partita_iva: data.partita_iva,
         email: data.email,
         telefono: data.telefono,
+        emails: data.emails,
+        telefoni: data.telefoni,
         indirizzo: data.indirizzo,
-        firma_digitale_attiva: data.firma_digitale_attiva
+        firma_digitale_attiva: data.firma_digitale_attiva,
+        provvigione: data.provvigione,
+        provvigione_tipo: data.provvigione_tipo,
+        provvigione_valore: data.provvigione_valore
       })
       .eq('id', id)
       .select();

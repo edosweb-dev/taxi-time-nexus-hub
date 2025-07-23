@@ -4,6 +4,8 @@ export interface AziendaFormData {
   partita_iva: string;
   email?: string;
   telefono?: string;
+  emails?: string[];
+  telefoni?: string[];
   indirizzo?: string;
   firma_digitale_attiva?: boolean;
   provvigione?: boolean;

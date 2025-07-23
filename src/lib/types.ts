@@ -26,6 +26,8 @@ export interface Azienda {
   partita_iva: string;
   email?: string | null;
   telefono?: string | null;
+  emails?: string[] | null;
+  telefoni?: string[] | null;
   indirizzo?: string | null;
   firma_digitale_attiva?: boolean | null;
   provvigione?: boolean | null;

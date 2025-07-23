@@ -31,6 +31,8 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
     }),
     email: z.string().email({ message: 'Inserisci un indirizzo email valido' }).optional().or(z.literal('')),
     telefono: z.string().optional().or(z.literal('')),
+    emails: z.array(z.string().email({ message: 'Inserisci indirizzi email validi' })).optional(),
+    telefoni: z.array(z.string()).optional(),
     indirizzo: z.string().optional().or(z.literal('')),
     firma_digitale_attiva: z.boolean().default(false),
     provvigione: z.boolean().default(false),
@@ -53,6 +55,8 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       partita_iva: azienda?.partita_iva || '',
       email: azienda?.email || '',
       telefono: azienda?.telefono || '',
+      emails: azienda?.emails || [],
+      telefoni: azienda?.telefoni || [],
       indirizzo: azienda?.indirizzo || '',
       firma_digitale_attiva: azienda?.firma_digitale_attiva || false,
       provvigione: azienda?.provvigione || false,
@@ -62,11 +66,17 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
   });
 
   const handleSubmit = (values: z.infer<typeof aziendaFormSchema>) => {
+    // Filtra email e telefoni vuoti
+    const filteredEmails = values.emails?.filter(email => email.trim() !== '') || [];
+    const filteredTelefoni = values.telefoni?.filter(telefono => telefono.trim() !== '') || [];
+    
     const aziendaData: AziendaFormData = {
       nome: values.nome.trim(),
       partita_iva: values.partita_iva.trim(),
       email: values.email ? values.email.trim() : undefined,
       telefono: values.telefono ? values.telefono.trim() : undefined,
+      emails: filteredEmails.length > 0 ? filteredEmails : undefined,
+      telefoni: filteredTelefoni.length > 0 ? filteredTelefoni : undefined,
       indirizzo: values.indirizzo ? values.indirizzo.trim() : undefined,
       firma_digitale_attiva: values.firma_digitale_attiva,
       provvigione: values.provvigione,

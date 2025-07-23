@@ -46,8 +46,13 @@ export async function createAzienda(data: AziendaFormData): Promise<{ azienda?: 
         partita_iva: data.partita_iva,
         email: data.email || null,
         telefono: data.telefono || null,
+        emails: data.emails || [],
+        telefoni: data.telefoni || [],
         indirizzo: data.indirizzo || null,
-        firma_digitale_attiva: data.firma_digitale_attiva || false
+        firma_digitale_attiva: data.firma_digitale_attiva || false,
+        provvigione: data.provvigione || false,
+        provvigione_tipo: data.provvigione_tipo || null,
+        provvigione_valore: data.provvigione_valore || null
       }])
       .select()
       .single();

@@ -18,34 +18,40 @@ export type Database = {
         Row: {
           created_at: string | null
           email: string | null
+          emails: string[] | null
           firma_digitale_attiva: boolean | null
           id: string
           indirizzo: string | null
           nome: string
           partita_iva: string
           provvigione: boolean | null
+          telefoni: string[] | null
           telefono: string | null
         }
         Insert: {
           created_at?: string | null
           email?: string | null
+          emails?: string[] | null
           firma_digitale_attiva?: boolean | null
           id?: string
           indirizzo?: string | null
           nome: string
           partita_iva: string
           provvigione?: boolean | null
+          telefoni?: string[] | null
           telefono?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string | null
+          emails?: string[] | null
           firma_digitale_attiva?: boolean | null
           id?: string
           indirizzo?: string | null
           nome?: string
           partita_iva?: string
           provvigione?: boolean | null
+          telefoni?: string[] | null
           telefono?: string | null
         }
         Relationships: []

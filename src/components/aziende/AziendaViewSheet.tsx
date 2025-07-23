@@ -100,69 +100,127 @@ export function AziendaViewSheet({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {azienda.email ? (
-                <div className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+              {/* Email principali (legacy e nuove) */}
+              <div className="space-y-3">
+                {azienda.email && (
+                  <div className="flex items-center justify-between group">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                        <Mail className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Email Principale</p>
+                        <p className="text-base">{azienda.email}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => window.open(`mailto:${azienda.email}`, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                
+                {azienda.emails && azienda.emails.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Email Aggiuntive</p>
+                    {azienda.emails.map((email, index) => (
+                      <div key={index} className="flex items-center justify-between group ml-6">
+                        <div className="flex items-center gap-3">
+                          <div className="p-1 rounded-full bg-blue-100 text-blue-600">
+                            <Mail className="h-3 w-3" />
+                          </div>
+                          <p className="text-base">{email}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => window.open(`mailto:${email}`, '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {!azienda.email && (!azienda.emails || azienda.emails.length === 0) && (
+                  <div className="flex items-center gap-3 opacity-50">
+                    <div className="p-2 rounded-lg bg-gray-100 text-gray-400">
                       <Mail className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Email</p>
-                      <p className="text-base">{azienda.email}</p>
+                      <p className="text-sm text-muted-foreground">Nessuna email specificata</p>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => window.open(`mailto:${azienda.email}`, '_blank')}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 opacity-50">
-                  <div className="p-2 rounded-lg bg-gray-100 text-gray-400">
-                    <Mail className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Email</p>
-                    <p className="text-sm text-muted-foreground">Non specificata</p>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              {azienda.telefono ? (
-                <div className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-green-50 text-green-600">
+              {/* Telefoni principali (legacy e nuovi) */}
+              <div className="space-y-3">
+                {azienda.telefono && (
+                  <div className="flex items-center justify-between group">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-green-50 text-green-600">
+                        <Phone className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Telefono Principale</p>
+                        <p className="text-base">{azienda.telefono}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => window.open(`tel:${azienda.telefono}`, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                
+                {azienda.telefoni && azienda.telefoni.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Telefoni Aggiuntivi</p>
+                    {azienda.telefoni.map((telefono, index) => (
+                      <div key={index} className="flex items-center justify-between group ml-6">
+                        <div className="flex items-center gap-3">
+                          <div className="p-1 rounded-full bg-green-100 text-green-600">
+                            <Phone className="h-3 w-3" />
+                          </div>
+                          <p className="text-base">{telefono}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => window.open(`tel:${telefono}`, '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {!azienda.telefono && (!azienda.telefoni || azienda.telefoni.length === 0) && (
+                  <div className="flex items-center gap-3 opacity-50">
+                    <div className="p-2 rounded-lg bg-gray-100 text-gray-400">
                       <Phone className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Telefono</p>
-                      <p className="text-base">{azienda.telefono}</p>
+                      <p className="text-sm text-muted-foreground">Nessun telefono specificato</p>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => window.open(`tel:${azienda.telefono}`, '_blank')}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 opacity-50">
-                  <div className="p-2 rounded-lg bg-gray-100 text-gray-400">
-                    <Phone className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Telefono</p>
-                    <p className="text-sm text-muted-foreground">Non specificato</p>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
 
               {azienda.indirizzo ? (
                 <div className="flex items-center gap-3">
