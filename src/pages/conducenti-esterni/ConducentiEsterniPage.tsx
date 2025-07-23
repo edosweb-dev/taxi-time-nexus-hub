@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ConducentiEsterniContent } from '@/components/conducenti-esterni/ConducentiEsterniContent';
@@ -23,7 +24,7 @@ export default function ConducentiEsterniPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="w-full space-y-6">
         {/* Header con breadcrumb */}
         <div className="space-y-4">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">

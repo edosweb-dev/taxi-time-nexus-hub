@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -65,7 +66,7 @@ export default function AziendaDetailPage() {
 
   return (
     <MainLayout>
-      <div className="max-w-5xl mx-auto">
+      <div className="w-full">
         <div className="flex items-center mb-6">
           <Button variant="outline" onClick={handleBack} className="mr-4">
             <ArrowLeft className="mr-2 h-4 w-4" /> Indietro

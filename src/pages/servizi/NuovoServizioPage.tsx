@@ -1,10 +1,11 @@
+
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { NuovoServizioForm } from "@/components/servizi/NuovoServizioForm";
 
 export default function NuovoServizioPage() {
   return (
     <MainLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         {/* Header con progresso */}
         <div className="mb-8">
           <div className="bg-card border rounded-lg p-6">
