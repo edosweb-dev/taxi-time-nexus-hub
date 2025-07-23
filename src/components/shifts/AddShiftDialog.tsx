@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useAuth } from '@/contexts/AuthContext';
 import { useShifts } from './ShiftContext';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2, Info, Clock, Calendar as CalendarIcon, User } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Import the refactored components
 import { DeleteConfirmDialog } from './dialogs/DeleteConfirmDialog';
@@ -177,82 +178,140 @@ export function AddShiftDialog({
         }
         onOpenChange(value);
       }}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{isEditing ? 'Modifica turno' : 'Aggiungi turno'}</DialogTitle>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5 text-primary" />
+              {isEditing ? 'Modifica Turno' : 'Aggiungi Nuovo Turno'}
+            </DialogTitle>
+            <DialogDescription>
+              {isEditing 
+                ? 'Modifica i dettagli del turno esistente.' 
+                : 'Inserisci i dettagli del nuovo turno. Tutti i campi obbligatori sono contrassegnati.'}
+            </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-              {/* User selection (for admins and soci) */}
-              <ShiftUserSelect 
-                control={form.control} 
-                isAdminOrSocio={isAdminOrSocio} 
-                isEditing={isEditing} 
-              />
+          
+          <div className="space-y-6 py-4">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Sezione Utente e Data */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <User className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold text-sm">Assegnazione e Data</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* User selection (for admins and soci) */}
+                    <ShiftUserSelect 
+                      control={form.control} 
+                      isAdminOrSocio={isAdminOrSocio} 
+                      isEditing={isEditing} 
+                    />
 
-              {/* Shift date */}
-              <ShiftDateField 
-                control={form.control}
-                name="shift_date"
-                label="Data del turno"
-              />
-
-              {/* Shift type */}
-              <ShiftTypeSelect 
-                control={form.control} 
-                setValue={form.setValue} 
-              />
-
-              {/* Specific hours time fields */}
-              {shiftType === 'specific_hours' && (
-                <ShiftTimeFields control={form.control} />
-              )}
-
-              {/* Half day type */}
-              {shiftType === 'half_day' && (
-                <HalfDayTypeField control={form.control} />
-              )}
-
-              {/* Start and End date for sick leave and unavailable */}
-              {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
-                <DateRangeFields control={form.control} />
-              )}
-
-              {/* Notes */}
-              <ShiftNotesField control={form.control} />
-
-              <DialogFooter className="pt-4 flex justify-between">
-                {isEditing && (
-                  <Button 
-                    type="button" 
-                    variant="destructive"
-                    onClick={() => setConfirmDelete(true)}
-                    disabled={isLoading}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Elimina
-                  </Button>
-                )}
-                <div className="flex gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => onOpenChange(false)}
-                    disabled={isLoading}
-                  >
-                    Annulla
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={isLoading}
-                  >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isEditing ? 'Aggiorna' : 'Salva'}
-                  </Button>
+                    {/* Shift date */}
+                    <ShiftDateField 
+                      control={form.control}
+                      name="shift_date"
+                      label="Data del turno"
+                    />
+                  </div>
                 </div>
-              </DialogFooter>
-            </form>
-          </Form>
+
+                {/* Sezione Tipo e Orari */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold text-sm">Tipo di Turno e Orari</h3>
+                  </div>
+
+                  {/* Shift type */}
+                  <ShiftTypeSelect 
+                    control={form.control} 
+                    setValue={form.setValue} 
+                  />
+
+                  {/* Conditional fields based on shift type */}
+                  {shiftType === 'specific_hours' && (
+                    <div className="space-y-4">
+                      <Alert>
+                        <Info className="h-4 w-4" />
+                        <AlertDescription>
+                          Specifica gli orari di inizio e fine del turno di lavoro.
+                        </AlertDescription>
+                      </Alert>
+                      <ShiftTimeFields control={form.control} />
+                    </div>
+                  )}
+
+                  {shiftType === 'half_day' && (
+                    <div className="space-y-4">
+                      <Alert>
+                        <Info className="h-4 w-4" />
+                        <AlertDescription>
+                          Seleziona se il turno è nella mattina o nel pomeriggio.
+                        </AlertDescription>
+                      </Alert>
+                      <HalfDayTypeField control={form.control} />
+                    </div>
+                  )}
+
+                  {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
+                    <div className="space-y-4">
+                      <Alert>
+                        <Info className="h-4 w-4" />
+                        <AlertDescription>
+                          Specifica il periodo di {shiftType === 'sick_leave' ? 'malattia' : 'indisponibilità'}. 
+                          Se non specifichi una data di fine, verrà considerato solo il giorno selezionato.
+                        </AlertDescription>
+                      </Alert>
+                      <DateRangeFields control={form.control} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Note */}
+                <div className="space-y-4">
+                  <ShiftNotesField control={form.control} />
+                </div>
+
+                {/* Footer con pulsanti */}
+                <div className="flex justify-between items-center pt-6 border-t">
+                  {isEditing && (
+                    <Button 
+                      type="button" 
+                      variant="destructive"
+                      onClick={() => setConfirmDelete(true)}
+                      disabled={isLoading}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Elimina Turno
+                    </Button>
+                  )}
+                  
+                  <div className="flex gap-3 ml-auto">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => onOpenChange(false)}
+                      disabled={isLoading}
+                    >
+                      Annulla
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={isLoading}
+                      className="flex items-center gap-2"
+                    >
+                      {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {isEditing ? 'Aggiorna Turno' : 'Salva Turno'}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </Form>
+          </div>
         </DialogContent>
       </Dialog>
 
