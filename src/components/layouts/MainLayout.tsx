@@ -17,11 +17,9 @@ export function MainLayout({ children }: PropsWithChildren) {
         <Sidebar className="border-r border-border text-white" collapsible="icon">
           {/* This container will hold the actual sidebar content with primary background */}
           <div className="flex flex-col h-full bg-primary">
-            <SidebarHeader className="h-14 flex items-center">
-              <div className="flex items-center justify-between w-full px-2">
-                <AppSidebarHeader />
-                <SidebarTrigger className="text-white hover:bg-white/10" />
-              </div>
+            <SidebarHeader className="h-14 flex items-center justify-between px-2">
+              <AppSidebarHeader />
+              <SidebarTrigger className="text-white hover:bg-white/10 p-2 rounded-md" />
             </SidebarHeader>
             
             <SidebarContent className="p-2">

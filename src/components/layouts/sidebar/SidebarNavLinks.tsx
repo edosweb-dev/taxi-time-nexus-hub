@@ -1,6 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSidebar } from '@/components/ui/sidebar';
 import {
   LayoutDashboard, 
   Users, 
@@ -95,11 +96,14 @@ const navItems: NavItem[] = [
 export function SidebarNavLinks() {
   const { profile } = useAuth();
   const location = useLocation();
+  const { state } = useSidebar();
 
   // Filter nav items based on user role
   const filteredNavItems = navItems.filter(item => 
     profile?.role && item.roles.includes(profile.role)
   );
+
+  const isCollapsed = state === "collapsed";
 
   return (
     <div className="space-y-1">
@@ -112,14 +116,18 @@ export function SidebarNavLinks() {
             key={item.href}
             to={item.href}
             className={cn(
-              "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+              "flex items-center text-sm font-medium rounded-md transition-colors",
+              isCollapsed 
+                ? "justify-center py-3 px-2 mx-1" 
+                : "px-3 py-2",
               isActive
                 ? "bg-white/20 text-white"
                 : "text-white/70 hover:text-white hover:bg-white/10"
             )}
+            title={isCollapsed ? item.title : undefined}
           >
-            <Icon className="mr-3 h-4 w-4" />
-            {item.title}
+            <Icon className={cn("h-4 w-4", !isCollapsed && "mr-3")} />
+            {!isCollapsed && item.title}
           </Link>
         );
       })}
