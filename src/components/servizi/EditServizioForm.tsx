@@ -101,8 +101,8 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
 
   return (
     <FormProvider {...form}>
-      <div className="min-h-full">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <div className="relative min-h-full">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
           {/* Step 1: Service Details */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-4">
@@ -139,8 +139,11 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
               <IndirizziIntermediSummary />
             </div>
           </div>
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6">
+        </form>
+        
+        {/* Action Buttons - Sticky Bottom */}
+        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 mt-6">
+          <div className="flex justify-end space-x-4">
             <Button
               type="button"
               variant="outline"
@@ -152,6 +155,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
               type="submit" 
               disabled={isUpdatingServizio}
               className="min-w-[140px]"
+              onClick={form.handleSubmit(onSubmit)}
             >
               {isUpdatingServizio ? (
                 <div className="flex items-center gap-2">
@@ -163,7 +167,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
               )}
             </Button>
           </div>
-        </form>
+        </div>
       </div>
     </FormProvider>
   );

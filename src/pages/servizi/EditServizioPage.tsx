@@ -24,7 +24,7 @@ export default function EditServizioPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6 h-full max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <div className="space-y-6 min-h-full pb-20">
         {/* Header */}
         <div className="mb-8 flex-shrink-0">
           <div className="bg-card border rounded-lg p-6">
