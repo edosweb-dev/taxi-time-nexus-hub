@@ -88,7 +88,11 @@ export default function AziendaDetailPage() {
           </TabsList>
 
           <TabsContent value="info" className="space-y-4">
-            <InfoTab azienda={azienda} />
+            <InfoTab 
+              azienda={azienda} 
+              referenti={referenti}
+              onManageReferenti={() => setActiveTab('referenti')}
+            />
           </TabsContent>
           
           <TabsContent value="referenti">
