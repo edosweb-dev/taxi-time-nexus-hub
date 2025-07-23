@@ -1,5 +1,5 @@
 
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
 import { useUsers } from "@/hooks/useUsers";
@@ -12,6 +12,7 @@ import { ServizioDialogs } from "@/components/servizi/dettaglio/ServizioDialogs"
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { users } = useUsers();
   const {
     servizio,
@@ -94,7 +95,7 @@ export default function ServizioDetailPage() {
                 )}
                 {canBeEdited && (
                   <button 
-                    onClick={() => window.location.href = `/servizi/${servizio.id}/edit`}
+                    onClick={() => navigate(`/servizi/${servizio.id}/edit`)}
                     className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Modifica servizio
