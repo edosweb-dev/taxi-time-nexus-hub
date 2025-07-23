@@ -20,8 +20,10 @@ import {
   XCircle,
   Calendar,
   Edit,
-  ExternalLink
+  ExternalLink,
+  Users
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface AziendaViewSheetProps {
   isOpen: boolean;
@@ -36,6 +38,8 @@ export function AziendaViewSheet({
   onEdit,
   azienda,
 }: AziendaViewSheetProps) {
+  const navigate = useNavigate();
+  
   if (!azienda) return null;
 
   // Helper function to get company initials
@@ -49,6 +53,11 @@ export function AziendaViewSheet({
 
   const handleEdit = () => {
     onEdit(azienda);
+    onOpenChange(false);
+  };
+
+  const handleManageReferenti = () => {
+    navigate(`/aziende/${azienda.id}`);
     onOpenChange(false);
   };
 
@@ -73,16 +82,27 @@ export function AziendaViewSheet({
               </div>
             </div>
             
-            {/* Edit Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleEdit}
-              className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary hover:border-primary/20"
-            >
-              <Edit className="h-4 w-4" />
-              Modifica
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleManageReferenti}
+                className="flex items-center gap-2 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+              >
+                <Users className="h-4 w-4" />
+                Gestisci Referenti
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEdit}
+                className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary hover:border-primary/20"
+              >
+                <Edit className="h-4 w-4" />
+                Modifica
+              </Button>
+            </div>
           </div>
           
           <SheetDescription className="text-left">
