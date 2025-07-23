@@ -235,30 +235,18 @@ export default function ShiftReportsPage() {
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Seleziona periodo" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="z-50">
                             <SelectItem value="current_month">
-                              <div className="flex items-center gap-2">
-                                <span>📅</span>
-                                <span>Mese corrente</span>
-                              </div>
+                              Mese corrente
                             </SelectItem>
                             <SelectItem value="last_month">
-                              <div className="flex items-center gap-2">
-                                <span>📆</span>
-                                <span>Mese scorso</span>
-                              </div>
+                              Mese scorso
                             </SelectItem>
                             <SelectItem value="last_3_months">
-                              <div className="flex items-center gap-2">
-                                <span>📊</span>
-                                <span>Ultimi 3 mesi</span>
-                              </div>
+                              Ultimi 3 mesi
                             </SelectItem>
                             <SelectItem value="current_year">
-                              <div className="flex items-center gap-2">
-                                <span>🗓️</span>
-                                <span>Anno corrente</span>
-                              </div>
+                              Anno corrente
                             </SelectItem>
                           </SelectContent>
                         </Select>
