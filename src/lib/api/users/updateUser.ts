@@ -16,6 +16,7 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
     if (userData.last_name) profileData.last_name = userData.last_name;
     if (userData.role) profileData.role = userData.role;
     if (userData.email) profileData.email = userData.email;
+    if (userData.telefono !== undefined) profileData.telefono = userData.telefono;
 
     console.log("[updateUser] Profile data being sent to Supabase:", profileData);
 

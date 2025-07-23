@@ -8,6 +8,7 @@ export interface Profile {
   role: UserRole;
   azienda_id?: string | null;
   email?: string | null; // Added email field
+  telefono?: string | null; // Added phone field
 }
 
 export interface Session {
