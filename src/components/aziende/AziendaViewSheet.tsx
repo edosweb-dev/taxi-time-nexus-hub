@@ -26,6 +26,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useReferenti } from "@/hooks/useReferenti";
 import { ReferentiSheet } from "./ReferentiSheet";
+import { UserDialog } from "@/components/users/UserDialog";
+import { UserFormData } from "@/lib/api/users/types";
+import { useUsers } from "@/hooks/useUsers";
 import { useState } from "react";
 
 interface AziendaViewSheetProps {
@@ -43,9 +46,11 @@ export function AziendaViewSheet({
 }: AziendaViewSheetProps) {
   const navigate = useNavigate();
   const [isReferentiSheetOpen, setIsReferentiSheetOpen] = useState(false);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   
   // Recupera i referenti dell'azienda
-  const { data: referenti = [] } = useReferenti(azienda?.id);
+  const { data: referenti = [], refetch: refetchReferenti } = useReferenti(azienda?.id);
+  const { createUser, isCreating } = useUsers();
   
   if (!azienda) return null;
 
@@ -71,7 +76,27 @@ export function AziendaViewSheet({
   };
 
   const handleManageReferenti = () => {
-    setIsReferentiSheetOpen(true);
+    if (referenti.length === 0) {
+      // Se non ci sono referenti, apri direttamente il form
+      setIsUserDialogOpen(true);
+    } else {
+      // Se ci sono referenti, apri la sidebar di gestione
+      setIsReferentiSheetOpen(true);
+    }
+  };
+
+  const handleSubmitUser = async (userData: UserFormData) => {
+    try {
+      await createUser({
+        ...userData,
+        azienda_id: azienda.id,
+        role: 'cliente' as const,
+      });
+      setIsUserDialogOpen(false);
+      refetchReferenti();
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
   };
 
   return (
@@ -456,6 +481,19 @@ export function AziendaViewSheet({
         isOpen={isReferentiSheetOpen}
         onOpenChange={setIsReferentiSheetOpen}
         azienda={azienda}
+      />
+
+      {/* Dialog per aggiungere nuovo referente */}
+      <UserDialog
+        isOpen={isUserDialogOpen}
+        onOpenChange={setIsUserDialogOpen}
+        onSubmit={handleSubmitUser}
+        user={null}
+        isSubmitting={isCreating}
+        defaultRole="cliente"
+        hiddenRoles={['admin', 'socio', 'dipendente']}
+        isNewUser={true}
+        preselectedAzienda={azienda}
       />
     </Sheet>
   );
