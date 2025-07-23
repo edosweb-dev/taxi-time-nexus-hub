@@ -5,7 +5,7 @@ import { it } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Clock, Calendar, FileText, TrendingUp, User } from 'lucide-react';
+import { Clock, Calendar, FileText, TrendingUp, User, MousePointer } from 'lucide-react';
 import { Shift } from '../types';
 import { UserShiftStats } from './shiftReportsApi';
 import { getUserDisplayName } from '../utils/userDisplayUtils';
@@ -16,13 +16,15 @@ interface UserShiftDetailReportProps {
   userShifts: Shift[];
   period: { start_date: string; end_date: string };
   isLoading?: boolean;
+  onDayClick?: (date: Date) => void;
 }
 
 export function UserShiftDetailReport({ 
   userStats, 
   userShifts, 
   period, 
-  isLoading = false 
+  isLoading = false,
+  onDayClick
 }: UserShiftDetailReportProps) {
   if (isLoading) {
     return (
@@ -169,7 +171,15 @@ export function UserShiftDetailReport({
       {/* Tabella dettagliata dei turni */}
       <Card>
         <CardHeader>
-          <CardTitle>Dettaglio Turni</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Dettaglio Turni</CardTitle>
+            {onDayClick && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MousePointer className="h-4 w-4" />
+                Clicca su una data per vedere i servizi
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {userShifts.length === 0 ? (
@@ -190,9 +200,18 @@ export function UserShiftDetailReport({
                 </TableHeader>
                 <TableBody>
                   {userShifts.map((shift) => (
-                    <TableRow key={shift.id}>
+                    <TableRow key={shift.id} className="hover:bg-muted/50">
                       <TableCell className="font-medium">
-                        {format(new Date(shift.shift_date), 'dd/MM/yyyy')}
+                        {onDayClick ? (
+                          <button
+                            onClick={() => onDayClick(new Date(shift.shift_date))}
+                            className="text-primary hover:text-primary/80 hover:underline font-medium transition-colors"
+                          >
+                            {format(new Date(shift.shift_date), 'dd/MM/yyyy')}
+                          </button>
+                        ) : (
+                          <span>{format(new Date(shift.shift_date), 'dd/MM/yyyy')}</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge 

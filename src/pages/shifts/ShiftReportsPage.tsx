@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ShiftProvider } from '@/components/shifts/ShiftContext';
-import { UserShiftReportList } from '@/components/shifts/reports/UserShiftReportList';
+import { UserSelectDropdown } from '@/components/shifts/reports/UserSelectDropdown';
 import { UserShiftDetailReport } from '@/components/shifts/reports/UserShiftDetailReport';
+import { DayServicesModal } from '@/components/shifts/reports/DayServicesModal';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronRight, Home, BarChart3, Download } from 'lucide-react';
+import { ChevronRight, Home, BarChart3, Download, Calendar as CalendarIcon, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   fetchAllUsersShiftStats, 
@@ -26,6 +28,11 @@ export default function ShiftReportsPage() {
   const [selectedUserShifts, setSelectedUserShifts] = useState<Shift[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  
+  // Modal for day services
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [dayServices, setDayServices] = useState<any[]>([]);
+  const [isLoadingServices, setIsLoadingServices] = useState(false);
 
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
@@ -104,6 +111,40 @@ export default function ShiftReportsPage() {
     setSelectedUserId(userId);
   };
 
+  // Handle day click to show services
+  const handleDayClick = async (date: Date) => {
+    if (!selectedUserId) return;
+    
+    setSelectedDate(date);
+    setIsLoadingServices(true);
+    
+    try {
+      // TODO: Implementare API per recuperare servizi per data specifica
+      // Per ora mock data
+      const mockServices = [
+        {
+          id: '1',
+          azienda_nome: 'Azienda Test',
+          indirizzo_partenza: 'Via Roma 1, Milano',
+          indirizzo_destinazione: 'Via Venezia 10, Roma',
+          orario_partenza: '08:00',
+          orario_arrivo: '10:30',
+          stato: 'completato',
+          nome_contatto: 'Mario Rossi',
+          telefono_contatto: '+39 123 456 789',
+          note: 'Servizio express con urgenza'
+        }
+      ];
+      
+      setDayServices(mockServices);
+    } catch (error) {
+      console.error('Error loading day services:', error);
+      setDayServices([]);
+    } finally {
+      setIsLoadingServices(false);
+    }
+  };
+
   // Export CSV (funzionalità base)
   const handleExportCSV = () => {
     if (!allUsersStats) return;
@@ -147,65 +188,90 @@ export default function ShiftReportsPage() {
                 <span className="font-medium text-foreground">Report</span>
               </nav>
               
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="h-6 w-6 text-primary" />
+              <div className="space-y-6">
+                {/* Header principale */}
+                <div className="flex items-center gap-3">
+                  <BarChart3 className="h-8 w-8 text-primary" />
+                  <div>
                     <h1 className="text-3xl md:text-4xl font-bold text-foreground">Report Turni</h1>
+                    <p className="text-muted-foreground">
+                      Analisi dettagliata dei turni con selezione rapida utente
+                    </p>
                   </div>
-                  <p className="text-muted-foreground text-lg">
-                    Analisi dettagliata dei turni per ogni utente con filtri avanzati
-                  </p>
                 </div>
-                
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                    <SelectTrigger className="w-56">
-                      <SelectValue placeholder="Seleziona periodo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="current_month">📅 Mese corrente</SelectItem>
-                      <SelectItem value="last_month">📆 Mese scorso</SelectItem>
-                      <SelectItem value="last_3_months">📊 Ultimi 3 mesi</SelectItem>
-                      <SelectItem value="current_year">🗓️ Anno corrente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <Button 
-                    variant="outline"
-                    onClick={handleExportCSV}
-                    disabled={!allUsersStats || allUsersStats.users.length === 0}
-                    className="flex items-center gap-2"
-                  >
-                    <Download className="h-4 w-4" />
-                    Esporta CSV
-                  </Button>
-                </div>
+
+                {/* Controlli di selezione */}
+                <Card className="border-l-4 border-l-primary">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-primary" />
+                      Selezione Utente e Periodo
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
+                      {/* Selezione utente */}
+                      <div className="space-y-2 flex-1">
+                        <label className="text-sm font-medium">Utente da analizzare:</label>
+                        <UserSelectDropdown
+                          users={allUsersStats?.users || []}
+                          selectedUserId={selectedUserId}
+                          onSelectUser={setSelectedUserId}
+                          isLoading={isLoadingStats}
+                        />
+                      </div>
+
+                      {/* Selezione periodo */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Periodo di analisi:</label>
+                        <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                          <SelectTrigger className="w-56">
+                            <SelectValue placeholder="Seleziona periodo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="current_month">📅 Mese corrente</SelectItem>
+                            <SelectItem value="last_month">📆 Mese scorso</SelectItem>
+                            <SelectItem value="last_3_months">📊 Ultimi 3 mesi</SelectItem>
+                            <SelectItem value="current_year">🗓️ Anno corrente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Export */}
+                      <Button 
+                        variant="outline"
+                        onClick={handleExportCSV}
+                        disabled={!allUsersStats || allUsersStats.users.length === 0}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Esporta CSV
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
-            {/* Layout principale a due colonne */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Colonna sinistra - Lista utenti */}
-              <div className="lg:col-span-1">
-                <UserShiftReportList
-                  userStats={allUsersStats?.users || []}
-                  selectedUserId={selectedUserId}
-                  onUserSelect={handleUserSelect}
-                  isLoading={isLoadingStats}
-                />
-              </div>
-              
-              {/* Colonna destra - Dettaglio utente */}
-              <div className="lg:col-span-2">
-                <UserShiftDetailReport
-                  userStats={selectedUserStats}
-                  userShifts={selectedUserShifts}
-                  period={allUsersStats?.period || { start_date: '', end_date: '' }}
-                  isLoading={isLoadingDetails}
-                />
-              </div>
+            {/* Report dettagliato a colonna singola */}
+            <div className="w-full">
+              <UserShiftDetailReport
+                userStats={selectedUserStats}
+                userShifts={selectedUserShifts}
+                period={allUsersStats?.period || { start_date: '', end_date: '' }}
+                isLoading={isLoadingDetails}
+                onDayClick={handleDayClick}
+              />
             </div>
+            
+            {/* Modal per servizi del giorno */}
+            <DayServicesModal
+              open={!!selectedDate}
+              onOpenChange={(open) => !open && setSelectedDate(null)}
+              date={selectedDate}
+              services={dayServices}
+              isLoading={isLoadingServices}
+            />
         </div>
       </ShiftProvider>
     </MainLayout>
