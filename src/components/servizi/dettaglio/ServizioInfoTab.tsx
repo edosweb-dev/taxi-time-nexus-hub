@@ -33,7 +33,7 @@ export function ServizioInfoTab({
 }: ServizioInfoTabProps) {
   return (
     <div className="space-y-6">
-      {/* Row 1: Informazioni principali | Stato attuale */}
+      {/* Row 1: Informazioni principali | Assegnazione e veicolo */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BasicInfoSection 
           servizio={servizio}
@@ -42,51 +42,29 @@ export function ServizioInfoTab({
           getUserName={getUserName}
         />
         
-        {/* Service Status Card */}
-        <div className="bg-card border rounded-lg p-6">
-          <div className="space-y-4">
-            <div className="text-lg font-semibold mb-4">Stato attuale</div>
-            
-            <div className="flex items-center justify-center gap-3 p-4 bg-muted/30 rounded-lg">
-              {getStateIcon(servizio.stato)}
-              <div className="text-lg">
-                {getStatoBadge(servizio.stato)}
-              </div>
-            </div>
-            
-            <div className="space-y-2 pt-2 border-t">
-              {servizio.created_at && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Creato il:</span>
-                  <span className="font-medium">
-                    {new Date(servizio.created_at).toLocaleDateString('it-IT')}
-                  </span>
-                </div>
-              )}
-              
-              {servizio.firma_timestamp && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Firmato il:</span>
-                  <span className="font-medium text-green-700">
-                    {new Date(servizio.firma_timestamp).toLocaleDateString('it-IT')} - {new Date(servizio.firma_timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Row 2: Percorso | Assegnazione e veicolo | Passeggeri */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <RouteSection servizio={servizio} passeggeri={passeggeri} />
-        
         <AssignmentInfoSection 
           servizio={servizio}
           users={users}
           getUserName={getUserName}
         />
+      </div>
+      
+      {/* Row 2: Percorso del servizio | Dati operativi */}
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+        <div className="lg:col-span-7">
+          <RouteSection servizio={servizio} passeggeri={passeggeri} />
+        </div>
         
+        <div className="lg:col-span-3">
+          <OperationalSection 
+            servizio={servizio}
+            passeggeriCount={passeggeri.length}
+          />
+        </div>
+      </div>
+      
+      {/* Row 3: Passeggeri | Informazioni finanziarie */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Passengers Summary */}
         <div className="bg-card border rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
@@ -123,20 +101,12 @@ export function ServizioInfoTab({
             </div>
           )}
         </div>
-      </div>
-      
-      {/* Row 3: Informazioni finanziarie | Dati operativi */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
         <FinancialSection 
           servizio={servizio}
           users={users}
           getUserName={getUserName}
           formatCurrency={formatCurrency}
-        />
-        
-        <OperationalSection 
-          servizio={servizio}
-          passeggeriCount={passeggeri.length}
         />
       </div>
       
