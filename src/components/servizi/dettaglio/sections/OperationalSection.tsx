@@ -20,7 +20,7 @@ export function OperationalSection({
 
   if (!hasOperationalData) {
     return (
-      <Card>
+      <Card className="h-full">
         <CardHeader>
           <CardTitle className="text-lg">Dati operativi</CardTitle>
         </CardHeader>
@@ -34,7 +34,7 @@ export function OperationalSection({
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-lg">Dati operativi</CardTitle>
       </CardHeader>
