@@ -200,19 +200,20 @@ export default function ShiftReportsPage() {
                   </div>
                 </div>
 
-                {/* Controlli di selezione */}
+                {/* Controlli di selezione migliorati */}
                 <Card className="border-l-4 border-l-primary">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-primary" />
-                      Selezione Utente e Periodo
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
-                      {/* Selezione utente */}
-                      <div className="space-y-2 flex-1">
-                        <label className="text-sm font-medium">Utente da analizzare:</label>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      
+                      {/* Sezione Utente */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-primary" />
+                          <h3 className="font-semibold text-lg">Utente</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Seleziona l'utente di cui visualizzare il report
+                        </p>
                         <UserSelectDropdown
                           users={allUsersStats?.users || []}
                           selectedUserId={selectedUserId}
@@ -221,32 +222,76 @@ export default function ShiftReportsPage() {
                         />
                       </div>
 
-                      {/* Selezione periodo */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Periodo di analisi:</label>
+                      {/* Sezione Periodo */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="h-5 w-5 text-blue-600" />
+                          <h3 className="font-semibold text-lg">Periodo</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Scegli l'intervallo temporale da analizzare
+                        </p>
                         <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                          <SelectTrigger className="w-56">
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Seleziona periodo" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="current_month">📅 Mese corrente</SelectItem>
-                            <SelectItem value="last_month">📆 Mese scorso</SelectItem>
-                            <SelectItem value="last_3_months">📊 Ultimi 3 mesi</SelectItem>
-                            <SelectItem value="current_year">🗓️ Anno corrente</SelectItem>
+                            <SelectItem value="current_month">
+                              <div className="flex items-center gap-2">
+                                <span>📅</span>
+                                <span>Mese corrente</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="last_month">
+                              <div className="flex items-center gap-2">
+                                <span>📆</span>
+                                <span>Mese scorso</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="last_3_months">
+                              <div className="flex items-center gap-2">
+                                <span>📊</span>
+                                <span>Ultimi 3 mesi</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="current_year">
+                              <div className="flex items-center gap-2">
+                                <span>🗓️</span>
+                                <span>Anno corrente</span>
+                              </div>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
-                      {/* Export */}
-                      <Button 
-                        variant="outline"
-                        onClick={handleExportCSV}
-                        disabled={!allUsersStats || allUsersStats.users.length === 0}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Esporta CSV
-                      </Button>
+                      {/* Sezione Esporta CSV */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Download className="h-5 w-5 text-green-600" />
+                          <h3 className="font-semibold text-lg">Esporta CSV</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Scarica i dati in formato CSV per ulteriori analisi
+                        </p>
+                        <div className="space-y-2">
+                          <Button 
+                            onClick={handleExportCSV}
+                            disabled={!allUsersStats || allUsersStats.users.length === 0}
+                            className="w-full flex items-center gap-2"
+                            size="lg"
+                          >
+                            <Download className="h-4 w-4" />
+                            Scarica Report CSV
+                          </Button>
+                          {allUsersStats && allUsersStats.users.length > 0 && (
+                            <p className="text-xs text-muted-foreground text-center">
+                              {allUsersStats.users.length} utenti • {selectedPeriod === 'current_month' ? 'Mese corrente' : 
+                               selectedPeriod === 'last_month' ? 'Mese scorso' :
+                               selectedPeriod === 'last_3_months' ? 'Ultimi 3 mesi' : 'Anno corrente'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
