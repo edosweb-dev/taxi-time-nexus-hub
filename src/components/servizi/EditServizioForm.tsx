@@ -23,17 +23,20 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
   // Precompila il form con i dati esistenti
   useEffect(() => {
     if (servizio && passeggeri) {
-      form.reset({
-        azienda_id: servizio.azienda_id,
-        referente_id: servizio.referente_id,
+      console.log('[EditServizioForm] Dati servizio ricevuti:', servizio);
+      console.log('[EditServizioForm] Passeggeri ricevuti:', passeggeri);
+      
+      const formData = {
+        azienda_id: servizio.azienda_id || "",
+        referente_id: servizio.referente_id || "",
         numero_commessa: servizio.numero_commessa || "",
-        data_servizio: servizio.data_servizio,
-        orario_servizio: servizio.orario_servizio,
-        indirizzo_presa: servizio.indirizzo_presa,
-        indirizzo_destinazione: servizio.indirizzo_destinazione,
+        data_servizio: servizio.data_servizio || new Date().toISOString().split("T")[0],
+        orario_servizio: servizio.orario_servizio || "",
+        indirizzo_presa: servizio.indirizzo_presa || "",
+        indirizzo_destinazione: servizio.indirizzo_destinazione || "",
         citta_presa: servizio.citta_presa || "",
         citta_destinazione: servizio.citta_destinazione || "",
-        metodo_pagamento: servizio.metodo_pagamento,
+        metodo_pagamento: servizio.metodo_pagamento || "",
         note: servizio.note || "",
         veicolo_id: servizio.veicolo_id || "",
         ore_effettive: servizio.ore_effettive || 0,
@@ -49,7 +52,11 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
           destinazione_personalizzato: p.destinazione_personalizzato || "",
           usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato || false,
         }))
-      });
+      };
+      
+      console.log('[EditServizioForm] Dati form da impostare:', formData);
+      form.reset(formData);
+      console.log('[EditServizioForm] Form resettato con successo');
     }
   }, [servizio, passeggeri, form]);
 

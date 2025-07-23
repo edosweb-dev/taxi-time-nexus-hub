@@ -8,6 +8,12 @@ export default function EditServizioPage() {
   const { id } = useParams<{ id: string }>();
   const { servizio, passeggeri, isLoading, error } = useServizioDetail(id);
 
+  console.log('[EditServizioPage] ID servizio:', id);
+  console.log('[EditServizioPage] Servizio caricato:', servizio);
+  console.log('[EditServizioPage] Passeggeri caricati:', passeggeri);
+  console.log('[EditServizioPage] Loading:', isLoading);
+  console.log('[EditServizioPage] Error:', error);
+
   if (isLoading) {
     return <ServizioLoading />;
   }
