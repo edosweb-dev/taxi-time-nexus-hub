@@ -24,9 +24,9 @@ export default function EditServizioPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 h-full max-h-[calc(100vh-8rem)] overflow-y-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 flex-shrink-0">
           <div className="bg-card border rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -48,7 +48,9 @@ export default function EditServizioPage() {
         </div>
 
         {/* Form Content */}
-        <EditServizioForm servizio={servizio} passeggeri={passeggeri} />
+        <div className="flex-1 min-h-0">
+          <EditServizioForm servizio={servizio} passeggeri={passeggeri} />
+        </div>
       </div>
     </MainLayout>
   );
