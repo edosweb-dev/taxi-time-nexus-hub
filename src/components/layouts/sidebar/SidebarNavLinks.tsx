@@ -106,7 +106,7 @@ export function SidebarNavLinks() {
   const isCollapsed = state === "collapsed";
 
   return (
-    <div className="space-y-1">
+    <div className={cn("space-y-1", isCollapsed && "space-y-2")}>
       {filteredNavItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.href;
@@ -118,7 +118,7 @@ export function SidebarNavLinks() {
             className={cn(
               "flex items-center text-sm font-medium rounded-md transition-colors relative group",
               isCollapsed 
-                ? "justify-center py-4 px-2 mx-1" 
+                ? "justify-center py-6 px-2 mx-1" 
                 : "px-3 py-2",
               isActive
                 ? "bg-white/20 text-white"
@@ -126,7 +126,7 @@ export function SidebarNavLinks() {
             )}
             title={isCollapsed ? item.title : undefined}
           >
-            <Icon className={cn(isCollapsed ? "h-8 w-8" : "h-4 w-4", !isCollapsed && "mr-3")} />
+            <Icon className={cn(isCollapsed ? "h-12 w-12" : "h-4 w-4", !isCollapsed && "mr-3")} />
             {!isCollapsed && item.title}
           </Link>
         );
