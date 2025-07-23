@@ -14,17 +14,13 @@ export function MainLayout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        {/* Global header with always visible sidebar trigger */}
-        <header className="fixed top-0 left-0 z-50 h-12 flex items-center bg-primary border-b border-border">
-          <SidebarTrigger className="ml-2 text-white hover:bg-white/10" />
-        </header>
-
-        <Sidebar className="border-r border-border text-white">
+        <Sidebar className="border-r border-border text-white" collapsible="icon">
           {/* This container will hold the actual sidebar content with primary background */}
           <div className="flex flex-col h-full bg-primary">
             <SidebarHeader className="h-14 flex items-center">
               <div className="flex items-center justify-between w-full px-2">
                 <AppSidebarHeader />
+                <SidebarTrigger className="text-white hover:bg-white/10" />
               </div>
             </SidebarHeader>
             
@@ -38,7 +34,7 @@ export function MainLayout({ children }: PropsWithChildren) {
           </div>
         </Sidebar>
         
-        <main className="flex-1 flex flex-col overflow-hidden bg-background pt-12">
+        <main className="flex-1 flex flex-col overflow-hidden bg-background">
           <div className="flex-1 overflow-auto">
             <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 page-enter">
               {children}
