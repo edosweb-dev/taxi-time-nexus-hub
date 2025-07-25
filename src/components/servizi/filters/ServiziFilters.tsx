@@ -122,14 +122,14 @@ export const ServiziFilters = ({
                 Azienda
               </Label>
               <Select 
-                value={filters.aziendaId} 
-                onValueChange={(value) => handleFilterChange('aziendaId', value)}
+                value={filters.aziendaId || 'all'} 
+                onValueChange={(value) => handleFilterChange('aziendaId', value === 'all' ? '' : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Tutte le aziende" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tutte le aziende</SelectItem>
+                  <SelectItem value="all">Tutte le aziende</SelectItem>
                   {aziende.map((azienda) => (
                     <SelectItem key={azienda.id} value={azienda.id}>
                       {azienda.nome}
@@ -146,14 +146,14 @@ export const ServiziFilters = ({
                 Assegnato a
               </Label>
               <Select 
-                value={filters.assigneeId} 
-                onValueChange={(value) => handleFilterChange('assigneeId', value)}
+                value={filters.assigneeId || 'all'} 
+                onValueChange={(value) => handleFilterChange('assigneeId', value === 'all' ? '' : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Tutti gli utenti" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tutti gli utenti</SelectItem>
+                  <SelectItem value="all">Tutti gli utenti</SelectItem>
                   {users
                     .filter(user => user.role === 'dipendente' || user.role === 'socio')
                     .map((user) => (

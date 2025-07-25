@@ -45,16 +45,16 @@ export function SpeseFilters({ onFiltersChange, currentFilters }: SpeseFiltersPr
           <div className="space-y-2">
             <label className="text-sm font-medium">Dipendente</label>
             <Select
-              value={localFilters.user_id || ''}
+              value={localFilters.user_id || 'all'}
               onValueChange={(value) => 
-                setLocalFilters(prev => ({ ...prev, user_id: value || undefined }))
+                setLocalFilters(prev => ({ ...prev, user_id: value === 'all' ? undefined : value }))
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Tutti i dipendenti" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i dipendenti</SelectItem>
+                <SelectItem value="all">Tutti i dipendenti</SelectItem>
                 {dipendenti.map((dipendente) => (
                   <SelectItem key={dipendente.id} value={dipendente.id}>
                     {dipendente.first_name} {dipendente.last_name}
