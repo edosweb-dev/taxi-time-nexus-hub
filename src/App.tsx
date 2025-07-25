@@ -22,6 +22,7 @@ import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
 import AziendePage from './pages/aziende/AziendePage';
+import NuovaAziendaPage from './pages/aziende/NuovaAziendaPage';
 import AziendaDetailPage from './pages/aziende/AziendaDetailPage';
 import FeedbackPage from './pages/FeedbackPage';
 
@@ -87,6 +88,11 @@ function App() {
               <Route path="/aziende" element={
                 <AuthGuard allowedRoles={['admin', 'socio']}>
                   <AziendePage />
+                </AuthGuard>
+              } />
+              <Route path="/nuova-azienda" element={
+                <AuthGuard allowedRoles={['admin', 'socio']}>
+                  <NuovaAziendaPage />
                 </AuthGuard>
               } />
               <Route path="/aziende/:id" element={

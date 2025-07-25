@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { AziendaList } from '@/components/aziende/AziendaList';
 import { AziendaSheet } from '@/components/aziende/AziendaSheet';
@@ -12,6 +13,7 @@ import { toast } from '@/components/ui/use-toast';
 import { createAzienda, updateAzienda, deleteAzienda } from '@/lib/api/aziende';
 
 export default function AziendePage() {
+  const navigate = useNavigate();
   const { aziende, refetch } = useAziende();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
@@ -20,8 +22,7 @@ export default function AziendePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddAzienda = () => {
-    setSelectedAzienda(null);
-    setIsSheetOpen(true);
+    navigate('/nuova-azienda');
   };
 
   const handleViewAzienda = (azienda: Azienda) => {
