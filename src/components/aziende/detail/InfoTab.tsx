@@ -33,9 +33,9 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
+    <div className="grid gap-6 grid-cols-1 lg:grid-cols-4 xl:grid-cols-6">
       {/* Main Information Card */}
-      <Card className="lg:col-span-2 border-l-4 border-l-primary shadow-sm">
+      <Card className="lg:col-span-2 xl:col-span-3 border-l-4 border-l-primary shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
@@ -43,7 +43,7 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -72,7 +72,7 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Contact Information Card */}
-      <Card className="lg:col-span-1 border-l-4 border-l-blue-500 shadow-sm">
+      <Card className="lg:col-span-1 xl:col-span-2 border-l-4 border-l-blue-500 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Phone className="h-5 w-5 text-blue-500" />
@@ -169,7 +169,7 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Referenti Card */}
-      <Card className="lg:col-span-2 border-l-4 border-l-green-500 shadow-sm">
+      <Card className="lg:col-span-2 xl:col-span-3 border-l-4 border-l-green-500 shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -248,7 +248,7 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Configuration Settings Card */}
-      <Card className="lg:col-span-1 border-l-4 border-l-amber-500 shadow-sm">
+      <Card className="lg:col-span-1 xl:col-span-2 border-l-4 border-l-amber-500 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Building2 className="h-5 w-5 text-amber-500" />
@@ -312,7 +312,7 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Timeline Card */}
-      <Card className="lg:col-span-3 border-l-4 border-l-gray-400 shadow-sm">
+      <Card className="lg:col-span-4 xl:col-span-6 border-l-4 border-l-gray-400 shadow-sm">
         <CardContent className="pt-4">
           <div className="flex items-center gap-3 text-muted-foreground">
             <div className="p-2 rounded-lg bg-gray-100">

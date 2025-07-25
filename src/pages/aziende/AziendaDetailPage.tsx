@@ -67,7 +67,7 @@ export default function AziendaDetailPage() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="w-full space-y-8 px-6 py-4">
         {/* Header ottimizzato */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b">
           <div className="flex items-center gap-4">
@@ -95,7 +95,7 @@ export default function AziendaDetailPage() {
         </div>
 
         {isEditMode ? (
-          <div className="max-w-4xl">
+          <div className="w-full max-w-6xl">
             <div className="bg-card border rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold mb-6 text-foreground">Modifica Azienda</h2>
               <AziendaForm
@@ -107,9 +107,9 @@ export default function AziendaDetailPage() {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="w-full space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+              <TabsList className="grid w-full max-w-lg grid-cols-2 mb-6">
                 <TabsTrigger value="info" className="text-sm font-medium">
                   <Building className="mr-2 h-4 w-4" /> Informazioni
                 </TabsTrigger>
