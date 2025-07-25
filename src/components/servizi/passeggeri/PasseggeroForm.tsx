@@ -24,6 +24,7 @@ export function PasseggeroForm() {
   const handlePasseggeroSelect = (passeggero: any) => {
     console.log('Passeggero selezionato:', passeggero);
     append(passeggero);
+    console.log('Fields dopo append:', fields.length + 1);
   };
 
   return (
