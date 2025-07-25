@@ -40,7 +40,7 @@ export default function NuovaAziendaPage() {
     <MainLayout>
       <div className="min-h-full pb-8">
         {/* Header con breadcrumb */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/40 pb-4 mb-6">
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/40 pb-4 mb-6 -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-12 xl:-mx-16 2xl:-mx-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="space-y-4">
             <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Home className="h-4 w-4" />
@@ -68,7 +68,7 @@ export default function NuovaAziendaPage() {
                   <Plus className="h-7 w-7 text-green-500" />
                   Nuova Azienda
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl">
+                <p className="text-lg text-muted-foreground">
                   Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema
                 </p>
               </div>
@@ -76,16 +76,14 @@ export default function NuovaAziendaPage() {
           </div>
         </div>
 
-        {/* Container del Form */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-fade-in">
-            <AziendaForm
-              azienda={null}
-              onSubmit={handleSubmit}
-              onCancel={handleCancel}
-              isSubmitting={isSubmitting}
-            />
-          </div>
+        {/* Form Content */}
+        <div className="animate-fade-in">
+          <AziendaForm
+            azienda={null}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
     </MainLayout>

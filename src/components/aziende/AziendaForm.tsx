@@ -139,35 +139,33 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       </Form>
       
       {/* Action Buttons Sticky */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-background/80 backdrop-blur-sm border-t border-border/50 p-6 mt-8 animate-fade-in [animation-delay:300ms]">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-end gap-3">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onCancel}
-              className="flex items-center gap-2 px-6 py-3 hover-scale transition-all duration-200"
-              size="lg"
-            >
-              <X className="h-4 w-4" />
-              Annulla
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="flex items-center gap-2 px-8 py-3 hover-scale transition-all duration-200 shadow-lg"
-              onClick={form.handleSubmit(handleSubmit)}
-              size="lg"
-            >
-              <Save className="h-4 w-4" />
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Salvataggio...
-                </>
-              ) : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
-            </Button>
-          </div>
+      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-background/80 backdrop-blur-sm border-t border-border/50 p-6 mt-8 animate-fade-in [animation-delay:300ms] -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-12 xl:-mx-16 2xl:-mx-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
+        <div className="flex flex-col sm:flex-row justify-end gap-3">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            className="flex items-center gap-2 px-6 py-3 hover-scale transition-all duration-200"
+            size="lg"
+          >
+            <X className="h-4 w-4" />
+            Annulla
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-8 py-3 hover-scale transition-all duration-200 shadow-lg"
+            onClick={form.handleSubmit(handleSubmit)}
+            size="lg"
+          >
+            <Save className="h-4 w-4" />
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Salvataggio...
+              </>
+            ) : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
+          </Button>
         </div>
       </div>
     </div>
