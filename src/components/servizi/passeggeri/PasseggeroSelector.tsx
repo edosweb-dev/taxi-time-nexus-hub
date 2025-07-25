@@ -108,7 +108,11 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
             </div>
           )}
           
-          {isLoading ? (
+          {!searchTerm ? (
+            <div className="text-center py-4 text-muted-foreground text-sm">
+              Inizia a digitare per cercare un passeggero esistente
+            </div>
+          ) : isLoading ? (
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-16 w-full" />
@@ -154,13 +158,9 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                 );
               })}
             </div>
-          ) : passeggeri.length > 0 ? (
-            <div className="text-center py-4 text-muted-foreground text-sm">
-              Nessun passeggero trovato con i criteri di ricerca
-            </div>
           ) : (
             <div className="text-center py-4 text-muted-foreground text-sm">
-              Nessun passeggero trovato per questo referente
+              Nessun passeggero trovato con i criteri di ricerca
             </div>
           )}
         </div>
