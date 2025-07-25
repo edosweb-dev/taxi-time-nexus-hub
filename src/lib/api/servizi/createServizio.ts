@@ -73,6 +73,10 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
             .from('passeggeri')
             .insert({
               nome_cognome: passeggeroData.nome_cognome,
+              nome: passeggeroData.nome,
+              cognome: passeggeroData.cognome,
+              localita: passeggeroData.localita,
+              indirizzo: passeggeroData.indirizzo,
               email: passeggeroData.email,
               telefono: passeggeroData.telefono,
               azienda_id: data.servizio.azienda_id,
