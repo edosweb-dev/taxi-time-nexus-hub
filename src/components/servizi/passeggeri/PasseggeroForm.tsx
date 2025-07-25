@@ -23,6 +23,7 @@ export function PasseggeroForm() {
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
     console.log('Passeggero selezionato:', passeggero);
+    console.log('Localita:', passeggero.localita, 'Indirizzo:', passeggero.indirizzo);
     append(passeggero);
     console.log('Fields dopo append:', fields.length + 1);
   };
