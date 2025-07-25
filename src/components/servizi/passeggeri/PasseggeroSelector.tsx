@@ -29,14 +29,29 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
   });
 
   const handleSelectExisting = (passeggero: Passeggero) => {
+    // Se nome e cognome sono null, li estraiamo da nome_cognome
+    let nome = passeggero.nome;
+    let cognome = passeggero.cognome;
+    
+    if (!nome || !cognome) {
+      const nomeCognomeSplit = (passeggero.nome_cognome || '').trim().split(' ');
+      if (nomeCognomeSplit.length >= 2) {
+        nome = nome || nomeCognomeSplit[0];
+        cognome = cognome || nomeCognomeSplit.slice(1).join(' ');
+      } else if (nomeCognomeSplit.length === 1) {
+        nome = nome || nomeCognomeSplit[0];
+        cognome = cognome || '';
+      }
+    }
+
     onPasseggeroSelect({
       id: passeggero.id,
       passeggero_id: passeggero.id,
-      nome_cognome: passeggero.nome_cognome || `${passeggero.nome || ''} ${passeggero.cognome || ''}`.trim(),
-      nome: passeggero.nome,
-      cognome: passeggero.cognome,
-      localita: passeggero.localita,
-      indirizzo: passeggero.indirizzo,
+      nome_cognome: passeggero.nome_cognome || `${nome || ''} ${cognome || ''}`.trim(),
+      nome: nome || '',
+      cognome: cognome || '',
+      localita: passeggero.localita || '',
+      indirizzo: passeggero.indirizzo || '',
       email: passeggero.email || '',
       telefono: passeggero.telefono || '',
       usa_indirizzo_personalizzato: false,
