@@ -33,11 +33,11 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
   };
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-6 lg:grid-cols-3">
       {/* Main Information Card */}
-      <Card className="border-l-4 border-l-primary">
-        <CardHeader className="pb-4">
-          <CardTitle className="card-title flex items-center gap-2">
+      <Card className="lg:col-span-2 border-l-4 border-l-primary shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
             Informazioni Principali
           </CardTitle>
@@ -50,8 +50,8 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
                   <Building2 className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Nome Azienda</p>
-                  <p className="text-base font-medium">{azienda.nome}</p>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nome Azienda</p>
+                  <p className="text-sm font-semibold text-foreground">{azienda.nome}</p>
                 </div>
               </div>
             </div>
@@ -62,8 +62,8 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
                   <CreditCard className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Partita IVA</p>
-                  <p className="text-base font-mono">{azienda.partita_iva}</p>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Partita IVA</p>
+                  <p className="text-sm font-mono font-medium text-foreground">{azienda.partita_iva}</p>
                 </div>
               </div>
             </div>
@@ -72,34 +72,34 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Contact Information Card */}
-      <Card className="border-l-4 border-l-blue-500">
-        <CardHeader className="pb-4">
-          <CardTitle className="card-title flex items-center gap-2">
+      <Card className="lg:col-span-1 border-l-4 border-l-blue-500 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Phone className="h-5 w-5 text-blue-500" />
-            Informazioni di Contatto
+            Contatti
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Email principali e aggiuntive */}
-          <div className="space-y-3">
+        <CardContent className="space-y-3">
+          {/* Email principale */}
+          <div className="space-y-2">
             {azienda.email && (
               <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
-                    <Mail className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
+                    <Mail className="h-3.5 w-3.5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Email Principale</p>
-                    <p className="text-base">{azienda.email}</p>
+                    <p className="text-xs font-medium text-muted-foreground">Email</p>
+                    <p className="text-sm font-medium text-foreground">{azienda.email}</p>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
                   onClick={() => window.open(`mailto:${azienda.email}`, '_blank')}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3 w-3" />
                 </Button>
               </div>
             )}
@@ -133,82 +133,58 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
           <div className="space-y-3">
             {azienda.telefono && (
               <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-50 text-green-600">
-                    <Phone className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-green-50 text-green-600">
+                    <Phone className="h-3.5 w-3.5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Telefono Principale</p>
-                    <p className="text-base">{azienda.telefono}</p>
+                    <p className="text-xs font-medium text-muted-foreground">Telefono</p>
+                    <p className="text-sm font-medium text-foreground">{azienda.telefono}</p>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
                   onClick={() => window.open(`tel:${azienda.telefono}`, '_blank')}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3 w-3" />
                 </Button>
               </div>
             )}
-            
-            {azienda.telefoni && azienda.telefoni.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Telefoni Aggiuntivi</p>
-                {azienda.telefoni.map((telefono, index) => (
-                  <div key={index} className="flex items-center justify-between group ml-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1 rounded-full bg-green-100 text-green-600">
-                        <Phone className="h-3 w-3" />
-                      </div>
-                      <p className="text-base">{telefono}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => window.open(`tel:${telefono}`, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+
+            {azienda.indirizzo && (
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-purple-50 text-purple-600">
+                  <MapPin className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">Indirizzo</p>
+                  <p className="text-sm font-medium text-foreground">{azienda.indirizzo}</p>
+                </div>
               </div>
             )}
           </div>
-
-          {azienda.indirizzo && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
-                <MapPin className="h-4 w-4" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Indirizzo</p>
-                <p className="text-base">{azienda.indirizzo}</p>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
       {/* Referenti Card */}
-      <Card className="border-l-4 border-l-green-500">
-        <CardHeader className="pb-4">
+      <Card className="lg:col-span-2 border-l-4 border-l-green-500 shadow-sm">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="card-title flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Users className="h-5 w-5 text-green-500" />
-              Referenti Aziendali
+              Referenti ({referenti.length})
             </CardTitle>
             {onManageReferenti && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onManageReferenti}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-xs"
               >
-                <Users className="h-4 w-4" />
-                Gestisci Referenti
+                <Users className="h-3.5 w-3.5" />
+                Gestisci
               </Button>
             )}
           </div>
@@ -224,17 +200,17 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {referenti.slice(0, 3).map((referente) => (
-                <div key={referente.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
-                  <Avatar className="h-10 w-10 border-2 border-primary/20">
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                <div key={referente.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+                  <Avatar className="h-8 w-8 border-2 border-primary/20">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                       {getUserInitials(referente.first_name, referente.last_name)}
                     </AvatarFallback>
                   </Avatar>
                   
-                  <div className="flex-1 space-y-1">
-                    <p className="font-medium text-sm">
+                  <div className="flex-1 space-y-0.5">
+                    <p className="font-medium text-sm text-foreground">
                       {referente.first_name && referente.last_name 
                         ? `${referente.first_name} ${referente.last_name}`
                         : referente.first_name || referente.last_name || 'Nome non specificato'
@@ -243,13 +219,13 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
                     {referente.email && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Mail className="h-3 w-3" />
-                        <span>{referente.email}</span>
+                        <span className="truncate">{referente.email}</span>
                       </div>
                     )}
                   </div>
                   
-                  <Badge variant="outline" className="text-xs">
-                    {referente.role === 'cliente' ? 'Referente' : referente.role}
+                  <Badge variant="outline" className="text-xs py-0.5 px-2">
+                    Referente
                   </Badge>
                 </div>
               ))}
@@ -272,14 +248,14 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Configuration Settings Card */}
-      <Card className="border-l-4 border-l-amber-500">
-        <CardHeader className="pb-4">
-          <CardTitle className="card-title flex items-center gap-2">
+      <Card className="lg:col-span-1 border-l-4 border-l-amber-500 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Building2 className="h-5 w-5 text-amber-500" />
-            Configurazioni Azienda
+            Configurazioni
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <div className="p-4 rounded-lg border bg-card">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -336,15 +312,15 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Timeline Card */}
-      <Card className="border-l-4 border-l-gray-400">
-        <CardContent className="pt-6">
+      <Card className="lg:col-span-3 border-l-4 border-l-gray-400 shadow-sm">
+        <CardContent className="pt-4">
           <div className="flex items-center gap-3 text-muted-foreground">
             <div className="p-2 rounded-lg bg-gray-100">
               <Calendar className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-sm font-medium">Azienda creata il</p>
-              <p className="text-base">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Azienda creata il</p>
+              <p className="text-sm font-medium text-foreground">
                 {new Date(azienda.created_at).toLocaleDateString('it-IT', {
                   weekday: 'long',
                   year: 'numeric',

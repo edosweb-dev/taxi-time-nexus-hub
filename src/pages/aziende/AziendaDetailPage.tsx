@@ -67,19 +67,27 @@ export default function AziendaDetailPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center mb-6">
-          <Button variant="outline" onClick={handleBack} className="mr-4">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Indietro
-          </Button>
-          <h1 className="text-3xl font-bold flex-1">{azienda.nome}</h1>
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header ottimizzato */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={handleBack} size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Indietro
+            </Button>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">{azienda.nome}</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Dettagli e gestione azienda cliente
+              </p>
+            </div>
+          </div>
           {!isEditMode ? (
-            <Button onClick={handleEditAzienda}>
+            <Button onClick={handleEditAzienda} size="sm">
               <Edit className="mr-2 h-4 w-4" /> Modifica
             </Button>
           ) : (
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleCancelEdit}>
+              <Button variant="outline" onClick={handleCancelEdit} size="sm">
                 <X className="mr-2 h-4 w-4" /> Annulla
               </Button>
             </div>
@@ -87,52 +95,56 @@ export default function AziendaDetailPage() {
         </div>
 
         {isEditMode ? (
-          <div className="bg-card border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Modifica Azienda</h2>
-            <AziendaForm
-              azienda={azienda}
-              onSubmit={handleSubmitAzienda}
-              onCancel={handleCancelEdit}
-              isSubmitting={isUpdating}
-            />
+          <div className="max-w-4xl">
+            <div className="bg-card border rounded-xl p-6 shadow-sm">
+              <h2 className="text-lg font-semibold mb-6 text-foreground">Modifica Azienda</h2>
+              <AziendaForm
+                azienda={azienda}
+                onSubmit={handleSubmitAzienda}
+                onCancel={handleCancelEdit}
+                isSubmitting={isUpdating}
+              />
+            </div>
           </div>
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="info" className="flex items-center">
-                <Building className="mr-2 h-4 w-4" /> Informazioni
-              </TabsTrigger>
-              <TabsTrigger value="referenti" className="flex items-center">
-                <UsersIcon className="mr-2 h-4 w-4" /> Referenti
-              </TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+                <TabsTrigger value="info" className="text-sm font-medium">
+                  <Building className="mr-2 h-4 w-4" /> Informazioni
+                </TabsTrigger>
+                <TabsTrigger value="referenti" className="text-sm font-medium">
+                  <UsersIcon className="mr-2 h-4 w-4" /> Referenti
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="info" className="space-y-4">
-              <InfoTab 
-                azienda={azienda} 
-                referenti={referenti}
-                onManageReferenti={() => setActiveTab('referenti')}
-              />
-            </TabsContent>
-            
-            <TabsContent value="referenti">
-              <ReferentiTab
-                azienda={azienda}
-                referenti={referenti}
-                isLoadingUsers={isLoadingUsers}
-                currentUserID={currentUserID}
-                onAddUser={handleAddUser}
-                onEditUser={handleEditUser}
-                onDeleteUser={handleDeleteUser}
-                isUserDialogOpen={isUserSheetOpen}
-                setIsUserDialogOpen={setIsUserSheetOpen}
-                selectedUser={selectedUser}
-                onSubmitUser={handleSubmitUser}
-                isCreatingUser={isCreatingUser}
-                isUpdatingUser={isUpdatingUser}
-              />
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="info" className="mt-0">
+                <InfoTab 
+                  azienda={azienda} 
+                  referenti={referenti}
+                  onManageReferenti={() => setActiveTab('referenti')}
+                />
+              </TabsContent>
+              
+              <TabsContent value="referenti" className="mt-0">
+                <ReferentiTab
+                  azienda={azienda}
+                  referenti={referenti}
+                  isLoadingUsers={isLoadingUsers}
+                  currentUserID={currentUserID}
+                  onAddUser={handleAddUser}
+                  onEditUser={handleEditUser}
+                  onDeleteUser={handleDeleteUser}
+                  isUserDialogOpen={isUserSheetOpen}
+                  setIsUserDialogOpen={setIsUserSheetOpen}
+                  selectedUser={selectedUser}
+                  onSubmitUser={handleSubmitUser}
+                  isCreatingUser={isCreatingUser}
+                  isUpdatingUser={isUpdatingUser}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
         )}
         
         <UserSheet
