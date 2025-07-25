@@ -8,7 +8,7 @@ import { PasseggeroCard } from "./PasseggeroCard";
 import { PasseggeroSelector } from "./PasseggeroSelector";
 
 export function PasseggeroForm() {
-  const { control } = useFormContext<ServizioFormData>();
+  const { control, setValue } = useFormContext<ServizioFormData>();
   
   // Watch per azienda_id e referente_id
   const azienda_id = useWatch({ control, name: "azienda_id" });
@@ -22,10 +22,18 @@ export function PasseggeroForm() {
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
-    console.log('Passeggero selezionato:', passeggero);
-    console.log('Localita:', passeggero.localita, 'Indirizzo:', passeggero.indirizzo);
+    const currentIndex = fields.length;
     append(passeggero);
-    console.log('Fields dopo append:', fields.length + 1);
+    
+    // Assicuriamoci che tutti i campi siano popolati correttamente
+    setTimeout(() => {
+      setValue(`passeggeri.${currentIndex}.nome`, passeggero.nome || '');
+      setValue(`passeggeri.${currentIndex}.cognome`, passeggero.cognome || '');
+      setValue(`passeggeri.${currentIndex}.localita`, passeggero.localita || '');
+      setValue(`passeggeri.${currentIndex}.indirizzo`, passeggero.indirizzo || '');
+      setValue(`passeggeri.${currentIndex}.telefono`, passeggero.telefono || '');
+      setValue(`passeggeri.${currentIndex}.email`, passeggero.email || '');
+    }, 0);
   };
 
   return (
