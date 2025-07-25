@@ -11,7 +11,7 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('info');
-  const [isAziendaSheetOpen, setIsAziendaSheetOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [isUserSheetOpen, setIsUserSheetOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
@@ -49,13 +49,17 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   };
 
   const handleEditAzienda = () => {
-    setIsAziendaSheetOpen(true);
+    setIsEditMode(true);
   };
 
-  const handleSubmitAzienda = (data: AziendaFormData) => {
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+  };
+
+  const handleSubmitAzienda = async (data: AziendaFormData) => {
     if (id) {
-      updateCompany(id, data);
-      setIsAziendaSheetOpen(false);
+      await updateCompany(id, data);
+      setIsEditMode(false);
     }
   };
 
@@ -101,13 +105,14 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     setActiveTab,
     referenti,
     isLoadingUsers,
-    isAziendaSheetOpen,
-    setIsAziendaSheetOpen,
+    isEditMode,
+    setIsEditMode,
     isUserSheetOpen,
     setIsUserSheetOpen,
     selectedUser,
     handleBack,
     handleEditAzienda,
+    handleCancelEdit,
     handleSubmitAzienda,
     handleAddUser,
     handleEditUser,

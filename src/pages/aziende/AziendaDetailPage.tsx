@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit } from 'lucide-react';
-import { AziendaSheet } from '@/components/aziende/AziendaSheet';
+import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit, Save, X } from 'lucide-react';
+import { AziendaForm } from '@/components/aziende/AziendaForm';
 import { UserSheet } from '@/components/users/UserSheet';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
 import { ReferentiTab } from '@/components/aziende/detail/ReferentiTab';
@@ -23,13 +23,14 @@ export default function AziendaDetailPage() {
     setActiveTab,
     referenti,
     isLoadingUsers,
-    isAziendaSheetOpen,
-    setIsAziendaSheetOpen,
+    isEditMode,
+    setIsEditMode,
     isUserSheetOpen,
     setIsUserSheetOpen,
     selectedUser,
     handleBack,
     handleEditAzienda,
+    handleCancelEdit,
     handleSubmitAzienda,
     handleAddUser,
     handleEditUser,
@@ -72,56 +73,68 @@ export default function AziendaDetailPage() {
             <ArrowLeft className="mr-2 h-4 w-4" /> Indietro
           </Button>
           <h1 className="text-3xl font-bold flex-1">{azienda.nome}</h1>
-          <Button onClick={handleEditAzienda}>
-            <Edit className="mr-2 h-4 w-4" /> Modifica
-          </Button>
+          {!isEditMode ? (
+            <Button onClick={handleEditAzienda}>
+              <Edit className="mr-2 h-4 w-4" /> Modifica
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleCancelEdit}>
+                <X className="mr-2 h-4 w-4" /> Annulla
+              </Button>
+            </div>
+          )}
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="info" className="flex items-center">
-              <Building className="mr-2 h-4 w-4" /> Informazioni
-            </TabsTrigger>
-            <TabsTrigger value="referenti" className="flex items-center">
-              <UsersIcon className="mr-2 h-4 w-4" /> Referenti
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="info" className="space-y-4">
-            <InfoTab 
-              azienda={azienda} 
-              referenti={referenti}
-              onManageReferenti={() => setActiveTab('referenti')}
-            />
-          </TabsContent>
-          
-          <TabsContent value="referenti">
-            <ReferentiTab
+        {isEditMode ? (
+          <div className="bg-card border rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Modifica Azienda</h2>
+            <AziendaForm
               azienda={azienda}
-              referenti={referenti}
-              isLoadingUsers={isLoadingUsers}
-              currentUserID={currentUserID}
-              onAddUser={handleAddUser}
-              onEditUser={handleEditUser}
-              onDeleteUser={handleDeleteUser}
-              isUserDialogOpen={isUserSheetOpen}
-              setIsUserDialogOpen={setIsUserSheetOpen}
-              selectedUser={selectedUser}
-              onSubmitUser={handleSubmitUser}
-              isCreatingUser={isCreatingUser}
-              isUpdatingUser={isUpdatingUser}
+              onSubmit={handleSubmitAzienda}
+              onCancel={handleCancelEdit}
+              isSubmitting={isUpdating}
             />
-          </TabsContent>
-        </Tabs>
-        
-        <AziendaSheet
-          isOpen={isAziendaSheetOpen}
-          onOpenChange={setIsAziendaSheetOpen}
-          onSubmit={handleSubmitAzienda}
-          azienda={azienda}
-          isSubmitting={isUpdating}
-        />
+          </div>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="info" className="flex items-center">
+                <Building className="mr-2 h-4 w-4" /> Informazioni
+              </TabsTrigger>
+              <TabsTrigger value="referenti" className="flex items-center">
+                <UsersIcon className="mr-2 h-4 w-4" /> Referenti
+              </TabsTrigger>
+            </TabsList>
 
+            <TabsContent value="info" className="space-y-4">
+              <InfoTab 
+                azienda={azienda} 
+                referenti={referenti}
+                onManageReferenti={() => setActiveTab('referenti')}
+              />
+            </TabsContent>
+            
+            <TabsContent value="referenti">
+              <ReferentiTab
+                azienda={azienda}
+                referenti={referenti}
+                isLoadingUsers={isLoadingUsers}
+                currentUserID={currentUserID}
+                onAddUser={handleAddUser}
+                onEditUser={handleEditUser}
+                onDeleteUser={handleDeleteUser}
+                isUserDialogOpen={isUserSheetOpen}
+                setIsUserDialogOpen={setIsUserSheetOpen}
+                selectedUser={selectedUser}
+                onSubmitUser={handleSubmitUser}
+                isCreatingUser={isCreatingUser}
+                isUpdatingUser={isUpdatingUser}
+              />
+            </TabsContent>
+          </Tabs>
+        )}
+        
         <UserSheet
           isOpen={isUserSheetOpen}
           onOpenChange={setIsUserSheetOpen}
@@ -133,6 +146,7 @@ export default function AziendaDetailPage() {
           isNewUser={!selectedUser}
           preselectedAzienda={azienda}
         />
+
       </div>
     </MainLayout>
   );

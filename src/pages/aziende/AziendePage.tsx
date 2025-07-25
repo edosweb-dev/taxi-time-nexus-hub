@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { AziendaList } from '@/components/aziende/AziendaList';
 import { AziendaSheet } from '@/components/aziende/AziendaSheet';
-import { AziendaViewSheet } from '@/components/aziende/AziendaViewSheet';
 import { ChevronRight, Home } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
 import { Azienda } from '@/lib/types';
@@ -16,9 +15,7 @@ export default function AziendePage() {
   const navigate = useNavigate();
   const { aziende, refetch } = useAziende();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
-  const [viewAzienda, setViewAzienda] = useState<Azienda | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddAzienda = () => {
@@ -26,14 +23,7 @@ export default function AziendePage() {
   };
 
   const handleViewAzienda = (azienda: Azienda) => {
-    setViewAzienda(azienda);
-    setIsViewSheetOpen(true);
-  };
-
-  const handleViewEdit = (azienda: Azienda) => {
-    setIsViewSheetOpen(false);
-    setSelectedAzienda(azienda);
-    setIsSheetOpen(true);
+    navigate(`/aziende/${azienda.id}`);
   };
 
   const handleEditAzienda = (azienda: Azienda) => {
@@ -124,13 +114,6 @@ export default function AziendePage() {
             onSubmit={handleSubmit}
             azienda={selectedAzienda}
             isSubmitting={isSubmitting}
-          />
-
-          <AziendaViewSheet
-            isOpen={isViewSheetOpen}
-            onOpenChange={setIsViewSheetOpen}
-            onEdit={handleViewEdit}
-            azienda={viewAzienda}
           />
       </div>
     </MainLayout>
