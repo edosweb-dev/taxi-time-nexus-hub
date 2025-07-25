@@ -20,14 +20,50 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
   
   return (
     <div className="space-y-4">
-      <div>
-        <label htmlFor={`passeggeri.${index}.nome_cognome`} className="block text-sm font-medium mb-1">
-          Nome e cognome
-        </label>
-        <input
-          {...register(`passeggeri.${index}.nome_cognome`)}
-          className="w-full border rounded p-2"
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor={`passeggeri.${index}.nome`} className="block text-sm font-medium mb-1">
+            Nome
+          </label>
+          <input
+            {...register(`passeggeri.${index}.nome`)}
+            className="w-full border rounded p-2"
+            placeholder="Nome"
+          />
+        </div>
+        <div>
+          <label htmlFor={`passeggeri.${index}.cognome`} className="block text-sm font-medium mb-1">
+            Cognome
+          </label>
+          <input
+            {...register(`passeggeri.${index}.cognome`)}
+            className="w-full border rounded p-2"
+            placeholder="Cognome"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor={`passeggeri.${index}.localita`} className="block text-sm font-medium mb-1">
+            Località
+          </label>
+          <input
+            {...register(`passeggeri.${index}.localita`)}
+            className="w-full border rounded p-2"
+            placeholder="Città/Località"
+          />
+        </div>
+        <div>
+          <label htmlFor={`passeggeri.${index}.indirizzo`} className="block text-sm font-medium mb-1">
+            Indirizzo
+          </label>
+          <input
+            {...register(`passeggeri.${index}.indirizzo`)}
+            className="w-full border rounded p-2"
+            placeholder="Via, numero civico"
+          />
+        </div>
       </div>
       
       <div className="grid grid-cols-2 gap-3">
@@ -38,15 +74,17 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <input
             {...register(`passeggeri.${index}.telefono`)}
             className="w-full border rounded p-2"
+            placeholder="Numero telefono"
           />
         </div>
         <div>
           <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-1">
-            Email
+            Email aziendale
           </label>
           <input
             {...register(`passeggeri.${index}.email`)}
             className="w-full border rounded p-2"
+            placeholder="email@azienda.com"
           />
         </div>
       </div>

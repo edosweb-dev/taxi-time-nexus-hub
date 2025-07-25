@@ -5,7 +5,11 @@ import { Passeggero } from '@/lib/types/servizi';
 import { toast } from '@/components/ui/sonner';
 
 export interface CreatePasseggeroData {
-  nome_cognome: string;
+  nome_cognome: string; // Generato automaticamente da nome + cognome
+  nome: string;
+  cognome: string;
+  localita?: string;
+  indirizzo?: string;
   email?: string;
   telefono?: string;
   azienda_id: string;
@@ -41,9 +45,15 @@ export const usePasseggeri = (azienda_id?: string, referente_id?: string) => {
   // Crea nuovo passeggero
   const createPasseggero = useMutation({
     mutationFn: async (data: CreatePasseggeroData) => {
+      // Crea automaticamente il nome_cognome se non presente
+      const passeggeroData = {
+        ...data,
+        nome_cognome: data.nome_cognome || `${data.nome} ${data.cognome}`.trim()
+      };
+
       const { data: passeggero, error } = await supabase
         .from('passeggeri')
-        .insert(data)
+        .insert(passeggeroData)
         .select()
         .single();
 

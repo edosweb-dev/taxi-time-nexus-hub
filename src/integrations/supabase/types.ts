@@ -352,27 +352,39 @@ export type Database = {
       passeggeri: {
         Row: {
           azienda_id: string
+          cognome: string | null
           created_at: string
           email: string | null
           id: string
+          indirizzo: string | null
+          localita: string | null
+          nome: string | null
           nome_cognome: string
           referente_id: string | null
           telefono: string | null
         }
         Insert: {
           azienda_id: string
+          cognome?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          indirizzo?: string | null
+          localita?: string | null
+          nome?: string | null
           nome_cognome: string
           referente_id?: string | null
           telefono?: string | null
         }
         Update: {
           azienda_id?: string
+          cognome?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          indirizzo?: string | null
+          localita?: string | null
+          nome?: string | null
           nome_cognome?: string
           referente_id?: string | null
           telefono?: string | null

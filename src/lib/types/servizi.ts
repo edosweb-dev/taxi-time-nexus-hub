@@ -41,7 +41,11 @@ export interface Servizio {
 // Passeggero ora collegato ad azienda e referente (senza più i dettagli specifici del servizio)
 export interface Passeggero {
   id?: string;
-  nome_cognome: string;
+  nome_cognome: string; // Mantenuto per compatibilità
+  nome?: string;
+  cognome?: string;
+  localita?: string;
+  indirizzo?: string;
   email?: string;
   telefono?: string;
   azienda_id: string;
@@ -90,7 +94,11 @@ export interface ServizioFormData {
 export interface PasseggeroFormData {
   id?: string;
   passeggero_id?: string; // Per passeggeri esistenti
-  nome_cognome: string;
+  nome_cognome: string; // Mantenuto per compatibilità
+  nome?: string;
+  cognome?: string;
+  localita?: string;
+  indirizzo?: string;
   email?: string;
   telefono?: string;
   orario_presa_personalizzato?: string;
