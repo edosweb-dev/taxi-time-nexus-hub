@@ -16,6 +16,7 @@ interface CalendarContentProps {
   shifts: Shift[];
   isAdminOrSocio: boolean;
   handleCellClick: (day: Date, userId: string | null) => void;
+  handleShiftClick: (shift: Shift) => void;
   setSelectedShift: (shift: Shift) => void;
   getShiftPosition: (shift: Shift) => { top: number; height: number; spanRows: boolean };
   isDetailsDialogOpen: boolean;
@@ -38,6 +39,7 @@ export function CalendarContent({
   shifts,
   isAdminOrSocio,
   handleCellClick,
+  handleShiftClick,
   setSelectedShift,
   getShiftPosition,
   isDetailsDialogOpen,
@@ -62,7 +64,7 @@ export function CalendarContent({
           shifts={shifts}
           isAdminOrSocio={isAdminOrSocio}
           onCellClick={handleCellClick}
-          onSelectShift={setSelectedShift}
+          onSelectShift={handleShiftClick}
           userId={user?.id}
         />
         
@@ -94,7 +96,7 @@ export function CalendarContent({
         hours={hours}
         shiftsInView={shiftsInView}
         getShiftPosition={getShiftPosition}
-        onSelectShift={setSelectedShift}
+        onSelectShift={handleShiftClick}
         onAddShift={(day) => handleCellClick(day, user?.id || null)}
       />
       

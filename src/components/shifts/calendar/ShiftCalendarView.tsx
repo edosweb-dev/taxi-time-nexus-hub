@@ -40,6 +40,7 @@ export function ShiftCalendarView({
     selectedShift,
     selectedDateShifts,
     handleCellClick,
+    handleShiftClick,
     handleEditShift,
     handleDeleteShift,
     formatViewPeriod,
@@ -79,6 +80,7 @@ export function ShiftCalendarView({
             shifts={shifts}
             isAdminOrSocio={isAdminOrSocio}
             handleCellClick={handleCellClick}
+            handleShiftClick={handleShiftClick}
             setSelectedShift={setSelectedShift}
             getShiftPosition={getShiftPosition}
             isDetailsDialogOpen={isDetailsDialogOpen}

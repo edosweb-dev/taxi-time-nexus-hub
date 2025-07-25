@@ -101,19 +101,15 @@ export function useCalendarView(
       return isSameDay(shiftDate, day);
     });
 
-    // Logic for determining which dialog to open
-    const isPastOrToday = isBefore(day, new Date()) || isToday(day);
-    
-    if (isPastOrToday && dayShifts.length > 0) {
-      // Past/today with existing shifts: show details
-      setIsDetailsDialogOpen(true);
-    } else if (!isPastOrToday) {
-      // Future date: allow adding shifts
-      setIsAddDialogOpen(true);
-    } else {
-      // Past date with no shifts: show details dialog anyway (will show "no shifts" message)
-      setIsDetailsDialogOpen(true);
-    }
+    // Always allow adding new shifts when clicking on empty calendar areas
+    setIsAddDialogOpen(true);
+  };
+
+  const handleShiftClick = (shift: Shift) => {
+    setSelectedShiftForEdit(shift);
+    const shiftDate = parseISO(shift.shift_date);
+    setSelectedDate(shiftDate);
+    setIsDetailsDialogOpen(true);
   };
 
   const handleEditShift = (shift: Shift) => {
@@ -211,6 +207,7 @@ export function useCalendarView(
     selectedShift,
     selectedDateShifts,
     handleCellClick,
+    handleShiftClick,
     handleEditShift,
     handleDeleteShift,
     formatViewPeriod,
