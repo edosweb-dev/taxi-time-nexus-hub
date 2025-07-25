@@ -9,7 +9,7 @@ import { UserSheet } from '@/components/users/UserSheet';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
 import { ReferentiTab } from '@/components/aziende/detail/ReferentiTab';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AziendaDetailPage() {
   const { id } = useParams<{ id: string }>();

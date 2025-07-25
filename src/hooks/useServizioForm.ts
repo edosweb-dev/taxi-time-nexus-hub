@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { ServizioFormData, MetodoPagamento } from "@/lib/types/servizi";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
 // Schema di validazione Zod per il form

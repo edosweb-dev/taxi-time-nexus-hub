@@ -9,7 +9,7 @@ import { AziendaSelectField } from "./AziendaSelectField";
 import { ReferenteSelectField } from "./ReferenteSelectField";
 import { VeicoloSelectField } from "@/components/veicoli/VeicoloSelectField";
 import { useImpostazioni } from "@/hooks/useImpostazioni";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function ServizioDetailsForm() {
   const { control } = useFormContext<ServizioFormData>();

@@ -1,6 +1,6 @@
 
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import {
   Breadcrumb,

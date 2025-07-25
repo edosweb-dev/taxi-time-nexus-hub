@@ -7,7 +7,7 @@ import { getServizioIndex } from "@/components/servizi/utils/formatUtils";
 import { useQuery } from "@tanstack/react-query";
 import { formatCurrency as formatCurrencyUtil } from "@/components/servizi/utils/formatUtils";
 import { useFirmaDigitale } from "./useFirmaDigitale";
-import { useAuth } from "./useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function useServizioDetail(id?: string) {
   const { data, isLoading, isError, error, refetch } = useServizio(id);
