@@ -38,37 +38,37 @@ export default function NuovaAziendaPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6 min-h-full pb-20">
+      <div className="min-h-full pb-8">
         {/* Header con breadcrumb */}
-        <div className="space-y-4">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span 
-              className="hover:text-foreground cursor-pointer" 
-              onClick={() => navigate('/aziende')}
-            >
-              Aziende
-            </span>
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">Nuova Azienda</span>
-          </nav>
-          
-          {/* Header con avatar e titolo */}
-          <div className="space-y-4 pb-6 border-b">
-            <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16 border-2 border-primary/20">
-                <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/40 pb-4 mb-6">
+          <div className="space-y-4">
+            <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Home className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
+              <span 
+                className="hover:text-foreground cursor-pointer transition-colors duration-200" 
+                onClick={() => navigate('/aziende')}
+              >
+                Aziende
+              </span>
+              <ChevronRight className="h-4 w-4" />
+              <span className="font-medium text-foreground">Nuova Azienda</span>
+            </nav>
+            
+            {/* Header con avatar e titolo */}
+            <div className="flex items-start gap-4 animate-fade-in">
+              <Avatar className="h-16 w-16 border-2 border-primary/20 shadow-lg">
+                <AvatarFallback className="bg-gradient-to-br from-primary/10 to-primary/5 text-primary">
                   <Plus className="h-8 w-8" />
                 </AvatarFallback>
               </Avatar>
               
               <div className="flex-1 space-y-2">
-                <h1 className="page-title flex items-center gap-3">
-                  <Plus className="h-6 w-6 text-green-500" />
+                <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+                  <Plus className="h-7 w-7 text-green-500" />
                   Nuova Azienda
                 </h1>
-                <p className="text-description">
+                <p className="text-lg text-muted-foreground max-w-2xl">
                   Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema
                 </p>
               </div>
@@ -76,14 +76,16 @@ export default function NuovaAziendaPage() {
           </div>
         </div>
 
-        {/* Form */}
-        <div className="pb-24">
-          <AziendaForm
-            azienda={null}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isSubmitting={isSubmitting}
-          />
+        {/* Container del Form */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-fade-in">
+            <AziendaForm
+              azienda={null}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              isSubmitting={isSubmitting}
+            />
+          </div>
         </div>
       </div>
     </MainLayout>

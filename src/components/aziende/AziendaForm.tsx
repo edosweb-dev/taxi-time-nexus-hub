@@ -88,71 +88,86 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
   };
 
   return (
-    <div className="relative min-h-full">
+    <div className="relative">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 pb-24">
+        <div className="space-y-8">
           {/* Main Information Card */}
-          <Card className="border-l-4 border-l-primary">
-            <CardHeader className="pb-4">
-              <CardTitle className="card-title flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-primary" />
+          <Card className="border-l-4 border-l-primary shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+            <CardHeader className="pb-6 bg-gradient-to-r from-primary/5 to-transparent">
+              <CardTitle className="text-xl font-semibold flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Building2 className="h-5 w-5 text-primary" />
+                </div>
                 Informazioni Principali
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <AziendaNameFields control={form.control} />
             </CardContent>
           </Card>
           
           {/* Contact Information Card */}
-          <Card className="border-l-4 border-l-blue-500">
-            <CardHeader className="pb-4">
-              <CardTitle className="card-title flex items-center gap-2">
-                <Phone className="h-5 w-5 text-blue-500" />
+          <Card className="border-l-4 border-l-blue-500 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in [animation-delay:100ms]">
+            <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/5 to-transparent">
+              <CardTitle className="text-xl font-semibold flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-500/10">
+                  <Phone className="h-5 w-5 text-blue-500" />
+                </div>
                 Informazioni di Contatto
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <AziendaContactFields control={form.control} />
             </CardContent>
           </Card>
           
           {/* Settings Card */}
-          <Card className="border-l-4 border-l-amber-500">
-            <CardHeader className="pb-4">
-              <CardTitle className="card-title flex items-center gap-2">
-                <Settings className="h-5 w-5 text-amber-500" />
+          <Card className="border-l-4 border-l-amber-500 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in [animation-delay:200ms]">
+            <CardHeader className="pb-6 bg-gradient-to-r from-amber-500/5 to-transparent">
+              <CardTitle className="text-xl font-semibold flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-500/10">
+                  <Settings className="h-5 w-5 text-amber-500" />
+                </div>
                 Configurazioni Azienda
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <AziendaSettingsFields control={form.control} />
             </CardContent>
           </Card>
-        </form>
+        </div>
       </Form>
       
       {/* Action Buttons Sticky */}
-      <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 mt-6">
-        <div className="flex flex-col sm:flex-row justify-end gap-3">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-            className="flex items-center gap-2"
-          >
-            <X className="h-4 w-4" />
-            Annulla
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="flex items-center gap-2"
-            onClick={form.handleSubmit(handleSubmit)}
-          >
-            <Save className="h-4 w-4" />
-            {isSubmitting ? 'Salvataggio...' : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
-          </Button>
+      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-background/80 backdrop-blur-sm border-t border-border/50 p-6 mt-8 animate-fade-in [animation-delay:300ms]">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel}
+              className="flex items-center gap-2 px-6 py-3 hover-scale transition-all duration-200"
+              size="lg"
+            >
+              <X className="h-4 w-4" />
+              Annulla
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-8 py-3 hover-scale transition-all duration-200 shadow-lg"
+              onClick={form.handleSubmit(handleSubmit)}
+              size="lg"
+            >
+              <Save className="h-4 w-4" />
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Salvataggio...
+                </>
+              ) : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
