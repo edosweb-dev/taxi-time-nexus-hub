@@ -6,8 +6,9 @@ import { PlusCircle } from "lucide-react";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { PasseggeroCard } from "./PasseggeroCard";
 import { PasseggeroSelector } from "./PasseggeroSelector";
+import { PasseggeriList } from "./PasseggeriList";
 
-export function PasseggeroForm() {
+export function PasseggeroForm({ userRole }: { userRole?: string }) {
   const { control, setValue } = useFormContext<ServizioFormData>();
   
   // Watch per azienda_id e referente_id
@@ -38,15 +39,18 @@ export function PasseggeroForm() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header con CTA per visualizzare tutti i passeggeri */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-muted-foreground text-sm">
             Seleziona e configura i passeggeri per questo servizio
           </p>
         </div>
-        <div className="text-sm text-muted-foreground">
-          {fields.length} passeggero{fields.length !== 1 ? 'i' : ''} aggiunto{fields.length !== 1 ? 'i' : ''}
+        <div className="flex items-center gap-3">
+          <PasseggeriList userRole={userRole} />
+          <div className="text-sm text-muted-foreground">
+            {fields.length} passeggero{fields.length !== 1 ? 'i' : ''} aggiunto{fields.length !== 1 ? 'i' : ''}
+          </div>
         </div>
       </div>
 

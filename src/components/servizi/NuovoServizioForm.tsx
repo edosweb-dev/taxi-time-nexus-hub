@@ -82,7 +82,7 @@ export function NuovoServizioForm() {
               <h2 className="text-xl font-semibold">Gestione passeggeri</h2>
             </div>
             <div className="bg-card border rounded-lg p-6">
-              <PasseggeroForm />
+              <PasseggeroForm userRole={profile?.role} />
             </div>
           </div>
 
