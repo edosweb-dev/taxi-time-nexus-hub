@@ -22,6 +22,7 @@ export function PasseggeroForm() {
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
+    console.log('Passeggero selezionato:', passeggero);
     append(passeggero);
   };
 
