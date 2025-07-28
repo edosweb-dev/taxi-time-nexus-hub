@@ -78,16 +78,10 @@ export function UserPasswordFields({ control, isEditing }: UserPasswordFieldsPro
                 </div>
               </div>
             </FormControl>
-            {!isEditing && (
-              <FormDescription>
-                Se non inserisci una password, ne verrà generata una temporanea
-              </FormDescription>
-            )}
             <FormMessage />
           </FormItem>
         )}
       />
-
     </>
   );
 }
