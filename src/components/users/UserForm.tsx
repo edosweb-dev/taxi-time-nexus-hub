@@ -69,7 +69,7 @@ export function UserForm({
       last_name: user?.last_name || '',
       email: user?.id ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
       telefono: user?.telefono || '',
-      role: user?.role || defaultRole || 'dipendente',
+      role: user?.role || defaultRole || 'cliente',
       password: '',
       confirm_password: '',
     },

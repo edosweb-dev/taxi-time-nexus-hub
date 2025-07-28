@@ -23,11 +23,7 @@ export function UserAccountSection({ control, isEditing, defaultRole, hiddenRole
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <UserRoleField 
-          control={control} 
-          hiddenRoles={hiddenRoles} 
-          defaultRole={defaultRole}
-        />
+        <UserPasswordFields control={control} isEditing={isEditing} />
         
         
         <UserPasswordFields control={control} isEditing={isEditing} />
