@@ -33,92 +33,107 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
   };
 
   return (
-    <div className="grid gap-6 grid-cols-1 lg:grid-cols-10">
-      {/* Main Information Card - 70% */}
-      <Card className="lg:col-span-7 border-l-4 border-l-primary shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-primary" />
+    <div className="grid gap-6 grid-cols-1 lg:grid-cols-5">
+      {/* Main Information Card - 60% */}
+      <Card className="lg:col-span-3 border-l-4 border-l-primary shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-bold flex items-center gap-3">
+            <Building2 className="h-6 w-6 text-primary" />
             Informazioni Principali
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-            <div className="space-y-2">
+        <CardContent className="space-y-5">
+          <div className="grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                  <Building2 className="h-4 w-4" />
+                <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
+                  <Building2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nome Azienda</p>
-                  <p className="text-sm font-semibold text-foreground">{azienda.nome}</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nome Azienda</p>
+                  <p className="text-base font-bold text-foreground">{azienda.nome}</p>
                 </div>
               </div>
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
-                  <CreditCard className="h-4 w-4" />
+                <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600">
+                  <CreditCard className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Partita IVA</p>
-                  <p className="text-sm font-mono font-medium text-foreground">{azienda.partita_iva}</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Partita IVA</p>
+                  <p className="text-base font-mono font-bold text-foreground">{azienda.partita_iva}</p>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Indirizzo - spostato qui dalle informazioni di contatto */}
+          {azienda.indirizzo && (
+            <div className="pt-2 border-t">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
+                  <MapPin className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Indirizzo</p>
+                  <p className="text-base font-semibold text-foreground">{azienda.indirizzo}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Contact Information Card - 30% */}
-      <Card className="lg:col-span-3 border-l-4 border-l-blue-500 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Phone className="h-5 w-5 text-blue-500" />
+      {/* Contact Information Card - 40% */}
+      <Card className="lg:col-span-2 border-l-4 border-l-blue-500 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-bold flex items-center gap-3">
+            <Phone className="h-6 w-6 text-blue-500" />
             Contatti
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           {/* Email principale */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {azienda.email && (
-              <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-                    <Mail className="h-3.5 w-3.5" />
+              <div className="flex items-center justify-between group p-3 rounded-lg border bg-card/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                    <Mail className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground">Email</p>
-                    <p className="text-sm font-medium text-foreground">{azienda.email}</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</p>
+                    <p className="text-sm font-semibold text-foreground">{azienda.email}</p>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
                   onClick={() => window.open(`mailto:${azienda.email}`, '_blank')}
                 >
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
             )}
             
             {azienda.emails && azienda.emails.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Email Aggiuntive</p>
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-muted-foreground">Email Aggiuntive</p>
                 {azienda.emails.map((email, index) => (
-                  <div key={index} className="flex items-center justify-between group ml-6">
+                  <div key={index} className="flex items-center justify-between group p-3 rounded-lg border bg-card/30 ml-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-1 rounded-full bg-blue-100 text-blue-600">
-                        <Mail className="h-3 w-3" />
+                      <div className="p-1.5 rounded-full bg-blue-100 text-blue-600">
+                        <Mail className="h-3.5 w-3.5" />
                       </div>
-                      <p className="text-base">{email}</p>
+                      <p className="text-sm font-medium">{email}</p>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
                       onClick={() => window.open(`mailto:${email}`, '_blank')}
                     >
                       <ExternalLink className="h-4 w-4" />
@@ -129,51 +144,39 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
             )}
           </div>
 
-          {/* Telefoni principali e aggiuntivi */}
+          {/* Telefoni principali */}
           <div className="space-y-3">
             {azienda.telefono && (
-              <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-green-50 text-green-600">
-                    <Phone className="h-3.5 w-3.5" />
+              <div className="flex items-center justify-between group p-3 rounded-lg border bg-card/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-50 text-green-600">
+                    <Phone className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground">Telefono</p>
-                    <p className="text-sm font-medium text-foreground">{azienda.telefono}</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefono</p>
+                    <p className="text-sm font-semibold text-foreground">{azienda.telefono}</p>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
                   onClick={() => window.open(`tel:${azienda.telefono}`, '_blank')}
                 >
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-4 w-4" />
                 </Button>
-              </div>
-            )}
-
-            {azienda.indirizzo && (
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-purple-50 text-purple-600">
-                  <MapPin className="h-3.5 w-3.5" />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">Indirizzo</p>
-                  <p className="text-sm font-medium text-foreground">{azienda.indirizzo}</p>
-                </div>
               </div>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Referenti Card - 70% */}
-      <Card className="lg:col-span-7 border-l-4 border-l-green-500 shadow-sm">
-        <CardHeader className="pb-3">
+      {/* Referenti Card - 60% */}
+      <Card className="lg:col-span-3 border-l-4 border-l-green-500 shadow-sm">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Users className="h-5 w-5 text-green-500" />
+            <CardTitle className="text-xl font-bold flex items-center gap-3">
+              <Users className="h-6 w-6 text-green-500" />
               Referenti ({referenti.length})
             </CardTitle>
             {onManageReferenti && (
@@ -181,9 +184,9 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
                 variant="outline"
                 size="sm"
                 onClick={onManageReferenti}
-                className="flex items-center gap-2 text-xs"
+                className="flex items-center gap-2"
               >
-                <Users className="h-3.5 w-3.5" />
+                <Users className="h-4 w-4" />
                 Gestisci
               </Button>
             )}
@@ -247,11 +250,11 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
         </CardContent>
       </Card>
 
-      {/* Configuration Settings Card - 30% */}
-      <Card className="lg:col-span-3 border-l-4 border-l-amber-500 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-amber-500" />
+      {/* Configuration Settings Card - 40% */}
+      <Card className="lg:col-span-2 border-l-4 border-l-amber-500 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-bold flex items-center gap-3">
+            <Building2 className="h-6 w-6 text-amber-500" />
             Configurazioni
           </CardTitle>
         </CardHeader>
@@ -312,15 +315,15 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
       </Card>
 
       {/* Timeline Card - 100% */}
-      <Card className="lg:col-span-10 border-l-4 border-l-gray-400 shadow-sm">
-        <CardContent className="pt-4">
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <div className="p-2 rounded-lg bg-gray-100">
-              <Calendar className="h-4 w-4" />
+      <Card className="lg:col-span-5 border-l-4 border-l-gray-400 shadow-sm">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <div className="p-3 rounded-lg bg-gray-100">
+              <Calendar className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Azienda creata il</p>
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Azienda creata il</p>
+              <p className="text-base font-bold text-foreground">
                 {new Date(azienda.created_at).toLocaleDateString('it-IT', {
                   weekday: 'long',
                   year: 'numeric',
