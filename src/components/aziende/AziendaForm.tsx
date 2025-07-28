@@ -88,85 +88,75 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
   };
 
   return (
-    <div className="relative">
+    <div className="space-y-6">
       <Form {...form}>
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Main Information Card */}
-          <Card className="border-l-4 border-l-primary shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
-            <CardHeader className="pb-6 bg-gradient-to-r from-primary/5 to-transparent">
-              <CardTitle className="text-xl font-semibold flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Building2 className="h-5 w-5 text-primary" />
-                </div>
+          <Card className="border-l-4 border-l-primary shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold flex items-center gap-3">
+                <Building2 className="h-6 w-6 text-primary" />
                 Informazioni Principali
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4">
               <AziendaNameFields control={form.control} />
             </CardContent>
           </Card>
           
           {/* Contact Information Card */}
-          <Card className="border-l-4 border-l-blue-500 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in [animation-delay:100ms]">
-            <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/5 to-transparent">
-              <CardTitle className="text-xl font-semibold flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-500/10">
-                  <Phone className="h-5 w-5 text-blue-500" />
-                </div>
+          <Card className="border-l-4 border-l-blue-500 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold flex items-center gap-3">
+                <Phone className="h-6 w-6 text-blue-500" />
                 Informazioni di Contatto
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4">
               <AziendaContactFields control={form.control} />
             </CardContent>
           </Card>
           
           {/* Settings Card */}
-          <Card className="border-l-4 border-l-amber-500 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in [animation-delay:200ms]">
-            <CardHeader className="pb-6 bg-gradient-to-r from-amber-500/5 to-transparent">
-              <CardTitle className="text-xl font-semibold flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10">
-                  <Settings className="h-5 w-5 text-amber-500" />
-                </div>
+          <Card className="border-l-4 border-l-amber-500 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold flex items-center gap-3">
+                <Settings className="h-6 w-6 text-amber-500" />
                 Configurazioni Azienda
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4">
               <AziendaSettingsFields control={form.control} />
             </CardContent>
           </Card>
         </div>
       </Form>
       
-      {/* Action Buttons Sticky */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-background/80 backdrop-blur-sm border-t border-border/50 p-6 mt-8 animate-fade-in [animation-delay:300ms]">
-        <div className="flex flex-col sm:flex-row justify-end gap-3">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-            className="flex items-center gap-2 px-6 py-3 hover-scale transition-all duration-200"
-            size="lg"
-          >
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+          className="flex items-center gap-2"
+        >
             <X className="h-4 w-4" />
             Annulla
           </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="flex items-center gap-2 px-8 py-3 hover-scale transition-all duration-200 shadow-lg"
-            onClick={form.handleSubmit(handleSubmit)}
-            size="lg"
-          >
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="flex items-center gap-2"
+          onClick={form.handleSubmit(handleSubmit)}
+        >
             <Save className="h-4 w-4" />
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 Salvataggio...
               </>
-            ) : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
-          </Button>
-        </div>
+          ) : isEditing ? 'Aggiorna Azienda' : 'Crea Azienda'}
+        </Button>
       </div>
     </div>
   );
