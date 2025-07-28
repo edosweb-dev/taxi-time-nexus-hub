@@ -59,7 +59,14 @@ export function AziendaList({
             <TableBody>
               {aziende.map((azienda) => (
                 <TableRow key={azienda.id}>
-                  <TableCell className="font-medium">{azienda.nome}</TableCell>
+                  <TableCell className="font-medium">
+                    <button 
+                      onClick={() => onView(azienda)}
+                      className="text-left hover:text-primary transition-colors cursor-pointer underline-offset-4 hover:underline"
+                    >
+                      {azienda.nome}
+                    </button>
+                  </TableCell>
                   <TableCell>{azienda.partita_iva}</TableCell>
                   <TableCell>{azienda.email || "-"}</TableCell>
                   <TableCell>{azienda.telefono || "-"}</TableCell>
