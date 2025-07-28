@@ -11,7 +11,7 @@ interface MultiContactFieldsProps {
 
 export function MultiContactFields({ control }: MultiContactFieldsProps) {
   return (
-    <div className="space-y-6">
+    <div className="grid gap-6 lg:grid-cols-2">
       {/* Emails */}
       <FormField
         control={control}
@@ -22,7 +22,7 @@ export function MultiContactFields({ control }: MultiContactFieldsProps) {
               <Mail className="h-4 w-4" />
               Indirizzi Email
             </FormLabel>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(field.value || []).map((email: string, index: number) => (
                 <div key={index} className="flex gap-2">
                   <FormControl>
@@ -38,13 +38,13 @@ export function MultiContactFields({ control }: MultiContactFieldsProps) {
                   </FormControl>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() => {
                       const newEmails = (field.value || []).filter((_: string, i: number) => i !== index);
                       field.onChange(newEmails);
                     }}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -53,13 +53,14 @@ export function MultiContactFields({ control }: MultiContactFieldsProps) {
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 onClick={() => {
                   const newEmails = [...(field.value || []), ''];
                   field.onChange(newEmails);
                 }}
-                className="w-full flex items-center gap-2"
+                className="w-full justify-center"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3 w-3 mr-2" />
                 Aggiungi Email
               </Button>
             </div>
@@ -78,7 +79,7 @@ export function MultiContactFields({ control }: MultiContactFieldsProps) {
               <Phone className="h-4 w-4" />
               Numeri di Telefono
             </FormLabel>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(field.value || []).map((telefono: string, index: number) => (
                 <div key={index} className="flex gap-2">
                   <FormControl>
@@ -94,13 +95,13 @@ export function MultiContactFields({ control }: MultiContactFieldsProps) {
                   </FormControl>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() => {
                       const newTelefoni = (field.value || []).filter((_: string, i: number) => i !== index);
                       field.onChange(newTelefoni);
                     }}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -109,13 +110,14 @@ export function MultiContactFields({ control }: MultiContactFieldsProps) {
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 onClick={() => {
                   const newTelefoni = [...(field.value || []), ''];
                   field.onChange(newTelefoni);
                 }}
-                className="w-full flex items-center gap-2"
+                className="w-full justify-center"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3 w-3 mr-2" />
                 Aggiungi Telefono
               </Button>
             </div>
