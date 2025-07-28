@@ -10,7 +10,7 @@ interface AziendaSettingsFieldsProps {
 
 export function AziendaSettingsFields({ control }: AziendaSettingsFieldsProps) {
   return (
-    <div className="space-y-4">
+    <div className="grid gap-6 lg:grid-cols-2">
       <FormField
         control={control}
         name="firma_digitale_attiva"

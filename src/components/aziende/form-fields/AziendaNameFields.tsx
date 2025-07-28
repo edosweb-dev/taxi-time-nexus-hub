@@ -9,7 +9,7 @@ interface AziendaNameFieldsProps {
 
 export function AziendaNameFields({ control }: AziendaNameFieldsProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <FormField
         control={control}
         name="nome"

@@ -12,7 +12,7 @@ export function AziendaContactFields({ control }: AziendaContactFieldsProps) {
   return (
     <div className="space-y-6">
       {/* Campi singoli legacy per compatibilità */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <FormField
           control={control}
           name="email"
@@ -41,23 +41,26 @@ export function AziendaContactFields({ control }: AziendaContactFieldsProps) {
           )}
         />
       </div>
-
-      {/* Nuovi campi multipli */}
-      <MultiContactFields control={control} />
       
-      <FormField
-        control={control}
-        name="indirizzo"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Indirizzo</FormLabel>
-            <FormControl>
-              <Input placeholder="Indirizzo completo" {...field} value={field.value || ''} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="lg:col-span-1">
+          <MultiContactFields control={control} />
+        </div>
+        
+        <FormField
+          control={control}
+          name="indirizzo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Indirizzo</FormLabel>
+              <FormControl>
+                <Input placeholder="Indirizzo completo" {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 }
