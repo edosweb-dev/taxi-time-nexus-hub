@@ -43,11 +43,7 @@ export function AziendaContactFields({ control }: AziendaContactFieldsProps) {
       </div>
 
       {/* Seconda riga: Indirizzi email | Numeri di telefono */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="lg:col-span-1">
-          <MultiContactFields control={control} />
-        </div>
-      </div>
+      <MultiContactFields control={control} />
     </div>
   );
 }
