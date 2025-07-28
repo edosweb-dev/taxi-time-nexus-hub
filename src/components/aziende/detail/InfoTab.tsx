@@ -26,9 +26,12 @@ import {
 interface InfoTabProps {
   azienda: Azienda;
   referenti?: Profile[];
+  onAddReferente?: () => void;
+  onEditReferente?: (referente: Profile) => void;
+  onDeleteReferente?: (referente: Profile) => void;
 }
 
-export function InfoTab({ azienda, referenti = [] }: InfoTabProps) {
+export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferente, onDeleteReferente }: InfoTabProps) {
   const [passeggeri, setPasseggeri] = useState<Passeggero[]>([]);
   const [filteredPasseggeri, setFilteredPasseggeri] = useState<Passeggero[]>([]);
   const [selectedReferente, setSelectedReferente] = useState<string>('all');
@@ -206,6 +209,16 @@ export function InfoTab({ azienda, referenti = [] }: InfoTabProps) {
               <Users className="h-6 w-6 text-green-500" />
               Referenti ({referenti.length})
             </CardTitle>
+            {onAddReferente && (
+              <Button
+                onClick={onAddReferente}
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Aggiungi Referente
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -221,7 +234,7 @@ export function InfoTab({ azienda, referenti = [] }: InfoTabProps) {
           ) : (
             <div className="space-y-2">
               {referenti.slice(0, 3).map((referente) => (
-                <div key={referente.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+                <div key={referente.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card/50 group">
                   <Avatar className="h-8 w-8 border-2 border-primary/20">
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                       {getUserInitials(referente.first_name, referente.last_name)}
@@ -240,6 +253,19 @@ export function InfoTab({ azienda, referenti = [] }: InfoTabProps) {
                         <Mail className="h-3 w-3" />
                         <span className="truncate">{referente.email}</span>
                       </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {onEditReferente && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEditReferente(referente)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <User className="h-3 w-3" />
+                      </Button>
                     )}
                   </div>
                   

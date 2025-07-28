@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { AziendaForm } from '@/components/aziende/AziendaForm';
+import { UserSheet } from '@/components/users/UserSheet';
 import { Loader2, ArrowLeft, Edit, Save, X, Home, ChevronRight } from 'lucide-react';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
@@ -16,8 +17,6 @@ export default function AziendaDetailPage() {
   const {
     azienda,
     isLoading,
-    activeTab,
-    setActiveTab,
     referenti,
     isLoadingUsers,
     isEditMode,
@@ -118,9 +117,24 @@ export default function AziendaDetailPage() {
             <InfoTab 
               azienda={azienda} 
               referenti={referenti}
+              onAddReferente={handleAddUser}
+              onEditReferente={handleEditUser}
+              onDeleteReferente={handleDeleteUser}
             />
           </div>
         )}
+        
+        <UserSheet
+          isOpen={isUserSheetOpen}
+          onOpenChange={setIsUserSheetOpen}
+          onSubmit={handleSubmitUser}
+          user={selectedUser}
+          isSubmitting={isCreatingUser || isUpdatingUser}
+          defaultRole="cliente"
+          hiddenRoles={['admin', 'socio', 'dipendente']}
+          isNewUser={!selectedUser}
+          preselectedAzienda={azienda}
+        />
 
       </div>
     </MainLayout>
