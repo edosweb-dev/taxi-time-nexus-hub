@@ -1,9 +1,12 @@
 
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Azienda, Profile } from '@/lib/types';
+import { Passeggero, getPasseggeriByAzienda, getPasseggeriByReferente } from '@/lib/api/passeggeri';
 import { 
   Building2, 
   CreditCard, 
@@ -15,22 +18,57 @@ import {
   XCircle,
   Users,
   User,
-  ExternalLink
+  ExternalLink,
+  UserCheck,
+  Filter
 } from 'lucide-react';
 
 interface InfoTabProps {
   azienda: Azienda;
   referenti?: Profile[];
-  onManageReferenti?: () => void;
 }
 
-export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabProps) {
+export function InfoTab({ azienda, referenti = [] }: InfoTabProps) {
+  const [passeggeri, setPasseggeri] = useState<Passeggero[]>([]);
+  const [filteredPasseggeri, setFilteredPasseggeri] = useState<Passeggero[]>([]);
+  const [selectedReferente, setSelectedReferente] = useState<string>('all');
+  const [loadingPasseggeri, setLoadingPasseggeri] = useState(false);
+
   // Helper function to get user initials
   const getUserInitials = (firstName: string | null, lastName: string | null) => {
     const first = firstName?.charAt(0)?.toUpperCase() || '';
     const last = lastName?.charAt(0)?.toUpperCase() || '';
     return first + last || 'U';
   };
+
+  // Load passengers on component mount
+  useEffect(() => {
+    const loadPasseggeri = async () => {
+      try {
+        setLoadingPasseggeri(true);
+        const data = await getPasseggeriByAzienda(azienda.id);
+        setPasseggeri(data);
+        setFilteredPasseggeri(data);
+      } catch (error) {
+        console.error('Error loading passengers:', error);
+      } finally {
+        setLoadingPasseggeri(false);
+      }
+    };
+
+    loadPasseggeri();
+  }, [azienda.id]);
+
+  // Filter passengers when referente selection changes
+  useEffect(() => {
+    if (selectedReferente === 'all') {
+      setFilteredPasseggeri(passeggeri);
+    } else if (selectedReferente === 'none') {
+      setFilteredPasseggeri(passeggeri.filter(p => !p.referente_id));
+    } else {
+      setFilteredPasseggeri(passeggeri.filter(p => p.referente_id === selectedReferente));
+    }
+  }, [selectedReferente, passeggeri]);
 
   return (
     <div className="grid gap-6 grid-cols-1 lg:grid-cols-5">
@@ -168,17 +206,6 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
               <Users className="h-6 w-6 text-green-500" />
               Referenti ({referenti.length})
             </CardTitle>
-            {onManageReferenti && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onManageReferenti}
-                className="flex items-center gap-2"
-              >
-                <Users className="h-4 w-4" />
-                Gestisci
-              </Button>
-            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -224,14 +251,9 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
               
               {referenti.length > 3 && (
                 <div className="text-center pt-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onManageReferenti}
-                    className="text-sm text-muted-foreground"
-                  >
-                    Visualizza tutti i {referenti.length} referenti
-                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    Altri {referenti.length - 3} referenti non mostrati
+                  </p>
                 </div>
               )}
             </div>
@@ -298,6 +320,93 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
                   Attivo
                 </Badge>
               </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Passeggeri Card - Nuovo blocco */}
+      <Card className="lg:col-span-5 border-l-4 border-l-purple-500 shadow-sm">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-bold flex items-center gap-3">
+              <UserCheck className="h-6 w-6 text-purple-500" />
+              Passeggeri ({filteredPasseggeri.length})
+            </CardTitle>
+            <div className="flex items-center gap-3">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select value={selectedReferente} onValueChange={setSelectedReferente}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filtra per referente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutti i passeggeri</SelectItem>
+                  <SelectItem value="none">Senza referente</SelectItem>
+                  {referenti.map((referente) => (
+                    <SelectItem key={referente.id} value={referente.id}>
+                      {referente.first_name && referente.last_name 
+                        ? `${referente.first_name} ${referente.last_name}`
+                        : referente.first_name || referente.last_name || 'Nome non specificato'
+                      }
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loadingPasseggeri ? (
+            <div className="text-center py-6">
+              <p className="text-sm text-muted-foreground">Caricamento passeggeri...</p>
+            </div>
+          ) : filteredPasseggeri.length === 0 ? (
+            <div className="text-center py-6">
+              <div className="mx-auto w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                <UserCheck className="h-6 w-6 text-purple-400" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {selectedReferente === 'all' 
+                  ? 'Nessun passeggero registrato per questa azienda'
+                  : `Nessun passeggero trovato per il filtro selezionato`
+                }
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {filteredPasseggeri.map((passeggero) => (
+                <div key={passeggero.id} className="flex items-center gap-3 p-4 rounded-lg border bg-card/50">
+                  <Avatar className="h-10 w-10 border-2 border-purple-200">
+                    <AvatarFallback className="bg-purple-100 text-purple-600 text-sm font-semibold">
+                      {passeggero.nome_cognome.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1 space-y-1">
+                    <p className="font-semibold text-sm text-foreground">
+                      {passeggero.nome_cognome}
+                    </p>
+                    {passeggero.email && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <span className="truncate">{passeggero.email}</span>
+                      </div>
+                    )}
+                    {passeggero.telefono && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        <span>{passeggero.telefono}</span>
+                      </div>
+                    )}
+                    {passeggero.localita && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        <span className="truncate">{passeggero.localita}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>

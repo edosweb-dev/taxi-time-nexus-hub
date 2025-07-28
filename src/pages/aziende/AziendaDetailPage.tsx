@@ -2,12 +2,9 @@
 import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit, Save, X, Home, ChevronRight } from 'lucide-react';
 import { AziendaForm } from '@/components/aziende/AziendaForm';
-import { UserSheet } from '@/components/users/UserSheet';
+import { Loader2, ArrowLeft, Edit, Save, X, Home, ChevronRight } from 'lucide-react';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
-import { ReferentiTab } from '@/components/aziende/detail/ReferentiTab';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -118,56 +115,12 @@ export default function AziendaDetailPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
-                <TabsTrigger value="info" className="text-sm font-medium">
-                  <Building className="mr-2 h-4 w-4" /> Informazioni
-                </TabsTrigger>
-                <TabsTrigger value="referenti" className="text-sm font-medium">
-                  <UsersIcon className="mr-2 h-4 w-4" /> Referenti
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="info" className="mt-0">
-                <InfoTab 
-                  azienda={azienda} 
-                  referenti={referenti}
-                  onManageReferenti={() => setActiveTab('referenti')}
-                />
-              </TabsContent>
-              
-              <TabsContent value="referenti" className="mt-0">
-                <ReferentiTab
-                  azienda={azienda}
-                  referenti={referenti}
-                  isLoadingUsers={isLoadingUsers}
-                  currentUserID={currentUserID}
-                  onAddUser={handleAddUser}
-                  onEditUser={handleEditUser}
-                  onDeleteUser={handleDeleteUser}
-                  isUserDialogOpen={isUserSheetOpen}
-                  setIsUserDialogOpen={setIsUserSheetOpen}
-                  selectedUser={selectedUser}
-                  onSubmitUser={handleSubmitUser}
-                  isCreatingUser={isCreatingUser}
-                  isUpdatingUser={isUpdatingUser}
-                />
-              </TabsContent>
-            </Tabs>
+            <InfoTab 
+              azienda={azienda} 
+              referenti={referenti}
+            />
           </div>
         )}
-        
-        <UserSheet
-          isOpen={isUserSheetOpen}
-          onOpenChange={setIsUserSheetOpen}
-          onSubmit={handleSubmitUser}
-          user={selectedUser}
-          isSubmitting={isCreatingUser || isUpdatingUser}
-          defaultRole="cliente"
-          hiddenRoles={['admin', 'socio', 'dipendente']}
-          isNewUser={!selectedUser}
-          preselectedAzienda={azienda}
-        />
 
       </div>
     </MainLayout>
