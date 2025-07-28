@@ -29,7 +29,6 @@ export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRo
     { value: 'admin', label: 'Amministratore' },
     { value: 'socio', label: 'Socio' },
     { value: 'dipendente', label: 'Dipendente' },
-    { value: 'cliente', label: 'Cliente' },
   ];
 
   // Filtra i ruoli nascosti
@@ -44,7 +43,7 @@ export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRo
           <FormLabel>Ruolo</FormLabel>
           <Select 
             onValueChange={field.onChange} 
-            defaultValue={field.value || defaultRole || 'dipendente'}
+            defaultValue={field.value || defaultRole || 'cliente'}
             value={field.value}
           >
             <FormControl>

@@ -29,14 +29,6 @@ export function UserAccountSection({ control, isEditing, defaultRole, hiddenRole
           defaultRole={defaultRole}
         />
         
-        {!isEditing && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              Se non inserisci una password, ne verrà generata una temporanea e l'utente riceverà un'email per impostarla.
-            </AlertDescription>
-          </Alert>
-        )}
         
         <UserPasswordFields control={control} isEditing={isEditing} />
       </CardContent>
