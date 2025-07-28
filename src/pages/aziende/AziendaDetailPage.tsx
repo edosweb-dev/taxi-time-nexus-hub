@@ -101,7 +101,7 @@ export default function AziendaDetailPage() {
         </div>
 
         {isEditMode ? (
-          <div className="w-full max-w-4xl">
+          <div className="space-y-6">
             <div className="bg-card border rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold mb-6 text-foreground">Modifica Azienda</h2>
               <AziendaForm

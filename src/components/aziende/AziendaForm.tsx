@@ -139,7 +139,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       </Form>
       
       {/* Action Buttons Sticky */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-background/80 backdrop-blur-sm border-t border-border/50 p-6 mt-8 animate-fade-in [animation-delay:300ms] -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-12 xl:-mx-16 2xl:-mx-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
+      <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-background/80 backdrop-blur-sm border-t border-border/50 p-6 mt-8 animate-fade-in [animation-delay:300ms]">
         <div className="flex flex-col sm:flex-row justify-end gap-3">
           <Button 
             type="button" 
