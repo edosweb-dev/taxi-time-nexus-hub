@@ -69,18 +69,32 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
             </div>
           </div>
 
-          {/* Indirizzo - spostato qui dalle informazioni di contatto */}
-          {azienda.indirizzo && (
-            <div className="pt-2 border-t">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
-                  <MapPin className="h-5 w-5" />
+          {/* Indirizzo e Telefono - spostati qui dalle informazioni di contatto */}
+          {(azienda.indirizzo || azienda.telefono) && (
+            <div className="pt-3 border-t space-y-4">
+              {azienda.indirizzo && (
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Indirizzo</p>
+                    <p className="text-base font-semibold text-foreground">{azienda.indirizzo}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Indirizzo</p>
-                  <p className="text-base font-semibold text-foreground">{azienda.indirizzo}</p>
+              )}
+              
+              {azienda.telefono && (
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-lg bg-green-50 text-green-600">
+                    <Phone className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefono</p>
+                    <p className="text-base font-semibold text-foreground">{azienda.telefono}</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -140,31 +154,6 @@ export function InfoTab({ azienda, referenti = [], onManageReferenti }: InfoTabP
                     </Button>
                   </div>
                 ))}
-              </div>
-            )}
-          </div>
-
-          {/* Telefoni principali */}
-          <div className="space-y-3">
-            {azienda.telefono && (
-              <div className="flex items-center justify-between group p-3 rounded-lg border bg-card/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-50 text-green-600">
-                    <Phone className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefono</p>
-                    <p className="text-sm font-semibold text-foreground">{azienda.telefono}</p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                  onClick={() => window.open(`tel:${azienda.telefono}`, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
               </div>
             )}
           </div>
