@@ -58,8 +58,8 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       partita_iva: azienda?.partita_iva || '',
       email: azienda?.email || '',
       telefono: azienda?.telefono || '',
-      emails: azienda?.emails || [],
-      telefoni: azienda?.telefoni || [],
+      emails: (azienda?.emails || []).filter(email => email !== azienda?.email),
+      telefoni: (azienda?.telefoni || []).filter(telefono => telefono !== azienda?.telefono),
       indirizzo: azienda?.indirizzo || '',
       citta: azienda?.citta || '',
       sdi: azienda?.sdi || '',
@@ -76,13 +76,26 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
     const filteredEmails = values.emails?.filter(email => email.trim() !== '') || [];
     const filteredTelefoni = values.telefoni?.filter(telefono => telefono.trim() !== '') || [];
     
+    // Combina email e telefoni principali con quelli aggiuntivi per il salvataggio
+    const allEmails = [];
+    if (values.email && values.email.trim()) {
+      allEmails.push(values.email.trim());
+    }
+    allEmails.push(...filteredEmails);
+    
+    const allTelefoni = [];
+    if (values.telefono && values.telefono.trim()) {
+      allTelefoni.push(values.telefono.trim());
+    }
+    allTelefoni.push(...filteredTelefoni);
+    
     const aziendaData: AziendaFormData = {
       nome: values.nome.trim(),
       partita_iva: values.partita_iva.trim(),
       email: values.email ? values.email.trim() : undefined,
       telefono: values.telefono ? values.telefono.trim() : undefined,
-      emails: filteredEmails.length > 0 ? filteredEmails : undefined,
-      telefoni: filteredTelefoni.length > 0 ? filteredTelefoni : undefined,
+      emails: allEmails.length > 0 ? allEmails : undefined,
+      telefoni: allTelefoni.length > 0 ? allTelefoni : undefined,
       indirizzo: values.indirizzo ? values.indirizzo.trim() : undefined,
       citta: values.citta ? values.citta.trim() : undefined,
       sdi: values.sdi ? values.sdi.trim() : undefined,
