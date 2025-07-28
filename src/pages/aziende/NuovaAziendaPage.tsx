@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { AziendaForm } from '@/components/aziende/AziendaForm';
-import { ChevronRight, Home, Building2, Plus } from 'lucide-react';
+import { ChevronRight, Home, Plus } from 'lucide-react';
 import { AziendaFormData } from '@/lib/api/aziende';
 import { toast } from '@/components/ui/use-toast';
 import { createAzienda } from '@/lib/api/aziende';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 export default function NuovaAziendaPage() {
   const navigate = useNavigate();
@@ -38,53 +37,41 @@ export default function NuovaAziendaPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-full pb-8">
+      <div className="space-y-6">
         {/* Header con breadcrumb */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/40 pb-4 mb-6 -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-12 xl:-mx-16 2xl:-mx-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
-          <div className="space-y-4">
-            <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Home className="h-4 w-4" />
-              <ChevronRight className="h-4 w-4" />
-              <span 
-                className="hover:text-foreground cursor-pointer transition-colors duration-200" 
-                onClick={() => navigate('/aziende')}
-              >
-                Aziende
-              </span>
-              <ChevronRight className="h-4 w-4" />
-              <span className="font-medium text-foreground">Nuova Azienda</span>
-            </nav>
-            
-            {/* Header con avatar e titolo */}
-            <div className="flex items-start gap-4 animate-fade-in">
-              <Avatar className="h-16 w-16 border-2 border-primary/20 shadow-lg">
-                <AvatarFallback className="bg-gradient-to-br from-primary/10 to-primary/5 text-primary">
-                  <Plus className="h-8 w-8" />
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1 space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-                  <Plus className="h-7 w-7 text-green-500" />
-                  Nuova Azienda
-                </h1>
-                <p className="text-lg text-muted-foreground">
-                  Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema
-                </p>
-              </div>
+        <div className="space-y-4">
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Home className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" />
+            <span 
+              className="hover:text-foreground cursor-pointer transition-colors duration-200" 
+              onClick={() => navigate('/aziende')}
+            >
+              Aziende
+            </span>
+            <ChevronRight className="h-4 w-4" />
+            <span className="font-medium text-foreground">Nuova Azienda</span>
+          </nav>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-3">
+              <h1 className="page-title flex items-center gap-3">
+                <Plus className="h-7 w-7 text-green-500" />
+                Nuova Azienda
+              </h1>
+              <p className="text-description">
+                Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Form Content */}
-        <div className="animate-fade-in">
-          <AziendaForm
-            azienda={null}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isSubmitting={isSubmitting}
-          />
-        </div>
+        <AziendaForm
+          azienda={null}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSubmitting={isSubmitting}
+        />
       </div>
     </MainLayout>
   );

@@ -67,35 +67,38 @@ export default function AziendaDetailPage() {
 
   return (
     <MainLayout>
-      <div className="w-full space-y-8 px-6 py-4">
-        {/* Header ottimizzato */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b">
+      <div className="space-y-6">
+        {/* Header con breadcrumb */}
+        <div className="space-y-4">
           <div className="flex items-center gap-4">
             <Button variant="outline" onClick={handleBack} size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" /> Indietro
             </Button>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">{azienda.nome}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-3">
+              <h1 className="page-title">{azienda.nome}</h1>
+              <p className="text-description">
                 Dettagli e gestione azienda cliente
               </p>
             </div>
-          </div>
-          {!isEditMode ? (
-            <Button onClick={handleEditAzienda} size="sm">
-              <Edit className="mr-2 h-4 w-4" /> Modifica
-            </Button>
-          ) : (
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handleCancelEdit} size="sm">
-                <X className="mr-2 h-4 w-4" /> Annulla
+            {!isEditMode ? (
+              <Button onClick={handleEditAzienda} size="sm">
+                <Edit className="mr-2 h-4 w-4" /> Modifica
               </Button>
-            </div>
-          )}
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleCancelEdit} size="sm">
+                  <X className="mr-2 h-4 w-4" /> Annulla
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         {isEditMode ? (
-          <div className="w-full max-w-6xl">
+          <div className="w-full max-w-4xl">
             <div className="bg-card border rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold mb-6 text-foreground">Modifica Azienda</h2>
               <AziendaForm
@@ -107,9 +110,9 @@ export default function AziendaDetailPage() {
             </div>
           </div>
         ) : (
-          <div className="w-full space-y-6">
+          <div className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full max-w-lg grid-cols-2 mb-6">
+              <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
                 <TabsTrigger value="info" className="text-sm font-medium">
                   <Building className="mr-2 h-4 w-4" /> Informazioni
                 </TabsTrigger>
