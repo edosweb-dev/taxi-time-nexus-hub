@@ -423,6 +423,7 @@ export type Database = {
           id: string
           last_name: string | null
           role: string
+          telefono: string | null
         }
         Insert: {
           azienda_id?: string | null
@@ -431,6 +432,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           role: string
+          telefono?: string | null
         }
         Update: {
           azienda_id?: string | null
@@ -439,6 +441,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           role?: string
+          telefono?: string | null
         }
         Relationships: [
           {
