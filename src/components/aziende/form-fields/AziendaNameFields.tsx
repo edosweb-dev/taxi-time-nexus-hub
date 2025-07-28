@@ -9,7 +9,8 @@ interface AziendaNameFieldsProps {
 
 export function AziendaNameFields({ control }: AziendaNameFieldsProps) {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2">
+      {/* Prima riga: Nome azienda | Partita IVA */}
       <FormField
         control={control}
         name="nome"
@@ -44,6 +45,70 @@ export function AziendaNameFields({ control }: AziendaNameFieldsProps) {
             </FormControl>
             <FormDescription>
               Deve essere di 11 cifre numeriche
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Seconda riga: Indirizzo | Città */}
+      <FormField
+        control={control}
+        name="indirizzo"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Indirizzo</FormLabel>
+            <FormControl>
+              <Input placeholder="Indirizzo completo" {...field} value={field.value || ''} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="citta"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Città</FormLabel>
+            <FormControl>
+              <Input placeholder="Città" {...field} value={field.value || ''} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Terza riga: SDI | PEC */}
+      <FormField
+        control={control}
+        name="sdi"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Codice SDI</FormLabel>
+            <FormControl>
+              <Input placeholder="Codice SDI per fatturazione elettronica" {...field} value={field.value || ''} />
+            </FormControl>
+            <FormDescription>
+              Codice Sistema di Interscambio per fatturazione elettronica
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="pec"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>PEC</FormLabel>
+            <FormControl>
+              <Input placeholder="Posta Elettronica Certificata" {...field} value={field.value || ''} />
+            </FormControl>
+            <FormDescription>
+              Indirizzo di Posta Elettronica Certificata
             </FormDescription>
             <FormMessage />
           </FormItem>

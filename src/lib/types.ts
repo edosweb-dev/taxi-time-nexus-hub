@@ -30,6 +30,9 @@ export interface Azienda {
   emails?: string[] | null;
   telefoni?: string[] | null;
   indirizzo?: string | null;
+  citta?: string | null;
+  sdi?: string | null;
+  pec?: string | null;
   firma_digitale_attiva?: boolean | null;
   provvigione?: boolean | null;
   provvigione_tipo?: 'fisso' | 'percentuale' | null;

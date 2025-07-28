@@ -110,29 +110,69 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
             </div>
           </div>
 
-          {/* Indirizzo e Telefono - spostati qui dalle informazioni di contatto */}
-          {(azienda.indirizzo || azienda.telefono) && (
+          {/* Indirizzo, Telefono, Città, SDI e PEC - spostati qui dalle informazioni di contatto */}
+          {(azienda.indirizzo || azienda.telefono || azienda.citta || azienda.sdi || azienda.pec) && (
             <div className="pt-3 border-t space-y-4">
-              {azienda.indirizzo && (
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
-                    <MapPin className="h-5 w-5" />
+              <div className="grid gap-4 md:grid-cols-2">
+                {azienda.indirizzo && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
+                      <MapPin className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Indirizzo</p>
+                      <p className="text-base font-semibold text-foreground">{azienda.indirizzo}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Indirizzo</p>
-                    <p className="text-base font-semibold text-foreground">{azienda.indirizzo}</p>
+                )}
+                
+                {azienda.telefono && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-green-50 text-green-600">
+                      <Phone className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefono</p>
+                      <p className="text-base font-semibold text-foreground">{azienda.telefono}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
               
-              {azienda.telefono && (
+              <div className="grid gap-4 md:grid-cols-2">
+                {azienda.citta && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600">
+                      <MapPin className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Città</p>
+                      <p className="text-base font-semibold text-foreground">{azienda.citta}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {azienda.sdi && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-amber-50 text-amber-600">
+                      <CreditCard className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Codice SDI</p>
+                      <p className="text-base font-semibold text-foreground">{azienda.sdi}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {azienda.pec && (
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-green-50 text-green-600">
-                    <Phone className="h-5 w-5" />
+                  <div className="p-2.5 rounded-lg bg-red-50 text-red-600">
+                    <Mail className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefono</p>
-                    <p className="text-base font-semibold text-foreground">{azienda.telefono}</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">PEC</p>
+                    <p className="text-base font-semibold text-foreground">{azienda.pec}</p>
                   </div>
                 </div>
               )}

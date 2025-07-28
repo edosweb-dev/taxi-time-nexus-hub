@@ -11,14 +11,14 @@ interface AziendaContactFieldsProps {
 export function AziendaContactFields({ control }: AziendaContactFieldsProps) {
   return (
     <div className="space-y-6">
-      {/* Campi singoli legacy per compatibilità */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Prima riga: Email principale | Telefono principale */}
+      <div className="grid gap-6 md:grid-cols-2">
         <FormField
           control={control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email Principale (Legacy)</FormLabel>
+              <FormLabel>Email Principale</FormLabel>
               <FormControl>
                 <Input placeholder="Email aziendale" {...field} value={field.value || ''} />
               </FormControl>
@@ -32,7 +32,7 @@ export function AziendaContactFields({ control }: AziendaContactFieldsProps) {
           name="telefono"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefono Principale (Legacy)</FormLabel>
+              <FormLabel>Telefono Principale</FormLabel>
               <FormControl>
                 <Input placeholder="Numero di telefono" {...field} value={field.value || ''} />
               </FormControl>
@@ -41,25 +41,12 @@ export function AziendaContactFields({ control }: AziendaContactFieldsProps) {
           )}
         />
       </div>
-      
+
+      {/* Seconda riga: Indirizzi email | Numeri di telefono */}
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="lg:col-span-1">
           <MultiContactFields control={control} />
         </div>
-        
-        <FormField
-          control={control}
-          name="indirizzo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Indirizzo</FormLabel>
-              <FormControl>
-                <Input placeholder="Indirizzo completo" {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
     </div>
   );

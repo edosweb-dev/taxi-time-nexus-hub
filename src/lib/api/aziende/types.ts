@@ -7,6 +7,9 @@ export interface AziendaFormData {
   emails?: string[];
   telefoni?: string[];
   indirizzo?: string;
+  citta?: string;
+  sdi?: string;
+  pec?: string;
   firma_digitale_attiva?: boolean;
   provvigione?: boolean;
   provvigione_tipo?: 'fisso' | 'percentuale';

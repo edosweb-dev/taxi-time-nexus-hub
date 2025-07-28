@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       aziende: {
         Row: {
+          citta: string | null
           created_at: string | null
           email: string | null
           emails: string[] | null
@@ -24,11 +25,14 @@ export type Database = {
           indirizzo: string | null
           nome: string
           partita_iva: string
+          pec: string | null
           provvigione: boolean | null
+          sdi: string | null
           telefoni: string[] | null
           telefono: string | null
         }
         Insert: {
+          citta?: string | null
           created_at?: string | null
           email?: string | null
           emails?: string[] | null
@@ -37,11 +41,14 @@ export type Database = {
           indirizzo?: string | null
           nome: string
           partita_iva: string
+          pec?: string | null
           provvigione?: boolean | null
+          sdi?: string | null
           telefoni?: string[] | null
           telefono?: string | null
         }
         Update: {
+          citta?: string | null
           created_at?: string | null
           email?: string | null
           emails?: string[] | null
@@ -50,7 +57,9 @@ export type Database = {
           indirizzo?: string | null
           nome?: string
           partita_iva?: string
+          pec?: string | null
           provvigione?: boolean | null
+          sdi?: string | null
           telefoni?: string[] | null
           telefono?: string | null
         }
