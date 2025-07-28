@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit, Save, X } from 'lucide-react';
+import { Loader2, ArrowLeft, Building, Users as UsersIcon, Edit, Save, X, Home, ChevronRight } from 'lucide-react';
 import { AziendaForm } from '@/components/aziende/AziendaForm';
 import { UserSheet } from '@/components/users/UserSheet';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
@@ -70,11 +70,18 @@ export default function AziendaDetailPage() {
       <div className="space-y-6">
         {/* Header con breadcrumb */}
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={handleBack} size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Indietro
-            </Button>
-          </div>
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Home className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" />
+            <span 
+              className="hover:text-foreground cursor-pointer transition-colors duration-200" 
+              onClick={handleBack}
+            >
+              Aziende
+            </span>
+            <ChevronRight className="h-4 w-4" />
+            <span className="font-medium text-foreground">{azienda.nome}</span>
+          </nav>
           
           <div className="flex items-center justify-between">
             <div className="space-y-3">
