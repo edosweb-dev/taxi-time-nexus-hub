@@ -51,15 +51,6 @@ export function UserForm({
           .regex(/[A-Z]/, { message: 'La password deve contenere almeno una lettera maiuscola' })
           .regex(/[0-9]/, { message: 'La password deve contenere almeno un numero' })
           .optional(), // Opzionale anche in creazione - se non fornita, sarà generata
-    confirm_password: z.string().optional().or(z.literal('')),
-  }).refine((data) => {
-    if (data.password && data.confirm_password) {
-      return data.password === data.confirm_password;
-    }
-    return true;
-  }, {
-    message: "Le password non corrispondono",
-    path: ["confirm_password"],
   });
 
   const form = useForm<z.infer<typeof userFormSchema>>({
@@ -71,7 +62,6 @@ export function UserForm({
       telefono: user?.telefono || '',
       role: user?.role || defaultRole || 'cliente',
       password: '',
-      confirm_password: '',
     },
   });
 
