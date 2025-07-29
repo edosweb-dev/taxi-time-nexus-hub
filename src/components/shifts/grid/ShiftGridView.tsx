@@ -43,32 +43,28 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
 
   return (
     <div className="space-y-4">
-      {/* Quick Info Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-muted/30 rounded-md border">
-        <p className="text-sm text-muted-foreground">
-          Clicca su una cella per gestire i turni rapidamente
-        </p>
-        <span className="text-sm font-medium text-muted-foreground">
-          {gridData.length} dipendenti
-        </span>
+      {/* Compact Info & Legend */}
+      <div className="flex items-center justify-between gap-4">
+        <ShiftGridLegend />
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span>{gridData.length} dipendenti</span>
+          <span>•</span>
+          <span>Click per modificare turni</span>
+        </div>
       </div>
 
-      {/* Legend */}
-      <ShiftGridLegend />
-
-      {/* Optimized Grid */}
+      {/* Compact Weekly Grid */}
       <div className="border rounded-lg overflow-hidden bg-background">
         {/* Sticky Grid Header */}
         <div className="sticky top-0 z-10">
           <ShiftGridHeader monthDays={monthDays} />
         </div>
         
-        {/* Grid Body with Enhanced Scrolling */}
-        <div className="max-h-[70vh] overflow-y-auto">
+        {/* Compact Grid Body */}
+        <div className="max-h-[75vh] overflow-y-auto scrollbar-thin">
           {gridData.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p>Nessun dipendente trovato per questo filtro</p>
-              <p className="text-xs mt-2">Prova a modificare i filtri selezionati</p>
+            <div className="text-center py-8 text-muted-foreground">
+              <p className="text-sm">Nessun dipendente trovato</p>
             </div>
           ) : (
             gridData.map((data) => (

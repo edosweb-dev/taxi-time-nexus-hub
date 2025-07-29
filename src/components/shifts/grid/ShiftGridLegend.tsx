@@ -19,21 +19,21 @@ export const shiftTypeLabels = {
 
 export function ShiftGridLegend() {
   return (
-    <Card className="bg-muted/30">
-      <CardContent className="p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium text-muted-foreground">Legenda:</span>
-          {Object.entries(shiftTypeColors).map(([type, colorClass]) => (
-            <Badge 
-              key={type}
-              variant="outline" 
-              className={`${colorClass} border-none text-xs`}
-            >
-              {shiftTypeLabels[type as keyof typeof shiftTypeLabels]}
-            </Badge>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-muted-foreground">Legenda:</span>
+      {Object.entries(shiftTypeColors).map(([type, colorClass]) => (
+        <Badge 
+          key={type}
+          variant="outline" 
+          className={`${colorClass} border-none text-[10px] px-1.5 py-0.5`}
+        >
+          {type === 'full_day' ? 'FD' : 
+           type === 'half_day' ? 'M/P' :
+           type === 'specific_hours' ? 'Ore' :
+           type === 'sick_leave' ? 'ML' :
+           type === 'unavailable' ? 'ND' : type}
+        </Badge>
+      ))}
+    </div>
   );
 }

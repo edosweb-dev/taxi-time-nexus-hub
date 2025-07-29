@@ -25,9 +25,9 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
   return (
     <div
       className={cn(
-        "relative border-r border-b border-gray-200 min-h-[70px] p-2 cursor-pointer transition-all duration-200",
+        "relative border-r border-b border-gray-200 min-h-[50px] p-1 cursor-pointer transition-all duration-200",
         "hover:bg-primary/5 hover:shadow-sm hover:border-primary/20",
-        "flex flex-col gap-1.5",
+        "flex flex-col gap-0.5",
         isWeekend && "bg-gray-50/50",
         hasShifts && "bg-background"
       )}
@@ -38,29 +38,30 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
     >
       {!hasShifts ? (
         <div className="flex items-center justify-center h-full group">
-          <div className="flex flex-col items-center gap-1 text-muted-foreground">
-            <Plus className="h-4 w-4 opacity-40 group-hover:opacity-70 transition-opacity" />
-            <span className="text-xs opacity-60 group-hover:opacity-80 transition-opacity">
-              Aggiungi
-            </span>
-          </div>
+          <Plus className="h-3 w-3 opacity-30 group-hover:opacity-60 transition-opacity" />
         </div>
       ) : (
         <>
-          {shifts.map((shift, index) => {
+          {shifts.slice(0, 2).map((shift, index) => {
             const colorClass = shiftTypeColors[shift.shift_type as keyof typeof shiftTypeColors] || 'bg-gray-500 text-white';
             
-            // Determina il testo da mostrare
+            // Testo compatto
             let displayText = '';
             if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-              displayText = `${shift.start_time}-${shift.end_time}`;
+              displayText = `${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
             } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
-              displayText = shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio';
+              displayText = shift.half_day_type === 'morning' ? 'M' : 'P';
+            } else if (shift.shift_type === 'full_day') {
+              displayText = 'FD';
+            } else if (shift.shift_type === 'sick_leave') {
+              displayText = 'ML';
+            } else if (shift.shift_type === 'unavailable') {
+              displayText = 'ND';
             } else {
-              displayText = shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels] || 'Turno';
+              displayText = 'T';
             }
 
-            // Costruisce il tooltip
+            // Tooltip completo
             let tooltip = shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels] || shift.shift_type;
             if (shift.shift_type === 'half_day' && shift.half_day_type) {
               tooltip += ` (${shift.half_day_type === 'morning' ? 'Mattino' : 'Pomeriggio'})`;
@@ -76,7 +77,7 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
               <div
                 key={shift.id}
                 className={cn(
-                  "text-xs px-2 py-1 rounded-md text-center font-medium shadow-sm",
+                  "text-[10px] px-1 py-0.5 rounded text-center font-medium",
                   "border border-white/20",
                   colorClass
                 )}
@@ -87,10 +88,10 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
             );
           })}
           
-          {/* Multiple shifts indicator */}
-          {shifts.length > 1 && (
-            <div className="absolute bottom-1 right-1">
-              <div className="w-2 h-2 bg-primary rounded-full opacity-60"></div>
+          {/* Indicator per turni multipli */}
+          {shifts.length > 2 && (
+            <div className="text-[9px] text-center text-muted-foreground">
+              +{shifts.length - 2}
             </div>
           )}
         </>

@@ -50,40 +50,37 @@ export function ShiftGridRow({
   };
 
   return (
-    <div className="grid grid-cols-[220px_1fr] border-b border-gray-200 hover:bg-muted/20 transition-colors">
-      {/* Enhanced Employee Info */}
-      <div className="p-4 border-r border-gray-200 bg-muted/30 sticky left-0 z-20">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9 border-2 border-background">
+    <div className="grid grid-cols-[180px_1fr] border-b border-gray-200 hover:bg-muted/20 transition-colors">
+      {/* Compact Employee Info */}
+      <div className="px-3 py-2 border-r border-gray-200 bg-muted/30 sticky left-0 z-20">
+        <div className="flex items-center gap-2">
+          <Avatar className="h-7 w-7 border border-background">
             <AvatarImage src={undefined} />
-            <AvatarFallback className="text-sm font-medium">
+            <AvatarFallback className="text-xs font-medium">
               {getUserInitials(user.first_name, user.last_name)}
             </AvatarFallback>
           </Avatar>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm font-semibold text-foreground truncate">
+            <div className="flex items-center gap-1">
+              <p className="text-xs font-semibold text-foreground truncate">
                 {getUserName()}
               </p>
               <Badge 
                 variant="secondary" 
-                className={cn("text-xs", getRoleColor(user.role))}
+                className={cn("text-[10px] px-1 py-0", getRoleColor(user.role))}
               >
-                {getRoleLabel(user.role)}
+                {getRoleLabel(user.role)[0]}
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground truncate">
-              {user.email}
-            </p>
           </div>
         </div>
       </div>
       
-      {/* Days grid with hover effects */}
+      {/* Compact Days grid */}
       <div 
         className="grid hover:bg-background/50 transition-colors" 
-        style={{ gridTemplateColumns: `repeat(${monthDays.length}, 1fr)` }}
+        style={{ gridTemplateColumns: `repeat(${monthDays.length}, minmax(45px, 1fr))` }}
       >
         {monthDays.map((day, index) => (
           <ShiftGridCell
