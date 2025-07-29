@@ -1,7 +1,8 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { ShiftCalendarMonthView } from '../ShiftCalendarMonthView';
-import { ShiftCalendarGrid } from '../ShiftCalendarGrid';
+import { ShiftCalendarWeekView } from '../ShiftCalendarWeekView';
+import { ShiftCalendarDayView } from '../ShiftCalendarDayView';
 import { ShiftDetailsDialog } from '../../dialogs/ShiftDetailsDialog';
 import { EditShiftDialog } from '../../dialogs/EditShiftDialog';
 import { Shift } from '../../types';
@@ -88,16 +89,48 @@ export function CalendarContent({
     );
   }
   
+  if (viewMode === "week") {
+    return (
+      <>
+        <ShiftCalendarWeekView 
+          daysInView={daysInView}
+          shifts={shiftsInView}
+          isAdminOrSocio={isAdminOrSocio}
+          onCellClick={handleCellClick}
+          onSelectShift={handleShiftClick}
+          userId={user?.id}
+        />
+        
+        <ShiftDetailsDialog
+          open={isDetailsDialogOpen}
+          onOpenChange={setIsDetailsDialogOpen}
+          shifts={selectedDateShifts}
+          selectedDate={selectedDate || new Date()}
+          onEditShift={handleEditShift}
+          onDeleteShift={handleDeleteShift}
+          canEdit={isAdminOrSocio || selectedDateShifts.some(s => s.user_id === user?.id)}
+        />
+        
+        <EditShiftDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          shift={selectedShift}
+          isAdminOrSocio={isAdminOrSocio}
+        />
+      </>
+    );
+  }
+  
+  // Day view
   return (
-    <div className="bg-background">
-      <ShiftCalendarGrid
-        viewMode={viewMode}
+    <>
+      <ShiftCalendarDayView 
         daysInView={daysInView}
-        hours={hours}
-        shiftsInView={shiftsInView}
-        getShiftPosition={getShiftPosition}
+        shifts={shiftsInView}
+        isAdminOrSocio={isAdminOrSocio}
+        onCellClick={handleCellClick}
         onSelectShift={handleShiftClick}
-        onAddShift={(day) => handleCellClick(day, user?.id || null)}
+        userId={user?.id}
       />
       
       <ShiftDetailsDialog
@@ -116,6 +149,6 @@ export function CalendarContent({
         shift={selectedShift}
         isAdminOrSocio={isAdminOrSocio}
       />
-    </div>
+    </>
   );
 }
