@@ -54,8 +54,8 @@ export function ShiftsContent({
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           {/* Integrated Toolbar */}
-          <div className="border-b bg-muted/30 p-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="border-b bg-muted/20 p-3">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               {/* Month Navigation */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
@@ -68,8 +68,8 @@ export function ShiftsContent({
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   
-                  <div className="min-w-[200px] text-center">
-                    <h2 className="text-lg font-semibold text-primary">
+                  <div className="min-w-[180px] text-center">
+                    <h2 className="text-base font-semibold text-primary">
                       {format(currentMonth, 'MMMM yyyy', { locale: it })}
                     </h2>
                   </div>

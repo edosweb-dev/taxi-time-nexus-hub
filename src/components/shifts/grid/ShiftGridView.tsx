@@ -60,7 +60,7 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
 
       {/* Weekly Grid */}
       <div className="border rounded-lg overflow-hidden bg-background">
-        <div className="max-h-[75vh] overflow-y-auto scrollbar-thin">
+        <div className="max-h-[80vh] overflow-y-auto scrollbar-thin">
           {weekData.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p className="text-sm">Nessuna settimana da visualizzare</p>
