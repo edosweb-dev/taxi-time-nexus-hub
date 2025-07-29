@@ -89,8 +89,8 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
                 </div>
               ) : (
                 <>
-                  {/* Griglia 2 colonne per i turni */}
-                  <div className="grid grid-cols-2 gap-1 flex-1">
+                  {/* Turni uno sotto l'altro */}
+                  <div className="flex flex-col gap-1 flex-1">
                     {dayShifts_array.slice(0, 6).map((shift, shiftIndex) => {
                       // Use employee color instead of shift type color
                       const userColor = shift.user.color || '#3B82F6';
