@@ -50,7 +50,9 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createShift } = useShifts();
-  const { users: allUsers, isLoading: usersLoading } = useUsers();
+  const { users: allUsers, isLoading: usersLoading } = useUsers({ 
+    includeRoles: ['admin', 'socio', 'dipendente'] 
+  });
 
   const form = useForm<BatchShiftFormValues>({
     resolver: zodResolver(batchShiftSchema),

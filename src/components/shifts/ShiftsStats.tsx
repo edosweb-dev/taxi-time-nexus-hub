@@ -7,7 +7,9 @@ import { subDays, isAfter, parseISO } from 'date-fns';
 
 export function ShiftsStats() {
   const { shifts } = useShifts();
-  const { users } = useUsers();
+  const { users } = useUsers({ 
+    includeRoles: ['admin', 'socio', 'dipendente'] 
+  });
 
   // Calculate statistics
   const today = new Date();

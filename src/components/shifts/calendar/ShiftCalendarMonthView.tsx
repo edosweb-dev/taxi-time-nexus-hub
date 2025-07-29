@@ -25,7 +25,9 @@ export const ShiftCalendarMonthView = ({
   onSelectShift,
   userId
 }: ShiftCalendarMonthViewProps) => {
-  const { users } = useUsers();
+  const { users } = useUsers({ 
+    includeRoles: ['admin', 'socio', 'dipendente'] 
+  });
   
   return (
     <div className="grid grid-cols-7 gap-px bg-muted">

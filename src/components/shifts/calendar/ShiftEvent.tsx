@@ -22,7 +22,9 @@ export const ShiftEvent = ({
   spanRows,
   onClick
 }: ShiftEventProps) => {
-  const { users } = useUsers();
+  const { users } = useUsers({ 
+    includeRoles: ['admin', 'socio', 'dipendente'] 
+  });
   const [userColorClass, setUserColorClass] = useState("");
 
   useEffect(() => {

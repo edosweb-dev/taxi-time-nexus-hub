@@ -44,7 +44,9 @@ export function UserFilterDropdown({
   onSelectUsers, 
   showOnlyAdminAndSocio = false
 }: UserFilterDropdownProps) {
-  const { users, isLoading } = useUsers();
+  const { users, isLoading } = useUsers({ 
+    includeRoles: ['admin', 'socio', 'dipendente'] 
+  });
   const [open, setOpen] = useState(false);
   
   // Safely handle potentially undefined users array
