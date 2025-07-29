@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { ShiftGridView } from './grid/ShiftGridView';
+import { ShiftCalendarView } from './calendar/ShiftCalendarView';
 import { BatchShiftForm } from './BatchShiftForm';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
+import { ViewFilterDropdown } from './filters/ViewFilterDropdown';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Plus, ChevronLeft, ChevronRight, Copy, Download, Undo, Redo, Calendar } from 'lucide-react';
-import { format, addMonths, subMonths } from 'date-fns';
+import { Plus, Download } from 'lucide-react';
+import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 interface ShiftsContentProps {
@@ -23,21 +25,14 @@ export function ShiftsContent({
 }: ShiftsContentProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-
-  const handlePreviousMonth = () => {
-    onMonthChange(subMonths(currentMonth, 1));
-  };
-
-  const handleNextMonth = () => {
-    onMonthChange(addMonths(currentMonth, 1));
-  };
-
-  const handleToday = () => {
-    onMonthChange(new Date());
-  };
+  const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
 
   const handleUsersChange = (userIds: string[]) => {
     setSelectedUserIds(userIds);
+  };
+
+  const handleViewModeChange = (mode: "month" | "week" | "day") => {
+    setViewMode(mode);
   };
 
   return (
@@ -50,47 +45,28 @@ export function ShiftsContent({
         />
       )}
 
-      {/* Main Grid Card */}
+      {/* Main Content Card */}
       <Card className="overflow-hidden">
         <CardContent className="p-0">
-          {/* Integrated Toolbar */}
+          {/* Toolbar */}
           <div className="border-b bg-muted/20 p-3">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              {/* Month Navigation */}
+              {/* Current Period Display */}
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handlePreviousMonth}
-                    className="h-8 w-8 p-0"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  
-                  <div className="min-w-[180px] text-center">
-                    <h2 className="text-base font-semibold text-primary">
-                      {format(currentMonth, 'MMMM yyyy', { locale: it })}
-                    </h2>
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleNextMonth}
-                    className="h-8 w-8 p-0"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="text-center">
+                  <h2 className="text-base font-semibold text-primary">
+                    {format(currentMonth, 'MMMM yyyy', { locale: it })}
+                  </h2>
                 </div>
-                
-                <Button variant="outline" size="sm" onClick={handleToday}>
-                  Oggi
-                </Button>
               </div>
 
-              {/* Actions and Filters */}
+              {/* Filters and Actions */}
               <div className="flex items-center gap-2">
+                <ViewFilterDropdown 
+                  viewMode={viewMode}
+                  onViewModeChange={handleViewModeChange}
+                />
+                
                 <UserFilterDropdown 
                   onSelectUsers={handleUsersChange}
                   selectedUserIds={selectedUserIds}
@@ -101,23 +77,8 @@ export function ShiftsContent({
                 {isAdminOrSocio && (
                   <>
                     <Button variant="outline" size="sm" className="gap-2">
-                      <Copy className="h-4 w-4" />
-                      Copia
-                    </Button>
-                    
-                    <Button variant="outline" size="sm" className="gap-2">
                       <Download className="h-4 w-4" />
                       Esporta
-                    </Button>
-                    
-                    <Separator orientation="vertical" className="h-6" />
-                    
-                    <Button variant="outline" size="sm" title="Annulla">
-                      <Undo className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button variant="outline" size="sm" title="Ripeti">
-                      <Redo className="h-4 w-4" />
                     </Button>
                     
                     <Button size="sm" onClick={() => setIsDialogOpen(true)} className="gap-2">
@@ -130,11 +91,20 @@ export function ShiftsContent({
             </div>
           </div>
 
-          {/* Grid View */}
-          <ShiftGridView 
-            currentMonth={currentMonth}
-            selectedUserIds={selectedUserIds}
-          />
+          {/* Views */}
+          {viewMode === "month" ? (
+            <ShiftGridView 
+              currentMonth={currentMonth}
+              selectedUserIds={selectedUserIds}
+            />
+          ) : (
+            <ShiftCalendarView
+              currentMonth={currentMonth}
+              onMonthChange={onMonthChange}
+              isAdminOrSocio={isAdminOrSocio}
+              selectedUserIds={selectedUserIds}
+            />
+          )}
         </CardContent>
       </Card>
 
