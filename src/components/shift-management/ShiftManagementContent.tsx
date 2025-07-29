@@ -36,17 +36,8 @@ export function ShiftManagementContent({
   };
 
   return (
-    <div className="h-[calc(100vh-200px)] flex gap-6">
-      {/* Sidebar */}
-      <div className="w-80 flex-shrink-0">
-        <CalendarSidebar
-          selectedUsers={selectedUsers}
-          onUsersChange={setSelectedUsers}
-          isAdminOrSocio={isAdminOrSocio}
-        />
-      </div>
-
-      {/* Main Calendar */}
+    <div className="h-[calc(100vh-200px)] flex">
+      {/* Main Calendar - Full Width */}
       <div className="flex-1 flex flex-col min-w-0">
         <Card className="flex-1 overflow-hidden">
           {/* Header */}
@@ -61,7 +52,7 @@ export function ShiftManagementContent({
           <CalendarGrid
             currentDate={currentDate}
             viewMode={viewMode}
-            selectedUsers={selectedUsers}
+            selectedUsers={[]} // Show all users by default
             onCreateShift={handleCreateShift}
             onEditShift={handleEditShift}
           />
