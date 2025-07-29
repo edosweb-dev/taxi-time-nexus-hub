@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Azienda } from "@/lib/types";
-import { Edit, Trash2, Eye, Plus, Search, Building2, Phone, Mail, MapPin } from "lucide-react";
+import { Edit, Trash2, Eye, Plus, Search, Building2, Phone, Mail, MapPin, LayoutGrid, List } from "lucide-react";
 import { useState, useMemo } from "react";
 
 interface AziendaListProps {
@@ -23,6 +24,7 @@ export function AziendaList({
   onAddAzienda,
 }: AziendaListProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<"cards" | "table">("table");
 
   const filteredAziende = useMemo(() => {
     if (!searchTerm) return aziende;
@@ -38,7 +40,7 @@ export function AziendaList({
 
   return (
     <div className="space-y-6">
-      {/* Header con ricerca e azione */}
+      {/* Header con ricerca e azioni */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -49,44 +51,58 @@ export function AziendaList({
             className="pl-10"
           />
         </div>
-        <Button onClick={onAddAzienda}>
-          <Plus className="mr-2 h-4 w-4" /> Nuova Azienda
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setViewMode(viewMode === "cards" ? "table" : "cards")}
+            className="px-3"
+          >
+            {viewMode === "cards" ? (
+              <List className="h-4 w-4" />
+            ) : (
+              <LayoutGrid className="h-4 w-4" />
+            )}
+          </Button>
+          <Button onClick={onAddAzienda}>
+            <Plus className="mr-2 h-4 w-4" /> Nuova Azienda
+          </Button>
+        </div>
       </div>
 
       {aziende.length === 0 ? (
         <div className="text-center py-16">
-          <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">
+          <Building2 className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+          <h3 className="text-base font-medium text-foreground mb-2">
             Nessuna azienda presente
           </h3>
-          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
             Inizia aggiungendo la prima azienda cliente al sistema.
           </p>
-          <Button onClick={onAddAzienda}>
+          <Button onClick={onAddAzienda} size="sm">
             <Plus className="mr-2 h-4 w-4" /> Aggiungi la prima azienda
           </Button>
         </div>
       ) : filteredAziende.length === 0 ? (
         <div className="text-center py-16">
-          <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">
+          <Search className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+          <h3 className="text-base font-medium text-foreground mb-2">
             Nessun risultato trovato
           </h3>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Prova a modificare i termini di ricerca.
           </p>
         </div>
-      ) : (
+      ) : viewMode === "cards" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAziende.map((azienda) => (
             <Card key={azienda.id} className="group hover:shadow-md transition-all duration-200 cursor-pointer">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-primary" />
+                    <Building2 className="h-4 w-4 text-primary" />
                     <h3 
-                      className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1"
+                      className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1"
                       onClick={() => onView(azienda)}
                     >
                       {azienda.nome}
@@ -100,9 +116,9 @@ export function AziendaList({
                         e.stopPropagation();
                         onView(azienda);
                       }}
-                      className="h-8 w-8 p-0"
+                      className="h-7 w-7 p-0"
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -111,9 +127,9 @@ export function AziendaList({
                         e.stopPropagation();
                         onEdit(azienda);
                       }}
-                      className="h-8 w-8 p-0"
+                      className="h-7 w-7 p-0"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -122,9 +138,9 @@ export function AziendaList({
                         e.stopPropagation();
                         onDelete(azienda);
                       }}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -132,27 +148,27 @@ export function AziendaList({
                   P.IVA: {azienda.partita_iva}
                 </Badge>
               </CardHeader>
-              <CardContent className="space-y-3" onClick={() => onView(azienda)}>
+              <CardContent className="space-y-2" onClick={() => onView(azienda)}>
                 {azienda.email && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Mail className="h-4 w-4" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Mail className="h-3 w-3" />
                     <span className="truncate">{azienda.email}</span>
                   </div>
                 )}
                 {azienda.telefono && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Phone className="h-4 w-4" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Phone className="h-3 w-3" />
                     <span>{azienda.telefono}</span>
                   </div>
                 )}
                 {azienda.citta && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
                     <span className="truncate">{azienda.citta}</span>
                   </div>
                 )}
                 {!azienda.email && !azienda.telefono && !azienda.citta && (
-                  <p className="text-sm text-muted-foreground italic">
+                  <p className="text-xs text-muted-foreground italic">
                     Informazioni di contatto non disponibili
                   </p>
                 )}
@@ -160,11 +176,103 @@ export function AziendaList({
             </Card>
           ))}
         </div>
+      ) : (
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs">Azienda</TableHead>
+                <TableHead className="text-xs">P.IVA</TableHead>
+                <TableHead className="text-xs">Contatti</TableHead>
+                <TableHead className="text-xs">Località</TableHead>
+                <TableHead className="text-xs w-[100px]">Azioni</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredAziende.map((azienda) => (
+                <TableRow key={azienda.id} className="hover:bg-muted/50 cursor-pointer" onClick={() => onView(azienda)}>
+                  <TableCell className="py-2">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">{azienda.nome}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-2">
+                    <Badge variant="secondary" className="text-xs">
+                      {azienda.partita_iva}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="py-2">
+                    <div className="space-y-1">
+                      {azienda.email && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Mail className="h-3 w-3" />
+                          <span className="truncate max-w-[150px]">{azienda.email}</span>
+                        </div>
+                      )}
+                      {azienda.telefono && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Phone className="h-3 w-3" />
+                          <span>{azienda.telefono}</span>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-2">
+                    {azienda.citta && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        <span>{azienda.citta}</span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="py-2">
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onView(azienda);
+                        }}
+                        className="h-7 w-7 p-0"
+                      >
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(azienda);
+                        }}
+                        className="h-7 w-7 p-0"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(azienda);
+                        }}
+                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
       
       {/* Risultati di ricerca */}
       {searchTerm && (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-xs text-muted-foreground">
           {filteredAziende.length} di {aziende.length} aziende
         </div>
       )}
