@@ -126,14 +126,14 @@ export function MonthView({
               </div>
 
               {/* Shifts */}
-              <div className="space-y-1">
-                {dayShifts.slice(0, 3).map((shift) => (
+              <div className="space-y-0.5">
+                {dayShifts.map((shift) => (
                   <div
                     key={shift.id}
-                    className="text-xs p-1 rounded cursor-pointer hover:opacity-80 transition-opacity"
+                    className="text-[10px] p-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity leading-tight"
                     style={{
                       backgroundColor: getShiftColor(shift) + '20',
-                      borderLeft: `3px solid ${getShiftColor(shift)}`,
+                      borderLeft: `2px solid ${getShiftColor(shift)}`,
                       color: getShiftColor(shift)
                     }}
                     onClick={(e) => {
@@ -144,12 +144,6 @@ export function MonthView({
                     {getShiftDisplayText(shift)}
                   </div>
                 ))}
-                
-                {dayShifts.length > 3 && (
-                  <div className="text-xs text-muted-foreground">
-                    +{dayShifts.length - 3} altri
-                  </div>
-                )}
               </div>
             </div>
           );
