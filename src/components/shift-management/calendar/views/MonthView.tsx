@@ -134,7 +134,7 @@ export function MonthView({
                   return (
                     <div
                       key={shift.id}
-                      className="w-6 h-6 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center text-[10px] font-medium text-white"
+                      className="w-8 h-8 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center text-xs font-medium text-white"
                       style={{
                         backgroundColor: getShiftColor(shift)
                       }}
