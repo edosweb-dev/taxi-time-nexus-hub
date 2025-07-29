@@ -24,42 +24,50 @@ export function PasseggeriList({ passeggeri }: PasseggeriListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {passeggeri.map((passeggero) => (
-        <Card key={passeggero.id}>
+        <Card key={passeggero.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <User className="h-5 w-5" />
-              {passeggero.nome_cognome}
+            <CardTitle className="text-base flex items-center gap-2 truncate">
+              <User className="h-4 w-4 text-primary flex-shrink-0" />
+              <span className="truncate">{passeggero.nome_cognome}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
               {passeggero.email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{passeggero.email}</span>
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  <span className="truncate">{passeggero.email}</span>
                 </div>
               )}
               {passeggero.telefono && (
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{passeggero.telefono}</span>
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  <span>{passeggero.telefono}</span>
                 </div>
               )}
               {passeggero.indirizzo && (
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{passeggero.indirizzo}</span>
+                <div className="flex items-center gap-2 text-sm">
+                  <Building2 className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  <span className="truncate" title={passeggero.indirizzo}>
+                    {passeggero.indirizzo}
+                  </span>
                 </div>
               )}
               {passeggero.localita && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{passeggero.localita}</span>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  <span className="truncate">{passeggero.localita}</span>
                 </div>
               )}
             </div>
+            
+            {!passeggero.email && !passeggero.telefono && !passeggero.indirizzo && !passeggero.localita && (
+              <p className="text-xs text-muted-foreground italic text-center py-2">
+                Informazioni di contatto non disponibili
+              </p>
+            )}
           </CardContent>
         </Card>
       ))}
