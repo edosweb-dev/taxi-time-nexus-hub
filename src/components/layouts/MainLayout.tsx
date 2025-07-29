@@ -7,6 +7,7 @@ import { SidebarHeader as AppSidebarHeader } from "./sidebar/SidebarHeader";
 import { SidebarFooterContent } from "./sidebar/SidebarFooter";
 import { MobileNavBar } from "./mobile/MobileNavBar";
 import { FeedbackButton } from "@/components/common/FeedbackButton";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 
 export function MainLayout({ children }: PropsWithChildren) {
   const isMobile = useIsMobile();
@@ -32,6 +33,7 @@ export function MainLayout({ children }: PropsWithChildren) {
         </Sidebar>
         
         <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+          <ImpersonationBanner />
           {/* Header bar without sidebar trigger on desktop */}
           {isMobile && (
             <div className="h-12 border-b border-border bg-card flex items-center px-4 flex-shrink-0">

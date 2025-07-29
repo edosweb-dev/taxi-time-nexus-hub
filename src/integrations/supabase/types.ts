@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_impersonation_log: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          session_end: string | null
+          session_start: string
+          target_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          session_end?: string | null
+          session_start?: string
+          target_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          session_end?: string | null
+          session_start?: string
+          target_user_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       aziende: {
         Row: {
           citta: string | null

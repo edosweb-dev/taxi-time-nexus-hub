@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Plus, Edit, Trash2, KeyRound, User, Mail, Building } from 'lucide-react';
+import { Plus, Edit, Trash2, KeyRound, User, Mail, Building, UserCheck } from 'lucide-react';
 import { Profile, UserRole } from '@/lib/types';
 import { UserRoleFilter } from './UserRoleFilter';
 import { UserDeleteConfirmDialog } from './UserDeleteConfirmDialog';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/use-toast';
 
 interface UserListProps {
   users: Profile[];
@@ -80,10 +82,34 @@ export function UserList({
 }: UserListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<Profile | null>(null);
+  const [isImpersonatingUser, setIsImpersonatingUser] = useState(false);
+  const { startImpersonation, profile: currentProfile } = useAuth();
 
   const handleDeleteClick = (user: Profile) => {
     setUserToDelete(user);
     setDeleteDialogOpen(true);
+  };
+
+  const handleImpersonate = async (user: Profile) => {
+    if (confirm(`Sei sicuro di voler accedere come ${user.first_name} ${user.last_name}?`)) {
+      try {
+        setIsImpersonatingUser(true);
+        await startImpersonation(user.id);
+        toast({
+          title: "Impersonificazione avviata",
+          description: `Ora stai navigando come ${user.first_name} ${user.last_name}`,
+        });
+      } catch (error) {
+        console.error('Failed to start impersonation:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile avviare l'impersonificazione",
+          variant: "destructive",
+        });
+      } finally {
+        setIsImpersonatingUser(false);
+      }
+    }
   };
 
   const handleDeleteConfirm = () => {
@@ -216,40 +242,52 @@ export function UserList({
                         )}
                       </TableCell>
                       
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {onResetPassword && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => onResetPassword(user)}
-                              title="Reset Password"
-                              className="hover:bg-amber-50 hover:text-amber-700"
-                            >
-                              <KeyRound className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onEdit(user)}
-                            className="hover:bg-blue-50 hover:text-blue-700"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          {user.id !== currentUserId && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteClick(user)}
-                              disabled={isDeleting}
-                              className="hover:bg-red-50 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+                       <TableCell className="text-right">
+                         <div className="flex items-center justify-end gap-2">
+                           {onResetPassword && (
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => onResetPassword(user)}
+                               title="Reset Password"
+                               className="hover:bg-amber-50 hover:text-amber-700"
+                             >
+                               <KeyRound className="h-4 w-4" />
+                             </Button>
+                           )}
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => onEdit(user)}
+                             className="hover:bg-blue-50 hover:text-blue-700"
+                           >
+                             <Edit className="h-4 w-4" />
+                           </Button>
+                           {currentProfile?.role === 'admin' && user.id !== currentUserId && (
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => handleImpersonate(user)}
+                               disabled={isImpersonatingUser}
+                               title="Accedi come questo utente"
+                               className="hover:bg-green-50 hover:text-green-700"
+                             >
+                               <UserCheck className="h-4 w-4" />
+                             </Button>
+                           )}
+                           {user.id !== currentUserId && (
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => handleDeleteClick(user)}
+                               disabled={isDeleting}
+                               className="hover:bg-red-50 hover:text-red-700"
+                             >
+                               <Trash2 className="h-4 w-4" />
+                             </Button>
+                           )}
+                         </div>
+                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
