@@ -1,7 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { useShiftGrid } from './hooks/useShiftGrid';
-import { ShiftGridHeader } from './ShiftGridHeader';
-import { ShiftGridRow } from './ShiftGridRow';
+import { WeekRow } from './WeekRow';
 import { ShiftGridLegend } from './ShiftGridLegend';
 import { QuickShiftDialog } from '../dialogs/QuickShiftDialog';
 import { format } from 'date-fns';
@@ -14,14 +13,15 @@ interface ShiftGridViewProps {
 
 export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridViewProps) {
   const {
-    gridData,
-    monthDays,
+    weekData,
+    shiftsByDate,
     selectedCell,
     quickDialogOpen,
     setQuickDialogOpen,
     isLoading,
     handleCellClick,
-    getShiftsForCell
+    getShiftsForDate,
+    employees
   } = useShiftGrid(currentMonth, selectedUserIds);
 
   if (isLoading) {
@@ -33,12 +33,12 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
     );
   }
 
-  const selectedUser = selectedCell 
-    ? gridData.find(data => data.user.id === selectedCell.userId)?.user || null 
+  const selectedDate = selectedCell 
+    ? new Date(selectedCell.date)
     : null;
 
-  const existingShifts = selectedCell 
-    ? getShiftsForCell(selectedCell.userId, new Date(selectedCell.date))
+  const existingShifts = selectedDate 
+    ? getShiftsForDate(selectedDate)
     : [];
 
   return (
@@ -47,33 +47,27 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
       <div className="flex items-center justify-between gap-4">
         <ShiftGridLegend />
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span>{gridData.length} dipendenti</span>
+          <span>{employees.length} dipendenti</span>
           <span>•</span>
-          <span>Click per modificare turni</span>
+          <span>Click su giorno per gestire turni</span>
         </div>
       </div>
 
-      {/* Compact Weekly Grid */}
+      {/* Weekly Grid */}
       <div className="border rounded-lg overflow-hidden bg-background">
-        {/* Sticky Grid Header */}
-        <div className="sticky top-0 z-10">
-          <ShiftGridHeader monthDays={monthDays} />
-        </div>
-        
-        {/* Compact Grid Body */}
         <div className="max-h-[75vh] overflow-y-auto scrollbar-thin">
-          {gridData.length === 0 ? (
+          {weekData.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p className="text-sm">Nessun dipendente trovato</p>
+              <p className="text-sm">Nessuna settimana da visualizzare</p>
             </div>
           ) : (
-            gridData.map((data) => (
-              <ShiftGridRow
-                key={data.user.id}
-                user={data.user}
-                monthDays={monthDays}
-                getShiftsForCell={getShiftsForCell}
+            weekData.map((week, index) => (
+              <WeekRow
+                key={`week-${index}`}
+                week={week}
+                getShiftsForDate={getShiftsForDate}
                 onCellClick={handleCellClick}
+                currentMonth={currentMonth}
               />
             ))
           )}
@@ -85,8 +79,8 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
         open={quickDialogOpen}
         onOpenChange={setQuickDialogOpen}
         selectedCell={selectedCell}
-        user={selectedUser}
-        existingShifts={existingShifts}
+        user={null} // Non c'è un utente specifico selezionato
+        existingShifts={existingShifts.map(s => ({ ...s, user: undefined }))} // Rimuovi user info per compatibilità
       />
     </div>
   );

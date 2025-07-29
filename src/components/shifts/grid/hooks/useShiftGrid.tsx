@@ -8,12 +8,20 @@ import {
   endOfMonth, 
   eachDayOfInterval, 
   format, 
-  isSameDay 
+  isSameDay,
+  startOfWeek,
+  endOfWeek,
+  eachWeekOfInterval
 } from 'date-fns';
 
-export interface ShiftGridData {
-  user: Profile;
-  shifts: Map<string, Shift[]>; // key: YYYY-MM-DD, value: shifts for that day
+export interface WeekData {
+  weekStart: Date;
+  days: Date[];
+}
+
+export interface DayShifts {
+  date: Date;
+  shifts: Array<Shift & { user: Profile }>;
 }
 
 export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = []) => {
@@ -42,56 +50,62 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
     return employees.filter(emp => selectedUserIds.includes(emp.id));
   }, [employees, selectedUserIds]);
 
-  // Get days of the month
-  const monthDays = useMemo(() => {
+  // Get weeks of the month
+  const weekData = useMemo((): WeekData[] => {
     const start = startOfMonth(currentMonth);
     const end = endOfMonth(currentMonth);
-    return eachDayOfInterval({ start, end });
-  }, [currentMonth]);
-
-  // Organize shifts by user and date
-  const gridData = useMemo((): ShiftGridData[] => {
-    return filteredEmployees.map(user => {
-      const userShifts = shifts.filter(shift => shift.user_id === user.id);
-      const shiftsByDate = new Map<string, Shift[]>();
-      
-      userShifts.forEach(shift => {
-        const dateKey = format(new Date(shift.shift_date), 'yyyy-MM-dd');
-        if (!shiftsByDate.has(dateKey)) {
-          shiftsByDate.set(dateKey, []);
-        }
-        shiftsByDate.get(dateKey)!.push(shift);
-      });
-
+    const weeks = eachWeekOfInterval({ start, end }, { weekStartsOn: 1 }); // Monday start
+    
+    return weeks.map(weekStart => {
+      const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+      const daysInWeek = eachDayOfInterval({ start: weekStart, end: weekEnd });
       return {
-        user,
-        shifts: shiftsByDate
+        weekStart,
+        days: daysInWeek
       };
     });
-  }, [filteredEmployees, shifts]);
+  }, [currentMonth]);
 
-  const handleCellClick = (userId: string, date: Date) => {
+  // Organize shifts by date with user info
+  const shiftsByDate = useMemo((): Map<string, Array<Shift & { user: Profile }>> => {
+    const shiftsMap = new Map<string, Array<Shift & { user: Profile }>>();
+    
+    shifts.forEach(shift => {
+      const user = filteredEmployees.find(emp => emp.id === shift.user_id);
+      if (user) {
+        const dateKey = format(new Date(shift.shift_date), 'yyyy-MM-dd');
+        if (!shiftsMap.has(dateKey)) {
+          shiftsMap.set(dateKey, []);
+        }
+        shiftsMap.get(dateKey)!.push({ ...shift, user });
+      }
+    });
+
+    return shiftsMap;
+  }, [shifts, filteredEmployees]);
+
+  const handleCellClick = (date: Date) => {
     const dateKey = format(date, 'yyyy-MM-dd');
-    setSelectedCell({ userId, date: dateKey });
+    setSelectedCell({ userId: '', date: dateKey }); // userId vuoto per indicare selezione di giorno
     setQuickDialogOpen(true);
   };
 
-  const getShiftsForCell = (userId: string, date: Date): Shift[] => {
+  const getShiftsForDate = (date: Date): Array<Shift & { user: Profile }> => {
     const dateKey = format(date, 'yyyy-MM-dd');
-    const userData = gridData.find(data => data.user.id === userId);
-    return userData?.shifts.get(dateKey) || [];
+    return shiftsByDate.get(dateKey) || [];
   };
 
   return {
-    gridData,
-    monthDays,
+    weekData,
+    shiftsByDate,
     selectedCell,
     setSelectedCell,
     quickDialogOpen,
     setQuickDialogOpen,
     isLoading: shiftsLoading || employeesLoading,
     handleCellClick,
-    getShiftsForCell,
-    currentMonth
+    getShiftsForDate,
+    currentMonth,
+    employees: filteredEmployees
   };
 };
