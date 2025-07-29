@@ -57,7 +57,7 @@ export const ShiftCalendarWeekView = ({
             }`}
             onClick={() => onCellClick(day, userId)}
           >
-            <div className="flex flex-col gap-2 overflow-auto max-h-[180px]">
+            <div className="flex flex-col gap-1 overflow-auto max-h-[180px]">
               {dayShifts.map(shift => {
                 const userColor = getUserColorClass(users, shift.user_id);
                 const userDisplay = getUserDisplayName(shift);
@@ -72,17 +72,17 @@ export const ShiftCalendarWeekView = ({
                       shift.shift_type === 'sick_leave' ? 'destructive' :
                       shift.shift_type === 'unavailable' ? 'outline' : 'default'
                     }
-                    className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${userColor} p-3 min-h-[3rem] flex flex-col justify-center cursor-pointer hover:opacity-80 transition-opacity`}
+                    className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${userColor} p-2 min-h-[2.5rem] flex flex-col justify-center`}
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectShift(shift);
                     }}
                   >
-                    <div className="flex flex-col gap-1">
-                      {/* User info */}
+                    <div className="flex flex-col gap-0.5">
+                      {/* Always show user info prominently */}
                       {isAdminOrSocio && (
                         <div className="font-bold text-xs leading-tight">
-                          {userInitials} {userDisplay.length > 12 ? userDisplay.substring(0, 12) + '...' : userDisplay}
+                          {userInitials} {userDisplay.length > 15 ? userDisplay.substring(0, 15) + '...' : userDisplay}
                         </div>
                       )}
                       
@@ -102,7 +102,7 @@ export const ShiftCalendarWeekView = ({
               })}
               {dayShifts.length === 0 && (
                 <div 
-                  className="text-sm text-muted-foreground text-center py-4 px-3 border border-dashed border-muted rounded cursor-pointer hover:border-primary hover:text-primary transition-colors"
+                  className="text-xs text-muted-foreground text-center py-2 px-2 border border-dashed border-muted rounded cursor-pointer hover:border-primary hover:text-primary transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     onCellClick(day, userId);

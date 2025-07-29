@@ -57,7 +57,7 @@ export const ShiftCalendarDayView = ({
             Turni del giorno ({dayShifts.length})
           </h3>
           
-          <div className="grid gap-3 max-h-[350px] overflow-auto">
+          <div className="grid gap-1 max-h-[350px] overflow-auto">
             {dayShifts.map(shift => {
               const userColor = getUserColorClass(users, shift.user_id);
               const userDisplay = getUserDisplayName(shift);
@@ -72,22 +72,22 @@ export const ShiftCalendarDayView = ({
                     shift.shift_type === 'sick_leave' ? 'destructive' :
                     shift.shift_type === 'unavailable' ? 'outline' : 'default'
                   }
-                  className={`text-sm p-4 min-h-[4rem] flex justify-between items-center cursor-pointer hover:opacity-80 transition-opacity ${userColor}`}
+                  className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${userColor} p-2 min-h-[2.5rem] flex flex-col justify-center`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelectShift(shift);
                   }}
                 >
-                  <div className="flex flex-col gap-1">
-                    {/* User info */}
+                  <div className="flex flex-col gap-0.5">
+                    {/* Always show user info prominently */}
                     {isAdminOrSocio && (
-                      <div className="font-bold text-sm">
-                        {userInitials} {userDisplay}
+                      <div className="font-bold text-xs leading-tight">
+                        {userInitials} {userDisplay.length > 15 ? userDisplay.substring(0, 15) + '...' : userDisplay}
                       </div>
                     )}
                     
                     {/* Shift type info */}
-                    <div className="text-sm">
+                    <div className="text-xs leading-tight">
                       {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time
                         ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
                         : shift.shift_type === 'half_day'
@@ -96,20 +96,6 @@ export const ShiftCalendarDayView = ({
                         : shift.shift_type === 'sick_leave' ? 'Malattia'
                         : 'Non disponibile'}
                     </div>
-                    
-                    {/* Notes if present */}
-                    {shift.notes && (
-                      <div className="text-xs opacity-75 mt-1">
-                        {shift.notes.length > 50 ? shift.notes.substring(0, 50) + '...' : shift.notes}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="text-xs text-right opacity-75">
-                    {shift.shift_type === 'specific_hours' ? 'Orario specifico' :
-                     shift.shift_type === 'half_day' ? 'Mezza giornata' :
-                     shift.shift_type === 'full_day' ? 'Giornata intera' :
-                     shift.shift_type === 'sick_leave' ? 'Malattia' : 'Non disponibile'}
                   </div>
                 </Badge>
               );
@@ -117,16 +103,13 @@ export const ShiftCalendarDayView = ({
             
             {dayShifts.length === 0 && (
               <div 
-                className="text-center py-12 px-6 border-2 border-dashed border-muted rounded-lg cursor-pointer hover:border-primary hover:bg-muted/20 transition-colors"
+                className="text-xs text-muted-foreground text-center py-2 px-2 border border-dashed border-muted rounded cursor-pointer hover:border-primary hover:text-primary transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   onCellClick(day, userId);
                 }}
               >
-                <div className="text-muted-foreground">
-                  <div className="text-lg mb-2">Nessun turno programmato</div>
-                  <div className="text-sm">+ Clicca per aggiungere un turno</div>
-                </div>
+                + Aggiungi turno
               </div>
             )}
           </div>
