@@ -72,9 +72,9 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
             <div
               key={index}
               className={cn(
-                "border-r border-gray-200 last:border-r-0 min-h-[140px] p-2 cursor-pointer transition-all duration-200",
+                "border-r border-gray-200 last:border-r-0 min-h-[100px] p-1.5 cursor-pointer transition-all duration-200",
                 "hover:bg-primary/5 hover:shadow-md hover:border-primary/30",
-                "flex flex-col gap-1",
+                "flex flex-col",
                 isWeekend && "bg-gray-50/50",
                 !isCurrentMonth && "opacity-60"
               )}
@@ -89,73 +89,76 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
                 </div>
               ) : (
                 <>
-                  {dayShifts.slice(0, 4).map((shift, shiftIndex) => {
-                    // Use employee color instead of shift type color
-                    const userColor = shift.user.color || '#3B82F6';
-                    const colorStyle = {
-                      backgroundColor: userColor + '20', // Better visibility
-                      borderColor: userColor,
-                      color: userColor
-                    };
-                    
-                    // Solo iniziali del dipendente
-                    const userInitials = shift.user.first_name 
-                      ? `${shift.user.first_name.charAt(0)}${shift.user.last_name?.charAt(0) || ''}` 
-                      : 'U';
-                    
-                    // Testo del turno più compatto
-                    let shiftInfo = '';
-                    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-                      shiftInfo = `${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
-                    } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
-                      shiftInfo = shift.half_day_type === 'morning' ? 'M' : 'P';
-                    } else if (shift.shift_type === 'full_day') {
-                      shiftInfo = 'FD';
-                    } else if (shift.shift_type === 'sick_leave') {
-                      shiftInfo = 'ML';
-                    } else if (shift.shift_type === 'unavailable') {
-                      shiftInfo = 'ND';
-                    } else {
-                      shiftInfo = 'T';
-                    }
+                  {/* Griglia 2 colonne per i turni */}
+                  <div className="grid grid-cols-2 gap-1 flex-1">
+                    {dayShifts.slice(0, 6).map((shift, shiftIndex) => {
+                      // Use employee color instead of shift type color
+                      const userColor = shift.user.color || '#3B82F6';
+                      const colorStyle = {
+                        backgroundColor: userColor + '20', // Better visibility
+                        borderColor: userColor,
+                        color: userColor
+                      };
+                      
+                      // Solo iniziali del dipendente
+                      const userInitials = shift.user.first_name 
+                        ? `${shift.user.first_name.charAt(0)}${shift.user.last_name?.charAt(0) || ''}` 
+                        : 'U';
+                      
+                      // Testo del turno più compatto
+                      let shiftInfo = '';
+                      if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
+                        shiftInfo = `${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
+                      } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
+                        shiftInfo = shift.half_day_type === 'morning' ? 'M' : 'P';
+                      } else if (shift.shift_type === 'full_day') {
+                        shiftInfo = 'FD';
+                      } else if (shift.shift_type === 'sick_leave') {
+                        shiftInfo = 'ML';
+                      } else if (shift.shift_type === 'unavailable') {
+                        shiftInfo = 'ND';
+                      } else {
+                        shiftInfo = 'T';
+                      }
 
-                    // Tooltip completo con nome per chiarezza
-                    const fullName = `${shift.user.first_name || ''} ${shift.user.last_name || ''}`.trim() || 'Utente';
-                    let tooltip = `${fullName} - ${shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels]}`;
-                    if (shift.shift_type === 'half_day' && shift.half_day_type) {
-                      tooltip += ` (${shift.half_day_type === 'morning' ? 'Mattino' : 'Pomeriggio'})`;
-                    }
-                    if (shift.start_time && shift.end_time) {
-                      tooltip += ` (${shift.start_time} - ${shift.end_time})`;
-                    }
-                    if (shift.notes) {
-                      tooltip += ` - ${shift.notes}`;
-                    }
-                    
-                    return (
-                      <div
-                        key={shift.id}
-                        className={cn(
-                          "p-1.5 rounded border text-center",
-                          "hover:shadow-sm transition-shadow cursor-pointer"
-                        )}
-                        style={colorStyle}
-                        title={tooltip}
-                      >
-                        <div className="text-xs font-bold">
-                          {userInitials}
+                      // Tooltip completo con nome per chiarezza
+                      const fullName = `${shift.user.first_name || ''} ${shift.user.last_name || ''}`.trim() || 'Utente';
+                      let tooltip = `${fullName} - ${shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels]}`;
+                      if (shift.shift_type === 'half_day' && shift.half_day_type) {
+                        tooltip += ` (${shift.half_day_type === 'morning' ? 'Mattino' : 'Pomeriggio'})`;
+                      }
+                      if (shift.start_time && shift.end_time) {
+                        tooltip += ` (${shift.start_time} - ${shift.end_time})`;
+                      }
+                      if (shift.notes) {
+                        tooltip += ` - ${shift.notes}`;
+                      }
+                      
+                      return (
+                        <div
+                          key={shift.id}
+                          className={cn(
+                            "p-1 rounded border text-center text-xs",
+                            "hover:shadow-sm transition-shadow cursor-pointer"
+                          )}
+                          style={colorStyle}
+                          title={tooltip}
+                        >
+                          <div className="font-bold leading-tight">
+                            {userInitials}
+                          </div>
+                          <div className="text-[10px] opacity-90 leading-tight">
+                            {shiftInfo}
+                          </div>
                         </div>
-                        <div className="text-[10px] opacity-90">
-                          {shiftInfo}
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                   
                   {/* Indicator per turni multipli */}
-                  {dayShifts.length > 4 && (
-                    <div className="text-xs text-center text-muted-foreground bg-muted/50 rounded py-1 font-medium">
-                      +{dayShifts.length - 4} altri turni
+                  {dayShifts.length > 6 && (
+                    <div className="text-[10px] text-center text-muted-foreground bg-muted/50 rounded py-0.5 mt-1">
+                      +{dayShifts.length - 6}
                     </div>
                   )}
                 </>
