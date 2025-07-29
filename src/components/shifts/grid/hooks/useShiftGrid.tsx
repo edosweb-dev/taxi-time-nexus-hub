@@ -51,7 +51,7 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
     endTime: '17:00'
   });
 
-  // Get all employees (exclude clients)
+  // Get all employees (exclude clients explicitly)
   const { data: employees = [], isLoading: employeesLoading } = useQuery({
     queryKey: ['employees-for-shifts'],
     queryFn: async () => {
@@ -59,10 +59,21 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
         .from('profiles')
         .select('*')
         .in('role', ['admin', 'socio', 'dipendente'])
+        .neq('role', 'cliente') // Explicit exclusion of clients
+        .not('role', 'is', null) // Exclude null roles
+        .order('role', { ascending: true })
         .order('first_name', { ascending: true });
 
       if (error) throw error;
-      return data as Profile[];
+      
+      // Additional client-side filter as safety measure
+      const filteredData = (data as Profile[]).filter(profile => 
+        profile.role && ['admin', 'socio', 'dipendente'].includes(profile.role)
+      );
+      
+      console.log('[useShiftGrid] Loaded employees:', filteredData.map(emp => `${emp.first_name} ${emp.last_name} (${emp.role})`));
+      
+      return filteredData;
     }
   });
 
