@@ -13,9 +13,10 @@ interface WeekRowProps {
   onCellClick: (date: Date, isDoubleClick?: boolean) => void;
   onShiftClick: (shift: Shift) => void;
   currentMonth: Date;
+  viewMode?: "month" | "week" | "day";
 }
 
-export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, currentMonth }: WeekRowProps) {
+export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, currentMonth, viewMode = "month" }: WeekRowProps) {
   const weekDays = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
   
   const handleCellClick = (day: Date, event: React.MouseEvent) => {
@@ -24,6 +25,155 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
     onCellClick(day, isDoubleClick);
   };
 
+  // Get all unique employees for the week (for week view)
+  const getAllEmployees = () => {
+    const employeeSet = new Set<string>();
+    const employeesMap = new Map<string, Profile>();
+    
+    week.days.forEach(dayShifts => {
+      const dayShifts_array = getShiftsForDate(dayShifts.date);
+      dayShifts_array.forEach(shift => {
+        employeeSet.add(shift.user_id);
+        employeesMap.set(shift.user_id, shift.user);
+      });
+    });
+    
+    return Array.from(employeeSet).map(id => employeesMap.get(id)!);
+  };
+
+  // Render week view (each employee takes full width)
+  if (viewMode === "week") {
+    const employees = getAllEmployees();
+    
+    return (
+      <div className="border rounded-lg overflow-hidden bg-background">
+        {/* Week Header */}
+        <div className="grid grid-cols-7 bg-muted/40 border-b sticky top-0 z-30">
+          {week.days.map((dayShifts, index) => {
+            const day = dayShifts.date;
+            const dayOfWeek = getDay(day);
+            const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const isWeekend = adjustedDayOfWeek >= 5;
+            const todayCheck = isToday(day);
+            const isCurrentMonth = isSameMonth(day, currentMonth);
+            
+            return (
+              <div
+                key={index}
+                className={cn(
+                  "px-2 py-3 text-center border-r border-gray-200 last:border-r-0",
+                  "flex flex-col items-center justify-center gap-1",
+                  isWeekend && "bg-muted/60",
+                  todayCheck && "bg-primary text-primary-foreground font-bold",
+                  !isCurrentMonth && "opacity-50"
+                )}
+              >
+                <div className="text-xs font-medium uppercase tracking-wide">
+                  {weekDays[adjustedDayOfWeek]}
+                </div>
+                <div className={cn(
+                  "text-lg font-bold",
+                  todayCheck && "bg-primary-foreground text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm"
+                )}>
+                  {format(day, 'd')}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Employee rows - each employee takes full width */}
+        {employees.map((employee) => (
+          <div key={employee.id} className="border-b border-gray-100 last:border-b-0">
+            {/* Employee name header */}
+            <div className="bg-muted/20 px-4 py-2 border-b border-gray-200">
+              <div className="font-medium text-sm">
+                {employee.first_name} {employee.last_name}
+              </div>
+            </div>
+            
+            {/* Employee's week grid */}
+            <div className="grid grid-cols-7">
+              {week.days.map((dayShifts, dayIndex) => {
+                const day = dayShifts.date;
+                const dayShifts_array = getShiftsForDate(day);
+                const employeeShifts = dayShifts_array.filter(shift => shift.user_id === employee.id);
+                const isCurrentMonth = isSameMonth(day, currentMonth);
+                const dayOfWeek = getDay(day);
+                const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                const isWeekend = adjustedDayOfWeek >= 5;
+
+                return (
+                  <div
+                    key={`${employee.id}-${day.toISOString()}`}
+                    className={cn(
+                      "border-r border-gray-200 last:border-r-0 min-h-[80px] p-2",
+                      "flex flex-col gap-1",
+                      isWeekend && "bg-gray-50/30",
+                      !isCurrentMonth && "opacity-60"
+                    )}
+                  >
+                    {employeeShifts.length === 0 ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-xs text-muted-foreground/40">
+                          -
+                        </div>
+                      </div>
+                    ) : (
+                      employeeShifts.map((shift) => {
+                        const userColor = shift.user.color || '#3B82F6';
+                        const colorStyle = {
+                          backgroundColor: userColor + '20',
+                          borderColor: userColor,
+                          color: userColor
+                        };
+                        
+                        let shiftInfo = '';
+                        if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
+                          shiftInfo = `${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
+                        } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
+                          shiftInfo = shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio';
+                        } else if (shift.shift_type === 'full_day') {
+                          shiftInfo = 'Giornata completa';
+                        } else if (shift.shift_type === 'sick_leave') {
+                          shiftInfo = 'Malattia';
+                        } else if (shift.shift_type === 'unavailable') {
+                          shiftInfo = 'Non disponibile';
+                        } else {
+                          shiftInfo = 'Turno';
+                        }
+
+                        return (
+                          <div
+                            key={shift.id}
+                            className={cn(
+                              "p-2 rounded border text-center text-xs cursor-pointer",
+                              "hover:shadow-sm transition-shadow hover:scale-105"
+                            )}
+                            style={colorStyle}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onShiftClick(shift);
+                            }}
+                          >
+                            <div className="font-medium leading-tight">
+                              {shiftInfo}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Default month/day view
   return (
     <div className="border-b border-gray-200">
       {/* Week Header */}

@@ -110,6 +110,7 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [], viewMode = "
                 onCellClick={handleCellClick}
                 onShiftClick={handleShiftClick}
                 currentMonth={currentMonth}
+                viewMode={viewMode}
               />
             ))
           )}
