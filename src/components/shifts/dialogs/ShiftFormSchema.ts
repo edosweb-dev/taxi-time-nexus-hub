@@ -17,7 +17,7 @@ export const shiftFormSchema = z.object({
   half_day_type: z.enum(['morning', 'afternoon']).optional().nullable(),
   start_date: z.date().optional().nullable(),
   end_date: z.date().optional().nullable(),
-  notes: z.string().optional()
+  notes: z.string().optional().nullable()
 });
 
 export type ShiftFormValues = z.infer<typeof shiftFormSchema>;
