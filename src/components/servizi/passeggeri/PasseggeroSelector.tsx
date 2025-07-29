@@ -16,7 +16,7 @@ interface PasseggeroSelectorProps {
 }
 
 export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelect }: PasseggeroSelectorProps) {
-  const { passeggeri, isLoading } = usePasseggeri(azienda_id, referente_id);
+  const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id, referente_id);
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [newPasseggero, setNewPasseggero] = useState({

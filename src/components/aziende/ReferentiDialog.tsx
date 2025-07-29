@@ -1,7 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Profile } from '@/lib/types';
-import { User, Mail, Phone } from 'lucide-react';
+import { User, Mail, Phone, Users, ExternalLink } from 'lucide-react';
+import { useAllPasseggeriByReferente } from '@/hooks/useReferentiPasseggeri';
+import { useNavigate } from 'react-router-dom';
 
 interface ReferentiDialogProps {
   open: boolean;
@@ -11,6 +14,12 @@ interface ReferentiDialogProps {
 }
 
 export function ReferentiDialog({ open, onOpenChange, referenti, aziendaNome }: ReferentiDialogProps) {
+  const navigate = useNavigate();
+  const { data: passeggeriByReferente = {} } = useAllPasseggeriByReferente();
+
+  const handleReferenteClick = (referente: Profile) => {
+    navigate(`/referenti/${referente.id}`);
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -30,33 +39,58 @@ export function ReferentiDialog({ open, onOpenChange, referenti, aziendaNome }: 
               </p>
             </div>
           ) : (
-            referenti.map((referente) => (
-              <div key={referente.id} className="border rounded-lg p-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">
-                    {referente.first_name} {referente.last_name}
-                  </h4>
-                  <Badge variant="secondary" className="text-xs">
-                    {referente.role}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-1">
-                  {referente.email && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Mail className="h-3 w-3" />
-                      <span>{referente.email}</span>
+            referenti.map((referente) => {
+              const numPasseggeri = passeggeriByReferente[referente.id]?.length || 0;
+              
+              return (
+                <div 
+                  key={referente.id} 
+                  className="border rounded-lg p-3 space-y-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleReferenteClick(referente)}
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium">
+                      {referente.first_name} {referente.last_name}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {referente.role}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReferenteClick(referente);
+                        }}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
                     </div>
-                  )}
-                  {referente.telefono && (
+                  </div>
+                  
+                  <div className="space-y-1">
+                    {referente.email && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <span>{referente.email}</span>
+                      </div>
+                    )}
+                    {referente.telefono && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        <span>{referente.telefono}</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Phone className="h-3 w-3" />
-                      <span>{referente.telefono}</span>
+                      <Users className="h-3 w-3" />
+                      <span>{numPasseggeri} passeggeri collegati</span>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </DialogContent>

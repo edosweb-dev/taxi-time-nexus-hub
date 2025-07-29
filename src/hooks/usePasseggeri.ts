@@ -1,83 +1,36 @@
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Passeggero } from '@/lib/types/servizi';
-import { toast } from '@/components/ui/sonner';
 
-export interface CreatePasseggeroData {
-  nome_cognome: string; // Generato automaticamente da nome + cognome
-  nome: string;
-  cognome: string;
-  localita?: string;
-  indirizzo?: string;
-  email?: string;
-  telefono?: string;
-  azienda_id: string;
-  referente_id: string;
-}
-
-export const usePasseggeri = (azienda_id?: string, referente_id?: string) => {
-  const queryClient = useQueryClient();
-
-  // Fetch passeggeri per azienda e referente
-  const { data: passeggeri = [], isLoading } = useQuery({
-    queryKey: ['passeggeri', azienda_id, referente_id],
+export function usePasseggeri(aziendaId?: string, referenteId?: string) {
+  return useQuery({
+    queryKey: ['passeggeri', aziendaId, referenteId],
     queryFn: async () => {
-      if (!azienda_id || !referente_id) return [];
+      if (!aziendaId && !referenteId) return { passeggeri: [], isLoading: false };
       
-      const { data, error } = await supabase
-        .from('passeggeri')
-        .select('*')
-        .eq('azienda_id', azienda_id)
-        .eq('referente_id', referente_id)
-        .order('nome_cognome');
+      let query = supabase.from('passeggeri').select('*');
+      
+      if (aziendaId) {
+        query = query.eq('azienda_id', aziendaId);
+      }
+      
+      if (referenteId) {
+        query = query.eq('referente_id', referenteId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching passeggeri:', error);
         throw error;
       }
 
-      return data as Passeggero[];
+      return { passeggeri: data as Passeggero[], isLoading: false };
     },
-    enabled: !!azienda_id && !!referente_id,
+    enabled: !!(aziendaId || referenteId),
+    select: (data) => ({
+      passeggeri: data?.passeggeri || [],
+      isLoading: false
+    })
   });
-
-  // Crea nuovo passeggero
-  const createPasseggero = useMutation({
-    mutationFn: async (data: CreatePasseggeroData) => {
-      // Crea automaticamente il nome_cognome se non presente
-      const passeggeroData = {
-        ...data,
-        nome_cognome: data.nome_cognome || `${data.nome} ${data.cognome}`.trim()
-      };
-
-      const { data: passeggero, error } = await supabase
-        .from('passeggeri')
-        .insert(passeggeroData)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating passeggero:', error);
-        throw error;
-      }
-
-      return passeggero as Passeggero;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['passeggeri'] });
-      toast.success('Passeggero creato con successo');
-    },
-    onError: (error: any) => {
-      console.error('Error creating passeggero:', error);
-      toast.error(`Errore nella creazione del passeggero: ${error.message}`);
-    },
-  });
-
-  return {
-    passeggeri,
-    isLoading,
-    createPasseggero: createPasseggero.mutate,
-    isCreating: createPasseggero.isPending,
-  };
-};
+}

@@ -21,7 +21,7 @@ export function PasseggeriList({ userRole }: PasseggeriListProps) {
   const azienda_id = useWatch({ control, name: "azienda_id" });
   const referente_id = useWatch({ control, name: "referente_id" });
 
-  const { passeggeri, isLoading } = usePasseggeri(azienda_id, referente_id);
+  const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id, referente_id);
 
   // Mostra solo ad admin e soci
   if (!userRole || (userRole !== 'admin' && userRole !== 'socio')) {
