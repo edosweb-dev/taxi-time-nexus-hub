@@ -126,24 +126,27 @@ export function MonthView({
               </div>
 
               {/* Shifts */}
-              <div className="space-y-0.5">
-                {dayShifts.map((shift) => (
-                  <div
-                    key={shift.id}
-                    className="text-[10px] p-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity leading-tight"
-                    style={{
-                      backgroundColor: getShiftColor(shift) + '20',
-                      borderLeft: `2px solid ${getShiftColor(shift)}`,
-                      color: getShiftColor(shift)
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditShift(shift);
-                    }}
-                  >
-                    {getShiftDisplayText(shift)}
-                  </div>
-                ))}
+              <div className="flex flex-wrap gap-1">
+                {dayShifts.map((shift) => {
+                  const user = userMap.get(shift.user_id);
+                  const initials = user ? `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}` : 'U';
+                  
+                  return (
+                    <div
+                      key={shift.id}
+                      className="w-6 h-6 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center text-[10px] font-medium text-white"
+                      style={{
+                        backgroundColor: getShiftColor(shift)
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditShift(shift);
+                      }}
+                    >
+                      {initials}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
