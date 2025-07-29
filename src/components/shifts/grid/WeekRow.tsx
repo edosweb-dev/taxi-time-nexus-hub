@@ -26,7 +26,7 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
   return (
     <div className="border-b border-gray-200">
       {/* Week Header */}
-      <div className="grid grid-cols-7 bg-muted/30 border-b">
+      <div className="grid grid-cols-7 bg-muted/40 border-b sticky top-0 z-10">
         {week.days.map((day, index) => {
           const dayOfWeek = getDay(day);
           const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -38,19 +38,19 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
             <div
               key={index}
               className={cn(
-                "px-1 py-1.5 text-center border-r border-gray-200 last:border-r-0",
-                "flex items-center justify-center gap-1 min-h-[28px]",
-                isWeekend && "bg-muted/50",
+                "px-2 py-3 text-center border-r border-gray-200 last:border-r-0",
+                "flex flex-col items-center justify-center gap-1",
+                isWeekend && "bg-muted/60",
                 todayCheck && "bg-primary text-primary-foreground font-bold",
                 !isCurrentMonth && "opacity-50"
               )}
             >
-              <div className="text-[10px] font-medium opacity-80">
+              <div className="text-xs font-medium uppercase tracking-wide">
                 {weekDays[adjustedDayOfWeek]}
               </div>
               <div className={cn(
-                "text-xs font-bold",
-                todayCheck && "bg-primary-foreground text-primary rounded-full w-5 h-5 flex items-center justify-center text-[10px]"
+                "text-lg font-bold",
+                todayCheck && "bg-primary-foreground text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm"
               )}>
                 {format(day, 'd')}
               </div>
@@ -72,51 +72,53 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
             <div
               key={index}
               className={cn(
-                "border-r border-gray-200 last:border-r-0 min-h-[80px] p-1 cursor-pointer transition-all duration-200",
-                "hover:bg-primary/5 hover:shadow-sm",
-                "flex flex-col gap-0.5",
-                isWeekend && "bg-gray-50/30",
-                !isCurrentMonth && "opacity-50"
+                "border-r border-gray-200 last:border-r-0 min-h-[140px] p-2 cursor-pointer transition-all duration-200",
+                "hover:bg-primary/5 hover:shadow-md hover:border-primary/30",
+                "flex flex-col gap-1",
+                isWeekend && "bg-gray-50/50",
+                !isCurrentMonth && "opacity-60"
               )}
               onClick={(e) => handleCellClick(day, e)}
             >
               {dayShifts.length === 0 ? (
                 <div className="flex items-center justify-center h-full group">
-                  <Plus className="h-3 w-3 opacity-20 group-hover:opacity-50 transition-opacity" />
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
+                    <Plus className="h-6 w-6 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-medium">Aggiungi turno</span>
+                  </div>
                 </div>
               ) : (
                 <>
-                  {dayShifts.slice(0, 5).map((shift, shiftIndex) => {
+                  {dayShifts.slice(0, 4).map((shift, shiftIndex) => {
                     // Use employee color instead of shift type color
                     const userColor = shift.user.color || '#3B82F6';
                     const colorStyle = {
-                      backgroundColor: userColor + '15', // Less transparency for better visibility
+                      backgroundColor: userColor + '20', // Better visibility
                       borderColor: userColor,
                       color: userColor
                     };
                     
-                    // Testo compatto con nome dipendente
-                    let displayText = '';
-                    const userName = shift.user.first_name 
-                      ? `${shift.user.first_name.charAt(0)}${shift.user.last_name?.charAt(0) || ''}` 
-                      : 'U';
+                    // Nome completo del dipendente
+                    const fullName = `${shift.user.first_name || ''} ${shift.user.last_name || ''}`.trim() || 'Utente';
                     
+                    // Testo del turno più leggibile
+                    let shiftInfo = '';
                     if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-                      displayText = `${userName} ${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
+                      shiftInfo = `${shift.start_time.slice(0,5)} - ${shift.end_time.slice(0,5)}`;
                     } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
-                      displayText = `${userName} ${shift.half_day_type === 'morning' ? 'M' : 'P'}`;
+                      shiftInfo = shift.half_day_type === 'morning' ? 'Mattino' : 'Pomeriggio';
                     } else if (shift.shift_type === 'full_day') {
-                      displayText = `${userName} FD`;
+                      shiftInfo = 'Giornata intera';
                     } else if (shift.shift_type === 'sick_leave') {
-                      displayText = `${userName} ML`;
+                      shiftInfo = 'Malattia';
                     } else if (shift.shift_type === 'unavailable') {
-                      displayText = `${userName} ND`;
+                      shiftInfo = 'Non disponibile';
                     } else {
-                      displayText = `${userName} T`;
+                      shiftInfo = 'Turno';
                     }
 
                     // Tooltip completo
-                    let tooltip = `${shift.user.first_name} ${shift.user.last_name} - ${shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels]}`;
+                    let tooltip = `${fullName} - ${shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels]}`;
                     if (shift.shift_type === 'half_day' && shift.half_day_type) {
                       tooltip += ` (${shift.half_day_type === 'morning' ? 'Mattino' : 'Pomeriggio'})`;
                     }
@@ -131,21 +133,26 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
                       <div
                         key={shift.id}
                         className={cn(
-                          "text-[10px] px-1 py-0.5 rounded text-center font-medium leading-none",
-                          "border border-current truncate"
+                          "p-2 rounded-md border shadow-sm",
+                          "hover:shadow-md transition-shadow cursor-pointer"
                         )}
                         style={colorStyle}
                         title={tooltip}
                       >
-                        {displayText}
+                        <div className="text-xs font-semibold truncate mb-1">
+                          {fullName}
+                        </div>
+                        <div className="text-xs opacity-90 truncate">
+                          {shiftInfo}
+                        </div>
                       </div>
                     );
                   })}
                   
                   {/* Indicator per turni multipli */}
-                  {dayShifts.length > 5 && (
-                    <div className="text-[9px] text-center text-muted-foreground leading-none">
-                      +{dayShifts.length - 5}
+                  {dayShifts.length > 4 && (
+                    <div className="text-xs text-center text-muted-foreground bg-muted/50 rounded py-1 font-medium">
+                      +{dayShifts.length - 4} altri turni
                     </div>
                   )}
                 </>

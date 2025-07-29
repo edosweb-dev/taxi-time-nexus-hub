@@ -50,20 +50,25 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
     : [];
 
   return (
-    <div className="space-y-2">
-      {/* Info compatta */}
-      <div className="flex items-center gap-3 text-xs text-muted-foreground px-2">
-        <span>{employees.length} dipendenti</span>
-        <span>•</span>
-        <span>Click su giorno per gestire turni</span>
+    <div className="space-y-4">
+      {/* Info header */}
+      <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-medium text-foreground">
+            {employees.length} dipendenti attivi
+          </span>
+          <span className="text-xs text-muted-foreground">
+            Click su un giorno per gestire i turni
+          </span>
+        </div>
       </div>
 
       {/* Weekly Grid */}
-      <div className="border rounded-lg overflow-hidden bg-background">
-        <div className="max-h-[80vh] overflow-y-auto scrollbar-thin">
+      <div className="border rounded-lg overflow-hidden bg-background shadow-sm">
+        <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
           {weekData.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p className="text-sm">Nessuna settimana da visualizzare</p>
+            <div className="text-center py-12 text-muted-foreground">
+              <p className="text-base">Nessuna settimana da visualizzare</p>
             </div>
           ) : (
             weekData.map((week, index) => (
