@@ -1,9 +1,10 @@
 
+import { useNavigate } from 'react-router-dom';
 import { Profile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Loader2, Edit, Trash2, User, Mail, Users } from "lucide-react";
+import { Loader2, Edit, Trash2, User, Mail, Users, ExternalLink } from "lucide-react";
 
 interface ReferentiTableProps {
   referenti: Profile[];
@@ -22,6 +23,8 @@ export function ReferentiTable({
   onDeleteUser,
   onAddUser,
 }: ReferentiTableProps) {
+  const navigate = useNavigate();
+  
   // Helper function to get user initials
   const getUserInitials = (firstName: string | null, lastName: string | null) => {
     const first = firstName?.charAt(0)?.toUpperCase() || '';
@@ -100,6 +103,16 @@ export function ReferentiTable({
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/referenti/${user.id}`)}
+              className="flex items-center gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Dettagli
+            </Button>
+            
             <Button
               variant="ghost"
               size="sm"

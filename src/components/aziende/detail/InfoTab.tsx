@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -32,6 +33,7 @@ interface InfoTabProps {
 }
 
 export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferente, onDeleteReferente }: InfoTabProps) {
+  const navigate = useNavigate();
   const [passeggeri, setPasseggeri] = useState<Passeggero[]>([]);
   const [filteredPasseggeri, setFilteredPasseggeri] = useState<Passeggero[]>([]);
   const [selectedReferente, setSelectedReferente] = useState<string>('all');
@@ -274,7 +276,11 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
           ) : (
             <div className="space-y-2">
               {referenti.slice(0, 3).map((referente) => (
-                <div key={referente.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card/50 group">
+                <div 
+                  key={referente.id} 
+                  className="flex items-center gap-3 p-3 rounded-lg border bg-card/50 group hover:bg-accent/50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/referenti/${referente.id}`)}
+                >
                   <Avatar className="h-8 w-8 border-2 border-primary/20">
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                       {getUserInitials(referente.first_name, referente.last_name)}
@@ -301,7 +307,10 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onEditReferente(referente)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditReferente(referente);
+                        }}
                         className="h-8 w-8 p-0"
                       >
                         <User className="h-3 w-3" />
