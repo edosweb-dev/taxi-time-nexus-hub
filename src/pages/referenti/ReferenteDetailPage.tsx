@@ -132,125 +132,79 @@ export default function ReferenteDetailPage() {
         </div>
 
         {/* Informazioni referente */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card principale referente */}
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Informazioni Referente
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Informazioni Referente
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Nome completo</h3>
+                  <p className="text-lg font-semibold">
+                    {referente.first_name} {referente.last_name}
+                  </p>
+                </div>
+
+                {referente.email && (
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Nome completo</h3>
-                    <p className="text-lg font-semibold">
-                      {referente.first_name} {referente.last_name}
+                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email
+                    </h3>
+                    <p className="text-base">
+                      {referente.email}
                     </p>
                   </div>
+                )}
 
-                  {referente.email && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email
-                      </h3>
-                      <p className="text-base">
-                        {referente.email}
-                      </p>
-                    </div>
-                  )}
-
-                  {referente.telefono && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Telefono
-                      </h3>
-                      <p className="text-base">
-                        {referente.telefono}
-                      </p>
-                    </div>
-                  )}
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Ruolo</h3>
+                  <Badge variant="secondary" className="mt-1">
+                    {referente.role}
+                  </Badge>
                 </div>
+              </div>
 
-                <div className="space-y-4">
-                  {azienda && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                        <Building2 className="h-4 w-4" />
-                        Azienda
-                      </h3>
-                      <p className="text-base font-medium">
-                        {azienda.nome}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        P.IVA: {azienda.partita_iva}
-                      </p>
-                      {azienda.citta && (
-                        <p className="text-sm text-muted-foreground">
-                          {azienda.citta}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
+              <div className="space-y-4">
+                {referente.telefono && (
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Ruolo</h3>
-                    <Badge variant="secondary" className="mt-1">
-                      {referente.role}
-                    </Badge>
+                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Telefono
+                    </h3>
+                    <p className="text-base">
+                      {referente.telefono}
+                    </p>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                )}
 
-          {/* Card statistiche */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Statistiche
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">
-                  {passeggeri.length}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Passeggeri collegati
-                </p>
+                {azienda && (
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      Azienda
+                    </h3>
+                    <p className="text-base font-medium">
+                      {azienda.nome}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      P.IVA: {azienda.partita_iva}
+                    </p>
+                    {azienda.citta && (
+                      <p className="text-sm text-muted-foreground">
+                        {azienda.citta}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
-              
-              {passeggeri.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Con email:</span>
-                    <span className="font-medium">
-                      {passeggeri.filter(p => p.email).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Con telefono:</span>
-                    <span className="font-medium">
-                      {passeggeri.filter(p => p.telefono).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Con indirizzo:</span>
-                    <span className="font-medium">
-                      {passeggeri.filter(p => p.indirizzo).length}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Sezione passeggeri */}
         <div className="space-y-4">
