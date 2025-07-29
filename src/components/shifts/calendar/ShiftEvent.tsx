@@ -58,14 +58,14 @@ export const ShiftEvent = ({
   return (
     <div
       className={cn(
-        "absolute left-0 right-0 z-10 mx-1 rounded-md border p-1 text-xs overflow-hidden cursor-pointer transition-shadow hover:shadow-md",
+        "absolute left-0 right-0 z-5 mx-1 rounded-md border p-1 text-xs overflow-hidden cursor-pointer transition-shadow hover:shadow-md hover:z-10",
         {
           "bg-green-400/90 text-green-950 border-green-500": getVariant() === "success",
           "bg-secondary text-secondary-foreground border-secondary": getVariant() === "secondary",
           "bg-destructive text-destructive-foreground border-destructive/30": getVariant() === "destructive",
           "bg-background border-muted-foreground/50 text-muted-foreground": getVariant() === "outline",
           "bg-primary text-primary-foreground border-primary": getVariant() === "default",
-          "z-20": spanRows,
+          "z-15": spanRows,
           [userColorClass]: userColorClass !== ""
         }
       )}

@@ -130,6 +130,12 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'scale-in': 'scale-in 0.2s ease-out',
 				'slide-in-right': 'slide-in-right 0.3s ease-out'
+			},
+			zIndex: {
+				'5': '5',
+				'15': '15',
+				'25': '25',
+				'35': '35'
 			}
 		}
 	},

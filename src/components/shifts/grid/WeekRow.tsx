@@ -27,7 +27,7 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
   return (
     <div className="border-b border-gray-200">
       {/* Week Header */}
-      <div className="grid grid-cols-7 bg-muted/40 border-b sticky top-0 z-10">
+      <div className="grid grid-cols-7 bg-muted/40 border-b sticky top-0 z-30">
         {week.days.map((day, index) => {
           const dayOfWeek = getDay(day);
           const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -136,8 +136,8 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
                         <div
                           key={shift.id}
                           className={cn(
-                            "p-1 rounded border text-center text-xs",
-                            "hover:shadow-sm transition-shadow cursor-pointer hover:scale-105"
+                            "p-1 rounded border text-center text-xs relative z-5",
+                            "hover:shadow-sm transition-shadow cursor-pointer hover:scale-105 hover:z-10"
                           )}
                           style={colorStyle}
                           title={tooltip}
