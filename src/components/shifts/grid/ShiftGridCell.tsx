@@ -43,7 +43,13 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
       ) : (
         <>
           {shifts.slice(0, 2).map((shift, index) => {
-            const colorClass = shiftTypeColors[shift.shift_type as keyof typeof shiftTypeColors] || 'bg-gray-500 text-white';
+            // Use color from shift data (user_color) if available, otherwise default
+            const userColor = shift.user_color || '#3B82F6';
+            const colorStyle = {
+              backgroundColor: userColor + '20', // Add transparency
+              borderColor: userColor,
+              color: userColor
+            };
             
             // Testo compatto
             let displayText = '';
@@ -78,9 +84,9 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
                 key={shift.id}
                 className={cn(
                   "text-[10px] px-1 py-0.5 rounded text-center font-medium",
-                  "border border-white/20",
-                  colorClass
+                  "border border-current"
                 )}
+                style={colorStyle}
                 title={tooltip}
               >
                 {displayText}
