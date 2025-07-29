@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, User, Mail, Phone, Building2, Users } from 'lucide-react';
+import { ChevronLeft, User, Mail, Phone, Building2, Users, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Profile, UserRole } from '@/lib/types';
@@ -101,23 +101,34 @@ export default function ReferenteDetailPage() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto space-y-6">{/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
-          >
+      <div className="space-y-6">
+        {/* Header con breadcrumb */}
+        <div className="space-y-4">
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <User className="h-4 w-4" />
             <ChevronLeft className="h-4 w-4" />
-            Indietro
-          </Button>
-          
-          <div>
-            <h1 className="text-2xl font-bold">
+            <span 
+              className="hover:text-foreground cursor-pointer transition-colors duration-200" 
+              onClick={() => navigate(-1)}
+            >
+              Referenti
+            </span>
+            <ChevronLeft className="h-4 w-4" />
+            <span className="font-medium text-foreground">
               {referente.first_name} {referente.last_name}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
+            </span>
+          </nav>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-3">
+              <h1 className="page-title">
+                {referente.first_name} {referente.last_name}
+              </h1>
+              <p className="text-description">
+                Dettagli referente aziendale
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
               <Badge variant="secondary">
                 {referente.role}
               </Badge>
@@ -130,110 +141,159 @@ export default function ReferenteDetailPage() {
           </div>
         </div>
 
-        {/* Informazioni referente */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Informazioni Referente
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">{/* Prima colonna */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Nome completo</h3>
-                  <p className="text-lg font-semibold">
-                    {referente.first_name} {referente.last_name}
-                  </p>
-                </div>
-
-                {referente.email && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Email
-                    </h3>
-                    <p className="text-base">
-                      {referente.email}
-                    </p>
-                  </div>
-                )}
-
-                {referente.telefono && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      Telefono
-                    </h3>
-                    <p className="text-base">
-                      {referente.telefono}
-                    </p>
-                  </div>
-                )}
-
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Ruolo</h3>
-                  <Badge variant="secondary" className="mt-1">
-                    {referente.role}
-                  </Badge>
-                </div>
-              </div>{/* Seconda colonna */}
-
-              <div className="space-y-4">
-                {azienda && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Building2 className="h-4 w-4" />
-                      Azienda
-                    </h3>
-                    <p className="text-base font-medium">
-                      {azienda.nome}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      P.IVA: {azienda.partita_iva}
-                    </p>
-                    {azienda.citta && (
-                      <p className="text-sm text-muted-foreground">
-                        {azienda.citta}
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-5">
+          {/* Informazioni Personali Card - 60% */}
+          <Card className="lg:col-span-3 border-l-4 border-l-primary shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold flex items-center gap-3">
+                <User className="h-6 w-6 text-primary" />
+                Informazioni Personali
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
+                      <User className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nome Completo</p>
+                      <p className="text-base font-bold text-foreground">
+                        {referente.first_name} {referente.last_name}
                       </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ruolo</p>
+                      <Badge variant="secondary" className="mt-1">
+                        {referente.role}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contatti */}
+              {(referente.email || referente.telefono) && (
+                <div className="pt-3 border-t space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {referente.email && (
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-lg bg-green-50 text-green-600">
+                          <Mail className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</p>
+                          <p className="text-base font-semibold text-foreground">{referente.email}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {referente.telefono && (
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
+                          <Phone className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Telefono</p>
+                          <p className="text-base font-semibold text-foreground">{referente.telefono}</p>
+                        </div>
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Sezione passeggeri */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users className="h-6 w-6" />
-              <h2 className="text-2xl font-bold">
-                Passeggeri
-              </h2>
-              <Badge variant="outline" className="ml-2">
-                {passeggeri.length}
-              </Badge>
-            </div>
-          </div>
-          
-          {isLoadingPasseggeri ? (
-            <Card>
-              <CardContent className="py-8">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+          {/* Informazioni Azienda Card - 40% */}
+          <Card className="lg:col-span-2 border-l-4 border-l-blue-500 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold flex items-center gap-3">
+                <Building2 className="h-6 w-6 text-blue-500" />
+                Azienda di Appartenenza
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {azienda ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nome Azienda</p>
+                      <p className="text-base font-bold text-foreground">{azienda.nome}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/30">
+                    <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Partita IVA</p>
+                      <p className="text-sm font-mono font-semibold text-foreground">{azienda.partita_iva}</p>
+                    </div>
+                  </div>
+                  
+                  {azienda.citta && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/30">
+                      <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
+                        <MapPin className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Città</p>
+                        <p className="text-sm font-semibold text-foreground">{azienda.citta}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <Building2 className="h-6 w-6 text-gray-400" />
+                  </div>
                   <p className="text-sm text-muted-foreground">
-                    Caricamento passeggeri...
+                    Nessuna azienda associata
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <PasseggeriList passeggeri={passeggeri} />
-          )}
+              )}
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Sezione passeggeri */}
+        <Card className="border-l-4 border-l-purple-500 shadow-sm">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-bold flex items-center gap-3">
+                <Users className="h-6 w-6 text-purple-500" />
+                Passeggeri ({passeggeri.length})
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoadingPasseggeri ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-sm text-muted-foreground">
+                  Caricamento passeggeri...
+                </p>
+              </div>
+            ) : (
+              <PasseggeriList passeggeri={passeggeri} />
+            )}
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );
