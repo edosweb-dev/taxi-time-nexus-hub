@@ -26,9 +26,21 @@ export interface DayShifts {
 }
 
 export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = []) => {
-  const { shifts, isLoading: shiftsLoading, createShift } = useShifts();
+  const { shifts, isLoading: shiftsLoading, createShift, loadShifts } = useShifts();
   const [selectedCell, setSelectedCell] = useState<{ userId: string; date: string } | null>(null);
   const [quickDialogOpen, setQuickDialogOpen] = useState(false);
+
+  console.log('[useShiftGrid] Current month:', format(currentMonth, 'yyyy-MM-dd'));
+  console.log('[useShiftGrid] Received shifts:', shifts);
+  console.log('[useShiftGrid] Selected user IDs:', selectedUserIds);
+
+  // Load shifts for the current month when it changes
+  useEffect(() => {
+    const start = startOfMonth(currentMonth);
+    const end = endOfMonth(currentMonth);
+    console.log('[useShiftGrid] Loading shifts for range:', format(start, 'yyyy-MM-dd'), 'to', format(end, 'yyyy-MM-dd'));
+    loadShifts(start, end);
+  }, [currentMonth, loadShifts]);
 
   // Quick Insert State
   const [quickInsertMode, setQuickInsertMode] = useState({
@@ -78,12 +90,17 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
 
   // Organize shifts by date with user info
   const shiftsByDate = useMemo((): Map<string, Array<Shift & { user: Profile }>> => {
+    console.log('[useShiftGrid] Processing shifts:', shifts);
+    console.log('[useShiftGrid] Filtered employees:', filteredEmployees);
+    
     const shiftsMap = new Map<string, Array<Shift & { user: Profile }>>();
     
     shifts.forEach(shift => {
       const user = filteredEmployees.find(emp => emp.id === shift.user_id);
+      console.log('[useShiftGrid] Processing shift:', shift, 'found user:', user);
       if (user) {
         const dateKey = format(new Date(shift.shift_date), 'yyyy-MM-dd');
+        console.log('[useShiftGrid] Adding shift to date:', dateKey);
         if (!shiftsMap.has(dateKey)) {
           shiftsMap.set(dateKey, []);
         }
@@ -91,6 +108,7 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
       }
     });
 
+    console.log('[useShiftGrid] Final shiftsMap:', shiftsMap);
     return shiftsMap;
   }, [shifts, filteredEmployees]);
 
