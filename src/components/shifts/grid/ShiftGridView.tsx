@@ -50,31 +50,12 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
     : [];
 
   return (
-    <div className="space-y-4">
-      {/* Quick Insert Toolbar */}
-      <QuickShiftToolbar
-        selectedShiftType={quickInsertMode.shiftType}
-        onShiftTypeChange={setQuickShiftType}
-        selectedEmployee={quickInsertMode.employee}
-        onEmployeeChange={setQuickEmployee}
-        employees={employees}
-        halfDayType={quickInsertMode.halfDayType}
-        onHalfDayTypeChange={setQuickHalfDayType}
-        startTime={quickInsertMode.startTime}
-        endTime={quickInsertMode.endTime}
-        onStartTimeChange={setQuickStartTime}
-        onEndTimeChange={setQuickEndTime}
-        onClearSelection={clearQuickInsert}
-      />
-
-      {/* Compact Info & Legend */}
-      <div className="flex items-center justify-between gap-4">
-        <ShiftGridLegend />
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span>{employees.length} dipendenti</span>
-          <span>•</span>
-          <span>Click su giorno per gestire turni</span>
-        </div>
+    <div className="space-y-2">
+      {/* Info compatta */}
+      <div className="flex items-center gap-3 text-xs text-muted-foreground px-2">
+        <span>{employees.length} dipendenti</span>
+        <span>•</span>
+        <span>Click su giorno per gestire turni</span>
       </div>
 
       {/* Weekly Grid */}

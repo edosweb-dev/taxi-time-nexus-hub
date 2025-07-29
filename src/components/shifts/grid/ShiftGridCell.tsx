@@ -25,7 +25,7 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
   return (
     <div
       className={cn(
-        "relative border-r border-b border-gray-200 min-h-[50px] p-1 cursor-pointer transition-all duration-200",
+        "relative border-r border-b border-gray-200 min-h-[35px] p-0.5 cursor-pointer transition-all duration-200",
         "hover:bg-primary/5 hover:shadow-sm hover:border-primary/20",
         "flex flex-col gap-0.5",
         isWeekend && "bg-gray-50/50",
@@ -38,11 +38,11 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
     >
       {!hasShifts ? (
         <div className="flex items-center justify-center h-full group">
-          <Plus className="h-3 w-3 opacity-30 group-hover:opacity-60 transition-opacity" />
+          <Plus className="h-2.5 w-2.5 opacity-30 group-hover:opacity-60 transition-opacity" />
         </div>
       ) : (
         <>
-          {shifts.slice(0, 2).map((shift, index) => {
+          {shifts.slice(0, 3).map((shift, index) => {
             // Use color from shift data (user_color) if available, otherwise default
             const userColor = shift.user_color || '#3B82F6';
             const colorStyle = {
@@ -83,7 +83,7 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
               <div
                 key={shift.id}
                 className={cn(
-                  "text-[10px] px-1 py-0.5 rounded text-center font-medium",
+                  "text-[9px] px-0.5 py-0.5 rounded text-center font-medium leading-none",
                   "border border-current"
                 )}
                 style={colorStyle}
@@ -95,9 +95,9 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
           })}
           
           {/* Indicator per turni multipli */}
-          {shifts.length > 2 && (
-            <div className="text-[9px] text-center text-muted-foreground">
-              +{shifts.length - 2}
+          {shifts.length > 3 && (
+            <div className="text-[8px] text-center text-muted-foreground leading-none">
+              +{shifts.length - 3}
             </div>
           )}
         </>
