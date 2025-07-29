@@ -10,12 +10,18 @@ import { Plus } from 'lucide-react';
 interface WeekRowProps {
   week: WeekData;
   getShiftsForDate: (date: Date) => Array<Shift & { user: Profile }>;
-  onCellClick: (date: Date) => void;
+  onCellClick: (date: Date, isDoubleClick?: boolean) => void;
   currentMonth: Date;
 }
 
 export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: WeekRowProps) {
   const weekDays = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+  
+  const handleCellClick = (day: Date, event: React.MouseEvent) => {
+    event.preventDefault();
+    const isDoubleClick = event.detail === 2;
+    onCellClick(day, isDoubleClick);
+  };
 
   return (
     <div className="border-b border-gray-200">
@@ -72,7 +78,7 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
                 isWeekend && "bg-gray-50/50",
                 !isCurrentMonth && "opacity-50"
               )}
-              onClick={() => onCellClick(day)}
+              onClick={(e) => handleCellClick(day, e)}
             >
               {dayShifts.length === 0 ? (
                 <div className="flex items-center justify-center h-full group">

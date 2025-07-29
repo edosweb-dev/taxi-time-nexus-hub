@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/lib/types';
 import { useShifts, Shift } from '../../ShiftContext';
+import { ShiftType, HalfDayType } from '../../types';
 import { 
   startOfMonth, 
   endOfMonth, 
@@ -25,9 +26,18 @@ export interface DayShifts {
 }
 
 export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = []) => {
-  const { shifts, isLoading: shiftsLoading } = useShifts();
+  const { shifts, isLoading: shiftsLoading, createShift } = useShifts();
   const [selectedCell, setSelectedCell] = useState<{ userId: string; date: string } | null>(null);
   const [quickDialogOpen, setQuickDialogOpen] = useState(false);
+
+  // Quick Insert State
+  const [quickInsertMode, setQuickInsertMode] = useState({
+    shiftType: null as ShiftType | null,
+    employee: null as Profile | null,
+    halfDayType: 'morning' as HalfDayType,
+    startTime: '09:00',
+    endTime: '17:00'
+  });
 
   // Get all employees (exclude clients)
   const { data: employees = [], isLoading: employeesLoading } = useQuery({
@@ -84,15 +94,73 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
     return shiftsMap;
   }, [shifts, filteredEmployees]);
 
-  const handleCellClick = (date: Date) => {
+  const handleCellClick = async (date: Date, isDoubleClick = false) => {
     const dateKey = format(date, 'yyyy-MM-dd');
-    setSelectedCell({ userId: '', date: dateKey }); // userId vuoto per indicare selezione di giorno
-    setQuickDialogOpen(true);
+    
+    // Se è doppio click, apri sempre il dialogo completo
+    if (isDoubleClick) {
+      setSelectedCell({ userId: '', date: dateKey });
+      setQuickDialogOpen(true);
+      return;
+    }
+
+    // Se c'è un turno selezionato e un dipendente, inserisci direttamente
+    if (quickInsertMode.shiftType && quickInsertMode.employee) {
+      try {
+        const shiftData = {
+          user_id: quickInsertMode.employee.id,
+          shift_date: date,
+          shift_type: quickInsertMode.shiftType,
+          start_time: quickInsertMode.shiftType === 'specific_hours' ? quickInsertMode.startTime : undefined,
+          end_time: quickInsertMode.shiftType === 'specific_hours' ? quickInsertMode.endTime : undefined,
+          half_day_type: quickInsertMode.shiftType === 'half_day' ? quickInsertMode.halfDayType : undefined,
+        };
+
+        await createShift(shiftData);
+      } catch (error) {
+        console.error('Error creating quick shift:', error);
+      }
+    } else {
+      // Altrimenti, apri il dialogo
+      setSelectedCell({ userId: '', date: dateKey });
+      setQuickDialogOpen(true);
+    }
   };
 
   const getShiftsForDate = (date: Date): Array<Shift & { user: Profile }> => {
     const dateKey = format(date, 'yyyy-MM-dd');
     return shiftsByDate.get(dateKey) || [];
+  };
+
+  // Quick Insert Functions
+  const setQuickShiftType = (type: ShiftType | null) => {
+    setQuickInsertMode(prev => ({ ...prev, shiftType: type }));
+  };
+
+  const setQuickEmployee = (employee: Profile | null) => {
+    setQuickInsertMode(prev => ({ ...prev, employee }));
+  };
+
+  const setQuickHalfDayType = (type: HalfDayType) => {
+    setQuickInsertMode(prev => ({ ...prev, halfDayType: type }));
+  };
+
+  const setQuickStartTime = (time: string) => {
+    setQuickInsertMode(prev => ({ ...prev, startTime: time }));
+  };
+
+  const setQuickEndTime = (time: string) => {
+    setQuickInsertMode(prev => ({ ...prev, endTime: time }));
+  };
+
+  const clearQuickInsert = () => {
+    setQuickInsertMode({
+      shiftType: null,
+      employee: null,
+      halfDayType: 'morning',
+      startTime: '09:00',
+      endTime: '17:00'
+    });
   };
 
   return {
@@ -106,6 +174,14 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
     handleCellClick,
     getShiftsForDate,
     currentMonth,
-    employees: filteredEmployees
+    employees: filteredEmployees,
+    // Quick Insert State & Functions
+    quickInsertMode,
+    setQuickShiftType,
+    setQuickEmployee,
+    setQuickHalfDayType,
+    setQuickStartTime,
+    setQuickEndTime,
+    clearQuickInsert
   };
 };

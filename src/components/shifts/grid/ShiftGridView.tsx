@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { useShiftGrid } from './hooks/useShiftGrid';
 import { WeekRow } from './WeekRow';
 import { ShiftGridLegend } from './ShiftGridLegend';
+import { QuickShiftToolbar } from './QuickShiftToolbar';
 import { QuickShiftDialog } from '../dialogs/QuickShiftDialog';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -21,7 +22,14 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
     isLoading,
     handleCellClick,
     getShiftsForDate,
-    employees
+    employees,
+    quickInsertMode,
+    setQuickShiftType,
+    setQuickEmployee,
+    setQuickHalfDayType,
+    setQuickStartTime,
+    setQuickEndTime,
+    clearQuickInsert
   } = useShiftGrid(currentMonth, selectedUserIds);
 
   if (isLoading) {
@@ -43,6 +51,22 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
 
   return (
     <div className="space-y-4">
+      {/* Quick Insert Toolbar */}
+      <QuickShiftToolbar
+        selectedShiftType={quickInsertMode.shiftType}
+        onShiftTypeChange={setQuickShiftType}
+        selectedEmployee={quickInsertMode.employee}
+        onEmployeeChange={setQuickEmployee}
+        employees={employees}
+        halfDayType={quickInsertMode.halfDayType}
+        onHalfDayTypeChange={setQuickHalfDayType}
+        startTime={quickInsertMode.startTime}
+        endTime={quickInsertMode.endTime}
+        onStartTimeChange={setQuickStartTime}
+        onEndTimeChange={setQuickEndTime}
+        onClearSelection={clearQuickInsert}
+      />
+
       {/* Compact Info & Legend */}
       <div className="flex items-center justify-between gap-4">
         <ShiftGridLegend />
