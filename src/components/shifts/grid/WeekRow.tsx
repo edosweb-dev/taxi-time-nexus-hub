@@ -98,26 +98,29 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
                       color: userColor
                     };
                     
-                    // Nome completo del dipendente
-                    const fullName = `${shift.user.first_name || ''} ${shift.user.last_name || ''}`.trim() || 'Utente';
+                    // Solo iniziali del dipendente
+                    const userInitials = shift.user.first_name 
+                      ? `${shift.user.first_name.charAt(0)}${shift.user.last_name?.charAt(0) || ''}` 
+                      : 'U';
                     
-                    // Testo del turno più leggibile
+                    // Testo del turno più compatto
                     let shiftInfo = '';
                     if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-                      shiftInfo = `${shift.start_time.slice(0,5)} - ${shift.end_time.slice(0,5)}`;
+                      shiftInfo = `${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
                     } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
-                      shiftInfo = shift.half_day_type === 'morning' ? 'Mattino' : 'Pomeriggio';
+                      shiftInfo = shift.half_day_type === 'morning' ? 'M' : 'P';
                     } else if (shift.shift_type === 'full_day') {
-                      shiftInfo = 'Giornata intera';
+                      shiftInfo = 'FD';
                     } else if (shift.shift_type === 'sick_leave') {
-                      shiftInfo = 'Malattia';
+                      shiftInfo = 'ML';
                     } else if (shift.shift_type === 'unavailable') {
-                      shiftInfo = 'Non disponibile';
+                      shiftInfo = 'ND';
                     } else {
-                      shiftInfo = 'Turno';
+                      shiftInfo = 'T';
                     }
 
-                    // Tooltip completo
+                    // Tooltip completo con nome per chiarezza
+                    const fullName = `${shift.user.first_name || ''} ${shift.user.last_name || ''}`.trim() || 'Utente';
                     let tooltip = `${fullName} - ${shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels]}`;
                     if (shift.shift_type === 'half_day' && shift.half_day_type) {
                       tooltip += ` (${shift.half_day_type === 'morning' ? 'Mattino' : 'Pomeriggio'})`;
@@ -133,16 +136,16 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
                       <div
                         key={shift.id}
                         className={cn(
-                          "p-2 rounded-md border shadow-sm",
-                          "hover:shadow-md transition-shadow cursor-pointer"
+                          "p-1.5 rounded border text-center",
+                          "hover:shadow-sm transition-shadow cursor-pointer"
                         )}
                         style={colorStyle}
                         title={tooltip}
                       >
-                        <div className="text-xs font-semibold truncate mb-1">
-                          {fullName}
+                        <div className="text-xs font-bold">
+                          {userInitials}
                         </div>
-                        <div className="text-xs opacity-90 truncate">
+                        <div className="text-[10px] opacity-90">
                           {shiftInfo}
                         </div>
                       </div>
