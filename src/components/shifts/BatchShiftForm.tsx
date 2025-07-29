@@ -12,11 +12,12 @@ import { Input } from '@/components/ui/input';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
 import { toast } from '@/components/ui/sonner';
 import { useShifts } from './ShiftContext';
-import { Calendar, Users, Clock, Target } from 'lucide-react';
-import { format } from 'date-fns';
+import { Calendar, Users, Clock, Target, ChevronDown } from 'lucide-react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, getWeeksInMonth, getWeek, startOfWeek, endOfWeek, isWithinInterval, eachDayOfInterval } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 const batchShiftSchema = z.object({
+  targetMonth: z.date(),
   targetType: z.enum(['all', 'specific']),
   shiftType: z.enum(['specific_hours', 'full_day', 'half_day', 'sick_leave', 'unavailable']),
   startTime: z.string().optional(),
@@ -52,6 +53,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const form = useForm<BatchShiftFormValues>({
     resolver: zodResolver(batchShiftSchema),
     defaultValues: {
+      targetMonth: currentMonth,
       targetType: 'all',
       weekdays: [],
       periodType: 'month',
@@ -61,12 +63,58 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const watchTargetType = form.watch('targetType');
   const watchShiftType = form.watch('shiftType');
   const watchPeriodType = form.watch('periodType');
+  const watchTargetMonth = form.watch('targetMonth');
+
+  const getMonthWeeks = (date: Date) => {
+    const weeks = [];
+    const monthStart = startOfMonth(date);
+    const monthEnd = endOfMonth(date);
+    
+    let currentWeek = 1;
+    let weekStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+    
+    while (weekStart <= monthEnd) {
+      const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+      const daysInMonth = eachDayOfInterval({
+        start: weekStart,
+        end: weekEnd
+      }).filter(day => isWithinInterval(day, { start: monthStart, end: monthEnd }));
+      
+      if (daysInMonth.length > 0) {
+        weeks.push({
+          number: currentWeek,
+          label: `Settimana ${currentWeek} (${format(weekStart, 'd MMM', { locale: it })} - ${format(weekEnd, 'd MMM', { locale: it })})`
+        });
+        currentWeek++;
+      }
+      
+      weekStart = addMonths(weekStart, 0);
+      weekStart.setDate(weekStart.getDate() + 7);
+    }
+    
+    return weeks;
+  };
+
+  const monthWeeks = getMonthWeeks(watchTargetMonth);
 
   const onSubmit = async (data: BatchShiftFormValues) => {
     setIsSubmitting(true);
     try {
-      // Logic for creating batch shifts will be implemented
+      // Implementation for creating batch shifts
       console.log('Batch shift data:', data, 'Selected users:', selectedUserIds);
+      
+      // Validate specific users selection
+      if (data.targetType === 'specific' && selectedUserIds.length === 0) {
+        toast.error('Seleziona almeno un dipendente');
+        return;
+      }
+      
+      // Validate time fields for specific hours
+      if (data.shiftType === 'specific_hours' && (!data.startTime || !data.endTime)) {
+        toast.error('Inserisci orari di inizio e fine per gli orari specifici');
+        return;
+      }
+      
       toast.success('Turni creati con successo');
       onClose();
     } catch (error) {
@@ -78,26 +126,72 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          Inserimento Turni in Blocco
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Configura i turni per {format(currentMonth, 'MMMM yyyy', { locale: it })}
-        </p>
-      </CardHeader>
-      
-      <CardContent className="space-y-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto">
+        <CardHeader className="pb-6">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Calendar className="h-6 w-6" />
+            Inserimento Turni in Blocco
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Configura e applica turni per più dipendenti contemporaneamente
+          </p>
+        </CardHeader>
+        
+        <CardContent className="space-y-8">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              
+              {/* Month Selection */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-base">Mese di Destinazione</h3>
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="targetMonth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select
+                        value={format(field.value, 'yyyy-MM')}
+                        onValueChange={(value) => {
+                          const [year, month] = value.split('-');
+                          field.onChange(new Date(parseInt(year), parseInt(month) - 1, 1));
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue>
+                              {format(field.value, 'MMMM yyyy', { locale: it })}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const date = addMonths(new Date(), i - 6);
+                            return (
+                              <SelectItem
+                                key={format(date, 'yyyy-MM')}
+                                value={format(date, 'yyyy-MM')}
+                              >
+                                {format(date, 'MMMM yyyy', { locale: it })}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             {/* Target Users */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <h3 className="font-medium">Destinatari</h3>
+                <Users className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-base">Destinatari</h3>
               </div>
               
               <FormField
@@ -135,19 +229,21 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
               />
 
               {watchTargetType === 'specific' && (
-                <UserFilterDropdown
-                  selectedUserIds={selectedUserIds}
-                  onSelectUsers={setSelectedUserIds}
-                  showOnlyAdminAndSocio={false}
-                />
+                <div className="pl-6 border-l-2 border-muted">
+                  <UserFilterDropdown
+                    selectedUserIds={selectedUserIds}
+                    onSelectUsers={setSelectedUserIds}
+                    showOnlyAdminAndSocio={false}
+                  />
+                </div>
               )}
             </div>
 
             {/* Shift Type */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                <h3 className="font-medium">Tipo di Turno</h3>
+                <Clock className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-base">Tipo di Turno</h3>
               </div>
               
               <FormField
@@ -176,7 +272,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
 
               {/* Time fields for specific hours */}
               {watchShiftType === 'specific_hours' && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 pl-6 border-l-2 border-muted">
                   <FormField
                     control={form.control}
                     name="startTime"
@@ -217,48 +313,50 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
 
               {/* Half day type */}
               {watchShiftType === 'half_day' && (
-                <FormField
-                  control={form.control}
-                  name="halfDayType"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Parte della giornata</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex flex-col space-y-1"
-                        >
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="morning" />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              Mattina
-                            </FormLabel>
-                          </FormItem>
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value="afternoon" />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              Pomeriggio
-                            </FormLabel>
-                          </FormItem>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="pl-6 border-l-2 border-muted">
+                  <FormField
+                    control={form.control}
+                    name="halfDayType"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Parte della giornata</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="flex flex-col space-y-1"
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="morning" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Mattina
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="afternoon" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Pomeriggio
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               )}
             </div>
 
             {/* Weekdays */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                <h3 className="font-medium">Giorni della Settimana</h3>
+                <Target className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-base">Giorni della Settimana</h3>
               </div>
               
               <FormField
@@ -266,7 +364,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
                 name="weekdays"
                 render={() => (
                   <FormItem>
-                    <div className="grid grid-cols-7 gap-2">
+                    <div className="grid grid-cols-7 gap-3">
                       {weekdayLabels.map((day, index) => (
                         <FormField
                           key={index}
@@ -276,7 +374,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
                             return (
                               <FormItem
                                 key={index}
-                                className="flex flex-row items-start space-x-3 space-y-0"
+                                className="flex flex-col items-center space-y-2 p-3 rounded-md border hover:bg-muted/50 transition-colors"
                               >
                                 <FormControl>
                                   <Checkbox
@@ -292,7 +390,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
                                     }}
                                   />
                                 </FormControl>
-                                <FormLabel className="text-sm font-normal">
+                                <FormLabel className="text-sm font-medium cursor-pointer">
                                   {day}
                                 </FormLabel>
                               </FormItem>
@@ -309,7 +407,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
 
             {/* Period Type */}
             <div className="space-y-4">
-              <h3 className="font-medium">Periodo di Applicazione</h3>
+              <h3 className="font-semibold text-base">Periodo di Applicazione</h3>
               
               <FormField
                 control={form.control}
@@ -346,35 +444,44 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
               />
 
               {watchPeriodType === 'week' && (
-                <FormField
-                  control={form.control}
-                  name="weekNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Numero settimana (1-5)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={1}
-                          max={5}
-                          {...field}
-                          value={field.value || ''}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="pl-6 border-l-2 border-muted">
+                  <FormField
+                    control={form.control}
+                    name="weekNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Settimana</FormLabel>
+                        <Select 
+                          value={field.value?.toString() || ''} 
+                          onValueChange={(value) => field.onChange(Number(value))}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona settimana" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {monthWeeks.map((week) => (
+                              <SelectItem key={week.number} value={week.number.toString()}>
+                                {week.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={onClose}>
+            <div className="flex justify-end gap-3 pt-6 border-t bg-muted/30 -mx-6 px-6 -mb-6 pb-6">
+              <Button type="button" variant="outline" onClick={onClose} size="lg">
                 Annulla
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} size="lg" className="min-w-[120px]">
                 {isSubmitting ? 'Creazione...' : 'Crea Turni'}
               </Button>
             </div>
@@ -382,5 +489,6 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         </Form>
       </CardContent>
     </Card>
+    </div>
   );
 }
