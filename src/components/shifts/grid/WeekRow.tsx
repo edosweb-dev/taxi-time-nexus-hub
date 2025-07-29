@@ -90,7 +90,13 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
               ) : (
                 <>
                   {dayShifts.slice(0, 4).map((shift, shiftIndex) => {
-                    const colorClass = shiftTypeColors[shift.shift_type as keyof typeof shiftTypeColors] || 'bg-gray-500 text-white';
+                    // Use employee color instead of shift type color
+                    const userColor = shift.user.color || '#3B82F6';
+                    const colorStyle = {
+                      backgroundColor: userColor + '20', // Add transparency
+                      borderColor: userColor,
+                      color: userColor
+                    };
                     
                     // Testo compatto con nome dipendente
                     let displayText = '';
@@ -129,9 +135,9 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
                         key={shift.id}
                         className={cn(
                           "text-xs px-2 py-1 rounded text-center font-medium",
-                          "border border-white/20 truncate",
-                          colorClass
+                          "border border-current truncate"
                         )}
+                        style={colorStyle}
                         title={tooltip}
                       >
                         {displayText}

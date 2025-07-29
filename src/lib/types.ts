@@ -9,6 +9,7 @@ export interface Profile {
   azienda_id?: string | null;
   email?: string | null; // Added email field
   telefono?: string | null; // Added phone field
+  color?: string | null; // Added color field for employee color coding
 }
 
 export interface Session {

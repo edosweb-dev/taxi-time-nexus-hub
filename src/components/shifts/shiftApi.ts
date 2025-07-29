@@ -51,7 +51,7 @@ export const fetchShifts = async ({
       // Get profile data for these users
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, email')
+        .select('id, first_name, last_name, email, color')
         .in('id', userIds);
       
       if (profilesError) {
@@ -65,7 +65,7 @@ export const fetchShifts = async ({
       const profilesMap = (profilesData || []).reduce((acc, profile) => {
         acc[profile.id] = profile;
         return acc;
-      }, {} as Record<string, { id: string; first_name: string | null; last_name: string | null; email: string | null; }>);
+      }, {} as Record<string, { id: string; first_name: string | null; last_name: string | null; email: string | null; color: string | null; }>);
       
       console.log('[fetchShifts] Profiles map:', profilesMap);
       
@@ -76,7 +76,8 @@ export const fetchShifts = async ({
           ...shift,
           user_first_name: profile?.first_name || null,
           user_last_name: profile?.last_name || null,
-          user_email: profile?.email || null
+          user_email: profile?.email || null,
+          user_color: profile?.color || null
         };
         
         console.log(`[fetchShifts] Shift ${shift.id} - User: ${shift.user_id}, Name: ${shiftWithProfile.user_first_name} ${shiftWithProfile.user_last_name}, Email: ${shiftWithProfile.user_email}`);

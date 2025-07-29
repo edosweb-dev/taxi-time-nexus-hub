@@ -21,6 +21,7 @@ export interface Shift {
   user_first_name?: string | null;
   user_last_name?: string | null;
   user_email?: string | null; // Added email as fallback
+  user_color?: string | null; // Added color for employee color coding
 }
 
 export interface ShiftFormData {

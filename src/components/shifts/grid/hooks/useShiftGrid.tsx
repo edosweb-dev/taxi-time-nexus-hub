@@ -104,7 +104,12 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
         if (!shiftsMap.has(dateKey)) {
           shiftsMap.set(dateKey, []);
         }
-        shiftsMap.get(dateKey)!.push({ ...shift, user });
+        // Use color from shift data (user_color) if available, otherwise from user profile
+        const userWithColor = {
+          ...user,
+          color: shift.user_color || user.color || '#3B82F6'
+        };
+        shiftsMap.get(dateKey)!.push({ ...shift, user: userWithColor });
       }
     });
 
