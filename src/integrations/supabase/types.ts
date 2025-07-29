@@ -451,6 +451,7 @@ export type Database = {
       profiles: {
         Row: {
           azienda_id: string | null
+          color: string | null
           email: string | null
           first_name: string | null
           id: string
@@ -460,6 +461,7 @@ export type Database = {
         }
         Insert: {
           azienda_id?: string | null
+          color?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
@@ -469,6 +471,7 @@ export type Database = {
         }
         Update: {
           azienda_id?: string | null
+          color?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
