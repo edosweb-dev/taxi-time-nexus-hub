@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Azienda } from "@/lib/types";
-import { Edit, Trash2, Eye, Plus, Search, Building2, Phone, Mail, MapPin, LayoutGrid, List } from "lucide-react";
+import { Edit, Trash2, Eye, Plus, Search, Building2, Phone, Mail, MapPin, LayoutGrid, List, Users } from "lucide-react";
 import { useState, useMemo } from "react";
+import { useAllReferenti } from "@/hooks/useReferenti";
+import { ReferentiDialog } from "./ReferentiDialog";
 
 interface AziendaListProps {
   aziende: Azienda[];
@@ -25,6 +27,10 @@ export function AziendaList({
 }: AziendaListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"cards" | "table">("table");
+  const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
+  const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
+  
+  const { data: referentiByAzienda = {} } = useAllReferenti();
 
   const filteredAziende = useMemo(() => {
     if (!searchTerm) return aziende;
@@ -38,9 +44,14 @@ export function AziendaList({
     );
   }, [aziende, searchTerm]);
 
+  const handleReferentiClick = (azienda: Azienda, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedAzienda(azienda);
+    setReferentiDialogOpen(true);
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header con ricerca e azioni */}
+    <div className="space-y-6">{/* Header con ricerca e azioni */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -167,6 +178,13 @@ export function AziendaList({
                     <span className="truncate">{azienda.citta}</span>
                   </div>
                 )}
+                <div 
+                  className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+                  onClick={(e) => handleReferentiClick(azienda, e)}
+                >
+                  <Users className="h-3 w-3" />
+                  <span>{referentiByAzienda[azienda.id]?.length || 0} referenti</span>
+                </div>
                 {!azienda.email && !azienda.telefono && !azienda.citta && (
                   <p className="text-xs text-muted-foreground italic">
                     Informazioni di contatto non disponibili
@@ -184,7 +202,7 @@ export function AziendaList({
                 <TableHead className="text-xs">Azienda</TableHead>
                 <TableHead className="text-xs">P.IVA</TableHead>
                 <TableHead className="text-xs">Contatti</TableHead>
-                <TableHead className="text-xs">Località</TableHead>
+                <TableHead className="text-xs">Referenti</TableHead>
                 <TableHead className="text-xs w-[100px]">Azioni</TableHead>
               </TableRow>
             </TableHeader>
@@ -219,12 +237,13 @@ export function AziendaList({
                     </div>
                   </TableCell>
                   <TableCell className="py-2">
-                    {azienda.citta && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
-                        <span>{azienda.citta}</span>
-                      </div>
-                    )}
+                    <div 
+                      className="flex items-center gap-1 text-xs text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+                      onClick={(e) => handleReferentiClick(azienda, e)}
+                    >
+                      <Users className="h-3 w-3" />
+                      <span>{referentiByAzienda[azienda.id]?.length || 0}</span>
+                    </div>
                   </TableCell>
                   <TableCell className="py-2">
                     <div className="flex gap-1">
@@ -275,6 +294,16 @@ export function AziendaList({
         <div className="text-xs text-muted-foreground">
           {filteredAziende.length} di {aziende.length} aziende
         </div>
+      )}
+      
+      {/* Dialog per i referenti */}
+      {selectedAzienda && (
+        <ReferentiDialog
+          open={referentiDialogOpen}
+          onOpenChange={setReferentiDialogOpen}
+          referenti={referentiByAzienda[selectedAzienda.id] || []}
+          aziendaNome={selectedAzienda.nome}
+        />
       )}
     </div>
   );
