@@ -69,17 +69,21 @@ export function QuickShiftToolbar({
                 Dipendente
               </Label>
               <Select 
-                value={selectedEmployee?.id || ''} 
+                value={selectedEmployee?.id || 'all'} 
                 onValueChange={(value) => {
-                  const emp = employees.find(e => e.id === value);
-                  onEmployeeChange(emp || null);
+                  if (value === 'all') {
+                    onEmployeeChange(null);
+                  } else {
+                    const emp = employees.find(e => e.id === value);
+                    onEmployeeChange(emp || null);
+                  }
                 }}
               >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder="Tutti i dipendenti" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tutti i dipendenti</SelectItem>
+                  <SelectItem value="all">Tutti i dipendenti</SelectItem>
                   {employees.map((emp) => (
                     <SelectItem key={emp.id} value={emp.id}>
                       {emp.first_name} {emp.last_name}
@@ -96,14 +100,14 @@ export function QuickShiftToolbar({
                 Tipo Turno
               </Label>
               <Select 
-                value={selectedShiftType || ''} 
-                onValueChange={(value) => onShiftTypeChange(value as ShiftType || null)}
+                value={selectedShiftType || 'none'} 
+                onValueChange={(value) => onShiftTypeChange(value === 'none' ? null : value as ShiftType)}
               >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder="Seleziona turno" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nessuno</SelectItem>
+                  <SelectItem value="none">Nessuno</SelectItem>
                   {Object.entries(shiftTypeLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
