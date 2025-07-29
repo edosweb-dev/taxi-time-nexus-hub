@@ -28,7 +28,8 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
     <div className="border-b border-gray-200">
       {/* Week Header */}
       <div className="grid grid-cols-7 bg-muted/40 border-b sticky top-0 z-30">
-        {week.days.map((day, index) => {
+        {week.days.map((dayShifts, index) => {
+          const day = dayShifts.date;
           const dayOfWeek = getDay(day);
           const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
           const isWeekend = adjustedDayOfWeek >= 5;
@@ -62,8 +63,9 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
 
       {/* Week Content */}
       <div className="grid grid-cols-7">
-        {week.days.map((day, index) => {
-          const dayShifts = getShiftsForDate(day);
+        {week.days.map((dayShifts, index) => {
+          const day = dayShifts.date;
+          const dayShifts_array = getShiftsForDate(day);
           const dayOfWeek = getDay(day);
           const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
           const isWeekend = adjustedDayOfWeek >= 5;
@@ -79,7 +81,7 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
                 !isCurrentMonth && "opacity-60"
               )}
             >
-              {dayShifts.length === 0 ? (
+              {dayShifts_array.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-xs text-muted-foreground/40">
                     Nessun turno
@@ -89,7 +91,7 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
                 <>
                   {/* Griglia 2 colonne per i turni */}
                   <div className="grid grid-cols-2 gap-1 flex-1">
-                    {dayShifts.slice(0, 6).map((shift, shiftIndex) => {
+                    {dayShifts_array.slice(0, 6).map((shift, shiftIndex) => {
                       // Use employee color instead of shift type color
                       const userColor = shift.user.color || '#3B82F6';
                       const colorStyle = {
@@ -158,9 +160,9 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
                   </div>
                   
                   {/* Indicator per turni multipli */}
-                  {dayShifts.length > 6 && (
+                  {dayShifts_array.length > 6 && (
                     <div className="text-[10px] text-center text-muted-foreground bg-muted/50 rounded py-0.5 mt-1">
-                      +{dayShifts.length - 6}
+                      +{dayShifts_array.length - 6}
                     </div>
                   )}
                 </>

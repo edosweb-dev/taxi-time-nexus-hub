@@ -15,9 +15,10 @@ import { useShifts } from '../ShiftContext';
 interface ShiftGridViewProps {
   currentMonth: Date;
   selectedUserIds?: string[];
+  viewMode?: "month" | "week" | "day";
 }
 
-export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridViewProps) {
+export function ShiftGridView({ currentMonth, selectedUserIds = [], viewMode = "month" }: ShiftGridViewProps) {
   const { deleteShift } = useShifts();
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [shiftDetailsOpen, setShiftDetailsOpen] = useState(false);
@@ -40,7 +41,7 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
     setQuickStartTime,
     setQuickEndTime,
     clearQuickInsert
-  } = useShiftGrid(currentMonth, selectedUserIds);
+  } = useShiftGrid(currentMonth, selectedUserIds, viewMode);
 
   const handleShiftClick = (shift: Shift) => {
     setSelectedShift(shift);

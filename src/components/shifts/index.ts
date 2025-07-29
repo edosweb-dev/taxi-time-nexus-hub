@@ -17,4 +17,3 @@ export * from './utils';
 export * from './shiftApi';
 export * from './shiftMutations';
 export * from './ShiftContext';
-export * from './ShiftCalendar';

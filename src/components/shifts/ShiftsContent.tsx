@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ShiftGridView } from './grid/ShiftGridView';
-import { ShiftCalendarView } from './calendar/ShiftCalendarView';
 import { BatchShiftForm } from './BatchShiftForm';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
 import { ViewFilterDropdown } from './filters/ViewFilterDropdown';
@@ -91,20 +90,12 @@ export function ShiftsContent({
             </div>
           </div>
 
-          {/* Views */}
-          {viewMode === "month" ? (
-            <ShiftGridView 
-              currentMonth={currentMonth}
-              selectedUserIds={selectedUserIds}
-            />
-          ) : (
-            <ShiftCalendarView
-              currentMonth={currentMonth}
-              onMonthChange={onMonthChange}
-              isAdminOrSocio={isAdminOrSocio}
-              selectedUserIds={selectedUserIds}
-            />
-          )}
+          {/* Griglia sempre uguale per tutte le viste */}
+          <ShiftGridView 
+            currentMonth={currentMonth}
+            selectedUserIds={selectedUserIds}
+            viewMode={viewMode}
+          />
         </CardContent>
       </Card>
 

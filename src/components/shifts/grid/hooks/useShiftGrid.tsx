@@ -10,14 +10,18 @@ import {
   eachDayOfInterval, 
   format, 
   isSameDay,
+  isSameMonth,
   startOfWeek,
   endOfWeek,
-  eachWeekOfInterval
+  eachWeekOfInterval,
+  addDays,
+  addWeeks
 } from 'date-fns';
 
 export interface WeekData {
-  weekStart: Date;
-  days: Date[];
+  startDate: Date;
+  endDate: Date;
+  days: DayShifts[];
 }
 
 export interface DayShifts {
@@ -25,7 +29,7 @@ export interface DayShifts {
   shifts: Array<Shift & { user: Profile }>;
 }
 
-export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = []) => {
+export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [], viewMode: "month" | "week" | "day" = "month") => {
   const { shifts, isLoading: shiftsLoading, createShift, loadShifts } = useShifts();
   const [selectedCell, setSelectedCell] = useState<{ userId: string; date: string } | null>(null);
   const [quickDialogOpen, setQuickDialogOpen] = useState(false);
@@ -83,21 +87,65 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
     return employees.filter(emp => selectedUserIds.includes(emp.id));
   }, [employees, selectedUserIds]);
 
-  // Get weeks of the month
+  // Generate date range based on view mode
   const weekData = useMemo((): WeekData[] => {
-    const start = startOfMonth(currentMonth);
-    const end = endOfMonth(currentMonth);
-    const weeks = eachWeekOfInterval({ start, end }, { weekStartsOn: 1 }); // Monday start
+    let startDate: Date;
+    let endDate: Date;
     
-    return weeks.map(weekStart => {
-      const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-      const daysInWeek = eachDayOfInterval({ start: weekStart, end: weekEnd });
-      return {
-        weekStart,
-        days: daysInWeek
-      };
-    });
-  }, [currentMonth]);
+    if (viewMode === "day") {
+      // Single day
+      startDate = currentMonth;
+      endDate = currentMonth;
+    } else if (viewMode === "week") {
+      // Single week containing currentMonth
+      startDate = startOfWeek(currentMonth, { weekStartsOn: 1 });
+      endDate = endOfWeek(currentMonth, { weekStartsOn: 1 });
+    } else {
+      // Full month
+      startDate = startOfMonth(currentMonth);
+      endDate = endOfMonth(currentMonth);
+    }
+    
+    const weeks: WeekData[] = [];
+    let current = startDate;
+    
+    while (current <= endDate) {
+      const weekStart = startOfWeek(current, { weekStartsOn: 1 });
+      const weekEnd = endOfWeek(current, { weekStartsOn: 1 });
+      
+      const days: DayShifts[] = [];
+      for (let day = weekStart; day <= weekEnd; day = addDays(day, 1)) {
+        if (viewMode === "day" && !isSameDay(day, currentMonth)) {
+          continue; // Skip days that aren't the selected day
+        }
+        if (viewMode === "month" && !isSameMonth(day, currentMonth)) {
+          continue; // Skip days outside current month for month view
+        }
+        
+        days.push({
+          date: day,
+          shifts: []
+        });
+      }
+      
+      if (days.length > 0) {
+        weeks.push({
+          startDate: weekStart,
+          endDate: weekEnd,
+          days
+        });
+      }
+      
+      if (viewMode === "day" || viewMode === "week") {
+        break; // Only one iteration for day/week view
+      }
+      
+      current = addWeeks(current, 1);
+      if (current > endDate) break;
+    }
+    
+    return weeks;
+  }, [currentMonth, viewMode]);
 
   // Organize shifts by date with user info
   const shiftsByDate = useMemo((): Map<string, Array<Shift & { user: Profile }>> => {
