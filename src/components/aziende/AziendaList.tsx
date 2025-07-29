@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Azienda } from "@/lib/types";
 import { Edit, Trash2, Eye, Plus, Search, Building2, Phone, Mail, MapPin, LayoutGrid, List, Users } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useAllReferenti } from "@/hooks/useReferenti";
 import { ReferentiDialog } from "./ReferentiDialog";
+import { Pagination } from "./Pagination";
 
 interface AziendaListProps {
   aziende: Azienda[];
@@ -29,6 +30,9 @@ export function AziendaList({
   const [viewMode, setViewMode] = useState<"cards" | "table">("table");
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const itemsPerPage = 12;
   
   const { data: referentiByAzienda = {} } = useAllReferenti();
 
@@ -43,6 +47,17 @@ export function AziendaList({
       (azienda.citta && azienda.citta.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [aziende, searchTerm]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredAziende.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedAziende = filteredAziende.slice(startIndex, endIndex);
 
   const handleReferentiClick = (azienda: Azienda, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -105,8 +120,9 @@ export function AziendaList({
           </p>
         </div>
       ) : viewMode === "cards" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAziende.map((azienda) => (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedAziende.map((azienda) => (
             <Card key={azienda.id} className="group hover:shadow-md transition-all duration-200 cursor-pointer">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
@@ -194,20 +210,31 @@ export function AziendaList({
             </Card>
           ))}
         </div>
+        
+        {/* Pagination for cards view */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredAziende.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
+      </>
       ) : (
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">Azienda</TableHead>
-                <TableHead className="text-xs">P.IVA</TableHead>
-                <TableHead className="text-xs">Contatti</TableHead>
-                <TableHead className="text-xs">Referenti</TableHead>
-                <TableHead className="text-xs w-[100px]">Azioni</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAziende.map((azienda) => (
+        <>
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs">Azienda</TableHead>
+                  <TableHead className="text-xs">P.IVA</TableHead>
+                  <TableHead className="text-xs">Contatti</TableHead>
+                  <TableHead className="text-xs">Referenti</TableHead>
+                  <TableHead className="text-xs w-[100px]">Azioni</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedAziende.map((azienda) => (
                 <TableRow key={azienda.id} className="hover:bg-muted/50 cursor-pointer" onClick={() => onView(azienda)}>
                   <TableCell className="py-2">
                     <div className="flex items-center gap-2">
@@ -287,12 +314,22 @@ export function AziendaList({
             </TableBody>
           </Table>
         </div>
+        
+        {/* Pagination for table view */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredAziende.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
+      </>
       )}
       
-      {/* Risultati di ricerca */}
-      {searchTerm && (
+      {/* Search results info */}
+      {searchTerm && filteredAziende.length > 0 && (
         <div className="text-xs text-muted-foreground">
-          {filteredAziende.length} di {aziende.length} aziende
+          {filteredAziende.length} di {aziende.length} aziende trovate
         </div>
       )}
       
