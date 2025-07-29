@@ -25,7 +25,7 @@ export function ViewFilterDropdown({ viewMode, onViewModeChange }: ViewFilterDro
           {viewMode === "month" ? "Mese" : viewMode === "week" ? "Settimana" : "Giorno"}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="bg-background border shadow-lg z-50">
         <DropdownMenuRadioGroup value={viewMode} onValueChange={(value) => onViewModeChange(value as "month" | "week" | "day")}>
           <DropdownMenuRadioItem value="month">
             <CalendarDays className="h-4 w-4 mr-2" />

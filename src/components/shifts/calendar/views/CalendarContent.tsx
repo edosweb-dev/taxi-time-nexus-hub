@@ -89,7 +89,7 @@ export function CalendarContent({
   }
   
   return (
-    <>
+    <div className="bg-background">
       <ShiftCalendarGrid
         viewMode={viewMode}
         daysInView={daysInView}
@@ -116,6 +116,6 @@ export function CalendarContent({
         shift={selectedShift}
         isAdminOrSocio={isAdminOrSocio}
       />
-    </>
+    </div>
   );
 }
