@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ShiftsStats } from './ShiftsStats';
-import { ShiftCalendarView } from './calendar/ShiftCalendarView';
+import { ShiftGridView } from './grid/ShiftGridView';
 import { AddShiftSheet } from './AddShiftSheet';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
 import { ViewFilterDropdown } from './filters/ViewFilterDropdown';
@@ -76,12 +76,10 @@ export function ShiftsContent({
         </div>
       </div>
 
-      {/* Calendar Content */}
+      {/* Grid Content */}
       <div className="w-full bg-background border rounded-lg p-4">
-        <ShiftCalendarView 
+        <ShiftGridView 
           currentMonth={currentMonth}
-          onMonthChange={onMonthChange}
-          isAdminOrSocio={isAdminOrSocio}
           selectedUserIds={selectedUserIds}
         />
       </div>
