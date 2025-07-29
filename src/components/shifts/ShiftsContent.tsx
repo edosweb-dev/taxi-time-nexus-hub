@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { ShiftsStats } from './ShiftsStats';
 import { ShiftGridView } from './grid/ShiftGridView';
-import { AddShiftSheet } from './AddShiftSheet';
+import { BatchShiftForm } from './BatchShiftForm';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
 
 import { Button } from '@/components/ui/button';
@@ -43,8 +42,13 @@ export function ShiftsContent({
 
   return (
     <div className="space-y-6">
-      {/* Dashboard Stats */}
-      <ShiftsStats />
+      {/* Batch Shift Form */}
+      {isDialogOpen && (
+        <BatchShiftForm 
+          currentMonth={currentMonth}
+          onClose={() => setIsDialogOpen(false)}
+        />
+      )}
 
       {/* Main Grid Card */}
       <Card className="overflow-hidden">
@@ -118,7 +122,7 @@ export function ShiftsContent({
                     
                     <Button size="sm" onClick={() => setIsDialogOpen(true)} className="gap-2">
                       <Plus className="h-4 w-4" />
-                      Aggiungi
+                      Inserimento Batch
                     </Button>
                   </>
                 )}
@@ -134,12 +138,6 @@ export function ShiftsContent({
         </CardContent>
       </Card>
 
-      {/* Add Shift Sheet */}
-      <AddShiftSheet 
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        isAdminOrSocio={isAdminOrSocio}
-      />
     </div>
   );
 }
