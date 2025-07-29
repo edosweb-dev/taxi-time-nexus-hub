@@ -5,6 +5,7 @@ import { ShiftGridLegend } from './ShiftGridLegend';
 import { QuickShiftToolbar } from './QuickShiftToolbar';
 import { QuickShiftDialog } from '../dialogs/QuickShiftDialog';
 import { ShiftDetailsDialog } from '../dialogs/ShiftDetailsDialog';
+import { EditShiftDialog } from '../dialogs/EditShiftDialog';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useState } from 'react';
@@ -20,6 +21,7 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
   const { deleteShift } = useShifts();
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [shiftDetailsOpen, setShiftDetailsOpen] = useState(false);
+  const [editShiftOpen, setEditShiftOpen] = useState(false);
   
   const {
     weekData,
@@ -46,8 +48,9 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
   };
 
   const handleEditShift = (shift: Shift) => {
-    // TODO: Implementare modifica turno
-    console.log('Edit shift:', shift);
+    setSelectedShift(shift);
+    setShiftDetailsOpen(false); // Chiudi il dialog di dettagli
+    setEditShiftOpen(true); // Apri il dialog di modifica
   };
 
   const handleDeleteShift = async (shiftId: string) => {
@@ -122,6 +125,16 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
           onEditShift={handleEditShift}
           onDeleteShift={handleDeleteShift}
           canEdit={true}
+        />
+      )}
+
+      {/* Edit Shift Dialog */}
+      {selectedShift && (
+        <EditShiftDialog
+          open={editShiftOpen}
+          onOpenChange={setEditShiftOpen}
+          shift={selectedShift}
+          isAdminOrSocio={true}
         />
       )}
     </div>
