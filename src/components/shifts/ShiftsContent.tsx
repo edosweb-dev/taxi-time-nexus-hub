@@ -7,8 +7,8 @@ import { ViewFilterDropdown } from './filters/ViewFilterDropdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Download } from 'lucide-react';
-import { format } from 'date-fns';
+import { Plus, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 interface ShiftsContentProps {
@@ -34,6 +34,57 @@ export function ShiftsContent({
     setViewMode(mode);
   };
 
+  const handlePrevious = () => {
+    let newDate: Date;
+    switch (viewMode) {
+      case 'month':
+        newDate = subMonths(currentMonth, 1);
+        break;
+      case 'week':
+        newDate = subWeeks(currentMonth, 1);
+        break;
+      case 'day':
+        newDate = subDays(currentMonth, 1);
+        break;
+      default:
+        newDate = subMonths(currentMonth, 1);
+    }
+    onMonthChange(newDate);
+  };
+
+  const handleNext = () => {
+    let newDate: Date;
+    switch (viewMode) {
+      case 'month':
+        newDate = addMonths(currentMonth, 1);
+        break;
+      case 'week':
+        newDate = addWeeks(currentMonth, 1);
+        break;
+      case 'day':
+        newDate = addDays(currentMonth, 1);
+        break;
+      default:
+        newDate = addMonths(currentMonth, 1);
+    }
+    onMonthChange(newDate);
+  };
+
+  const getPeriodDisplay = () => {
+    switch (viewMode) {
+      case 'month':
+        return format(currentMonth, 'MMMM yyyy', { locale: it });
+      case 'week':
+        const weekStart = startOfWeek(currentMonth, { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(currentMonth, { weekStartsOn: 1 });
+        return `${format(weekStart, 'd MMM', { locale: it })} - ${format(weekEnd, 'd MMM yyyy', { locale: it })}`;
+      case 'day':
+        return format(currentMonth, 'd MMMM yyyy', { locale: it });
+      default:
+        return format(currentMonth, 'MMMM yyyy', { locale: it });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Batch Shift Form */}
@@ -50,13 +101,31 @@ export function ShiftsContent({
           {/* Toolbar */}
           <div className="border-b bg-muted/20 p-3">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              {/* Current Period Display */}
+              {/* Current Period Display con controlli di navigazione */}
               <div className="flex items-center gap-3">
-                <div className="text-center">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handlePrevious}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <div className="text-center min-w-[200px]">
                   <h2 className="text-base font-semibold text-primary">
-                    {format(currentMonth, 'MMMM yyyy', { locale: it })}
+                    {getPeriodDisplay()}
                   </h2>
                 </div>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleNext}
+                  className="h-8 w-8 p-0"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
 
               {/* Filters and Actions */}
