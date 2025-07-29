@@ -3,11 +3,13 @@ import { ShiftsStats } from './ShiftsStats';
 import { ShiftGridView } from './grid/ShiftGridView';
 import { AddShiftSheet } from './AddShiftSheet';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
-import { ViewFilterDropdown } from './filters/ViewFilterDropdown';
 
 import { Button } from '@/components/ui/button';
-import { Plus, Filter, Calendar, BarChart3 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Plus, ChevronLeft, ChevronRight, Copy, Download, Undo, Redo, Calendar } from 'lucide-react';
+import { format, addMonths, subMonths } from 'date-fns';
+import { it } from 'date-fns/locale';
 
 interface ShiftsContentProps {
   currentMonth: Date;
@@ -20,70 +22,119 @@ export function ShiftsContent({
   onMonthChange,
   isAdminOrSocio
 }: ShiftsContentProps) {
-  const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
+
+  const handlePreviousMonth = () => {
+    onMonthChange(subMonths(currentMonth, 1));
+  };
+
+  const handleNextMonth = () => {
+    onMonthChange(addMonths(currentMonth, 1));
+  };
+
+  const handleToday = () => {
+    onMonthChange(new Date());
+  };
+
+  const handleUsersChange = (userIds: string[]) => {
+    setSelectedUserIds(userIds);
+  };
 
   return (
-    <div className="w-full space-y-6">
-      {/* Statistics Dashboard */}
+    <div className="space-y-6">
+      {/* Dashboard Stats */}
       <ShiftsStats />
 
-      {/* Main Content */}
-      {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-card/50 rounded-lg p-4 border">
-        <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold">Calendario Turni</h2>
-        </div>
+      {/* Main Grid Card */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          {/* Integrated Toolbar */}
+          <div className="border-b bg-muted/30 p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              {/* Month Navigation */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePreviousMonth}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  
+                  <div className="min-w-[200px] text-center">
+                    <h2 className="text-lg font-semibold text-primary">
+                      {format(currentMonth, 'MMMM yyyy', { locale: it })}
+                    </h2>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextMonth}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Button variant="outline" size="sm" onClick={handleToday}>
+                  Oggi
+                </Button>
+              </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Filters Section */}
-          <div className="flex items-center gap-2 px-3 py-1 bg-background rounded-md border">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Filtri:</span>
-            <UserFilterDropdown 
-              selectedUserIds={selectedUserIds}
-              onSelectUsers={setSelectedUserIds}
-              showOnlyAdminAndSocio={false}
-            />
-            <ViewFilterDropdown 
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-            />
+              {/* Actions and Filters */}
+              <div className="flex items-center gap-2">
+                <UserFilterDropdown 
+                  onSelectUsers={handleUsersChange}
+                  selectedUserIds={selectedUserIds}
+                />
+                
+                <Separator orientation="vertical" className="h-6" />
+                
+                {isAdminOrSocio && (
+                  <>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Copy className="h-4 w-4" />
+                      Copia
+                    </Button>
+                    
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Download className="h-4 w-4" />
+                      Esporta
+                    </Button>
+                    
+                    <Separator orientation="vertical" className="h-6" />
+                    
+                    <Button variant="outline" size="sm" title="Annulla">
+                      <Undo className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button variant="outline" size="sm" title="Ripeti">
+                      <Redo className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button size="sm" onClick={() => setIsDialogOpen(true)} className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Aggiungi
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/turni/report')}
-              className="flex items-center gap-2"
-            >
-              <BarChart3 className="h-4 w-4" />
-              Report Completo
-            </Button>
-            
-            <Button 
-              onClick={() => setIsDialogOpen(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Nuovo Turno
-            </Button>
-          </div>
-        </div>
-      </div>
+          {/* Grid View */}
+          <ShiftGridView 
+            currentMonth={currentMonth}
+            selectedUserIds={selectedUserIds}
+          />
+        </CardContent>
+      </Card>
 
-      {/* Grid Content */}
-      <div className="w-full bg-background border rounded-lg p-4">
-        <ShiftGridView 
-          currentMonth={currentMonth}
-          selectedUserIds={selectedUserIds}
-        />
-      </div>
-
+      {/* Add Shift Sheet */}
       <AddShiftSheet 
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

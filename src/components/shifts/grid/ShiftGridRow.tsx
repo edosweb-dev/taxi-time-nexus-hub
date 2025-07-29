@@ -1,8 +1,9 @@
 import { Profile } from '@/lib/types';
 import { Shift } from '../ShiftContext';
 import { ShiftGridCell } from './ShiftGridCell';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface ShiftGridRowProps {
   user: Profile;
@@ -49,32 +50,41 @@ export function ShiftGridRow({
   };
 
   return (
-    <div className="grid grid-cols-[200px_1fr] border-b border-gray-200">
-      {/* Employee info */}
-      <div className="p-3 border-r border-gray-200 bg-card/50">
+    <div className="grid grid-cols-[220px_1fr] border-b border-gray-200 hover:bg-muted/20 transition-colors">
+      {/* Enhanced Employee Info */}
+      <div className="p-4 border-r border-gray-200 bg-muted/30 sticky left-0 z-20">
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10 border-2 border-primary/20">
-            <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+          <Avatar className="h-9 w-9 border-2 border-background">
+            <AvatarImage src={undefined} />
+            <AvatarFallback className="text-sm font-medium">
               {getUserInitials(user.first_name, user.last_name)}
             </AvatarFallback>
           </Avatar>
           
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-sm truncate">
-              {getUserName()}
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-sm font-semibold text-foreground truncate">
+                {getUserName()}
+              </p>
+              <Badge 
+                variant="secondary" 
+                className={cn("text-xs", getRoleColor(user.role))}
+              >
+                {getRoleLabel(user.role)}
+              </Badge>
             </div>
-            <Badge 
-              variant="outline" 
-              className={`text-xs mt-1 ${getRoleColor(user.role)}`}
-            >
-              {getRoleLabel(user.role)}
-            </Badge>
+            <p className="text-xs text-muted-foreground truncate">
+              {user.email}
+            </p>
           </div>
         </div>
       </div>
       
-      {/* Days grid */}
-      <div className="grid" style={{ gridTemplateColumns: `repeat(${monthDays.length}, 1fr)` }}>
+      {/* Days grid with hover effects */}
+      <div 
+        className="grid hover:bg-background/50 transition-colors" 
+        style={{ gridTemplateColumns: `repeat(${monthDays.length}, 1fr)` }}
+      >
         {monthDays.map((day, index) => (
           <ShiftGridCell
             key={index}

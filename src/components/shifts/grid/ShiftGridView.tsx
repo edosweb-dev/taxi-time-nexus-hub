@@ -43,29 +43,32 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
 
   return (
     <div className="space-y-4">
-      {/* Month Header */}
-      <div className="text-center py-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border">
-        <h2 className="text-2xl font-bold text-primary">
-          {format(currentMonth, 'MMMM yyyy', { locale: it }).toUpperCase()}
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Clicca su una cella per gestire i turni
+      {/* Quick Info Bar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/30 rounded-md border">
+        <p className="text-sm text-muted-foreground">
+          Clicca su una cella per gestire i turni rapidamente
         </p>
+        <span className="text-sm font-medium text-muted-foreground">
+          {gridData.length} dipendenti
+        </span>
       </div>
 
       {/* Legend */}
       <ShiftGridLegend />
 
-      {/* Grid */}
+      {/* Optimized Grid */}
       <div className="border rounded-lg overflow-hidden bg-background">
-        {/* Grid Header */}
-        <ShiftGridHeader monthDays={monthDays} />
+        {/* Sticky Grid Header */}
+        <div className="sticky top-0 z-10">
+          <ShiftGridHeader monthDays={monthDays} />
+        </div>
         
-        {/* Grid Body */}
-        <div className="max-h-[600px] overflow-y-auto">
+        {/* Grid Body with Enhanced Scrolling */}
+        <div className="max-h-[70vh] overflow-y-auto">
           {gridData.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <p>Nessun dipendente trovato per questo filtro</p>
+              <p className="text-xs mt-2">Prova a modificare i filtri selezionati</p>
             </div>
           ) : (
             gridData.map((data) => (
