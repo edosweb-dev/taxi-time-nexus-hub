@@ -118,36 +118,8 @@ export const useShiftGrid = (currentMonth: Date, selectedUserIds: string[] = [])
   }, [shifts, filteredEmployees]);
 
   const handleCellClick = async (date: Date, isDoubleClick = false) => {
-    const dateKey = format(date, 'yyyy-MM-dd');
-    
-    // Se è doppio click, apri sempre il dialogo completo
-    if (isDoubleClick) {
-      setSelectedCell({ userId: '', date: dateKey });
-      setQuickDialogOpen(true);
-      return;
-    }
-
-    // Se c'è un turno selezionato e un dipendente, inserisci direttamente
-    if (quickInsertMode.shiftType && quickInsertMode.employee) {
-      try {
-        const shiftData = {
-          user_id: quickInsertMode.employee.id,
-          shift_date: date,
-          shift_type: quickInsertMode.shiftType,
-          start_time: quickInsertMode.shiftType === 'specific_hours' ? quickInsertMode.startTime : undefined,
-          end_time: quickInsertMode.shiftType === 'specific_hours' ? quickInsertMode.endTime : undefined,
-          half_day_type: quickInsertMode.shiftType === 'half_day' ? quickInsertMode.halfDayType : undefined,
-        };
-
-        await createShift(shiftData);
-      } catch (error) {
-        console.error('Error creating quick shift:', error);
-      }
-    } else {
-      // Altrimenti, apri il dialogo
-      setSelectedCell({ userId: '', date: dateKey });
-      setQuickDialogOpen(true);
-    }
+    // Non fare nulla - il calendario non permette più di inserire turni
+    return;
   };
 
   const getShiftsForDate = (date: Date): Array<Shift & { user: Profile }> => {

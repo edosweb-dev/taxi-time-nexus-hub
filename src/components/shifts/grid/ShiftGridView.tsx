@@ -4,8 +4,12 @@ import { WeekRow } from './WeekRow';
 import { ShiftGridLegend } from './ShiftGridLegend';
 import { QuickShiftToolbar } from './QuickShiftToolbar';
 import { QuickShiftDialog } from '../dialogs/QuickShiftDialog';
+import { ShiftDetailsDialog } from '../dialogs/ShiftDetailsDialog';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { useState } from 'react';
+import { Shift } from '../ShiftContext';
+import { useShifts } from '../ShiftContext';
 
 interface ShiftGridViewProps {
   currentMonth: Date;
@@ -13,6 +17,10 @@ interface ShiftGridViewProps {
 }
 
 export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridViewProps) {
+  const { deleteShift } = useShifts();
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [shiftDetailsOpen, setShiftDetailsOpen] = useState(false);
+  
   const {
     weekData,
     shiftsByDate,
@@ -31,6 +39,25 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
     setQuickEndTime,
     clearQuickInsert
   } = useShiftGrid(currentMonth, selectedUserIds);
+
+  const handleShiftClick = (shift: Shift) => {
+    setSelectedShift(shift);
+    setShiftDetailsOpen(true);
+  };
+
+  const handleEditShift = (shift: Shift) => {
+    // TODO: Implementare modifica turno
+    console.log('Edit shift:', shift);
+  };
+
+  const handleDeleteShift = async (shiftId: string) => {
+    try {
+      await deleteShift(shiftId);
+      setShiftDetailsOpen(false);
+    } catch (error) {
+      console.error('Error deleting shift:', error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -58,7 +85,7 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
             {employees.length} dipendenti attivi
           </span>
           <span className="text-xs text-muted-foreground">
-            Click su un giorno per gestire i turni
+            Click su un turno per visualizzarlo e modificarlo
           </span>
         </div>
       </div>
@@ -77,6 +104,7 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
                 week={week}
                 getShiftsForDate={getShiftsForDate}
                 onCellClick={handleCellClick}
+                onShiftClick={handleShiftClick}
                 currentMonth={currentMonth}
               />
             ))
@@ -84,14 +112,18 @@ export function ShiftGridView({ currentMonth, selectedUserIds = [] }: ShiftGridV
         </div>
       </div>
 
-      {/* Quick Shift Dialog */}
-      <QuickShiftDialog
-        open={quickDialogOpen}
-        onOpenChange={setQuickDialogOpen}
-        selectedCell={selectedCell}
-        user={null} // Non c'è un utente specifico selezionato
-        existingShifts={existingShifts.map(s => ({ ...s, user: undefined }))} // Rimuovi user info per compatibilità
-      />
+      {/* Shift Details Dialog */}
+      {selectedShift && (
+        <ShiftDetailsDialog
+          open={shiftDetailsOpen}
+          onOpenChange={setShiftDetailsOpen}
+          shifts={[selectedShift]}
+          selectedDate={new Date(selectedShift.shift_date)}
+          onEditShift={handleEditShift}
+          onDeleteShift={handleDeleteShift}
+          canEdit={true}
+        />
+      )}
     </div>
   );
 }

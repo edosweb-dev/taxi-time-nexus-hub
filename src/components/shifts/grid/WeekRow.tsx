@@ -11,10 +11,11 @@ interface WeekRowProps {
   week: WeekData;
   getShiftsForDate: (date: Date) => Array<Shift & { user: Profile }>;
   onCellClick: (date: Date, isDoubleClick?: boolean) => void;
+  onShiftClick: (shift: Shift) => void;
   currentMonth: Date;
 }
 
-export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: WeekRowProps) {
+export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, currentMonth }: WeekRowProps) {
   const weekDays = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
   
   const handleCellClick = (day: Date, event: React.MouseEvent) => {
@@ -72,19 +73,16 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
             <div
               key={index}
               className={cn(
-                "border-r border-gray-200 last:border-r-0 min-h-[100px] p-1.5 cursor-pointer transition-all duration-200",
-                "hover:bg-primary/5 hover:shadow-md hover:border-primary/30",
+                "border-r border-gray-200 last:border-r-0 min-h-[100px] p-1.5",
                 "flex flex-col",
                 isWeekend && "bg-gray-50/50",
                 !isCurrentMonth && "opacity-60"
               )}
-              onClick={(e) => handleCellClick(day, e)}
             >
               {dayShifts.length === 0 ? (
-                <div className="flex items-center justify-center h-full group">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
-                    <Plus className="h-6 w-6 group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-medium">Aggiungi turno</span>
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-xs text-muted-foreground/40">
+                    Nessun turno
                   </div>
                 </div>
               ) : (
@@ -139,10 +137,14 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, currentMonth }: W
                           key={shift.id}
                           className={cn(
                             "p-1 rounded border text-center text-xs",
-                            "hover:shadow-sm transition-shadow cursor-pointer"
+                            "hover:shadow-sm transition-shadow cursor-pointer hover:scale-105"
                           )}
                           style={colorStyle}
                           title={tooltip}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onShiftClick(shift);
+                          }}
                         >
                           <div className="font-bold leading-tight">
                             {userInitials}
