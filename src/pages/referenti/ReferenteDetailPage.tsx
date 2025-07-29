@@ -101,8 +101,7 @@ export default function ReferenteDetailPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        {/* Header */}
+      <div className="max-w-7xl mx-auto space-y-6">{/* Header */}
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -140,7 +139,7 @@ export default function ReferenteDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">{/* Prima colonna */}
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground">Nome completo</h3>
@@ -161,15 +160,6 @@ export default function ReferenteDetailPage() {
                   </div>
                 )}
 
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Ruolo</h3>
-                  <Badge variant="secondary" className="mt-1">
-                    {referente.role}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-4">
                 {referente.telefono && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -182,6 +172,15 @@ export default function ReferenteDetailPage() {
                   </div>
                 )}
 
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Ruolo</h3>
+                  <Badge variant="secondary" className="mt-1">
+                    {referente.role}
+                  </Badge>
+                </div>
+              </div>{/* Seconda colonna */}
+
+              <div className="space-y-4">
                 {azienda && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
