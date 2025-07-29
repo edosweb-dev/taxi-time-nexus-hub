@@ -15,6 +15,7 @@ import { useShifts } from './ShiftContext';
 import { Calendar, Users, Clock, Target, ChevronDown } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, getWeeksInMonth, getWeek, startOfWeek, endOfWeek, isWithinInterval, eachDayOfInterval } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { useUsers } from '@/hooks/useUsers';
 
 const batchShiftSchema = z.object({
   targetMonth: z.date(),
@@ -49,6 +50,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createShift } = useShifts();
+  const { users: allUsers, isLoading: usersLoading } = useUsers();
 
   const form = useForm<BatchShiftFormValues>({
     resolver: zodResolver(batchShiftSchema),
@@ -66,33 +68,36 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const watchTargetMonth = form.watch('targetMonth');
 
   const getMonthWeeks = (date: Date) => {
-    const weeks = [];
-    const monthStart = startOfMonth(date);
-    const monthEnd = endOfMonth(date);
-    
-    let currentWeek = 1;
-    let weekStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-    
-    while (weekStart <= monthEnd) {
-      const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-      const daysInMonth = eachDayOfInterval({
-        start: weekStart,
-        end: weekEnd
-      }).filter(day => isWithinInterval(day, { start: monthStart, end: monthEnd }));
+    try {
+      const weeks = [];
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
       
-      if (daysInMonth.length > 0) {
-        weeks.push({
-          number: currentWeek,
-          label: `Settimana ${currentWeek} (${format(weekStart, 'd MMM', { locale: it })} - ${format(weekEnd, 'd MMM', { locale: it })})`
-        });
+      let currentWeek = 1;
+      let weekStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+      
+      while (weekStart <= monthEnd && currentWeek <= 5) {
+        const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+        const daysInMonth = eachDayOfInterval({
+          start: weekStart,
+          end: weekEnd
+        }).filter(day => isWithinInterval(day, { start: monthStart, end: monthEnd }));
+        
+        if (daysInMonth.length > 0) {
+          weeks.push({
+            number: currentWeek,
+            label: `Settimana ${currentWeek} (${format(weekStart, 'd MMM', { locale: it })} - ${format(weekEnd, 'd MMM', { locale: it })})`
+          });
+        }
         currentWeek++;
+        weekStart = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
       }
       
-      weekStart = addMonths(weekStart, 0);
-      weekStart.setDate(weekStart.getDate() + 7);
+      return weeks;
+    } catch (error) {
+      console.error('Error calculating weeks:', error);
+      return [];
     }
-    
-    return weeks;
   };
 
   const monthWeeks = getMonthWeeks(watchTargetMonth);
@@ -100,7 +105,6 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const onSubmit = async (data: BatchShiftFormValues) => {
     setIsSubmitting(true);
     try {
-      // Implementation for creating batch shifts
       console.log('Batch shift data:', data, 'Selected users:', selectedUserIds);
       
       // Validate specific users selection
@@ -114,8 +118,65 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         toast.error('Inserisci orari di inizio e fine per gli orari specifici');
         return;
       }
+
+      // Get target users - fetch employees if "all" is selected
+      const targetUsers = data.targetType === 'all' 
+        ? (allUsers?.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role)) || []).map(user => user.id)
+        : selectedUserIds;
+
+      // Calculate dates to apply shifts
+      const monthStart = startOfMonth(data.targetMonth);
+      const monthEnd = endOfMonth(data.targetMonth);
       
-      toast.success('Turni creati con successo');
+      let datesToApply: Date[] = [];
+      
+      if (data.periodType === 'month') {
+        // Apply to all specified weekdays in the month
+        const allDates = eachDayOfInterval({ start: monthStart, end: monthEnd });
+        datesToApply = allDates.filter(date => 
+          data.weekdays.includes(date.getDay() === 0 ? 6 : date.getDay() - 1)
+        );
+      } else if (data.periodType === 'week' && data.weekNumber) {
+        // Apply to specific week
+        const weekStart = startOfWeek(
+          new Date(monthStart.getFullYear(), monthStart.getMonth(), 1 + (data.weekNumber - 1) * 7),
+          { weekStartsOn: 1 }
+        );
+        const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+        
+        const weekDates = eachDayOfInterval({ start: weekStart, end: weekEnd });
+        datesToApply = weekDates.filter(date => 
+          isWithinInterval(date, { start: monthStart, end: monthEnd }) &&
+          data.weekdays.includes(date.getDay() === 0 ? 6 : date.getDay() - 1)
+        );
+      }
+
+      // Create shifts for each date and user
+      const shiftsToCreate = [];
+      
+      for (const date of datesToApply) {
+        // Create individual shifts for each target user
+        for (const userId of targetUsers) {
+          shiftsToCreate.push({
+            user_id: userId,
+            shift_date: date,
+            shift_type: data.shiftType,
+            start_time: data.startTime || null,
+            end_time: data.endTime || null,
+            half_day_type: data.halfDayType || null,
+            start_date: null,
+            end_date: null,
+            notes: `Turno batch per ${format(date, 'dd/MM/yyyy')}`,
+          });
+        }
+      }
+
+      // Create all shifts
+      for (const shiftData of shiftsToCreate) {
+        await createShift(shiftData);
+      }
+      
+      toast.success(`${shiftsToCreate.length} turni creati con successo`);
       onClose();
     } catch (error) {
       console.error('Error creating batch shifts:', error);
@@ -131,7 +192,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         <CardHeader className="pb-6">
           <CardTitle className="flex items-center gap-2 text-xl">
             <Calendar className="h-6 w-6" />
-            Inserimento Turni in Blocco
+            Inserisci turni
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             Configura e applica turni per più dipendenti contemporaneamente

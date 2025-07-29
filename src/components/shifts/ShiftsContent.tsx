@@ -122,7 +122,7 @@ export function ShiftsContent({
                     
                     <Button size="sm" onClick={() => setIsDialogOpen(true)} className="gap-2">
                       <Plus className="h-4 w-4" />
-                      Inserimento Batch
+                      Inserisci turni
                     </Button>
                   </>
                 )}
