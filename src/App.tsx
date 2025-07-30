@@ -21,6 +21,7 @@ import ConducentiEsterniPage from './pages/conducenti-esterni/ConducentiEsterniP
 import StipendiPage from './pages/StipendiPage';
 import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 import ShiftManagementPage from './pages/ShiftManagementPage';
+import CalendarioTurniPage from './pages/CalendarioTurniPage';
 import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
 import AziendePage from './pages/aziende/AziendePage';
 import NuovaAziendaPage from './pages/aziende/NuovaAziendaPage';
@@ -163,6 +164,11 @@ function App() {
               <Route path="/gestione-turni/report" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <ShiftReportsPage />
+                </AuthGuard>
+              } />
+              <Route path="/calendario-turni" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <CalendarioTurniPage />
                 </AuthGuard>
               } />
               
