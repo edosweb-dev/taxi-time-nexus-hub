@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { ShiftManagementContent } from '@/components/shift-management/ShiftManagementContent';
 import { ShiftProvider } from '@/components/shifts/ShiftContext';
+import { ShiftCalendar } from '@/components/shifts/ShiftCalendar';
 import { ChevronRight, Home } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLayout } from '@/contexts/LayoutContext';
@@ -49,7 +49,7 @@ export default function ShiftManagementPage() {
             </div>
           </div>
 
-          <ShiftManagementContent
+          <ShiftCalendar
             currentDate={currentDate}
             onDateChange={handleDateChange}
             isAdminOrSocio={isAdminOrSocio}
