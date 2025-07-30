@@ -190,36 +190,39 @@ export function DayView({
   return (
     <div className="flex-1 overflow-hidden">
       {/* Day header */}
-      <div className="border-b bg-muted/30 p-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className={cn(
-              "text-lg font-medium",
-              isCurrentDay && "text-primary"
-            )}>
-              {format(currentDate, 'EEEE d MMMM yyyy', { locale: it })}
-            </h2>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-              {isCurrentDay && (
-                <Badge variant="default" className="text-xs h-5">
-                  Oggi
-                </Badge>
-              )}
-              <span className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                {totalShifts} {totalShifts === 1 ? 'turno' : 'turni'}
-              </span>
+      <div className="border-b bg-muted/30 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className={cn(
+                "text-lg font-medium",
+                isCurrentDay && "text-primary"
+              )}>
+                {format(currentDate, 'EEEE d MMMM yyyy', { locale: it })}
+              </h2>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                {isCurrentDay && (
+                  <Badge variant="default" className="text-xs h-5">
+                    Oggi
+                  </Badge>
+                )}
+                <span className="flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  {totalShifts} {totalShifts === 1 ? 'turno' : 'turni'}
+                </span>
+              </div>
             </div>
+            
+            <Button onClick={() => onCreateShift(currentDate)} size="sm" className="gap-1">
+              <Plus className="h-3 w-3" />
+              Aggiungi turno
+            </Button>
           </div>
-          
-          <Button onClick={() => onCreateShift(currentDate)} size="sm" className="gap-1">
-            <Plus className="h-3 w-3" />
-            Aggiungi turno
-          </Button>
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-4">
+        <div className="max-w-7xl mx-auto">
         {/* Shifts content */}
         {totalShifts === 0 ? (
           <Card className="border-dashed border-2">
@@ -245,6 +248,7 @@ export function DayView({
             {renderShiftGroup("Altri turni", groupedShifts.other, Clock)}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
