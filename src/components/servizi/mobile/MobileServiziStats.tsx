@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Servizio } from '@/lib/types/servizi';
+import { cn } from '@/lib/utils';
 import { 
   FileText, 
   Clock, 
@@ -63,21 +64,24 @@ export function MobileServiziStats({ servizi, isLoading }: MobileServiziStatsPro
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2 w-full">
+    <div className="grid grid-cols-2 gap-3 w-full">
       {stats.map((stat, index) => (
-        <Card key={index} className="border-l-4 border-l-primary/20 w-full">
+        <Card key={index} className="border-l-4 border-l-primary/20 w-full transition-all duration-200 hover:shadow-md active:scale-[0.98]">
           <CardContent className="p-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide truncate">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide truncate font-medium">
                   {stat.label}
                 </p>
-                <p className="text-lg font-bold text-foreground mt-1 sm:text-xl">
+                <p className="text-xl font-bold text-foreground mt-1 md:text-2xl">
                   {stat.count}
                 </p>
               </div>
-              <div className={`p-2 rounded-lg flex-shrink-0 ${stat.bgColor}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <div className={cn(
+                "p-2.5 rounded-xl flex-shrink-0 transition-colors",
+                stat.bgColor
+              )}>
+                <stat.icon className={cn("h-4 w-4", stat.color)} />
               </div>
             </div>
           </CardContent>

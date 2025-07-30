@@ -14,35 +14,37 @@ interface MobileTabsProps {
 
 export function MobileTabs({ tabs, activeTab, onTabChange }: MobileTabsProps) {
   return (
-    <ScrollArea className="w-full whitespace-nowrap border rounded-lg">
-      <div className="flex space-x-1 p-2 min-w-max">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={cn(
-              "inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium transition-all duration-200 whitespace-nowrap min-w-0 flex-shrink-0",
-              activeTab === tab.id
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted/50 text-muted-foreground hover:bg-muted"
-            )}
-          >
-            <span className="truncate">{tab.label}</span>
-            <Badge 
-              variant={activeTab === tab.id ? "secondary" : "outline"}
+    <div className="w-full">
+      <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex space-x-2 p-1 w-full min-w-max">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
               className={cn(
-                "text-xs px-1 py-0 ml-1 min-w-[1.25rem] h-4 flex items-center justify-center",
+                "inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap min-w-0 flex-shrink-0 touch-manipulation",
                 activeTab === tab.id
-                  ? "bg-primary-foreground/20 text-primary-foreground border-primary-foreground/20"
-                  : "bg-background/80 text-muted-foreground border-border"
+                  ? "bg-primary text-primary-foreground shadow-sm border border-primary/20"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
               )}
             >
-              {tab.count}
-            </Badge>
-          </button>
-        ))}
-      </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+              <span className="truncate text-xs">{tab.label}</span>
+              <Badge 
+                variant={activeTab === tab.id ? "secondary" : "outline"}
+                className={cn(
+                  "text-xs px-1.5 py-0.5 ml-1 min-w-[1.5rem] h-4 flex items-center justify-center",
+                  activeTab === tab.id
+                    ? "bg-primary-foreground/20 text-primary-foreground border-primary-foreground/20"
+                    : "bg-background/80 text-muted-foreground border-border"
+                )}
+              >
+                {tab.count}
+              </Badge>
+            </button>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" className="h-2" />
+      </ScrollArea>
+    </div>
   );
 }

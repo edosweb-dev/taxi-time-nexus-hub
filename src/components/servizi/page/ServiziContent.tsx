@@ -184,20 +184,16 @@ export function ServiziContent({
   }
 
   return (
-    <div className={`space-y-${isMobile ? '4' : '6'}`}>
-      {/* Statistics Cards - Responsive */}
-      {/* Stats - Mobile-first responsive */}
-      {isMobile ? (
+    <div className="space-y-4 md:space-y-6">
+      {/* Mobile-First Layout */}
+      <div className="md:hidden space-y-4">
+        {/* Mobile Stats */}
         <MobileServiziStats servizi={filteredServizi} isLoading={isLoading} />
-      ) : (
-        <ServizioStats servizi={filteredServizi} isLoading={isLoading} />
-      )}
-
-      {/* Header with Actions - Mobile-first */}
-      <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
-        <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-y-0 md:space-x-4 flex-1">
-          {/* Mobile Filters */}
-          <div className="flex items-center space-x-2 md:hidden">
+        
+        {/* Mobile Controls - Stack vertically for better viewport usage */}
+        <div className="space-y-3">
+          {/* Filters and Tabs Container - Full width */}
+          <div className="flex flex-col space-y-3">
             <MobileFiltersDrawer
               servizi={servizi}
               users={users}
@@ -212,6 +208,7 @@ export function ServiziContent({
                 dateTo: undefined
               })}
             />
+            
             <MobileTabs
               tabs={[
                 { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
@@ -223,9 +220,75 @@ export function ServiziContent({
               onTabChange={setActiveTab}
             />
           </div>
+          
+          {/* Action Buttons - Single row, mobile optimized */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={onNavigateToNewServizio}
+            >
+              <BarChart3 className="h-3 w-3 mr-1" />
+              Report
+            </Button>
+            <Button
+              variant="outline" 
+              size="sm"
+              className="text-xs"
+              onClick={onNavigateToNewServizio}
+            >
+              <Calendar className="h-3 w-3 mr-1" />
+              Calendario
+            </Button>
+          </div>
+          
+          {/* New Service Button - Full width for prominence */}
+          {isAdminOrSocio && (
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={onNavigateToNewServizio}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nuovo Servizio
+            </Button>
+          )}
+        </div>
+        
+        {/* Mobile Content - Optimized viewport usage */}
+        <div className="min-h-[50vh] overflow-hidden">
+          {Object.keys(serviziByStatus).some(status => serviziByStatus[status as keyof typeof serviziByStatus].length > 0) ? (
+            <ServizioCardList
+              servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
+              users={users}
+              aziende={aziende || []}
+              passeggeriCounts={passeggeriCounts}
+              onNavigateToDetail={onNavigateToDetail}
+              onSelect={onSelectServizio}
+              onCompleta={onCompleta}
+              onFirma={onFirma}
+              isAdminOrSocio={isAdminOrSocio}
+              allServizi={allServizi}
+            />
+          ) : (
+            <EmptyState
+              message="Nessun servizio trovato per i criteri selezionati."
+              showButton={isAdminOrSocio}
+              onCreateNew={onNavigateToNewServizio}
+            />
+          )}
+        </div>
+      </div>
 
-          {/* Desktop Filters */}
-          <div className="hidden md:flex md:items-center md:space-x-4 md:flex-1">
+      {/* Desktop Layout - Unchanged but improved */}
+      <div className="hidden md:block space-y-6">
+        {/* Desktop Stats */}
+        <ServizioStats servizi={filteredServizi} isLoading={isLoading} />
+        
+        {/* Desktop Header with Actions */}
+        <div className="flex flex-row items-center justify-between">
+          <div className="flex items-center space-x-4 flex-1">
             <ServiziFilters
               servizi={servizi}
               users={users}
@@ -241,67 +304,37 @@ export function ServiziContent({
               })}
             />
           </div>
-        </div>
 
-        {/* Action Buttons - Mobile-first */}
-        <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full md:w-auto"
-            onClick={onNavigateToNewServizio}
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Report
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full md:w-auto"
-            onClick={onNavigateToNewServizio}
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Calendario
-          </Button>
-          {isAdminOrSocio && (
+          <div className="flex items-center space-x-2">
             <Button
+              variant="outline"
               size="sm"
-              className="w-full md:w-auto"
               onClick={onNavigateToNewServizio}
             >
-              Nuovo Servizio
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Report
             </Button>
-          )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNavigateToNewServizio}
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Calendario
+            </Button>
+            {isAdminOrSocio && (
+              <Button
+                size="sm"
+                onClick={onNavigateToNewServizio}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nuovo Servizio
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Content - Mobile-first responsive */}
-      <div className="md:hidden">
-        {/* Mobile: Card List View */}
-        {Object.keys(serviziByStatus).some(status => serviziByStatus[status as keyof typeof serviziByStatus].length > 0) ? (
-          <ServizioCardList
-            servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
-            users={users}
-            aziende={aziende || []}
-            passeggeriCounts={passeggeriCounts}
-            onNavigateToDetail={onNavigateToDetail}
-            onSelect={onSelectServizio}
-            onCompleta={onCompleta}
-            onFirma={onFirma}
-            isAdminOrSocio={isAdminOrSocio}
-            allServizi={allServizi}
-          />
-        ) : (
-          <EmptyState
-            message="Nessun servizio trovato per i criteri selezionati."
-            showButton={isAdminOrSocio}
-            onCreateNew={onNavigateToNewServizio}
-          />
-        )}
-      </div>
-
-      {/* Desktop: Tabbed Table View */}
-      <div className="hidden md:block">
+        {/* Desktop Tabbed Table View */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="da_assegnare" className="relative">
