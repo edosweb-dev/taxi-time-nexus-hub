@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ShiftManagementContent } from '@/components/shift-management/ShiftManagementContent';
 import { ShiftProvider } from '@/components/shifts/ShiftContext';
 import { ChevronRight, Home } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLayout } from '@/contexts/LayoutContext';
 
 export default function ShiftManagementPage() {
   const { profile } = useAuth();
+  const { setPaddingMode } = useLayout();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+
+  useEffect(() => {
+    // Attiva padding ridotto quando si monta la pagina
+    setPaddingMode('minimal');
+    
+    // Ripristina padding default quando si smonta
+    return () => {
+      setPaddingMode('default');
+    };
+  }, [setPaddingMode]);
 
   const handleDateChange = (date: Date) => {
     setCurrentDate(date);

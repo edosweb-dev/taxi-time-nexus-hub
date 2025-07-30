@@ -8,9 +8,20 @@ import { SidebarFooterContent } from "./sidebar/SidebarFooter";
 import { MobileNavBar } from "./mobile/MobileNavBar";
 import { FeedbackButton } from "@/components/common/FeedbackButton";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
+import { useLayout } from "@/contexts/LayoutContext";
 
 export function MainLayout({ children }: PropsWithChildren) {
   const isMobile = useIsMobile();
+  const { paddingMode } = useLayout();
+
+  const getPaddingClasses = (mode: string) => {
+    const paddingModes = {
+      'default': 'px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20',
+      'minimal': 'px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 2xl:px-12', 
+      'full-width': 'px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10'
+    };
+    return paddingModes[mode] || paddingModes['default'];
+  };
   
   return (
     <SidebarProvider>
@@ -42,7 +53,7 @@ export function MainLayout({ children }: PropsWithChildren) {
           )}
           
           <div className="flex-1 overflow-y-auto">
-            <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 page-enter">
+            <div className={`w-full ${getPaddingClasses(paddingMode)} py-8 page-enter`}>
               {children}
             </div>
           </div>
