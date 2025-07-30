@@ -8,7 +8,6 @@ import { ServiziFilters, type ServiziFiltersState } from '../filters/ServiziFilt
 import { ServizioTable } from '../ServizioTable';
 import { EmptyState } from '../EmptyState';
 import { groupServiziByStatus } from '../utils/groupingUtils';
-import { ServiziCalendarView } from '../calendar/ServiziCalendarView';
 import { Servizio } from '@/lib/types/servizi';
 import { Profile } from '@/lib/types';
 import { Azienda } from '@/lib/types';
@@ -45,7 +44,6 @@ export function ServiziContent({
 }: ServiziContentProps) {
   const { aziende } = useAziende();
   const [activeTab, setActiveTab] = useState<string>('da_assegnare');
-  const [showCalendar, setShowCalendar] = useState(false);
   const [filters, setFilters] = useState<ServiziFiltersState>({
     search: '',
     aziendaId: '',
@@ -178,7 +176,7 @@ export function ServiziContent({
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowCalendar(true)}>
+          <Button variant="outline" size="sm" onClick={() => window.location.href = '/calendario-servizi'}>
             <Calendar className="h-4 w-4 mr-2" />
             Vista Calendario
           </Button>
@@ -264,16 +262,6 @@ export function ServiziContent({
           </TabsContent>
         ))}
       </Tabs>
-
-      {/* Calendar View Dialog */}
-      <ServiziCalendarView
-        servizi={allServizi}
-        users={users}
-        aziende={aziende}
-        open={showCalendar}
-        onOpenChange={setShowCalendar}
-        onNavigateToDetail={onNavigateToDetail}
-      />
     </div>
   );
 }
