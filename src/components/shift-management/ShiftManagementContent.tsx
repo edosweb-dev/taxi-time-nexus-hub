@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { CalendarHeader } from './calendar/CalendarHeader';
 import { CalendarGrid } from './calendar/CalendarGrid';
-import { CalendarSidebar } from './calendar/CalendarSidebar';
 import { ShiftCreateDialog } from './dialogs/ShiftCreateDialog';
 import { ShiftEditDialog } from './dialogs/ShiftEditDialog';
 import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
