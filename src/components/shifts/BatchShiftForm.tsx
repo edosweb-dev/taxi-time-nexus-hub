@@ -13,9 +13,11 @@ import { UserFilterDropdown } from './filters/UserFilterDropdown';
 import { toast } from '@/components/ui/sonner';
 import { useShifts } from './ShiftContext';
 import { Calendar, Users, Clock, Target } from 'lucide-react';
-import { format, addMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, eachDayOfInterval } from 'date-fns';
+import { format, addMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useUsers } from '@/hooks/useUsers';
+import { calculateBatchDates, getMonthWeeks, WEEKDAY_LABELS } from './utils/dateUtils';
+import { validateBatchShifts, createBatchShifts } from './utils/batchValidation';
 
 const batchShiftSchema = z.object({
   targetMonth: z.date(),
@@ -47,7 +49,7 @@ const shiftTypeLabels = {
   unavailable: 'Non disponibile'
 };
 
-const weekdayLabels = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+// Removed: using WEEKDAY_LABELS from dateUtils
 
 export function BatchShiftForm({ 
   currentMonth, 
@@ -79,45 +81,16 @@ export function BatchShiftForm({
   const watchPeriodType = form.watch('periodType');
   const watchTargetMonth = form.watch('targetMonth');
 
-  const getMonthWeeks = (date: Date) => {
-    try {
-      const weeks = [];
-      const monthStart = startOfMonth(date);
-      const monthEnd = endOfMonth(date);
-      
-      let currentWeek = 1;
-      let weekStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-      
-      while (weekStart <= monthEnd && currentWeek <= 5) {
-        const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-        const daysInMonth = eachDayOfInterval({
-          start: weekStart,
-          end: weekEnd
-        }).filter(day => isWithinInterval(day, { start: monthStart, end: monthEnd }));
-        
-        if (daysInMonth.length > 0) {
-          weeks.push({
-            number: currentWeek,
-            label: `Settimana ${currentWeek} (${format(weekStart, 'd MMM', { locale: it })} - ${format(weekEnd, 'd MMM', { locale: it })})`
-          });
-        }
-        currentWeek++;
-        weekStart = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-      }
-      
-      return weeks;
-    } catch (error) {
-      console.error('Error calculating weeks:', error);
-      return [];
-    }
-  };
+  // Moved to dateUtils
 
   const monthWeeks = getMonthWeeks(watchTargetMonth);
 
   const onSubmit = async (data: BatchShiftFormValues) => {
     setIsSubmitting(true);
     try {
-      console.log('Batch shift data:', data, 'Selected users:', selectedUserIds);
+      console.log('🚀 [BATCH SUBMIT] Starting optimized batch creation');
+      console.log('📋 [BATCH SUBMIT] Data:', data);
+      console.log('👥 [BATCH SUBMIT] Selected users:', selectedUserIds);
       
       // Validate specific users selection
       if (data.targetType === 'specific' && selectedUserIds.length === 0) {
@@ -136,94 +109,25 @@ export function BatchShiftForm({
         ? (allUsers?.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role)) || []).map(user => user.id)
         : selectedUserIds;
 
-      // Calculate dates to apply shifts
-      const monthStart = startOfMonth(data.targetMonth);
-      const monthEnd = endOfMonth(data.targetMonth);
-      
-      let datesToApply: Date[] = [];
-      
-      console.log(`🗓️ [DATE FILTER] === INIZIO CALCOLO DATE ===`);
-      console.log(`🗓️ [DATE FILTER] Mese: ${format(data.targetMonth, 'MMMM yyyy', { locale: it })}`);
-      console.log(`🗓️ [DATE FILTER] Periodo: ${monthStart} - ${monthEnd}`);
-      console.log(`🗓️ [DATE FILTER] Tipo periodo: ${data.periodType}`);
-      console.log(`🗓️ [DATE FILTER] Giorni selezionati (UI indexes):`, data.weekdays);
-      console.log(`🗓️ [DATE FILTER] Labels disponibili:`, weekdayLabels.map((label, index) => `${index}=${label}`));
+      console.log(`👥 [BATCH SUBMIT] Target users: ${targetUsers.length}`);
 
-      if (data.periodType === 'month') {
-        // Apply to all specified weekdays in the month
-        const allDates = eachDayOfInterval({ start: monthStart, end: monthEnd });
-        console.log(`🗓️ [DATE FILTER] Totale giorni nel mese: ${allDates.length}`);
-        
-        datesToApply = allDates.filter(date => {
-          // DEBUGGING: Mostra ogni data elaborata
-          const jsDay = date.getDay(); // 0=Dom, 1=Lun, 2=Mar, 3=Mer, 4=Gio, 5=Ven, 6=Sab
-          
-          // Mapping corretto da JavaScript getDay() a indice UI weekdayLabels
-          // weekdayLabels = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
-          //                   0      1      2      3      4      5      6
-          let weekdayIndex;
-          if (jsDay === 0) {
-            weekdayIndex = 6; // Domenica JS=0 -> UI index=6
-          } else {
-            weekdayIndex = jsDay - 1; // Lun=1->0, Mar=2->1, Mer=3->2, Gio=4->3, Ven=5->4, Sab=6->5
-          }
-          
-          const isSelected = data.weekdays.includes(weekdayIndex);
-          const dateString = format(date, 'yyyy-MM-dd (EEEE)', { locale: it });
-          
-          console.log(`🗓️ [DATE FILTER] ${dateString}: jsDay=${jsDay} → weekdayIndex=${weekdayIndex} → label="${weekdayLabels[weekdayIndex]}" → ${isSelected ? '✅ INCLUSO' : '❌ ESCLUSO'}`);
-          
-          return isSelected;
-        });
-        
-        console.log(`🗓️ [DATE FILTER] === RISULTATO FILTRO ===`);
-        console.log(`🗓️ [DATE FILTER] Date INCLUSE: ${datesToApply.length} su ${allDates.length} totali`);
-        datesToApply.forEach((date, index) => {
-          const dateString = format(date, 'yyyy-MM-dd (EEEE)', { locale: it });
-          console.log(`🗓️ [DATE FILTER] ✅ ${index + 1}. ${dateString}`);
-        });
-        
-        if (datesToApply.length === 0) {
-          console.error(`🗓️ [DATE FILTER] ⚠️ ATTENZIONE: Nessuna data trovata! Verifica selezione giorni.`);
-        }
-      } else if (data.periodType === 'week' && data.weekNumber) {
-        // Apply to specific week
-        const weekStart = startOfWeek(
-          new Date(monthStart.getFullYear(), monthStart.getMonth(), 1 + (data.weekNumber - 1) * 7),
-          { weekStartsOn: 1 }
-        );
-        const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-        
-        console.log(`🗓️ [DATE FILTER] Settimana ${data.weekNumber}: ${weekStart} - ${weekEnd}`);
-        
-        const weekDates = eachDayOfInterval({ start: weekStart, end: weekEnd });
-        datesToApply = weekDates.filter(date => {
-          if (!isWithinInterval(date, { start: monthStart, end: monthEnd })) {
-            console.log(`🗓️ [DATE FILTER] ❌ ${format(date, 'yyyy-MM-dd')} escluso - fuori dal mese`);
-            return false;
-          }
-          
-          // Stessa correzione per le settimane
-          let weekdayIndex;
-          if (date.getDay() === 0) {
-            weekdayIndex = 6; // Domenica
-          } else {
-            weekdayIndex = date.getDay() - 1; // Lun-Sab
-          }
-          
-          const isSelected = data.weekdays.includes(weekdayIndex);
-          console.log(`🗓️ [DATE FILTER] Settimana - ${format(date, 'yyyy-MM-dd')}: getDay()=${date.getDay()} → weekdayIndex=${weekdayIndex} → ${isSelected ? '✅ INCLUSO' : '❌ ESCLUSO'}`);
-          return isSelected;
-        });
-        
-        console.log(`🗓️ [DATE FILTER] Date settimana incluse: ${datesToApply.length}`);
+      // Calculate dates using optimized utility
+      const datesToApply = calculateBatchDates({
+        targetMonth: data.targetMonth,
+        periodType: data.periodType,
+        weekdays: data.weekdays,
+        weekNumber: data.weekNumber
+      });
+
+      if (datesToApply.length === 0) {
+        toast.error('Nessuna data valida trovata per i giorni selezionati');
+        return;
       }
 
-      // Create shifts for each date and user
+      // Create shift objects for batch validation and creation
       const shiftsToCreate = [];
       
       for (const date of datesToApply) {
-        // Create individual shifts for each target user
         for (const userId of targetUsers) {
           shiftsToCreate.push({
             user_id: userId,
@@ -239,65 +143,52 @@ export function BatchShiftForm({
         }
       }
 
-      // Chiudi il form e avvia il progresso
-      onClose();
-      onStartProgress(shiftsToCreate.length);
+      console.log(`📝 [BATCH SUBMIT] Total shifts to create: ${shiftsToCreate.length}`);
+
+      // Pre-validate the entire batch
+      const validation = await validateBatchShifts(shiftsToCreate);
       
-      // Crea tutti i turni con tracking del progresso
-      console.log(`Creazione di ${shiftsToCreate.length} turni`);
+      console.log(`✅ [BATCH VALIDATION] Valid: ${validation.validShifts.length}`);
+      console.log(`❌ [BATCH VALIDATION] Invalid: ${validation.invalidShifts.length}`);
       
-      let successCount = 0;
-      let errorCount = 0;
-      
-      for (const shiftData of shiftsToCreate) {
-        try {
-          const dateString = format(shiftData.shift_date, 'yyyy-MM-dd (EEEE)', { locale: it });
-          const user = allUsers?.find(u => u.id === shiftData.user_id);
-          const userName = user ? `${user.first_name} ${user.last_name}` : shiftData.user_id;
-          
-          console.log(`🔄 [CREATION LOG] Tentativo creazione turno ${successCount + errorCount + 1}/${shiftsToCreate.length}:`);
-          console.log(`   📅 Data: ${dateString}`);
-          console.log(`   👤 Utente: ${userName} (${shiftData.user_id})`);
-          console.log(`   ⏰ Tipo: ${shiftData.shift_type}`);
-          console.log(`   🕐 Orario: ${shiftData.start_time || 'N/A'} - ${shiftData.end_time || 'N/A'}`);
-          
-          await createShift(shiftData);
-          
-          console.log(`✅ [CREATION LOG] Turno creato con successo per ${userName} il ${dateString}`);
-          successCount++;
-          onUpdateProgress(successCount, errorCount);
-        } catch (error) {
-          const dateString = format(shiftData.shift_date, 'yyyy-MM-dd (EEEE)', { locale: it });
-          const user = allUsers?.find(u => u.id === shiftData.user_id);
-          const userName = user ? `${user.first_name} ${user.last_name}` : shiftData.user_id;
-          
-          console.error(`❌ [CREATION LOG] ERRORE creazione turno per ${userName} il ${dateString}:`);
-          console.error(`   🔍 Dettagli errore:`, error);
-          console.error(`   📋 Dati turno che ha fallito:`, shiftData);
-          
-          errorCount++;
-          onUpdateProgress(successCount, errorCount);
-        }
-        
-        // Piccola pausa per permettere l'aggiornamento della UI
-        await new Promise(resolve => setTimeout(resolve, 50));
+      if (validation.invalidShifts.length > 0) {
+        console.log('🚫 [BATCH VALIDATION] Invalid shifts:', validation.invalidShifts);
       }
+
+      // Close form and start progress tracking
+      onClose();
+      onStartProgress(validation.validShifts.length);
       
-      // Creazione completata
+      // Create valid shifts using optimized batch creation
+      const result = await createBatchShifts(
+        validation.validShifts,
+        allUsers?.find(u => u.id === targetUsers[0])?.id || targetUsers[0], // userId for created_by
+        (created, total) => {
+          onUpdateProgress(created, validation.invalidShifts.length);
+        }
+      );
+      
+      // Complete progress tracking
       onCompleteProgress();
       
-      // Mostra toast finale
-      if (successCount > 0) {
-        toast.success(`${successCount} turni creati con successo`);
+      // Show final results
+      if (result.created > 0) {
+        toast.success(`${result.created} turni creati con successo`);
       }
       
-      if (errorCount > 0) {
-        toast.error(`${errorCount} turni non creati per errori`);
+      const totalErrors = validation.invalidShifts.length + result.errors.length;
+      if (totalErrors > 0) {
+        toast.error(`${totalErrors} turni non creati (${validation.invalidShifts.length} conflitti, ${result.errors.length} errori)`);
+        
+        // Log detailed error information
+        console.log('📊 [BATCH RESULT] Validation conflicts:', validation.invalidShifts);
+        console.log('📊 [BATCH RESULT] Creation errors:', result.errors);
       }
       
     } catch (error) {
-      console.error('Error creating batch shifts:', error);
+      console.error('❌ [BATCH SUBMIT] Fatal error:', error);
       toast.error('Errore nella creazione dei turni');
+      onCompleteProgress();
     } finally {
       setIsSubmitting(false);
     }
@@ -544,7 +435,7 @@ export function BatchShiftForm({
                   render={() => (
                     <FormItem>
                       <div className="grid grid-cols-7 gap-3">
-                        {weekdayLabels.map((day, index) => (
+                        {WEEKDAY_LABELS.map((day, index) => (
                           <FormField
                             key={index}
                             control={form.control}

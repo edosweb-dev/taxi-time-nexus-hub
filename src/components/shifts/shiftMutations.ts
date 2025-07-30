@@ -50,30 +50,33 @@ export const useShiftMutations = (userId?: string) => {
     };
   };
 
-  // Mutation per creare un turno
+  // Mutation per creare un turno (ottimizzata per non fare doppia validazione in batch)
   const createShiftMutation = useMutation({
     mutationFn: async (data: ShiftFormData) => {
       if (!userId) throw new Error('Utente non autenticato');
       
-      // Invece di usare la query cache, facciamo una query diretta al database 
-      // per ottenere tutti i turni dell'utente nella data specifica
-      const shiftDate = data.shift_date.toISOString().split('T')[0];
-      const { data: existingShifts, error } = await supabase
-        .from('shifts')
-        .select('*')
-        .eq('user_id', data.user_id)
-        .eq('shift_date', shiftDate);
+      // Skip validation per batch operations che hanno già validato
+      // Mantieni validazione solo per operazioni singole
+      const isBatchOperation = data.notes?.includes('[BATCH]') || false;
+      
+      if (!isBatchOperation) {
+        const shiftDate = data.shift_date.toISOString().split('T')[0];
+        const { data: existingShifts, error } = await supabase
+          .from('shifts')
+          .select('*')
+          .eq('user_id', data.user_id)
+          .eq('shift_date', shiftDate);
 
-      if (error) {
-        console.error('Error checking existing shifts:', error);
-        throw new Error('Errore nel controllo dei turni esistenti');
-      }
-      
-      // Verifica se è possibile inserire il turno
-      const validation = validateShiftRule(existingShifts as Shift[] || [], data);
-      
-      if (!validation.isValid) {
-        throw new Error(validation.errorMessage);
+        if (error) {
+          console.error('Error checking existing shifts:', error);
+          throw new Error('Errore nel controllo dei turni esistenti');
+        }
+        
+        const validation = validateShiftRule(existingShifts as Shift[] || [], data);
+        
+        if (!validation.isValid) {
+          throw new Error(validation.errorMessage);
+        }
       }
       
       return createShiftApi(data, userId);
@@ -93,8 +96,6 @@ export const useShiftMutations = (userId?: string) => {
     mutationFn: async ({ id, data }: { id: string; data: ShiftFormData }) => {
       if (!userId) throw new Error('Utente non autenticato');
       
-      // Invece di usare la query cache, facciamo una query diretta al database 
-      // per ottenere tutti i turni dell'utente nella data specifica
       const shiftDate = data.shift_date.toISOString().split('T')[0];
       const { data: existingShifts, error } = await supabase
         .from('shifts')

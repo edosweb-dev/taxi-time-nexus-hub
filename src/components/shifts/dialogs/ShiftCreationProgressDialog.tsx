@@ -45,8 +45,8 @@ export function ShiftCreationProgressDialog({
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
               {isComplete 
-                ? `${createdShifts} turni creati con successo${errorShifts > 0 ? `, ${errorShifts} con errori` : ''}`
-                : `${remaining} turni rimanenti`
+                ? `${createdShifts} turni creati con successo${errorShifts > 0 ? `, ${errorShifts} saltati per conflitti` : ''}`
+                : `Elaborazione in corso... ${remaining} rimanenti`
               }
             </p>
           </div>
@@ -68,8 +68,8 @@ export function ShiftCreationProgressDialog({
                 </span>
               )}
               {errorShifts > 0 && (
-                <span className="text-red-600">
-                  ✗ {errorShifts} errori
+                <span className="text-amber-600">
+                  ⚠ {errorShifts} saltati
                 </span>
               )}
             </div>
