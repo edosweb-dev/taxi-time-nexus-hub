@@ -4,9 +4,8 @@ import { it } from 'date-fns/locale';
 import { Shift } from '@/components/shifts/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Plus, Clock, User, Calendar, Briefcase, Heart, UserX, Coffee } from 'lucide-react';
 
 interface DayViewProps {
@@ -126,12 +125,12 @@ export function DayView({
     const Icon = icon;
 
     return (
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Icon className="h-4 w-4" />
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground px-1">
+          <Icon className="h-3 w-3" />
           {title} ({shifts.length})
         </div>
-        <div className="grid gap-3">
+        <div className="space-y-2">
           {shifts.map((shift) => {
             const shiftInfo = getShiftTypeInfo(shift);
             const ShiftIcon = shiftInfo.icon;
@@ -139,16 +138,16 @@ export function DayView({
             return (
               <Card
                 key={shift.id}
-                className="cursor-pointer hover:shadow-md transition-all hover:scale-[1.02] border-l-4 group"
+                className="cursor-pointer hover:shadow-sm transition-all border-l-4 group"
                 style={{ borderLeftColor: getShiftColor(shift) }}
                 onClick={() => onEditShift(shift)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       {/* User Avatar */}
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white font-medium text-xs"
                         style={{ backgroundColor: getShiftColor(shift) }}
                       >
                         {getUserInitials(shift)}
@@ -156,30 +155,26 @@ export function DayView({
                       
                       {/* Shift Info */}
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium">{getShiftDisplayText(shift)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={shiftInfo.variant} className="gap-1">
-                            <ShiftIcon className="h-3 w-3" />
-                            {shiftInfo.label}
-                          </Badge>
-                        </div>
+                        <div className="text-sm font-medium">{getShiftDisplayText(shift)}</div>
+                        <Badge variant={shiftInfo.variant} className="gap-1 text-xs h-5">
+                          <ShiftIcon className="h-2 w-2" />
+                          {shiftInfo.label}
+                        </Badge>
                       </div>
                     </div>
                     
                     {/* Notes indicator */}
                     {shift.notes && (
-                      <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                        Con note
+                      <div className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                        Note
                       </div>
                     )}
                   </div>
                   
                   {shift.notes && (
-                    <div className="mt-3 pt-3 border-t">
-                      <p className="text-sm text-muted-foreground">
-                        <span className="font-medium">Note:</span> {shift.notes}
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-xs text-muted-foreground">
+                        {shift.notes}
                       </p>
                     </div>
                   )}
@@ -194,20 +189,19 @@ export function DayView({
 
   return (
     <div className="flex-1 overflow-hidden">
-      {/* Enhanced Day header with stats */}
-      <div className="bg-gradient-to-r from-background to-muted/20 p-6 border-b">
+      {/* Day header */}
+      <div className="border-b bg-muted/30 p-3">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className={cn(
-              "text-3xl font-bold tracking-tight",
+          <div>
+            <h2 className={cn(
+              "text-lg font-medium",
               isCurrentDay && "text-primary"
             )}>
               {format(currentDate, 'EEEE d MMMM yyyy', { locale: it })}
-            </h1>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            </h2>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
               {isCurrentDay && (
-                <Badge variant="default" className="gap-1">
-                  <Calendar className="h-3 w-3" />
+                <Badge variant="default" className="text-xs h-5">
                   Oggi
                 </Badge>
               )}
@@ -218,33 +212,33 @@ export function DayView({
             </div>
           </div>
           
-          <Button onClick={() => onCreateShift(currentDate)} size="lg" className="gap-2 shadow-lg">
-            <Plus className="h-4 w-4" />
+          <Button onClick={() => onCreateShift(currentDate)} size="sm" className="gap-1">
+            <Plus className="h-3 w-3" />
             Aggiungi turno
           </Button>
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-3">
         {/* Shifts content */}
         {totalShifts === 0 ? (
           <Card className="border-dashed border-2">
-            <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-              <div className="bg-muted rounded-full p-4 mb-4">
-                <Clock className="h-8 w-8 text-muted-foreground" />
+            <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+              <div className="bg-muted rounded-full p-3 mb-3">
+                <Clock className="h-6 w-6 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Nessun turno programmato</h3>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Non ci sono turni programmati per questo giorno. Inizia aggiungendo il primo turno.
+              <h3 className="text-base font-medium mb-1">Nessun turno programmato</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Non ci sono turni programmati per questo giorno.
               </p>
-              <Button onClick={() => onCreateShift(currentDate)} size="lg" className="gap-2">
-                <Plus className="h-4 w-4" />
+              <Button onClick={() => onCreateShift(currentDate)} size="sm" className="gap-1">
+                <Plus className="h-3 w-3" />
                 Aggiungi il primo turno
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {renderShiftGroup("Giornata intera", groupedShifts.fullDay, Calendar)}
             {renderShiftGroup("Mattina", groupedShifts.morning, Coffee)}
             {renderShiftGroup("Pomeriggio", groupedShifts.afternoon, Briefcase)}
