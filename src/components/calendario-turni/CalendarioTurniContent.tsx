@@ -28,6 +28,7 @@ import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
 import { ShiftCreationProgressDialog } from '@/components/shifts/dialogs/ShiftCreationProgressDialog';
 import { CalendarioView } from './CalendarioView';
 import { InserimentoMassivoDialog } from './InserimentoMassivoDialog';
+import { ViewFilterDropdown } from '@/components/shifts/filters/ViewFilterDropdown';
 import { Shift } from '@/components/shifts/types';
 
 interface CalendarioTurniContentProps {
@@ -235,32 +236,10 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                 </div>
                 
                 {/* View Mode Selector - Mobile */}
-                <div className="flex items-center gap-1 border rounded-md p-1">
-                  <Button
-                    variant={viewMode === 'month' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('month')}
-                    className="p-1"
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === 'week' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('week')}
-                    className="p-1"
-                  >
-                    <Rows3 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === 'day' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('day')}
-                    className="p-1"
-                  >
-                    <Square className="h-4 w-4" />
-                  </Button>
-                </div>
+                <ViewFilterDropdown 
+                  viewMode={viewMode} 
+                  onViewModeChange={setViewMode} 
+                />
               </div>
 
               {/* Period title */}
@@ -380,35 +359,10 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                   </div>
 
                   {/* View Mode Selector */}
-                  <div className="flex items-center gap-1 border rounded-md p-1">
-                    <Button
-                      variant={viewMode === 'month' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('month')}
-                      className="gap-2"
-                    >
-                      <Grid3X3 className="h-4 w-4" />
-                      Mese
-                    </Button>
-                    <Button
-                      variant={viewMode === 'week' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('week')}
-                      className="gap-2"
-                    >
-                      <Rows3 className="h-4 w-4" />
-                      Settimana
-                    </Button>
-                    <Button
-                      variant={viewMode === 'day' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('day')}
-                      className="gap-2"
-                    >
-                      <Square className="h-4 w-4" />
-                      Giorno
-                    </Button>
-                  </div>
+                  <ViewFilterDropdown 
+                    viewMode={viewMode} 
+                    onViewModeChange={setViewMode} 
+                  />
                 </div>
 
                 {/* Right side - Filters and Actions */}
