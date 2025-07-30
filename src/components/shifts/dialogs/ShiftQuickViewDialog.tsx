@@ -75,12 +75,6 @@ export function ShiftQuickViewDialog({
                 </div>
               )}
             </div>
-            <Badge 
-              variant={getShiftStatusColor(shift.shift_type)}
-              className="ml-2"
-            >
-              {shift.shift_type}
-            </Badge>
           </div>
 
           {shift.notes && (
