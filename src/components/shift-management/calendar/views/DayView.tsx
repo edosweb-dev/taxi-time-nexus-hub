@@ -221,13 +221,9 @@ export function DayView({
                 <Clock className="h-6 w-6 text-muted-foreground" />
               </div>
               <h3 className="text-base font-medium mb-1">Nessun turno programmato</h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground">
                 Non ci sono turni programmati per questo giorno.
               </p>
-              <Button onClick={() => onCreateShift(currentDate)} size="sm" className="gap-1">
-                <Plus className="h-3 w-3" />
-                Aggiungi il primo turno
-              </Button>
             </CardContent>
           </Card>
         ) : (
