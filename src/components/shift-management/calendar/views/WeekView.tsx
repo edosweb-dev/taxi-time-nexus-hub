@@ -93,7 +93,7 @@ export function WeekView({
       </div>
 
       {/* Week content */}
-      <div className="grid grid-cols-7 auto-rows-fr h-full">
+      <div className="grid grid-cols-7 flex-1 overflow-auto">
         {weekDays.map((day) => {
           const dateKey = format(day, 'yyyy-MM-dd');
           const dayShifts = shiftsByDate.get(dateKey) || [];

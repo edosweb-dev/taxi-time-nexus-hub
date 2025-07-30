@@ -58,7 +58,7 @@ export const ShiftEvent = ({
   return (
     <div
       className={cn(
-        "absolute left-0 right-0 z-5 mx-1 rounded border p-1 text-xs overflow-hidden cursor-pointer transition-colors hover:opacity-90 hover:z-10",
+        "absolute left-0 right-0 z-5 mx-1 rounded border p-1 text-xs overflow-hidden cursor-pointer hover:opacity-90 hover:z-10",
         {
           "bg-green-400/90 text-green-950 border-green-400": getVariant() === "success",
           "bg-secondary text-secondary-foreground border-secondary": getVariant() === "secondary",

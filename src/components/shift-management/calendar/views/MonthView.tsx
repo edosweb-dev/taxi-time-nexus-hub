@@ -85,7 +85,7 @@ export function MonthView({
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 auto-rows-fr h-full">
+      <div className="grid grid-cols-7 flex-1 overflow-auto">
         {calendarDays.map((day) => {
           const dateKey = format(day, 'yyyy-MM-dd');
           const dayShifts = shiftsByDate.get(dateKey) || [];
@@ -96,7 +96,7 @@ export function MonthView({
             <div
               key={dateKey}
               className={cn(
-                "border-r border-b last:border-r-0 border-muted/30 p-2 min-h-[120px] group hover:bg-muted/10 transition-colors cursor-pointer",
+                "border-r border-b last:border-r-0 border-muted/30 p-2 min-h-[100px] group hover:bg-muted/10 cursor-pointer",
                 !isCurrentMonth && "bg-muted/5 text-muted-foreground"
               )}
               onClick={() => onCreateShift(day)}
