@@ -173,8 +173,8 @@ export function AddShiftSheet({
   const content = (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Assegnazione e Data - Layout minimalista */}
-        <div className="grid grid-cols-2 gap-4 items-end">
+        {/* Assegnazione, Data e Tipo - Layout su una riga */}
+        <div className="grid grid-cols-3 gap-4 items-end">
           <ShiftUserSelect 
             control={form.control}
             isAdminOrSocio={isAdminOrSocio}
@@ -188,13 +188,12 @@ export function AddShiftSheet({
               label="Data turno"
             />
           </div>
+          
+          <ShiftTypeSelect 
+            control={form.control}
+            setValue={form.setValue}
+          />
         </div>
-        
-        {/* Tipo di Turno */}
-        <ShiftTypeSelect 
-          control={form.control}
-          setValue={form.setValue}
-        />
         
         {/* Orari specifici */}
         {shiftType === 'specific_hours' && (
