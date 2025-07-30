@@ -233,11 +233,30 @@ export function BatchShiftForm({
       
       for (const shiftData of shiftsToCreate) {
         try {
+          const dateString = format(shiftData.shift_date, 'yyyy-MM-dd (EEEE)', { locale: it });
+          const user = allUsers?.find(u => u.id === shiftData.user_id);
+          const userName = user ? `${user.first_name} ${user.last_name}` : shiftData.user_id;
+          
+          console.log(`🔄 [CREATION LOG] Tentativo creazione turno ${successCount + errorCount + 1}/${shiftsToCreate.length}:`);
+          console.log(`   📅 Data: ${dateString}`);
+          console.log(`   👤 Utente: ${userName} (${shiftData.user_id})`);
+          console.log(`   ⏰ Tipo: ${shiftData.shift_type}`);
+          console.log(`   🕐 Orario: ${shiftData.start_time || 'N/A'} - ${shiftData.end_time || 'N/A'}`);
+          
           await createShift(shiftData);
+          
+          console.log(`✅ [CREATION LOG] Turno creato con successo per ${userName} il ${dateString}`);
           successCount++;
           onUpdateProgress(successCount, errorCount);
         } catch (error) {
-          console.error('Errore creazione turno:', error);
+          const dateString = format(shiftData.shift_date, 'yyyy-MM-dd (EEEE)', { locale: it });
+          const user = allUsers?.find(u => u.id === shiftData.user_id);
+          const userName = user ? `${user.first_name} ${user.last_name}` : shiftData.user_id;
+          
+          console.error(`❌ [CREATION LOG] ERRORE creazione turno per ${userName} il ${dateString}:`);
+          console.error(`   🔍 Dettagli errore:`, error);
+          console.error(`   📋 Dati turno che ha fallito:`, shiftData);
+          
           errorCount++;
           onUpdateProgress(successCount, errorCount);
         }
