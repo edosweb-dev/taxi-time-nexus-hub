@@ -20,7 +20,6 @@ import VeicoliPage from './pages/veicoli/VeicoliPage';
 import ConducentiEsterniPage from './pages/conducenti-esterni/ConducentiEsterniPage';
 import StipendiPage from './pages/StipendiPage';
 import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
-import ShiftsPage from './pages/ShiftsPage';
 import ShiftManagementPage from './pages/ShiftManagementPage';
 import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
 import AziendePage from './pages/aziende/AziendePage';
@@ -155,17 +154,13 @@ function App() {
               } />
               
               {/* Shifts Routes */}
-              <Route path="/turni" element={
-                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                  <ShiftsPage />
-                </AuthGuard>
-              } />
+              <Route path="/turni" element={<Navigate to="/gestione-turni" replace />} />
               <Route path="/gestione-turni" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <ShiftManagementPage />
                 </AuthGuard>
               } />
-              <Route path="/turni/report" element={
+              <Route path="/gestione-turni/report" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <ShiftReportsPage />
                 </AuthGuard>

@@ -115,7 +115,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="flex flex-col space-y-2">
                 <p className="text-sm">Visualizza e gestisci i turni di lavoro del personale.</p>
-                <Button onClick={handleNavigate('/turni')} className="mt-2">
+                <Button onClick={handleNavigate('/gestione-turni')} className="mt-2">
                   Vai ai turni
                 </Button>
               </CardContent>
