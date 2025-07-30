@@ -142,11 +142,17 @@ export function BatchShiftForm({
       
       let datesToApply: Date[] = [];
       
+      console.log(`🗓️ [DATE FILTER] === INIZIO CALCOLO DATE ===`);
+      console.log(`🗓️ [DATE FILTER] Mese: ${format(data.targetMonth, 'MMMM yyyy', { locale: it })}`);
+      console.log(`🗓️ [DATE FILTER] Periodo: ${monthStart} - ${monthEnd}`);
+      console.log(`🗓️ [DATE FILTER] Tipo periodo: ${data.periodType}`);
+      console.log(`🗓️ [DATE FILTER] Giorni selezionati (UI indexes):`, data.weekdays);
+      console.log(`🗓️ [DATE FILTER] Labels disponibili:`, weekdayLabels.map((label, index) => `${index}=${label}`));
+
       if (data.periodType === 'month') {
         // Apply to all specified weekdays in the month
         const allDates = eachDayOfInterval({ start: monthStart, end: monthEnd });
-        console.log(`[BatchShiftForm] Giorni selezionati nell'UI:`, data.weekdays);
-        console.log(`[BatchShiftForm] Labels giorni:`, weekdayLabels);
+        console.log(`🗓️ [DATE FILTER] Totale giorni nel mese: ${allDates.length}`);
         
         datesToApply = allDates.filter(date => {
           // DEBUGGING: Mostra ogni data elaborata
@@ -165,15 +171,21 @@ export function BatchShiftForm({
           const isSelected = data.weekdays.includes(weekdayIndex);
           const dateString = format(date, 'yyyy-MM-dd (EEEE)', { locale: it });
           
-          console.log(`[BatchShiftForm] ${dateString}: jsDay=${jsDay}, weekdayIndex=${weekdayIndex}, label="${weekdayLabels[weekdayIndex]}", selected=${isSelected}`);
+          console.log(`🗓️ [DATE FILTER] ${dateString}: jsDay=${jsDay} → weekdayIndex=${weekdayIndex} → label="${weekdayLabels[weekdayIndex]}" → ${isSelected ? '✅ INCLUSO' : '❌ ESCLUSO'}`);
           
           return isSelected;
         });
         
-        console.log(`[BatchShiftForm] Date filtrate: ${datesToApply.length} su ${allDates.length} totali`);
-        datesToApply.forEach(date => {
-          console.log(`[BatchShiftForm] Data inclusa: ${format(date, 'yyyy-MM-dd (EEEE)', { locale: it })}`);
+        console.log(`🗓️ [DATE FILTER] === RISULTATO FILTRO ===`);
+        console.log(`🗓️ [DATE FILTER] Date INCLUSE: ${datesToApply.length} su ${allDates.length} totali`);
+        datesToApply.forEach((date, index) => {
+          const dateString = format(date, 'yyyy-MM-dd (EEEE)', { locale: it });
+          console.log(`🗓️ [DATE FILTER] ✅ ${index + 1}. ${dateString}`);
         });
+        
+        if (datesToApply.length === 0) {
+          console.error(`🗓️ [DATE FILTER] ⚠️ ATTENZIONE: Nessuna data trovata! Verifica selezione giorni.`);
+        }
       } else if (data.periodType === 'week' && data.weekNumber) {
         // Apply to specific week
         const weekStart = startOfWeek(
@@ -182,9 +194,12 @@ export function BatchShiftForm({
         );
         const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
         
+        console.log(`🗓️ [DATE FILTER] Settimana ${data.weekNumber}: ${weekStart} - ${weekEnd}`);
+        
         const weekDates = eachDayOfInterval({ start: weekStart, end: weekEnd });
         datesToApply = weekDates.filter(date => {
           if (!isWithinInterval(date, { start: monthStart, end: monthEnd })) {
+            console.log(`🗓️ [DATE FILTER] ❌ ${format(date, 'yyyy-MM-dd')} escluso - fuori dal mese`);
             return false;
           }
           
@@ -196,9 +211,12 @@ export function BatchShiftForm({
             weekdayIndex = date.getDay() - 1; // Lun-Sab
           }
           
-          console.log(`[BatchShiftForm] Settimana - Data ${format(date, 'yyyy-MM-dd')}, getDay()=${date.getDay()}, weekdayIndex=${weekdayIndex}, selected=${data.weekdays.includes(weekdayIndex)}`);
-          return data.weekdays.includes(weekdayIndex);
+          const isSelected = data.weekdays.includes(weekdayIndex);
+          console.log(`🗓️ [DATE FILTER] Settimana - ${format(date, 'yyyy-MM-dd')}: getDay()=${date.getDay()} → weekdayIndex=${weekdayIndex} → ${isSelected ? '✅ INCLUSO' : '❌ ESCLUSO'}`);
+          return isSelected;
         });
+        
+        console.log(`🗓️ [DATE FILTER] Date settimana incluse: ${datesToApply.length}`);
       }
 
       // Create shifts for each date and user
