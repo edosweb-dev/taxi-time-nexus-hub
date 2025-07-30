@@ -1,311 +1,312 @@
+
 import React, { useState, useEffect } from 'react';
+import { startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ShiftProvider } from '@/components/shifts/ShiftContext';
+import { UserSelectDropdown } from '@/components/shifts/reports/UserSelectDropdown';
+import { UserShiftDetailReport } from '@/components/shifts/reports/UserShiftDetailReport';
+import { DayServicesModal } from '@/components/shifts/reports/DayServicesModal';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { CalendarIcon, Download, Users, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useShifts } from '@/hooks/useShifts';
-import { useUsers } from '@/hooks/useUsers';
-import { Shift } from '@/types/shifts';
+import { ChevronRight, Home, BarChart3, Download, Calendar as CalendarIcon, Users } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { 
+  fetchAllUsersShiftStats, 
+  fetchUserShiftDetails, 
+  UserShiftStats,
+  AllUsersShiftStats 
+} from '@/components/shifts/reports/shiftReportsApi';
+import { Shift } from '@/components/shifts/types';
 
 export default function ShiftReportsPage() {
-  const [selectedUser, setSelectedUser] = useState<string>('all');
-  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
-  const [reportData, setReportData] = useState<{
-    totalShifts: number;
-    workHours: number;
-    shiftsByType: Record<string, number>;
-    shiftsByUser: Record<string, number>;
-  } | null>(null);
+  const { profile } = useAuth();
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('current_month');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [allUsersStats, setAllUsersStats] = useState<AllUsersShiftStats | null>(null);
+  const [selectedUserStats, setSelectedUserStats] = useState<UserShiftStats | null>(null);
+  const [selectedUserShifts, setSelectedUserShifts] = useState<Shift[]>([]);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  
+  // Modal for day services
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [dayServices, setDayServices] = useState<any[]>([]);
+  const [isLoadingServices, setIsLoadingServices] = useState(false);
 
-  const { shifts, loading, fetchShifts } = useShifts();
-  const { users, isLoading: usersLoading } = useUsers();
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
-  // Filter only employees (admin, socio, dipendente)
-  const employees = users.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role));
-
-  useEffect(() => {
-    const startDate = format(startOfMonth(selectedMonth), 'yyyy-MM-dd');
-    const endDate = format(endOfMonth(selectedMonth), 'yyyy-MM-dd');
-    
-    const filters = {
-      start_date: startDate,
-      end_date: endDate,
-      ...(selectedUser !== 'all' && { user_ids: [selectedUser] })
-    };
-
-    fetchShifts(filters);
-  }, [selectedMonth, selectedUser, fetchShifts]);
-
-  useEffect(() => {
-    if (shifts.length > 0) {
-      generateReportData(shifts);
+  // Calcola date periodo in base alla selezione
+  const getPeriodDates = (period: string): { start: Date; end: Date } => {
+    const now = new Date();
+    switch (period) {
+      case 'current_month':
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+      case 'last_month':
+        const lastMonth = subMonths(now, 1);
+        return { start: startOfMonth(lastMonth), end: endOfMonth(lastMonth) };
+      case 'last_3_months':
+        return { start: startOfMonth(subMonths(now, 2)), end: endOfMonth(now) };
+      case 'current_year':
+        return { start: new Date(now.getFullYear(), 0, 1), end: new Date(now.getFullYear(), 11, 31) };
+      default:
+        return { start: startOfMonth(now), end: endOfMonth(now) };
     }
-  }, [shifts]);
+  };
 
-  const generateReportData = (shiftsData: Shift[]) => {
-    const totalShifts = shiftsData.length;
-    
-    // Calculate work hours
-    let workHours = 0;
-    shiftsData.forEach(shift => {
-      if (shift.shift_type === 'work' && shift.start_time && shift.end_time) {
-        const start = new Date(`2023-01-01 ${shift.start_time}`);
-        const end = new Date(`2023-01-01 ${shift.end_time}`);
-        const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-        workHours += diff;
+  // Carica statistiche di tutti gli utenti
+  const loadAllUsersStats = async () => {
+    setIsLoadingStats(true);
+    try {
+      const { start, end } = getPeriodDates(selectedPeriod);
+      const stats = await fetchAllUsersShiftStats(start, end);
+      setAllUsersStats(stats);
+      
+      // Se non c'è un utente selezionato e ci sono utenti, seleziona il primo
+      if (!selectedUserId && stats.users.length > 0) {
+        setSelectedUserId(stats.users[0].user_id);
       }
-    });
-
-    // Group by shift type
-    const shiftsByType: Record<string, number> = {};
-    shiftsData.forEach(shift => {
-      shiftsByType[shift.shift_type] = (shiftsByType[shift.shift_type] || 0) + 1;
-    });
-
-    // Group by user
-    const shiftsByUser: Record<string, number> = {};
-    shiftsData.forEach(shift => {
-      const user = employees.find(u => u.id === shift.user_id);
-      const userName = user ? `${user.first_name} ${user.last_name}` : 'Utente sconosciuto';
-      shiftsByUser[userName] = (shiftsByUser[userName] || 0) + 1;
-    });
-
-    setReportData({
-      totalShifts,
-      workHours,
-      shiftsByType,
-      shiftsByUser
-    });
+    } catch (error) {
+      console.error('Error loading users stats:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
   };
 
-  const shiftTypeLabels = {
-    work: 'Lavoro',
-    sick_leave: 'Malattia',
-    vacation: 'Ferie',
-    unavailable: 'Non disponibile'
+  // Carica dettagli utente selezionato
+  const loadUserDetails = async (userId: string) => {
+    if (!allUsersStats) return;
+    
+    setIsLoadingDetails(true);
+    try {
+      const { start, end } = getPeriodDates(selectedPeriod);
+      
+      // Trova le statistiche dell'utente selezionato
+      const userStats = allUsersStats.users.find(u => u.user_id === userId);
+      setSelectedUserStats(userStats || null);
+      
+      // Carica i turni dettagliati
+      const shifts = await fetchUserShiftDetails(userId, start, end);
+      setSelectedUserShifts(shifts);
+    } catch (error) {
+      console.error('Error loading user details:', error);
+    } finally {
+      setIsLoadingDetails(false);
+    }
   };
 
-  const exportToCSV = () => {
-    if (!shifts.length) return;
+  // Effetti per caricare i dati
+  useEffect(() => {
+    loadAllUsersStats();
+  }, [selectedPeriod]);
 
-    const csvHeaders = ['Data', 'Utente', 'Tipo', 'Ora Inizio', 'Ora Fine', 'Note'];
-    const csvRows = shifts.map(shift => {
-      const user = employees.find(u => u.id === shift.user_id);
-      const userName = user ? `${user.first_name} ${user.last_name}` : 'Utente sconosciuto';
-      return [
-        format(new Date(shift.shift_date), 'dd/MM/yyyy'),
-        userName,
-        shiftTypeLabels[shift.shift_type as keyof typeof shiftTypeLabels] || shift.shift_type,
-        shift.start_time || '',
-        shift.end_time || '',
-        shift.notes || ''
+  useEffect(() => {
+    if (selectedUserId) {
+      loadUserDetails(selectedUserId);
+    }
+  }, [selectedUserId, allUsersStats]);
+
+  // Gestione selezione utente
+  const handleUserSelect = (userId: string) => {
+    setSelectedUserId(userId);
+  };
+
+  // Handle day click to show services
+  const handleDayClick = async (date: Date) => {
+    if (!selectedUserId) return;
+    
+    setSelectedDate(date);
+    setIsLoadingServices(true);
+    
+    try {
+      // TODO: Implementare API per recuperare servizi per data specifica
+      // Per ora mock data
+      const mockServices = [
+        {
+          id: '1',
+          azienda_nome: 'Azienda Test',
+          indirizzo_partenza: 'Via Roma 1, Milano',
+          indirizzo_destinazione: 'Via Venezia 10, Roma',
+          orario_partenza: '08:00',
+          orario_arrivo: '10:30',
+          stato: 'completato',
+          nome_contatto: 'Mario Rossi',
+          telefono_contatto: '+39 123 456 789',
+          note: 'Servizio express con urgenza'
+        }
       ];
-    });
+      
+      setDayServices(mockServices);
+    } catch (error) {
+      console.error('Error loading day services:', error);
+      setDayServices([]);
+    } finally {
+      setIsLoadingServices(false);
+    }
+  };
 
-    const csvContent = [csvHeaders, ...csvRows]
-      .map(row => row.map(field => `"${field}"`).join(','))
-      .join('\n');
+  // Export CSV (funzionalità base)
+  const handleExportCSV = () => {
+    if (!allUsersStats) return;
+    
+    const csvContent = [
+      ['Nome', 'Email', 'Ore Totali', 'Giorni Lavorativi', 'Giorni Malattia', 'Giorni Non Disponibile'].join(','),
+      ...allUsersStats.users.map(user => [
+        `"${user.user_first_name || ''} ${user.user_last_name || ''}"`.trim(),
+        user.user_email || '',
+        user.total_hours,
+        user.working_days,
+        user.sick_days,
+        user.unavailable_days
+      ].join(','))
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `turni_${format(selectedMonth, 'yyyy-MM')}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `report_turni_${selectedPeriod}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
-
-  if (usersLoading) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">Caricamento...</p>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
 
   return (
     <MainLayout>
-      <div className="container mx-auto py-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Report Turni</h1>
-            <p className="text-muted-foreground">
-              Analizza i dati dei turni di lavoro
-            </p>
-          </div>
-          <Button onClick={exportToCSV} disabled={!shifts.length}>
-            <Download className="h-4 w-4 mr-2" />
-            Esporta CSV
-          </Button>
-        </div>
+      <ShiftProvider>
+        <div className="space-y-6">
+            {/* Header con breadcrumb */}
+            <div className="space-y-4">
+              <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Home className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
+                <span>Turni</span>
+                <ChevronRight className="h-4 w-4" />
+                <span className="font-medium text-foreground">Report</span>
+              </nav>
+              
+              <div className="space-y-6">
+                {/* Header principale */}
+                <div className="flex items-center gap-3">
+                  <BarChart3 className="h-8 w-8 text-primary" />
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground">Report Turni</h1>
+                    <p className="text-muted-foreground">
+                      Analisi dettagliata dei turni con selezione rapida utente
+                    </p>
+                  </div>
+                </div>
 
-        {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Filtri</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Utente</label>
-                <Select value={selectedUser} onValueChange={setSelectedUser}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona utente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutti gli utenti</SelectItem>
-                    {employees.map(user => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.first_name} {user.last_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                {/* Controlli di selezione migliorati */}
+                <Card className="border-l-4 border-l-primary">
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      
+                      {/* Sezione Utente */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-primary" />
+                          <h3 className="font-semibold text-lg">Utente</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Seleziona l'utente di cui visualizzare il report
+                        </p>
+                        <UserSelectDropdown
+                          users={allUsersStats?.users || []}
+                          selectedUserId={selectedUserId}
+                          onSelectUser={setSelectedUserId}
+                          isLoading={isLoadingStats}
+                        />
+                      </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Mese</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !selectedMonth && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedMonth ? (
-                        format(selectedMonth, 'MMMM yyyy', { locale: it })
-                      ) : (
-                        <span>Seleziona mese</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedMonth}
-                      onSelect={(date) => date && setSelectedMonth(date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                      {/* Sezione Periodo */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="h-5 w-5 text-blue-600" />
+                          <h3 className="font-semibold text-lg">Periodo</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Scegli l'intervallo temporale da analizzare
+                        </p>
+                        <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Seleziona periodo" />
+                          </SelectTrigger>
+                          <SelectContent className="z-50">
+                            <SelectItem value="current_month">
+                              Mese corrente
+                            </SelectItem>
+                            <SelectItem value="last_month">
+                              Mese scorso
+                            </SelectItem>
+                            <SelectItem value="last_3_months">
+                              Ultimi 3 mesi
+                            </SelectItem>
+                            <SelectItem value="current_year">
+                              Anno corrente
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Sezione Esporta CSV */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Download className="h-5 w-5 text-green-600" />
+                          <h3 className="font-semibold text-lg">Esporta CSV</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Scarica i dati in formato CSV per ulteriori analisi
+                        </p>
+                        <div className="space-y-2">
+                          <Button 
+                            onClick={handleExportCSV}
+                            disabled={!allUsersStats || allUsersStats.users.length === 0}
+                            className="w-full flex items-center gap-2"
+                            size="lg"
+                          >
+                            <Download className="h-4 w-4" />
+                            Scarica Report CSV
+                          </Button>
+                          {allUsersStats && allUsersStats.users.length > 0 && (
+                            <p className="text-xs text-muted-foreground text-center">
+                              {allUsersStats.users.length} utenti • {selectedPeriod === 'current_month' ? 'Mese corrente' : 
+                               selectedPeriod === 'last_month' ? 'Mese scorso' :
+                               selectedPeriod === 'last_3_months' ? 'Ultimi 3 mesi' : 'Anno corrente'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Summary Cards */}
-        {reportData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Totale Turni</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{reportData.totalShifts}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Ore Lavorate</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{reportData.workHours.toFixed(1)}h</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Turni di Lavoro</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{reportData.shiftsByType.work || 0}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Assenze</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {(reportData.shiftsByType.sick_leave || 0) + 
-                   (reportData.shiftsByType.vacation || 0) + 
-                   (reportData.shiftsByType.unavailable || 0)}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Detailed Reports */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Shifts by Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Turni per Tipo</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {reportData ? (
-                <div className="space-y-3">
-                  {Object.entries(reportData.shiftsByType).map(([type, count]) => (
-                    <div key={type} className="flex items-center justify-between">
-                      <span className="text-sm">
-                        {shiftTypeLabels[type as keyof typeof shiftTypeLabels] || type}
-                      </span>
-                      <Badge variant="secondary">{count}</Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">Nessun dato disponibile</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Shifts by User */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Turni per Utente</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {reportData && selectedUser === 'all' ? (
-                <div className="space-y-3">
-                  {Object.entries(reportData.shiftsByUser).map(([user, count]) => (
-                    <div key={user} className="flex items-center justify-between">
-                      <span className="text-sm">{user}</span>
-                      <Badge variant="secondary">{count}</Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">
-                  {selectedUser === 'all' ? 'Nessun dato disponibile' : 'Seleziona "Tutti gli utenti" per vedere la distribuzione'}
-                </p>
-              )}
-            </CardContent>
-          </Card>
+            {/* Report dettagliato a colonna singola */}
+            <div className="w-full">
+              <UserShiftDetailReport
+                userStats={selectedUserStats}
+                userShifts={selectedUserShifts}
+                period={allUsersStats?.period || { start_date: '', end_date: '' }}
+                isLoading={isLoadingDetails}
+                onDayClick={handleDayClick}
+              />
+            </div>
+            
+            {/* Modal per servizi del giorno */}
+            <DayServicesModal
+              open={!!selectedDate}
+              onOpenChange={(open) => !open && setSelectedDate(null)}
+              date={selectedDate}
+              services={dayServices}
+              isLoading={isLoadingServices}
+            />
         </div>
-      </div>
+      </ShiftProvider>
     </MainLayout>
   );
 }
