@@ -439,42 +439,6 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
               </div>
             </div>
 
-            {/* Users Legend - Responsive */}
-            {employees.length > 0 && (
-              <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t">
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Dipendenti:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {employees.map((user) => (
-                    <Badge 
-                      key={user.id} 
-                      variant="outline" 
-                      className="gap-2 cursor-pointer hover:bg-accent text-xs"
-                      onClick={() => {
-                        if (selectedUsers.includes(user.id)) {
-                          setSelectedUsers(selectedUsers.filter(id => id !== user.id));
-                        } else {
-                          setSelectedUsers([...selectedUsers, user.id]);
-                        }
-                      }}
-                      style={{
-                        borderColor: selectedUsers.includes(user.id) ? user.color : undefined,
-                        backgroundColor: selectedUsers.includes(user.id) ? `${user.color}20` : undefined
-                      }}
-                    >
-                      <div 
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: user.color || '#6B7280' }}
-                      />
-                      <span className="hidden sm:inline">{user.first_name} {user.last_name}</span>
-                      <span className="sm:hidden">{user.first_name?.[0]}{user.last_name?.[0]}</span>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Calendar Content */}
