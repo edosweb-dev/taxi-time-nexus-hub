@@ -58,7 +58,7 @@ export function ShiftManagementContent({
         <div className="flex-1 flex flex-col w-full overflow-hidden">
           <Card className="flex-1 overflow-hidden">
             {/* Header with filters and actions */}
-            <div className="border-b bg-background p-3">
+            <div className="border-b bg-white p-3">
               <div className="flex items-center justify-between gap-4">
                 <CalendarHeader
                   currentDate={currentDate}
