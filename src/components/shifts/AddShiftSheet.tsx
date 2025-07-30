@@ -174,18 +174,20 @@ export function AddShiftSheet({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {/* Assegnazione e Data - Layout minimalista */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 items-end">
           <ShiftUserSelect 
             control={form.control}
             isAdminOrSocio={isAdminOrSocio}
             isEditing={isEditing}
           />
           
-          <ShiftDateField 
-            control={form.control}
-            name="shift_date"
-            label="Data turno"
-          />
+          <div className="flex flex-col">
+            <ShiftDateField 
+              control={form.control}
+              name="shift_date"
+              label="Data turno"
+            />
+          </div>
         </div>
         
         {/* Tipo di Turno */}
