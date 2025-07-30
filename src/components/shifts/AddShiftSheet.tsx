@@ -172,107 +172,62 @@ export function AddShiftSheet({
 
   const content = (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Card Assegnazione e Data */}
-        <Card className="border-l-4 border-l-primary">
-          <CardHeader className="pb-4">
-            <CardTitle className="card-title flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              Assegnazione e Data
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ShiftUserSelect 
-                control={form.control}
-                isAdminOrSocio={isAdminOrSocio}
-                isEditing={isEditing}
-              />
-              
-              <ShiftDateField 
-                control={form.control}
-                name="shift_date"
-                label="Data turno"
-              />
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Card Tipo e Orari */}
-        <Card className="border-l-4 border-l-blue-500">
-          <CardHeader className="pb-4">
-            <CardTitle className="card-title flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-500" />
-              Tipo di Turno e Orari
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <ShiftTypeSelect 
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Assegnazione e Data - Layout minimalista */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Utente</label>
+            <ShiftUserSelect 
               control={form.control}
-              setValue={form.setValue}
+              isAdminOrSocio={isAdminOrSocio}
+              isEditing={isEditing}
             />
-            
-            {/* Conditional fields based on shift type */}
-            {shiftType === 'specific_hours' && (
-              <div className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Specifica gli orari di inizio e fine del turno di lavoro.
-                  </AlertDescription>
-                </Alert>
-                <ShiftTimeFields control={form.control} />
-              </div>
-            )}
-            
-            {shiftType === 'half_day' && (
-              <div className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Seleziona se il turno è nella mattina o nel pomeriggio.
-                  </AlertDescription>
-                </Alert>
-                <HalfDayTypeField control={form.control} />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Card Periodi Speciali - solo per malattia/indisponibilità */}
-        {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
-          <Card className="border-l-4 border-l-amber-500">
-            <CardHeader className="pb-4">
-              <CardTitle className="card-title flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-amber-500" />
-                Periodo di {shiftType === 'sick_leave' ? 'Malattia' : 'Indisponibilità'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  Specifica il periodo di {shiftType === 'sick_leave' ? 'malattia' : 'indisponibilità'}. 
-                  Se non specifichi una data di fine, verrà considerato solo il giorno selezionato.
-                </AlertDescription>
-              </Alert>
-              <DateRangeFields control={form.control} />
-            </CardContent>
-          </Card>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Data turno</label>
+            <ShiftDateField 
+              control={form.control}
+              name="shift_date"
+              label=""
+            />
+          </div>
+        </div>
+        
+        {/* Tipo di Turno */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">Tipo di turno</label>
+          <ShiftTypeSelect 
+            control={form.control}
+            setValue={form.setValue}
+          />
+        </div>
+        
+        {/* Orari specifici */}
+        {shiftType === 'specific_hours' && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Orari</label>
+            <ShiftTimeFields control={form.control} />
+          </div>
         )}
         
-        {/* Card Note */}
-        <Card className="border-l-4 border-l-green-500">
-          <CardHeader className="pb-4">
-            <CardTitle className="card-title flex items-center gap-2">
-              <Settings className="h-5 w-5 text-green-500" />
-              Note Aggiuntive
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ShiftNotesField control={form.control} />
-          </CardContent>
-        </Card>
+        {/* Mezza giornata */}
+        {shiftType === 'half_day' && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Periodo</label>
+            <HalfDayTypeField control={form.control} />
+          </div>
+        )}
+        
+        {/* Periodi per malattia/indisponibilità */}
+        {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Periodo di {shiftType === 'sick_leave' ? 'malattia' : 'indisponibilità'}
+            </label>
+            <DateRangeFields control={form.control} />
+          </div>
+        )}
         
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t gap-3">
