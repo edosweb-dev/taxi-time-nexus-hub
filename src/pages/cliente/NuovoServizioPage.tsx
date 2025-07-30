@@ -1,5 +1,5 @@
 
-import { ClientDashboardLayout } from '@/components/layouts/ClientDashboardLayout';
+import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -58,7 +58,7 @@ export default function NuovoServizioPage() {
   };
 
   return (
-    <ClientDashboardLayout>
+    <MainLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Richiedi Nuovo Servizio</h1>
@@ -160,6 +160,6 @@ export default function NuovoServizioPage() {
           </CardContent>
         </Card>
       </div>
-    </ClientDashboardLayout>
+    </MainLayout>
   );
 }

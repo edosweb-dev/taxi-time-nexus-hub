@@ -1,5 +1,5 @@
 
-import { ClientDashboardLayout } from '@/components/layouts/ClientDashboardLayout';
+import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -98,16 +98,16 @@ export default function ProfiloPage() {
 
   if (loading) {
     return (
-      <ClientDashboardLayout>
+      <MainLayout>
         <div className="flex justify-center items-center h-full">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </ClientDashboardLayout>
+      </MainLayout>
     );
   }
 
   return (
-    <ClientDashboardLayout>
+    <MainLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Il Mio Profilo</h1>
@@ -210,6 +210,6 @@ export default function ProfiloPage() {
           </Card>
         </div>
       </div>
-    </ClientDashboardLayout>
+    </MainLayout>
   );
 }

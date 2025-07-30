@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { ClientDashboardLayout } from '@/components/layouts/ClientDashboardLayout';
+import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,16 +50,16 @@ export default function ClientDashboardPage() {
 
   if (loading) {
     return (
-      <ClientDashboardLayout>
+      <MainLayout>
         <div className="flex justify-center items-center h-full">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </ClientDashboardLayout>
+      </MainLayout>
     );
   }
 
   return (
-    <ClientDashboardLayout>
+    <MainLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard Cliente</h1>
@@ -116,6 +116,6 @@ export default function ClientDashboardPage() {
           </Card>
         </div>
       </div>
-    </ClientDashboardLayout>
+    </MainLayout>
   );
 }

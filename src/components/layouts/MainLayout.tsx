@@ -14,18 +14,12 @@ export function MainLayout({ children }: PropsWithChildren) {
   const isMobile = useIsMobile();
   const { paddingMode } = useLayout();
 
+  // Mobile-first responsive padding system
   const getPaddingClasses = (mode: string) => {
-    const basePadding = isMobile ? 'px-3' : 'px-4';
     const paddingModes = {
-      'default': isMobile 
-        ? 'px-3 sm:px-4' 
-        : 'px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20',
-      'minimal': isMobile 
-        ? 'px-2 sm:px-3' 
-        : 'px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 2xl:px-12', 
-      'full-width': isMobile 
-        ? 'px-1 sm:px-2' 
-        : 'px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10'
+      'default': 'px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8 xl:px-12 2xl:px-16',
+      'minimal': 'px-2 py-3 sm:px-3 sm:py-4 md:px-4 md:py-6 lg:px-6 xl:px-8 2xl:px-10', 
+      'full-width': 'px-1 py-2 sm:px-2 sm:py-3 md:px-3 md:py-4 lg:px-4 xl:px-6 2xl:px-8'
     };
     return paddingModes[mode] || paddingModes['default'];
   };
@@ -36,7 +30,7 @@ export function MainLayout({ children }: PropsWithChildren) {
         <Sidebar 
           className="border-r border-border text-white h-full flex-shrink-0" 
           collapsible={isMobile ? "offcanvas" : "icon"}
-          variant={isMobile ? "sidebar" : "sidebar"}
+          variant="sidebar"
         >
           {/* This container will hold the actual sidebar content with primary background */}
           <div className="flex flex-col h-full bg-primary">
@@ -65,13 +59,13 @@ export function MainLayout({ children }: PropsWithChildren) {
           )}
           
           <div className="flex-1 overflow-y-auto">
-            <div className={`w-full ${getPaddingClasses(paddingMode)} ${isMobile ? 'py-4' : 'py-8'} page-enter`}>
+            <div className={`w-full ${getPaddingClasses(paddingMode)} page-enter`}>
               {children}
             </div>
           </div>
           
           {/* Mobile bottom padding to avoid navigation overlap */}
-          {isMobile && <div className="h-20 flex-shrink-0" />}
+          {isMobile && <div className="h-24 flex-shrink-0" />}
         </main>
         
         {isMobile && <MobileNavBar />}
