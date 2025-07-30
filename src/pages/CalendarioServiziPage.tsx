@@ -171,34 +171,42 @@ export default function CalendarioServiziPage() {
           </div>
         </div>
 
-        {/* Navigazione date - stile standard */}
+        {/* Navigazione date - layout ottimizzato */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
-                  <ChevronLeft className="h-4 w-4" />
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              {/* Controlli navigazione */}
+              <div className="flex items-center justify-center lg:justify-start gap-4">
+                <Button variant="outline" size="sm" onClick={() => navigateDate('prev')} className="min-w-[100px]">
+                  <ChevronLeft className="h-4 w-4 mr-2" />
                   Precedente
                 </Button>
                 <Button 
                   variant={isToday(selectedDate) ? "default" : "outline"} 
                   size="sm" 
                   onClick={goToToday}
+                  className="min-w-[80px]"
                 >
                   Oggi
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => navigateDate('next')}>
+                <Button variant="outline" size="sm" onClick={() => navigateDate('next')} className="min-w-[100px]">
                   Successivo
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
               
-              <h2 className="text-xl font-semibold">
-                {format(selectedDate, 'EEEE d MMMM yyyy', { locale: it })}
-              </h2>
+              {/* Data centrale */}
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-foreground mb-1">
+                  {format(selectedDate, 'EEEE d MMMM yyyy', { locale: it })}
+                </h2>
+              </div>
               
-              <div className="text-sm text-muted-foreground">
-                {Object.keys(serviziByAssignee).length} operatori attivi
+              {/* Info operatori */}
+              <div className="flex items-center justify-center lg:justify-end">
+                <div className="text-sm text-muted-foreground bg-gray-50 dark:bg-gray-800/50 px-4 py-2 rounded-lg">
+                  <span className="font-medium">{Object.keys(serviziByAssignee).length}</span> operatori attivi
+                </div>
               </div>
             </div>
           </CardContent>
