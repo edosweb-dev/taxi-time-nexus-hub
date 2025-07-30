@@ -106,6 +106,7 @@ export function ServiziContent({
     });
   }, [servizi, filters, aziende]);
   
+  // Use passeggeri counts hook after filteredServizi is defined
   const { passeggeriCounts } = usePasseggeriCounts(filteredServizi);
   
   // Group filtered services by status
