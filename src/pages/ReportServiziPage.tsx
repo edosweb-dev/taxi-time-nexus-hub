@@ -47,9 +47,9 @@ export default function ReportServiziPage() {
   const { aziende } = useAziende();
 
   const [filters, setFilters] = useState<ReportFilters>({
-    aziendaId: '',
-    referenteId: '',
-    dipendenteId: '',
+    aziendaId: 'all',
+    referenteId: 'all',
+    dipendenteId: 'all',
     dataInizio: undefined,
     dataFine: undefined
   });
@@ -68,17 +68,17 @@ export default function ReportServiziPage() {
 
     return servizi.filter(servizio => {
       // Filter by azienda
-      if (filters.aziendaId && servizio.azienda_id !== filters.aziendaId) {
+      if (filters.aziendaId && filters.aziendaId !== 'all' && servizio.azienda_id !== filters.aziendaId) {
         return false;
       }
 
       // Filter by referente
-      if (filters.referenteId && servizio.referente_id !== filters.referenteId) {
+      if (filters.referenteId && filters.referenteId !== 'all' && servizio.referente_id !== filters.referenteId) {
         return false;
       }
 
       // Filter by dipendente (assegnato_a)
-      if (filters.dipendenteId && servizio.assegnato_a !== filters.dipendenteId) {
+      if (filters.dipendenteId && filters.dipendenteId !== 'all' && servizio.assegnato_a !== filters.dipendenteId) {
         return false;
       }
 
@@ -131,9 +131,9 @@ export default function ReportServiziPage() {
 
   const clearFilters = () => {
     setFilters({
-      aziendaId: '',
-      referenteId: '',
-      dipendenteId: '',
+      aziendaId: 'all',
+      referenteId: 'all',
+      dipendenteId: 'all',
       dataInizio: undefined,
       dataFine: undefined
     });
@@ -256,7 +256,7 @@ export default function ReportServiziPage() {
                     <SelectValue placeholder="Tutte le aziende" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutte le aziende</SelectItem>
+                    <SelectItem value="all">Tutte le aziende</SelectItem>
                     {aziende?.map(azienda => (
                       <SelectItem key={azienda.id} value={azienda.id}>
                         {azienda.nome}
@@ -277,7 +277,7 @@ export default function ReportServiziPage() {
                     <SelectValue placeholder="Tutti i referenti" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti i referenti</SelectItem>
+                    <SelectItem value="all">Tutti i referenti</SelectItem>
                     {referenti.map(referente => (
                       <SelectItem key={referente.id} value={referente.id}>
                         {referente.first_name} {referente.last_name}
@@ -298,7 +298,7 @@ export default function ReportServiziPage() {
                     <SelectValue placeholder="Tutti i dipendenti" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti i dipendenti</SelectItem>
+                    <SelectItem value="all">Tutti i dipendenti</SelectItem>
                     {dipendenti.map(dipendente => (
                       <SelectItem key={dipendente.id} value={dipendente.id}>
                         {dipendente.first_name} {dipendente.last_name}
@@ -354,31 +354,31 @@ export default function ReportServiziPage() {
 
             {/* Filtri attivi e reset */}
             <div className="flex items-center justify-between">
-              <div className="flex flex-wrap gap-2">
-                {filters.aziendaId && (
+            <div className="flex flex-wrap gap-2">
+                {filters.aziendaId && filters.aziendaId !== 'all' && (
                   <Badge variant="secondary" className="gap-1">
                     Azienda: {getAziendaName(filters.aziendaId)}
                     <X 
                       className="h-3 w-3 cursor-pointer" 
-                      onClick={() => handleFilterChange('aziendaId', '')}
+                      onClick={() => handleFilterChange('aziendaId', 'all')}
                     />
                   </Badge>
                 )}
-                {filters.referenteId && (
+                {filters.referenteId && filters.referenteId !== 'all' && (
                   <Badge variant="secondary" className="gap-1">
                     Referente: {getUserName(filters.referenteId)}
                     <X 
                       className="h-3 w-3 cursor-pointer" 
-                      onClick={() => handleFilterChange('referenteId', '')}
+                      onClick={() => handleFilterChange('referenteId', 'all')}
                     />
                   </Badge>
                 )}
-                {filters.dipendenteId && (
+                {filters.dipendenteId && filters.dipendenteId !== 'all' && (
                   <Badge variant="secondary" className="gap-1">
                     Dipendente: {getUserName(filters.dipendenteId)}
                     <X 
                       className="h-3 w-3 cursor-pointer" 
-                      onClick={() => handleFilterChange('dipendenteId', '')}
+                      onClick={() => handleFilterChange('dipendenteId', 'all')}
                     />
                   </Badge>
                 )}
@@ -396,7 +396,7 @@ export default function ReportServiziPage() {
                 )}
               </div>
               
-              {(filters.aziendaId || filters.referenteId || filters.dipendenteId || filters.dataInizio || filters.dataFine) && (
+              {(filters.aziendaId !== 'all' || filters.referenteId !== 'all' || filters.dipendenteId !== 'all' || filters.dataInizio || filters.dataFine) && (
                 <Button variant="outline" size="sm" onClick={clearFilters}>
                   <X className="h-4 w-4 mr-2" />
                   Reset Filtri
