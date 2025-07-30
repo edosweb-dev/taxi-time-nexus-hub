@@ -86,6 +86,9 @@ export function CalendarHeader({
       {/* Center: Date Display */}
       <div className="flex items-center gap-3 px-4">
         <Calendar className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-semibold text-foreground">
+          {getDateDisplay()}
+        </h2>
       </div>
 
       {/* Right: View Mode */}
