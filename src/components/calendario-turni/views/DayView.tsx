@@ -37,7 +37,7 @@ export function DayView({ currentDate, shifts, employees, onCreateShift, onEditS
         onClick={() => onCreateShift(currentDate)}
       >
         {dayShifts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="space-y-3">
             {dayShifts.map((shift) => {
               const user = getUserInfo(shift.user_id);
               const userColor = user?.color || '#6B7280';
@@ -45,21 +45,35 @@ export function DayView({ currentDate, shifts, employees, onCreateShift, onEditS
               return (
                 <div
                   key={shift.id}
-                  className="p-4 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all text-center"
+                  className="flex items-center gap-4 p-4 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all"
                   style={{ 
-                    backgroundColor: userColor,
-                    color: 'white'
+                    backgroundColor: `${userColor}15`,
+                    borderLeft: `4px solid ${userColor}`
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
                     onEditShift(shift);
                   }}
                 >
-                  <div className="text-2xl font-bold mb-2">
+                  {/* Cerchio con iniziali */}
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold"
+                    style={{ 
+                      backgroundColor: userColor,
+                      color: 'white'
+                    }}
+                  >
                     {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
                   </div>
-                  <div className="text-sm opacity-90">
-                    {user?.first_name} {user?.last_name}
+                  
+                  {/* Informazioni dipendente */}
+                  <div className="flex-1">
+                    <div className="font-semibold text-lg" style={{ color: userColor }}>
+                      {user?.first_name} {user?.last_name}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Dipendente • {user?.role}
+                    </div>
                   </div>
                 </div>
               );

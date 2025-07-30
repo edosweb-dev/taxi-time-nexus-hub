@@ -60,19 +60,21 @@ export function WeekView({ currentDate, shifts, employees, onCreateShift, onEdit
                 className="p-2 cursor-pointer min-h-[300px] hover:bg-accent/20 transition-colors"
                 onClick={() => onCreateShift(date)}
               >
-                <div className="space-y-2">
-                  {dayShifts.map((shift, index) => {
+                {/* Flex container per affiancare i turni */}
+                <div className="flex flex-wrap gap-1">
+                  {dayShifts.slice(0, 20).map((shift) => {
                     const user = getUserInfo(shift.user_id);
                     const userColor = user?.color || '#6B7280';
 
                     return (
                       <div
                         key={shift.id}
-                        className="p-2 rounded text-sm cursor-pointer hover:shadow-md transition-all font-semibold text-center"
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer hover:scale-110 transition-transform"
                         style={{ 
                           backgroundColor: userColor,
                           color: 'white'
                         }}
+                        title={`${user?.first_name} ${user?.last_name}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           onEditShift(shift);
@@ -83,6 +85,12 @@ export function WeekView({ currentDate, shifts, employees, onCreateShift, onEdit
                     );
                   })}
                 </div>
+                
+                {dayShifts.length > 20 && (
+                  <div className="text-xs text-muted-foreground text-center mt-2">
+                    +{dayShifts.length - 20} altri
+                  </div>
+                )}
               </div>
             </div>
           );

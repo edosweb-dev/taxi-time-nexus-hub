@@ -98,33 +98,35 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
 
                 {/* Turni del giorno */}
                 <div className="space-y-1">
-                  {dayShifts.slice(0, 3).map((shift) => {
-                    const user = getUserInfo(shift.user_id);
-                    const userColor = user?.color || '#6B7280';
+                  {/* Flex container per affiancare i turni */}
+                  <div className="flex flex-wrap gap-1">
+                    {dayShifts.slice(0, 12).map((shift) => {
+                      const user = getUserInfo(shift.user_id);
+                      const userColor = user?.color || '#6B7280';
 
-                    return (
-                      <div
-                        key={shift.id}
-                        className="group/shift p-1 rounded text-xs cursor-pointer hover:shadow-sm transition-all"
-                        style={{ 
-                          backgroundColor: `${userColor}15`,
-                          borderLeft: `3px solid ${userColor}`
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditShift(shift);
-                        }}
-                      >
-                        <div className="font-medium truncate" style={{ color: userColor }}>
+                      return (
+                        <div
+                          key={shift.id}
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer hover:scale-110 transition-transform"
+                          style={{ 
+                            backgroundColor: userColor,
+                            color: 'white'
+                          }}
+                          title={`${user?.first_name} ${user?.last_name}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditShift(shift);
+                          }}
+                        >
                           {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                   
-                  {dayShifts.length > 3 && (
-                    <div className="text-xs text-muted-foreground p-1">
-                      +{dayShifts.length - 3} altri turni
+                  {dayShifts.length > 12 && (
+                    <div className="text-xs text-muted-foreground text-center">
+                      +{dayShifts.length - 12} altri
                     </div>
                   )}
                 </div>
