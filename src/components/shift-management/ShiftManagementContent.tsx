@@ -55,7 +55,7 @@ export function ShiftManagementContent({
 
       <div className="h-[calc(100vh-200px)] flex">
         {/* Main Calendar - Full Width */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col w-full">
           <Card className="flex-1 overflow-hidden">
             {/* Header with filters and actions */}
             <div className="border-b bg-muted/20 p-3">
