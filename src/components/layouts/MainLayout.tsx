@@ -15,10 +15,17 @@ export function MainLayout({ children }: PropsWithChildren) {
   const { paddingMode } = useLayout();
 
   const getPaddingClasses = (mode: string) => {
+    const basePadding = isMobile ? 'px-3' : 'px-4';
     const paddingModes = {
-      'default': 'px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20',
-      'minimal': 'px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 2xl:px-12', 
-      'full-width': 'px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10'
+      'default': isMobile 
+        ? 'px-3 sm:px-4' 
+        : 'px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20',
+      'minimal': isMobile 
+        ? 'px-2 sm:px-3' 
+        : 'px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 2xl:px-12', 
+      'full-width': isMobile 
+        ? 'px-1 sm:px-2' 
+        : 'px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10'
     };
     return paddingModes[mode] || paddingModes['default'];
   };
@@ -26,7 +33,11 @@ export function MainLayout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden">
-        <Sidebar className="border-r border-border text-white h-full flex-shrink-0" collapsible="none">
+        <Sidebar 
+          className="border-r border-border text-white h-full flex-shrink-0" 
+          collapsible={isMobile ? "offcanvas" : "icon"}
+          variant={isMobile ? "sidebar" : "sidebar"}
+        >
           {/* This container will hold the actual sidebar content with primary background */}
           <div className="flex flex-col h-full bg-primary">
             <SidebarHeader className="h-14 flex items-center px-4 flex-shrink-0">
@@ -45,18 +56,22 @@ export function MainLayout({ children }: PropsWithChildren) {
         
         <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
           <ImpersonationBanner />
-          {/* Header bar without sidebar trigger on desktop */}
+          {/* Mobile header with sidebar trigger */}
           {isMobile && (
-            <div className="h-12 border-b border-border bg-card flex items-center px-4 flex-shrink-0">
-              <SidebarTrigger className="hover:bg-accent hover:text-accent-foreground p-2 rounded-md" />
-            </div>
+            <header className="h-12 border-b border-border bg-card flex items-center justify-between px-4 flex-shrink-0">
+              <SidebarTrigger className="hover:bg-accent hover:text-accent-foreground p-2 rounded-md transition-colors" />
+              <div className="text-sm font-medium text-foreground">TAXITIME</div>
+            </header>
           )}
           
           <div className="flex-1 overflow-y-auto">
-            <div className={`w-full ${getPaddingClasses(paddingMode)} py-8 page-enter`}>
+            <div className={`w-full ${getPaddingClasses(paddingMode)} ${isMobile ? 'py-4' : 'py-8'} page-enter`}>
               {children}
             </div>
           </div>
+          
+          {/* Mobile bottom padding to avoid navigation overlap */}
+          {isMobile && <div className="h-20 flex-shrink-0" />}
         </main>
         
         {isMobile && <MobileNavBar />}
