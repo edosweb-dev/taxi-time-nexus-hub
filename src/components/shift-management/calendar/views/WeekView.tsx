@@ -71,18 +71,18 @@ export function WeekView({
   return (
     <div className="flex-1 overflow-hidden">
       {/* Week header */}
-      <div className="grid grid-cols-7 border-b bg-muted/30">
+      <div className="grid grid-cols-7 border-b bg-muted/10">
         {weekDays.map((day) => {
           const isCurrentDay = isToday(day);
           return (
-            <div key={day.toISOString()} className="p-3 text-center border-r last:border-r-0">
+            <div key={day.toISOString()} className="p-3 text-center border-r last:border-r-0 border-muted/30">
               <div className="text-sm font-medium text-muted-foreground">
                 {format(day, 'EEE', { locale: it })}
               </div>
               <div
                 className={cn(
                   "text-lg font-bold mt-1",
-                  isCurrentDay && "bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto"
+                  isCurrentDay && "bg-primary text-primary-foreground rounded w-8 h-8 flex items-center justify-center mx-auto"
                 )}
               >
                 {format(day, 'd')}
@@ -101,7 +101,7 @@ export function WeekView({
           return (
             <div
               key={dateKey}
-              className="border-r last:border-r-0 p-3 min-h-[300px] group hover:bg-muted/20 transition-colors cursor-pointer"
+              className="border-r last:border-r-0 border-muted/30 p-3 min-h-[300px] group hover:bg-muted/10 transition-colors cursor-pointer"
               onClick={() => onCreateShift(day)}
             >
               {/* Add shift button */}
@@ -123,9 +123,9 @@ export function WeekView({
                 {dayShifts.map((shift) => (
                   <div
                     key={shift.id}
-                    className="text-sm p-2 rounded cursor-pointer hover:opacity-80 transition-opacity border-l-4"
+                    className="text-sm p-2 rounded cursor-pointer hover:opacity-80 transition-opacity border-l-2"
                     style={{
-                      backgroundColor: getShiftColor(shift) + '20',
+                      backgroundColor: getShiftColor(shift) + '15',
                       borderLeftColor: getShiftColor(shift),
                       color: getShiftColor(shift)
                     }}

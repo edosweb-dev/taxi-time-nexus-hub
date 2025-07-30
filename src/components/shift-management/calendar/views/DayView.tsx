@@ -138,7 +138,7 @@ export function DayView({
             return (
               <Card
                 key={shift.id}
-                className="cursor-pointer hover:shadow-sm transition-all border-l-4 group"
+                className="cursor-pointer hover:bg-muted/5 transition-colors border-l-2 group border border-muted/30"
                 style={{ borderLeftColor: getShiftColor(shift) }}
                 onClick={() => onEditShift(shift)}
               >
@@ -190,7 +190,7 @@ export function DayView({
   return (
     <div className="flex-1 overflow-hidden">
       {/* Day header */}
-      <div className="border-b bg-muted/30 p-4">
+      <div className="border-b bg-muted/10 p-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className={cn(

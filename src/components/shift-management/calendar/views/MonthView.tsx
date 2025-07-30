@@ -76,9 +76,9 @@ export function MonthView({
   return (
     <div className="flex-1 overflow-hidden">
       {/* Days of week header */}
-      <div className="grid grid-cols-7 border-b bg-muted/30">
+      <div className="grid grid-cols-7 border-b bg-muted/10">
         {weekDays.map((day) => (
-          <div key={day} className="p-3 text-center text-sm font-medium text-muted-foreground border-r last:border-r-0">
+          <div key={day} className="p-3 text-center text-sm font-medium text-muted-foreground border-r last:border-r-0 border-muted/30">
             {day}
           </div>
         ))}
@@ -96,8 +96,8 @@ export function MonthView({
             <div
               key={dateKey}
               className={cn(
-                "border-r border-b last:border-r-0 p-2 min-h-[120px] group hover:bg-muted/20 transition-colors cursor-pointer",
-                !isCurrentMonth && "bg-muted/10 text-muted-foreground"
+                "border-r border-b last:border-r-0 border-muted/30 p-2 min-h-[120px] group hover:bg-muted/10 transition-colors cursor-pointer",
+                !isCurrentMonth && "bg-muted/5 text-muted-foreground"
               )}
               onClick={() => onCreateShift(day)}
             >
@@ -134,7 +134,7 @@ export function MonthView({
                   return (
                     <div
                       key={shift.id}
-                      className="w-8 h-8 rounded-full cursor-pointer hover:scale-110 transition-transform flex items-center justify-center text-xs font-medium text-white"
+                      className="w-8 h-8 rounded cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center text-xs font-medium text-white"
                       style={{
                         backgroundColor: getShiftColor(shift)
                       }}
