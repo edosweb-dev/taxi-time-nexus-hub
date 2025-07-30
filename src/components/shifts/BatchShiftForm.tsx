@@ -241,14 +241,26 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const createShiftsWithoutConflicts = async (shiftsToCreate: any[]) => {
     const shiftsCreated = [];
     const shiftsSkipped = [];
+    const shiftsErrored = [];
 
     for (const shiftData of shiftsToCreate) {
       try {
         await createShift(shiftData);
         shiftsCreated.push(shiftData);
       } catch (error) {
-        console.log('Shift skipped due to duplicate:', shiftData);
-        shiftsSkipped.push(shiftData);
+        const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto';
+        
+        // Se è un errore di duplicato/validazione specifica, lo gestiamo diversamente
+        if (errorMessage.includes('possibile inserire un solo turno') || 
+            errorMessage.includes('turno già esistente') ||
+            errorMessage.includes('duplicate')) {
+          console.log('Shift skipped due to validation rule:', shiftData, 'Error:', errorMessage);
+          shiftsSkipped.push({ ...shiftData, error: errorMessage });
+        } else {
+          // Altri errori sono problemi reali
+          console.error('Actual error creating shift:', shiftData, 'Error:', error);
+          shiftsErrored.push({ ...shiftData, error: errorMessage });
+        }
       }
     }
     
@@ -257,7 +269,12 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
     }
     
     if (shiftsSkipped.length > 0) {
-      toast.info(`${shiftsSkipped.length} turni identici ignorati`);
+      toast.info(`${shiftsSkipped.length} turni saltati (regole di validazione)`);
+    }
+
+    if (shiftsErrored.length > 0) {
+      toast.error(`${shiftsErrored.length} turni non creati per errori. Controlla la console per dettagli.`);
+      console.error('Shifts with errors:', shiftsErrored);
     }
     
     onClose();

@@ -13,6 +13,9 @@ export const useShiftMutations = (userId?: string) => {
     // Formatta la data del nuovo turno per il confronto
     const newShiftDate = newShift.shift_date.toISOString().split('T')[0];
     
+    console.log(`[VALIDATION] Checking shift for user ${newShift.user_id} on date ${newShiftDate}, editing: ${editingShiftId || 'new'}`);
+    console.log(`[VALIDATION] New shift type: ${newShift.shift_type}`);
+    
     // Filtro i turni dell'utente nella stessa data (escludendo quello in modifica se esistente)
     const userShiftsOnSameDate = shifts.filter(shift => 
       shift.user_id === newShift.user_id && 
@@ -20,8 +23,11 @@ export const useShiftMutations = (userId?: string) => {
       (!editingShiftId || shift.id !== editingShiftId)
     );
     
+    console.log(`[VALIDATION] Found ${userShiftsOnSameDate.length} existing shifts on same date:`, userShiftsOnSameDate.map(s => ({ id: s.id, type: s.shift_type })));
+    
     // Se non ci sono turni esistenti per quella data, è sempre valido
     if (userShiftsOnSameDate.length === 0) {
+      console.log(`[VALIDATION] ✅ No existing shifts, allowing new shift`);
       return { isValid: true };
     }
 
@@ -29,12 +35,15 @@ export const useShiftMutations = (userId?: string) => {
     if (newShift.shift_type === 'specific_hours') {
       // Verifica che tutti i turni esistenti siano di tipo "specific_hours"
       const allSpecificHours = userShiftsOnSameDate.every(shift => shift.shift_type === 'specific_hours');
+      console.log(`[VALIDATION] New shift is specific_hours, all existing are specific_hours: ${allSpecificHours}`);
       if (allSpecificHours) {
+        console.log(`[VALIDATION] ✅ All shifts are specific_hours type, allowing multiple shifts`);
         return { isValid: true };
       }
     }
 
     // In tutti gli altri casi, non è permesso inserire un altro turno
+    console.log(`[VALIDATION] ❌ Blocking shift - multiple shifts not allowed unless all are specific_hours`);
     return { 
       isValid: false, 
       errorMessage: "È possibile inserire un solo turno per giornata, a meno che entrambi i turni abbiano un orario specifico."
