@@ -49,7 +49,7 @@ export default function ServiziPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-2 md:space-y-6 h-full min-h-0">
         {/* Breadcrumb Navigation - Solo su desktop */}
         <div className="hidden md:block">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">

@@ -14,12 +14,12 @@ export function MainLayout({ children }: PropsWithChildren) {
   const isMobile = useIsMobile();
   const { paddingMode } = useLayout();
 
-  // Mobile-first responsive padding system
+  // Mobile-first responsive padding system optimized for mobile viewports
   const getPaddingClasses = (mode: string) => {
     const paddingModes = {
-      'default': 'px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8 xl:px-12 2xl:px-16',
-      'minimal': 'px-2 py-3 sm:px-3 sm:py-4 md:px-4 md:py-6 lg:px-6 xl:px-8 2xl:px-10', 
-      'full-width': 'px-1 py-2 sm:px-2 sm:py-3 md:px-3 md:py-4 lg:px-4 xl:px-6 2xl:px-8'
+      'default': 'px-2 py-2 sm:px-4 sm:py-4 md:px-6 md:py-6 lg:px-8 xl:px-12 2xl:px-16',
+      'minimal': 'px-1 py-1 sm:px-2 sm:py-2 md:px-4 md:py-4 lg:px-6 xl:px-8 2xl:px-10', 
+      'full-width': 'px-0 py-1 sm:px-1 sm:py-2 md:px-2 md:py-3 lg:px-4 xl:px-6 2xl:px-8'
     };
     return paddingModes[mode] || paddingModes['default'];
   };
@@ -59,7 +59,7 @@ export function MainLayout({ children }: PropsWithChildren) {
           )}
           
           <div className="flex-1 overflow-y-auto">
-            <div className={`w-full ${getPaddingClasses(paddingMode)} page-enter`}>
+            <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter`}>
               {children}
             </div>
           </div>
