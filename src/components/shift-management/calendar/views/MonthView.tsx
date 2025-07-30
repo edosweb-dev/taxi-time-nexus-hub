@@ -96,7 +96,7 @@ export function MonthView({
             <div
               key={dateKey}
               className={cn(
-                "border-r border-b last:border-r-0 border-muted/30 p-2 min-h-[100px] group hover:bg-muted/10 cursor-pointer",
+                "border-r border-b last:border-r-0 border-muted/30 p-2 min-h-[100px] group cursor-pointer",
                 !isCurrentMonth && "bg-muted/5 text-muted-foreground"
               )}
               onClick={() => onCreateShift(day)}
@@ -115,7 +115,7 @@ export function MonthView({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                  className="opacity-0 h-6 w-6 p-0"
                   onClick={(e) => {
                     e.stopPropagation();
                     onCreateShift(day);
@@ -134,7 +134,7 @@ export function MonthView({
                   return (
                     <div
                       key={shift.id}
-                      className="w-8 h-8 rounded cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center text-xs font-medium text-white"
+                      className="w-8 h-8 rounded cursor-pointer flex items-center justify-center text-xs font-medium text-white"
                       style={{
                         backgroundColor: getShiftColor(shift)
                       }}
