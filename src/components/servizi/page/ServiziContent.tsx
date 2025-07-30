@@ -12,6 +12,12 @@ import { Servizio } from '@/lib/types/servizi';
 import { Profile } from '@/lib/types';
 import { Azienda } from '@/lib/types';
 import { useAziende } from '@/hooks/useAziende';
+import { usePasseggeriCounts } from '../hooks/usePasseggeriCounts';
+// Mobile components
+import { MobileServiziStats } from '../mobile/MobileServiziStats';
+import { MobileFiltersDrawer } from '../mobile/MobileFiltersDrawer';
+import { MobileTabs } from '../mobile/MobileTabs';
+import { ServizioCardList } from '../mobile/ServizioCardList';
 
 interface ServiziContentProps {
   servizi: Servizio[];
@@ -100,6 +106,8 @@ export function ServiziContent({
     });
   }, [servizi, filters, aziende]);
   
+  const { passeggeriCounts } = usePasseggeriCounts(filteredServizi);
+  
   // Group filtered services by status
   const serviziByStatus = groupServiziByStatus(filteredServizi);
 
@@ -112,6 +120,16 @@ export function ServiziContent({
     non_accettato: serviziByStatus.non_accettato.length,
     consuntivato: serviziByStatus.consuntivato.length,
   };
+
+  // Tab configuration for mobile
+  const tabsConfig = [
+    { id: 'da_assegnare', label: 'Da assegnare', count: statusCounts.da_assegnare },
+    { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
+    { id: 'completato', label: 'Completati', count: statusCounts.completato },
+    { id: 'non_accettato', label: 'Non accettati', count: statusCounts.non_accettato },
+    { id: 'annullato', label: 'Annullati', count: statusCounts.annullato },
+    { id: 'consuntivato', label: 'Consuntivati', count: statusCounts.consuntivato },
+  ];
 
   const handleApplyFilters = () => {
     // Filters are applied automatically via useMemo
@@ -130,7 +148,11 @@ export function ServiziContent({
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <ServizioStats servizi={[]} isLoading={true} />
+        {isMobile ? (
+          <MobileServiziStats servizi={[]} isLoading={true} />
+        ) : (
+          <ServizioStats servizi={[]} isLoading={true} />
+        )}
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -162,110 +184,136 @@ export function ServiziContent({
 
   return (
     <div className="space-y-6">
-      {/* Statistics Cards */}
-      <ServizioStats servizi={filteredServizi} isLoading={isLoading} />
+      {/* Statistics Cards - Responsive */}
+      {isMobile ? (
+        <MobileServiziStats servizi={filteredServizi} isLoading={isLoading} />
+      ) : (
+        <ServizioStats servizi={filteredServizi} isLoading={isLoading} />
+      )}
 
-      {/* Header with Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Header with Actions - Mobile Optimized */}
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-col sm:flex-row'} ${isMobile ? 'gap-3' : 'sm:items-center sm:justify-between gap-4'}`}>
         <div>
-          <h2 className="text-2xl font-semibold text-foreground text-enhanced">Gestione Servizi</h2>
+          <h2 className={`font-semibold text-foreground text-enhanced ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+            Gestione Servizi
+          </h2>
           <p className="text-sm text-muted-foreground">
             {filteredServizi.length} servizi totali
             {filteredServizi.length !== servizi.length && ` (${servizi.length} senza filtri)`}
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => window.location.href = '/report-servizi'}>
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Report
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => window.location.href = '/calendario-servizi'}>
-            <Calendar className="h-4 w-4 mr-2" />
-            Vista Calendario
-          </Button>
-          <Button onClick={onNavigateToNewServizio} size="sm">
+        {/* Action Buttons - Mobile Responsive */}
+        <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'}`}>
+          {isMobile ? (
+            <MobileFiltersDrawer
+              servizi={servizi}
+              users={users}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onApplyFilters={handleApplyFilters}
+              onClearFilters={handleClearFilters}
+            />
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/report-servizi'}>
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Report
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/calendario-servizi'}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Vista Calendario
+              </Button>
+            </>
+          )}
+          <Button onClick={onNavigateToNewServizio} size="sm" className={isMobile ? 'flex-1' : ''}>
             <Plus className="h-4 w-4 mr-2" />
-            Nuovo Servizio
+            {isMobile ? 'Nuovo' : 'Nuovo Servizio'}
           </Button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="border-b border-border pb-4">
-        <ServiziFilters
-          servizi={servizi}
-          users={users}
-          filters={filters}
-          onFiltersChange={setFilters}
-          onApplyFilters={handleApplyFilters}
-          onClearFilters={handleClearFilters}
-        />
-      </div>
-
-      <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="mb-6">
-          <TabsList className="grid w-full grid-cols-6 h-10">
-            <TabsTrigger 
-              value="da_assegnare" 
-              className="text-sm"
-            >
-              Da assegnare ({statusCounts.da_assegnare})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="assegnato" 
-              className="text-sm"
-            >
-              Assegnati ({statusCounts.assegnato})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="completato" 
-              className="text-sm"
-            >
-              Completati ({statusCounts.completato})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="non_accettato" 
-              className="text-sm"
-            >
-              Non accettati ({statusCounts.non_accettato})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="annullato" 
-              className="text-sm"
-            >
-              Annullati ({statusCounts.annullato})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="consuntivato" 
-              className="text-sm"
-            >
-              Consuntivati ({statusCounts.consuntivato})
-            </TabsTrigger>
-          </TabsList>
+      {/* Filters - Desktop Only */}
+      {!isMobile && (
+        <div className="border-b border-border pb-4">
+          <ServiziFilters
+            servizi={servizi}
+            users={users}
+            filters={filters}
+            onFiltersChange={setFilters}
+            onApplyFilters={handleApplyFilters}
+            onClearFilters={handleClearFilters}
+          />
         </div>
-        
-        {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
-          <TabsContent 
-            key={status} 
-            value={status} 
-            className="mt-0"
-          >
-            <div className="rounded-md border h-[600px] flex flex-col">
-              <ServizioTable
-                servizi={serviziByStatus[status]}
-                users={users}
-                onNavigateToDetail={onNavigateToDetail}
-                onSelect={isAdminOrSocio ? onSelectServizio : undefined}
-                onCompleta={onCompleta}
-                onFirma={onFirma}
-                isAdminOrSocio={isAdminOrSocio}
-                allServizi={allServizi}
-              />
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+      )}
+
+      {/* Tabs and Content - Responsive */}
+      {isMobile ? (
+        <div className="space-y-4">
+          <MobileTabs
+            tabs={tabsConfig}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+          
+          <div className="min-h-[400px]">
+            <ServizioCardList
+              servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
+              users={users}
+              aziende={aziende}
+              passeggeriCounts={passeggeriCounts}
+              allServizi={allServizi}
+              isAdminOrSocio={isAdminOrSocio}
+              onNavigateToDetail={onNavigateToDetail}
+              onSelect={isAdminOrSocio ? onSelectServizio : undefined}
+              onCompleta={onCompleta}
+              onFirma={onFirma}
+            />
+          </div>
+        </div>
+      ) : (
+        <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="mb-6">
+            <TabsList className="grid w-full grid-cols-6 h-10">
+              <TabsTrigger value="da_assegnare" className="text-sm">
+                Da assegnare ({statusCounts.da_assegnare})
+              </TabsTrigger>
+              <TabsTrigger value="assegnato" className="text-sm">
+                Assegnati ({statusCounts.assegnato})
+              </TabsTrigger>
+              <TabsTrigger value="completato" className="text-sm">
+                Completati ({statusCounts.completato})
+              </TabsTrigger>
+              <TabsTrigger value="non_accettato" className="text-sm">
+                Non accettati ({statusCounts.non_accettato})
+              </TabsTrigger>
+              <TabsTrigger value="annullato" className="text-sm">
+                Annullati ({statusCounts.annullato})
+              </TabsTrigger>
+              <TabsTrigger value="consuntivato" className="text-sm">
+                Consuntivati ({statusCounts.consuntivato})
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
+            <TabsContent key={status} value={status} className="mt-0">
+              <div className="rounded-md border h-[600px] flex flex-col">
+                <ServizioTable
+                  servizi={serviziByStatus[status]}
+                  users={users}
+                  onNavigateToDetail={onNavigateToDetail}
+                  onSelect={isAdminOrSocio ? onSelectServizio : undefined}
+                  onCompleta={onCompleta}
+                  onFirma={onFirma}
+                  isAdminOrSocio={isAdminOrSocio}
+                  allServizi={allServizi}
+                />
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
     </div>
   );
 }
