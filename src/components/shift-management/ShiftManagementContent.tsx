@@ -4,7 +4,10 @@ import { CalendarGrid } from './calendar/CalendarGrid';
 import { CalendarSidebar } from './calendar/CalendarSidebar';
 import { ShiftCreateDialog } from './dialogs/ShiftCreateDialog';
 import { ShiftEditDialog } from './dialogs/ShiftEditDialog';
+import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { Shift } from '@/components/shifts/types';
 
 interface ShiftManagementContentProps {
@@ -22,6 +25,7 @@ export function ShiftManagementContent({
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [batchFormOpen, setBatchFormOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
 
@@ -36,27 +40,52 @@ export function ShiftManagementContent({
   };
 
   return (
-    <div className="h-[calc(100vh-200px)] flex">
-      {/* Main Calendar - Full Width */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <Card className="flex-1 overflow-hidden">
-          {/* Header */}
-          <CalendarHeader
-            currentDate={currentDate}
-            onDateChange={onDateChange}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-          />
+    <div className="space-y-6">
+      {/* Batch Shift Form */}
+      {batchFormOpen && (
+        <BatchShiftForm 
+          currentMonth={currentDate}
+          onClose={() => setBatchFormOpen(false)}
+        />
+      )}
 
-          {/* Calendar Grid */}
-          <CalendarGrid
-            currentDate={currentDate}
-            viewMode={viewMode}
-            selectedUsers={[]} // Show all users by default
-            onCreateShift={handleCreateShift}
-            onEditShift={handleEditShift}
-          />
-        </Card>
+      <div className="h-[calc(100vh-200px)] flex">
+        {/* Main Calendar - Full Width */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <Card className="flex-1 overflow-hidden">
+            {/* Header with Batch Creation Button */}
+            <div className="border-b bg-muted/20 p-3">
+              <div className="flex items-center justify-between">
+                <CalendarHeader
+                  currentDate={currentDate}
+                  onDateChange={onDateChange}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                />
+                
+                {isAdminOrSocio && (
+                  <Button 
+                    size="sm" 
+                    onClick={() => setBatchFormOpen(true)} 
+                    className="gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Inserisci turni
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Calendar Grid */}
+            <CalendarGrid
+              currentDate={currentDate}
+              viewMode={viewMode}
+              selectedUsers={[]} // Show all users by default
+              onCreateShift={handleCreateShift}
+              onEditShift={handleEditShift}
+            />
+          </Card>
+        </div>
       </div>
 
       {/* Dialogs */}
