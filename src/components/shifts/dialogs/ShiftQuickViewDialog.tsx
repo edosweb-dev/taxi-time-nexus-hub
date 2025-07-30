@@ -40,42 +40,26 @@ export function ShiftQuickViewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6">
-        <div className="space-y-4">
-          {/* User info */}
-          <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-            <User className="h-5 w-5 text-primary" />
-            <div>
-              <div className="font-semibold text-lg">{userDisplayName}</div>
-            </div>
-          </div>
-
-          {/* Shift type */}
-          <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-            <Clock className="h-5 w-5 text-primary" />
-            <div>
-              <div className="font-medium">{getShiftTypeDisplay(shift)}</div>
-            </div>
-          </div>
-
-          {/* Actions */}
+      <DialogContent className="max-w-xs p-4">
+        <div className="space-y-3 text-center">
+          <div className="font-semibold text-lg">{userDisplayName}</div>
+          <div className="text-muted-foreground">{getShiftTypeDisplay(shift)}</div>
+          
           {canEdit && (
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-2 justify-center pt-2">
               <Button
                 onClick={handleEditClick}
-                className="flex-1"
                 variant="outline"
+                size="sm"
               >
-                <Edit className="h-4 w-4 mr-2" />
-                Modifica
+                <Edit className="h-4 w-4" />
               </Button>
               <Button
                 onClick={handleDeleteClick}
                 variant="destructive"
-                className="flex-1"
+                size="sm"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Elimina
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           )}
