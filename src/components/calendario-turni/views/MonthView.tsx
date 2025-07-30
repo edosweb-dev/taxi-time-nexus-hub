@@ -116,10 +116,7 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                         }}
                       >
                         <div className="font-medium truncate" style={{ color: userColor }}>
-                          {user?.first_name} {user?.last_name}
-                        </div>
-                        <div className="text-xs text-muted-foreground truncate">
-                          {getShiftTypeLabel(shift)}
+                          {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
                         </div>
                       </div>
                     );
