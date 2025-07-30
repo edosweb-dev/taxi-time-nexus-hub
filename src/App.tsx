@@ -37,8 +37,8 @@ function App() {
       <Toaster />
       <BrowserRouter>
         <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            <LayoutProvider>
+          <LayoutProvider>
+            <QueryClientProvider client={queryClient}>
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<LoginPage />} />
@@ -174,8 +174,8 @@ function App() {
               {/* 404 Route */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            </LayoutProvider>
-          </QueryClientProvider>
+            </QueryClientProvider>
+          </LayoutProvider>
         </AuthProvider>
       </BrowserRouter>
     </div>
