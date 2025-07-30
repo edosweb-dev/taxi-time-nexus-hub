@@ -4,6 +4,7 @@ import { CalendarGrid } from './calendar/CalendarGrid';
 import { ShiftCreateDialog } from './dialogs/ShiftCreateDialog';
 import { ShiftEditDialog } from './dialogs/ShiftEditDialog';
 import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
+import { ShiftCreationProgressDialog } from '@/components/shifts/dialogs/ShiftCreationProgressDialog';
 import { ShiftExportDialog } from './components/ShiftExportDialog';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,13 @@ export function ShiftManagementContent({
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  
+  // Progress dialog state
+  const [showProgressDialog, setShowProgressDialog] = useState(false);
+  const [totalShifts, setTotalShifts] = useState(0);
+  const [createdShifts, setCreatedShifts] = useState(0);
+  const [errorShifts, setErrorShifts] = useState(0);
+  const [isCreationComplete, setIsCreationComplete] = useState(false);
 
   const handleCreateShift = (date: Date) => {
     setSelectedDate(date);
@@ -43,6 +51,31 @@ export function ShiftManagementContent({
     setEditDialogOpen(true);
   };
 
+  const handleStartProgress = (total: number) => {
+    setTotalShifts(total);
+    setCreatedShifts(0);
+    setErrorShifts(0);
+    setIsCreationComplete(false);
+    setShowProgressDialog(true);
+  };
+
+  const handleUpdateProgress = (created: number, errors: number) => {
+    setCreatedShifts(created);
+    setErrorShifts(errors);
+  };
+
+  const handleCompleteProgress = () => {
+    setIsCreationComplete(true);
+  };
+
+  const handleProgressDialogClose = () => {
+    setShowProgressDialog(false);
+    setTotalShifts(0);
+    setCreatedShifts(0);
+    setErrorShifts(0);
+    setIsCreationComplete(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Batch Shift Form */}
@@ -50,6 +83,9 @@ export function ShiftManagementContent({
         <BatchShiftForm 
           currentMonth={currentDate}
           onClose={() => setBatchFormOpen(false)}
+          onStartProgress={handleStartProgress}
+          onUpdateProgress={handleUpdateProgress}
+          onCompleteProgress={handleCompleteProgress}
         />
       )}
 
@@ -156,6 +192,17 @@ export function ShiftManagementContent({
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}
         currentDate={currentDate}
+      />
+
+      {/* Progress Dialog */}
+      <ShiftCreationProgressDialog
+        open={showProgressDialog}
+        onOpenChange={setShowProgressDialog}
+        totalShifts={totalShifts}
+        createdShifts={createdShifts}
+        errorShifts={errorShifts}
+        isComplete={isCreationComplete}
+        onClose={handleProgressDialogClose}
       />
     </div>
   );

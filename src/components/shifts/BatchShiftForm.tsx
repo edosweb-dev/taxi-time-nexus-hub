@@ -10,11 +10,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
-import { ShiftCreationProgressDialog } from './dialogs/ShiftCreationProgressDialog';
 import { toast } from '@/components/ui/sonner';
 import { useShifts } from './ShiftContext';
-import { Calendar, Users, Clock, Target, ChevronDown } from 'lucide-react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, getWeeksInMonth, getWeek, startOfWeek, endOfWeek, isWithinInterval, eachDayOfInterval } from 'date-fns';
+import { Calendar, Users, Clock, Target } from 'lucide-react';
+import { format, addMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, eachDayOfInterval } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useUsers } from '@/hooks/useUsers';
 
@@ -35,6 +34,9 @@ type BatchShiftFormValues = z.infer<typeof batchShiftSchema>;
 interface BatchShiftFormProps {
   currentMonth: Date;
   onClose: () => void;
+  onStartProgress: (total: number) => void;
+  onUpdateProgress: (created: number, errors: number) => void;
+  onCompleteProgress: () => void;
 }
 
 const shiftTypeLabels = {
@@ -47,19 +49,18 @@ const shiftTypeLabels = {
 
 const weekdayLabels = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
-export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
+export function BatchShiftForm({ 
+  currentMonth, 
+  onClose, 
+  onStartProgress, 
+  onUpdateProgress, 
+  onCompleteProgress 
+}: BatchShiftFormProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Progress tracking
-  const [showProgressDialog, setShowProgressDialog] = useState(false);
-  const [totalShifts, setTotalShifts] = useState(0);
-  const [createdShifts, setCreatedShifts] = useState(0);
-  const [errorShifts, setErrorShifts] = useState(0);
-  const [isCreationComplete, setIsCreationComplete] = useState(false);
-  
   const { createShift } = useShifts();
-  const { users: allUsers, isLoading: usersLoading } = useUsers({ 
+  const { users: allUsers } = useUsers({ 
     includeRoles: ['admin', 'socio', 'dipendente'] 
   });
 
@@ -144,20 +145,34 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
       if (data.periodType === 'month') {
         // Apply to all specified weekdays in the month
         const allDates = eachDayOfInterval({ start: monthStart, end: monthEnd });
+        console.log(`[BatchShiftForm] Giorni selezionati nell'UI:`, data.weekdays);
+        console.log(`[BatchShiftForm] Labels giorni:`, weekdayLabels);
+        
         datesToApply = allDates.filter(date => {
-          // CRITICO: Correzione mapping giorni settimana
-          // UI weekdayLabels: ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'] (indici 0-6)
-          // JS getDay(): Dom=0, Lun=1, Mar=2, Mer=3, Gio=4, Ven=5, Sab=6
-          // Conversione corretta: getDay()=1,2,3,4,5,6,0 -> weekdayIndex=0,1,2,3,4,5,6
+          // DEBUGGING: Mostra ogni data elaborata
+          const jsDay = date.getDay(); // 0=Dom, 1=Lun, 2=Mar, 3=Mer, 4=Gio, 5=Ven, 6=Sab
+          
+          // Mapping corretto da JavaScript getDay() a indice UI weekdayLabels
+          // weekdayLabels = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
+          //                   0      1      2      3      4      5      6
           let weekdayIndex;
-          if (date.getDay() === 0) {
-            weekdayIndex = 6; // Domenica JS=0 -> UI=6
+          if (jsDay === 0) {
+            weekdayIndex = 6; // Domenica JS=0 -> UI index=6
           } else {
-            weekdayIndex = date.getDay() - 1; // Lun-Sab JS=1-6 -> UI=0-5
+            weekdayIndex = jsDay - 1; // Lun=1->0, Mar=2->1, Mer=3->2, Gio=4->3, Ven=5->4, Sab=6->5
           }
           
-          console.log(`[BatchShiftForm] Data ${format(date, 'yyyy-MM-dd')}, getDay()=${date.getDay()}, weekdayIndex=${weekdayIndex}, selected=${data.weekdays.includes(weekdayIndex)}`);
-          return data.weekdays.includes(weekdayIndex);
+          const isSelected = data.weekdays.includes(weekdayIndex);
+          const dateString = format(date, 'yyyy-MM-dd (EEEE)', { locale: it });
+          
+          console.log(`[BatchShiftForm] ${dateString}: jsDay=${jsDay}, weekdayIndex=${weekdayIndex}, label="${weekdayLabels[weekdayIndex]}", selected=${isSelected}`);
+          
+          return isSelected;
+        });
+        
+        console.log(`[BatchShiftForm] Date filtrate: ${datesToApply.length} su ${allDates.length} totali`);
+        datesToApply.forEach(date => {
+          console.log(`[BatchShiftForm] Data inclusa: ${format(date, 'yyyy-MM-dd (EEEE)', { locale: it })}`);
         });
       } else if (data.periodType === 'week' && data.weekNumber) {
         // Apply to specific week
@@ -206,13 +221,9 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         }
       }
 
-      // Chiudi il form e apri il dialog di progresso
+      // Chiudi il form e avvia il progresso
       onClose();
-      setTotalShifts(shiftsToCreate.length);
-      setCreatedShifts(0);
-      setErrorShifts(0);
-      setIsCreationComplete(false);
-      setShowProgressDialog(true);
+      onStartProgress(shiftsToCreate.length);
       
       // Crea tutti i turni con tracking del progresso
       console.log(`Creazione di ${shiftsToCreate.length} turni`);
@@ -224,11 +235,11 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         try {
           await createShift(shiftData);
           successCount++;
-          setCreatedShifts(successCount);
+          onUpdateProgress(successCount, errorCount);
         } catch (error) {
           console.error('Errore creazione turno:', error);
           errorCount++;
-          setErrorShifts(errorCount);
+          onUpdateProgress(successCount, errorCount);
         }
         
         // Piccola pausa per permettere l'aggiornamento della UI
@@ -236,7 +247,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
       }
       
       // Creazione completata
-      setIsCreationComplete(true);
+      onCompleteProgress();
       
       // Mostra toast finale
       if (successCount > 0) {
@@ -255,392 +266,371 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
     }
   };
 
-  const handleProgressDialogClose = () => {
-    setShowProgressDialog(false);
-    setTotalShifts(0);
-    setCreatedShifts(0);
-    setErrorShifts(0);
-    setIsCreationComplete(false);
-  };
-
   return (
-    <>
-      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <Card className="w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Calendar className="h-6 w-6" />
-              Inserisci turni
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Configura e applica turni per più dipendenti contemporaneamente
-            </p>
-          </CardHeader>
-          
-          <CardContent className="space-y-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto">
+        <CardHeader className="pb-6">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Calendar className="h-6 w-6" />
+            Inserisci turni
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Configura e applica turni per più dipendenti contemporaneamente
+          </p>
+        </CardHeader>
+        
+        <CardContent className="space-y-8">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              
+              {/* Month Selection */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-base">Mese di Destinazione</h3>
+                </div>
                 
-                {/* Month Selection */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold text-base">Mese di Destinazione</h3>
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="targetMonth"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          value={format(field.value, 'yyyy-MM')}
-                          onValueChange={(value) => {
-                            const [year, month] = value.split('-');
-                            field.onChange(new Date(parseInt(year), parseInt(month) - 1, 1));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue>
-                                {format(field.value, 'MMMM yyyy', { locale: it })}
-                              </SelectValue>
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Array.from({ length: 12 }, (_, i) => {
-                              const date = addMonths(new Date(), i - 6);
-                              return (
-                                <SelectItem
-                                  key={format(date, 'yyyy-MM')}
-                                  value={format(date, 'yyyy-MM')}
-                                >
-                                  {format(date, 'MMMM yyyy', { locale: it })}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Target Users */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold text-base">Destinatari</h3>
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="targetType"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="targetMonth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select
+                        value={format(field.value, 'yyyy-MM')}
+                        onValueChange={(value) => {
+                          const [year, month] = value.split('-');
+                          field.onChange(new Date(parseInt(year), parseInt(month) - 1, 1));
+                        }}
+                      >
                         <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="grid grid-cols-2 gap-4"
-                          >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="all" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Tutti i dipendenti
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="specific" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Dipendenti specifici
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
+                          <SelectTrigger className="w-full">
+                            <SelectValue>
+                              {format(field.value, 'MMMM yyyy', { locale: it })}
+                            </SelectValue>
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {watchTargetType === 'specific' && (
-                    <div className="pl-6 border-l-2 border-muted">
-                      <UserFilterDropdown
-                        selectedUserIds={selectedUserIds}
-                        onSelectUsers={setSelectedUserIds}
-                        showOnlyAdminAndSocio={false}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Shift Type */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold text-base">Tipo di Turno</h3>
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="shiftType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleziona tipo di turno" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.entries(shiftTypeLabels).map(([value, label]) => (
-                              <SelectItem key={value} value={value}>
-                                {label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Time fields for specific hours */}
-                  {watchShiftType === 'specific_hours' && (
-                    <div className="grid grid-cols-2 gap-4 pl-6 border-l-2 border-muted">
-                      <FormField
-                        control={form.control}
-                        name="startTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Ora inizio</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="time" 
-                                {...field} 
-                                value={field.value || ''}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="endTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Ora fine</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="time" 
-                                {...field} 
-                                value={field.value || ''}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  )}
-
-                  {/* Half day type */}
-                  {watchShiftType === 'half_day' && (
-                    <div className="pl-6 border-l-2 border-muted">
-                      <FormField
-                        control={form.control}
-                        name="halfDayType"
-                        render={({ field }) => (
-                          <FormItem className="space-y-3">
-                            <FormLabel>Parte della giornata</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                className="flex flex-col space-y-1"
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const date = addMonths(new Date(), i - 6);
+                            return (
+                              <SelectItem
+                                key={format(date, 'yyyy-MM')}
+                                value={format(date, 'yyyy-MM')}
                               >
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem value="morning" />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    Mattina
-                                  </FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem value="afternoon" />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    Pomeriggio
-                                  </FormLabel>
-                                </FormItem>
-                              </RadioGroup>
+                                {format(date, 'MMMM yyyy', { locale: it })}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Target Users */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-base">Destinatari</h3>
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="targetType"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="grid grid-cols-2 gap-4"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="all" />
                             </FormControl>
-                            <FormMessage />
+                            <FormLabel className="font-normal">
+                              Tutti i dipendenti
+                            </FormLabel>
                           </FormItem>
-                        )}
-                      />
-                    </div>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="specific" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Dipendenti specifici
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </div>
+                />
 
-                {/* Weekdays */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold text-base">Giorni della Settimana</h3>
+                {watchTargetType === 'specific' && (
+                  <div className="pl-6 border-l-2 border-muted">
+                    <UserFilterDropdown
+                      selectedUserIds={selectedUserIds}
+                      onSelectUsers={setSelectedUserIds}
+                      showOnlyAdminAndSocio={false}
+                    />
                   </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="weekdays"
-                    render={() => (
-                      <FormItem>
-                        <div className="grid grid-cols-7 gap-3">
-                          {weekdayLabels.map((day, index) => (
-                            <FormField
-                              key={index}
-                              control={form.control}
-                              name="weekdays"
-                              render={({ field }) => {
-                                return (
-                                  <FormItem
-                                    key={index}
-                                    className="flex flex-col items-center space-y-2 p-3 rounded-md border hover:bg-muted/50 transition-colors"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value?.includes(index)}
-                                        onCheckedChange={(checked) => {
-                                          return checked
-                                            ? field.onChange([...field.value, index])
-                                            : field.onChange(
-                                                field.value?.filter(
-                                                  (value) => value !== index
-                                                )
-                                              )
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="text-sm font-medium cursor-pointer">
-                                      {day}
-                                    </FormLabel>
-                                  </FormItem>
-                                )
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                )}
+              </div>
 
-                {/* Period Type */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-base">Periodo di Applicazione</h3>
-                  
-                  <FormField
-                    control={form.control}
-                    name="periodType"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
+              {/* Shift Type */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-base">Tipo di Turno</h3>
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="shiftType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="grid grid-cols-2 gap-4"
-                          >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="month" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Tutto il mese
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="week" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Settimana specifica
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona tipo di turno" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {watchPeriodType === 'week' && (
-                    <div className="pl-6 border-l-2 border-muted">
-                      <FormField
-                        control={form.control}
-                        name="weekNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Settimana</FormLabel>
-                            <Select 
-                              value={field.value?.toString() || ''} 
-                              onValueChange={(value) => field.onChange(Number(value))}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Seleziona settimana" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {monthWeeks.map((week) => (
-                                  <SelectItem key={week.number} value={week.number.toString()}>
-                                    {week.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                        <SelectContent>
+                          {Object.entries(shiftTypeLabels).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </div>
+                />
 
-                {/* Actions */}
-                <div className="flex justify-end gap-3 pt-6 border-t bg-muted/30 -mx-6 px-6 -mb-6 pb-6">
-                  <Button type="button" variant="outline" onClick={onClose} size="lg">
-                    Annulla
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting} size="lg" className="min-w-[120px]">
-                    {isSubmitting ? 'Creazione...' : 'Crea Turni'}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+                {/* Time fields for specific hours */}
+                {watchShiftType === 'specific_hours' && (
+                  <div className="grid grid-cols-2 gap-4 pl-6 border-l-2 border-muted">
+                    <FormField
+                      control={form.control}
+                      name="startTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ora inizio</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="time" 
+                              {...field} 
+                              value={field.value || ''}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="endTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ora fine</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="time" 
+                              {...field} 
+                              value={field.value || ''}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
 
-      {/* Progress Dialog */}
-      <ShiftCreationProgressDialog
-        open={showProgressDialog}
-        onOpenChange={setShowProgressDialog}
-        totalShifts={totalShifts}
-        createdShifts={createdShifts}
-        errorShifts={errorShifts}
-        isComplete={isCreationComplete}
-        onClose={handleProgressDialogClose}
-      />
-    </>
+                {/* Half day type */}
+                {watchShiftType === 'half_day' && (
+                  <div className="pl-6 border-l-2 border-muted">
+                    <FormField
+                      control={form.control}
+                      name="halfDayType"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>Parte della giornata</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              className="flex flex-col space-y-1"
+                            >
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="morning" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  Mattina
+                                </FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="afternoon" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  Pomeriggio
+                                </FormLabel>
+                              </FormItem>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Weekdays */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-base">Giorni della Settimana</h3>
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="weekdays"
+                  render={() => (
+                    <FormItem>
+                      <div className="grid grid-cols-7 gap-3">
+                        {weekdayLabels.map((day, index) => (
+                          <FormField
+                            key={index}
+                            control={form.control}
+                            name="weekdays"
+                            render={({ field }) => {
+                              return (
+                                <FormItem
+                                  key={index}
+                                  className="flex flex-col items-center space-y-2 p-3 rounded-md border hover:bg-muted/50 transition-colors"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(index)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...field.value, index])
+                                          : field.onChange(
+                                              field.value?.filter(
+                                                (value) => value !== index
+                                              )
+                                            )
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="text-sm font-medium cursor-pointer">
+                                    {day}
+                                  </FormLabel>
+                                </FormItem>
+                              )
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Period Type */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-base">Periodo di Applicazione</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="periodType"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="grid grid-cols-2 gap-4"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="month" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Tutto il mese
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="week" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Settimana specifica
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {watchPeriodType === 'week' && (
+                  <div className="pl-6 border-l-2 border-muted">
+                    <FormField
+                      control={form.control}
+                      name="weekNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Settimana</FormLabel>
+                          <Select 
+                            value={field.value?.toString() || ''} 
+                            onValueChange={(value) => field.onChange(Number(value))}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona settimana" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {monthWeeks.map((week) => (
+                                <SelectItem key={week.number} value={week.number.toString()}>
+                                  {week.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-6 border-t bg-muted/30 -mx-6 px-6 -mb-6 pb-6">
+                <Button type="button" variant="outline" onClick={onClose} size="lg">
+                  Annulla
+                </Button>
+                <Button type="submit" disabled={isSubmitting} size="lg" className="min-w-[120px]">
+                  {isSubmitting ? 'Creazione...' : 'Crea Turni'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

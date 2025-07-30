@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ShiftGridView } from './grid/ShiftGridView';
 import { BatchShiftForm } from './BatchShiftForm';
+import { ShiftCreationProgressDialog } from './dialogs/ShiftCreationProgressDialog';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
 import { ViewFilterDropdown } from './filters/ViewFilterDropdown';
 
@@ -25,6 +26,13 @@ export function ShiftsContent({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
+  
+  // Progress dialog state
+  const [showProgressDialog, setShowProgressDialog] = useState(false);
+  const [totalShifts, setTotalShifts] = useState(0);
+  const [createdShifts, setCreatedShifts] = useState(0);
+  const [errorShifts, setErrorShifts] = useState(0);
+  const [isCreationComplete, setIsCreationComplete] = useState(false);
 
   const handleUsersChange = (userIds: string[]) => {
     setSelectedUserIds(userIds);
@@ -85,6 +93,31 @@ export function ShiftsContent({
     }
   };
 
+  const handleStartProgress = (total: number) => {
+    setTotalShifts(total);
+    setCreatedShifts(0);
+    setErrorShifts(0);
+    setIsCreationComplete(false);
+    setShowProgressDialog(true);
+  };
+
+  const handleUpdateProgress = (created: number, errors: number) => {
+    setCreatedShifts(created);
+    setErrorShifts(errors);
+  };
+
+  const handleCompleteProgress = () => {
+    setIsCreationComplete(true);
+  };
+
+  const handleProgressDialogClose = () => {
+    setShowProgressDialog(false);
+    setTotalShifts(0);
+    setCreatedShifts(0);
+    setErrorShifts(0);
+    setIsCreationComplete(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Batch Shift Form */}
@@ -92,6 +125,9 @@ export function ShiftsContent({
         <BatchShiftForm 
           currentMonth={currentMonth}
           onClose={() => setIsDialogOpen(false)}
+          onStartProgress={handleStartProgress}
+          onUpdateProgress={handleUpdateProgress}
+          onCompleteProgress={handleCompleteProgress}
         />
       )}
 
@@ -168,6 +204,16 @@ export function ShiftsContent({
         </CardContent>
       </Card>
 
+      {/* Progress Dialog */}
+      <ShiftCreationProgressDialog
+        open={showProgressDialog}
+        onOpenChange={setShowProgressDialog}
+        totalShifts={totalShifts}
+        createdShifts={createdShifts}
+        errorShifts={errorShifts}
+        isComplete={isCreationComplete}
+        onClose={handleProgressDialogClose}
+      />
     </div>
   );
 }
