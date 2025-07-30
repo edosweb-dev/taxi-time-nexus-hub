@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Loader2, Plus, Calendar } from 'lucide-react';
+import { Loader2, Plus, Calendar, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -176,6 +176,10 @@ export function ServiziContent({
         </div>
         
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => window.location.href = '/report-servizi'}>
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Report
+          </Button>
           <Button variant="outline" size="sm" onClick={() => window.location.href = '/calendario-servizi'}>
             <Calendar className="h-4 w-4 mr-2" />
             Vista Calendario

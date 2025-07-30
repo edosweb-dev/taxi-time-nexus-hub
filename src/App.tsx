@@ -21,6 +21,7 @@ import ConducentiEsterniPage from './pages/conducenti-esterni/ConducentiEsterniP
 import StipendiPage from './pages/StipendiPage';
 import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 import CalendarioServiziPage from './pages/CalendarioServiziPage';
+import ReportServiziPage from './pages/ReportServiziPage';
 
 import CalendarioTurniPage from './pages/CalendarioTurniPage';
 import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
@@ -91,6 +92,11 @@ function App() {
                <Route path="/calendario-servizi" element={
                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                    <CalendarioServiziPage />
+                 </AuthGuard>
+               } />
+               <Route path="/report-servizi" element={
+                 <AuthGuard allowedRoles={['admin', 'socio']}>
+                   <ReportServiziPage />
                  </AuthGuard>
                } />
 
