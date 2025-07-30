@@ -125,11 +125,18 @@ export function DayView({
     const Icon = icon;
 
     return (
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground px-1">
-          <Icon className="h-3 w-3" />
-          {title} ({shifts.length})
+      <div className="mb-6">
+        {/* Time slot header */}
+        <div className="flex items-center mb-3">
+          <div className="flex items-center gap-2">
+            <Icon className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+            <span className="text-sm text-muted-foreground">({shifts.length})</span>
+          </div>
+          <div className="flex-1 ml-3 h-px bg-border"></div>
         </div>
+        
+        {/* Full-width shift bars */}
         <div className="space-y-2">
           {shifts.map((shift) => {
             const shiftInfo = getShiftTypeInfo(shift);
@@ -138,42 +145,101 @@ export function DayView({
             return (
               <Card
                 key={shift.id}
-                className="cursor-pointer hover:shadow-sm transition-all border-l-4 group"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 border-l-4"
                 style={{ borderLeftColor: getShiftColor(shift) }}
                 onClick={() => onEditShift(shift)}
               >
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {/* User Avatar */}
+                <CardContent className="p-4">
+                  {/* Desktop Layout - Horizontal */}
+                  <div className="hidden md:flex items-center justify-between">
+                    {/* Left section - Employee */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
                       <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center text-white font-medium text-xs"
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium"
                         style={{ backgroundColor: getShiftColor(shift) }}
                       >
                         {getUserInitials(shift)}
                       </div>
-                      
-                      {/* Shift Info */}
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">{getShiftDisplayText(shift)}</div>
-                        <Badge variant={shiftInfo.variant} className="gap-1 text-xs h-5">
-                          <ShiftIcon className="h-2 w-2" />
-                          {shiftInfo.label}
-                        </Badge>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{getShiftDisplayText(shift)}</h3>
+                        <div className="flex items-center gap-1">
+                          <ShiftIcon className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{shiftInfo.label}</span>
+                        </div>
                       </div>
                     </div>
-                    
-                    {/* Notes indicator */}
-                    {shift.notes && (
-                      <div className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                        Note
-                      </div>
-                    )}
+
+                    {/* Center section - Time details */}
+                    <div className="flex-1 mx-6">
+                      {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time ? (
+                        <div className="flex items-center justify-center gap-4">
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-foreground">{shift.start_time.slice(0, 5)}</p>
+                            <p className="text-xs text-muted-foreground">Inizio</p>
+                          </div>
+                          <div className="w-12 h-0.5 bg-border relative">
+                            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-muted-foreground rounded-full"></div>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-foreground">{shift.end_time.slice(0, 5)}</p>
+                            <p className="text-xs text-muted-foreground">Fine</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <Badge variant={shiftInfo.variant} className="gap-1">
+                            <ShiftIcon className="h-3 w-3" />
+                            {shiftInfo.label}
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right section - Notes and actions */}
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      {shift.notes && (
+                        <div className="text-right">
+                          <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                            Note
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  
+
+                  {/* Mobile Layout - Vertical */}
+                  <div className="md:hidden">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
+                          style={{ backgroundColor: getShiftColor(shift) }}
+                        >
+                          {getUserInitials(shift)}
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-foreground">{getShiftDisplayText(shift)}</h3>
+                        </div>
+                      </div>
+                      {shift.notes && (
+                        <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                          Note
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <Badge variant={shiftInfo.variant} className="gap-1">
+                        <ShiftIcon className="h-3 w-3" />
+                        {shiftInfo.label}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Notes section */}
                   {shift.notes && (
-                    <div className="mt-2 pt-2 border-t">
-                      <p className="text-xs text-muted-foreground">
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-sm text-muted-foreground">
                         {shift.notes}
                       </p>
                     </div>
@@ -238,7 +304,7 @@ export function DayView({
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+          <div className="space-y-6">
             {renderShiftGroup("Giornata intera", groupedShifts.fullDay, Calendar)}
             {renderShiftGroup("Mattina", groupedShifts.morning, Coffee)}
             {renderShiftGroup("Pomeriggio", groupedShifts.afternoon, Briefcase)}
