@@ -47,7 +47,7 @@ export function ServizioCardList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 w-full">
       {servizi.map((servizio) => {
         const globalIndex = getServizioIndex(servizio.id, allServizi);
         

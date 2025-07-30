@@ -63,20 +63,20 @@ export function MobileServiziStats({ servizi, isLoading }: MobileServiziStatsPro
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-2 w-full">
       {stats.map((stat, index) => (
-        <Card key={index} className="border-l-4 border-l-primary/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">
+        <Card key={index} className="border-l-4 border-l-primary/20 w-full">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide truncate">
                   {stat.label}
                 </p>
-                <p className="text-xl font-bold text-foreground mt-1">
+                <p className="text-lg font-bold text-foreground mt-1 sm:text-xl">
                   {stat.count}
                 </p>
               </div>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+              <div className={`p-2 rounded-lg flex-shrink-0 ${stat.bgColor}`}>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </div>
             </div>

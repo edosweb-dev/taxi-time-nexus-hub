@@ -205,7 +205,7 @@ export function ServiziContent({
         </div>
         
         {/* Action Buttons - Mobile Responsive */}
-        <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'}`}>
+        <div className={`flex ${isMobile ? 'w-full gap-2' : 'items-center gap-2'}`}>
           {isMobile ? (
             <MobileFiltersDrawer
               servizi={servizi}
@@ -227,9 +227,9 @@ export function ServiziContent({
               </Button>
             </>
           )}
-          <Button onClick={onNavigateToNewServizio} size="sm" className={isMobile ? 'flex-1' : ''}>
-            <Plus className="h-4 w-4 mr-2" />
-            {isMobile ? 'Nuovo' : 'Nuovo Servizio'}
+          <Button onClick={onNavigateToNewServizio} size="sm" className={isMobile ? 'flex-1 min-w-0' : ''}>
+            <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">{isMobile ? 'Nuovo' : 'Nuovo Servizio'}</span>
           </Button>
         </div>
       </div>
@@ -249,16 +249,19 @@ export function ServiziContent({
       )}
 
       {/* Tabs and Content - Responsive */}
-      {isMobile ? (
-        <div className="space-y-4">
-          <MobileTabs
-            tabs={tabsConfig}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          
-          <div className="min-h-[400px]">
-            <ServizioCardList
+      <div className={isMobile ? 'w-full overflow-hidden' : 'w-full'}>
+        {isMobile ? (
+          <div className="space-y-4 w-full">
+            <div className="w-full overflow-x-auto">
+              <MobileTabs
+                tabs={tabsConfig}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+            </div>
+            
+            <div className="w-full min-h-[400px] overflow-hidden">
+              <ServizioCardList
               servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
               users={users}
               aziende={aziende}
@@ -315,6 +318,7 @@ export function ServiziContent({
           ))}
         </Tabs>
       )}
+      </div>
     </div>
   );
 }

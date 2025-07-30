@@ -114,13 +114,13 @@ export function ServizioCard({
 
   return (
     <Card 
-      className="cursor-pointer hover:shadow-md transition-all duration-200 border-l-4 border-l-primary/20"
+      className="cursor-pointer hover:shadow-md transition-all duration-200 border-l-4 border-l-primary/20 w-full max-w-none"
       onClick={handleCardClick}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+      <CardHeader className="pb-3 px-3">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="text-xs font-mono text-muted-foreground">#{index}</span>
               {servizio.numero_commessa && (
                 <Badge variant="outline" className="text-xs">
@@ -146,7 +146,7 @@ export function ServizioCard({
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0 space-y-3">
+      <CardContent className="pt-0 space-y-3 px-3 pb-3">
         {/* Date and Time */}
         <div className="flex items-center gap-2 text-sm">
           <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
