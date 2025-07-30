@@ -125,7 +125,7 @@ export function DayView({
     const Icon = icon;
 
     return (
-      <div className="col-span-full space-y-2">
+      <div className="space-y-2">
         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground px-1">
           <Icon className="h-3 w-3" />
           {title} ({shifts.length})
