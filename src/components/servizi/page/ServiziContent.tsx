@@ -11,6 +11,7 @@ import { groupServiziByStatus } from '../utils/groupingUtils';
 import { Servizio } from '@/lib/types/servizi';
 import { Profile } from '@/lib/types';
 import { Azienda } from '@/lib/types';
+import { useAziende } from '@/hooks/useAziende';
 
 interface ServiziContentProps {
   servizi: Servizio[];
@@ -41,6 +42,7 @@ export function ServiziContent({
   onFirma,
   allServizi
 }: ServiziContentProps) {
+  const { aziende } = useAziende();
   const [activeTab, setActiveTab] = useState<string>('da_assegnare');
   const [filters, setFilters] = useState<ServiziFiltersState>({
     search: '',
@@ -56,10 +58,16 @@ export function ServiziContent({
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
+        
+        // Find azienda name by ID
+        const azienda = aziende.find(a => a.id === servizio.azienda_id);
+        const aziendaNome = azienda?.nome?.toLowerCase() || '';
+        
         const matches = 
           servizio.numero_commessa?.toLowerCase().includes(searchLower) ||
           servizio.indirizzo_presa.toLowerCase().includes(searchLower) ||
-          servizio.indirizzo_destinazione.toLowerCase().includes(searchLower);
+          servizio.indirizzo_destinazione.toLowerCase().includes(searchLower) ||
+          aziendaNome.includes(searchLower);
         if (!matches) return false;
       }
 
@@ -90,7 +98,7 @@ export function ServiziContent({
 
       return true;
     });
-  }, [servizi, filters]);
+  }, [servizi, filters, aziende]);
   
   // Group filtered services by status
   const serviziByStatus = groupServiziByStatus(filteredServizi);
