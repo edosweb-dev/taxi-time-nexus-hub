@@ -10,15 +10,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { UserFilterDropdown } from './filters/UserFilterDropdown';
-import { SimpleConflictDialog } from './dialogs/SimpleConflictDialog';
 import { toast } from '@/components/ui/sonner';
 import { useShifts } from './ShiftContext';
 import { Calendar, Users, Clock, Target, ChevronDown } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, getWeeksInMonth, getWeek, startOfWeek, endOfWeek, isWithinInterval, eachDayOfInterval } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useUsers } from '@/hooks/useUsers';
-import { Shift } from './types';
-import { supabase } from '@/lib/supabase';
 
 const batchShiftSchema = z.object({
   targetMonth: z.date(),
@@ -52,11 +49,7 @@ const weekdayLabels = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentConflict, setCurrentConflict] = useState<any>(null);
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [pendingShifts, setPendingShifts] = useState<any[]>([]);
-  const [currentShiftIndex, setCurrentShiftIndex] = useState(0);
-  const { createShift, updateShift } = useShifts();
+  const { createShift } = useShifts();
   const { users: allUsers, isLoading: usersLoading } = useUsers({ 
     includeRoles: ['admin', 'socio', 'dipendente'] 
   });
@@ -110,79 +103,6 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
   };
 
   const monthWeeks = getMonthWeeks(watchTargetMonth);
-
-  const checkForExistingShift = async (userId: string, shiftDate: Date) => {
-    const shiftDateString = format(shiftDate, 'yyyy-MM-dd');
-    
-    const { data: existingShifts, error } = await supabase
-      .from('shifts')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('shift_date', shiftDateString);
-
-    if (error) {
-      console.error('Error checking existing shift:', error);
-      return null;
-    }
-    
-    return existingShifts && existingShifts.length > 0 ? existingShifts[0] : null;
-  };
-
-  const processNextShift = async () => {
-    if (currentShiftIndex >= pendingShifts.length) {
-      // Tutti i turni processati
-      setPendingShifts([]);
-      setCurrentShiftIndex(0);
-      toast.success('Creazione turni completata');
-      onClose();
-      return;
-    }
-
-    const currentShift = pendingShifts[currentShiftIndex];
-    
-    // Controlla se esiste già un turno per questo utente in questa data
-    const existingShift = await checkForExistingShift(currentShift.user_id, currentShift.shift_date);
-    
-    if (existingShift) {
-      // Controlla se il turno è identico
-      const isIdentical = 
-        existingShift.shift_type === currentShift.shift_type &&
-        existingShift.start_time === currentShift.start_time &&
-        existingShift.end_time === currentShift.end_time &&
-        existingShift.half_day_type === currentShift.half_day_type;
-      
-      if (isIdentical) {
-        // Turno identico, salta silenziosamente
-        console.log('Turno identico trovato, salto:', currentShift);
-        setCurrentShiftIndex(prev => prev + 1);
-        setTimeout(processNextShift, 10);
-        return;
-      }
-      
-      // Turno diverso, mostra dialog di conflitto
-      const user = allUsers?.find(u => u.id === currentShift.user_id);
-      const userName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email : 'Utente sconosciuto';
-      
-      setCurrentConflict({
-        existingShift,
-        newShift: { ...currentShift, user_name: userName }
-      });
-      setShowConflictDialog(true);
-      return;
-    }
-    
-    // Nessun conflitto, crea il turno
-    try {
-      await createShift(currentShift);
-      console.log('Turno creato:', currentShift);
-    } catch (error) {
-      console.error('Errore creazione turno:', error);
-      toast.error(`Errore creando turno per ${format(currentShift.shift_date, 'dd/MM/yyyy')}`);
-    }
-    
-    setCurrentShiftIndex(prev => prev + 1);
-    setTimeout(processNextShift, 10);
-  };
 
   const onSubmit = async (data: BatchShiftFormValues) => {
     setIsSubmitting(true);
@@ -277,11 +197,31 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         }
       }
 
-      // Avvia il processo di creazione turni
-      console.log(`Avvio creazione di ${shiftsToCreate.length} turni`);
-      setPendingShifts(shiftsToCreate);
-      setCurrentShiftIndex(0);
-      processNextShift();
+      // Crea tutti i turni
+      console.log(`Creazione di ${shiftsToCreate.length} turni`);
+      
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (const shiftData of shiftsToCreate) {
+        try {
+          await createShift(shiftData);
+          successCount++;
+        } catch (error) {
+          console.error('Errore creazione turno:', error);
+          errorCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} turni creati con successo`);
+      }
+      
+      if (errorCount > 0) {
+        toast.error(`${errorCount} turni non creati per errori`);
+      }
+      
+      onClose();
       
     } catch (error) {
       console.error('Error creating batch shifts:', error);
@@ -289,41 +229,6 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleConflictResolution = async (action: 'replace' | 'keep' | 'skip') => {
-    setShowConflictDialog(false);
-    
-    const currentShift = pendingShifts[currentShiftIndex];
-    
-    try {
-      if (action === 'replace') {
-        // Sostituisci il turno esistente
-        await updateShift(currentConflict.existingShift.id, currentShift);
-        console.log('Turno sostituito:', currentShift);
-      } else if (action === 'keep') {
-        // Mantieni quello esistente, non fare nulla
-        console.log('Turno esistente mantenuto per:', format(currentShift.shift_date, 'dd/MM/yyyy'));
-      } else if (action === 'skip') {
-        // Salta questo turno
-        console.log('Turno saltato per:', format(currentShift.shift_date, 'dd/MM/yyyy'));
-      }
-    } catch (error) {
-      console.error('Errore nella risoluzione conflitto:', error);
-      toast.error('Errore nella risoluzione del conflitto');
-    }
-    
-    // Continua con il prossimo turno
-    setCurrentConflict(null);
-    setCurrentShiftIndex(prev => prev + 1);
-    setTimeout(processNextShift, 10);
-  };
-
-  const handleConflictCancel = () => {
-    setShowConflictDialog(false);
-    setCurrentConflict(null);
-    setPendingShifts([]);
-    setCurrentShiftIndex(0);
   };
 
   return (
@@ -690,14 +595,6 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         </Form>
       </CardContent>
     </Card>
-
-    {/* Simple Conflict Resolution Dialog */}
-    <SimpleConflictDialog
-      open={showConflictDialog}
-      conflict={currentConflict}
-      onResolution={handleConflictResolution}
-      onCancel={handleConflictCancel}
-    />
     </div>
   );
 }
