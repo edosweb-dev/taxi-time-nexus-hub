@@ -58,8 +58,8 @@ export function ShiftManagementContent({
         <div className="flex-1 flex flex-col w-full overflow-hidden">
           <Card className="flex-1 overflow-hidden">
             {/* Header with filters and actions */}
-            <div className="border-b bg-white p-3">
-              <div className="flex items-center justify-between gap-4">
+            <div className="border-b bg-white px-4 py-2">
+              <div className="flex items-center justify-between gap-3">
                 <CalendarHeader
                   currentDate={currentDate}
                   onDateChange={onDateChange}
@@ -67,7 +67,7 @@ export function ShiftManagementContent({
                   onViewModeChange={setViewMode}
                 />
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {/* User Filter */}
                   {isAdminOrSocio && (
                     <div className="flex items-center gap-2">
@@ -76,7 +76,7 @@ export function ShiftManagementContent({
                         value={selectedUsers.length === 1 ? selectedUsers[0] : 'all'} 
                         onValueChange={(value) => setSelectedUsers(value === 'all' ? [] : [value])}
                       >
-                        <SelectTrigger className="w-48">
+                        <SelectTrigger className="w-44">
                           <SelectValue placeholder="Filtra per utente" />
                         </SelectTrigger>
                         <SelectContent>
@@ -101,7 +101,7 @@ export function ShiftManagementContent({
 
                   {/* Action Buttons */}
                   {isAdminOrSocio && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <Button 
                         variant="outline"
                         size="sm" 
