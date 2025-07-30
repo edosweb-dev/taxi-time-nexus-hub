@@ -20,6 +20,8 @@ import { useShifts } from '@/components/shifts/ShiftContext';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
+import { EditShiftDialog } from '@/components/shifts/dialogs/EditShiftDialog';
+import { ShiftQuickViewDialog } from '@/components/shifts/dialogs/ShiftQuickViewDialog';
 import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
 import { ShiftCreationProgressDialog } from '@/components/shifts/dialogs/ShiftCreationProgressDialog';
 import { CalendarioView } from './CalendarioView';
@@ -34,13 +36,16 @@ type ViewMode = 'month' | 'week' | 'day';
 
 export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniContentProps) {
   const { users } = useUsers();
-  const { shifts, isLoading, loadShifts, setSelectedShift } = useShifts();
+  const { shifts, isLoading, loadShifts } = useShifts();
   
   // State
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [addShiftDialogOpen, setAddShiftDialogOpen] = useState(false);
+  const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
+  const [quickViewDialogOpen, setQuickViewDialogOpen] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [inserimentoMassivoOpen, setInserimentoMassivoOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
@@ -139,8 +144,18 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
 
   const handleEditShift = (shift: Shift) => {
     setSelectedShift(shift);
+    setQuickViewDialogOpen(true);
+  };
+
+  const handleEditFromQuickView = (shift: Shift) => {
+    setQuickViewDialogOpen(false);
     setSelectedDate(new Date(shift.shift_date));
-    setAddShiftDialogOpen(true);
+    setEditShiftDialogOpen(true);
+  };
+
+  const handleDeleteShift = async (shiftId: string) => {
+    // The actual delete logic will be handled by the mutation in the dialog
+    setQuickViewDialogOpen(false);
   };
 
   const handleStartProgress = (total: number) => {
@@ -372,6 +387,24 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
         onOpenChange={setAddShiftDialogOpen}
         isAdminOrSocio={isAdminOrSocio}
         defaultDate={selectedDate}
+      />
+
+      {/* Quick View Dialog */}
+      <ShiftQuickViewDialog
+        open={quickViewDialogOpen}
+        onOpenChange={setQuickViewDialogOpen}
+        shift={selectedShift}
+        onEditShift={handleEditFromQuickView}
+        onDeleteShift={handleDeleteShift}
+        canEdit={isAdminOrSocio}
+      />
+
+      {/* Edit Shift Dialog */}
+      <EditShiftDialog
+        open={editShiftDialogOpen}
+        onOpenChange={setEditShiftDialogOpen}
+        shift={selectedShift}
+        isAdminOrSocio={isAdminOrSocio}
       />
 
       {/* Progress Dialog */}
