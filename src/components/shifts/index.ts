@@ -9,6 +9,7 @@ export * from './ShiftsStats';
 export * from './ShiftsContent';
 export * from './calendar';
 export * from './dialogs';
+export * from './dialogs/SimpleConflictDialog';
 export * from './filters';
 export * from './form-fields';
 export * from './reports';
