@@ -49,13 +49,15 @@ export default function ServiziPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <Home className="h-4 w-4" />
-          <ChevronRight className="h-4 w-4" />
-          <span className="font-medium text-foreground">Servizi</span>
-        </nav>
+      <div className={`space-y-${isMobile ? '4' : '6'}`}>
+        {/* Breadcrumb Navigation - Solo su desktop */}
+        {!isMobile && (
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Home className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" />
+            <span className="font-medium text-foreground">Servizi</span>
+          </nav>
+        )}
 
         <ServiziContent 
           servizi={servizi}

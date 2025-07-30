@@ -184,7 +184,7 @@ export function ServiziContent({
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-${isMobile ? '4' : '6'}`}>
       {/* Statistics Cards - Responsive */}
       {isMobile ? (
         <MobileServiziStats servizi={filteredServizi} isLoading={isLoading} />
