@@ -186,120 +186,160 @@ export function ServiziContent({
   return (
     <div className={`space-y-${isMobile ? '4' : '6'}`}>
       {/* Statistics Cards - Responsive */}
+      {/* Stats - Mobile-first responsive */}
       {isMobile ? (
         <MobileServiziStats servizi={filteredServizi} isLoading={isLoading} />
       ) : (
         <ServizioStats servizi={filteredServizi} isLoading={isLoading} />
       )}
 
-      {/* Header with Actions - Mobile Optimized */}
-      <div className={`flex ${isMobile ? 'flex-col' : 'flex-col sm:flex-row'} ${isMobile ? 'gap-3' : 'sm:items-center sm:justify-between gap-4'}`}>
-        <div>
-          <h2 className={`font-semibold text-foreground text-enhanced ${isMobile ? 'text-xl' : 'text-2xl'}`}>
-            Gestione Servizi
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {filteredServizi.length} servizi totali
-            {filteredServizi.length !== servizi.length && ` (${servizi.length} senza filtri)`}
-          </p>
-        </div>
-        
-        {/* Action Buttons - Mobile Responsive */}
-        <div className={`flex ${isMobile ? 'w-full gap-2' : 'items-center gap-2'}`}>
-          {isMobile ? (
+      {/* Header with Actions - Mobile-first */}
+      <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
+        <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-y-0 md:space-x-4 flex-1">
+          {/* Mobile Filters */}
+          <div className="flex items-center space-x-2 md:hidden">
             <MobileFiltersDrawer
               servizi={servizi}
               users={users}
               filters={filters}
               onFiltersChange={setFilters}
-              onApplyFilters={handleApplyFilters}
-              onClearFilters={handleClearFilters}
+              onApplyFilters={() => {}}
+              onClearFilters={() => setFilters({
+                search: '',
+                aziendaId: '',
+                assigneeId: '',
+                dateFrom: undefined,
+                dateTo: undefined
+              })}
             />
-          ) : (
-            <>
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/report-servizi'}>
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Report
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/calendario-servizi'}>
-                <Calendar className="h-4 w-4 mr-2" />
-                Vista Calendario
-              </Button>
-            </>
-          )}
-          <Button onClick={onNavigateToNewServizio} size="sm" className={isMobile ? 'flex-1 min-w-0' : ''}>
-            <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-            <span className="truncate">{isMobile ? 'Nuovo' : 'Nuovo Servizio'}</span>
+            <MobileTabs
+              tabs={[
+                { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
+                { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
+                { id: 'completato', label: 'Completati', count: statusCounts.completato },
+                { id: 'annullato', label: 'Annullati', count: statusCounts.annullato }
+              ]}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
+          </div>
+
+          {/* Desktop Filters */}
+          <div className="hidden md:flex md:items-center md:space-x-4 md:flex-1">
+            <ServiziFilters
+              servizi={servizi}
+              users={users}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onApplyFilters={() => {}}
+              onClearFilters={() => setFilters({
+                search: '',
+                aziendaId: '',
+                assigneeId: '',
+                dateFrom: undefined,
+                dateTo: undefined
+              })}
+            />
+          </div>
+        </div>
+
+        {/* Action Buttons - Mobile-first */}
+        <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full md:w-auto"
+            onClick={onNavigateToNewServizio}
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Report
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full md:w-auto"
+            onClick={onNavigateToNewServizio}
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Calendario
+          </Button>
+          {isAdminOrSocio && (
+            <Button
+              size="sm"
+              className="w-full md:w-auto"
+              onClick={onNavigateToNewServizio}
+            >
+              Nuovo Servizio
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Filters - Desktop Only */}
-      {!isMobile && (
-        <div className="border-b border-border pb-4">
-          <ServiziFilters
-            servizi={servizi}
+      {/* Content - Mobile-first responsive */}
+      <div className="md:hidden">
+        {/* Mobile: Card List View */}
+        {Object.keys(serviziByStatus).some(status => serviziByStatus[status as keyof typeof serviziByStatus].length > 0) ? (
+          <ServizioCardList
+            servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
             users={users}
-            filters={filters}
-            onFiltersChange={setFilters}
-            onApplyFilters={handleApplyFilters}
-            onClearFilters={handleClearFilters}
+            aziende={aziende || []}
+            passeggeriCounts={passeggeriCounts}
+            onNavigateToDetail={onNavigateToDetail}
+            onSelect={onSelectServizio}
+            onCompleta={onCompleta}
+            onFirma={onFirma}
+            isAdminOrSocio={isAdminOrSocio}
+            allServizi={allServizi}
           />
-        </div>
-      )}
+        ) : (
+          <EmptyState
+            message="Nessun servizio trovato per i criteri selezionati."
+            showButton={isAdminOrSocio}
+            onCreateNew={onNavigateToNewServizio}
+          />
+        )}
+      </div>
 
-      {/* Tabs and Content - Responsive */}
-      <div className={isMobile ? 'w-full overflow-hidden' : 'w-full'}>
-        {isMobile ? (
-          <div className="space-y-4 w-full">
-            <div className="w-full overflow-x-auto">
-              <MobileTabs
-                tabs={tabsConfig}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              />
-            </div>
-            
-            <div className="w-full min-h-[400px] overflow-hidden">
-              <ServizioCardList
-              servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
-              users={users}
-              aziende={aziende}
-              passeggeriCounts={passeggeriCounts}
-              allServizi={allServizi}
-              isAdminOrSocio={isAdminOrSocio}
-              onNavigateToDetail={onNavigateToDetail}
-              onSelect={isAdminOrSocio ? onSelectServizio : undefined}
-              onCompleta={onCompleta}
-              onFirma={onFirma}
-            />
-          </div>
-        </div>
-      ) : (
-        <Tabs defaultValue="da_assegnare" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="mb-6">
-            <TabsList className="grid w-full grid-cols-6 h-10">
-              <TabsTrigger value="da_assegnare" className="text-sm">
-                Da assegnare ({statusCounts.da_assegnare})
-              </TabsTrigger>
-              <TabsTrigger value="assegnato" className="text-sm">
-                Assegnati ({statusCounts.assegnato})
-              </TabsTrigger>
-              <TabsTrigger value="completato" className="text-sm">
-                Completati ({statusCounts.completato})
-              </TabsTrigger>
-              <TabsTrigger value="non_accettato" className="text-sm">
-                Non accettati ({statusCounts.non_accettato})
-              </TabsTrigger>
-              <TabsTrigger value="annullato" className="text-sm">
-                Annullati ({statusCounts.annullato})
-              </TabsTrigger>
-              <TabsTrigger value="consuntivato" className="text-sm">
-                Consuntivati ({statusCounts.consuntivato})
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          
+      {/* Desktop: Tabbed Table View */}
+      <div className="hidden md:block">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="da_assegnare" className="relative">
+              Da Assegnare
+              {statusCounts.da_assegnare > 0 && (
+                <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground">
+                  {statusCounts.da_assegnare}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="assegnato" className="relative">
+              Assegnati
+              {statusCounts.assegnato > 0 && (
+                <span className="ml-1 rounded-full bg-yellow-500 px-1.5 py-0.5 text-xs text-white">
+                  {statusCounts.assegnato}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="non_accettato">Non Accettati</TabsTrigger>
+            <TabsTrigger value="completato" className="relative">
+              Completati
+              {statusCounts.completato > 0 && (
+                <span className="ml-1 rounded-full bg-green-500 px-1.5 py-0.5 text-xs text-white">
+                  {statusCounts.completato}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="annullato" className="relative">
+              Annullati
+              {statusCounts.annullato > 0 && (
+                <span className="ml-1 rounded-full bg-gray-500 px-1.5 py-0.5 text-xs text-white">
+                  {statusCounts.annullato}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="consuntivato">Consuntivati</TabsTrigger>
+          </TabsList>
+
           {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
             <TabsContent key={status} value={status} className="mt-0">
               <div className="rounded-md border h-[600px] flex flex-col">
@@ -307,7 +347,7 @@ export function ServiziContent({
                   servizi={serviziByStatus[status]}
                   users={users}
                   onNavigateToDetail={onNavigateToDetail}
-                  onSelect={isAdminOrSocio ? onSelectServizio : undefined}
+                  onSelect={onSelectServizio}
                   onCompleta={onCompleta}
                   onFirma={onFirma}
                   isAdminOrSocio={isAdminOrSocio}
@@ -317,7 +357,6 @@ export function ServiziContent({
             </TabsContent>
           ))}
         </Tabs>
-      )}
       </div>
     </div>
   );
