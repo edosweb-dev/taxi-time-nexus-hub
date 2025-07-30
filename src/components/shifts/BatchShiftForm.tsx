@@ -186,9 +186,21 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
       if (data.periodType === 'month') {
         // Apply to all specified weekdays in the month
         const allDates = eachDayOfInterval({ start: monthStart, end: monthEnd });
-        datesToApply = allDates.filter(date => 
-          data.weekdays.includes(date.getDay() === 0 ? 6 : date.getDay() - 1)
-        );
+        datesToApply = allDates.filter(date => {
+          // CRITICO: Correzione mapping giorni settimana
+          // UI weekdayLabels: ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'] (indici 0-6)
+          // JS getDay(): Dom=0, Lun=1, Mar=2, Mer=3, Gio=4, Ven=5, Sab=6
+          // Conversione corretta: getDay()=1,2,3,4,5,6,0 -> weekdayIndex=0,1,2,3,4,5,6
+          let weekdayIndex;
+          if (date.getDay() === 0) {
+            weekdayIndex = 6; // Domenica JS=0 -> UI=6
+          } else {
+            weekdayIndex = date.getDay() - 1; // Lun-Sab JS=1-6 -> UI=0-5
+          }
+          
+          console.log(`[BatchShiftForm] Data ${format(date, 'yyyy-MM-dd')}, getDay()=${date.getDay()}, weekdayIndex=${weekdayIndex}, selected=${data.weekdays.includes(weekdayIndex)}`);
+          return data.weekdays.includes(weekdayIndex);
+        });
       } else if (data.periodType === 'week' && data.weekNumber) {
         // Apply to specific week
         const weekStart = startOfWeek(
@@ -198,10 +210,22 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
         const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
         
         const weekDates = eachDayOfInterval({ start: weekStart, end: weekEnd });
-        datesToApply = weekDates.filter(date => 
-          isWithinInterval(date, { start: monthStart, end: monthEnd }) &&
-          data.weekdays.includes(date.getDay() === 0 ? 6 : date.getDay() - 1)
-        );
+        datesToApply = weekDates.filter(date => {
+          if (!isWithinInterval(date, { start: monthStart, end: monthEnd })) {
+            return false;
+          }
+          
+          // Stessa correzione per le settimane
+          let weekdayIndex;
+          if (date.getDay() === 0) {
+            weekdayIndex = 6; // Domenica
+          } else {
+            weekdayIndex = date.getDay() - 1; // Lun-Sab
+          }
+          
+          console.log(`[BatchShiftForm] Settimana - Data ${format(date, 'yyyy-MM-dd')}, getDay()=${date.getDay()}, weekdayIndex=${weekdayIndex}, selected=${data.weekdays.includes(weekdayIndex)}`);
+          return data.weekdays.includes(weekdayIndex);
+        });
       }
 
       // Create shifts for each date and user
