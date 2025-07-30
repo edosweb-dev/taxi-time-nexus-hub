@@ -20,7 +20,7 @@ import VeicoliPage from './pages/veicoli/VeicoliPage';
 import ConducentiEsterniPage from './pages/conducenti-esterni/ConducentiEsterniPage';
 import StipendiPage from './pages/StipendiPage';
 import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
-import ShiftManagementPage from './pages/ShiftManagementPage';
+
 import CalendarioTurniPage from './pages/CalendarioTurniPage';
 import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
 import AziendePage from './pages/aziende/AziendePage';
@@ -154,23 +154,20 @@ function App() {
                 </AuthGuard>
               } />
               
-              {/* Shifts Routes */}
-              <Route path="/turni" element={<Navigate to="/gestione-turni" replace />} />
-              <Route path="/gestione-turni" element={
-                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                  <ShiftManagementPage />
-                </AuthGuard>
-              } />
-              <Route path="/gestione-turni/report" element={
-                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                  <ShiftReportsPage />
-                </AuthGuard>
-              } />
+              {/* Shifts Routes - calendario-turni come pagina principale */}
+              <Route path="/turni" element={<Navigate to="/calendario-turni" replace />} />
+              <Route path="/gestione-turni" element={<Navigate to="/calendario-turni" replace />} />
               <Route path="/calendario-turni" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <CalendarioTurniPage />
                 </AuthGuard>
               } />
+              <Route path="/report" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <ShiftReportsPage />
+                </AuthGuard>
+              } />
+              <Route path="/gestione-turni/report" element={<Navigate to="/report" replace />} />
               
               {/* 404 Route */}
               <Route path="*" element={<Navigate to="/" replace />} />

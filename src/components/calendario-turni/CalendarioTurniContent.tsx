@@ -13,12 +13,14 @@ import {
   Rows3, 
   Square,
   Users,
-  Filter
+  Filter,
+  BarChart3
 } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { useShifts } from '@/components/shifts/ShiftContext';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
 import { EditShiftDialog } from '@/components/shifts/dialogs/EditShiftDialog';
 import { ShiftQuickViewDialog } from '@/components/shifts/dialogs/ShiftQuickViewDialog';
@@ -37,6 +39,7 @@ type ViewMode = 'month' | 'week' | 'day';
 export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniContentProps) {
   const { users } = useUsers();
   const { shifts, isLoading, loadShifts } = useShifts();
+  const navigate = useNavigate();
   
   // State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -305,6 +308,17 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                     <Button 
                       variant="outline"
                       size="sm" 
+                      onClick={() => navigate('/report')} 
+                      className="flex-1 sm:flex-none gap-1"
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Report</span>
+                      <span className="sm:hidden">Report</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm" 
                       onClick={() => setInserimentoMassivoOpen(true)} 
                       className="flex-1 sm:flex-none gap-1"
                     >
@@ -434,29 +448,39 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                     </Select>
                   </div>
 
-                  {/* Action Buttons */}
-                  {isAdminOrSocio && (
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline"
-                        size="sm" 
-                        onClick={() => setInserimentoMassivoOpen(true)} 
-                        className="gap-2"
-                      >
-                        <Users className="h-4 w-4" />
-                        Inserimento Massivo
-                      </Button>
-                      
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleCreateShift(currentDate)} 
-                        className="gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Nuovo Turno
-                      </Button>
-                    </div>
-                  )}
+                {/* Action Buttons */}
+                {isAdminOrSocio && (
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm" 
+                      onClick={() => navigate('/report')} 
+                      className="gap-2"
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                      Report Turni
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm" 
+                      onClick={() => setInserimentoMassivoOpen(true)} 
+                      className="gap-2"
+                    >
+                      <Users className="h-4 w-4" />
+                      Inserimento Massivo
+                    </Button>
+                    
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleCreateShift(currentDate)} 
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Nuovo Turno
+                    </Button>
+                  </div>
+                )}
                 </div>
               </div>
             </div>

@@ -69,7 +69,7 @@ const navItems: NavItem[] = [
   },
   {
     title: 'Turni',
-    href: '/gestione-turni',
+    href: '/calendario-turni',
     icon: Calendar,
     roles: ['admin', 'socio', 'dipendente'],
   },

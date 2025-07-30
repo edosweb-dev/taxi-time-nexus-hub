@@ -40,7 +40,7 @@ export function MobileMenuContent() {
       title: 'Operazioni',
       items: [
         { title: 'Nuovo Servizio', path: '/nuovo-servizio', icon: FilePlus, roles: ['admin', 'socio'] },
-        { title: 'Turni', path: '/gestione-turni', icon: Calendar, roles: ['admin', 'socio', 'dipendente'] },
+        { title: 'Turni', path: '/calendario-turni', icon: Calendar, roles: ['admin', 'socio', 'dipendente'] },
         { title: 'Le mie spese', path: '/spese-dipendente', icon: Wallet, roles: ['dipendente'] },
         { title: 'Report Spese', path: '/spese-aziendali', icon: FileText, roles: ['admin', 'socio'] },
         { title: 'Movimenti', path: '/movimenti', icon: Wallet, roles: ['admin', 'socio'] },
