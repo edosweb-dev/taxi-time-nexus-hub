@@ -101,14 +101,14 @@ export function WeekView({
           return (
             <div
               key={dateKey}
-              className="border-r last:border-r-0 border-muted/30 p-3 min-h-[300px] group hover:bg-muted/10 transition-colors cursor-pointer"
+              className="border-r last:border-r-0 border-muted/30 p-3 min-h-[300px] group cursor-pointer"
               onClick={() => onCreateShift(day)}
             >
               {/* Add shift button */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="opacity-0 group-hover:opacity-100 transition-opacity mb-2 h-6 w-full"
+                className="opacity-0 mb-2 h-6 w-full"
                 onClick={(e) => {
                   e.stopPropagation();
                   onCreateShift(day);
@@ -123,7 +123,7 @@ export function WeekView({
                 {dayShifts.map((shift) => (
                   <div
                     key={shift.id}
-                    className="text-sm p-2 rounded cursor-pointer hover:opacity-80 transition-opacity border-l-2"
+                    className="text-sm p-2 rounded cursor-pointer border-l-2"
                     style={{
                       backgroundColor: getShiftColor(shift) + '15',
                       borderLeftColor: getShiftColor(shift),

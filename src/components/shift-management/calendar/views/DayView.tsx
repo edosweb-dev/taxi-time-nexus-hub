@@ -138,7 +138,7 @@ export function DayView({
             return (
               <Card
                 key={shift.id}
-                className="cursor-pointer hover:bg-muted/5 transition-colors border-l-2 group border border-muted/30"
+                className="cursor-pointer border-l-2 group border border-muted/30"
                 style={{ borderLeftColor: getShiftColor(shift) }}
                 onClick={() => onEditShift(shift)}
               >
