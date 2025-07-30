@@ -219,7 +219,7 @@ export function DayView({
         </div>
       </div>
 
-      <div className="p-3">
+      <div className="p-6">
         {/* Shifts content */}
         {totalShifts === 0 ? (
           <Card className="border-dashed border-2">
