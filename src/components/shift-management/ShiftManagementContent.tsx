@@ -5,9 +5,11 @@ import { CalendarSidebar } from './calendar/CalendarSidebar';
 import { ShiftCreateDialog } from './dialogs/ShiftCreateDialog';
 import { ShiftEditDialog } from './dialogs/ShiftEditDialog';
 import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
+import { ShiftFilters } from './components/ShiftFilters';
+import { ShiftExportDialog } from './components/ShiftExportDialog';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Download } from 'lucide-react';
 import { Shift } from '@/components/shifts/types';
 
 interface ShiftManagementContentProps {
@@ -26,6 +28,7 @@ export function ShiftManagementContent({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [batchFormOpen, setBatchFormOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
 
@@ -49,7 +52,16 @@ export function ShiftManagementContent({
         />
       )}
 
-      <div className="h-[calc(100vh-200px)] flex">
+      <div className="h-[calc(100vh-200px)] flex gap-6">
+        {/* Sidebar with filters */}
+        <div className="w-80 flex-shrink-0 space-y-4">
+          <ShiftFilters
+            selectedUsers={selectedUsers}
+            onUsersChange={setSelectedUsers}
+            isAdminOrSocio={isAdminOrSocio}
+          />
+        </div>
+
         {/* Main Calendar - Full Width */}
         <div className="flex-1 flex flex-col min-w-0">
           <Card className="flex-1 overflow-hidden">
@@ -64,14 +76,25 @@ export function ShiftManagementContent({
                 />
                 
                 {isAdminOrSocio && (
-                  <Button 
-                    size="sm" 
-                    onClick={() => setBatchFormOpen(true)} 
-                    className="gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Inserisci turni
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm" 
+                      onClick={() => setExportDialogOpen(true)} 
+                      className="gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Esporta
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={() => setBatchFormOpen(true)} 
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Inserisci turni
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -80,7 +103,7 @@ export function ShiftManagementContent({
             <CalendarGrid
               currentDate={currentDate}
               viewMode={viewMode}
-              selectedUsers={[]} // Show all users by default
+              selectedUsers={selectedUsers}
               onCreateShift={handleCreateShift}
               onEditShift={handleEditShift}
             />
@@ -101,6 +124,12 @@ export function ShiftManagementContent({
         onOpenChange={setEditDialogOpen}
         shift={selectedShift}
         isAdminOrSocio={isAdminOrSocio}
+      />
+
+      <ShiftExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        currentDate={currentDate}
       />
     </div>
   );
