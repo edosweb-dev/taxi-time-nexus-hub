@@ -96,10 +96,9 @@ export function MonthView({
             <div
               key={dateKey}
               className={cn(
-                "border-r border-b last:border-r-0 border-muted/30 p-2 min-h-[100px] group cursor-pointer",
+                "border-r border-b last:border-r-0 border-muted/30 p-2 min-h-[100px]",
                 !isCurrentMonth && "bg-muted/5 text-muted-foreground"
               )}
-              onClick={() => onCreateShift(day)}
             >
               {/* Day number */}
               <div className="flex items-center justify-between mb-2">
@@ -112,17 +111,6 @@ export function MonthView({
                   {format(day, 'd')}
                 </span>
                 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="opacity-0 h-6 w-6 p-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCreateShift(day);
-                  }}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
               </div>
 
               {/* Shifts */}

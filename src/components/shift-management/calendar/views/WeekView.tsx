@@ -101,22 +101,8 @@ export function WeekView({
           return (
             <div
               key={dateKey}
-              className="border-r last:border-r-0 border-muted/30 p-3 min-h-[300px] group cursor-pointer"
-              onClick={() => onCreateShift(day)}
+              className="border-r last:border-r-0 border-muted/30 p-3 min-h-[300px]"
             >
-              {/* Add shift button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="opacity-0 mb-2 h-6 w-full"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCreateShift(day);
-                }}
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Aggiungi turno
-              </Button>
 
               {/* Shifts */}
               <div className="space-y-2">
