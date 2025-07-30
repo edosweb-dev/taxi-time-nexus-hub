@@ -196,7 +196,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
         />
       )}
 
-      <div className="h-[calc(100vh-180px)] flex flex-col">
+      <div className="min-h-[600px] max-h-[calc(100vh-120px)] flex flex-col">
         <Card className="flex-1 overflow-hidden">
           {/* Header Controls */}
           <div className="border-b bg-white px-6 py-4">
