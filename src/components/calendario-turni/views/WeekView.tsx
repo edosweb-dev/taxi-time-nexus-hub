@@ -30,7 +30,7 @@ export function WeekView({ currentDate, shifts, employees, onCreateShift, onEdit
 
   return (
     <div className="flex-1 overflow-auto">
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 min-h-[400px] md:min-h-[500px]">
         {weekDays.map((date, dayIndex) => {
           const dayShifts = getShiftsForDay(date);
           const isCurrentDay = isDateToday(date);

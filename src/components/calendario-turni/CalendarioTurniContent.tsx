@@ -198,12 +198,12 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
 
       <div className="min-h-[600px] max-h-[calc(100vh-120px)] flex flex-col">
         <Card className="flex-1 overflow-hidden">
-          {/* Header Controls */}
-          <div className="border-b bg-white px-6 py-4">
-            <div className="flex items-center justify-between gap-4">
-              {/* Left side - Navigation and View Mode */}
-              <div className="flex items-center gap-4">
-                {/* Navigation */}
+          {/* Header Controls - Responsive Layout */}
+          <div className="border-b bg-white px-3 md:px-6 py-3 md:py-4">
+            {/* Mobile Layout */}
+            <div className="block lg:hidden space-y-3">
+              {/* Top row - Navigation and period */}
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -212,12 +212,6 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  
-                  <div className="min-w-[250px] text-center">
-                    <h2 className="font-semibold text-lg">
-                      {formatPeriod()}
-                    </h2>
-                  </div>
                   
                   <Button
                     variant="outline"
@@ -231,109 +225,245 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                     variant="outline"
                     size="sm"
                     onClick={goToToday}
+                    className="text-xs"
                   >
                     Oggi
                   </Button>
                 </div>
-
-                {/* View Mode Selector */}
+                
+                {/* View Mode Selector - Mobile */}
                 <div className="flex items-center gap-1 border rounded-md p-1">
                   <Button
                     variant={viewMode === 'month' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('month')}
-                    className="gap-2"
+                    className="p-1"
                   >
                     <Grid3X3 className="h-4 w-4" />
-                    Mese
                   </Button>
                   <Button
                     variant={viewMode === 'week' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('week')}
-                    className="gap-2"
+                    className="p-1"
                   >
                     <Rows3 className="h-4 w-4" />
-                    Settimana
                   </Button>
                   <Button
                     variant={viewMode === 'day' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('day')}
-                    className="gap-2"
+                    className="p-1"
                   >
                     <Square className="h-4 w-4" />
-                    Giorno
                   </Button>
                 </div>
               </div>
 
-              {/* Right side - Filters and Actions */}
-              <div className="flex items-center gap-3">
-                {/* User Filter */}
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-muted-foreground" />
-                  <Select 
-                    value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
-                    onValueChange={(value) => {
-                      if (value === 'all') {
-                        setSelectedUsers([]);
-                      } else if (value === 'multiple') {
-                        // Keep current selection
-                      } else {
-                        setSelectedUsers([value]);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Filtra per utente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tutti gli utenti</SelectItem>
-                      {employees.map((user) => (
-                        <SelectItem key={user.id} value={user.id}>
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: user.color || '#6B7280' }}
-                            />
-                            {user.first_name} {user.last_name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Period title */}
+              <div className="text-center">
+                <h2 className="font-semibold text-base md:text-lg">
+                  {formatPeriod()}
+                </h2>
+              </div>
 
-                {/* Action Buttons */}
+              {/* Filters and actions */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <Select 
+                  value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
+                  onValueChange={(value) => {
+                    if (value === 'all') {
+                      setSelectedUsers([]);
+                    } else if (value === 'multiple') {
+                      // Keep current selection
+                    } else {
+                      setSelectedUsers([value]);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-40">
+                    <SelectValue placeholder="Filtra utente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tutti</SelectItem>
+                    {employees.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: user.color || '#6B7280' }}
+                          />
+                          {user.first_name} {user.last_name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
                 {isAdminOrSocio && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex gap-2">
                     <Button 
                       variant="outline"
                       size="sm" 
                       onClick={() => setInserimentoMassivoOpen(true)} 
-                      className="gap-2"
+                      className="flex-1 sm:flex-none gap-1"
                     >
                       <Users className="h-4 w-4" />
-                      Inserimento Massivo
+                      <span className="hidden sm:inline">Inserimento</span>
+                      <span className="sm:hidden">Inserimento</span>
                     </Button>
                     
                     <Button 
                       size="sm" 
                       onClick={() => handleCreateShift(currentDate)} 
-                      className="gap-2"
+                      className="flex-1 sm:flex-none gap-1"
                     >
                       <Plus className="h-4 w-4" />
-                      Nuovo Turno
+                      <span className="hidden sm:inline">Nuovo</span>
+                      <span className="sm:hidden">Nuovo</span>
                     </Button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Users Legend */}
+            {/* Desktop Layout */}
+            <div className="hidden lg:block">
+              <div className="flex items-center justify-between gap-4">
+                {/* Left side - Navigation and View Mode */}
+                <div className="flex items-center gap-4">
+                  {/* Navigation */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={navigatePrevious}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    
+                    <div className="min-w-[250px] text-center">
+                      <h2 className="font-semibold text-lg">
+                        {formatPeriod()}
+                      </h2>
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={navigateNext}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToToday}
+                    >
+                      Oggi
+                    </Button>
+                  </div>
+
+                  {/* View Mode Selector */}
+                  <div className="flex items-center gap-1 border rounded-md p-1">
+                    <Button
+                      variant={viewMode === 'month' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('month')}
+                      className="gap-2"
+                    >
+                      <Grid3X3 className="h-4 w-4" />
+                      Mese
+                    </Button>
+                    <Button
+                      variant={viewMode === 'week' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('week')}
+                      className="gap-2"
+                    >
+                      <Rows3 className="h-4 w-4" />
+                      Settimana
+                    </Button>
+                    <Button
+                      variant={viewMode === 'day' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('day')}
+                      className="gap-2"
+                    >
+                      <Square className="h-4 w-4" />
+                      Giorno
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Right side - Filters and Actions */}
+                <div className="flex items-center gap-3">
+                  {/* User Filter */}
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <Select 
+                      value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
+                      onValueChange={(value) => {
+                        if (value === 'all') {
+                          setSelectedUsers([]);
+                        } else if (value === 'multiple') {
+                          // Keep current selection
+                        } else {
+                          setSelectedUsers([value]);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Filtra per utente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tutti gli utenti</SelectItem>
+                        {employees.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: user.color || '#6B7280' }}
+                              />
+                              {user.first_name} {user.last_name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Action Buttons */}
+                  {isAdminOrSocio && (
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline"
+                        size="sm" 
+                        onClick={() => setInserimentoMassivoOpen(true)} 
+                        className="gap-2"
+                      >
+                        <Users className="h-4 w-4" />
+                        Inserimento Massivo
+                      </Button>
+                      
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleCreateShift(currentDate)} 
+                        className="gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Nuovo Turno
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Users Legend - Responsive */}
             {employees.length > 0 && (
-              <div className="mt-4 pt-4 border-t">
+              <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium text-muted-foreground">Dipendenti:</span>
@@ -343,7 +473,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                     <Badge 
                       key={user.id} 
                       variant="outline" 
-                      className="gap-2 cursor-pointer hover:bg-accent"
+                      className="gap-2 cursor-pointer hover:bg-accent text-xs"
                       onClick={() => {
                         if (selectedUsers.includes(user.id)) {
                           setSelectedUsers(selectedUsers.filter(id => id !== user.id));
@@ -360,7 +490,8 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: user.color || '#6B7280' }}
                       />
-                      {user.first_name} {user.last_name}
+                      <span className="hidden sm:inline">{user.first_name} {user.last_name}</span>
+                      <span className="sm:hidden">{user.first_name?.[0]}{user.last_name?.[0]}</span>
                     </Badge>
                   ))}
                 </div>

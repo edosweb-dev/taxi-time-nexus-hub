@@ -25,15 +25,15 @@ export function DayView({ currentDate, shifts, employees, onCreateShift, onEditS
   return (
     <div className="flex-1 overflow-auto">
       {/* Header giorno */}
-      <div className="bg-muted/30 border-b p-6">
-        <h3 className="text-xl font-semibold">
+      <div className="bg-muted/30 border-b p-3 md:p-6">
+        <h3 className="text-lg md:text-xl font-semibold">
           {format(currentDate, 'EEEE d MMMM yyyy', { locale: it })}
         </h3>
       </div>
 
       {/* Area turni */}
       <div 
-        className="p-6 cursor-pointer min-h-[400px] hover:bg-accent/20 transition-colors"
+        className="p-3 md:p-6 cursor-pointer min-h-[300px] md:min-h-[400px] hover:bg-accent/20 transition-colors"
         onClick={() => onCreateShift(currentDate)}
       >
         {dayShifts.length > 0 ? (
