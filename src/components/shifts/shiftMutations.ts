@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/sonner';
 import { ShiftFormData, Shift } from './types';
 import { createShiftApi, updateShiftApi, deleteShiftApi } from './shiftApi';
+import { supabase } from '@/lib/supabase';
 
 export const useShiftMutations = (userId?: string) => {
   const queryClient = useQueryClient();
@@ -45,11 +46,22 @@ export const useShiftMutations = (userId?: string) => {
     mutationFn: async (data: ShiftFormData) => {
       if (!userId) throw new Error('Utente non autenticato');
       
-      // Ottieni i turni esistenti dalla query cache
-      const shifts = queryClient.getQueryData<Shift[]>(['shifts']) || [];
+      // Invece di usare la query cache, facciamo una query diretta al database 
+      // per ottenere tutti i turni dell'utente nella data specifica
+      const shiftDate = data.shift_date.toISOString().split('T')[0];
+      const { data: existingShifts, error } = await supabase
+        .from('shifts')
+        .select('*')
+        .eq('user_id', data.user_id)
+        .eq('shift_date', shiftDate);
+
+      if (error) {
+        console.error('Error checking existing shifts:', error);
+        throw new Error('Errore nel controllo dei turni esistenti');
+      }
       
       // Verifica se è possibile inserire il turno
-      const validation = validateShiftRule(shifts, data);
+      const validation = validateShiftRule(existingShifts as Shift[] || [], data);
       
       if (!validation.isValid) {
         throw new Error(validation.errorMessage);
@@ -72,11 +84,22 @@ export const useShiftMutations = (userId?: string) => {
     mutationFn: async ({ id, data }: { id: string; data: ShiftFormData }) => {
       if (!userId) throw new Error('Utente non autenticato');
       
-      // Ottieni i turni esistenti dalla query cache
-      const shifts = queryClient.getQueryData<Shift[]>(['shifts']) || [];
+      // Invece di usare la query cache, facciamo una query diretta al database 
+      // per ottenere tutti i turni dell'utente nella data specifica
+      const shiftDate = data.shift_date.toISOString().split('T')[0];
+      const { data: existingShifts, error } = await supabase
+        .from('shifts')
+        .select('*')
+        .eq('user_id', data.user_id)
+        .eq('shift_date', shiftDate);
+
+      if (error) {
+        console.error('Error checking existing shifts:', error);
+        throw new Error('Errore nel controllo dei turni esistenti');
+      }
       
-      // Verifica se è possibile aggiornare il turno
-      const validation = validateShiftRule(shifts, data, id);
+      // Verifica se è possibile aggiornare il turno (escluso quello corrente)
+      const validation = validateShiftRule(existingShifts as Shift[] || [], data, id);
       
       if (!validation.isValid) {
         throw new Error(validation.errorMessage);
