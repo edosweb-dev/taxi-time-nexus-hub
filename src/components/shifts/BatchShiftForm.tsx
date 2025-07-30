@@ -18,6 +18,7 @@ import { format, addMonths, subMonths, startOfMonth, endOfMonth, getWeeksInMonth
 import { it } from 'date-fns/locale';
 import { useUsers } from '@/hooks/useUsers';
 import { Shift } from './types';
+import { supabase } from '@/lib/supabase';
 
 const batchShiftSchema = z.object({
   targetMonth: z.date(),
@@ -109,19 +110,25 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
 
   const monthWeeks = getMonthWeeks(watchTargetMonth);
 
-  const checkForConflicts = (shiftsToCreate: any[]) => {
+  const checkForConflicts = async (shiftsToCreate: any[]) => {
     const conflicts: any[] = [];
     
     for (const newShift of shiftsToCreate) {
       const shiftDateString = format(newShift.shift_date, 'yyyy-MM-dd');
       
-      // Trova turni esistenti per lo stesso utente nella stessa data
-      const existingShifts = shifts.filter(shift => 
-        shift.user_id === newShift.user_id && 
-        shift.shift_date === shiftDateString
-      );
+      // CRITICO: Usa query diretta al database invece della cache locale
+      const { data: existingShifts, error } = await supabase
+        .from('shifts')
+        .select('*')
+        .eq('user_id', newShift.user_id)
+        .eq('shift_date', shiftDateString);
+
+      if (error) {
+        console.error('Error checking existing shifts in batch:', error);
+        continue; // Salta questo controllo in caso di errore
+      }
       
-      for (const existingShift of existingShifts) {
+      for (const existingShift of existingShifts || []) {
         // Se il turno è identico, ignoralo
         const isIdentical = 
           existingShift.shift_type === newShift.shift_type &&
@@ -218,7 +225,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
       }
 
       // Check for conflicts
-      const detectedConflicts = checkForConflicts(shiftsToCreate);
+      const detectedConflicts = await checkForConflicts(shiftsToCreate);
       
       if (detectedConflicts.length > 0) {
         setConflicts(detectedConflicts);
