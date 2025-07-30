@@ -212,7 +212,7 @@ export function BatchShiftForm({ currentMonth, onClose }: BatchShiftFormProps) {
             half_day_type: data.halfDayType || null,
             start_date: null,
             end_date: null,
-            notes: `Turno batch per ${format(date, 'dd/MM/yyyy')}`,
+            notes: null,
           });
         }
       }
