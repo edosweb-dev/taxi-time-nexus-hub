@@ -148,13 +148,13 @@ export function ServicesContent() {
   const currentServizi = groupedServizi[activeTab] || [];
 
   return (
-    <div className="space-y-4">
+    <div className="w-full max-w-full space-y-4 overflow-hidden">
       {/* Header with stats */}
       <ServicesHeader servizi={servizi} />
 
       {/* Search and Filters */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
+      <div className="flex gap-2 w-full">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Cerca servizi..."
@@ -165,7 +165,7 @@ export function ServicesContent() {
         </div>
         <Sheet open={showFilters} onOpenChange={setShowFilters}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="flex-shrink-0">
               <Filter className="h-4 w-4" />
             </Button>
           </SheetTrigger>
@@ -193,7 +193,7 @@ export function ServicesContent() {
       />
 
       {/* Services List */}
-      <div className="space-y-3">
+      <div className="w-full space-y-3 overflow-hidden">
         {currentServizi.length === 0 ? (
           <EmptyState
             message="Nessun servizio trovato per i criteri selezionati."

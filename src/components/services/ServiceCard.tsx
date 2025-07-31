@@ -44,31 +44,32 @@ export function ServiceCard({
 
   return (
     <Card 
-      className="cursor-pointer hover:bg-muted/50 transition-colors"
+      className="w-full cursor-pointer hover:bg-muted/50 transition-colors overflow-hidden"
       onClick={handleCardClick}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-3 sm:p-4">
         {/* Header with ID, Badge and Company */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-sm font-medium">{displayId}</span>
-              <Badge variant={getStatusBadgeVariant(servizio.stato)}>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="font-mono text-xs sm:text-sm font-medium">{displayId}</span>
+              <Badge variant={getStatusBadgeVariant(servizio.stato)} className="text-xs">
                 {servizio.stato.replace('_', ' ').toUpperCase()}
               </Badge>
             </div>
             {servizio.numero_commessa && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
                 Commessa: {servizio.numero_commessa}
               </p>
             )}
-            <p className="text-sm font-medium">{azienda?.nome || 'Azienda non trovata'}</p>
+            <p className="text-xs sm:text-sm font-medium truncate">{azienda?.nome || 'Azienda non trovata'}</p>
           </div>
           {servizio.stato === 'da_assegnare' && (
             <Button 
               size="sm" 
               variant="secondary"
               onClick={handleAssignClick}
+              className="text-xs px-2 py-1 h-7 flex-shrink-0"
             >
               Assegna
             </Button>
@@ -80,15 +81,15 @@ export function ServiceCard({
           <div className="flex items-start gap-2">
             <MapPin className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground">Partenza</p>
-              <p className="text-sm truncate">{servizio.indirizzo_presa}</p>
+              <p className="text-xs text-muted-foreground">Partenza</p>
+              <p className="text-xs sm:text-sm truncate">{servizio.indirizzo_presa}</p>
             </div>
           </div>
           <div className="flex items-start gap-2">
             <MapPin className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground">Destinazione</p>
-              <p className="text-sm truncate">{servizio.indirizzo_destinazione}</p>
+              <p className="text-xs text-muted-foreground">Destinazione</p>
+              <p className="text-xs sm:text-sm truncate">{servizio.indirizzo_destinazione}</p>
             </div>
           </div>
         </div>
@@ -99,7 +100,7 @@ export function ServiceCard({
             <CalendarDays className="h-4 w-4 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">Data</p>
-              <p className="text-sm font-medium">
+              <p className="text-xs sm:text-sm font-medium truncate">
                 {format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}
               </p>
             </div>
@@ -108,21 +109,21 @@ export function ServiceCard({
             <Clock className="h-4 w-4 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">Orario</p>
-              <p className="text-sm font-medium">{servizio.orario_servizio}</p>
+              <p className="text-xs sm:text-sm font-medium truncate">{servizio.orario_servizio}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">Passeggeri</p>
-              <p className="text-sm font-medium">{passeggeriCount}</p>
+              <p className="text-xs sm:text-sm font-medium">{passeggeriCount}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <UserCheck className="h-4 w-4 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">Assegnato</p>
-              <p className="text-sm font-medium">
+              <p className="text-xs sm:text-sm font-medium truncate">
                 {assignedUser 
                   ? `${assignedUser.first_name} ${assignedUser.last_name}`
                   : 'Da assegnare'
