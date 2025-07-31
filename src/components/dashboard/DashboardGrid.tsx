@@ -1,21 +1,32 @@
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
+import { ResponsiveGrid } from '@/components/ui/responsive-grid';
 
 interface DashboardGridProps {
   children: ReactNode;
   className?: string;
+  cols?: {
+    mobile?: number;
+    tablet?: number;
+    desktop?: number;
+    wide?: number;
+  };
+  gap?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export function DashboardGrid({ children, className }: DashboardGridProps) {
+export function DashboardGrid({ 
+  children, 
+  className, 
+  cols = { mobile: 1, tablet: 2, desktop: 3, wide: 3 },
+  gap = 'lg'
+}: DashboardGridProps) {
   return (
-    <div className={cn(
-      // Mobile-first: stacked vertically with consistent spacing
-      "space-y-4",
-      // Desktop: responsive grid
-      "md:space-y-0 md:grid md:gap-6 md:grid-cols-2 lg:grid-cols-3",
-      className
-    )}>
+    <ResponsiveGrid
+      cols={cols}
+      gap={gap}
+      className={className}
+    >
       {children}
-    </div>
+    </ResponsiveGrid>
   );
 }

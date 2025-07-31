@@ -6,6 +6,7 @@ import { ServiziDialogManager } from '@/components/servizi/page/ServiziDialogMan
 import { ChevronRight, Home } from 'lucide-react';
 import { useServiziPage } from '@/hooks/useServiziPage';
 import { Servizio } from '@/lib/types/servizi';
+import { RESPONSIVE_SPACING } from '@/hooks/useResponsiveSpacing';
 
 export default function ServiziPage() {
   const {
@@ -49,7 +50,7 @@ export default function ServiziPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-2 md:space-y-6 h-full min-h-0">
+      <div className={RESPONSIVE_SPACING.SECTION_VERTICAL}>
         {/* Breadcrumb Navigation - Solo su desktop */}
         <div className="hidden md:block">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">

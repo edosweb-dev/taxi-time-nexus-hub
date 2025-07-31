@@ -1,13 +1,16 @@
 
 import { useEffect, useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Azienda } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { Typography } from '@/components/ui/typography';
+import { ResponsiveGrid } from '@/components/ui/responsive-grid';
+import { MobileCard } from '@/components/ui/mobile-card';
+import { RESPONSIVE_SPACING } from '@/hooks/useResponsiveSpacing';
 
 export default function ClientDashboardPage() {
   const { profile } = useAuth();
@@ -60,61 +63,76 @@ export default function ClientDashboardPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Cliente</h1>
-          <p className="text-muted-foreground">
+      <div className={RESPONSIVE_SPACING.SECTION_VERTICAL}>
+        {/* Header Section */}
+        <div className={RESPONSIVE_SPACING.ELEMENT_VERTICAL}>
+          <Typography variant="h1">Dashboard Cliente</Typography>
+          <Typography variant="body" className="text-muted-foreground">
             Benvenuto, {fullName}
             {azienda && <> · {azienda.nome}</>}
-          </p>
+          </Typography>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="border-primary/30 shadow-md">
-            <CardHeader>
-              <CardTitle>Richiedi Servizio</CardTitle>
-              <CardDescription>
+        {/* Actions Grid */}
+        <ResponsiveGrid 
+          cols={{ mobile: 1, tablet: 2, desktop: 3 }}
+          gap="lg"
+        >
+          <MobileCard 
+            interactive={true}
+            className="border-primary/30 shadow-md"
+            onClick={() => navigate('/dashboard-cliente/nuovo-servizio')}
+          >
+            <div className={RESPONSIVE_SPACING.ELEMENT_VERTICAL}>
+              <Typography variant="h3">Richiedi Servizio</Typography>
+              <Typography variant="caption">
                 Richiedi un nuovo servizio taxi
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm mb-4">Crea una nuova richiesta di servizio specificando data, orario e dettagli.</p>
-              <Button onClick={() => navigate('/dashboard-cliente/nuovo-servizio')} className="w-full">
+              </Typography>
+              <Typography variant="small" className="text-muted-foreground">
+                Crea una nuova richiesta di servizio specificando data, orario e dettagli.
+              </Typography>
+              <Button className="w-full mt-4">
                 Nuovo Servizio
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </MobileCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>I Miei Servizi</CardTitle>
-              <CardDescription>
+          <MobileCard 
+            interactive={true}
+            onClick={() => navigate('/dashboard-cliente/servizi')}
+          >
+            <div className={RESPONSIVE_SPACING.ELEMENT_VERTICAL}>
+              <Typography variant="h3">I Miei Servizi</Typography>
+              <Typography variant="caption">
                 Visualizza i tuoi servizi
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm mb-4">Accedi allo storico di tutti i servizi richiesti e al loro stato attuale.</p>
-              <Button onClick={() => navigate('/dashboard-cliente/servizi')} variant="outline" className="w-full">
+              </Typography>
+              <Typography variant="small" className="text-muted-foreground">
+                Accedi allo storico di tutti i servizi richiesti e al loro stato attuale.
+              </Typography>
+              <Button variant="outline" className="w-full mt-4">
                 Visualizza Servizi
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </MobileCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Report Mensili</CardTitle>
-              <CardDescription>
+          <MobileCard 
+            interactive={true}
+            onClick={() => navigate('/dashboard-cliente/report')}
+          >
+            <div className={RESPONSIVE_SPACING.ELEMENT_VERTICAL}>
+              <Typography variant="h3">Report Mensili</Typography>
+              <Typography variant="caption">
                 Visualizza i report
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm mb-4">Accedi ai report mensili dei servizi utilizzati e relativi costi.</p>
-              <Button onClick={() => navigate('/dashboard-cliente/report')} variant="outline" className="w-full">
+              </Typography>
+              <Typography variant="small" className="text-muted-foreground">
+                Accedi ai report mensili dei servizi utilizzati e relativi costi.
+              </Typography>
+              <Button variant="outline" className="w-full mt-4">
                 Vai ai Report
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </MobileCard>
+        </ResponsiveGrid>
       </div>
     </MainLayout>
   );
