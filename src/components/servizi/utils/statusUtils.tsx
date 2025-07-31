@@ -1,6 +1,6 @@
 
 import { StatoServizio } from "@/lib/types/servizi";
-import { Badge, BadgeProps } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Users, UserCheck, UserX, CheckCircle, XCircle } from "lucide-react";
 
 // Get badge component based on service status
@@ -60,23 +60,3 @@ export const getStatoLabel = (stato: StatoServizio): string => {
       return stato;
   }
 };
-
-// Get badge variant for service status
-export function getStatusBadgeVariant(stato: StatoServizio): BadgeProps['variant'] {
-  switch (stato) {
-    case 'da_assegnare':
-      return 'destructive';
-    case 'assegnato':
-      return 'secondary';
-    case 'completato':
-      return 'default';
-    case 'consuntivato':
-      return 'outline';
-    case 'annullato':
-      return 'destructive';
-    case 'non_accettato':
-      return 'destructive';
-    default:
-      return 'secondary';
-  }
-}
