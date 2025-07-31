@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { AziendaList } from '@/components/aziende/AziendaList';
+import { MobileAziendaList } from '@/components/aziende/mobile-first/MobileAziendaList';
 import { AziendaSheet } from '@/components/aziende/AziendaSheet';
 import { ChevronRight, Home } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
@@ -80,26 +80,24 @@ export default function AziendePage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        {/* Header con breadcrumb */}
-        <div className="space-y-4">
+      <div className="space-y-4">
+        {/* Header mobile-first */}
+        <div className="space-y-3">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
             <Home className="h-4 w-4" />
             <ChevronRight className="h-4 w-4" />
             <span className="font-medium text-foreground">Aziende</span>
           </nav>
           
-          <div className="flex items-center justify-between">
-            <div className="space-y-3">
-              <h1 className="page-title">Aziende</h1>
-              <p className="text-description">
-                Gestisci le aziende clienti
-              </p>
-            </div>
+          <div>
+            <h1 className="page-title">Aziende</h1>
+            <p className="text-description hidden sm:block">
+              Gestisci le aziende clienti
+            </p>
           </div>
         </div>
 
-        <AziendaList 
+        <MobileAziendaList 
           aziende={aziende}
           onEdit={handleEditAzienda}
           onDelete={handleDeleteAzienda}
