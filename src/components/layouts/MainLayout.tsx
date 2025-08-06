@@ -44,11 +44,11 @@ export function MainLayout({ children }: PropsWithChildren) {
               <AppSidebarHeader />
             </SidebarHeader>
             
-            <SidebarContent className="flex-1 overflow-y-auto relative z-10 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+            <SidebarContent className="flex-1 overflow-y-auto relative z-10 py-1">
               <SidebarNavLinks />
             </SidebarContent>
             
-            <SidebarFooter className="p-4 flex-shrink-0 relative z-10">
+            <SidebarFooter className="p-3 flex-shrink-0 relative z-10">
               <SidebarFooterContent />
             </SidebarFooter>
           </div>

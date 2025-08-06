@@ -103,23 +103,21 @@ export function SidebarNavLinks() {
     profile?.role && item.roles.includes(profile.role)
   );
 
-  // Group items for better organization
+  // Group items for better organization (optimized for no scroll)
   const groupedItems = {
-    main: filteredNavItems.filter(item => ['Dashboard', 'Servizi'].includes(item.title)),
-    management: filteredNavItems.filter(item => ['Aziende', 'Utenti', 'Veicoli', 'Conducenti Esterni'].includes(item.title)),
-    operations: filteredNavItems.filter(item => ['Turni', 'Feedback'].includes(item.title)),
-    finance: filteredNavItems.filter(item => ['Stipendi', 'Spese Aziendali'].includes(item.title)),
-    system: filteredNavItems.filter(item => ['Impostazioni'].includes(item.title))
+    main: filteredNavItems.filter(item => ['Dashboard', 'Servizi', 'Turni'].includes(item.title)),
+    management: filteredNavItems.filter(item => ['Aziende', 'Utenti', 'Veicoli', 'Conducenti Esterni', 'Feedback'].includes(item.title)),
+    finance: filteredNavItems.filter(item => ['Stipendi', 'Spese Aziendali', 'Impostazioni'].includes(item.title))
   };
 
-  const renderNavGroup = (title: string, items: any[], showDivider = true) => {
+  const renderNavGroup = (title: string, items: any[], isLast = false) => {
     if (items.length === 0) return null;
     
     return (
-      <div key={title} className="space-y-1">
+      <div key={title} className="space-y-0.5">
         {state !== "collapsed" && (
-          <div className="px-3 py-2">
-            <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">{title}</span>
+          <div className="px-3 py-1">
+            <span className="text-xs font-medium text-white/50 uppercase tracking-wide">{title}</span>
           </div>
         )}
         {items.map((item) => {
@@ -133,48 +131,43 @@ export function SidebarNavLinks() {
               className={cn(
                 "flex items-center text-sm font-medium rounded-lg transition-all duration-200 mx-2 group relative overflow-hidden",
                 isActive
-                  ? "bg-white text-primary shadow-lg scale-105"
-                  : "text-white/80 hover:text-white hover:bg-white/15 hover:scale-105"
+                  ? "bg-white text-primary shadow-md"
+                  : "text-white/80 hover:text-white hover:bg-white/15"
               )}
             >
               <div className={cn(
-                "flex items-center w-full px-3 py-3 relative z-10",
+                "flex items-center w-full px-3 py-2 relative z-10",
                 state === "collapsed" ? "justify-center" : ""
               )}>
                 <Icon className={cn(
-                  "h-5 w-5 transition-all duration-200",
-                  isActive ? "text-primary" : "text-white/80 group-hover:text-white group-hover:scale-110",
+                  "h-4 w-4 transition-all duration-200 flex-shrink-0",
+                  isActive ? "text-primary" : "text-white/80 group-hover:text-white",
                   state !== "collapsed" && "mr-3"
                 )} />
                 {state !== "collapsed" && (
-                  <span className="font-medium">{item.title}</span>
+                  <span className="font-medium text-sm truncate">{item.title}</span>
                 )}
                 {state !== "collapsed" && isActive && (
-                  <div className="ml-auto">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                  <div className="ml-auto flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   </div>
                 )}
               </div>
-              {isActive && (
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/30 opacity-20 group-hover:opacity-30 transition-opacity duration-200"></div>
-              )}
             </Link>
           );
         })}
-        {showDivider && state !== "collapsed" && items.length > 0 && (
-          <div className="mx-4 my-3 h-px bg-white/10"></div>
+        {!isLast && state !== "collapsed" && items.length > 0 && (
+          <div className="mx-4 my-2 h-px bg-white/10"></div>
         )}
       </div>
     );
   };
 
   return (
-    <div className="space-y-2 py-2">
+    <div className="space-y-1 py-1 px-1">
       {renderNavGroup("Principale", groupedItems.main)}
       {renderNavGroup("Gestione", groupedItems.management)}
-      {renderNavGroup("Operazioni", groupedItems.operations)}
-      {renderNavGroup("Finanza", groupedItems.finance)}
-      {renderNavGroup("Sistema", groupedItems.system, false)}
+      {renderNavGroup("Sistema", groupedItems.finance, true)}
     </div>
   );
 }
