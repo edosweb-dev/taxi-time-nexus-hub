@@ -28,21 +28,27 @@ export function MainLayout({ children }: PropsWithChildren) {
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden">
         <Sidebar 
-          className="border-r border-border text-white h-full flex-shrink-0" 
+          className="border-r border-border/50 text-white h-full flex-shrink-0 shadow-xl" 
           collapsible={isMobile ? "offcanvas" : "icon"}
           variant="sidebar"
         >
-          {/* This container will hold the actual sidebar content with primary background */}
-          <div className="flex flex-col h-full bg-primary">
-            <SidebarHeader className="h-14 flex items-center px-4 flex-shrink-0">
+          {/* Enhanced sidebar with gradient background and modern styling */}
+          <div className="flex flex-col h-full bg-gradient-to-b from-primary to-primary/90 backdrop-blur-sm relative overflow-hidden">
+            {/* Decorative background pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div className="absolute bottom-0 right-0 w-full h-32 bg-gradient-to-tl from-white/10 to-transparent"></div>
+            </div>
+            
+            <SidebarHeader className="flex-shrink-0 relative z-10">
               <AppSidebarHeader />
             </SidebarHeader>
             
-            <SidebarContent className="p-2 flex-1 overflow-y-auto">
+            <SidebarContent className="flex-1 overflow-y-auto relative z-10 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
               <SidebarNavLinks />
             </SidebarContent>
             
-            <SidebarFooter className="p-4 border-t border-white/20 flex-shrink-0">
+            <SidebarFooter className="p-4 flex-shrink-0 relative z-10">
               <SidebarFooterContent />
             </SidebarFooter>
           </div>
