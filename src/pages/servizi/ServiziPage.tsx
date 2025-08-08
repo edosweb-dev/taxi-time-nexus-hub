@@ -62,20 +62,23 @@ export default function ServiziPage() {
         </div>
 
         {isMobile ? (
-          <MobileFirstServiziContent 
-            servizi={servizi}
-            users={users}
-            isLoading={isLoading}
-            error={error}
-            isAdminOrSocio={isAdminOrSocio}
-            onNavigateToDetail={handleNavigateToDetail}
-            onNavigateToNewServizio={handleNavigateToNewServizio}
-            onSelectServizio={handleSelectServizio}
-            onCompleta={handleCompleta}
-            onFirma={handleFirma}
-            allServizi={servizi}
-          />
+          <div className="-mx-5 sm:-mx-4 md:mx-0">
+            <MobileFirstServiziContent 
+              servizi={servizi}
+              users={users}
+              isLoading={isLoading}
+              error={error}
+              isAdminOrSocio={isAdminOrSocio}
+              onNavigateToDetail={handleNavigateToDetail}
+              onNavigateToNewServizio={handleNavigateToNewServizio}
+              onSelectServizio={handleSelectServizio}
+              onCompleta={handleCompleta}
+              onFirma={handleFirma}
+              allServizi={servizi}
+            />
+          </div>
         ) : (
+
           <ServiziContent 
             servizi={servizi}
             users={users}
