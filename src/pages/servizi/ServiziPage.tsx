@@ -7,6 +7,7 @@ import { ChevronRight, Home } from 'lucide-react';
 import { useServiziPage } from '@/hooks/useServiziPage';
 import { Servizio } from '@/lib/types/servizi';
 import { RESPONSIVE_SPACING } from '@/hooks/useResponsiveSpacing';
+import { MobileFirstServiziContent } from '@/components/servizi/mobile-first/MobileFirstServiziContent';
 
 export default function ServiziPage() {
   const {
@@ -50,7 +51,7 @@ export default function ServiziPage() {
 
   return (
     <MainLayout>
-      <div className={RESPONSIVE_SPACING.SECTION_VERTICAL}>
+      <div className={`${RESPONSIVE_SPACING.SECTION_VERTICAL} pb-20 md:pb-0`}>
         {/* Breadcrumb Navigation - Solo su desktop */}
         <div className="hidden md:block">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -60,20 +61,37 @@ export default function ServiziPage() {
           </nav>
         </div>
 
-        <ServiziContent 
-          servizi={servizi}
-          users={users}
-          isLoading={isLoading}
-          error={error}
-          isAdminOrSocio={isAdminOrSocio}
-          isMobile={isMobile}
-          onNavigateToDetail={handleNavigateToDetail}
-          onNavigateToNewServizio={handleNavigateToNewServizio}
-          onSelectServizio={handleSelectServizio}
-          onCompleta={handleCompleta}
-          onFirma={handleFirma}
-          allServizi={servizi}
-        />
+        {isMobile ? (
+          <MobileFirstServiziContent 
+            servizi={servizi}
+            users={users}
+            isLoading={isLoading}
+            error={error}
+            isAdminOrSocio={isAdminOrSocio}
+            onNavigateToDetail={handleNavigateToDetail}
+            onNavigateToNewServizio={handleNavigateToNewServizio}
+            onSelectServizio={handleSelectServizio}
+            onCompleta={handleCompleta}
+            onFirma={handleFirma}
+            allServizi={servizi}
+          />
+        ) : (
+          <ServiziContent 
+            servizi={servizi}
+            users={users}
+            isLoading={isLoading}
+            error={error}
+            isAdminOrSocio={isAdminOrSocio}
+            isMobile={isMobile}
+            onNavigateToDetail={handleNavigateToDetail}
+            onNavigateToNewServizio={handleNavigateToNewServizio}
+            onSelectServizio={handleSelectServizio}
+            onCompleta={handleCompleta}
+            onFirma={handleFirma}
+            allServizi={servizi}
+          />
+        )}
+
         
         <ServiziDialogManager
           onRefetch={refetch}
