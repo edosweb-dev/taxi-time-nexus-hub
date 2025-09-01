@@ -26,8 +26,9 @@ const inserimentoMassivoSchema = z.object({
   endTime: z.string().optional(),
   halfDayType: z.enum(['morning', 'afternoon']).optional(),
   weekdays: z.array(z.number()).min(1, 'Seleziona almeno un giorno'),
-  periodType: z.enum(['week', 'month', 'workdays']),
+  periodType: z.enum(['week', 'month', 'custom_weeks', 'workdays']),
   weekNumber: z.number().optional(),
+  selectedWeeks: z.array(z.number()).optional(),
 });
 
 type InserimentoMassivoFormValues = z.infer<typeof inserimentoMassivoSchema>;
@@ -69,6 +70,7 @@ export function InserimentoMassivoDialog({
       targetType: 'all',
       weekdays: [],
       periodType: 'month',
+      selectedWeeks: [],
     },
   });
 
@@ -108,6 +110,12 @@ export function InserimentoMassivoDialog({
         return;
       }
 
+      // Validate custom weeks selection
+      if (data.periodType === 'custom_weeks' && (!data.selectedWeeks || data.selectedWeeks.length === 0)) {
+        toast.error('Seleziona almeno una settimana');
+        return;
+      }
+
       // Get target users
       const targetUsers = data.targetType === 'all' 
         ? (allUsers?.filter(user => ['admin', 'socio', 'dipendente'].includes(user.role)) || []).map(user => user.id)
@@ -116,12 +124,33 @@ export function InserimentoMassivoDialog({
       console.log(`👥 [INSERIMENTO MASSIVO] Utenti target: ${targetUsers.length}`);
 
       // Calculate dates using optimized utility
-      const datesToApply = calculateBatchDates({
-        targetMonth: data.targetMonth,
-        periodType: data.periodType === 'workdays' ? 'month' : data.periodType,
-        weekdays: data.weekdays,
-        weekNumber: data.weekNumber
-      });
+      let datesToApply: Date[] = [];
+      
+      if (data.periodType === 'custom_weeks' && data.selectedWeeks && data.selectedWeeks.length > 0) {
+        // Calculate dates for multiple selected weeks
+        for (const weekNumber of data.selectedWeeks) {
+          const weekDates = calculateBatchDates({
+            targetMonth: data.targetMonth,
+            periodType: 'week',
+            weekdays: data.weekdays,
+            weekNumber: weekNumber
+          });
+          datesToApply.push(...weekDates);
+        }
+        // Remove duplicates
+        datesToApply = Array.from(new Set(datesToApply.map(d => d.getTime()))).map(t => new Date(t));
+      } else {
+        const validPeriodType = data.periodType === 'workdays' ? 'month' : 
+                              data.periodType === 'custom_weeks' ? 'month' : 
+                              data.periodType;
+        
+        datesToApply = calculateBatchDates({
+          targetMonth: data.targetMonth,
+          periodType: validPeriodType as 'week' | 'month',
+          weekdays: data.weekdays,
+          weekNumber: data.weekNumber
+        });
+      }
 
       if (datesToApply.length === 0) {
         toast.error('Nessuna data valida trovata per i giorni selezionati');
@@ -456,6 +485,127 @@ export function InserimentoMassivoDialog({
                             <SelectContent>
                               <SelectItem value="morning">Mattina</SelectItem>
                               <SelectItem value="afternoon">Pomeriggio</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Period Selection */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-base">Periodo di Applicazione</h3>
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="periodType"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="grid grid-cols-1 gap-4"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="month" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Tutto il mese
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="custom_weeks" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Settimane specifiche
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="week" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Una settimana specifica
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Multiple weeks selection */}
+                {watchPeriodType === 'custom_weeks' && (
+                  <div className="pl-6 border-l-2 border-muted">
+                    <FormField
+                      control={form.control}
+                      name="selectedWeeks"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Seleziona le settimane</FormLabel>
+                          <div className="space-y-2">
+                            {monthWeeks.map((week) => (
+                              <FormItem
+                                key={week.number}
+                                className="flex flex-row items-start space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(week.number)}
+                                    onCheckedChange={(checked) => {
+                                      const current = field.value || [];
+                                      if (checked) {
+                                        field.onChange([...current, week.number]);
+                                      } else {
+                                        field.onChange(current.filter(item => item !== week.number));
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  {week.label}
+                                </FormLabel>
+                              </FormItem>
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {/* Single week selection */}
+                {watchPeriodType === 'week' && (
+                  <div className="pl-6 border-l-2 border-muted">
+                    <FormField
+                      control={form.control}
+                      name="weekNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Seleziona settimana</FormLabel>
+                          <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona settimana" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {monthWeeks.map((week) => (
+                                <SelectItem key={week.number} value={week.number.toString()}>
+                                  {week.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
