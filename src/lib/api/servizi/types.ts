@@ -28,6 +28,7 @@ export interface ServizioInput {
 export interface CreateServizioRequest {
   servizio: ServizioInput;
   passeggeri: PasseggeroFormData[];
+  email_notifiche?: string[];
 }
 
 export interface UpdateServizioRequest {

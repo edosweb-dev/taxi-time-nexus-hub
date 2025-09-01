@@ -66,7 +66,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       pec: azienda?.pec || '',
       firma_digitale_attiva: azienda?.firma_digitale_attiva || false,
       provvigione: azienda?.provvigione || false,
-      provvigione_tipo: azienda?.provvigione_tipo || 'fisso',
+      provvigione_tipo: azienda?.provvigione_tipo as 'fisso' | 'percentuale' || 'fisso',
       provvigione_valore: azienda?.provvigione_valore || 0,
     },
   });

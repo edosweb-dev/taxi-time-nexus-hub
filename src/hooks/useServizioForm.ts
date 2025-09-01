@@ -25,6 +25,7 @@ export const servizioFormSchema = z.object({
   ore_effettive: z.number().min(0).optional(),
   ore_fatturate: z.number().min(0).optional(),
   applica_provvigione: z.boolean().default(false),
+  email_notifiche: z.array(z.string()).default([]),
   passeggeri: z.array(
     z.object({
       nome_cognome: z.string().min(1, "Nome e cognome obbligatorio"),
@@ -59,6 +60,7 @@ export function useServizioForm() {
       ore_effettive: undefined,
       ore_fatturate: undefined,
       applica_provvigione: false,
+      email_notifiche: [],
       passeggeri: [],
     },
   });

@@ -11,6 +11,7 @@ import { VeicoloSelectField } from "@/components/veicoli/VeicoloSelectField";
 import { useImpostazioni } from "@/hooks/useImpostazioni";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProvvigioneServizioField } from "./ProvvigioneServizioField";
+import { NotificheEmailField } from "./NotificheEmailField";
 
 export function ServizioDetailsForm() {
   const { control } = useFormContext<ServizioFormData>();
@@ -261,6 +262,9 @@ export function ServizioDetailsForm() {
 
         {/* Section: Commission */}
         <ProvvigioneServizioField />
+
+        {/* Section: Email Notifications */}
+        <NotificheEmailField />
 
         {/* Section: Notes */}
         <div className="space-y-4">

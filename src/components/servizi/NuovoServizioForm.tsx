@@ -43,6 +43,7 @@ export function NuovoServizioForm() {
           ore_fatturate: values.ore_fatturate,
           applica_provvigione: values.applica_provvigione,
         },
+        email_notifiche: values.email_notifiche || [],
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,
           // Se non usa indirizzo personalizzato, i campi personalizzati saranno null

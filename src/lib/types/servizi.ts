@@ -90,6 +90,7 @@ export interface ServizioFormData {
   ore_effettive?: number;
   ore_fatturate?: number;
   applica_provvigione?: boolean;
+  email_notifiche?: string[];
   passeggeri: PasseggeroFormData[];
 }
 

@@ -115,6 +115,23 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
       }
     }
 
+    // 3. Handle email notifications
+    if (data.email_notifiche && data.email_notifiche.length > 0) {
+      const emailNotificheData = data.email_notifiche.map(emailId => ({
+        servizio_id: servizio.id,
+        email_notifica_id: emailId
+      }));
+
+      const { error: emailError } = await supabase
+        .from('servizi_email_notifiche')
+        .insert(emailNotificheData);
+
+      if (emailError) {
+        console.error('[createServizio] Error creating email notifications:', emailError);
+        // Non blocchiamo la creazione del servizio per questo errore
+      }
+    }
+
     return { servizio, error: null };
   } catch (error: any) {
     console.error('[createServizio] Unexpected error:', error);

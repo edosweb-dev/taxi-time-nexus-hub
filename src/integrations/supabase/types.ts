@@ -178,6 +178,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_notifiche: {
+        Row: {
+          attivo: boolean
+          created_at: string
+          created_by: string
+          email: string
+          id: string
+          nome: string
+          note: string | null
+        }
+        Insert: {
+          attivo?: boolean
+          created_at?: string
+          created_by: string
+          email: string
+          id?: string
+          nome: string
+          note?: string | null
+        }
+        Update: {
+          attivo?: boolean
+          created_at?: string
+          created_by?: string
+          email?: string
+          id?: string
+          nome?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           admin_comment: string | null
@@ -700,6 +730,42 @@ export type Database = {
             columns: ["veicolo_id"]
             isOneToOne: false
             referencedRelation: "veicoli"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      servizi_email_notifiche: {
+        Row: {
+          created_at: string
+          email_notifica_id: string
+          id: string
+          servizio_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifica_id: string
+          id?: string
+          servizio_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifica_id?: string
+          id?: string
+          servizio_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servizi_email_notifiche_email_notifica_id_fkey"
+            columns: ["email_notifica_id"]
+            isOneToOne: false
+            referencedRelation: "email_notifiche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servizi_email_notifiche_servizio_id_fkey"
+            columns: ["servizio_id"]
+            isOneToOne: false
+            referencedRelation: "servizi"
             referencedColumns: ["id"]
           },
         ]
