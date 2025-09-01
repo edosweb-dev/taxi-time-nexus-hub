@@ -26,11 +26,25 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
 
     // Check if we have any profile data to update
     if (Object.keys(profileData).length > 0) {
+      // First verify the user exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, color')
+        .eq('id', id)
+        .single();
+      
+      if (checkError || !existingUser) {
+        console.error("[updateUser] User not found:", id, checkError);
+        return { success: false, error: "User not found" };
+      }
+      
+      console.log("[updateUser] User exists, current data:", existingUser);
+      console.log("[updateUser] Attempting to update user ID:", id);
       const { data: updatedProfile, error: profileError } = await supabase
         .from('profiles')
         .update(profileData)
         .eq('id', id)
-        .select();
+        .select('*'); // Make sure to select all fields to verify update
 
       if (profileError) {
         console.error("[updateUser] Profile update error:", profileError);
@@ -39,6 +53,12 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
       }
 
       console.log("[updateUser] Profile updated successfully:", updatedProfile);
+      
+      // Check if any rows were actually updated
+      if (!updatedProfile || updatedProfile.length === 0) {
+        console.error("[updateUser] No rows were updated! User ID might not exist:", id);
+        return { success: false, error: "No user found with the provided ID" };
+      }
     } else {
       console.log("[updateUser] No profile data to update");
     }
