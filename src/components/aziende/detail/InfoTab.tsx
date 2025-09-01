@@ -275,7 +275,7 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
             </div>
           ) : (
             <div className="space-y-2">
-              {referenti.slice(0, 3).map((referente) => (
+              {referenti.map((referente) => (
                 <div 
                   key={referente.id} 
                   className="flex items-center gap-3 p-3 rounded-lg border bg-card/50 group hover:bg-accent/50 transition-colors cursor-pointer"
@@ -323,14 +323,6 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
                   </Badge>
                 </div>
               ))}
-              
-              {referenti.length > 3 && (
-                <div className="text-center pt-2">
-                  <p className="text-sm text-muted-foreground">
-                    Altri {referenti.length - 3} referenti non mostrati
-                  </p>
-                </div>
-              )}
             </div>
           )}
         </CardContent>
