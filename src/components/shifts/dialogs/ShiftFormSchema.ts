@@ -9,7 +9,7 @@ export const shiftFormSchema = z.object({
   shift_date: z.date({
     required_error: "Seleziona una data"
   }),
-  shift_type: z.enum(['specific_hours', 'full_day', 'half_day', 'sick_leave', 'unavailable'], {
+  shift_type: z.enum(['specific_hours', 'full_day', 'half_day', 'sick_leave', 'unavailable', 'extra'], {
     required_error: "Seleziona un tipo di turno"
   }),
   start_time: z.string().optional().nullable(),

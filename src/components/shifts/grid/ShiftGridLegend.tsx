@@ -6,7 +6,8 @@ export const shiftTypeColors = {
   'half_day': 'bg-green-500 text-white', 
   'specific_hours': 'bg-orange-500 text-white',
   'sick_leave': 'bg-red-500 text-white',
-  'unavailable': 'bg-gray-500 text-white'
+  'unavailable': 'bg-gray-500 text-white',
+  'extra': 'bg-purple-500 text-white'
 };
 
 export const shiftTypeLabels = {
@@ -14,7 +15,8 @@ export const shiftTypeLabels = {
   'half_day': 'Mezza Giornata',
   'specific_hours': 'Orario Specifico',
   'sick_leave': 'Malattia',
-  'unavailable': 'Non Disponibile'
+  'unavailable': 'Non Disponibile',
+  'extra': 'Extra'
 };
 
 export function ShiftGridLegend() {
@@ -31,7 +33,8 @@ export function ShiftGridLegend() {
            type === 'half_day' ? 'M/P' :
            type === 'specific_hours' ? 'Ore' :
            type === 'sick_leave' ? 'ML' :
-           type === 'unavailable' ? 'ND' : type}
+           type === 'unavailable' ? 'ND' :
+           type === 'extra' ? 'EX' : type}
         </Badge>
       ))}
     </div>

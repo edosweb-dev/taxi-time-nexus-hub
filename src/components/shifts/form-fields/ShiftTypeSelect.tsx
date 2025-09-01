@@ -46,6 +46,7 @@ export function ShiftTypeSelect({ control, setValue }: ShiftTypeSelectProps) {
               <SelectItem value="half_day">Mezza giornata</SelectItem>
               <SelectItem value="sick_leave">Malattia</SelectItem>
               <SelectItem value="unavailable">Non disponibile</SelectItem>
+              <SelectItem value="extra">Extra</SelectItem>
             </SelectContent>
           </Select>
           <FormMessage />

@@ -1,6 +1,6 @@
 import { Profile } from '@/lib/types';
 
-export type ShiftType = 'specific_hours' | 'full_day' | 'half_day' | 'sick_leave' | 'unavailable';
+export type ShiftType = 'specific_hours' | 'full_day' | 'half_day' | 'sick_leave' | 'unavailable' | 'extra';
 export type HalfDayType = 'morning' | 'afternoon' | null;
 
 export interface Shift {
