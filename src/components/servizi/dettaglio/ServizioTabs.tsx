@@ -11,6 +11,7 @@ interface ServizioTabsProps {
   activeTab: string; // Keep for compatibility
   onTabChange: (value: string) => void; // Keep for compatibility
   getAziendaName: (aziendaId?: string) => string;
+  getAzienda?: (aziendaId?: string) => any;
   getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
   firmaDigitaleAttiva: boolean;
@@ -21,6 +22,7 @@ export function ServizioTabs({
   passeggeri,
   users,
   getAziendaName,
+  getAzienda,
   getUserName,
   formatCurrency,
   firmaDigitaleAttiva,
@@ -33,6 +35,7 @@ export function ServizioTabs({
           passeggeri={passeggeri}
           users={users}
           getAziendaName={getAziendaName}
+          getAzienda={getAzienda}
           getUserName={getUserName}
           formatCurrency={formatCurrency}
           firmaDigitaleAttiva={firmaDigitaleAttiva}

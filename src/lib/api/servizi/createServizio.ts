@@ -42,6 +42,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         veicolo_id: data.servizio.veicolo_id,
         ore_effettive: data.servizio.ore_effettive,
         ore_fatturate: data.servizio.ore_fatturate,
+        applica_provvigione: data.servizio.applica_provvigione,
         created_by: userId
       })
       .select()

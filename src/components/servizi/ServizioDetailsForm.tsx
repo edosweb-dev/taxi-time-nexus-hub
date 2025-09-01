@@ -10,6 +10,7 @@ import { ReferenteSelectField } from "./ReferenteSelectField";
 import { VeicoloSelectField } from "@/components/veicoli/VeicoloSelectField";
 import { useImpostazioni } from "@/hooks/useImpostazioni";
 import { useAuth } from "@/contexts/AuthContext";
+import { ProvvigioneServizioField } from "./ProvvigioneServizioField";
 
 export function ServizioDetailsForm() {
   const { control } = useFormContext<ServizioFormData>();
@@ -257,6 +258,9 @@ export function ServizioDetailsForm() {
             <VeicoloSelectField />
           </div>
         </div>
+
+        {/* Section: Commission */}
+        <ProvvigioneServizioField />
 
         {/* Section: Notes */}
         <div className="space-y-4">

@@ -41,6 +41,7 @@ export function NuovoServizioForm() {
           veicolo_id: values.veicolo_id,
           ore_effettive: values.ore_effettive,
           ore_fatturate: values.ore_fatturate,
+          applica_provvigione: values.applica_provvigione,
         },
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,

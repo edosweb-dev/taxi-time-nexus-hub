@@ -36,6 +36,7 @@ export interface Servizio {
   ore_fatturate?: number;
   consegna_contanti_a?: string;
   veicolo_id?: string;
+  applica_provvigione?: boolean;
 }
 
 // Passeggero ora collegato ad azienda e referente (senza più i dettagli specifici del servizio)
@@ -88,6 +89,7 @@ export interface ServizioFormData {
   veicolo_id?: string;
   ore_effettive?: number;
   ore_fatturate?: number;
+  applica_provvigione?: boolean;
   passeggeri: PasseggeroFormData[];
 }
 

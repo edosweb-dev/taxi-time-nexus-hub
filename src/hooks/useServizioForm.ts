@@ -24,6 +24,7 @@ export const servizioFormSchema = z.object({
   veicolo_id: z.string().optional(),
   ore_effettive: z.number().min(0).optional(),
   ore_fatturate: z.number().min(0).optional(),
+  applica_provvigione: z.boolean().default(false),
   passeggeri: z.array(
     z.object({
       nome_cognome: z.string().min(1, "Nome e cognome obbligatorio"),
@@ -57,6 +58,7 @@ export function useServizioForm() {
       veicolo_id: "",
       ore_effettive: undefined,
       ore_fatturate: undefined,
+      applica_provvigione: false,
       passeggeri: [],
     },
   });

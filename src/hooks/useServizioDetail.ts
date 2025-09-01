@@ -40,6 +40,12 @@ export function useServizioDetail(id?: string) {
     const azienda = aziende.find(a => a.id === aziendaId);
     return azienda ? azienda.nome : "Azienda sconosciuta";
   };
+
+  // Function to get azienda object
+  const getAzienda = (aziendaId?: string) => {
+    if (!aziendaId) return undefined;
+    return aziende.find(a => a.id === aziendaId);
+  };
   
   // Function to get user name
   const getUserName = (users: any[], userId?: string) => {
@@ -65,6 +71,7 @@ export function useServizioDetail(id?: string) {
     canBeCompleted,
     canBeConsuntivato,
     getAziendaName,
+    getAzienda,
     getUserName,
     servizioIndex,
     refetch,

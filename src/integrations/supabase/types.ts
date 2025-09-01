@@ -566,6 +566,7 @@ export type Database = {
       }
       servizi: {
         Row: {
+          applica_provvigione: boolean | null
           assegnato_a: string | null
           azienda_id: string
           citta_destinazione: string | null
@@ -599,6 +600,7 @@ export type Database = {
           veicolo_id: string | null
         }
         Insert: {
+          applica_provvigione?: boolean | null
           assegnato_a?: string | null
           azienda_id: string
           citta_destinazione?: string | null
@@ -632,6 +634,7 @@ export type Database = {
           veicolo_id?: string | null
         }
         Update: {
+          applica_provvigione?: boolean | null
           assegnato_a?: string | null
           azienda_id?: string
           citta_destinazione?: string | null

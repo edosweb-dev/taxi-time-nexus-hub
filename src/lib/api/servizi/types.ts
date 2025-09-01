@@ -16,6 +16,7 @@ export interface ServizioInput {
   veicolo_id?: string;
   ore_effettive?: number;
   ore_fatturate?: number;
+  applica_provvigione?: boolean;
   assegnato_a?: string;
   conducente_esterno?: boolean;
   conducente_esterno_nome?: string;

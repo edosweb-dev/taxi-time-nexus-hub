@@ -17,6 +17,7 @@ interface ServizioInfoTabProps {
   passeggeri: any[];
   users: Profile[];
   getAziendaName: (aziendaId?: string) => string;
+  getAzienda?: (aziendaId?: string) => any;
   getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
   firmaDigitaleAttiva: boolean;
@@ -27,6 +28,7 @@ export function ServizioInfoTab({
   passeggeri,
   users,
   getAziendaName,
+  getAzienda,
   getUserName,
   formatCurrency,
   firmaDigitaleAttiva,
@@ -105,6 +107,7 @@ export function ServizioInfoTab({
         <FinancialSection 
           servizio={servizio}
           users={users}
+          azienda={getAzienda?.(servizio.azienda_id)}
           getUserName={getUserName}
           formatCurrency={formatCurrency}
         />
