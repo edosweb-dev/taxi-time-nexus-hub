@@ -75,9 +75,9 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
   const deleteShift = async (id: string) => {
     try {
       await deleteShiftMutation.mutateAsync(id);
-      // Return removed to match Promise<void> return type
     } catch (error) {
-      // L'errore è già gestito nella mutation
+      console.error('Error in deleteShift:', error);
+      throw error;
     }
   };
 

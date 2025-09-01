@@ -39,7 +39,7 @@ type ViewMode = 'month' | 'week' | 'day';
 
 export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniContentProps) {
   const { users } = useUsers();
-  const { shifts, isLoading, loadShifts } = useShifts();
+  const { shifts, isLoading, loadShifts, deleteShift } = useShifts();
   const navigate = useNavigate();
   
   // State
@@ -158,8 +158,12 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
   };
 
   const handleDeleteShift = async (shiftId: string) => {
-    // The actual delete logic will be handled by the mutation in the dialog
-    setQuickViewDialogOpen(false);
+    try {
+      await deleteShift(shiftId);
+      setQuickViewDialogOpen(false);
+    } catch (error) {
+      console.error('Error deleting shift:', error);
+    }
   };
 
   const handleStartProgress = (total: number) => {

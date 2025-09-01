@@ -178,5 +178,11 @@ export const deleteShiftApi = async (id: string) => {
   }
 
   console.log('Shift deleted successfully:', data);
-  return data;
+  
+  if (!data || data.length === 0) {
+    console.warn('No shift was deleted - possible permission issue or shift not found');
+    throw new Error('Turno non trovato o permessi insufficienti per eliminarlo');
+  }
+  
+  return data[0];
 };
