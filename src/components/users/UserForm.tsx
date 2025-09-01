@@ -79,19 +79,21 @@ export function UserForm({
       console.log(`Updating role: ${user?.role} -> ${values.role}`);
       
       // Includi altre modifiche se vengono fornite
-      if (values.first_name) {
+      if (values.first_name && values.first_name !== user?.first_name) {
         userData.first_name = values.first_name.trim();
       }
       
-      if (values.last_name) {
+      if (values.last_name && values.last_name !== user?.last_name) {
         userData.last_name = values.last_name.trim();
       }
       
-      if (values.telefono !== undefined) {
-        userData.telefono = values.telefono.trim() || undefined;
+      if (values.telefono !== user?.telefono) {
+        userData.telefono = values.telefono?.trim() || undefined;
       }
       
-      if (values.color !== undefined) {
+      // Always include color if it's different from current value
+      if (values.color !== user?.color) {
+        console.log("[UserForm] Color being sent:", values.color, "Previous:", user?.color);
         userData.color = values.color || null;
       }
       

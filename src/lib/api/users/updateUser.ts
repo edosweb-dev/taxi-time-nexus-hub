@@ -17,7 +17,10 @@ export async function updateUser(id: string, userData: Partial<UserFormData>): P
     if (userData.role) profileData.role = userData.role;
     if (userData.email) profileData.email = userData.email;
     if (userData.telefono !== undefined) profileData.telefono = userData.telefono;
-    if (userData.color !== undefined) profileData.color = userData.color;
+    if (userData.color !== undefined) {
+      console.log("[updateUser] Color field detected:", userData.color);
+      profileData.color = userData.color;
+    }
 
     console.log("[updateUser] Profile data being sent to Supabase:", profileData);
 
