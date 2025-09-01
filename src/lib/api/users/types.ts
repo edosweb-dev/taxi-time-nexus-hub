@@ -9,4 +9,5 @@ export type UserFormData = {
   role: UserRole;
   telefono?: string;
   azienda_id?: string | null;
+  color?: string | null;
 };

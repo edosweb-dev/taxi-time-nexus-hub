@@ -191,11 +191,25 @@ export function UserList({
                       className="hover:bg-muted/50 transition-colors border-b"
                     >
                       <TableCell>
-                        <Avatar className="h-10 w-10 border-2 border-primary/20">
-                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                            {getUserInitials(user.first_name, user.last_name)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border-2 border-primary/20">
+                            <AvatarFallback 
+                              className="text-white font-semibold" 
+                              style={{ 
+                                backgroundColor: user.color || '#3B82F6' 
+                              }}
+                            >
+                              {getUserInitials(user.first_name, user.last_name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          {user.color && ['admin', 'socio', 'dipendente'].includes(user.role) && (
+                            <div 
+                              className="w-4 h-4 rounded-full border border-border shadow-sm"
+                              style={{ backgroundColor: user.color }}
+                              title={`Colore calendario: ${user.color}`}
+                            />
+                          )}
+                        </div>
                       </TableCell>
                       
                       <TableCell>

@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { UserFormData } from '@/lib/usersApi';
+import { UserFormData } from '@/lib/api/users/types';
 import { Profile, UserRole, Azienda } from '@/lib/types';
 import { Save, X } from 'lucide-react';
 import { UserMainInfoSection } from './form-sections/UserMainInfoSection';
@@ -44,6 +44,7 @@ export function UserForm({
     role: z.enum(['admin', 'socio', 'dipendente', 'cliente'], {
       required_error: 'Seleziona un ruolo',
     }),
+    color: z.string().optional(), // Add color field
     password: isEditing 
       ? z.string().optional().or(z.literal('')) // In modifica, password opzionale
       : z.string()
@@ -61,6 +62,7 @@ export function UserForm({
       email: user?.id ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
       telefono: user?.telefono || '',
       role: user?.role || defaultRole || 'cliente',
+      color: user?.color || '',
       password: '',
     },
   });
@@ -89,6 +91,10 @@ export function UserForm({
         userData.telefono = values.telefono.trim() || undefined;
       }
       
+      if (values.color !== undefined) {
+        userData.color = values.color || null;
+      }
+      
       if (values.password) {
         userData.password = values.password;
       }
@@ -103,6 +109,7 @@ export function UserForm({
         role: values.role,
         email: values.email.trim(),
         telefono: values.telefono?.trim() || undefined,
+        color: values.color || null,
       };
 
       // Aggiungi password solo se fornita
@@ -126,7 +133,8 @@ export function UserForm({
         {/* Main Information Section */}
         <UserMainInfoSection 
           control={form.control} 
-          isEditing={isEditing} 
+          isEditing={isEditing}
+          userRole={form.watch('role') || user?.role}
         />
         
         {/* Contact Information Section */}
