@@ -3,16 +3,19 @@ import { supabase } from "@/lib/supabase";
 import { EmailNotifica, EmailNotificaFormData } from "@/lib/types/emailNotifiche";
 import { toast } from "sonner";
 
-export function useEmailNotifiche() {
+export function useEmailNotifiche(aziendaId?: string) {
   const queryClient = useQueryClient();
 
   const { data: emailNotifiche = [], isLoading, error } = useQuery({
-    queryKey: ['email-notifiche'],
+    queryKey: ['email-notifiche', aziendaId],
     queryFn: async () => {
+      if (!aziendaId) return [];
+      
       const { data, error } = await supabase
         .from('email_notifiche')
         .select('*')
         .eq('attivo', true)
+        .eq('azienda_id', aziendaId)
         .order('nome');
       
       if (error) {
@@ -21,6 +24,7 @@ export function useEmailNotifiche() {
       
       return data as EmailNotifica[];
     },
+    enabled: !!aziendaId,
   });
 
   const createEmailNotifica = useMutation({
@@ -30,6 +34,7 @@ export function useEmailNotifiche() {
         .insert({
           nome: data.nome,
           email: data.email,
+          azienda_id: data.azienda_id,
           note: data.note,
           created_by: (await supabase.auth.getUser()).data.user?.id
         })

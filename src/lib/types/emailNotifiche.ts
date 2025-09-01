@@ -3,6 +3,7 @@ export interface EmailNotifica {
   nome: string;
   email: string;
   attivo: boolean;
+  azienda_id: string;
   created_at: string;
   created_by: string;
   note?: string;
@@ -18,5 +19,6 @@ export interface ServizioEmailNotifica {
 export interface EmailNotificaFormData {
   nome: string;
   email: string;
+  azienda_id: string;
   note?: string;
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Plus, Trash2 } from "lucide-react";
+import { Mail, Plus, Trash2, AlertCircle } from "lucide-react";
 import { useEmailNotifiche } from "@/hooks/useEmailNotifiche";
 import { ServizioFormData } from "@/lib/types/servizi";
 import {
@@ -18,10 +18,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function NotificheEmailField() {
   const { control, watch, setValue } = useFormContext<ServizioFormData>();
-  const { emailNotifiche, createEmailNotifica, deleteEmailNotifica, isCreating } = useEmailNotifiche();
+  const aziendaId = watch("azienda_id");
+  const { emailNotifiche, createEmailNotifica, deleteEmailNotifica, isCreating } = useEmailNotifiche(aziendaId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newEmail, setNewEmail] = useState({ nome: "", email: "", note: "" });
 
@@ -38,12 +40,38 @@ export function NotificheEmailField() {
   };
 
   const handleAddEmail = () => {
-    if (newEmail.nome && newEmail.email) {
-      createEmailNotifica(newEmail);
+    if (newEmail.nome && newEmail.email && aziendaId) {
+      createEmailNotifica({
+        nome: newEmail.nome,
+        email: newEmail.email,
+        note: newEmail.note,
+        azienda_id: aziendaId
+      });
       setNewEmail({ nome: "", email: "", note: "" });
       setIsDialogOpen(false);
     }
   };
+
+  // Se non è stata selezionata un'azienda, mostra un avviso
+  if (!aziendaId) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <h4 className="text-lg font-medium text-foreground">Notifiche Email</h4>
+          <p className="text-sm text-muted-foreground">
+            Seleziona gli indirizzi che riceveranno le notifiche di aggiornamento stato servizio
+          </p>
+        </div>
+        
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Seleziona prima un'azienda per configurare le notifiche email
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -66,7 +94,7 @@ export function NotificheEmailField() {
             <DialogHeader>
               <DialogTitle>Aggiungi Indirizzo Email</DialogTitle>
               <DialogDescription>
-                Crea un nuovo indirizzo email per le notifiche dei servizi
+                Crea un nuovo indirizzo email per le notifiche dei servizi di questa azienda
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -118,14 +146,14 @@ export function NotificheEmailField() {
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Mail className="h-4 w-4" />
-                    Indirizzi Disponibili
+                    Indirizzi Email per questa Azienda
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {emailNotifiche.length === 0 ? (
                     <div className="text-center py-6 text-muted-foreground">
                       <Mail className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>Nessun indirizzo email configurato</p>
+                      <p>Nessun indirizzo email configurato per questa azienda</p>
                       <p className="text-sm">Aggiungi il primo indirizzo per iniziare</p>
                     </div>
                   ) : (

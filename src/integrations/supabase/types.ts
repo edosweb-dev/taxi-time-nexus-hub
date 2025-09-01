@@ -181,6 +181,7 @@ export type Database = {
       email_notifiche: {
         Row: {
           attivo: boolean
+          azienda_id: string
           created_at: string
           created_by: string
           email: string
@@ -190,6 +191,7 @@ export type Database = {
         }
         Insert: {
           attivo?: boolean
+          azienda_id: string
           created_at?: string
           created_by: string
           email: string
@@ -199,6 +201,7 @@ export type Database = {
         }
         Update: {
           attivo?: boolean
+          azienda_id?: string
           created_at?: string
           created_by?: string
           email?: string
@@ -206,7 +209,15 @@ export type Database = {
           nome?: string
           note?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "email_notifiche_azienda_id_fkey"
+            columns: ["azienda_id"]
+            isOneToOne: false
+            referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feedback: {
         Row: {
