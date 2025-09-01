@@ -36,6 +36,11 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   
   // Filtra gli utenti per mostrare solo quelli associati all'azienda e con ruolo 'cliente'
   const referenti = users.filter(user => user.azienda_id === id && user.role === 'cliente');
+  
+  // Debug logging
+  console.log('[useAziendaDetail] All users:', users.length);
+  console.log('[useAziendaDetail] Company ID:', id);
+  console.log('[useAziendaDetail] Filtered referenti:', referenti.length, referenti.map(r => ({ id: r.id, name: `${r.first_name} ${r.last_name}`, email: r.email })));
 
   useEffect(() => {
     if (error) {
