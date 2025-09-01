@@ -60,6 +60,8 @@ export type Database = {
           partita_iva: string
           pec: string | null
           provvigione: boolean | null
+          provvigione_tipo: string | null
+          provvigione_valore: number | null
           sdi: string | null
           telefoni: string[] | null
           telefono: string | null
@@ -76,6 +78,8 @@ export type Database = {
           partita_iva: string
           pec?: string | null
           provvigione?: boolean | null
+          provvigione_tipo?: string | null
+          provvigione_valore?: number | null
           sdi?: string | null
           telefoni?: string[] | null
           telefono?: string | null
@@ -92,6 +96,8 @@ export type Database = {
           partita_iva?: string
           pec?: string | null
           provvigione?: boolean | null
+          provvigione_tipo?: string | null
+          provvigione_valore?: number | null
           sdi?: string | null
           telefoni?: string[] | null
           telefono?: string | null
