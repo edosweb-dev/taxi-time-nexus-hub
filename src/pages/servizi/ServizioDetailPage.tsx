@@ -17,6 +17,8 @@ export default function ServizioDetailPage() {
   const {
     servizio,
     passeggeri,
+    users: detailUsers,
+    getAzienda,
     isLoading,
     error,
     refetch,
@@ -68,6 +70,7 @@ export default function ServizioDetailPage() {
               activeTab=""
               onTabChange={() => {}}
               getAziendaName={getAziendaName}
+              getAzienda={getAzienda}
               getUserName={getUserName}
               formatCurrency={formatCurrency}
               firmaDigitaleAttiva={firmaDigitaleAttiva}

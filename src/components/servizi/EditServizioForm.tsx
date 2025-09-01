@@ -41,6 +41,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         veicolo_id: servizio.veicolo_id || "",
         ore_effettive: servizio.ore_effettive || 0,
         ore_fatturate: servizio.ore_fatturate || 0,
+        applica_provvigione: servizio.applica_provvigione || false,
         passeggeri: passeggeri.map(p => ({
           id: p.id,
           passeggero_id: p.passeggero_id,
@@ -84,6 +85,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
           veicolo_id: values.veicolo_id,
           ore_effettive: values.ore_effettive,
           ore_fatturate: values.ore_fatturate,
+          applica_provvigione: values.applica_provvigione,
         },
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,

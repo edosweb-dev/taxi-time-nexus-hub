@@ -64,6 +64,7 @@ export const ServizioCard = ({
           servizio={servizio} 
           passeggeriCount={passeggeriCount || 0} 
           users={users}
+          azienda={aziende?.find(a => a.id === servizio.azienda_id)}
         />
         
         <ServizioCardActions 

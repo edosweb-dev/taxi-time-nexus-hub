@@ -21,6 +21,7 @@ export async function updateServizio({ servizio, passeggeri }: UpdateServizioReq
         veicolo_id: servizio.veicolo_id,
         ore_effettive: servizio.ore_effettive,
         ore_fatturate: servizio.ore_fatturate,
+        applica_provvigione: servizio.applica_provvigione,
         assegnato_a: servizio.assegnato_a,
         conducente_esterno: servizio.conducente_esterno,
         conducente_esterno_nome: servizio.conducente_esterno_nome,
