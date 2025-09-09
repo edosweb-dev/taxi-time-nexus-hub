@@ -14,19 +14,19 @@ export function MainLayout({ children }: PropsWithChildren) {
   const isMobile = useIsMobile();
   const { paddingMode } = useLayout();
 
-  // Mobile-first responsive padding system optimized for mobile viewports
+  // Optimized mobile-first responsive padding system
   const getPaddingClasses = (mode: string) => {
     const paddingModes = {
-      'default': 'px-5 py-3 sm:px-4 sm:py-4 md:px-6 md:py-6 lg:px-8 xl:px-12 2xl:px-16',
-      'minimal': 'px-5 py-2 sm:px-2 sm:py-2 md:px-4 md:py-4 lg:px-6 xl:px-8 2xl:px-10', 
-      'full-width': 'px-5 py-1 sm:px-1 sm:py-2 md:px-2 md:py-3 lg:px-4 xl:px-6 2xl:px-8'
+      'default': 'px-fluid-md py-fluid-sm xs:px-fluid-lg xs:py-fluid-md sm:px-6 sm:py-4 md:px-8 md:py-6 lg:px-10 xl:px-12 2xl:px-16',
+      'minimal': 'px-fluid-sm py-fluid-xs xs:px-fluid-md xs:py-fluid-sm sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-8 xl:px-10 2xl:px-12', 
+      'full-width': 'px-fluid-xs py-fluid-xs xs:px-fluid-sm xs:py-fluid-sm sm:px-2 sm:py-2 md:px-4 md:py-3 lg:px-6 xl:px-8 2xl:px-10'
     };
     return paddingModes[mode] || paddingModes['default'];
   };
   
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden">
+      <div className="flex h-dvh w-full overflow-hidden">
         <Sidebar 
           className="border-r border-border/50 text-white h-full flex-shrink-0 shadow-xl" 
           collapsible={isMobile ? "offcanvas" : "icon"}
@@ -40,15 +40,15 @@ export function MainLayout({ children }: PropsWithChildren) {
               <div className="absolute bottom-0 right-0 w-full h-32 bg-gradient-to-tl from-white/10 to-transparent"></div>
             </div>
             
-            <SidebarHeader className="flex-shrink-0 relative z-10">
+            <SidebarHeader className="flex-shrink-0 relative z-10 safe-area-top">
               <AppSidebarHeader />
             </SidebarHeader>
             
-            <SidebarContent className="flex-1 overflow-y-auto relative z-10 py-1">
+            <SidebarContent className="flex-1 overflow-y-auto scroll-smooth relative z-10 py-1">
               <SidebarNavLinks />
             </SidebarContent>
             
-            <SidebarFooter className="p-3 flex-shrink-0 relative z-10">
+            <SidebarFooter className="p-3 flex-shrink-0 relative z-10 safe-area-bottom">
               <SidebarFooterContent />
             </SidebarFooter>
           </div>
@@ -58,20 +58,20 @@ export function MainLayout({ children }: PropsWithChildren) {
           <ImpersonationBanner />
           {/* Mobile header with sidebar trigger */}
           {isMobile && (
-            <header className="h-12 border-b border-border bg-card flex items-center justify-between px-4 flex-shrink-0">
-              <SidebarTrigger className="hover:bg-accent hover:text-accent-foreground p-2 rounded-md transition-colors" />
-              <div className="text-sm font-medium text-foreground">TAXITIME</div>
+            <header className="h-12 xs:h-14 border-b border-border bg-card flex items-center justify-between px-fluid-md flex-shrink-0 safe-area-left safe-area-right safe-area-top">
+              <SidebarTrigger className="hover:bg-accent hover:text-accent-foreground p-2 rounded-md transition-colors min-h-touch min-w-touch" />
+              <div className="text-fluid-text-sm font-medium text-foreground">TAXITIME</div>
             </header>
           )}
           
-          <div className="flex-1 overflow-y-auto">
-            <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter`}>
+          <div className="flex-1 overflow-y-auto scroll-smooth">
+            <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
               {children}
             </div>
           </div>
           
-          {/* Mobile bottom padding to avoid navigation overlap */}
-          {isMobile && <div className="h-24 flex-shrink-0" />}
+          {/* Mobile safe bottom padding to avoid navigation overlap */}
+          {isMobile && <div className="h-20 xs:h-24 flex-shrink-0 safe-area-bottom" />}
         </main>
         
         {isMobile && <MobileNavBar />}

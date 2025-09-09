@@ -11,9 +11,25 @@ export default {
 	],
 	prefix: "",
 	theme: {
+		screens: {
+			'xs': '375px',
+			'sm': '640px',
+			'md': '768px',
+			'lg': '1024px',
+			'xl': '1280px',
+			'2xl': '1536px',
+		},
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				xs: '1rem',
+				sm: '1.5rem',
+				md: '2rem',
+				lg: '2.5rem',
+				xl: '3rem',
+				'2xl': '3.5rem',
+			},
 			screens: {
 				'2xl': '1400px'
 			}
@@ -136,6 +152,36 @@ export default {
 				'15': '15',
 				'25': '25',
 				'35': '35'
+			},
+			spacing: {
+				'fluid-xs': 'var(--fluid-space-xs)',
+				'fluid-sm': 'var(--fluid-space-sm)',
+				'fluid-md': 'var(--fluid-space-md)',
+				'fluid-lg': 'var(--fluid-space-lg)',
+				'fluid-xl': 'var(--fluid-space-xl)',
+				'fluid-2xl': 'var(--fluid-space-2xl)',
+				'fluid-3xl': 'var(--fluid-space-3xl)',
+				'safe-top': 'env(safe-area-inset-top)',
+				'safe-bottom': 'env(safe-area-inset-bottom)',
+				'safe-left': 'env(safe-area-inset-left)',
+				'safe-right': 'env(safe-area-inset-right)',
+			},
+			fontSize: {
+				'fluid-heading-xl': 'var(--fluid-heading-xl)',
+				'fluid-heading-lg': 'var(--fluid-heading-lg)',
+				'fluid-heading-md': 'var(--fluid-heading-md)',
+				'fluid-heading-sm': 'var(--fluid-heading-sm)',
+				'fluid-text-lg': 'var(--fluid-text-lg)',
+				'fluid-text-base': 'var(--fluid-text-base)',
+				'fluid-text-sm': 'var(--fluid-text-sm)',
+				'fluid-text-xs': 'var(--fluid-text-xs)',
+			},
+			minHeight: {
+				'touch': '44px',
+				'dvh': '100dvh',
+			},
+			minWidth: {
+				'touch': '44px',
 			}
 		}
 	},

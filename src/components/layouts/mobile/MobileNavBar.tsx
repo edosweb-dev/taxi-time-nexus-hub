@@ -31,7 +31,7 @@ export function MobileNavBar() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-primary/95 backdrop-blur-md border-t border-white/20 flex items-center justify-around py-3 px-2 z-50 text-white animate-fade-in shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-primary/95 backdrop-blur-md border-t border-white/20 flex items-center justify-around z-50 text-white animate-fade-in shadow-lg mobile-nav-safe">
       {mainItems.map((item) => {
         const isActive = location.pathname === item.to;
         
@@ -40,18 +40,18 @@ export function MobileNavBar() {
             key={item.to}
             to={item.to} 
             className={cn(
-              "flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 min-w-0 flex-1 relative group active:scale-95",
+              "mobile-nav-item flex-1 relative group no-select",
               isActive 
                 ? "bg-white text-primary shadow-lg transform scale-105" 
                 : "text-white hover:bg-white/10 active:bg-white/20"
             )}
           >
             <item.icon className={cn(
-              "h-6 w-6 mb-1 transition-all duration-300",
+              "h-5 w-5 xs:h-6 xs:w-6 transition-all duration-300",
               isActive ? "scale-110" : "group-hover:scale-110"
             )} />
             <span className={cn(
-              "text-xs truncate transition-all duration-300 font-medium",
+              "text-xs xs:text-sm font-medium transition-all duration-300 mt-1",
               isActive ? "font-bold" : "font-medium"
             )}>
               {item.label}
@@ -67,14 +67,14 @@ export function MobileNavBar() {
       {/* Three dots menu */}
       <Sheet>
         <SheetTrigger asChild>
-          <button className="flex flex-col items-center justify-center p-3 rounded-xl text-white hover:bg-white/10 active:bg-white/20 active:scale-95 transition-all duration-300 min-w-0 group">
-            <MoreHorizontal className="h-6 w-6 mb-1 group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-xs font-medium">Menu</span>
+          <button className="mobile-nav-item text-white hover:bg-white/10 active:bg-white/20 group no-select">
+            <MoreHorizontal className="h-5 w-5 xs:h-6 xs:w-6 group-hover:scale-110 transition-transform duration-300" />
+            <span className="text-xs xs:text-sm font-medium mt-1">Menu</span>
           </button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="h-[80vh] rounded-t-2xl border-t border-white/20 bg-background/95 backdrop-blur-md">
-          <SheetHeader className="pb-4">
-            <SheetTitle className="text-center">Menu Completo</SheetTitle>
+        <SheetContent side="bottom" className="h-[85vh] xs:h-[80vh] rounded-t-2xl border-t border-white/20 bg-background/95 backdrop-blur-md safe-area-bottom">
+          <SheetHeader className="pb-4 safe-area-top">
+            <SheetTitle className="text-center text-fluid-heading-sm">Menu Completo</SheetTitle>
           </SheetHeader>
           <MobileMenuContent />
         </SheetContent>
@@ -83,10 +83,10 @@ export function MobileNavBar() {
       {/* Logout always visible */}
       <button 
         onClick={() => signOut()}
-        className="flex flex-col items-center justify-center p-3 rounded-xl text-white hover:bg-red-500/20 active:bg-red-500/30 active:scale-95 transition-all duration-300 min-w-0 group"
+        className="mobile-nav-item text-white hover:bg-red-500/20 active:bg-red-500/30 group no-select"
       >
-        <LogOut className="h-6 w-6 mb-1 group-hover:scale-110 transition-transform duration-300" />
-        <span className="text-xs font-medium">Esci</span>
+        <LogOut className="h-5 w-5 xs:h-6 xs:w-6 group-hover:scale-110 transition-transform duration-300" />
+        <span className="text-xs xs:text-sm font-medium mt-1">Esci</span>
       </button>
     </nav>
   );
