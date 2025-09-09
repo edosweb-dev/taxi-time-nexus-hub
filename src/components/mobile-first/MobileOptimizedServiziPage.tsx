@@ -34,9 +34,27 @@ export function MobileOptimizedServiziPage() {
   const filteredServizi = servizi?.filter(servizio => {
     const matchesSearch = !searchQuery || 
       servizio.numero_commessa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      servizio.indirizzo_presa?.toLowerCase().includes(searchQuery.toLowerCase());
+      servizio.indirizzo_presa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      servizio.aziende?.nome?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesTab = activeTab === 'tutti' || servizio.stato === activeTab.replace('-', '_');
+    // Map tab IDs to actual service states
+    let matchesTab = false;
+    switch (activeTab) {
+      case 'tutti':
+        matchesTab = true;
+        break;
+      case 'da-assegnare':
+        matchesTab = servizio.stato === 'da_assegnare';
+        break;
+      case 'assegnati':
+        matchesTab = servizio.stato === 'assegnato';
+        break;
+      case 'completati':
+        matchesTab = servizio.stato === 'completato';
+        break;
+      default:
+        matchesTab = false;
+    }
 
     return matchesSearch && matchesTab;
   }) || [];
