@@ -51,9 +51,9 @@ export default function ServiziPage() {
 
   return (
     <MainLayout>
-      <div className={`${RESPONSIVE_SPACING.SECTION_VERTICAL} pb-20 md:pb-0`}>
+      <div className="pb-20 md:pb-0">
         {/* Breadcrumb Navigation - Solo su desktop */}
-        <div className="hidden md:block">
+        <div className="hidden md:block mb-6">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
             <Home className="h-4 w-4" />
             <ChevronRight className="h-4 w-4" />
@@ -61,7 +61,7 @@ export default function ServiziPage() {
           </nav>
         </div>
 
-        {/* Unified responsive content - remove mobile/desktop switching */}
+        {/* Unified responsive content with proper container */}
         <ServiziContent 
           servizi={servizi}
           users={users}

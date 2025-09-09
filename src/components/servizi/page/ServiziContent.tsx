@@ -18,6 +18,9 @@ import { MobileServiziStats } from '../mobile/MobileServiziStats';
 import { MobileFiltersDrawer } from '../mobile/MobileFiltersDrawer';
 import { MobileTabs } from '../mobile/MobileTabs';
 import { ServizioCardList } from '../mobile/ServizioCardList';
+// Responsive UI components
+import { ResponsiveContainer } from '@/components/ui/responsive-container';
+import { ResponsiveGrid } from '@/components/ui/responsive-grid';
 
 interface ServiziContentProps {
   servizi: Servizio[];
@@ -184,7 +187,7 @@ export function ServiziContent({
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <ResponsiveContainer size="full" className="space-y-4 md:space-y-6">
       {/* Mobile-First Layout */}
       <div className="md:hidden space-y-4">
         {/* Mobile Stats */}
@@ -192,8 +195,8 @@ export function ServiziContent({
         
         {/* Mobile Controls - Stack vertically for better viewport usage */}
         <div className="space-y-3">
-          {/* Filters and Tabs Container - Full width */}
-          <div className="flex flex-col space-y-3">
+          {/* Filters and Tabs Container - Full width with proper containment */}
+          <div className="w-full overflow-hidden space-y-3">
             <MobileFiltersDrawer
               servizi={servizi}
               users={users}
@@ -209,24 +212,30 @@ export function ServiziContent({
               })}
             />
             
-            <MobileTabs
-              tabs={[
-                { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
-                { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
-                { id: 'completato', label: 'Completati', count: statusCounts.completato },
-                { id: 'annullato', label: 'Annullati', count: statusCounts.annullato }
-              ]}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            />
+            <div className="w-full overflow-hidden">
+              <MobileTabs
+                tabs={[
+                  { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
+                  { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
+                  { id: 'completato', label: 'Completati', count: statusCounts.completato },
+                  { id: 'annullato', label: 'Annullati', count: statusCounts.annullato }
+                ]}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+            </div>
           </div>
           
-          {/* Action Buttons - Single row, mobile optimized */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* Action Buttons - Mobile optimized grid */}
+          <ResponsiveGrid 
+            cols={{ mobile: 2, tablet: 2, desktop: 3 }} 
+            gap="sm"
+            className="w-full"
+          >
             <Button
               variant="outline"
               size="sm"
-              className="text-xs"
+              className="text-xs w-full"
               onClick={onNavigateToNewServizio}
             >
               <BarChart3 className="h-3 w-3 mr-1" />
@@ -235,29 +244,28 @@ export function ServiziContent({
             <Button
               variant="outline" 
               size="sm"
-              className="text-xs"
+              className="text-xs w-full"
               onClick={onNavigateToNewServizio}
             >
               <Calendar className="h-3 w-3 mr-1" />
               Calendario
             </Button>
-          </div>
-          
-          {/* New Service Button - Full width for prominence */}
-          {isAdminOrSocio && (
-            <Button
-              size="sm"
-              className="w-full"
-              onClick={onNavigateToNewServizio}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuovo Servizio
-            </Button>
-          )}
+            {/* New Service Button - spans full width on mobile */}
+            {isAdminOrSocio && (
+              <Button
+                size="sm"
+                className="w-full col-span-2"
+                onClick={onNavigateToNewServizio}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nuovo Servizio
+              </Button>
+            )}
+          </ResponsiveGrid>
         </div>
         
-        {/* Mobile Content - Optimized viewport usage */}
-        <div className="min-h-[50vh] overflow-hidden">
+        {/* Mobile Content - Proper containment to prevent overflow */}
+        <div className="w-full min-h-[50vh] overflow-hidden">
           {Object.keys(serviziByStatus).some(status => serviziByStatus[status as keyof typeof serviziByStatus].length > 0) ? (
             <ServizioCardList
               servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
@@ -391,6 +399,6 @@ export function ServiziContent({
           ))}
         </Tabs>
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 }
