@@ -54,9 +54,6 @@ export function MobileHeader({
             ">
               TAXITIME
             </h1>
-            <div className="text-xs text-primary-foreground/70 font-medium uppercase tracking-wider">
-              Management System
-            </div>
           </div>
         </div>
 
