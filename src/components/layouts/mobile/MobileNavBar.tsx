@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, CreditCard, LogOut, MoreHorizontal } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Car, Calendar, MoreHorizontal, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -11,24 +11,52 @@ export function MobileNavBar() {
   
   if (!profile) return null;
 
-  // Main navigation items always visible
-  const mainItems = [
-    {
-      to: "/dashboard",
-      icon: LayoutDashboard,
-      label: "Dashboard"
-    },
-    {
-      to: "/servizi",
-      icon: FileText,
-      label: "Servizi"
-    },
-    {
-      to: "/spese",
-      icon: CreditCard,
-      label: "Spese"
+  // Define main navigation items based on user role
+  const getMainItems = () => {
+    const baseItems = [
+      {
+        to: "/dashboard",
+        icon: LayoutDashboard,
+        label: "Dashboard",
+        roles: ['admin', 'socio', 'dipendente', 'cliente']
+      },
+      {
+        to: "/servizi",
+        icon: FileText,
+        label: "Servizi",
+        roles: ['admin', 'socio', 'dipendente']
+      }
+    ];
+
+    // Add role-specific items
+    if (profile.role === 'admin' || profile.role === 'socio') {
+      baseItems.push(
+        {
+          to: "/users",
+          icon: Users,
+          label: "Utenti",
+          roles: ['admin', 'socio']
+        },
+        {
+          to: "/veicoli",
+          icon: Car,
+          label: "Veicoli", 
+          roles: ['admin', 'socio']
+        }
+      );
+    } else if (profile.role === 'dipendente') {
+      baseItems.push({
+        to: "/calendario-turni",
+        icon: Calendar,
+        label: "Turni",
+        roles: ['dipendente']
+      });
     }
-  ];
+
+    return baseItems.filter(item => item.roles.includes(profile.role));
+  };
+
+  const mainItems = getMainItems();
 
   return (
     <nav 
@@ -38,7 +66,10 @@ export function MobileNavBar() {
     >
       {mainItems.map((item) => {
         const isActive = location.pathname === item.to || 
-                        (item.to === '/servizi' && location.pathname.startsWith('/servizi'));
+                        (item.to === '/servizi' && location.pathname.startsWith('/servizi')) ||
+                        (item.to === '/users' && location.pathname.startsWith('/users')) ||
+                        (item.to === '/veicoli' && location.pathname.startsWith('/veicoli')) ||
+                        (item.to === '/calendario-turni' && location.pathname.startsWith('/calendario-turni'));
         
         return (
           <Link 
@@ -62,7 +93,7 @@ export function MobileNavBar() {
         );
       })}
       
-      {/* Three dots menu */}
+      {/* More menu - shows remaining navigation options */}
       <Sheet>
         <SheetTrigger asChild>
           <button 
@@ -70,7 +101,7 @@ export function MobileNavBar() {
             aria-label="Apri menu completo"
           >
             <MoreHorizontal className="h-5 w-5 shrink-0" />
-            <span className="text-xs font-medium">Menu</span>
+            <span className="text-xs font-medium">Altro</span>
           </button>
         </SheetTrigger>
         <SheetContent 
@@ -82,19 +113,21 @@ export function MobileNavBar() {
           </SheetHeader>
           <div className="h-full overflow-y-auto pb-4">
             <MobileMenuContent />
+            
+            {/* Logout in the more menu */}
+            <div className="mt-6 pt-4 border-t border-border">
+              <button 
+                onClick={() => signOut()}
+                className="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors w-full text-destructive hover:bg-destructive/10"
+                aria-label="Disconnetti"
+              >
+                <LogOut className="mr-3 h-5 w-5" />
+                Disconnetti
+              </button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
-      
-      {/* Logout always visible */}
-      <button 
-        onClick={() => signOut()}
-        className="flex flex-col items-center gap-1 p-3 min-w-[64px] min-h-[48px] rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:bg-destructive/20 active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus:ring-2 focus:ring-destructive/50"
-        aria-label="Disconnetti"
-      >
-        <LogOut className="h-5 w-5 shrink-0" />
-        <span className="text-xs font-medium">Esci</span>
-      </button>
     </nav>
   );
 }

@@ -39,27 +39,29 @@ export function MobileMenuContent() {
     {
       title: 'Operazioni',
       items: [
-        { title: 'Servizi Mobile', path: '/servizi-mobile', icon: FileText, roles: ['admin', 'socio', 'dipendente'] },
         { title: 'Nuovo Servizio', path: '/nuovo-servizio', icon: FilePlus, roles: ['admin', 'socio'] },
-        { title: 'Turni', path: '/calendario-turni', icon: Calendar, roles: ['admin', 'socio', 'dipendente'] },
-        { title: 'Le mie spese', path: '/spese-dipendente', icon: Wallet, roles: ['dipendente'] },
-        { title: 'Report Spese', path: '/spese-aziendali', icon: FileText, roles: ['admin', 'socio'] },
-        { title: 'Movimenti', path: '/movimenti', icon: Wallet, roles: ['admin', 'socio'] },
-        { title: 'Veicoli', path: '/veicoli', icon: Car, roles: ['admin', 'socio'] }
+        { title: 'Calendario Servizi', path: '/calendario-servizi', icon: Calendar, roles: ['admin', 'socio', 'dipendente'] },
+        { title: 'Report Servizi', path: '/report-servizi', icon: FileBarChart, roles: ['admin', 'socio'] },
+        // Only show turni if user is not dipendente (since dipendenti have it in main nav)
+        ...(profile.role !== 'dipendente' ? [{ title: 'Turni', path: '/calendario-turni', icon: Calendar, roles: ['admin', 'socio'] }] : []),
+        { title: 'Spese Aziendali', path: '/spese-aziendali', icon: Wallet, roles: ['admin', 'socio'] },
+        { title: 'Stipendi', path: '/stipendi', icon: Wallet, roles: ['admin', 'socio'] },
+        { title: 'Conducenti Esterni', path: '/conducenti-esterni', icon: UserCircle, roles: ['admin', 'socio'] }
       ]
     },
     {
-      title: 'Reportistica',
+      title: 'Gestione',
       items: [
-        { title: 'Report', path: '/reports', icon: FileBarChart, roles: ['admin', 'socio', 'cliente'] },
+        // Only show aziende/users if not admin/socio (since they have them in main nav)
+        ...(profile.role !== 'admin' && profile.role !== 'socio' ? [] : [
+          { title: 'Aziende', path: '/aziende', icon: Building, roles: ['admin', 'socio'] }
+        ]),
         { title: 'Feedback', path: '/feedback', icon: MessageCircle, roles: ['admin', 'socio'] }
       ]
     },
     {
-      title: 'Amministrazione',
+      title: 'Sistema',
       items: [
-        { title: 'Aziende', path: '/aziende', icon: Building, roles: ['admin', 'socio'] },
-        { title: 'Utenti', path: '/users', icon: Users, roles: ['admin'] },
         { title: 'Impostazioni', path: '/impostazioni', icon: Settings, roles: ['admin', 'socio'] }
       ]
     },
@@ -84,8 +86,8 @@ export function MobileMenuContent() {
         className={cn(
           "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors",
           location.pathname === item.path 
-            ? "bg-primary text-white" 
-            : "text-gray-700 hover:bg-gray-100"
+            ? "bg-primary text-primary-foreground" 
+            : "text-foreground hover:bg-muted hover:text-foreground"
         )}
       >
         <item.icon className="mr-3 h-5 w-5" />
@@ -103,7 +105,7 @@ export function MobileMenuContent() {
 
     return (
       <div key={section.title} className="space-y-2">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-4">
           {section.title}
         </h3>
         <div className="space-y-1">
