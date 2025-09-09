@@ -134,12 +134,12 @@ export function ResponsiveServiziContent({
     return (
       <div className="w-full h-full">
         {isMobile ? (
-          <div className="w-screen max-w-sm mx-auto min-h-screen bg-background">
+          <div className="w-full min-h-screen bg-background">
             <MobileServiziHeader 
               isAdminOrSocio={isAdminOrSocio}
               onNavigateToNewServizio={onNavigateToNewServizio}
             />
-            <div className="p-2">
+            <div className="px-3 py-3 sm:px-4 sm:py-4">
               <MobileFirstStats servizi={[]} isLoading={true} />
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -183,10 +183,10 @@ export function ResponsiveServiziContent({
     );
   }
 
-  // Mobile Layout with strict width constraints
+  // Mobile Layout with responsive width
   if (isMobile) {
     return (
-      <div className="w-screen max-w-sm mx-auto min-h-screen overflow-x-hidden bg-background">
+      <div className="w-full min-h-screen overflow-x-hidden bg-background">
         {/* Mobile Header with Stats */}
         <div className="w-full">
           <MobileServiziHeader 
@@ -195,7 +195,7 @@ export function ResponsiveServiziContent({
           />
         </div>
         
-        <div className="w-full px-1 py-1">
+        <div className="w-full px-3 py-2 sm:px-4 sm:py-3">
           <MobileFirstStats servizi={filteredServizi} isLoading={isLoading} />
         </div>
 
@@ -231,7 +231,7 @@ export function ResponsiveServiziContent({
         </div>
 
         {/* Service List */}
-        <div className="w-full px-1 py-1 pb-20">
+        <div className="w-full px-3 py-2 pb-20 sm:px-4 sm:py-3">
           {serviziByStatus[activeTab as keyof typeof serviziByStatus].length > 0 ? (
             <MobileFirstServiceList
               servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}

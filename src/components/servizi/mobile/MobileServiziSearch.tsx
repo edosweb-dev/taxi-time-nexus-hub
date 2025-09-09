@@ -34,25 +34,25 @@ export function MobileServiziSearch({
   const hasActiveFilters = filters.aziendaId || filters.assigneeId || filters.dateFrom || filters.dateTo;
 
   return (
-    <div className="bg-card border-b px-2 py-1 space-y-1 w-full">
+    <div className="bg-card border-b px-3 py-2 sm:px-4 sm:py-3 space-y-2 sm:space-y-3 w-full">
       <div className="relative">
-        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Cerca..."
+          placeholder="Cerca servizi..."
           value={searchText}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-7 h-7 text-xs"
+          className="pl-10 h-9 sm:h-10"
         />
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <Sheet open={showFilters} onOpenChange={onShowFiltersChange}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="flex-1 h-7 text-xs">
-              <Filter className="h-3 w-3 mr-1" />
+            <Button variant="outline" size="sm" className="flex-1">
+              <Filter className="h-4 w-4 mr-2" />
               Filtri
               {hasActiveFilters && (
-                <Badge variant="secondary" className="ml-1 text-xs h-3 px-1">1</Badge>
+                <Badge variant="secondary" className="ml-2 text-xs">1</Badge>
               )}
             </Button>
           </SheetTrigger>
@@ -71,7 +71,7 @@ export function MobileServiziSearch({
         </Sheet>
         
         {(searchText || hasActiveFilters) && (
-          <Button variant="ghost" size="sm" onClick={onClearFilters} className="text-xs h-7 px-2">
+          <Button variant="ghost" size="sm" onClick={onClearFilters} className="text-xs">
             Pulisci
           </Button>
         )}

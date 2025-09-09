@@ -60,7 +60,7 @@ export default function ServiziPage() {
       </div>
 
       {/* Responsive content optimized for mobile and desktop */}
-      <div className="w-full max-w-full overflow-hidden md:space-y-6">
+      <div className="w-full">
         <ResponsiveServiziContent
           servizi={servizi}
           users={users}
