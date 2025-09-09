@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarNavLinks } from "./sidebar/SidebarNavLinks";
 import { SidebarHeader as AppSidebarHeader } from "./sidebar/SidebarHeader";
 import { SidebarFooterContent } from "./sidebar/SidebarFooter";
-import { MobileNavBar } from "./mobile/MobileNavBar";
+import { BottomNavigation } from "@/components/mobile/BottomNavigation";
 import { FeedbackButton } from "@/components/common/FeedbackButton";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useLayout } from "@/contexts/LayoutContext";
@@ -74,7 +74,7 @@ export function MainLayout({ children }: PropsWithChildren) {
           {isMobile && <div className="h-20 xs:h-24 flex-shrink-0 safe-area-bottom" />}
         </main>
         
-        {isMobile && <MobileNavBar />}
+        {isMobile && <BottomNavigation />}
         
         {/* Floating Feedback Button - hidden on mobile to avoid UX interference */}
         {!isMobile && <FeedbackButton />}
