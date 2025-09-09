@@ -139,7 +139,7 @@ export function ResponsiveServiziContent({
               isAdminOrSocio={isAdminOrSocio}
               onNavigateToNewServizio={onNavigateToNewServizio}
             />
-            <div className="px-3 py-3 sm:px-4 sm:py-4">
+            <div className="space-y-4">
               <MobileFirstStats servizi={[]} isLoading={true} />
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -183,7 +183,7 @@ export function ResponsiveServiziContent({
     );
   }
 
-  // Mobile Layout with responsive width
+  // Mobile Layout with natural responsive flow
   if (isMobile) {
     return (
       <div className="w-full min-h-screen overflow-x-hidden bg-background">
@@ -195,7 +195,7 @@ export function ResponsiveServiziContent({
           />
         </div>
         
-        <div className="w-full px-3 py-2 sm:px-4 sm:py-3">
+        <div className="w-full space-y-4">
           <MobileFirstStats servizi={filteredServizi} isLoading={isLoading} />
         </div>
 
@@ -231,7 +231,7 @@ export function ResponsiveServiziContent({
         </div>
 
         {/* Service List */}
-        <div className="w-full px-3 py-2 pb-20 sm:px-4 sm:py-3">
+        <div className="w-full pb-20">
           {serviziByStatus[activeTab as keyof typeof serviziByStatus].length > 0 ? (
             <MobileFirstServiceList
               servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}

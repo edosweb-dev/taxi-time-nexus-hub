@@ -60,7 +60,7 @@ export default function ServiziPage() {
       </div>
 
       {/* Responsive content optimized for mobile and desktop */}
-      <div className="w-full max-w-sm mx-auto md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
+      <div className="w-full">
         <ResponsiveServiziContent
           servizi={servizi}
           users={users}
