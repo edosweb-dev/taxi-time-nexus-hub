@@ -104,41 +104,41 @@ export default function MobileServiziPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 max-w-full overflow-x-hidden">
       {/* Header fisso */}
       <div className="sticky top-0 z-50 bg-primary text-white shadow-lg">
-        <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold">Servizi Mobile</h1>
+        <div className="flex items-center justify-between px-3 py-3">
+          <h1 className="text-lg font-bold">Servizi</h1>
           {isAdminOrSocio && (
             <Button
               size="sm"
               variant="secondary"
               onClick={handleNavigateToNewServizio}
-              className="bg-white text-primary hover:bg-gray-100"
+              className="bg-white text-primary hover:bg-gray-100 text-xs px-2 py-1 h-7"
             >
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="h-3 w-3 mr-1" />
               Nuovo
             </Button>
           )}
         </div>
 
         {/* Stats compatte */}
-        <div className="px-4 pb-4">
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <div className="bg-white/10 rounded-lg p-2">
-              <div className="text-lg font-bold">{statusCounts.tutti}</div>
+        <div className="px-3 pb-3">
+          <div className="grid grid-cols-4 gap-1 text-center">
+            <div className="bg-white/10 rounded p-1.5">
+              <div className="text-sm font-bold">{statusCounts.tutti}</div>
               <div className="text-xs">Totali</div>
             </div>
-            <div className="bg-white/10 rounded-lg p-2">
-              <div className="text-lg font-bold">{statusCounts.da_assegnare}</div>
-              <div className="text-xs">Da Assegnare</div>
+            <div className="bg-white/10 rounded p-1.5">
+              <div className="text-sm font-bold">{statusCounts.da_assegnare}</div>
+              <div className="text-xs">Da Ass.</div>
             </div>
-            <div className="bg-white/10 rounded-lg p-2">
-              <div className="text-lg font-bold">{statusCounts.assegnato}</div>
+            <div className="bg-white/10 rounded p-1.5">
+              <div className="text-sm font-bold">{statusCounts.assegnato}</div>
               <div className="text-xs">Assegnati</div>
             </div>
-            <div className="bg-white/10 rounded-lg p-2">
-              <div className="text-lg font-bold">{statusCounts.completato}</div>
+            <div className="bg-white/10 rounded p-1.5">
+              <div className="text-sm font-bold">{statusCounts.completato}</div>
               <div className="text-xs">Completati</div>
             </div>
           </div>
@@ -146,32 +146,32 @@ export default function MobileServiziPage() {
       </div>
 
       {/* Ricerca e filtri */}
-      <div className="sticky top-20 z-40 bg-white border-b p-4 space-y-3">
+      <div className="sticky top-16 z-40 bg-white border-b px-3 py-2 space-y-2">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
           <Input
-            placeholder="Cerca servizi..."
+            placeholder="Cerca..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            className="pl-10"
+            className="pl-7 h-8 text-sm"
           />
         </div>
 
         {/* Status filter pills */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
           {[
             { key: 'tutti', label: 'Tutti' },
-            { key: 'da_assegnare', label: 'Da Assegnare' },
+            { key: 'da_assegnare', label: 'Da Ass.' },
             { key: 'assegnato', label: 'Assegnati' },
             { key: 'completato', label: 'Completati' },
           ].map((status) => (
             <button
               key={status.key}
               onClick={() => setSelectedStatus(status.key)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
                 selectedStatus === status.key
                   ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-700'
               }`}
             >
               {status.label} ({statusCounts[status.key as keyof typeof statusCounts] || 0})
@@ -181,28 +181,28 @@ export default function MobileServiziPage() {
       </div>
 
       {/* Lista servizi */}
-      <div className="p-4 pb-20 space-y-3">
+      <div className="px-2 py-2 pb-20 space-y-2">
         {filteredServizi.length === 0 ? (
-          <Card>
-            <CardContent className="p-6 text-center text-gray-500">
-              {searchText ? 'Nessun servizio trovato per la ricerca' : 'Nessun servizio disponibile'}
+          <Card className="mx-1">
+            <CardContent className="p-4 text-center text-gray-500 text-sm">
+              {searchText ? 'Nessun servizio trovato' : 'Nessun servizio disponibile'}
             </CardContent>
           </Card>
         ) : (
           filteredServizi.map((servizio) => (
             <Card
               key={servizio.id}
-              className="cursor-pointer hover:shadow-md transition-shadow active:scale-98"
+              className="cursor-pointer hover:shadow-md transition-shadow active:scale-98 mx-1"
               onClick={() => handleNavigateToDetail(servizio.id)}
             >
-              <CardContent className="p-4">
+              <CardContent className="p-3">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm mb-1">
-                      {servizio.numero_commessa || `#${servizio.id.slice(0, 8)}`}
+                    <div className="font-semibold text-gray-900 text-sm mb-0.5">
+                      {servizio.numero_commessa || `#${servizio.id.slice(0, 6)}`}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 truncate">
                       {getAziendaNome(servizio.azienda_id)}
                     </div>
                   </div>
@@ -210,10 +210,10 @@ export default function MobileServiziPage() {
                 </div>
 
                 {/* Data e ora */}
-                <div className="flex items-center gap-4 mb-3 text-xs text-gray-600">
+                <div className="flex items-center gap-3 mb-2 text-xs text-gray-600">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span>{format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}</span>
+                    <span>{format(new Date(servizio.data_servizio), 'dd/MM', { locale: it })}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -222,34 +222,29 @@ export default function MobileServiziPage() {
                 </div>
 
                 {/* Indirizzi */}
-                <div className="space-y-2 mb-3">
-                  <div className="flex items-start gap-2">
+                <div className="space-y-1 mb-2">
+                  <div className="flex items-start gap-1">
                     <MapPin className="h-3 w-3 mt-0.5 text-green-600 flex-shrink-0" />
-                    <span className="text-xs text-gray-700 line-clamp-1">
-                      <strong>Da:</strong> {servizio.indirizzo_presa}
+                    <span className="text-xs text-gray-700 line-clamp-1 leading-tight">
+                      {servizio.indirizzo_presa}
                     </span>
                   </div>
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-1">
                     <MapPin className="h-3 w-3 mt-0.5 text-red-600 flex-shrink-0" />
-                    <span className="text-xs text-gray-700 line-clamp-1">
-                      <strong>A:</strong> {servizio.indirizzo_destinazione}
+                    <span className="text-xs text-gray-700 line-clamp-1 leading-tight">
+                      {servizio.indirizzo_destinazione}
                     </span>
                   </div>
                 </div>
 
-                {/* Footer con passeggeri e assegnazione */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Users className="h-3 w-3" />
-                    <span>Passeggeri</span>
-                  </div>
-                  
-                  {servizio.assegnato_a && (
-                    <div className="text-xs text-gray-600">
-                      Assegnato a: {users.find(u => u.id === servizio.assegnato_a)?.first_name || 'N/A'}
+                {/* Footer */}
+                {servizio.assegnato_a && (
+                  <div className="pt-1 border-t border-gray-100">
+                    <div className="text-xs text-gray-600 truncate">
+                      Assegnato: {users.find(u => u.id === servizio.assegnato_a)?.first_name || 'N/A'}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))
