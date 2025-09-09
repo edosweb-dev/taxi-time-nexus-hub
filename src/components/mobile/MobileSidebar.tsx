@@ -171,7 +171,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
                       key={item.path}
                       onClick={() => handleNavigate(item.path)}
                       className={`
-                        w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                        w-full flex items-center gap-3 px-4 py-3 rounded-lg
                         text-sm font-medium transition-all duration-200
                         touch-manipulation active:scale-95
                         ${isActive(item.path)
