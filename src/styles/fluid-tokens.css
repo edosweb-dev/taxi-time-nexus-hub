@@ -1,0 +1,70 @@
+/* Fluid Design Tokens - Mobile First Responsive System */
+
+:root {
+  /* Fluid Typography Scale using clamp() */
+  --fluid-heading-xl: clamp(1.75rem, 4vw, 3rem);     /* 28px - 48px */
+  --fluid-heading-lg: clamp(1.5rem, 3.5vw, 2.5rem);  /* 24px - 40px */
+  --fluid-heading-md: clamp(1.25rem, 3vw, 2rem);     /* 20px - 32px */
+  --fluid-heading-sm: clamp(1.125rem, 2.5vw, 1.5rem); /* 18px - 24px */
+  
+  --fluid-text-lg: clamp(1.125rem, 2vw, 1.25rem);    /* 18px - 20px */
+  --fluid-text-base: clamp(1rem, 1.5vw, 1.125rem);   /* 16px - 18px */
+  --fluid-text-sm: clamp(0.875rem, 1.25vw, 1rem);    /* 14px - 16px */
+  --fluid-text-xs: clamp(0.75rem, 1vw, 0.875rem);    /* 12px - 14px */
+  
+  /* Fluid Spacing Scale */
+  --fluid-space-xs: clamp(0.25rem, 1vw, 0.5rem);     /* 4px - 8px */
+  --fluid-space-sm: clamp(0.5rem, 1.5vw, 0.75rem);   /* 8px - 12px */
+  --fluid-space-md: clamp(0.75rem, 2vw, 1rem);       /* 12px - 16px */
+  --fluid-space-lg: clamp(1rem, 2.5vw, 1.5rem);      /* 16px - 24px */
+  --fluid-space-xl: clamp(1.5rem, 3vw, 2rem);        /* 24px - 32px */
+  --fluid-space-2xl: clamp(2rem, 4vw, 3rem);         /* 32px - 48px */
+  --fluid-space-3xl: clamp(2.5rem, 5vw, 4rem);       /* 40px - 64px */
+  
+  /* Fluid Container Widths */
+  --fluid-container-sm: clamp(320px, 90vw, 640px);
+  --fluid-container-md: clamp(640px, 85vw, 768px);
+  --fluid-container-lg: clamp(768px, 80vw, 1024px);
+  --fluid-container-xl: clamp(1024px, 75vw, 1280px);
+  
+  /* Fluid Form Elements */
+  --fluid-input-height: clamp(2.5rem, 3vw, 3rem);    /* 40px - 48px */
+  --fluid-input-padding-x: clamp(0.75rem, 2vw, 1rem); /* 12px - 16px */
+  --fluid-input-padding-y: clamp(0.5rem, 1.5vw, 0.75rem); /* 8px - 12px */
+  
+  --fluid-button-height: clamp(2.25rem, 3vw, 2.75rem); /* 36px - 44px */
+  --fluid-button-padding-x: clamp(1rem, 2.5vw, 1.5rem); /* 16px - 24px */
+  --fluid-button-padding-y: clamp(0.5rem, 1.5vw, 0.75rem); /* 8px - 12px */
+  
+  /* Fluid Border Radius */
+  --fluid-radius-sm: clamp(0.25rem, 0.5vw, 0.375rem); /* 4px - 6px */
+  --fluid-radius-md: clamp(0.375rem, 0.75vw, 0.5rem); /* 6px - 8px */
+  --fluid-radius-lg: clamp(0.5rem, 1vw, 0.75rem);     /* 8px - 12px */
+}
+
+/* Utility Classes for Fluid Design Tokens */
+.fluid-heading-xl { font-size: var(--fluid-heading-xl); }
+.fluid-heading-lg { font-size: var(--fluid-heading-lg); }
+.fluid-heading-md { font-size: var(--fluid-heading-md); }
+.fluid-heading-sm { font-size: var(--fluid-heading-sm); }
+
+.fluid-text-lg { font-size: var(--fluid-text-lg); }
+.fluid-text-base { font-size: var(--fluid-text-base); }
+.fluid-text-sm { font-size: var(--fluid-text-sm); }
+.fluid-text-xs { font-size: var(--fluid-text-xs); }
+
+.fluid-space-xs { padding: var(--fluid-space-xs); }
+.fluid-space-sm { padding: var(--fluid-space-sm); }
+.fluid-space-md { padding: var(--fluid-space-md); }
+.fluid-space-lg { padding: var(--fluid-space-lg); }
+.fluid-space-xl { padding: var(--fluid-space-xl); }
+.fluid-space-2xl { padding: var(--fluid-space-2xl); }
+.fluid-space-3xl { padding: var(--fluid-space-3xl); }
+
+.fluid-gap-xs { gap: var(--fluid-space-xs); }
+.fluid-gap-sm { gap: var(--fluid-space-sm); }
+.fluid-gap-md { gap: var(--fluid-space-md); }
+.fluid-gap-lg { gap: var(--fluid-space-lg); }
+.fluid-gap-xl { gap: var(--fluid-space-xl); }
+.fluid-gap-2xl { gap: var(--fluid-space-2xl); }
+.fluid-gap-3xl { gap: var(--fluid-space-3xl); }

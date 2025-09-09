@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import fluid design tokens */
+@import './styles/fluid-tokens.css';
+
 @layer base {
   :root {
     --background: 210 20% 98%;
