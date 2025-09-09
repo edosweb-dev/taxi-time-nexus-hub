@@ -1,3 +1,40 @@
+/* MOBILE FIX IMMEDIATO */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100% !important;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100% !important;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+/* Forza mobile-first */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px !important;
+  }
+  
+  .container, 
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl,
+  .max-w-4xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
 
 @tailwind base;
 @tailwind components;
