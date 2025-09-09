@@ -24,16 +24,17 @@ export default function ServiziPage() {
   } = useServiziPage();
   
   const { headingClass, sectionSpacing } = useResponsiveStyles();
+  
+  // All hooks must be called before any conditional returns
+  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
+  const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
+  const [showCompletaDialog, setShowCompletaDialog] = useState(false);
+  const [showFirmaDialog, setShowFirmaDialog] = useState(false);
 
   // Mobile optimization - return mobile component if on mobile
   if (isMobile) {
     return <MobileOptimizedServiziPage />;
   }
-
-  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
-  const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
-  const [showCompletaDialog, setShowCompletaDialog] = useState(false);
-  const [showFirmaDialog, setShowFirmaDialog] = useState(false);
 
   const handleSelectServizio = (servizio: Servizio) => {
     setSelectedServizio(servizio);
