@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { MainLayout } from '@/components/layouts/MainLayout';
+import { ResponsiveLayout } from '@/components/layouts/ResponsiveLayout';
 import { ResponsiveServiziContent } from '@/components/servizi/ResponsiveServiziContent';
 import { ServiziDialogManager } from '@/components/servizi/page/ServiziDialogManager';
 import { ChevronRight, Home } from 'lucide-react';
 import { useServiziPage } from '@/hooks/useServiziPage';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Servizio } from '@/lib/types/servizi';
 
 
@@ -20,6 +21,8 @@ export default function ServiziPage() {
     handleNavigateToDetail,
     handleNavigateToNewServizio,
   } = useServiziPage();
+  
+  const { headingClass, sectionSpacing } = useResponsiveStyles();
 
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
@@ -49,32 +52,32 @@ export default function ServiziPage() {
   };
 
   return (
-    <MainLayout>
+    <ResponsiveLayout className={sectionSpacing}>
       {/* Breadcrumb Navigation - Solo su desktop */}
-      <div className="hidden md:block mb-6">
-        <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <Home className="h-4 w-4" />
-          <ChevronRight className="h-4 w-4" />
-          <span className="font-medium text-foreground">Servizi</span>
-        </nav>
-      </div>
+      {!isMobile && (
+        <div className="mb-6">
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Home className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" />
+            <span className="font-medium text-foreground">Servizi</span>
+          </nav>
+        </div>
+      )}
 
       {/* Responsive content optimized for mobile and desktop */}
-      <div className="w-full">
-        <ResponsiveServiziContent
-          servizi={servizi}
-          users={users}
-          isLoading={isLoading}
-          error={error}
-          isAdminOrSocio={isAdminOrSocio}
-          onNavigateToDetail={handleNavigateToDetail}
-          onNavigateToNewServizio={handleNavigateToNewServizio}
-          onSelectServizio={handleSelectServizio}
-          onCompleta={handleCompleta}
-          onFirma={handleFirma}
-          allServizi={servizi}
-        />
-      </div>
+      <ResponsiveServiziContent
+        servizi={servizi}
+        users={users}
+        isLoading={isLoading}
+        error={error}
+        isAdminOrSocio={isAdminOrSocio}
+        onNavigateToDetail={handleNavigateToDetail}
+        onNavigateToNewServizio={handleNavigateToNewServizio}
+        onSelectServizio={handleSelectServizio}
+        onCompleta={handleCompleta}
+        onFirma={handleFirma}
+        allServizi={servizi}
+      />
       
       <ServiziDialogManager
         onRefetch={refetch}
@@ -87,6 +90,6 @@ export default function ServiziPage() {
         setShowFirmaDialog={setShowFirmaDialog}
         onClose={handleCloseDialogs}
       />
-    </MainLayout>
+    </ResponsiveLayout>
   );
 }

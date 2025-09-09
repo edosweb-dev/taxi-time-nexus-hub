@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 
 interface MobileServiziHeaderProps {
   isAdminOrSocio: boolean;
@@ -10,10 +11,12 @@ export function MobileServiziHeader({
   isAdminOrSocio, 
   onNavigateToNewServizio 
 }: MobileServiziHeaderProps) {
+  const { headingClass } = useResponsiveStyles();
+  
   return (
-    <div className="bg-primary text-primary-foreground w-full">
+    <div className="bg-primary text-primary-foreground w-full p-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Servizi</h1>
+        <h1 className={`${headingClass} font-bold`}>Servizi</h1>
         {isAdminOrSocio && (
           <Button
             size="sm"

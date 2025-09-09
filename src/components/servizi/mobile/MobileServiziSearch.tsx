@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MobileFirstFilters } from '../mobile-first/MobileFirstFilters';
+import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Servizio } from '@/lib/types/servizi';
 import { Profile } from '@/lib/types';
 import { ServiziFiltersState } from '../filters/ServiziFilters';
@@ -32,16 +33,17 @@ export function MobileServiziSearch({
   users
 }: MobileServiziSearchProps) {
   const hasActiveFilters = filters.aziendaId || filters.assigneeId || filters.dateFrom || filters.dateTo;
+  const { inputClass, sectionSpacing } = useResponsiveStyles();
 
   return (
-    <div className="bg-card border-b w-full space-y-3">
+    <div className={`bg-card border-b w-full ${sectionSpacing}`}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Cerca servizi..."
           value={searchText}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10"
+          className={`pl-10 ${inputClass}`}
         />
       </div>
 
