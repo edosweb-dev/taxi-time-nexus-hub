@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
-import { MobileFirstServiziContent } from '@/components/servizi/mobile-first/MobileFirstServiziContent';
+import { ResponsiveServiziContent } from '@/components/servizi/ResponsiveServiziContent';
 import { ServiziDialogManager } from '@/components/servizi/page/ServiziDialogManager';
 import { ChevronRight, Home } from 'lucide-react';
 import { useServiziPage } from '@/hooks/useServiziPage';
@@ -59,20 +59,22 @@ export default function ServiziPage() {
         </nav>
       </div>
 
-      {/* Mobile-First responsive content */}
-      <MobileFirstServiziContent 
-        servizi={servizi}
-        users={users}
-        isLoading={isLoading}
-        error={error}
-        isAdminOrSocio={isAdminOrSocio}
-        onNavigateToDetail={handleNavigateToDetail}
-        onNavigateToNewServizio={handleNavigateToNewServizio}
-        onSelectServizio={handleSelectServizio}
-        onCompleta={handleCompleta}
-        onFirma={handleFirma}
-        allServizi={servizi}
-      />
+      {/* Responsive content optimized for mobile and desktop */}
+      <div className="md:space-y-6">
+        <ResponsiveServiziContent 
+          servizi={servizi}
+          users={users}
+          isLoading={isLoading}
+          error={error}
+          isAdminOrSocio={isAdminOrSocio}
+          onNavigateToDetail={handleNavigateToDetail}
+          onNavigateToNewServizio={handleNavigateToNewServizio}
+          onSelectServizio={handleSelectServizio}
+          onCompleta={handleCompleta}
+          onFirma={handleFirma}
+          allServizi={servizi}
+        />
+      </div>
       
       <ServiziDialogManager
         onRefetch={refetch}
