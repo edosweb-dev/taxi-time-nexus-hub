@@ -290,19 +290,11 @@
   }
 }
 
-/* ...tutto il tuo codice esistente... */
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-}
-
 /* ========================================
-   MOBILE OPTIMIZATION - Aggiungi alla fine di index.css
+   MOBILE OPTIMIZATION
    ======================================== */
 
 /* MOBILE FIX IMMEDIATO */
 * {
   box-sizing: border-box;
 }
-/* ...resto del codice mobile... */
