@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, ArrowLeft, Bell, Search } from 'lucide-react';
+import { Menu, ArrowLeft, Search, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,8 +10,7 @@ interface MobileHeaderProps {
   onMenuToggle?: () => void;
   showBack?: boolean;
   showSearch?: boolean;
-  showNotifications?: boolean;
-  variant?: 'default' | 'transparent' | 'accent';
+  onSearch?: () => void;
 }
 
 export function MobileHeader({ 
@@ -19,23 +18,11 @@ export function MobileHeader({
   onMenuToggle, 
   showBack = false,
   showSearch = false,
-  showNotifications = false,
-  variant = 'default'
+  onSearch
 }: MobileHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile } = useAuth();
-
-  const getVariantClasses = () => {
-    switch (variant) {
-      case 'transparent':
-        return 'bg-background/80 backdrop-blur-md border-b border-border/50';
-      case 'accent':
-        return 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg';
-      default:
-        return 'bg-primary text-primary-foreground shadow-md';
-    }
-  };
 
   const getInitials = () => {
     if (!profile?.first_name && !profile?.last_name) return 'U';
@@ -51,123 +38,110 @@ export function MobileHeader({
   };
 
   return (
-    <div className={`
-      mobile-header relative overflow-hidden
-      ${getVariantClasses()}
-      flex items-center justify-between px-4 py-3 min-h-[64px]
-      transition-all duration-300 ease-in-out
-    `}>
-      {/* Background decoration */}
-      {variant === 'accent' && (
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12"></div>
-        </div>
-      )}
+    <div className="
+      sticky top-0 z-50 w-full
+      bg-background/95 backdrop-blur-md border-b border-border/40
+      animate-fade-in
+    ">
+      {/* Main header content */}
+      <div className="flex items-center justify-between h-16 px-4">
+        {/* Left section */}
+        <div className="flex items-center gap-3">
+          {showBack ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBack}
+              className="
+                w-10 h-10 rounded-full 
+                hover:bg-muted/50 active:scale-95 
+                transition-all duration-200 
+                touch-manipulation
+              "
+              aria-label="Torna indietro"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onMenuToggle}
+              className="
+                w-10 h-10 rounded-full 
+                hover:bg-muted/50 active:scale-95 
+                transition-all duration-200 
+                touch-manipulation
+              "
+              aria-label="Apri menu"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          )}
 
-      {/* Left section */}
-      <div className="flex items-center gap-3 relative z-10">
-        {showBack ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
-            className={`
-              p-2 rounded-full transition-all duration-200 
-              ${variant === 'accent' 
-                ? 'text-primary-foreground hover:bg-primary-foreground/20' 
-                : 'text-foreground hover:bg-muted'
-              }
-              active:scale-95 touch-manipulation
-            `}
-            aria-label="Torna indietro"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onMenuToggle}
-            className={`
-              p-2 rounded-full transition-all duration-200 
-              ${variant === 'accent' 
-                ? 'text-primary-foreground hover:bg-primary-foreground/20' 
-                : 'text-foreground hover:bg-muted'
-              }
-              active:scale-95 touch-manipulation
-            `}
-            aria-label="Apri menu"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-        )}
-
-        <div className="flex flex-col">
-          <h1 className="text-lg font-bold leading-tight line-clamp-1">
-            {title}
-          </h1>
-          {location.pathname !== '/dashboard' && (
-            <div className="text-xs opacity-75 font-medium">
+          <div className="flex flex-col justify-center min-w-0">
+            <h1 className="
+              text-lg font-semibold text-foreground 
+              truncate leading-tight
+            ">
+              {title}
+            </h1>
+            <div className="text-xs text-muted-foreground font-medium">
               TAXITIME
             </div>
+          </div>
+        </div>
+
+        {/* Right section */}
+        <div className="flex items-center gap-2">
+          {showSearch && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onSearch}
+              className="
+                w-10 h-10 rounded-full 
+                hover:bg-muted/50 active:scale-95 
+                transition-all duration-200 
+                touch-manipulation
+              "
+              aria-label="Cerca"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
           )}
+
+          {/* User Profile */}
+          <div className="flex items-center gap-2 ml-2">
+            <Avatar className="w-8 h-8 border border-border/20 hover-scale">
+              <AvatarFallback className="
+                bg-primary/10 text-primary 
+                text-xs font-medium
+                transition-colors duration-200
+              ">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="
+                w-8 h-8 rounded-full p-0
+                hover:bg-muted/50 active:scale-95 
+                transition-all duration-200 
+                touch-manipulation
+              "
+              aria-label="Opzioni utente"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Right section */}
-      <div className="flex items-center gap-2 relative z-10">
-        {showSearch && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`
-              p-2 rounded-full transition-all duration-200 
-              ${variant === 'accent' 
-                ? 'text-primary-foreground hover:bg-primary-foreground/20' 
-                : 'text-foreground hover:bg-muted'
-              }
-              active:scale-95 touch-manipulation
-            `}
-            aria-label="Cerca"
-          >
-            <Search className="w-5 h-5" />
-          </Button>
-        )}
-
-        {showNotifications && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`
-              p-2 rounded-full transition-all duration-200 relative
-              ${variant === 'accent' 
-                ? 'text-primary-foreground hover:bg-primary-foreground/20' 
-                : 'text-foreground hover:bg-muted'
-              }
-              active:scale-95 touch-manipulation
-            `}
-            aria-label="Notifiche"
-          >
-            <Bell className="w-5 h-5" />
-            {/* Notification dot */}
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-current"></div>
-          </Button>
-        )}
-
-        {/* User avatar */}
-        <Avatar className="w-8 h-8 border-2 border-current/20">
-          <AvatarFallback className={`
-            text-xs font-bold 
-            ${variant === 'accent' 
-              ? 'bg-primary-foreground text-primary' 
-              : 'bg-primary text-primary-foreground'
-            }
-          `}>
-            {getInitials()}
-          </AvatarFallback>
-        </Avatar>
-      </div>
+      {/* Subtle progress bar for visual feedback */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
     </div>
   );
 }
