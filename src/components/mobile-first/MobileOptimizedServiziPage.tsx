@@ -137,33 +137,99 @@ export function MobileOptimizedServiziPage() {
                    servizio.stato === 'completato' ? 'Completato' : 'Da Assegnare'}
                 </Badge>
               </div>
+              
+              {/* Metodo pagamento */}
+              <div className="ml-3 text-right">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                  {servizio.metodo_pagamento || 'N/A'}
+                </div>
+                {servizio.incasso_previsto && (
+                  <div className="text-sm font-semibold text-primary">
+                    €{servizio.incasso_previsto.toFixed(2)}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Info servizio */}
+            {/* Info principale servizio */}
             <div className="space-y-2">
               <div className="service-info">
                 <Calendar className="service-info-icon" />
                 <span>{new Date(servizio.data_servizio).toLocaleDateString('it-IT')}</span>
+                <div className="ml-auto text-xs text-muted-foreground">
+                  {servizio.orario_servizio || 'Orario non specificato'}
+                </div>
               </div>
 
-              <div className="service-info">
-                <Clock className="service-info-icon" />
-                <span>{servizio.orario_servizio || 'Orario non specificato'}</span>
-              </div>
-
-              <div className="service-info">
-                <MapPin className="service-info-icon" />
-                <span className="line-clamp-1">
-                  {servizio.indirizzo_presa || 'Ubicazione non specificata'}
-                </span>
-              </div>
-
-              {servizio.assegnato_a && (
+              {/* Percorso completo */}
+              <div className="bg-muted/30 rounded-lg p-2 space-y-1.5">
                 <div className="service-info">
-                  <User className="service-info-icon" />
-                  <span>
-                    {users?.find(u => u.id === servizio.assegnato_a)?.email || 'Utente non trovato'}
-                  </span>
+                  <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0 mt-2" />
+                  <div className="flex-1">
+                    <div className="text-xs text-muted-foreground">Partenza</div>
+                    <span className="text-sm font-medium line-clamp-1">
+                      {servizio.indirizzo_presa}
+                    </span>
+                    {servizio.citta_presa && (
+                      <div className="text-xs text-muted-foreground">{servizio.citta_presa}</div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="ml-1 border-l-2 border-dashed border-muted-foreground/30 h-4"></div>
+                
+                <div className="service-info">
+                  <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-2" />
+                  <div className="flex-1">
+                    <div className="text-xs text-muted-foreground">Destinazione</div>
+                    <span className="text-sm font-medium line-clamp-1">
+                      {servizio.indirizzo_destinazione}
+                    </span>
+                    {servizio.citta_destinazione && (
+                      <div className="text-xs text-muted-foreground">{servizio.citta_destinazione}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Assegnazione e veicolo */}
+              <div className="flex gap-2">
+                {servizio.assegnato_a && (
+                  <div className="service-info flex-1">
+                    <User className="service-info-icon" />
+                    <span className="text-sm">
+                      {users?.find(u => u.id === servizio.assegnato_a)?.first_name || 'Utente'} {users?.find(u => u.id === servizio.assegnato_a)?.last_name || ''}
+                    </span>
+                  </div>
+                )}
+                
+                {servizio.conducente_esterno && (
+                  <div className="service-info flex-1">
+                    <User className="service-info-icon" />
+                    <span className="text-sm">
+                      {servizio.conducente_esterno_nome || 'Conducente esterno'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Info aggiuntive */}
+              {(servizio.ore_effettive || servizio.note) && (
+                <div className="pt-2 border-t border-border/50 space-y-1">
+                  {servizio.ore_effettive && (
+                    <div className="service-info">
+                      <Clock className="service-info-icon" />
+                      <span className="text-sm">
+                        {servizio.ore_effettive}h lavorative
+                      </span>
+                    </div>
+                  )}
+                  
+                  {servizio.note && (
+                    <div className="text-xs text-muted-foreground bg-muted/30 rounded p-2 line-clamp-2">
+                      <strong>Note:</strong> {servizio.note}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
