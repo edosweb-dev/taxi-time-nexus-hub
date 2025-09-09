@@ -7,6 +7,7 @@ import { ChevronRight, Home } from 'lucide-react';
 import { useServiziPage } from '@/hooks/useServiziPage';
 import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Servizio } from '@/lib/types/servizi';
+import { MobileOptimizedServiziPage } from '@/components/mobile-first/MobileOptimizedServiziPage';
 
 
 export default function ServiziPage() {
@@ -23,6 +24,11 @@ export default function ServiziPage() {
   } = useServiziPage();
   
   const { headingClass, sectionSpacing } = useResponsiveStyles();
+
+  // Mobile optimization - return mobile component if on mobile
+  if (isMobile) {
+    return <MobileOptimizedServiziPage />;
+  }
 
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
