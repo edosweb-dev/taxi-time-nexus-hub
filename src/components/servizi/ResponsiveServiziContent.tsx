@@ -134,12 +134,12 @@ export function ResponsiveServiziContent({
     return (
       <div className="w-full h-full">
         {isMobile ? (
-          <div className="min-h-screen">
+          <div className="w-screen max-w-sm mx-auto min-h-screen bg-background">
             <MobileServiziHeader 
               isAdminOrSocio={isAdminOrSocio}
               onNavigateToNewServizio={onNavigateToNewServizio}
             />
-            <div className="p-4">
+            <div className="p-2">
               <MobileFirstStats servizi={[]} isLoading={true} />
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -183,35 +183,39 @@ export function ResponsiveServiziContent({
     );
   }
 
-  // Mobile Layout
+  // Mobile Layout with strict width constraints
   if (isMobile) {
     return (
-      <div className="min-h-screen w-full max-w-full overflow-x-hidden">
+      <div className="w-screen max-w-sm mx-auto min-h-screen overflow-x-hidden bg-background">
         {/* Mobile Header with Stats */}
-        <MobileServiziHeader 
-          isAdminOrSocio={isAdminOrSocio}
-          onNavigateToNewServizio={onNavigateToNewServizio}
-        />
+        <div className="w-full">
+          <MobileServiziHeader 
+            isAdminOrSocio={isAdminOrSocio}
+            onNavigateToNewServizio={onNavigateToNewServizio}
+          />
+        </div>
         
-        <div className="px-2 py-3">
+        <div className="w-full px-1 py-1">
           <MobileFirstStats servizi={filteredServizi} isLoading={isLoading} />
         </div>
 
         {/* Search and Filters */}
-        <MobileServiziSearch
-          searchText={searchText}
-          onSearchChange={setSearchText}
-          showFilters={showFilters}
-          onShowFiltersChange={setShowFilters}
-          filters={filters}
-          onFiltersChange={setFilters}
-          onClearFilters={handleClearFilters}
-          servizi={servizi}
-          users={users}
-        />
+        <div className="w-full">
+          <MobileServiziSearch
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            showFilters={showFilters}
+            onShowFiltersChange={setShowFilters}
+            filters={filters}
+            onFiltersChange={setFilters}
+            onClearFilters={handleClearFilters}
+            servizi={servizi}
+            users={users}
+          />
+        </div>
 
         {/* Status Tabs */}
-        <div className="bg-card border-b">
+        <div className="w-full bg-card border-b">
           <MobileFirstTabs
             tabs={[
               { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
@@ -227,7 +231,7 @@ export function ResponsiveServiziContent({
         </div>
 
         {/* Service List */}
-        <div className="px-2 py-2 pb-20">
+        <div className="w-full px-1 py-1 pb-20">
           {serviziByStatus[activeTab as keyof typeof serviziByStatus].length > 0 ? (
             <MobileFirstServiceList
               servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
