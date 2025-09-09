@@ -811,7 +811,7 @@ html, body {
     overflow-x: hidden;
     padding: 0 !important;
     margin: 0 !important;
-    padding-bottom: 5rem; /* Spazio per bottom nav */
+    padding-bottom: 80px !important; /* Spazio per bottom nav */
   }
 
   /* HEADER MOBILE - FULL WIDTH */
@@ -885,58 +885,78 @@ html, body {
     display: none;
   }
 
-  /* BOTTOM NAVIGATION - FISSA */
-  .bottom-navigation {
+  /* BOTTOM NAVIGATION MOBILE */
+  .bottom-nav-container {
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    width: 100vw !important;
-    height: 4rem !important;
+    width: 100% !important;
+    height: 64px !important;
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(10px) !important;
     border-top: 1px solid hsl(var(--border)) !important;
     z-index: 50 !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: space-around !important;
+    justify-content: center !important;
     padding: 0 !important;
   }
 
+  /* Nav items container */
+  .bottom-nav-items {
+    display: flex;
+    width: 100%;
+    max-width: 500px;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 1rem;
+  }
+
+  /* Singolo nav item */
   .bottom-nav-item {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.25rem !important;
-    padding: 0.5rem !important;
-    flex: 1 !important;
-    max-width: 80px !important;
+    gap: 2px !important;
+    padding: 8px 12px !important;
     background: transparent !important;
     border: none !important;
     color: hsl(var(--muted-foreground)) !important;
     text-decoration: none !important;
-    transition: color 0.2s ease !important;
+    transition: all 0.2s ease !important;
+    min-width: 60px !important;
+    min-height: 48px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
   }
 
+  /* Nav item attivo */
   .bottom-nav-item.active {
     color: hsl(var(--primary)) !important;
+    background: hsl(var(--primary) / 0.1) !important;
   }
 
+  /* Touch feedback */
   .bottom-nav-item:active {
     transform: scale(0.95);
     transition: transform 0.1s ease;
   }
 
+  /* Icone nav */
   .bottom-nav-icon {
-    width: 1.25rem !important;
-    height: 1.25rem !important;
+    width: 20px !important;
+    height: 20px !important;
+    stroke-width: 2 !important;
   }
 
-  .bottom-nav-text {
-    font-size: 0.625rem !important;
+  /* Testo nav */
+  .bottom-nav-label {
+    font-size: 10px !important;
     font-weight: 500 !important;
     line-height: 1 !important;
+    margin-top: 2px !important;
   }
 
   /* FORZA FULL WIDTH SU CONTAINERS ESISTENTI */

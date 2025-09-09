@@ -7,21 +7,25 @@ interface MobileLayoutProps {
   children: React.ReactNode;
   title: string;
   showBottomNav?: boolean;
+  showHeader?: boolean;
 }
 
 export function MobileLayout({ 
   children, 
   title, 
-  showBottomNav = true 
+  showBottomNav = true,
+  showHeader = true 
 }: MobileLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="mobile-container">
-      <MobileHeader 
-        title={title} 
-        onMenuToggle={() => setSidebarOpen(true)} 
-      />
+      {showHeader && (
+        <MobileHeader 
+          title={title} 
+          onMenuToggle={() => setSidebarOpen(true)} 
+        />
+      )}
       
       <div className="mobile-content">
         {children}
