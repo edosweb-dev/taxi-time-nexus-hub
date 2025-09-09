@@ -181,7 +181,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
                       `}
                       type="button"
                     >
-                      <item.icon className="w-5 h-5 flex-shrink-0" />
+                      <item.icon className="w-5 h-5 flex-shrink-0 pl-0.5" />
                       <span className="flex-1 text-left">{item.label}</span>
                       {item.badge && (
                         <span className="bg-destructive text-destructive-foreground text-xs px-2 py-0.5 rounded-full">
