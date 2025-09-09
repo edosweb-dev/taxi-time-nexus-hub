@@ -6,7 +6,13 @@ export async function getServizi(): Promise<Servizio[]> {
   try {
     const { data, error } = await supabase
       .from('servizi')
-      .select('*')
+      .select(`
+        *,
+        aziende:azienda_id (
+          id,
+          nome
+        )
+      `)
       .order('created_at', { ascending: false });
 
     if (error) {

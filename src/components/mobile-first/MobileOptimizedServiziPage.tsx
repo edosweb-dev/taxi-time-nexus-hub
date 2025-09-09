@@ -129,8 +129,13 @@ export function MobileOptimizedServiziPage() {
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">
                 <h3 className="mobile-subheading line-clamp-2">
-                  {servizio.numero_commessa || `Servizio ${servizio.id.slice(0, 8)}`}
+                  {servizio.aziende?.nome || 'Azienda non specificata'}
                 </h3>
+                {servizio.numero_commessa && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Commessa: {servizio.numero_commessa}
+                  </div>
+                )}
                 <Badge className={`status-${servizio.stato === 'da_assegnare' ? 'pending' : servizio.stato === 'assegnato' ? 'assigned' : servizio.stato === 'completato' ? 'completed' : 'pending'} mt-1`}>
                   {servizio.stato === 'da_assegnare' ? 'Da Assegnare' :
                    servizio.stato === 'assegnato' ? 'Assegnato' :

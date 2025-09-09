@@ -37,6 +37,11 @@ export interface Servizio {
   consegna_contanti_a?: string;
   veicolo_id?: string;
   applica_provvigione?: boolean;
+  // Company information from join
+  aziende?: {
+    id: string;
+    nome: string;
+  };
 }
 
 // Passeggero ora collegato ad azienda e referente (senza più i dettagli specifici del servizio)
