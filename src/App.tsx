@@ -187,6 +187,13 @@ function App() {
                 <Route path="/gestione-turni/report" element={<Navigate to="/report" replace />} />
                 
                 {/* Mobile UI Showcase Route - Development */}
+                <Route path="/mobile-test" element={
+                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                    <MobileUIShowcase />
+                  </AuthGuard>
+                } />
+                
+                {/* Mobile UI Showcase Route - Development */}
                 <Route path="/mobile-showcase" element={
                   <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                     <MobileUIShowcase />

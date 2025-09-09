@@ -770,7 +770,8 @@ html, body {
 }
 
 .touch-feedback:active {
-  @apply transform scale-98 transition-transform duration-100;
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
 }
 
 /* Responsive visibility utilities */
