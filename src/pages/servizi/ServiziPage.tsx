@@ -7,7 +7,7 @@ import { ChevronRight, Home } from 'lucide-react';
 import { useServiziPage } from '@/hooks/useServiziPage';
 import { Servizio } from '@/lib/types/servizi';
 import { RESPONSIVE_SPACING } from '@/hooks/useResponsiveSpacing';
-import { MobileFirstServiziContent } from '@/components/servizi/mobile-first/MobileFirstServiziContent';
+
 
 export default function ServiziPage() {
   const {
@@ -61,40 +61,21 @@ export default function ServiziPage() {
           </nav>
         </div>
 
-        {isMobile ? (
-          <div className="-mx-5 sm:-mx-4 md:mx-0">
-            <MobileFirstServiziContent 
-              servizi={servizi}
-              users={users}
-              isLoading={isLoading}
-              error={error}
-              isAdminOrSocio={isAdminOrSocio}
-              onNavigateToDetail={handleNavigateToDetail}
-              onNavigateToNewServizio={handleNavigateToNewServizio}
-              onSelectServizio={handleSelectServizio}
-              onCompleta={handleCompleta}
-              onFirma={handleFirma}
-              allServizi={servizi}
-            />
-          </div>
-        ) : (
-
-          <ServiziContent 
-            servizi={servizi}
-            users={users}
-            isLoading={isLoading}
-            error={error}
-            isAdminOrSocio={isAdminOrSocio}
-            isMobile={isMobile}
-            onNavigateToDetail={handleNavigateToDetail}
-            onNavigateToNewServizio={handleNavigateToNewServizio}
-            onSelectServizio={handleSelectServizio}
-            onCompleta={handleCompleta}
-            onFirma={handleFirma}
-            allServizi={servizi}
-          />
-        )}
-
+        {/* Unified responsive content - remove mobile/desktop switching */}
+        <ServiziContent 
+          servizi={servizi}
+          users={users}
+          isLoading={isLoading}
+          error={error}
+          isAdminOrSocio={isAdminOrSocio}
+          isMobile={isMobile}
+          onNavigateToDetail={handleNavigateToDetail}
+          onNavigateToNewServizio={handleNavigateToNewServizio}
+          onSelectServizio={handleSelectServizio}
+          onCompleta={handleCompleta}
+          onFirma={handleFirma}
+          allServizi={servizi}
+        />
         
         <ServiziDialogManager
           onRefetch={refetch}
