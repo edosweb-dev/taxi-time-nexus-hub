@@ -186,14 +186,14 @@ export function ResponsiveServiziContent({
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="min-h-screen w-full overflow-x-hidden">
+      <div className="min-h-screen w-full max-w-full overflow-x-hidden">
         {/* Mobile Header with Stats */}
         <MobileServiziHeader 
           isAdminOrSocio={isAdminOrSocio}
           onNavigateToNewServizio={onNavigateToNewServizio}
         />
         
-        <div className="space-y-4">
+        <div className="px-2 py-3">
           <MobileFirstStats servizi={filteredServizi} isLoading={isLoading} />
         </div>
 
@@ -227,7 +227,7 @@ export function ResponsiveServiziContent({
         </div>
 
         {/* Service List */}
-        <div className="p-4 pb-20">
+        <div className="px-2 py-2 pb-20">
           {serviziByStatus[activeTab as keyof typeof serviziByStatus].length > 0 ? (
             <MobileFirstServiceList
               servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
