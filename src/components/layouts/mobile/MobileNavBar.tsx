@@ -31,25 +31,32 @@ export function MobileNavBar() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-primary/95 dark:bg-primary border-t border-white/20 p-2 flex justify-around items-center z-50 backdrop-blur-md">
+    <nav 
+      className="fixed bottom-0 left-0 right-0 bg-background/95 dark:bg-background/95 border-t border-border p-2 flex justify-around items-center z-50 backdrop-blur-md safe-area-inset-bottom"
+      role="navigation"
+      aria-label="Navigazione principale"
+    >
       {mainItems.map((item) => {
-        const isActive = location.pathname === item.to;
+        const isActive = location.pathname === item.to || 
+                        (item.to === '/servizi' && location.pathname.startsWith('/servizi'));
         
         return (
           <Link 
             key={item.to}
             to={item.to} 
             className={cn(
-              "flex flex-col items-center gap-1 p-2 min-w-[60px] rounded-lg transition-all duration-200 touch-manipulation",
+              "flex flex-col items-center gap-1 p-3 min-w-[64px] min-h-[48px] rounded-xl transition-all duration-200 touch-manipulation active:scale-95",
+              "focus:outline-none focus:ring-2 focus:ring-primary/50",
               isActive 
-                ? "bg-white text-primary shadow-lg" 
-                : "text-white hover:bg-white/10 active:bg-white/20"
+                ? "bg-primary text-primary-foreground shadow-lg scale-105" 
+                : "text-muted-foreground hover:bg-muted hover:text-foreground active:bg-muted/80"
             )}
+            aria-current={isActive ? "page" : undefined}
           >
-            <item.icon className="h-5 w-5" />
-            <span className="text-xs font-medium">{item.label}</span>
+            <item.icon className="h-5 w-5 shrink-0" />
+            <span className="text-xs font-medium truncate max-w-[48px]">{item.label}</span>
             {isActive && (
-              <div className="absolute -top-1 right-1 w-2 h-2 bg-white rounded-full" />
+              <div className="absolute -top-1 right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
             )}
           </Link>
         );
@@ -58,25 +65,34 @@ export function MobileNavBar() {
       {/* Three dots menu */}
       <Sheet>
         <SheetTrigger asChild>
-          <button className="flex flex-col items-center gap-1 p-2 min-w-[60px] rounded-lg text-white hover:bg-white/10 active:bg-white/20 transition-all duration-200 touch-manipulation">
-            <MoreHorizontal className="h-5 w-5" />
+          <button 
+            className="flex flex-col items-center gap-1 p-3 min-w-[64px] min-h-[48px] rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground active:bg-muted/80 active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus:ring-2 focus:ring-primary/50"
+            aria-label="Apri menu completo"
+          >
+            <MoreHorizontal className="h-5 w-5 shrink-0" />
             <span className="text-xs font-medium">Menu</span>
           </button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="h-[80vh] rounded-t-2xl border-t border-white/20 bg-background/95 backdrop-blur-md">
+        <SheetContent 
+          side="bottom" 
+          className="h-[85vh] max-h-[600px] rounded-t-2xl border-t border-border bg-background/95 backdrop-blur-md safe-area-inset-bottom"
+        >
           <SheetHeader className="pb-4">
-            <SheetTitle className="text-center">Menu Completo</SheetTitle>
+            <SheetTitle className="text-center text-lg">Menu Completo</SheetTitle>
           </SheetHeader>
-          <MobileMenuContent />
+          <div className="h-full overflow-y-auto pb-4">
+            <MobileMenuContent />
+          </div>
         </SheetContent>
       </Sheet>
       
       {/* Logout always visible */}
       <button 
         onClick={() => signOut()}
-        className="flex flex-col items-center gap-1 p-2 min-w-[60px] rounded-lg text-white hover:bg-red-500/20 active:bg-red-500/30 transition-all duration-200 touch-manipulation"
+        className="flex flex-col items-center gap-1 p-3 min-w-[64px] min-h-[48px] rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:bg-destructive/20 active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus:ring-2 focus:ring-destructive/50"
+        aria-label="Disconnetti"
       >
-        <LogOut className="h-5 w-5" />
+        <LogOut className="h-5 w-5 shrink-0" />
         <span className="text-xs font-medium">Esci</span>
       </button>
     </nav>
