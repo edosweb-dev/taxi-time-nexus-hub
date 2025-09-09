@@ -70,20 +70,50 @@ export function MobileOptimizedServiziPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="mobile-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`mobile-tab ${activeTab === tab.id ? 'active' : ''}`}
-          >
-            <span>{tab.label}</span>
-            <Badge className="mobile-badge">
-              {tab.count}
-            </Badge>
-          </button>
-        ))}
+      {/* Enhanced Mobile Tabs */}
+      <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30">
+        <div className="flex overflow-x-auto scrollbar-hide px-4 py-3 gap-2">
+          {tabs.map((tab, index) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                relative flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium 
+                whitespace-nowrap transition-all duration-300 touch-manipulation
+                min-w-fit border shadow-sm
+                ${activeTab === tab.id 
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
+                  : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/80'
+                }
+                active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1
+              `}
+              style={{
+                transformOrigin: 'center',
+                transform: activeTab === tab.id ? 'translateY(-1px)' : 'none'
+              }}
+            >
+              <span className="font-semibold">{tab.label}</span>
+              <div className={`
+                flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
+                transition-colors duration-200
+                ${activeTab === tab.id 
+                  ? 'bg-primary-foreground text-primary' 
+                  : 'bg-muted text-muted-foreground'
+                }
+              `}>
+                {tab.count}
+              </div>
+              
+              {/* Active indicator */}
+              {activeTab === tab.id && (
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full animate-pulse" />
+              )}
+            </button>
+          ))}
+        </div>
+        
+        {/* Subtle gradient fade on scroll */}
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background/95 to-transparent pointer-events-none" />
       </div>
 
       {/* Lista servizi */}
