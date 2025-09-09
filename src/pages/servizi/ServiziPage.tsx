@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ResponsiveLayout } from '@/components/layouts/ResponsiveLayout';
+import { MainLayout } from '@/components/layouts/MainLayout';
 import { ResponsiveServiziContent } from '@/components/servizi/ResponsiveServiziContent';
 import { ServiziDialogManager } from '@/components/servizi/page/ServiziDialogManager';
 import { ChevronRight, Home } from 'lucide-react';
@@ -52,7 +52,7 @@ export default function ServiziPage() {
   };
 
   return (
-    <ResponsiveLayout className={sectionSpacing}>
+    <MainLayout>
       {/* Breadcrumb Navigation - Solo su desktop */}
       {!isMobile && (
         <div className="mb-6">
@@ -90,6 +90,6 @@ export default function ServiziPage() {
         setShowFirmaDialog={setShowFirmaDialog}
         onClose={handleCloseDialogs}
       />
-    </ResponsiveLayout>
+    </MainLayout>
   );
 }
