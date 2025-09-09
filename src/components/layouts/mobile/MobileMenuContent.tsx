@@ -39,6 +39,7 @@ export function MobileMenuContent() {
     {
       title: 'Operazioni',
       items: [
+        { title: 'Servizi Mobile', path: '/servizi-mobile', icon: FileText, roles: ['admin', 'socio', 'dipendente'] },
         { title: 'Nuovo Servizio', path: '/nuovo-servizio', icon: FilePlus, roles: ['admin', 'socio'] },
         { title: 'Turni', path: '/calendario-turni', icon: Calendar, roles: ['admin', 'socio', 'dipendente'] },
         { title: 'Le mie spese', path: '/spese-dipendente', icon: Wallet, roles: ['dipendente'] },

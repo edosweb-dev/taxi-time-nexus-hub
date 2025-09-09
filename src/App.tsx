@@ -19,6 +19,7 @@ import UsersPage from './pages/UsersPage';
 import VeicoliPage from './pages/veicoli/VeicoliPage';
 import ConducentiEsterniPage from './pages/conducenti-esterni/ConducentiEsterniPage';
 import StipendiPage from './pages/StipendiPage';
+import MobileServiziPage from './pages/servizi/MobileServiziPage';
 import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 import CalendarioServiziPage from './pages/CalendarioServiziPage';
 import ReportServiziPage from './pages/ReportServiziPage';
@@ -72,6 +73,11 @@ function App() {
               <Route path="/servizi" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <ServiziPage />
+                </AuthGuard>
+              } />
+              <Route path="/servizi-mobile" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <MobileServiziPage />
                 </AuthGuard>
               } />
               <Route path="/nuovo-servizio" element={
