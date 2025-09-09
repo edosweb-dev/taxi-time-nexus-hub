@@ -30,6 +30,17 @@ export function MobileOptimizedServiziPage() {
     { id: 'completati', label: 'Completati', count: servizi?.filter(s => s.stato === 'completato').length || 0 }
   ];
 
+  // Filter services based on active tab and search
+  const filteredServizi = servizi?.filter(servizio => {
+    const matchesSearch = !searchQuery || 
+      servizio.numero_commessa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      servizio.indirizzo_presa?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesTab = activeTab === 'tutti' || servizio.stato === activeTab.replace('-', '_');
+
+    return matchesSearch && matchesTab;
+  }) || [];
+
   if (!isMobile) {
     return null; // Fallback to regular component
   }
@@ -77,7 +88,8 @@ export function MobileOptimizedServiziPage() {
 
       {/* Lista servizi */}
       <div className="services-list">
-        {servizi?.map((servizio) => (
+        {filteredServizi.length > 0 ? (
+          filteredServizi.map((servizio) => (
           <div
             key={servizio.id}
             className="mobile-card touch-feedback"
@@ -126,7 +138,14 @@ export function MobileOptimizedServiziPage() {
               )}
             </div>
           </div>
-        ))}
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <p className="mobile-text text-muted-foreground">
+              {searchQuery ? 'Nessun servizio trovato per la ricerca' : 'Nessun servizio disponibile'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Floating Action Button */}
