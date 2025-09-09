@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useServiziPage } from '@/hooks/useServiziPage';
+import { MobileLayout } from '@/components/mobile/MobileLayout';
 
 export function MobileOptimizedServiziPage() {
   const {
@@ -35,107 +36,97 @@ export function MobileOptimizedServiziPage() {
 
   if (isLoading) {
     return (
-      <div className="mobile-container">
-        <div className="mobile-header">
-          <h1 className="mobile-heading">Servizi</h1>
-        </div>
+      <MobileLayout title="Servizi">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </div>
+      </MobileLayout>
     );
   }
 
   return (
-    <div className="mobile-container">
-      {/* Header mobile */}
-      <div className="mobile-header">
-        <h1 className="mobile-heading">Servizi</h1>
+    <MobileLayout title="Servizi">
+      {/* Search */}
+      <div className="mobile-search">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Cerca servizi..."
+            className="mobile-input pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
-      <div className="mobile-content">
-        {/* Search */}
-        <div className="mobile-search">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Cerca servizi..."
-              className="mobile-input pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
+      {/* Tabs */}
+      <div className="mobile-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`mobile-tab ${activeTab === tab.id ? 'active' : ''}`}
+          >
+            <span>{tab.label}</span>
+            <Badge className="mobile-badge">
+              {tab.count}
+            </Badge>
+          </button>
+        ))}
+      </div>
 
-        {/* Tabs */}
-        <div className="mobile-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`mobile-tab ${activeTab === tab.id ? 'active' : ''}`}
-            >
-              <span>{tab.label}</span>
-              <Badge className="mobile-badge">
-                {tab.count}
-              </Badge>
-            </button>
-          ))}
-        </div>
-
-        {/* Lista servizi */}
-        <div className="px-4 space-y-3">
-          {servizi?.map((servizio) => (
-            <div
-              key={servizio.id}
-              className="mobile-card touch-feedback"
-              onClick={() => handleNavigateToDetail(servizio.id)}
-            >
-              {/* Header servizio */}
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1">
-                  <h3 className="mobile-subheading line-clamp-2">
-                    {servizio.numero_commessa || `Servizio ${servizio.id.slice(0, 8)}`}
-                  </h3>
-                  <Badge className={`status-${servizio.stato === 'da_assegnare' ? 'pending' : servizio.stato === 'assegnato' ? 'assigned' : servizio.stato === 'completato' ? 'completed' : 'pending'} mt-1`}>
-                    {servizio.stato === 'da_assegnare' ? 'Da Assegnare' :
-                     servizio.stato === 'assegnato' ? 'Assegnato' :
-                     servizio.stato === 'completato' ? 'Completato' : 'Da Assegnare'}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Info servizio */}
-              <div className="space-y-2">
-                <div className="service-info">
-                  <Calendar className="service-info-icon" />
-                  <span>{new Date(servizio.data_servizio).toLocaleDateString('it-IT')}</span>
-                </div>
-
-                <div className="service-info">
-                  <Clock className="service-info-icon" />
-                  <span>{servizio.orario_servizio || 'Orario non specificato'}</span>
-                </div>
-
-                <div className="service-info">
-                  <MapPin className="service-info-icon" />
-                  <span className="line-clamp-1">
-                    {servizio.indirizzo_presa || 'Ubicazione non specificata'}
-                  </span>
-                </div>
-
-                {servizio.assegnato_a && (
-                  <div className="service-info">
-                    <User className="service-info-icon" />
-                    <span>
-                      {users?.find(u => u.id === servizio.assegnato_a)?.email || 'Utente non trovato'}
-                    </span>
-                  </div>
-                )}
+      {/* Lista servizi */}
+      <div className="services-list">
+        {servizi?.map((servizio) => (
+          <div
+            key={servizio.id}
+            className="mobile-card touch-feedback"
+            onClick={() => handleNavigateToDetail(servizio.id)}
+          >
+            {/* Header servizio */}
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1">
+                <h3 className="mobile-subheading line-clamp-2">
+                  {servizio.numero_commessa || `Servizio ${servizio.id.slice(0, 8)}`}
+                </h3>
+                <Badge className={`status-${servizio.stato === 'da_assegnare' ? 'pending' : servizio.stato === 'assegnato' ? 'assigned' : servizio.stato === 'completato' ? 'completed' : 'pending'} mt-1`}>
+                  {servizio.stato === 'da_assegnare' ? 'Da Assegnare' :
+                   servizio.stato === 'assegnato' ? 'Assegnato' :
+                   servizio.stato === 'completato' ? 'Completato' : 'Da Assegnare'}
+                </Badge>
               </div>
             </div>
-          ))}
-        </div>
+
+            {/* Info servizio */}
+            <div className="space-y-2">
+              <div className="service-info">
+                <Calendar className="service-info-icon" />
+                <span>{new Date(servizio.data_servizio).toLocaleDateString('it-IT')}</span>
+              </div>
+
+              <div className="service-info">
+                <Clock className="service-info-icon" />
+                <span>{servizio.orario_servizio || 'Orario non specificato'}</span>
+              </div>
+
+              <div className="service-info">
+                <MapPin className="service-info-icon" />
+                <span className="line-clamp-1">
+                  {servizio.indirizzo_presa || 'Ubicazione non specificata'}
+                </span>
+              </div>
+
+              {servizio.assegnato_a && (
+                <div className="service-info">
+                  <User className="service-info-icon" />
+                  <span>
+                    {users?.find(u => u.id === servizio.assegnato_a)?.email || 'Utente non trovato'}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Floating Action Button */}
@@ -148,9 +139,6 @@ export function MobileOptimizedServiziPage() {
           <Plus className="h-6 w-6" />
         </Button>
       )}
-
-      {/* Bottom Navigation Spacer */}
-      <div className="h-16" />
-    </div>
+    </MobileLayout>
   );
 }
