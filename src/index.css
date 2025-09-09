@@ -327,6 +327,169 @@ html, body {
     padding-right: 1rem !important;
   }
 
+  /* 1. Header Mobile Migliorato */
+  .page-header, h1:first-child {
+    padding: 0.75rem 1rem !important;
+    font-size: 1.25rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* 2. Cards Lista Servizi Ottimizzate */
+  .service-card, [class*="card"] {
+    padding: 0.875rem !important;
+    margin-bottom: 0.75rem !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  }
+  
+  /* Testo nelle cards più leggibile */
+  .service-card h3,
+  .service-card .card-title {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .service-card p,
+  .service-card .text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+    color: #6b7280 !important;
+  }
+
+  /* 3. Tabs Mobile Ottimizzati */
+  .tabs-container, [role="tablist"] {
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding: 0 1rem 0.5rem 1rem !important;
+  }
+  
+  .tabs-container::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  /* Tab buttons ottimizzati */
+  .tab-button, [role="tab"] {
+    white-space: nowrap !important;
+    padding: 0.5rem 1rem !important;
+    min-width: auto !important;
+    font-size: 0.875rem !important;
+    border-radius: 1.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  /* Badge nei tab */
+  .tab-badge, .badge {
+    font-size: 0.75rem !important;
+    min-width: 1.25rem !important;
+    height: 1.25rem !important;
+    line-height: 1.25rem !important;
+  }
+
+  /* 4. Search Bar Mobile Perfezionata */
+  .search-input, input[placeholder*="erca"] {
+    height: 2.75rem !important;
+    font-size: 1rem !important;
+    padding: 0 0.75rem 0 2.5rem !important;
+    border-radius: 0.5rem !important;
+    border: 1px solid #d1d5db !important;
+    margin: 0.75rem 1rem !important;
+    width: calc(100% - 2rem) !important;
+  }
+  
+  /* Search icon */
+  .search-icon {
+    left: 1.75rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+
+  /* 5. Status Badges Ottimizzati */
+  .status-badge, .badge-red {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.375rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+  }
+  
+  /* Info servizio mobile */
+  .service-info, .text-muted {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+    font-size: 0.8125rem !important;
+    color: #6b7280 !important;
+    margin: 0.25rem 0 !important;
+  }
+  
+  .service-info svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 6. Bottom Navigation Perfezionata */
+  .bottom-navigation {
+    height: 4rem !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Bottom nav items */
+  .bottom-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.125rem !important;
+    padding: 0.5rem !important;
+    min-width: 3.5rem !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .bottom-nav-item:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* Bottom nav icons e testo */
+  .bottom-nav-icon {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  
+  .bottom-nav-text {
+    font-size: 0.625rem !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+  }
+
+  /* 7. Spacing e Layout Generale */
+  .main-container {
+    padding-bottom: 5rem !important; /* Spazio per bottom nav */
+  }
+  
+  /* Sezioni con spacing ottimizzato */
+  .section-spacing {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Margini laterali consistenti */
+  .mobile-padding {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Cards senza margini laterali eccessivi */
+  .full-width-mobile {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
   /* Typography mobile optimization */
   h1, .page-title {
     font-size: 1.5rem !important;
@@ -350,15 +513,6 @@ html, body {
     font-size: 14px !important;
     border-radius: 8px !important;
     touch-action: manipulation;
-  }
-
-  /* Card components optimization */
-  .card, .service-item, [class*="card"] {
-    width: 100% !important;
-    margin: 0.5rem 0 !important;
-    padding: 1rem !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
   }
 
   /* Bottom Navigation - Make it sticky */
@@ -419,14 +573,226 @@ html, body {
     width: 100% !important;
     margin: 1rem 0 !important;
   }
+
+  /* Typography Mobile Ottimizzata */
+  .mobile-title { 
+    font-size: 1.125rem !important; 
+    font-weight: 600 !important; 
+  }
+  .mobile-subtitle { 
+    font-size: 1rem !important; 
+    font-weight: 500 !important; 
+  }
+  .mobile-body { 
+    font-size: 0.875rem !important; 
+    line-height: 1.4 !important; 
+  }
+  .mobile-caption { 
+    font-size: 0.75rem !important; 
+    color: #6b7280 !important; 
+  }
 }
 
-/* Touch-friendly active states */
+/* 8. Touch Feedback Migliorato */
 @media (hover: none) and (pointer: coarse) {
+  /* Feedback tattile per tutti gli elementi cliccabili */
   button:active,
   .btn:active,
-  [role="button"]:active {
-    transform: scale(0.95);
-    transition: transform 0.1s ease;
+  [role="button"]:active,
+  .clickable:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* Feedback per cards */
+  .service-card:active,
+  .card:active {
+    transform: scale(0.99) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+  }
+
+  /* Enhanced touch feedback per la bottom navigation */
+  .bottom-nav-item:active,
+  nav:last-child button:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+  }
+}
+
+/* ========================================
+   MOBILE UI UTILITY CLASSES
+   ======================================== */
+
+/* Mobile-optimized containers */
+.mobile-container {
+  @apply w-full overflow-x-hidden px-4;
+}
+
+.mobile-section {
+  @apply mb-4 w-full;
+}
+
+.mobile-card {
+  @apply bg-card border border-border rounded-lg p-3.5 mb-3 shadow-sm;
+}
+
+.mobile-card:active {
+  @apply transform scale-[0.99] shadow-md transition-all duration-100;
+}
+
+/* Mobile typography classes */
+.mobile-heading {
+  @apply text-lg font-semibold mb-2;
+}
+
+.mobile-subheading {
+  @apply text-base font-medium mb-3;
+}
+
+.mobile-text {
+  @apply text-sm leading-5 text-muted-foreground;
+}
+
+.mobile-caption {
+  @apply text-xs text-muted-foreground;
+}
+
+/* Mobile button variants */
+.mobile-button {
+  @apply min-h-[44px] min-w-[44px] px-4 py-3 text-sm rounded-lg transition-all duration-200;
+}
+
+.mobile-button:active {
+  @apply transform scale-95;
+}
+
+/* Mobile form elements */
+.mobile-input {
+  @apply min-h-[44px] px-3 py-2 text-base rounded-lg border border-input w-full;
+}
+
+/* Mobile search */
+.mobile-search {
+  @apply relative w-full px-4 py-3;
+}
+
+.mobile-search input {
+  @apply h-11 pl-10 pr-4 text-base rounded-lg border border-input w-full;
+}
+
+/* Mobile tabs */
+.mobile-tabs {
+  @apply flex overflow-x-auto px-4 pb-2 gap-2;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mobile-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-tab {
+  @apply whitespace-nowrap px-4 py-2 text-sm rounded-full border transition-colors;
+}
+
+.mobile-tab.active {
+  @apply bg-primary text-primary-foreground border-primary;
+}
+
+/* Mobile status badges */
+.mobile-badge {
+  @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded border;
+}
+
+.mobile-badge.status-pending {
+  @apply bg-red-50 text-red-600 border-red-200;
+}
+
+.mobile-badge.status-assigned {
+  @apply bg-blue-50 text-blue-600 border-blue-200;
+}
+
+.mobile-badge.status-completed {
+  @apply bg-green-50 text-green-600 border-green-200;
+}
+
+/* Mobile navigation */
+.mobile-nav {
+  @apply fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t z-50;
+}
+
+.mobile-nav-item {
+  @apply flex flex-col items-center justify-center p-2 min-w-[56px] transition-transform duration-150;
+}
+
+.mobile-nav-item:active {
+  @apply transform scale-95;
+}
+
+.mobile-nav-icon {
+  @apply w-5 h-5 mb-1;
+}
+
+.mobile-nav-text {
+  @apply text-xs font-medium leading-none;
+}
+
+/* Mobile layouts */
+.mobile-header {
+  @apply sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b px-4 py-3;
+}
+
+.mobile-content {
+  @apply flex-1 overflow-y-auto pb-20;
+}
+
+/* Mobile grid system */
+.mobile-grid {
+  @apply grid grid-cols-1 gap-3 px-4;
+}
+
+.mobile-grid-2 {
+  @apply grid grid-cols-2 gap-3 px-4;
+}
+
+/* Animation utilities for mobile */
+.mobile-fade-in {
+  @apply animate-fade-in;
+}
+
+.mobile-scale-in {
+  @apply animate-scale-in;
+}
+
+/* Touch-friendly utilities */
+.touch-target {
+  @apply min-h-[44px] min-w-[44px];
+}
+
+.touch-feedback:active {
+  @apply transform scale-98 transition-transform duration-100;
+}
+
+/* Responsive visibility utilities */
+.mobile-only {
+  @apply block md:hidden;
+}
+
+.desktop-only {
+  @apply hidden md:block;
+}
+
+/* Dark mode optimizations for mobile */
+@media (max-width: 768px) {
+  .dark .mobile-card {
+    @apply border-border/40;
+  }
+  
+  .dark .mobile-nav {
+    @apply bg-background/90 border-border/40;
+  }
+  
+  .dark .mobile-header {
+    @apply bg-background/90 border-border/40;
   }
 }

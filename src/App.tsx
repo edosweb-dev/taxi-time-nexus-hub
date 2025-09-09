@@ -8,6 +8,7 @@ import { LayoutProvider } from './contexts/LayoutContext';
 import { AuthGuard } from './components/AuthGuard';
 import LoginPage from './pages/LoginPage';
 import Index from './pages/Index';
+import { MobileUIShowcase } from './components/mobile-first/MobileUIShowcase';
 import DashboardPage from './pages/DashboardPage';
 import ClientDashboardPage from './pages/cliente/ClientDashboardPage';
 import ImpostazioniPage from './pages/ImpostazioniPage';
@@ -187,7 +188,16 @@ function App() {
               } />
               <Route path="/gestione-turni/report" element={<Navigate to="/report" replace />} />
               
-              {/* 404 Route */}
+              {/* Mobile UI Showcase Route - Development */}
+              <Route path="/mobile-showcase" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <div>
+                    <MobileUIShowcase />
+                  </div>
+                </AuthGuard>
+              } />
+              
+              {/* 404 Route */
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </QueryClientProvider>
