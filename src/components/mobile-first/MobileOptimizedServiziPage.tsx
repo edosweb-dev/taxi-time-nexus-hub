@@ -65,16 +65,14 @@ export function MobileOptimizedServiziPage() {
 
   if (isLoading) {
     return (
-      <MainLayout title="Servizi">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </MainLayout>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
-    <MainLayout title="Servizi">
+    <>
       {/* Search */}
       <div className="mobile-search">
         <div className="relative">
@@ -277,6 +275,6 @@ export function MobileOptimizedServiziPage() {
           <Plus className="h-6 w-6" />
         </Button>
       )}
-    </MainLayout>
+    </>
   );
 }
