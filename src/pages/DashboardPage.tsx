@@ -77,7 +77,10 @@ export default function DashboardPage() {
   ];
 
   return (
-    <MainLayout>
+    <MainLayout 
+      title="Dashboard" 
+      showBottomNav={true}
+    >
       <div className="space-y-6">
         {/* Header */}
         <div className="space-y-2">

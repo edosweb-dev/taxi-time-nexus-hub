@@ -31,9 +31,13 @@ export default function ServiziPage() {
   const [showCompletaDialog, setShowCompletaDialog] = useState(false);
   const [showFirmaDialog, setShowFirmaDialog] = useState(false);
 
-  // Mobile optimization - return mobile component if on mobile
+  // Use unified layout for both mobile and desktop
   if (isMobile) {
-    return <MobileOptimizedServiziPage />;
+    return (
+      <MainLayout title="Servizi" showBottomNav={true}>
+        <MobileOptimizedServiziPage />
+      </MainLayout>
+    );
   }
 
   const handleSelectServizio = (servizio: Servizio) => {

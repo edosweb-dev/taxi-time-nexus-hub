@@ -73,7 +73,10 @@ export default function VeicoliPage() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout 
+      title="Veicoli" 
+      showBottomNav={true}
+    >
       <div className="space-y-6">
         {/* Header con breadcrumb */}
         <div className="space-y-4">

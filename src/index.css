@@ -74,10 +74,25 @@ body {
   color: hsl(var(--foreground));
 }
 
+/* ===============================================
+ * MOBILE LAYOUT UNIFICATO
+ * =============================================== */
+.mobile-layout-unified {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.mobile-content-unified {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px; /* Space for bottom nav */
+}
+
 /* ========================================
    MOBILE OPTIMIZATION COMPLETE
    ======================================== */
-
 
 @media (max-width: 768px) {
   /* CONTAINER PRINCIPALE - FULL WIDTH */

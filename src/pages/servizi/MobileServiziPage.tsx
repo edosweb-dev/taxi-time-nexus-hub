@@ -11,6 +11,8 @@ import { it } from 'date-fns/locale';
 import { Servizio } from '@/lib/types/servizi';
 
 export default function MobileServiziPage() {
+  // This component is now wrapped by MainLayout in ServiziPage
+  // Remove the header and just return content
   const {
     servizi,
     isLoading,
@@ -75,41 +77,50 @@ export default function MobileServiziPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="sticky top-0 bg-primary text-white p-4 shadow-lg">
-          <h1 className="text-xl font-bold text-center">Servizi Mobile</h1>
-        </div>
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="sticky top-0 bg-primary text-white p-4 shadow-lg">
-          <h1 className="text-xl font-bold text-center">Servizi Mobile</h1>
-        </div>
-        <div className="p-4">
-          <Card className="border-red-200">
-            <CardContent className="p-4 text-center text-red-600">
-              Errore nel caricamento dei servizi
-            </CardContent>
-          </Card>
-        </div>
+      <div className="p-4">
+        <Card className="border-red-200">
+          <CardContent className="p-4 text-center text-red-600">
+            Errore nel caricamento dei servizi
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-full overflow-x-hidden">
-      {/* Header fisso */}
-      <div className="sticky top-0 z-50 bg-primary text-white shadow-lg">
-        <div className="flex items-center justify-between px-3 py-3">
-          <h1 className="text-lg font-bold">Servizi</h1>
-          {isAdminOrSocio && (
+      {/* Stats compatte */}
+      <div className="px-3 pb-3 bg-primary text-white">
+        <div className="grid grid-cols-4 gap-1 text-center">
+          <div className="bg-white/10 rounded p-1.5">
+            <div className="text-sm font-bold">{statusCounts.tutti}</div>
+            <div className="text-xs">Totali</div>
+          </div>
+          <div className="bg-white/10 rounded p-1.5">
+            <div className="text-sm font-bold">{statusCounts.da_assegnare}</div>
+            <div className="text-xs">Da Ass.</div>
+          </div>
+          <div className="bg-white/10 rounded p-1.5">
+            <div className="text-sm font-bold">{statusCounts.assegnato}</div>
+            <div className="text-xs">Assegnati</div>
+          </div>
+          <div className="bg-white/10 rounded p-1.5">
+            <div className="text-sm font-bold">{statusCounts.completato}</div>
+            <div className="text-xs">Completati</div>
+          </div>
+        </div>
+        
+        {/* Action button in header */}
+        {isAdminOrSocio && (
+          <div className="mt-3 flex justify-end">
             <Button
               size="sm"
               variant="secondary"
@@ -119,30 +130,8 @@ export default function MobileServiziPage() {
               <Plus className="h-3 w-3 mr-1" />
               Nuovo
             </Button>
-          )}
-        </div>
-
-        {/* Stats compatte */}
-        <div className="px-3 pb-3">
-          <div className="grid grid-cols-4 gap-1 text-center">
-            <div className="bg-white/10 rounded p-1.5">
-              <div className="text-sm font-bold">{statusCounts.tutti}</div>
-              <div className="text-xs">Totali</div>
-            </div>
-            <div className="bg-white/10 rounded p-1.5">
-              <div className="text-sm font-bold">{statusCounts.da_assegnare}</div>
-              <div className="text-xs">Da Ass.</div>
-            </div>
-            <div className="bg-white/10 rounded p-1.5">
-              <div className="text-sm font-bold">{statusCounts.assegnato}</div>
-              <div className="text-xs">Assegnati</div>
-            </div>
-            <div className="bg-white/10 rounded p-1.5">
-              <div className="text-sm font-bold">{statusCounts.completato}</div>
-              <div className="text-xs">Completati</div>
-            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Ricerca e filtri */}

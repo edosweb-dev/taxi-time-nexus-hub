@@ -10,7 +10,6 @@ import { Profile } from '@/lib/types';
 import { UserFormData } from '@/lib/api/users/types';
 import { toast } from '@/components/ui/use-toast';
 import { createUser, updateUser, resetUserPassword } from '@/lib/api/users';
-import { MobileLayout } from '@/components/mobile/MobileLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -158,16 +157,16 @@ export default function UsersPage() {
   if (isMobile) {
     if (isLoading) {
       return (
-        <MobileLayout title="Utenti">
+        <MainLayout title="Utenti">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-        </MobileLayout>
+        </MainLayout>
       );
     }
 
     return (
-      <MobileLayout title="Utenti">
+      <MainLayout title="Utenti">
         {/* Search */}
         <div className="mobile-search">
           <div className="relative">
@@ -286,7 +285,7 @@ export default function UsersPage() {
         >
           <UserPlus className="h-6 w-6" />
         </Button>
-      </MobileLayout>
+      </MainLayout>
     );
   }
 

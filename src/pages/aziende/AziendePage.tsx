@@ -79,7 +79,10 @@ export default function AziendePage() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout 
+      title="Aziende" 
+      showBottomNav={true}
+    >
       <div className="space-y-4">
         {/* Header mobile-first */}
         <div className="space-y-3">

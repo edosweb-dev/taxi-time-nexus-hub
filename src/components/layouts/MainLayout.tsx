@@ -1,5 +1,5 @@
 
-import { PropsWithChildren } from "react";
+import { useState } from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarNavLinks } from "./sidebar/SidebarNavLinks";
@@ -9,10 +9,31 @@ import { BottomNavigation } from "@/components/mobile/BottomNavigation";
 import { FeedbackButton } from "@/components/common/FeedbackButton";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useLayout } from "@/contexts/LayoutContext";
+import { MobileHeader } from "@/components/mobile/MobileHeader";
+import { MobileSidebar } from "@/components/mobile/MobileSidebar";
 
-export function MainLayout({ children }: PropsWithChildren) {
+interface MainLayoutProps {
+  children: React.ReactNode;
+  title?: string;
+  showBottomNav?: boolean;
+  headerProps?: {
+    showSearch?: boolean;
+    onSearch?: () => void;
+    showBackButton?: boolean;
+    onBackClick?: () => void;
+    rightActions?: React.ReactNode;
+  };
+}
+
+export function MainLayout({ 
+  children, 
+  title = "TAXITIME",
+  showBottomNav = true,
+  headerProps = {}
+}: MainLayoutProps) {
   const isMobile = useIsMobile();
   const { paddingMode } = useLayout();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Optimized mobile-first responsive padding system
   const getPaddingClasses = (mode: string) => {
@@ -23,13 +44,45 @@ export function MainLayout({ children }: PropsWithChildren) {
     };
     return paddingModes[mode] || paddingModes['default'];
   };
+
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="mobile-layout-unified">
+        <ImpersonationBanner />
+        
+        {/* Mobile Header Unificato */}
+        <MobileHeader 
+          onMenuToggle={() => setSidebarOpen(true)}
+          {...headerProps}
+        />
+        
+        {/* Mobile Content */}
+        <main className="mobile-content-unified">
+          <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter`}>
+            {children}
+          </div>
+        </main>
+        
+        {/* Bottom Navigation */}
+        {showBottomNav && <BottomNavigation />}
+        
+        {/* Mobile Sidebar */}
+        <MobileSidebar 
+          open={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+        />
+      </div>
+    );
+  }
   
+  // Desktop Layout
   return (
     <SidebarProvider>
       <div className="flex h-dvh w-full overflow-hidden">
         <Sidebar 
           className="border-r border-border/50 text-white h-full flex-shrink-0 shadow-xl" 
-          collapsible={isMobile ? "offcanvas" : "icon"}
+          collapsible="icon"
           variant="sidebar"
         >
           {/* Enhanced sidebar with gradient background and modern styling */}
@@ -56,28 +109,16 @@ export function MainLayout({ children }: PropsWithChildren) {
         
         <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
           <ImpersonationBanner />
-          {/* Mobile header with sidebar trigger */}
-          {isMobile && (
-            <header className="h-12 xs:h-14 border-b border-border bg-card flex items-center justify-between px-fluid-md flex-shrink-0 safe-area-left safe-area-right safe-area-top">
-              <SidebarTrigger className="hover:bg-accent hover:text-accent-foreground p-2 rounded-md transition-colors min-h-touch min-w-touch" />
-              <div className="text-fluid-text-sm font-medium text-foreground">TAXITIME</div>
-            </header>
-          )}
           
           <div className="flex-1 overflow-y-auto scroll-smooth">
             <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
               {children}
             </div>
           </div>
-          
-          {/* Mobile safe bottom padding to avoid navigation overlap */}
-          {isMobile && <div className="h-20 xs:h-24 flex-shrink-0 safe-area-bottom" />}
         </main>
         
-        {isMobile && <BottomNavigation />}
-        
-        {/* Floating Feedback Button - hidden on mobile to avoid UX interference */}
-        {!isMobile && <FeedbackButton />}
+        {/* Floating Feedback Button */}
+        <FeedbackButton />
       </div>
     </SidebarProvider>
   );

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useServiziPage } from '@/hooks/useServiziPage';
-import { MobileLayout } from '@/components/mobile/MobileLayout';
+import { MainLayout } from '@/components/layouts/MainLayout';
 
 export function MobileOptimizedServiziPage() {
   const {
@@ -65,16 +65,16 @@ export function MobileOptimizedServiziPage() {
 
   if (isLoading) {
     return (
-      <MobileLayout title="Servizi">
+      <MainLayout title="Servizi">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </MobileLayout>
+      </MainLayout>
     );
   }
 
   return (
-    <MobileLayout title="Servizi">
+    <MainLayout title="Servizi">
       {/* Search */}
       <div className="mobile-search">
         <div className="relative">
@@ -277,6 +277,6 @@ export function MobileOptimizedServiziPage() {
           <Plus className="h-6 w-6" />
         </Button>
       )}
-    </MobileLayout>
+    </MainLayout>
   );
 }

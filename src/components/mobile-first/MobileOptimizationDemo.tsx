@@ -1,6 +1,6 @@
 import React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { MobileLayout } from '@/components/layout/MobileLayout';
+import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
