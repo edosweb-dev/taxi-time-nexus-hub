@@ -91,22 +91,22 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
 
   return (
     <div className="mobile-calendario">
-      {/* Header Mobile */}
-      <div className="mobile-calendario-header">
-        <div className="header-controls">
+      {/* Header Mobile - Compatto */}
+      <div className="mobile-calendario-header-compact">
+        <div className="header-controls-compact">
           <TouchOptimizer minSize="lg">
             <Button
               variant="ghost"
               size="sm"
               onClick={handlePrevDay}
-              className="nav-button"
+              className="nav-button-compact"
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
           </TouchOptimizer>
-          
-          <div className="date-display">
-            <h2 className="current-date">
+
+          <div className="date-display-compact">
+            <h2 className="current-date-compact">
               {format(currentDate, 'EEEE d MMMM yyyy', { locale: it })}
             </h2>
           </div>
@@ -116,42 +116,24 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
               variant="ghost"
               size="sm"
               onClick={handleNextDay}
-              className="nav-button"
+              className="nav-button-compact"
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
           </TouchOptimizer>
         </div>
 
-        {/* Today button */}
-        <div className="today-button">
-          <TouchOptimizer minSize="lg">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goToToday}
-              className="w-full"
-            >
-              Oggi
-            </Button>
-          </TouchOptimizer>
-        </div>
-
-        {/* Action Button */}
-        {isAdminOrSocio && (
-          <div className="action-button">
-            <TouchOptimizer minSize="lg">
-              <Button 
-                size="sm" 
-                onClick={() => handleCreateShift(currentDate)} 
-                className="w-full"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Nuovo Turno
-              </Button>
-            </TouchOptimizer>
-          </div>
-        )}
+        {/* Today button - Compatto */}
+        <TouchOptimizer minSize="md">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToToday}
+            className="today-button-compact"
+          >
+            Oggi
+          </Button>
+        </TouchOptimizer>
       </div>
 
       {/* Content con swipe */}
@@ -168,6 +150,21 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
           onEditShift={handleEditShift}
         />
       </div>
+
+      {/* Floating Action Button */}
+      {isAdminOrSocio && (
+        <div className="floating-action-button">
+          <TouchOptimizer minSize="lg">
+            <Button 
+              size="lg"
+              onClick={() => handleCreateShift(currentDate)} 
+              className="fab-button"
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+          </TouchOptimizer>
+        </div>
+      )}
 
       {/* Dialogs */}
       <AddShiftDialog

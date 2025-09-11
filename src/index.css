@@ -823,50 +823,80 @@ button:focus-visible {
     flex-direction: column;
   }
 
-  /* Mobile Calendario Header */
-  .mobile-calendario-header {
+  /* Mobile Calendario Header - Compatto */
+  .mobile-calendario-header-compact {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 12px;
-    padding: 1rem;
+    padding: 0.75rem;
     margin-bottom: 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     flex-shrink: 0;
   }
 
-  .header-controls {
+  .header-controls-compact {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
-  .date-display {
+  .date-display-compact {
     flex: 1;
     text-align: center;
     margin: 0 1rem;
   }
 
-  .current-date {
-    font-size: 1.125rem;
+  .current-date-compact {
+    font-size: 1rem;
     font-weight: 600;
     text-transform: capitalize;
     margin: 0;
     color: hsl(var(--foreground));
   }
 
-  .nav-button {
-    min-height: 48px;
-    min-width: 48px;
+  .nav-button-compact {
+    min-height: 44px;
+    min-width: 44px;
     border-radius: 12px;
   }
 
-  .today-button {
-    margin-bottom: 1rem;
+  .today-button-compact {
+    width: 100%;
+    min-height: 40px;
+    border-radius: 8px;
+    font-size: 0.875rem;
   }
 
-  .action-button {
-    margin-top: 0.5rem;
+  /* Floating Action Button */
+  .floating-action-button {
+    position: fixed;
+    bottom: 6rem; /* Above bottom navigation */
+    right: 1rem;
+    z-index: 50;
+  }
+
+  .fab-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fab-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.4);
+  }
+
+  .fab-button:active {
+    transform: scale(0.95);
   }
 
   /* Content area */
