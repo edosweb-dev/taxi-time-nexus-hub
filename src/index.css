@@ -876,7 +876,7 @@ button:focus-visible {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Day View */
+  /* Day View - Design moderno */
   .mobile-day-view {
     padding: 0;
   }
@@ -884,43 +884,46 @@ button:focus-visible {
   .shift-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .shift-card:hover {
-    border-color: hsl(var(--primary));
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-color: hsl(var(--primary) / 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   .empty-day-content {
-    min-height: 200px;
+    min-height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .notes-section {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
   }
 
-  /* User Avatar in Day View */
+  /* User Avatar migliorato */
   .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 700;
     flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.2);
   }
 
   .user-name {
-    font-size: 0.9375rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 600;
     color: hsl(var(--foreground));
+    line-height: 1.4;
   }
 }
 

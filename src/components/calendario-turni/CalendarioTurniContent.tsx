@@ -205,86 +205,94 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
       )}
 
       <div className="min-h-[600px] max-h-[calc(100vh-120px)] flex flex-col">
-        <Card className="flex-1 overflow-hidden">
-          {/* Header Controls - Responsive Layout */}
-          <div className="border-b bg-white px-3 md:px-6 py-3 md:py-4">
-            {/* Mobile Layout */}
-            <div className="block lg:hidden space-y-3">
-              {/* Top row - Navigation and period */}
+        <Card className="flex-1 overflow-hidden shadow-xl border-0 bg-gradient-to-br from-card to-card/95 backdrop-blur-sm">
+          {/* Header Controls - Design moderno */}
+          <div className="border-b bg-gradient-to-r from-background/95 to-muted/20 backdrop-blur-md px-4 md:px-6 py-4 md:py-5">
+            {/* Mobile Layout - Ottimizzato */}
+            <div className="block lg:hidden space-y-4">
+              {/* Top row - Navigation moderno */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={navigatePrevious}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={navigateNext}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center bg-muted/50 rounded-xl p-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={navigatePrevious}
+                      className="rounded-lg hover:bg-background/80"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={navigateNext}
+                      className="rounded-lg hover:bg-background/80"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  </div>
                   
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={goToToday}
-                    className="text-xs"
+                    className="text-xs font-medium bg-primary/10 border-primary/20 hover:bg-primary/20"
                   >
                     Oggi
                   </Button>
                 </div>
                 
-                {/* View Mode Selector - Mobile */}
-                <ViewFilterDropdown 
-                  viewMode={viewMode} 
-                  onViewModeChange={setViewMode} 
-                />
+                {/* View Mode Selector - Mobile moderno */}
+                <div className="bg-muted/50 rounded-xl p-1">
+                  <ViewFilterDropdown 
+                    viewMode={viewMode} 
+                    onViewModeChange={setViewMode} 
+                  />
+                </div>
               </div>
 
-              {/* Period title */}
-              <div className="text-center">
-                <h2 className="font-semibold text-base md:text-lg">
+              {/* Period title - Migliorato */}
+              <div className="text-center py-2">
+                <h2 className="font-bold text-lg md:text-xl bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                   {formatPeriod()}
                 </h2>
               </div>
 
-              {/* Filters and actions */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <Select 
-                  value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
-                  onValueChange={(value) => {
-                    if (value === 'all') {
-                      setSelectedUsers([]);
-                    } else if (value === 'multiple') {
-                      // Keep current selection
-                    } else {
-                      setSelectedUsers([value]);
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full sm:w-40">
-                    <SelectValue placeholder="Filtra utente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutti</SelectItem>
-                    {employees.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: user.color || '#6B7280' }}
-                          />
-                          {user.first_name} {user.last_name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Filters and actions - Design moderno */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="flex-1">
+                  <Select 
+                    value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
+                    onValueChange={(value) => {
+                      if (value === 'all') {
+                        setSelectedUsers([]);
+                      } else if (value === 'multiple') {
+                        // Keep current selection
+                      } else {
+                        setSelectedUsers([value]);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full bg-background/80 border-border/50 rounded-xl">
+                      <SelectValue placeholder="Filtra utente" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">Tutti</SelectItem>
+                      {employees.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: user.color || '#6B7280' }}
+                            />
+                            {user.first_name} {user.last_name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 {isAdminOrSocio && (
                   <div className="flex gap-2">
@@ -292,87 +300,91 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                       variant="outline"
                       size="sm" 
                       onClick={() => navigate('/report')} 
-                      className="flex-1 sm:flex-none gap-1"
+                      className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl"
                     >
                       <BarChart3 className="h-4 w-4" />
                       <span className="hidden sm:inline">Report</span>
-                      <span className="sm:hidden">Report</span>
                     </Button>
                     
                     <Button 
                       variant="outline"
                       size="sm" 
                       onClick={() => setInserimentoMassivoOpen(true)} 
-                      className="flex-1 sm:flex-none gap-1"
+                      className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl"
                     >
                       <Users className="h-4 w-4" />
                       <span className="hidden sm:inline">Inserimento</span>
-                      <span className="sm:hidden">Inserimento</span>
                     </Button>
                     
                     <Button 
                       size="sm" 
                       onClick={() => handleCreateShift(currentDate)} 
-                      className="flex-1 sm:flex-none gap-1"
+                      className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg rounded-xl"
                     >
                       <Plus className="h-4 w-4" />
                       <span className="hidden sm:inline">Nuovo</span>
-                      <span className="sm:hidden">Nuovo</span>
                     </Button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Desktop Layout */}
+            {/* Desktop Layout - Design migliorato */}
             <div className="hidden lg:block">
-              <div className="flex items-center justify-between gap-4">
-                {/* Left side - Navigation and View Mode */}
-                <div className="flex items-center gap-4">
-                  {/* Navigation */}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={navigatePrevious}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    
-                    <div className="min-w-[250px] text-center">
-                      <h2 className="font-semibold text-lg">
-                        {formatPeriod()}
-                      </h2>
+              <div className="flex items-center justify-between gap-6">
+                {/* Left side - Navigation moderno */}
+                <div className="flex items-center gap-6">
+                  {/* Navigation con design moderno */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center bg-muted/50 rounded-xl p-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={navigatePrevious}
+                        className="rounded-lg hover:bg-background/80"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+                      
+                      <div className="min-w-[280px] text-center px-4">
+                        <h2 className="font-bold text-xl bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                          {formatPeriod()}
+                        </h2>
+                      </div>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={navigateNext}
+                        className="rounded-lg hover:bg-background/80"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
                     </div>
                     
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={navigateNext}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
                       onClick={goToToday}
+                      className="bg-primary/10 border-primary/20 hover:bg-primary/20 rounded-xl font-medium"
                     >
                       Oggi
                     </Button>
                   </div>
 
-                  {/* View Mode Selector */}
-                  <ViewFilterDropdown 
-                    viewMode={viewMode} 
-                    onViewModeChange={setViewMode} 
-                  />
+                  {/* View Mode Selector - Design moderno */}
+                  <div className="bg-muted/50 rounded-xl p-1">
+                    <ViewFilterDropdown 
+                      viewMode={viewMode} 
+                      onViewModeChange={setViewMode} 
+                    />
+                  </div>
                 </div>
 
-                {/* Right side - Filters and Actions */}
-                <div className="flex items-center gap-3">
-                  {/* User Filter */}
-                  <div className="flex items-center gap-2">
+                {/* Right side - Filters and Actions migliorati */}
+                <div className="flex items-center gap-4">
+                  {/* User Filter moderno */}
+                  <div className="flex items-center gap-3">
                     <Filter className="h-4 w-4 text-muted-foreground" />
                     <Select 
                       value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
@@ -386,10 +398,10 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                         }
                       }}
                     >
-                      <SelectTrigger className="w-48">
+                      <SelectTrigger className="w-52 bg-background/80 border-border/50 rounded-xl">
                         <SelectValue placeholder="Filtra per utente" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="rounded-xl">
                         <SelectItem value="all">Tutti gli utenti</SelectItem>
                         {employees.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
@@ -406,39 +418,39 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                     </Select>
                   </div>
 
-                {/* Action Buttons */}
-                {isAdminOrSocio && (
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline"
-                      size="sm" 
-                      onClick={() => navigate('/report')} 
-                      className="gap-2"
-                    >
-                      <BarChart3 className="h-4 w-4" />
-                      Report Turni
-                    </Button>
-                    
-                    <Button 
-                      variant="outline"
-                      size="sm" 
-                      onClick={() => setInserimentoMassivoOpen(true)} 
-                      className="gap-2"
-                    >
-                      <Users className="h-4 w-4" />
-                      Inserimento Massivo
-                    </Button>
-                    
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleCreateShift(currentDate)} 
-                      className="gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Nuovo Turno
-                    </Button>
-                  </div>
-                )}
+                  {/* Action Buttons moderni */}
+                  {isAdminOrSocio && (
+                    <div className="flex items-center gap-3">
+                      <Button 
+                        variant="outline"
+                        size="sm" 
+                        onClick={() => navigate('/report')} 
+                        className="gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl border-border/50"
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        Report Turni
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
+                        size="sm" 
+                        onClick={() => setInserimentoMassivoOpen(true)} 
+                        className="gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl border-border/50"
+                      >
+                        <Users className="h-4 w-4" />
+                        Inserimento Massivo
+                      </Button>
+                      
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleCreateShift(currentDate)} 
+                        className="gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg rounded-xl"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Nuovo Turno
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

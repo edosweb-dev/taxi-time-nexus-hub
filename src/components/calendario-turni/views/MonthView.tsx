@@ -52,19 +52,19 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
   };
 
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-auto bg-background">
       <div className="min-h-full">
-        {/* Header giorni della settimana */}
-        <div className="grid grid-cols-7 border-b bg-muted/30">
+        {/* Header giorni della settimana - Migliorato */}
+        <div className="grid grid-cols-7 border-b bg-gradient-to-r from-muted/50 to-muted/30 backdrop-blur-sm">
           {weekdays.map((day) => (
-            <div key={day} className="p-3 text-center font-medium text-sm text-muted-foreground border-r last:border-r-0">
+            <div key={day} className="p-4 text-center font-semibold text-sm text-foreground/80 border-r last:border-r-0 tracking-wide">
               {day}
             </div>
           ))}
         </div>
 
-        {/* Griglia calendario */}
-        <div className="grid grid-cols-7 auto-rows-fr min-h-[400px] md:min-h-[500px]">
+        {/* Griglia calendario - Design migliorato */}
+        <div className="grid grid-cols-7 auto-rows-fr min-h-[500px] md:min-h-[600px] lg:min-h-[650px]">
           {calendarDays.map((date, index) => {
             const dayShifts = getShiftsForDay(date);
             const isCurrentMonth = isSameMonth(date, currentDate);
@@ -75,58 +75,92 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
               <div
                 key={date.toISOString()}
                 className={`
-                  min-h-[120px] p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-accent/50 transition-colors
-                  ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground' : ''}
-                  ${isTodayDate ? 'bg-primary/5 border-primary' : ''}
-                  ${isWeekend && isCurrentMonth ? 'bg-muted/10' : ''}
+                  group relative min-h-[140px] md:min-h-[160px] p-3 border-r border-b last:border-r-0 cursor-pointer 
+                  transition-all duration-200 ease-in-out hover:shadow-lg hover:shadow-primary/10 hover:z-10
+                  ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground hover:bg-muted/30' : 'bg-background hover:bg-accent/30'}
+                  ${isTodayDate ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/50 shadow-md' : ''}
+                  ${isWeekend && isCurrentMonth ? 'bg-gradient-to-br from-muted/15 to-muted/5' : ''}
                 `}
                 onClick={() => onCreateShift(date)}
               >
-                {/* Numero del giorno */}
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`
-                    text-sm font-medium
-                    ${isTodayDate ? 'bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center' : ''}
+                {/* Numero del giorno - Migliorato */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`
+                    text-sm font-semibold transition-all duration-200
+                    ${isTodayDate ? 
+                      'bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center shadow-lg animate-pulse' : 
+                      'w-8 h-8 flex items-center justify-center hover:bg-accent/50 rounded-full'
+                    }
                   `}>
                     {format(date, 'd')}
-                  </span>
+                  </div>
                   
                   {isCurrentMonth && (
-                    <Plus className="h-4 w-4 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary transition-opacity" />
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <Plus className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors p-1 bg-background/80 rounded-full shadow-sm" />
+                    </div>
                   )}
                 </div>
 
-                {/* Turni del giorno */}
-                <div className="space-y-1">
-                  {/* Flex container per affiancare i turni */}
-                  <div className="flex flex-wrap gap-1">
-                    {dayShifts.slice(0, 12).map((shift) => {
+                {/* Turni del giorno - Design moderno */}
+                <div className="space-y-2">
+                  {/* Container con layout migliorato */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {dayShifts.slice(0, 8).map((shift) => {
                       const user = getUserInfo(shift.user_id);
                       const userColor = user?.color || '#6B7280';
 
                       return (
                         <div
                           key={shift.id}
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer hover:scale-110 transition-transform"
-                          style={{ 
-                            backgroundColor: userColor,
-                            color: 'white'
-                          }}
-                          title={`${user?.first_name} ${user?.last_name}`}
+                          className="group/shift relative"
                           onClick={(e) => {
                             e.stopPropagation();
                             onEditShift(shift);
                           }}
                         >
-                          {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
+                          {/* Avatar migliorato */}
+                          <div
+                            className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold cursor-pointer 
+                                     transition-all duration-200 hover:scale-110 hover:shadow-lg shadow-sm border-2 border-white/50"
+                            style={{ 
+                              backgroundColor: userColor,
+                              color: 'white'
+                            }}
+                            title={`${user?.first_name} ${user?.last_name} - ${getShiftTypeLabel(shift)}`}
+                          >
+                            {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
+                          </div>
+                          
+                          {/* Tooltip moderno on hover */}
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover/shift:opacity-100 
+                                        transition-opacity duration-200 pointer-events-none z-20">
+                            <div className="bg-popover border rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-lg">
+                              <div className="font-semibold">{user?.first_name} {user?.last_name}</div>
+                              <div className="text-muted-foreground">{getShiftTypeLabel(shift)}</div>
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
                   </div>
                   
-                  {dayShifts.length > 12 && (
-                    <div className="text-xs text-muted-foreground text-center">
-                      +{dayShifts.length - 12} altri
+                  {/* Contatore turni aggiuntivi - Design moderno */}
+                  {dayShifts.length > 8 && (
+                    <div className="flex justify-center">
+                      <div className="bg-gradient-to-r from-muted to-muted/80 text-muted-foreground text-xs px-2 py-1 
+                                    rounded-full border shadow-sm font-medium">
+                        +{dayShifts.length - 8} altri
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Indicatore di oggi */}
+                  {isTodayDate && dayShifts.length === 0 && (
+                    <div className="flex items-center justify-center pt-2">
+                      <div className="text-xs text-primary/70 font-medium bg-primary/10 px-2 py-1 rounded-full">
+                        Oggi
+                      </div>
                     </div>
                   )}
                 </div>
