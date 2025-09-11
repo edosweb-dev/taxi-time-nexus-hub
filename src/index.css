@@ -3,57 +3,84 @@
 @tailwind utilities;
 
 /* ========================================
-   DASHBOARD MOBILE OTTIMIZZATO
+   DASHBOARD RESET E FIX
    ======================================== */
 
-@media (max-width: 768px) {
-  /* Container principale dashboard */
+/* Reset completo dashboard */
+.dashboard-container,
+.dashboard-metrics,
+.dashboard-cards,
+.metric-card,
+.dashboard-card {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Desktop Layout */
+@media (min-width: 769px) {
   .dashboard-container {
-    width: 100%;
-    max-width: 100vw;
-    padding: 1rem;
-    overflow-x: hidden;
-    box-sizing: border-box;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
   }
 
-  /* Welcome section */
+  .dashboard-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
   .dashboard-welcome {
     margin-bottom: 1.5rem;
-    padding: 0 0.25rem;
   }
 
   .dashboard-welcome h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem 0;
     color: hsl(var(--foreground));
   }
 
   .dashboard-welcome p {
     font-size: 0.875rem;
     color: hsl(var(--muted-foreground));
+    margin: 0;
   }
 
-  /* Metrics Section */
+  /* Metrics Grid Mobile */
   .dashboard-metrics {
-    margin-bottom: 2rem;
-  }
-
-  .metrics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.875rem;
+    gap: 1rem;
+    margin-bottom: 2rem;
     width: 100%;
   }
 
   .metric-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    border-radius: 0.75rem;
+    border-radius: 8px;
     padding: 1rem;
     width: 100%;
     min-width: 0;
-    box-sizing: border-box;
   }
 
   .metric-header {
@@ -68,64 +95,28 @@
     font-weight: 500;
     color: hsl(var(--muted-foreground));
     text-transform: uppercase;
-    letter-spacing: 0.025em;
     margin: 0;
-  }
-
-  .metric-icon {
-    width: 1rem;
-    height: 1rem;
-    color: hsl(var(--muted-foreground));
-  }
-
-  .metric-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
   }
 
   .metric-value {
     font-size: 1.5rem;
     font-weight: 700;
     color: hsl(var(--foreground));
-    line-height: 1.2;
+    margin: 0;
   }
 
   .metric-trend {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-shrink: 0;
-  }
-
-  .trend-icon {
-    width: 0.875rem;
-    height: 0.875rem;
-  }
-
-  .trend-up {
-    color: #16a34a;
-  }
-
-  .trend-down {
-    color: #dc2626;
-  }
-
-  .trend-neutral {
-    color: #6b7280;
-  }
-
-  .trend-text {
     font-size: 0.75rem;
     font-weight: 600;
+    margin-top: 0.25rem;
   }
 
-  /* Dashboard Cards Section */
+  .trend-up { color: #16a34a; }
+  .trend-down { color: #dc2626; }
+  .trend-neutral { color: #6b7280; }
+
+  /* Dashboard Cards Mobile */
   .dashboard-cards {
-    margin-bottom: 2rem;
-  }
-
-  .dashboard-cards-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -135,18 +126,15 @@
   .dashboard-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    border-radius: 0.75rem;
+    border-radius: 8px;
     padding: 1.25rem;
     width: 100%;
-    box-sizing: border-box;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-height: 5rem;
   }
 
   .dashboard-card:active {
     transform: scale(0.98);
-    border-color: hsl(var(--primary));
   }
 
   .dashboard-card-header {
@@ -156,18 +144,10 @@
     margin-bottom: 0.75rem;
   }
 
-  .dashboard-card-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: hsl(var(--primary));
-    flex-shrink: 0;
-  }
-
   .dashboard-card-title {
     font-size: 1rem;
     font-weight: 600;
     color: hsl(var(--foreground));
-    line-height: 1.3;
     margin: 0;
   }
 
@@ -176,45 +156,29 @@
     line-height: 1.4;
     color: hsl(var(--muted-foreground));
     margin: 0;
-    word-wrap: break-word;
   }
+}
 
-  /* Quick Actions */
-  .quick-actions {
-    background: hsl(var(--muted) / 0.3);
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-  }
+/* CSS CLEANUP per conflitti */
+.dashboard-container * {
+  box-sizing: border-box !important;
+}
 
-  .quick-actions-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: hsl(var(--foreground));
-    margin-bottom: 1rem;
-  }
+.dashboard-container .card,
+.dashboard-container [class*="card"] {
+  transform: none !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background: hsl(var(--card)) !important;
+  border-radius: 8px !important;
+}
 
-  .quick-actions-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.875rem;
-  }
-
-  .quick-action-button {
-    height: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-  }
-
-  .quick-action-icon {
-    width: 1rem;
-    height: 1rem;
+@media (max-width: 768px) {
+  .dashboard-container .card .card,
+  .dashboard-container [class*="card"] [class*="card"] {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 }
 
@@ -983,18 +947,7 @@ button:focus-visible {
   }
 }
 
-/* Dashboard Mobile Optimizations */
-@media (max-width: 768px) {
-  /* Fix horizontal scroll on dashboard */
-  .dashboard-page {
-    width: 100% !important;
-    max-width: 100vw !important;
-    overflow-x: hidden !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-  }
-  
+/* Dashboard Mobile Optimizations - replaced by DASHBOARD RESET E FIX */
   /* Dashboard metrics mobile optimization */
   .dashboard-metrics {
     width: 100% !important;

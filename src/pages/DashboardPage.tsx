@@ -1,122 +1,83 @@
-
-import { useAuth } from '@/contexts/AuthContext';
+import React from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Calendar, Clock, Users, Building, MessageCircle } from 'lucide-react';
-import { DashboardCard } from '@/components/dashboard/DashboardCard';
-import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
-import { DashboardMetrics } from '@/components/dashboard/DashboardMetrics';
-import { QuickActions } from '@/components/dashboard/QuickActions';
+import { Users, Building2, MessageSquare, Clock } from 'lucide-react';
+
+// Componente Metrica Semplice
+function MetricCard({ title, value, trend, trendType }: { title: string; value: string; trend?: string; trendType?: 'up' | 'down' | 'neutral'; }) {
+  return (
+    <div className="metric-card">
+      <div className="metric-header">
+        <p className="metric-title">{title}</p>
+      </div>
+      <p className="metric-value">{value}</p>
+      {trend && (
+        <p className={`metric-trend trend-${trendType ?? 'neutral'}`}>
+          {trend}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Componente Card Dashboard Semplice
+function SimpleDashboardCard({ title, description, icon: Icon, onClick }: { title: string; description: string; icon: React.ComponentType<{ className?: string }>; onClick: () => void; }) {
+  return (
+    <div className="dashboard-card" onClick={onClick} role="button" tabIndex={0}>
+      <div className="dashboard-card-header">
+        <Icon className="w-5 h-5 text-primary" />
+        <h3 className="dashboard-card-title">{title}</h3>
+      </div>
+      <p className="dashboard-card-content">{description}</p>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  
-  const fullName = profile?.first_name && profile?.last_name 
+
+  const fullName = profile?.first_name && profile?.last_name
     ? `${profile.first_name} ${profile.last_name}`
     : profile?.first_name || 'Utente';
-  
-  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
-  const handleNavigate = (path: string) => () => {
-    navigate(path);
-  };
+  const metrics = [
+    { title: 'Servizi Oggi', value: '12', trend: '+3', trendType: 'up' as const },
+    { title: 'Ricavi Mese', value: '€2.8K', trend: '+12%', trendType: 'up' as const },
+    { title: 'Veicoli', value: '8', trend: '0', trendType: 'neutral' as const },
+    { title: 'Online', value: '24', trend: '+5', trendType: 'up' as const },
+  ];
 
-  const dashboardCards = [
-    // Admin/Socio only cards
-    ...(isAdminOrSocio ? [
-      {
-        title: 'Gestione Utenti',
-        description: 'Gestisci gli utenti della piattaforma',
-        content: 'Amministra utenti, assegna ruoli e gestisci permessi per autisti, amministratori e clienti della piattaforma.',
-        shortContent: 'Gestisci utenti, ruoli e permessi',
-        buttonText: 'Vai alla gestione utenti',
-        icon: Users,
-        onClick: handleNavigate('/users'),
-        isPrimary: true,
-      },
-      {
-        title: 'Gestione Aziende',
-        description: 'Gestisci le aziende clienti',
-        content: 'Visualizza e gestisci le aziende clienti, i loro contratti e le informazioni di fatturazione.',
-        shortContent: 'Gestisci aziende clienti e contratti',
-        buttonText: 'Vai alla gestione aziende',
-        icon: Building,
-        onClick: handleNavigate('/aziende'),
-        isPrimary: true,
-      },
-      {
-        title: 'Gestione Feedback',
-        description: 'Visualizza e gestisci i feedback utenti',
-        content: 'Gestisci i feedback ricevuti dagli utenti della piattaforma per migliorare il servizio.',
-        shortContent: 'Visualizza e gestisci feedback utenti',
-        buttonText: 'Vai ai feedback',
-        icon: MessageCircle,
-        onClick: handleNavigate('/feedback'),
-        isPrimary: true,
-      },
-    ] : []),
-    // Cards for all users
-    {
-      title: 'Turni',
-      description: 'Organizza i turni di lavoro',
-      content: 'Visualizza e gestisci i turni di lavoro del personale, assegna autisti e pianifica le attività.',
-      shortContent: 'Gestisci turni e pianificazione lavoro',
-      buttonText: 'Vai ai turni',
-      icon: Calendar,
-      onClick: handleNavigate('/calendario-turni'),
-      isPrimary: true,
-    },
-    {
-      title: 'Spese Aziendali',
-      description: 'Gestisci le spese aziendali',
-      content: 'Monitora e gestisci le spese aziendali, carburante, manutenzioni e altri costi operativi.',
-      shortContent: 'Monitora spese e costi operativi',
-      buttonText: 'Vai alle spese',
-      icon: Clock,
-      onClick: handleNavigate('/spese-aziendali'),
-      isPrimary: false,
-      variant: 'outline' as const,
-    },
+  const cards = [
+    { title: 'Gestione Utenti', description: 'Gestisci utenti, ruoli e permessi', icon: Users, onClick: () => navigate('/users') },
+    { title: 'Gestione Aziende', description: 'Gestisci aziende clienti e contratti', icon: Building2, onClick: () => navigate('/aziende') },
+    { title: 'Gestione Feedback', description: 'Gestisci feedback degli utenti', icon: MessageSquare, onClick: () => navigate('/feedback') },
+    { title: 'Turni', description: 'Visualizza e gestisci i turni', icon: Clock, onClick: () => navigate('/calendario-turni') },
   ];
 
   return (
-    <MainLayout 
-      title="Dashboard" 
-      showBottomNav={true}
-    >
+    <MainLayout title="Dashboard" showBottomNav={true}>
       <div className="dashboard-container">
-        
-        {/* Welcome Section */}
+        {/* Welcome */}
         <div className="dashboard-welcome">
           <h1>Dashboard</h1>
           <p>Benvenuto, {fullName}</p>
         </div>
 
-        {/* KPI Metrics */}
-        <DashboardMetrics />
-
-        {/* Dashboard Cards */}
-        <div className="dashboard-cards">
-          <div className="dashboard-cards-grid">
-            {dashboardCards.map((card, index) => (
-              <div key={index} className="dashboard-card" onClick={card.onClick}>
-                <div className="dashboard-card-header">
-                  <card.icon className="dashboard-card-icon" />
-                  <h3 className="dashboard-card-title">{card.title}</h3>
-                </div>
-                <p className="dashboard-card-content">
-                  {isMobile && card.shortContent ? card.shortContent : card.content}
-                </p>
-              </div>
-            ))}
-          </div>
+        {/* Metrics */}
+        <div className="dashboard-metrics">
+          {metrics.map((m, i) => (
+            <MetricCard key={i} title={m.title} value={m.value} trend={m.trend} trendType={m.trendType} />
+          ))}
         </div>
 
-        {/* Quick Actions - Solo mobile */}
-        {isMobile && <QuickActions />}
+        {/* Cards */}
+        <div className="dashboard-cards">
+          {cards.map((c, i) => (
+            <SimpleDashboardCard key={i} title={c.title} description={c.description} icon={c.icon} onClick={c.onClick} />
+          ))}
+        </div>
       </div>
     </MainLayout>
   );
