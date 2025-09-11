@@ -1,48 +1,45 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus, Calendar, DollarSign, Car, Users } from 'lucide-react';
+import { Calendar, DollarSign, Car, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface MetricCardProps {
   title: string;
   value: string;
   trend?: string;
   trendDirection?: 'up' | 'down' | 'neutral';
-  icon?: React.ReactNode;
+  icon: React.ReactNode;
 }
 
 function MetricCard({ title, value, trend, trendDirection = 'neutral', icon }: MetricCardProps) {
   const getTrendIcon = () => {
     switch (trendDirection) {
-      case 'up': return <TrendingUp className="w-3 h-3 text-green-600" />;
-      case 'down': return <TrendingDown className="w-3 h-3 text-red-600" />;
-      default: return <Minus className="w-3 h-3 text-muted-foreground" />;
+      case 'up': return <TrendingUp className="trend-icon trend-up" />;
+      case 'down': return <TrendingDown className="trend-icon trend-down" />;
+      default: return <Minus className="trend-icon trend-neutral" />;
     }
   };
 
-  const getTrendColor = () => {
+  const getTrendColorClass = () => {
     switch (trendDirection) {
-      case 'up': return 'text-green-600';
-      case 'down': return 'text-red-600';
-      default: return 'text-muted-foreground';
+      case 'up': return 'trend-up';
+      case 'down': return 'trend-down';
+      default: return 'trend-neutral';
     }
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg p-3 w-full min-w-0">
-      <div className="flex items-center justify-between mb-1">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider truncate">
-          {title}
-        </p>
-        {icon && <div className="flex-shrink-0">{icon}</div>}
+    <div className="metric-card">
+      <div className="metric-header">
+        <p className="metric-title">{title}</p>
+        <div className="metric-icon">{icon}</div>
       </div>
       
-      <div className="flex items-center justify-between">
-        <p className="text-lg font-bold text-foreground truncate">
-          {value}
-        </p>
+      <div className="metric-content">
+        <p className="metric-value">{value}</p>
         {trend && (
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="metric-trend">
             {getTrendIcon()}
-            <span className={`text-xs font-medium ${getTrendColor()}`}>
+            <span className={`trend-text ${getTrendColorClass()}`}>
               {trend}
             </span>
           </div>
@@ -54,35 +51,35 @@ function MetricCard({ title, value, trend, trendDirection = 'neutral', icon }: M
 
 export function DashboardMetrics() {
   return (
-    <div className="w-full mb-6">
-      <div className="grid grid-cols-2 gap-3 w-full">
+    <div className="dashboard-metrics">
+      <div className="metrics-grid">
         <MetricCard
           title="Servizi Oggi"
           value="12"
           trend="+3"
           trendDirection="up"
-          icon={<Calendar className="w-4 h-4 text-primary" />}
+          icon={<Calendar />}
         />
         <MetricCard
-          title="Ricavi"
+          title="Ricavi Mese"
           value="€2.8K"
           trend="+12%"
           trendDirection="up"
-          icon={<DollarSign className="w-4 h-4 text-green-600" />}
+          icon={<DollarSign />}
         />
         <MetricCard
           title="Veicoli"
           value="8"
           trend="0"
           trendDirection="neutral"
-          icon={<Car className="w-4 h-4 text-blue-600" />}
+          icon={<Car />}
         />
         <MetricCard
           title="Online"
           value="24"
           trend="+5"
           trendDirection="up"
-          icon={<Users className="w-4 h-4 text-purple-600" />}
+          icon={<Users />}
         />
       </div>
     </div>

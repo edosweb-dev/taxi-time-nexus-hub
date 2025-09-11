@@ -87,54 +87,36 @@ export default function DashboardPage() {
       title="Dashboard" 
       showBottomNav={true}
     >
-      <div className="w-full max-w-none px-4 py-4 space-y-6">
-        {/* Header */}
-        <div className="w-full space-y-2">
-          <h1 className={`font-bold tracking-tight ${
-            isMobile ? 'text-2xl' : 'text-4xl'
-          }`}>
-            Dashboard
-          </h1>
-          <p className={`text-muted-foreground ${
-            isMobile ? 'text-base' : 'text-xl'
-          }`}>
-            Benvenuto, {fullName}
-          </p>
+      <div className="dashboard-container">
+        
+        {/* Welcome Section */}
+        <div className="dashboard-welcome">
+          <h1>Dashboard</h1>
+          <p>Benvenuto, {fullName}</p>
         </div>
 
-        {/* KPI Metrics Section */}
-        <div className="w-full">
-          <DashboardMetrics />
-        </div>
+        {/* KPI Metrics */}
+        <DashboardMetrics />
 
         {/* Dashboard Cards */}
-        <div className="w-full">
-          <div className="grid grid-cols-1 gap-4">
+        <div className="dashboard-cards">
+          <div className="dashboard-cards-grid">
             {dashboardCards.map((card, index) => (
-              <div key={index} className="w-full">
-                <DashboardCard
-                  title={card.title}
-                  description={card.description}
-                  content={card.content}
-                  shortContent={card.shortContent}
-                  buttonText={card.buttonText}
-                  icon={card.icon}
-                  onClick={card.onClick}
-                  isPrimary={card.isPrimary}
-                  variant={card.variant}
-                  mobileOptimized={isMobile}
-                />
+              <div key={index} className="dashboard-card" onClick={card.onClick}>
+                <div className="dashboard-card-header">
+                  <card.icon className="dashboard-card-icon" />
+                  <h3 className="dashboard-card-title">{card.title}</h3>
+                </div>
+                <p className="dashboard-card-content">
+                  {isMobile && card.shortContent ? card.shortContent : card.content}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Quick Actions - Solo mobile */}
-        {isMobile && (
-          <div className="w-full">
-            <QuickActions />
-          </div>
-        )}
+        {isMobile && <QuickActions />}
       </div>
     </MainLayout>
   );
