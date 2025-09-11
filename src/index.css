@@ -906,54 +906,221 @@ button:focus-visible {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Day View - Design moderno */
-  .mobile-day-view {
+  /* Mobile Day View - Compatto */
+  .mobile-day-view-compact {
     padding: 0;
   }
 
-  .shift-card {
+  .day-header-compact {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
   }
 
-  .shift-card:hover {
-    border-color: hsl(var(--primary) / 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  .day-header-compact.today-header {
+    background: hsl(var(--primary) / 0.05);
+    border-color: hsl(var(--primary) / 0.3);
   }
 
-  .empty-day-content {
-    min-height: 240px;
+  .header-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: hsl(var(--muted));
     display: flex;
     align-items: center;
     justify-content: center;
+    color: hsl(var(--muted-foreground));
   }
 
-  .notes-section {
-    margin-top: 1rem;
+  .header-icon.today-icon {
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--primary));
   }
 
-  /* User Avatar migliorato */
-  .user-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+  .header-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    text-transform: capitalize;
+    line-height: 1.2;
+  }
+
+  .today-badge {
+    font-size: 0.75rem;
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.15);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .shift-counter {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    background: hsl(var(--muted) / 0.8);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  /* Lista turni compatta */
+  .shifts-list-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .shift-card-compact {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border) / 0.8);
+    border-radius: 8px;
+    padding: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    animation: fade-in 0.3s ease-out forwards;
+  }
+
+  .shift-card-compact:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  .shift-main-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .shift-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .user-avatar-compact {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 700;
     flex-shrink: 0;
-    border: 2px solid rgba(255, 255, 255, 0.2);
   }
 
-  .user-name {
-    font-size: 1rem;
+  .user-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .user-name-compact {
+    font-size: 0.875rem;
     font-weight: 600;
     color: hsl(var(--foreground));
+    display: block;
+    line-height: 1.2;
+  }
+
+  .shift-time {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .shift-badge-compact {
+    flex-shrink: 0;
+  }
+
+  .shift-badge-compact span {
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .badge-specific_hours {
+    background: hsl(var(--primary) / 0.15);
+    color: hsl(var(--primary));
+  }
+
+  .badge-full_day {
+    background: hsl(var(--secondary) / 0.8);
+    color: hsl(var(--secondary-foreground));
+  }
+
+  .badge-half_day {
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+  }
+
+  .badge-sick_leave {
+    background: hsl(var(--destructive) / 0.15);
+    color: hsl(var(--destructive));
+  }
+
+  .shift-notes-compact {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .shift-notes-compact p {
+    font-size: 0.8125rem;
+    color: hsl(var(--muted-foreground));
     line-height: 1.4;
+    margin: 0;
+  }
+
+  /* Empty state compatto */
+  .empty-state-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1.5rem;
+    background: hsl(var(--muted) / 0.3);
+    border: 1px dashed hsl(var(--border));
+    border-radius: 8px;
+    text-align: left;
+  }
+
+  .empty-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: hsl(var(--muted));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--muted-foreground));
+    flex-shrink: 0;
+  }
+
+  .empty-text h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0 0 0.25rem 0;
+  }
+
+  .empty-text p {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
   }
 }
 
