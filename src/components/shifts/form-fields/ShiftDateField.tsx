@@ -31,7 +31,7 @@ export function ShiftDateField({ control, name, label, placeholder = "Seleziona 
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "w-full pl-3 text-left font-normal",
+                    "w-full pl-3 text-left font-normal min-h-[44px]",
                     !field.value && "text-muted-foreground"
                   )}
                 >
