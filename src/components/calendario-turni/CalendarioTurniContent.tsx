@@ -204,12 +204,12 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
         />
       )}
 
-      <div className="min-h-[600px] max-h-[calc(100vh-120px)] flex flex-col">
-        <Card className="flex-1 overflow-hidden shadow-xl border-0 bg-gradient-to-br from-card to-card/95 backdrop-blur-sm">
-          {/* Header Controls - Design moderno */}
-          <div className="border-b bg-gradient-to-r from-background/95 to-muted/20 backdrop-blur-md px-4 md:px-6 py-4 md:py-5">
+      <div className="h-[calc(100vh-180px)] flex flex-col">
+        <div className="flex-1 overflow-hidden bg-background rounded-xl border border-border/50 shadow-sm">
+          {/* Header Controls compatto */}
+          <div className="border-b bg-background/95 backdrop-blur-sm px-4 py-3 flex-shrink-0">
             {/* Mobile Layout - Ottimizzato */}
-            <div className="block lg:hidden space-y-4">
+            <div className="block lg:hidden space-y-3">
               {/* Top row - Navigation moderno */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -329,145 +329,137 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
               </div>
             </div>
 
-            {/* Desktop Layout - Design migliorato */}
-            <div className="hidden lg:block">
-              <div className="flex items-center justify-between gap-6">
-                {/* Left side - Navigation moderno */}
-                <div className="flex items-center gap-6">
-                  {/* Navigation con design moderno */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center bg-muted/50 rounded-xl p-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={navigatePrevious}
-                        className="rounded-lg hover:bg-background/80"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </Button>
-                      
-                      <div className="min-w-[280px] text-center px-4">
-                        <h2 className="font-bold text-xl bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                          {formatPeriod()}
-                        </h2>
-                      </div>
-                      
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={navigateNext}
-                        className="rounded-lg hover:bg-background/80"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </Button>
-                    </div>
-                    
-                    <Button
+            {/* Desktop Layout compatto */}
+            <div className="hidden lg:flex items-center justify-between">
+              {/* Left side - Navigation e periodo */}
+              <div className="flex items-center gap-4">
+                {/* Navigation compatto */}
+                <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={navigatePrevious}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={goToToday}
+                    className="text-xs px-2 h-8"
+                  >
+                    Oggi
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={navigateNext}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Period title compatto */}
+                <h2 className="font-semibold text-lg text-foreground">
+                  {formatPeriod()}
+                </h2>
+
+                {/* View Mode compatto */}
+                <ViewFilterDropdown 
+                  viewMode={viewMode} 
+                  onViewModeChange={setViewMode} 
+                />
+              </div>
+
+              {/* Right side - Actions compatti */}
+              <div className="flex items-center gap-2">
+                {/* User Filter compatto */}
+                <Select 
+                  value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
+                  onValueChange={(value) => {
+                    if (value === 'all') {
+                      setSelectedUsers([]);
+                    } else if (value === 'multiple') {
+                      // Keep current selection
+                    } else {
+                      setSelectedUsers([value]);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-40 h-8 text-xs">
+                    <SelectValue placeholder="Filtra utente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tutti</SelectItem>
+                    {employees.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: user.color || '#6B7280' }}
+                          />
+                          <span className="text-xs">{user.first_name} {user.last_name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Action Buttons compatti */}
+                {isAdminOrSocio && (
+                  <>
+                    <Button 
                       variant="outline"
-                      size="sm"
-                      onClick={goToToday}
-                      className="bg-primary/10 border-primary/20 hover:bg-primary/20 rounded-xl font-medium"
+                      size="sm" 
+                      onClick={() => navigate('/report')} 
+                      className="h-8 px-2 text-xs"
                     >
-                      Oggi
+                      <BarChart3 className="h-3 w-3 mr-1" />
+                      Report
                     </Button>
-                  </div>
-
-                  {/* View Mode Selector - Design moderno */}
-                  <div className="bg-muted/50 rounded-xl p-1">
-                    <ViewFilterDropdown 
-                      viewMode={viewMode} 
-                      onViewModeChange={setViewMode} 
-                    />
-                  </div>
-                </div>
-
-                {/* Right side - Filters and Actions migliorati */}
-                <div className="flex items-center gap-4">
-                  {/* User Filter moderno */}
-                  <div className="flex items-center gap-3">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
-                    <Select 
-                      value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
-                      onValueChange={(value) => {
-                        if (value === 'all') {
-                          setSelectedUsers([]);
-                        } else if (value === 'multiple') {
-                          // Keep current selection
-                        } else {
-                          setSelectedUsers([value]);
-                        }
-                      }}
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm" 
+                      onClick={() => setInserimentoMassivoOpen(true)} 
+                      className="h-8 px-2 text-xs"
                     >
-                      <SelectTrigger className="w-52 bg-background/80 border-border/50 rounded-xl">
-                        <SelectValue placeholder="Filtra per utente" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl">
-                        <SelectItem value="all">Tutti gli utenti</SelectItem>
-                        {employees.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: user.color || '#6B7280' }}
-                              />
-                              {user.first_name} {user.last_name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Action Buttons moderni */}
-                  {isAdminOrSocio && (
-                    <div className="flex items-center gap-3">
-                      <Button 
-                        variant="outline"
-                        size="sm" 
-                        onClick={() => navigate('/report')} 
-                        className="gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl border-border/50"
-                      >
-                        <BarChart3 className="h-4 w-4" />
-                        Report Turni
-                      </Button>
-                      
-                      <Button 
-                        variant="outline"
-                        size="sm" 
-                        onClick={() => setInserimentoMassivoOpen(true)} 
-                        className="gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl border-border/50"
-                      >
-                        <Users className="h-4 w-4" />
-                        Inserimento Massivo
-                      </Button>
-                      
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleCreateShift(currentDate)} 
-                        className="gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg rounded-xl"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Nuovo Turno
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                      <Users className="h-3 w-3 mr-1" />
+                      Inserimento
+                    </Button>
+                    
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleCreateShift(currentDate)} 
+                      className="h-8 px-3 text-xs"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Nuovo
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
 
           </div>
 
-          {/* Calendar Content */}
-          <CalendarioView
-            viewMode={viewMode}
-            currentDate={currentDate}
-            shifts={filteredShifts}
-            employees={employees}
-            isLoading={isLoading}
-            onCreateShift={handleCreateShift}
-            onEditShift={handleEditShift}
-          />
-        </Card>
+          {/* Calendar Content - Massimo spazio */}
+          <div className="flex-1 overflow-hidden">
+            <CalendarioView
+              viewMode={viewMode}
+              currentDate={currentDate}
+              shifts={filteredShifts}
+              employees={employees}
+              isLoading={isLoading}
+              onCreateShift={handleCreateShift}
+              onEditShift={handleEditShift}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Dialogs */}
