@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { format, addMonths, subMonths } from 'date-fns';
+import React, { useState, useEffect } from 'react';
+import { format, addDays, subDays, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calendar, List, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TouchOptimizer } from '@/components/ui/touch-optimizer';
-import { MobileCalendarioGrid } from './MobileCalendarioGrid';
-import { MobileListaView } from './MobileListaView';
+import { MobileDayView } from './MobileDayView';
 import { useShifts } from '@/components/shifts/ShiftContext';
 import { Shift } from '@/components/shifts/types';
 import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
@@ -18,7 +17,6 @@ interface MobileCalendarioViewProps {
 
 export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState<'lista' | 'calendario'>('lista');
   const [startX, setStartX] = useState(0);
   const [addShiftDialogOpen, setAddShiftDialogOpen] = useState(false);
   const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
@@ -26,14 +24,25 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  const { shifts, isLoading } = useShifts();
+  const { shifts, isLoading, loadShifts } = useShifts();
 
-  const handlePrevMonth = () => {
-    setCurrentDate(subMonths(currentDate, 1));
+  // Load shifts for current day
+  useEffect(() => {
+    const start = startOfDay(currentDate);
+    const end = endOfDay(currentDate);
+    loadShifts(start, end);
+  }, [currentDate, loadShifts]);
+
+  const handlePrevDay = () => {
+    setCurrentDate(subDays(currentDate, 1));
   };
 
-  const handleNextMonth = () => {
-    setCurrentDate(addMonths(currentDate, 1));
+  const handleNextDay = () => {
+    setCurrentDate(addDays(currentDate, 1));
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
   };
 
   // Swipe navigation
@@ -47,9 +56,9 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
 
     if (Math.abs(diff) > 50) { // Threshold per swipe
       if (diff > 0) {
-        handleNextMonth(); // Swipe left = mese successivo
+        handleNextDay(); // Swipe left = giorno successivo
       } else {
-        handlePrevMonth(); // Swipe right = mese precedente
+        handlePrevDay(); // Swipe right = giorno precedente
       }
     }
   };
@@ -89,22 +98,24 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
             <Button
               variant="ghost"
               size="sm"
-              onClick={handlePrevMonth}
+              onClick={handlePrevDay}
               className="nav-button"
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
           </TouchOptimizer>
           
-          <h2 className="current-month">
-            {format(currentDate, 'MMMM yyyy', { locale: it })}
-          </h2>
+          <div className="date-display">
+            <h2 className="current-date">
+              {format(currentDate, 'EEEE d MMMM yyyy', { locale: it })}
+            </h2>
+          </div>
           
           <TouchOptimizer minSize="lg">
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleNextMonth}
+              onClick={handleNextDay}
               className="nav-button"
             >
               <ChevronRight className="w-5 h-5" />
@@ -112,28 +123,16 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
           </TouchOptimizer>
         </div>
 
-        {/* View Toggle */}
-        <div className="view-toggle">
+        {/* Today button */}
+        <div className="today-button">
           <TouchOptimizer minSize="lg">
             <Button
-              variant={view === 'lista' ? 'default' : 'outline'}
+              variant="outline"
               size="sm"
-              onClick={() => setView('lista')}
-              className="toggle-button"
+              onClick={goToToday}
+              className="w-full"
             >
-              <List className="w-4 h-4 mr-2" />
-              Lista
-            </Button>
-          </TouchOptimizer>
-          <TouchOptimizer minSize="lg">
-            <Button
-              variant={view === 'calendario' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setView('calendario')}
-              className="toggle-button"
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Calendario
+              Oggi
             </Button>
           </TouchOptimizer>
         </div>
@@ -161,23 +160,13 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {view === 'lista' ? (
-          <MobileListaView 
-            currentDate={currentDate} 
-            shifts={shifts}
-            isLoading={isLoading}
-            onCreateShift={handleCreateShift}
-            onEditShift={handleEditShift}
-          />
-        ) : (
-          <MobileCalendarioGrid 
-            currentDate={currentDate}
-            shifts={shifts}
-            isLoading={isLoading}
-            onCreateShift={handleCreateShift}
-            onEditShift={handleEditShift}
-          />
-        )}
+        <MobileDayView 
+          currentDate={currentDate} 
+          shifts={shifts}
+          isLoading={isLoading}
+          onCreateShift={handleCreateShift}
+          onEditShift={handleEditShift}
+        />
       </div>
 
       {/* Dialogs */}
