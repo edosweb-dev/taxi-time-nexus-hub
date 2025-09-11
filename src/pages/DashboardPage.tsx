@@ -87,9 +87,9 @@ export default function DashboardPage() {
       title="Dashboard" 
       showBottomNav={true}
     >
-      <div className={`dashboard-page space-y-6 w-full max-w-full overflow-hidden ${isMobile ? 'p-4' : 'p-6'}`}>
+      <div className="w-full max-w-none px-4 py-4 space-y-6">
         {/* Header */}
-        <div className="space-y-2 w-full">
+        <div className="w-full space-y-2">
           <h1 className={`font-bold tracking-tight ${
             isMobile ? 'text-2xl' : 'text-4xl'
           }`}>
@@ -103,16 +103,15 @@ export default function DashboardPage() {
         </div>
 
         {/* KPI Metrics Section */}
-        <DashboardMetrics />
+        <div className="w-full">
+          <DashboardMetrics />
+        </div>
 
         {/* Dashboard Cards */}
-        <div className="dashboard-grid w-full max-w-full">
-          <DashboardGrid 
-            cols={{ mobile: 1, tablet: 2, desktop: 3 }}
-            gap={isMobile ? "md" : "lg"}
-          >
+        <div className="w-full">
+          <div className="grid grid-cols-1 gap-4">
             {dashboardCards.map((card, index) => (
-              <div key={index} className="dashboard-card w-full max-w-full">
+              <div key={index} className="w-full">
                 <DashboardCard
                   title={card.title}
                   description={card.description}
@@ -127,12 +126,12 @@ export default function DashboardPage() {
                 />
               </div>
             ))}
-          </DashboardGrid>
+          </div>
         </div>
 
-        {/* Quick Actions - Solo se necessarie */}
+        {/* Quick Actions - Solo mobile */}
         {isMobile && (
-          <div className="quick-actions-container w-full max-w-full">
+          <div className="w-full">
             <QuickActions />
           </div>
         )}

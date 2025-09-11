@@ -27,16 +27,20 @@ function MetricCard({ title, value, trend, trendDirection = 'neutral', icon }: M
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg p-4">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{title}</p>
-        {icon}
+    <div className="bg-card border border-border rounded-lg p-3 w-full min-w-0">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider truncate">
+          {title}
+        </p>
+        {icon && <div className="flex-shrink-0">{icon}</div>}
       </div>
       
       <div className="flex items-center justify-between">
-        <p className="text-xl font-bold text-foreground">{value}</p>
+        <p className="text-lg font-bold text-foreground truncate">
+          {value}
+        </p>
         {trend && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {getTrendIcon()}
             <span className={`text-xs font-medium ${getTrendColor()}`}>
               {trend}
@@ -50,8 +54,8 @@ function MetricCard({ title, value, trend, trendDirection = 'neutral', icon }: M
 
 export function DashboardMetrics() {
   return (
-    <div className="dashboard-metrics w-full max-w-full overflow-hidden">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full">
+    <div className="w-full mb-6">
+      <div className="grid grid-cols-2 gap-3 w-full">
         <MetricCard
           title="Servizi Oggi"
           value="12"
