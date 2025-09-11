@@ -50,35 +50,37 @@ function MetricCard({ title, value, trend, trendDirection = 'neutral', icon }: M
 
 export function DashboardMetrics() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <MetricCard
-        title="Servizi Oggi"
-        value="12"
-        trend="+3"
-        trendDirection="up"
-        icon={<Calendar className="w-4 h-4 text-primary" />}
-      />
-      <MetricCard
-        title="Ricavi Mese"
-        value="€2,840"
-        trend="+12%"
-        trendDirection="up"
-        icon={<DollarSign className="w-4 h-4 text-green-600" />}
-      />
-      <MetricCard
-        title="Veicoli Attivi"
-        value="8"
-        trend="0"
-        trendDirection="neutral"
-        icon={<Car className="w-4 h-4 text-blue-600" />}
-      />
-      <MetricCard
-        title="Utenti Online"
-        value="24"
-        trend="+5"
-        trendDirection="up"
-        icon={<Users className="w-4 h-4 text-purple-600" />}
-      />
+    <div className="dashboard-metrics w-full max-w-full overflow-hidden">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full">
+        <MetricCard
+          title="Servizi Oggi"
+          value="12"
+          trend="+3"
+          trendDirection="up"
+          icon={<Calendar className="w-4 h-4 text-primary" />}
+        />
+        <MetricCard
+          title="Ricavi"
+          value="€2.8K"
+          trend="+12%"
+          trendDirection="up"
+          icon={<DollarSign className="w-4 h-4 text-green-600" />}
+        />
+        <MetricCard
+          title="Veicoli"
+          value="8"
+          trend="0"
+          trendDirection="neutral"
+          icon={<Car className="w-4 h-4 text-blue-600" />}
+        />
+        <MetricCard
+          title="Online"
+          value="24"
+          trend="+5"
+          trendDirection="up"
+          icon={<Users className="w-4 h-4 text-purple-600" />}
+        />
+      </div>
     </div>
   );
 }

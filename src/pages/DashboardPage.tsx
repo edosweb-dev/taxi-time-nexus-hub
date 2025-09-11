@@ -87,9 +87,9 @@ export default function DashboardPage() {
       title="Dashboard" 
       showBottomNav={true}
     >
-      <div className="space-y-6 p-4">
+      <div className={`dashboard-page space-y-6 w-full max-w-full overflow-hidden ${isMobile ? 'p-4' : 'p-6'}`}>
         {/* Header */}
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <h1 className={`font-bold tracking-tight ${
             isMobile ? 'text-2xl' : 'text-4xl'
           }`}>
@@ -106,29 +106,36 @@ export default function DashboardPage() {
         <DashboardMetrics />
 
         {/* Dashboard Cards */}
-        <DashboardGrid 
-          cols={{ mobile: 1, tablet: 2, desktop: 3 }}
-          gap={isMobile ? "md" : "lg"}
-        >
-          {dashboardCards.map((card, index) => (
-            <DashboardCard
-              key={index}
-              title={card.title}
-              description={card.description}
-              content={card.content}
-              shortContent={card.shortContent}
-              buttonText={card.buttonText}
-              icon={card.icon}
-              onClick={card.onClick}
-              isPrimary={card.isPrimary}
-              variant={card.variant}
-              mobileOptimized={isMobile}
-            />
-          ))}
-        </DashboardGrid>
+        <div className="dashboard-grid w-full max-w-full">
+          <DashboardGrid 
+            cols={{ mobile: 1, tablet: 2, desktop: 3 }}
+            gap={isMobile ? "md" : "lg"}
+          >
+            {dashboardCards.map((card, index) => (
+              <div key={index} className="dashboard-card w-full max-w-full">
+                <DashboardCard
+                  title={card.title}
+                  description={card.description}
+                  content={card.content}
+                  shortContent={card.shortContent}
+                  buttonText={card.buttonText}
+                  icon={card.icon}
+                  onClick={card.onClick}
+                  isPrimary={card.isPrimary}
+                  variant={card.variant}
+                  mobileOptimized={isMobile}
+                />
+              </div>
+            ))}
+          </DashboardGrid>
+        </div>
 
         {/* Quick Actions - Solo se necessarie */}
-        {isMobile && <QuickActions />}
+        {isMobile && (
+          <div className="quick-actions-container w-full max-w-full">
+            <QuickActions />
+          </div>
+        )}
       </div>
     </MainLayout>
   );
