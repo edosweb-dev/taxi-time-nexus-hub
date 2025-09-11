@@ -1122,7 +1122,7 @@ button:focus-visible {
     color: hsl(var(--muted-foreground));
     margin: 0;
   }
-}
+  }
 
   /* Mobile Form Optimizations */
   .shift-form input[type="time"] {
