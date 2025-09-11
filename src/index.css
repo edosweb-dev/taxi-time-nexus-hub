@@ -767,6 +767,59 @@ button:focus-visible {
   }
 }
 
+/* Dashboard Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Dashboard metrics mobile optimization */
+  .dashboard-metrics {
+    gap: 0.75rem;
+  }
+  
+  .metric-card {
+    padding: 0.875rem;
+    border-radius: 0.5rem;
+  }
+  
+  .metric-value {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  
+  .metric-title {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Dashboard Typography Consistency */
+  .dashboard-card-title {
+    font-size: 1rem !important;
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+  }
+  
+  .dashboard-card-content {
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  
+  /* Spacing optimization */
+  .dashboard-grid {
+    gap: 1rem !important;
+  }
+  
+  .dashboard-section {
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Line clamp utility for mobile */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .transition-all,

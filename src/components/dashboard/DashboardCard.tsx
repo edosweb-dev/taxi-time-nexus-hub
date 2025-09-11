@@ -2,62 +2,76 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardCardProps {
   title: string;
   description: string;
   content: string;
+  shortContent?: string; // Mobile-optimized content
   buttonText: string;
   icon: LucideIcon;
   onClick: () => void;
   isPrimary?: boolean;
   variant?: 'default' | 'outline';
+  mobileOptimized?: boolean; // Enable mobile optimizations
 }
 
 export function DashboardCard({
   title,
   description,
   content,
+  shortContent,
   buttonText,
   icon: Icon,
   onClick,
   isPrimary = false,
-  variant = 'default'
+  variant = 'default',
+  mobileOptimized = false
 }: DashboardCardProps) {
+  const isMobile = useIsMobile();
+  
   return (
-    <Card className={cn(
-      // Mobile-first: optimized for touch
-      "transition-all duration-200 hover:shadow-lg active:scale-[0.98]",
-      // Enhanced primary styling
-      isPrimary && "border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 shadow-md"
-    )}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 md:pb-2">
+    <Card 
+      className={cn(
+        "cursor-pointer transition-all duration-200 hover:shadow-md active:scale-[0.98]",
+        isPrimary ? "border-primary/50 bg-primary/5" : "hover:border-border/60",
+        mobileOptimized ? "p-4" : "p-6"
+      )}
+      onClick={onClick}
+    >
+      <CardHeader className={cn(
+        "flex flex-row items-center justify-between space-y-0",
+        mobileOptimized ? "pb-3 p-0 mb-3" : "pb-4"
+      )}>
         <div className="space-y-1 flex-1">
-          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+          <CardTitle className={cn(
+            "flex items-center gap-2 font-semibold leading-tight",
+            mobileOptimized ? "text-base" : "text-lg"
+          )}>
             <Icon className={cn(
               "flex-shrink-0 h-5 w-5",
               isPrimary ? "text-primary" : "text-muted-foreground"
             )} />
-            <span className="text-sm font-semibold md:text-base md:font-medium">{title}</span>
+            <span>{title}</span>
           </CardTitle>
-          <CardDescription className="text-xs md:text-sm">
-            {description}
-          </CardDescription>
+          {!mobileOptimized && (
+            <CardDescription className="text-xs md:text-sm">
+              {description}
+            </CardDescription>
+          )}
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-3 pt-0 px-4 pb-4 md:px-6">
-        <p className="text-muted-foreground leading-relaxed text-xs md:text-sm">
-          {content}
+      <CardContent className={cn(
+        mobileOptimized ? "pt-0 p-0" : "space-y-3 pt-0 px-4 pb-4 md:px-6"
+      )}>
+        <p className={cn(
+          "text-muted-foreground leading-relaxed",
+          mobileOptimized ? "text-sm line-clamp-2" : "text-sm md:text-base"
+        )}>
+          {isMobile && shortContent ? shortContent : content}
         </p>
-        
-        <Button 
-          onClick={onClick}
-          variant={isPrimary ? "default" : variant}
-          className="w-full text-sm h-9 md:w-auto md:h-10 md:text-base transition-all duration-200"
-        >
-          {buttonText}
-        </Button>
       </CardContent>
     </Card>
   );

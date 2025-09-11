@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Calendar, Clock, Users, Building, MessageCircle } from 'lucide-react';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
+import { DashboardMetrics } from '@/components/dashboard/DashboardMetrics';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 
 export default function DashboardPage() {
@@ -29,7 +30,8 @@ export default function DashboardPage() {
       {
         title: 'Gestione Utenti',
         description: 'Gestisci gli utenti della piattaforma',
-        content: 'Gestisci i profili degli utenti e i loro permessi.',
+        content: 'Amministra utenti, assegna ruoli e gestisci permessi per autisti, amministratori e clienti della piattaforma.',
+        shortContent: 'Gestisci utenti, ruoli e permessi',
         buttonText: 'Vai alla gestione utenti',
         icon: Users,
         onClick: handleNavigate('/users'),
@@ -38,7 +40,8 @@ export default function DashboardPage() {
       {
         title: 'Gestione Aziende',
         description: 'Gestisci le aziende clienti',
-        content: 'Gestisci le aziende clienti e i loro referenti.',
+        content: 'Visualizza e gestisci le aziende clienti, i loro contratti e le informazioni di fatturazione.',
+        shortContent: 'Gestisci aziende clienti e contratti',
         buttonText: 'Vai alla gestione aziende',
         icon: Building,
         onClick: handleNavigate('/aziende'),
@@ -47,7 +50,8 @@ export default function DashboardPage() {
       {
         title: 'Gestione Feedback',
         description: 'Visualizza e gestisci i feedback utenti',
-        content: 'Gestisci i feedback ricevuti dagli utenti della piattaforma.',
+        content: 'Gestisci i feedback ricevuti dagli utenti della piattaforma per migliorare il servizio.',
+        shortContent: 'Visualizza e gestisci feedback utenti',
         buttonText: 'Vai ai feedback',
         icon: MessageCircle,
         onClick: handleNavigate('/feedback'),
@@ -58,7 +62,8 @@ export default function DashboardPage() {
     {
       title: 'Turni',
       description: 'Organizza i turni di lavoro',
-      content: 'Visualizza e gestisci i turni di lavoro del personale.',
+      content: 'Visualizza e gestisci i turni di lavoro del personale, assegna autisti e pianifica le attività.',
+      shortContent: 'Gestisci turni e pianificazione lavoro',
       buttonText: 'Vai ai turni',
       icon: Calendar,
       onClick: handleNavigate('/calendario-turni'),
@@ -67,7 +72,8 @@ export default function DashboardPage() {
     {
       title: 'Spese Aziendali',
       description: 'Gestisci le spese aziendali',
-      content: 'Monitora e gestisci le spese aziendali.',
+      content: 'Monitora e gestisci le spese aziendali, carburante, manutenzioni e altri costi operativi.',
+      shortContent: 'Monitora spese e costi operativi',
       buttonText: 'Vai alle spese',
       icon: Clock,
       onClick: handleNavigate('/spese-aziendali'),
@@ -81,40 +87,48 @@ export default function DashboardPage() {
       title="Dashboard" 
       showBottomNav={true}
     >
-      <div className="space-y-6">
+      <div className="space-y-6 p-4">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className={`font-bold tracking-tight text-enhanced ${
+          <h1 className={`font-bold tracking-tight ${
             isMobile ? 'text-2xl' : 'text-4xl'
           }`}>
             Dashboard
           </h1>
-          <p className={`text-muted-foreground text-enhanced ${
+          <p className={`text-muted-foreground ${
             isMobile ? 'text-base' : 'text-xl'
           }`}>
             Benvenuto, {fullName}
           </p>
         </div>
 
-        {/* Quick Actions - Solo su mobile */}
-        {isMobile && <QuickActions />}
+        {/* KPI Metrics Section */}
+        <DashboardMetrics />
 
         {/* Dashboard Cards */}
-        <DashboardGrid>
+        <DashboardGrid 
+          cols={{ mobile: 1, tablet: 2, desktop: 3 }}
+          gap={isMobile ? "md" : "lg"}
+        >
           {dashboardCards.map((card, index) => (
             <DashboardCard
               key={index}
               title={card.title}
               description={card.description}
               content={card.content}
+              shortContent={card.shortContent}
               buttonText={card.buttonText}
               icon={card.icon}
               onClick={card.onClick}
               isPrimary={card.isPrimary}
               variant={card.variant}
+              mobileOptimized={isMobile}
             />
           ))}
         </DashboardGrid>
+
+        {/* Quick Actions - Solo se necessarie */}
+        {isMobile && <QuickActions />}
       </div>
     </MainLayout>
   );
