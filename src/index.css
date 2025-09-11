@@ -1123,7 +1123,7 @@ button:focus-visible {
     margin: 0;
   }
   }
-
+@media (max-width: 768px) {
   /* Mobile Form Optimizations */
   .shift-form input[type="time"] {
     min-height: 44px !important;
