@@ -1124,6 +1124,216 @@ button:focus-visible {
   }
 }
 
+  /* Mobile Form Optimizations */
+  .shift-form input[type="time"] {
+    min-height: 44px !important;
+    font-size: 16px !important; /* Previene zoom iOS */
+    padding: 0.75rem !important;
+  }
+  
+  .shift-form .select-trigger {
+    min-height: 44px !important;
+    padding: 0.75rem !important;
+  }
+  
+  .shift-form button {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Card padding ottimizzato */
+  .shift-form .card {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Mobile Step Form */
+  .mobile-step-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 60vh;
+  }
+
+  .step-header {
+    padding: 1rem;
+    border-bottom: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .step-info {
+    margin-bottom: 1rem;
+  }
+
+  .step-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: hsl(var(--foreground));
+  }
+
+  .step-description {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+  }
+
+  .step-counter {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  /* Step Content */
+  .step-content {
+    flex: 1;
+    padding: 1.5rem 1rem;
+    overflow-y: auto;
+  }
+
+  .step-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .field-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+  }
+
+  /* Mobile Inputs */
+  .mobile-select,
+  .mobile-date-picker,
+  .mobile-time-input,
+  .mobile-textarea {
+    min-height: 44px;
+    font-size: 16px; /* Previene zoom iOS */
+    padding: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    width: 100%;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  .mobile-time-input {
+    appearance: none;
+  }
+
+  .mobile-textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  /* Radio Groups */
+  .mobile-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: hsl(var(--background));
+  }
+
+  .radio-option:has(input:checked) {
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.1);
+  }
+
+  .radio-label {
+    flex: 1;
+    cursor: pointer;
+  }
+
+  .radio-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .radio-title {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+  }
+
+  .radio-description {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .radio-option-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    flex: 1;
+    background: hsl(var(--background));
+  }
+
+  /* Time Inputs Layout */
+  .time-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  /* Navigation */
+  .step-navigation {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-top: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    position: sticky;
+    bottom: 0;
+  }
+
+  .nav-button {
+    flex: 1;
+    min-height: 48px;
+    font-weight: 500;
+  }
+
+  /* Info Messages */
+  .info-message {
+    padding: 1rem;
+    background: hsl(var(--primary) / 0.1);
+    border: 1px solid hsl(var(--primary) / 0.2);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .info-message p {
+    margin: 0;
+    color: hsl(var(--primary));
+    font-size: 0.875rem;
+  }
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .transition-all,

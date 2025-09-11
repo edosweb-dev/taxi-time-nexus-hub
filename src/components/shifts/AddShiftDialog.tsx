@@ -26,6 +26,7 @@ import {
   DateRangeFields
 } from './form-fields';
 import { ShiftFormData } from './types';
+import { MobileShiftFormWrapper, MobileStepShiftForm } from './mobile';
 
 interface AddShiftDialogProps {
   open: boolean;
@@ -324,55 +325,47 @@ export function AddShiftDialog({
     </Form>
   );
 
+  const handleMobileSubmit = async (data: ShiftFormData) => {
+    if (isEditing && selectedShift) {
+      await updateShift(selectedShift.id, data);
+    } else {
+      await createShift(data);
+    }
+    onOpenChange(false);
+  };
+
+  const handleMobileCancel = () => {
+    onOpenChange(false);
+  };
+
   return (
     <>
-      {isMobile ? (
-        <Drawer open={open} onOpenChange={(value) => {
+      <MobileShiftFormWrapper
+        open={open}
+        onOpenChange={(value) => {
           if (!value) {
             form.reset();
           }
           onOpenChange(value);
-        }}>
-          <DrawerContent className="max-h-[95vh] overflow-hidden">
-            <DrawerHeader className="text-left px-4 py-3 border-b">
-              <DrawerTitle className="flex items-center gap-2 text-lg">
-                <CalendarIcon className="h-5 w-5 text-primary" />
-                {isEditing ? 'Modifica Turno' : 'Nuovo Turno'}
-              </DrawerTitle>
-              <DrawerDescription className="text-sm">
-                {isEditing 
-                  ? 'Modifica i dettagli del turno.' 
-                  : 'Inserisci i dettagli del nuovo turno.'}
-              </DrawerDescription>
-            </DrawerHeader>
-            <div className="flex-1 overflow-y-auto px-4 py-4">
-              <FormContent />
-            </div>
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={open} onOpenChange={(value) => {
-          if (!value) {
-            form.reset();
-          }
-          onOpenChange(value);
-        }}>
-          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader className="space-y-3 pb-6">
-              <DialogTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5 text-primary" />
-                {isEditing ? 'Modifica Turno' : 'Aggiungi Nuovo Turno'}
-              </DialogTitle>
-              <DialogDescription>
-                {isEditing 
-                  ? 'Modifica i dettagli del turno esistente.' 
-                  : 'Inserisci i dettagli del nuovo turno. Tutti i campi obbligatori sono contrassegnati.'}
-              </DialogDescription>
-            </DialogHeader>
-            <FormContent />
-          </DialogContent>
-        </Dialog>
-      )}
+        }}
+        title={isEditing ? 'Modifica Turno' : 'Nuovo Turno'}
+        description={isEditing 
+          ? 'Modifica i dettagli del turno esistente.' 
+          : 'Inserisci i dettagli del nuovo turno.'}
+      >
+        {isMobile ? (
+          <MobileStepShiftForm
+            onSubmit={handleMobileSubmit}
+            onCancel={handleMobileCancel}
+            isAdminOrSocio={isAdminOrSocio}
+            defaultDate={defaultDate}
+            defaultUserId={defaultUserId}
+            selectedShift={selectedShift}
+          />
+        ) : (
+          <FormContent />
+        )}
+      </MobileShiftFormWrapper>
 
       {/* Confirm delete dialog */}
       <DeleteConfirmDialog 
