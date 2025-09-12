@@ -226,7 +226,7 @@ export default function DashboardPage() {
       <div className="space-y-4 lg:space-y-12 p-4 lg:p-8 lg:max-w-7xl lg:mx-auto">
         {/* Header Hero Section */}
         <div className="space-y-3 lg:space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-8 p-4 lg:p-6 bg-gradient-to-r from-primary/5 via-background to-secondary/5 rounded-xl border border-border/30 shadow-sm backdrop-blur-sm">
             <div className="lg:space-y-2">
               <h1 className="text-2xl lg:text-5xl font-bold tracking-tight text-foreground">
                 Dashboard
