@@ -223,25 +223,25 @@ export default function DashboardPage() {
 
   return (
     <MainLayout title="Dashboard" showBottomNav={true}>
-      <div className="space-y-4 sm:space-y-8 p-4 sm:p-6 bg-gradient-to-br from-background via-background/50 to-muted/30 rounded-xl shadow-lg border border-border/50 backdrop-blur-sm">
+      <div className="space-y-4 lg:space-y-12 p-4 lg:p-8 lg:max-w-7xl lg:mx-auto">
         {/* Header Hero Section */}
-        <div className="space-y-3 sm:space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+        <div className="space-y-3 lg:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-8">
+            <div className="lg:space-y-2">
+              <h1 className="text-2xl lg:text-5xl font-bold tracking-tight text-foreground">
                 Dashboard
               </h1>
-              <p className="text-base sm:text-lg text-muted-foreground">
+              <p className="text-base lg:text-xl text-muted-foreground">
                 Benvenuto, {fullName}
               </p>
             </div>
             
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Badge variant="outline" className="text-xs sm:text-sm">
+            <div className="flex items-center gap-2 lg:gap-4">
+              <Badge variant="outline" className="text-xs lg:text-base lg:px-4 lg:py-2">
                 {profile?.role === 'admin' ? 'Admin' : 
                  profile?.role === 'socio' ? 'Socio' : 'Utente'}
               </Badge>
-              <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
+              <Button variant="outline" size="sm" className="lg:size-default lg:px-6" onClick={() => navigate('/profile')}>
                 Profilo
               </Button>
             </div>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
         </div>
 
         {/* KPI Metrics Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-8">
           {metrics.map((metric, index) => (
             <MetricCard
               key={index}
@@ -264,56 +264,60 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Quick Actions Section */}
-        <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-semibold text-foreground">
-              Azioni Rapide
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-            {quickActions.map((action, index) => (
-              <QuickActionCard
-                key={index}
-                title={action.title}
-                description={action.description}
-                icon={action.icon}
-                onClick={action.onClick}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity Section */}
-        <Card className="border-0 bg-gradient-to-br from-muted/50 to-muted/30">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              Attività Recente
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3 sm:space-y-4">
-              {[
-                { time: '10:30', event: 'Nuovo servizio prenotato', user: 'Mario Rossi' },
-                { time: '09:15', event: 'Turno completato', user: 'Luca Bianchi' },
-                { time: '08:45', event: 'Veicolo in manutenzione', user: 'Sistema' }
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-2 h-2 rounded-full bg-primary"></div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-medium">{activity.event}</p>
-                      <p className="text-xs text-muted-foreground">{activity.user}</p>
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{activity.time}</span>
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Quick Actions Section */}
+          <div className="lg:col-span-2 space-y-4 lg:space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg lg:text-2xl font-semibold text-foreground">
+                Azioni Rapide
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 lg:gap-6">
+              {quickActions.map((action, index) => (
+                <QuickActionCard
+                  key={index}
+                  title={action.title}
+                  description={action.description}
+                  icon={action.icon}
+                  onClick={action.onClick}
+                />
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Recent Activity Section */}
+          <div className="lg:col-span-1">
+            <Card className="border-0 bg-gradient-to-br from-muted/50 to-muted/30 h-full">
+              <CardHeader className="pb-3 lg:pb-6">
+                <CardTitle className="flex items-center gap-2 text-base lg:text-xl">
+                  <Activity className="w-4 h-4 lg:w-6 lg:h-6 text-primary" />
+                  Attività Recente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-3 lg:space-y-6">
+                  {[
+                    { time: '10:30', event: 'Nuovo servizio prenotato', user: 'Mario Rossi' },
+                    { time: '09:15', event: 'Turno completato', user: 'Luca Bianchi' },
+                    { time: '08:45', event: 'Veicolo in manutenzione', user: 'Sistema' }
+                  ].map((activity, index) => (
+                    <div key={index} className="flex items-center justify-between py-2 lg:py-4 border-b border-border/50 last:border-0">
+                      <div className="flex items-center gap-2 lg:gap-4">
+                        <div className="w-2 h-2 lg:w-3 lg:h-3 rounded-full bg-primary"></div>
+                        <div>
+                          <p className="text-xs lg:text-sm font-medium">{activity.event}</p>
+                          <p className="text-xs lg:text-sm text-muted-foreground">{activity.user}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs lg:text-sm text-muted-foreground">{activity.time}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </MainLayout>
   );
