@@ -500,16 +500,18 @@ body {
    * =============================================== */
 
   /* Mobile Hero Card */
-  .mobile-hero-card.compact {
-    margin-bottom: 1rem;
-    padding: 1rem;
-  }
+  .mobile-hero-card {
     background: hsl(var(--card));
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px hsl(var(--primary) / 0.1);
     border: 1px solid hsl(var(--border));
+  }
+
+  .mobile-hero-card.compact {
+    margin-bottom: 1rem;
+    padding: 1rem;
   }
 
   /* Header Cliente + Stato */
