@@ -30,6 +30,7 @@ import NuovaAziendaPage from './pages/aziende/NuovaAziendaPage';
 import AziendaDetailPage from './pages/aziende/AziendaDetailPage';
 import ReferenteDetailPage from './pages/referenti/ReferenteDetailPage';
 import FeedbackPage from './pages/FeedbackPage';
+import ProfilePage from './pages/ProfilePage';
 
 const queryClient = new QueryClient();
 
@@ -197,6 +198,13 @@ function App() {
                 <Route path="/mobile-showcase" element={
                   <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                     <MobileUIShowcase />
+                  </AuthGuard>
+                } />
+                
+                {/* Profile Route */}
+                <Route path="/profile" element={
+                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente', 'cliente']}>
+                    <ProfilePage />
                   </AuthGuard>
                 } />
                 
