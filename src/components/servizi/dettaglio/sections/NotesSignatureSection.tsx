@@ -16,6 +16,17 @@ export function NotesSignatureSection({
 }: NotesSignatureSectionProps) {
   const hasContent = servizio.note || (firmaDigitaleAttiva && (servizio.firma_url || servizio.firma_timestamp));
 
+  const safeFormat = (value?: string | Date, fmt: string = "dd/MM/yyyy 'alle' HH:mm") => {
+    if (!value) return "—";
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) return "—";
+    try {
+      return format(d, fmt, { locale: it });
+    } catch {
+      return "—";
+    }
+  };
+
   if (!hasContent) {
     return null;
   }
@@ -51,7 +62,7 @@ export function NotesSignatureSection({
                   </Badge>
                   {servizio.firma_timestamp && (
                     <span className="text-sm text-muted-foreground">
-                      il {format(new Date(servizio.firma_timestamp), "dd/MM/yyyy 'alle' HH:mm", { locale: it })}
+                      il {safeFormat(servizio.firma_timestamp, "dd/MM/yyyy 'alle' HH:mm")}
                     </span>
                   )}
                 </div>

@@ -30,6 +30,17 @@ export function ServizioHeader({
 }: ServizioHeaderProps) {
   const navigate = useNavigate();
   
+  const safeFormatISO = (iso?: string, fmt: string = "EEEE d MMMM yyyy") => {
+    if (!iso) return "—";
+    try {
+      const d = parseISO(iso);
+      if (isNaN(d.getTime())) return "—";
+      return format(d, fmt, { locale: it });
+    } catch {
+      return "—";
+    }
+  };
+  
   return (
     <div className="bg-card border rounded-lg p-4 md:p-6">
       <div className="flex flex-col gap-4">
@@ -59,7 +70,7 @@ export function ServizioHeader({
           {/* Date and time - Mobile optimized */}
           <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 text-sm text-muted-foreground">
             <span className="font-medium">
-              {format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}
+              {safeFormatISO(servizio.data_servizio, "EEEE d MMMM yyyy")}
             </span>
             {servizio.orario_servizio && (
               <div className="flex items-center gap-2">

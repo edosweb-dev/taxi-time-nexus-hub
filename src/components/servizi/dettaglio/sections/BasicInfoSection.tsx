@@ -19,6 +19,16 @@ export function BasicInfoSection({
   getAziendaName,
   getUserName,
 }: BasicInfoSectionProps) {
+  const safeFormatISO = (iso?: string, fmt: string = "EEEE, dd MMMM yyyy") => {
+    if (!iso) return "—";
+    try {
+      const d = parseISO(iso);
+      if (isNaN(d.getTime())) return "—";
+      return format(d, fmt, { locale: it });
+    } catch {
+      return "—";
+    }
+  };
   return (
     <Card>
       <CardHeader>
@@ -39,7 +49,7 @@ export function BasicInfoSection({
           <div className="space-y-2">
             <div className="text-sm font-medium text-muted-foreground">Data servizio</div>
             <div className="text-base font-medium">
-              {format(parseISO(servizio.data_servizio), "EEEE, dd MMMM yyyy", { locale: it })}
+              {safeFormatISO(servizio.data_servizio, "EEEE, dd MMMM yyyy")}
             </div>
           </div>
           
