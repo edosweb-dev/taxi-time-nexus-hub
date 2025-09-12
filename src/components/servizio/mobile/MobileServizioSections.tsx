@@ -100,16 +100,6 @@ export function MobileServizioSections({ servizio, passeggeri, formatCurrency, u
             <span className="detail-value">{servizio.veicolo?.nome || 'Da assegnare'}</span>
           </div>
 
-          {/* Autista assegnato */}
-          <div className="detail-row">
-            <span className="detail-label">Assegnato a</span>
-            <span className="detail-value">
-              {servizio.conducente_esterno ? 'Conducente esterno' : 
-               servizio.assegnato_a ? getUserName(users, servizio.assegnato_a) || 'Sconosciuto' : 
-               'Non assegnato'}
-            </span>
-          </div>
-
           {/* Ore lavorate se disponibili */}
           {servizio.ore_lavorate && (
             <div className="detail-row">
