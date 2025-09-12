@@ -20,9 +20,11 @@ interface MobileServizioHeroProps {
     durata?: string;
     distanza?: string;
   };
+  isAdmin?: boolean;
+  onAssegnaServizio?: () => void;
 }
 
-export function MobileServizioHero({ servizio }: MobileServizioHeroProps) {
+export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizio }: MobileServizioHeroProps) {
   // stato badge handled via local config
   
   // Get the badge properties for styling
@@ -193,9 +195,20 @@ export function MobileServizioHero({ servizio }: MobileServizioHeroProps) {
           )}
         </div>
       ) : (
-        <div className="no-autista-section">
+        <div 
+          className={`no-autista-section ${isAdmin && servizio.stato === 'da_assegnare' ? 'clickable' : ''}`}
+          onClick={isAdmin && servizio.stato === 'da_assegnare' ? onAssegnaServizio : undefined}
+        >
           <User className="w-5 h-5 text-muted-foreground" />
-          <span className="no-autista-text">Nessun autista assegnato</span>
+          <span className="no-autista-text">
+            {isAdmin && servizio.stato === 'da_assegnare' 
+              ? 'Tocca per assegnare il servizio' 
+              : 'Nessun autista assegnato'
+            }
+          </span>
+          {isAdmin && servizio.stato === 'da_assegnare' && (
+            <span className="assign-hint">👆</span>
+          )}
         </div>
       )}
     </div>

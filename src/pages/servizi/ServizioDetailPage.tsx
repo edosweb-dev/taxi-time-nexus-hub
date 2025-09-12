@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
@@ -13,11 +14,14 @@ import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
 import { ServizioDialogs } from "@/components/servizi/dettaglio/ServizioDialogs";
 import { MobileServizioHero } from "@/components/servizio/mobile/MobileServizioHero";
 import { MobileServizioSections } from "@/components/servizio/mobile/MobileServizioSections";
+import { AssegnazioneSheet } from "@/components/servizi/assegnazione/AssegnazioneSheet";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { users } = useUsers();
+  const { profile } = useAuth();
   const isMobile = useIsMobile();
   const {
     servizio,
@@ -39,6 +43,10 @@ export default function ServizioDetailPage() {
     formatCurrency,
     servizioIndex,
   } = useServizioDetail(id);
+
+  const [assegnazioneSheetOpen, setAssegnazioneSheetOpen] = useState(false);
+  
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
   
   if (isLoading) {
     return <ServizioLoading />;
@@ -86,7 +94,11 @@ export default function ServizioDetailPage() {
         }}
       >
         <div className="mobile-servizio-detail px-4">
-          <MobileServizioHero servizio={mobileServizioData} />
+          <MobileServizioHero 
+            servizio={mobileServizioData} 
+            isAdmin={isAdmin}
+            onAssegnaServizio={() => setAssegnazioneSheetOpen(true)}
+          />
           <MobileServizioSections 
             servizio={servizio} 
             passeggeri={passeggeri}
@@ -156,6 +168,19 @@ export default function ServizioDetailPage() {
           onComplete={refetch}
           users={users}
         />
+
+        {/* Assegnazione Sheet per mobile */}
+        {isMobile && (
+          <AssegnazioneSheet
+            open={assegnazioneSheetOpen}
+            onOpenChange={setAssegnazioneSheetOpen}
+            onClose={() => {
+              setAssegnazioneSheetOpen(false);
+              refetch();
+            }}
+            servizio={servizio}
+          />
+        )}
       </MainLayout>
     );
   }
