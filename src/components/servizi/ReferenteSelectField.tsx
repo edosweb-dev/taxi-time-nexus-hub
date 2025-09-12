@@ -48,11 +48,8 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       name="referente_id"
       render={({ field }) => (
         <FormItem className="h-full flex flex-col">
-          <FormLabel className="flex items-center gap-2">
+          <FormLabel>
             Referente (opzionale)
-            <span className="text-xs text-muted-foreground font-normal">
-              - Se non specificato, i passeggeri saranno collegati all'azienda
-            </span>
           </FormLabel>
           <Select 
             onValueChange={(value) => {
