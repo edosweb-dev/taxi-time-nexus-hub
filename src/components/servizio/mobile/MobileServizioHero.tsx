@@ -5,7 +5,6 @@ import { Phone, MessageCircle, Navigation, Clock, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getStatoBadge } from '@/components/servizi/utils/statusUtils';
 import { StatoServizio } from '@/lib/types/servizi';
 
 interface MobileServizioHeroProps {
@@ -24,7 +23,7 @@ interface MobileServizioHeroProps {
 }
 
 export function MobileServizioHero({ servizio }: MobileServizioHeroProps) {
-  const statoConfig = getStatoBadge(servizio.stato);
+  // stato badge handled via local config
   
   // Get the badge properties for styling
   const getBadgeConfig = () => {
