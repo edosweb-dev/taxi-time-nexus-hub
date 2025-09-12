@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Euro, FileText, Settings, History, User } from 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import { useVeicoli } from '@/hooks/useVeicoli';
 
 interface MobileServizioSectionsProps {
   servizio: any;
@@ -64,6 +65,8 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false, priori
 }
 
 export function MobileServizioSections({ servizio, passeggeri, formatCurrency, users, getUserName }: MobileServizioSectionsProps) {
+  const { veicoli } = useVeicoli();
+  const veicolo = veicoli.find(v => v.id === servizio.veicolo_id);
   const safeFormat = (value?: string | Date, fmt: string = 'dd/MM HH:mm') => {
     if (!value) return '—';
     const d = value instanceof Date ? value : new Date(value);
@@ -97,7 +100,9 @@ export function MobileServizioSections({ servizio, passeggeri, formatCurrency, u
           {/* Informazioni veicolo */}
           <div className="detail-row">
             <span className="detail-label">Veicolo</span>
-            <span className="detail-value">{servizio.veicolo?.nome || 'Da assegnare'}</span>
+            <span className="detail-value">
+              {veicolo ? `${veicolo.modello} (${veicolo.targa})` : 'Da assegnare'}
+            </span>
           </div>
 
           {/* Ore lavorate se disponibili */}
