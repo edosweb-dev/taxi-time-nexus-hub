@@ -237,12 +237,17 @@ export default function DashboardPage() {
             </div>
             
             <div className="hidden sm:flex items-center gap-2 lg:gap-4">
-              <Badge variant="outline" className="text-xs lg:text-base lg:px-4 lg:py-2">
-                {profile?.role === 'admin' ? 'Admin' : 
+              <Badge variant="secondary" className="text-xs lg:text-sm lg:px-3 lg:py-1 bg-muted text-muted-foreground border-border/50">
+                {profile?.role === 'admin' ? 'Amministratore' : 
                  profile?.role === 'socio' ? 'Socio' : 'Utente'}
               </Badge>
-              <Button variant="outline" size="sm" className="lg:size-default lg:px-6" onClick={() => navigate('/profile')}>
-                Profilo
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="lg:size-default lg:px-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm" 
+                onClick={() => navigate('/profile')}
+              >
+                Il mio Profilo
               </Button>
             </div>
           </div>
