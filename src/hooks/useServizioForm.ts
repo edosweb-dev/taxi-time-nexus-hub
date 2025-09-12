@@ -6,10 +6,9 @@ import { ServizioFormData, MetodoPagamento } from "@/lib/types/servizi";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
-// Schema di validazione Zod per il form
 export const servizioFormSchema = z.object({
   azienda_id: z.string().min(1, "Azienda obbligatoria"),
-  referente_id: z.string().min(1, "Referente obbligatorio"),
+  referente_id: z.string().optional(), // Referente opzionale - può essere null
   numero_commessa: z.string().optional(),
   data_servizio: z.string().min(1, "Data servizio obbligatoria"),
   orario_servizio: z.string().min(1, "Orario servizio obbligatorio"),

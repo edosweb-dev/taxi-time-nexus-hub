@@ -45,6 +45,13 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
           <p className="text-muted-foreground text-sm">
             Seleziona e configura i passeggeri per questo servizio
           </p>
+          {azienda_id && !referente_id && (
+            <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-xs text-amber-800">
+                <strong>ℹ️ Modalità senza referente:</strong> I passeggeri verranno collegati direttamente all'azienda selezionata.
+              </p>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <PasseggeriList userRole={userRole} />

@@ -23,7 +23,8 @@ export function NuovoServizioForm() {
       }
 
       // Se è un cliente, assicuriamoci che referente_id sia impostato
-      const referente_id = values.referente_id || profile.id;
+      // Se non c'è referente_id, il passeggero sarà collegato solo all'azienda
+      const referente_id = values.referente_id || (profile.role === 'cliente' ? profile.id : null);
 
       await createServizio({
         servizio: {

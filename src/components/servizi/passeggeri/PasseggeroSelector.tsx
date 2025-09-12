@@ -89,11 +89,14 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
            (passeggero.indirizzo && passeggero.indirizzo.toLowerCase().includes(searchLower));
   });
 
-  if (!azienda_id || !referente_id) {
+  if (!azienda_id) {
     return (
       <Card>
         <CardContent className="pt-6 text-center text-muted-foreground">
-          Seleziona prima un'azienda e un referente per gestire i passeggeri
+          <div className="flex flex-col items-center gap-2">
+            <User className="h-8 w-8 text-muted-foreground" />
+            <p>Seleziona prima un'azienda per gestire i passeggeri</p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -105,12 +108,24 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
           Aggiungi Passeggero
+          {!referente_id && (
+            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
+              Senza referente
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Ricerca passeggeri esistenti */}
         <div>
-          <Label className="text-sm font-medium mb-2 block">Passeggeri esistenti</Label>
+          <Label className="text-sm font-medium mb-2 block flex items-center gap-2">
+            Passeggeri esistenti
+            {!referente_id && (
+              <span className="text-xs text-amber-600">
+                (dell'azienda)
+              </span>
+            )}
+          </Label>
           {passeggeri.length > 0 && (
             <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -125,7 +140,13 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
           
           {!searchTerm ? (
             <div className="text-center py-4 text-muted-foreground text-sm">
-              Inizia a digitare per cercare un passeggero esistente
+              {passeggeri.length === 0 ? (
+                referente_id ? 
+                  "Nessun passeggero trovato per questo referente" :
+                  "Nessun passeggero trovato per questa azienda"
+              ) : (
+                "Inizia a digitare per cercare un passeggero esistente"
+              )}
             </div>
           ) : isLoading ? (
             <div className="space-y-2">
@@ -194,7 +215,14 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
             </Button>
           ) : (
             <div className="space-y-3">
-              <Label className="text-sm font-medium">Nuovo passeggero</Label>
+              <Label className="text-sm font-medium flex items-center gap-2">
+                Nuovo passeggero
+                {!referente_id && (
+                  <span className="text-xs text-amber-600">
+                    (sarà collegato all'azienda)
+                  </span>
+                )}
+              </Label>
               <div className="grid gap-3">
                 <div className="grid grid-cols-2 gap-2">
                   <Input

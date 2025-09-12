@@ -48,7 +48,12 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       name="referente_id"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Referente (opzionale)</FormLabel>
+          <FormLabel className="flex items-center gap-2">
+            Referente (opzionale)
+            <span className="text-xs text-muted-foreground font-normal">
+              - Se non specificato, i passeggeri saranno collegati all'azienda
+            </span>
+          </FormLabel>
           <Select 
             onValueChange={(value) => {
               field.onChange(value === 'all' ? '' : value);
@@ -68,7 +73,12 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="all">Tutti i referenti</SelectItem>
+              <SelectItem value="all">
+                <div className="flex flex-col items-start">
+                  <span>Tutti i referenti</span>
+                  <span className="text-xs text-muted-foreground">Passeggeri collegati all'azienda</span>
+                </div>
+              </SelectItem>
               {referenti.map((referente) => (
                 <SelectItem key={referente.id} value={referente.id}>
                   {referente.first_name} {referente.last_name}
