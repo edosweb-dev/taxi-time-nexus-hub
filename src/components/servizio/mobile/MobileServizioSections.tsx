@@ -158,26 +158,20 @@ export function MobileServizioSections({ servizio, passeggeri, formatCurrency }:
         </CollapsibleSection>
       )}
 
-      {/* Documentazione - Priority Low */}
-      <CollapsibleSection
-        title="Note e Documentazione"
-        icon={<FileText className="w-4 h-4" />}
-        priority="low"
-      >
-        <div className="documentation">
-          {servizio.note && (
+      {/* Documentazione - Priority Low - Solo se ci sono note */}
+      {servizio.note && (
+        <CollapsibleSection
+          title="Note del Servizio"
+          icon={<FileText className="w-4 h-4" />}
+          priority="low"
+        >
+          <div className="documentation">
             <div className="doc-section">
-              <h4>Note del Servizio</h4>
               <p>{servizio.note}</p>
             </div>
-          )}
-          
-          <div className="doc-section">
-            <h4>ID Servizio</h4>
-            <p className="font-mono text-xs">{servizio.id}</p>
           </div>
-        </div>
-      </CollapsibleSection>
+        </CollapsibleSection>
+      )}
 
       {/* Storico - Priority Low */}
       <CollapsibleSection
