@@ -141,107 +141,111 @@ export function AssignmentPopup({
   const content = (
     <>
       {/* Main Content Area */}
-      <div className={`${isMobile ? 'px-4 pb-2' : 'px-6 pb-3'} space-y-4`}>
+      <div className={`${isMobile ? 'px-4 pb-1' : 'px-5 pb-2'} space-y-3 animate-fade-in`}>
         
         {/* Driver Type Selection */}
-        <div className="space-y-3">
-          <Label className="text-sm font-semibold text-foreground">Tipo di conducente</Label>
-          <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg border border-border/40 hover:bg-muted/30 transition-colors">
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-foreground">Tipo di conducente</Label>
+          <div className="flex items-center justify-between p-2.5 bg-muted/20 rounded-lg border border-border/30 hover:bg-muted/30 transition-all duration-200 hover-scale">
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-medium text-foreground">Conducente Esterno</span>
               <span className="text-xs text-muted-foreground">
-                {isConducenteEsterno ? 'Assegna a conducente esterno' : 'Assegna a dipendente interno'}
+                {isConducenteEsterno ? 'Esterno selezionato' : 'Dipendente selezionato'}
               </span>
             </div>
             <Switch 
               id="conducente-esterno" 
               checked={isConducenteEsterno}
               onCheckedChange={setIsConducenteEsterno}
-              className="data-[state=checked]:bg-primary"
+              className="data-[state=checked]:bg-primary scale-90"
             />
           </div>
         </div>
         
         {/* Selection Area */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           {isConducenteEsterno ? (
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold text-foreground">Conducente Esterno</Label>
+            <div className="space-y-1.5 animate-scale-in">
+              <Label className="text-sm font-medium text-foreground">Conducente Esterno</Label>
               <ConducenteEsternoSelect
                 selectedConducenteId={selectedConducenteEsternoId}
                 setSelectedConducenteId={setSelectedConducenteEsternoId}
               />
             </div>
           ) : (
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold text-foreground">Seleziona Dipendente</Label>
+            <div className="space-y-1.5 animate-scale-in">
+              <Label className="text-sm font-medium text-foreground">Seleziona Dipendente</Label>
               
               {/* Alert for no available users */}
               {!isLoading && availableUsers.length === 0 && (
-                <Alert className="border-amber-200 bg-amber-50 py-2">
-                  <AlertCircle className="h-4 w-4 text-amber-600" />
-                  <AlertDescription className="text-amber-800 text-sm">
-                    Nessun dipendente disponibile al momento.
+                <Alert className="border-amber-200 bg-amber-50/80 py-1.5 animate-fade-in">
+                  <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                  <AlertDescription className="text-amber-800 text-xs leading-tight">
+                    Nessun dipendente disponibile
                   </AlertDescription>
                 </Alert>
               )}
               
               {isLoading ? (
-                <div className="flex items-center justify-center py-6 px-4">
-                  <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <div className="flex items-center justify-center py-4 px-4 animate-fade-in">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
                     <span className="text-xs text-muted-foreground">Caricamento...</span>
                   </div>
                 </div>
               ) : (
-                <Select value={selectedDipendente} onValueChange={setSelectedDipendente}>
-                  <SelectTrigger className="w-full h-10 text-sm">
-                    <SelectValue placeholder="Scegli un dipendente..." />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[160px]">
-                    {/* Available users first */}
-                    {availableUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id} className="py-2">
-                        <div className="flex flex-col gap-0.5 w-full">
-                          <span className="font-medium text-foreground text-sm">
-                            {user.first_name && user.last_name 
-                              ? `${user.first_name} ${user.last_name}` 
-                              : user.first_name || user.last_name || 'Utente senza nome'
-                            }
-                          </span>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="capitalize">{user.role}</span>
-                            <span className="text-emerald-600 font-medium">Disponibile</span>
+                <div className="animate-scale-in">
+                  <Select value={selectedDipendente} onValueChange={setSelectedDipendente}>
+                    <SelectTrigger className="w-full h-9 text-sm border-border/50 hover:border-border transition-colors">
+                      <SelectValue placeholder="Scegli un dipendente..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[140px] animate-scale-in">
+                      {/* Available users first */}
+                      {availableUsers.map((user) => (
+                        <SelectItem key={user.id} value={user.id} className="py-1.5 hover:bg-accent/50 transition-colors">
+                          <div className="flex flex-col gap-0.5 w-full">
+                            <span className="font-medium text-foreground text-sm leading-tight">
+                              {user.first_name && user.last_name 
+                                ? `${user.first_name} ${user.last_name}` 
+                                : user.first_name || user.last_name || 'Utente senza nome'
+                              }
+                            </span>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <span className="capitalize text-xs">{user.role}</span>
+                              <div className="w-1 h-1 bg-emerald-500 rounded-full"></div>
+                              <span className="text-emerald-600 font-medium text-xs">Disponibile</span>
                           </div>
                         </div>
                       </SelectItem>
                     ))}
-                    
-                    {/* Unavailable users */}
-                    {unavailableUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id} disabled className="py-2 opacity-60">
-                        <div className="flex flex-col gap-0.5 w-full">
-                          <span className="font-medium text-muted-foreground text-sm">
-                            {user.first_name && user.last_name 
-                              ? `${user.first_name} ${user.last_name}` 
-                              : user.first_name || user.last_name || 'Utente senza nome'
-                            }
-                          </span>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="capitalize">{user.role}</span>
-                            <span className="text-red-600 font-medium">Non disponibile</span>
+                      
+                      {/* Unavailable users */}
+                      {unavailableUsers.map((user) => (
+                        <SelectItem key={user.id} value={user.id} disabled className="py-1.5 opacity-50">
+                          <div className="flex flex-col gap-0.5 w-full">
+                            <span className="font-medium text-muted-foreground text-sm leading-tight">
+                              {user.first_name && user.last_name 
+                                ? `${user.first_name} ${user.last_name}` 
+                                : user.first_name || user.last_name || 'Utente senza nome'
+                              }
+                            </span>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <span className="capitalize text-xs">{user.role}</span>
+                              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                              <span className="text-red-600 font-medium text-xs">Non disponibile</span>
+                            </div>
                           </div>
+                        </SelectItem>
+                      ))}
+                      
+                      {users.length === 0 && (
+                        <div className="p-2.5 text-center text-xs text-muted-foreground animate-fade-in">
+                          Nessun dipendente trovato
                         </div>
-                      </SelectItem>
-                    ))}
-                    
-                    {users.length === 0 && (
-                      <div className="p-3 text-center text-xs text-muted-foreground">
-                        Nessun dipendente trovato
-                      </div>
-                    )}
+                      )}
                   </SelectContent>
                 </Select>
+                </div>
               )}
             </div>
           )}
@@ -249,12 +253,12 @@ export function AssignmentPopup({
       </div>
       
       {/* Action Footer */}
-      <div className={`sticky bottom-0 ${isMobile ? 'px-4 py-3' : 'px-4 py-4'} border-t bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-lg`}>
-        <div className="flex w-full gap-2 max-w-full">
+      <div className={`sticky bottom-0 ${isMobile ? 'px-4 py-2.5' : 'px-5 py-3'} border-t bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/90 shadow-sm`}>
+        <div className="flex w-full gap-2.5 max-w-full animate-fade-in">
           <Button 
             variant="outline" 
             onClick={onClose} 
-            className="flex-1 h-10 text-sm font-medium border-2 hover:bg-muted/50 transition-all duration-200"
+            className="flex-1 h-9 text-sm font-medium border hover:bg-muted/50 transition-all duration-200 hover-scale"
             disabled={isSubmitting}
           >
             Annulla
@@ -262,7 +266,7 @@ export function AssignmentPopup({
           <Button 
             onClick={handleAssign}
             disabled={isAssignDisabled}
-            className="flex-1 h-10 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            className="flex-1 h-9 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover-scale"
           >
             {isSubmitting ? (
               <>
@@ -277,8 +281,8 @@ export function AssignmentPopup({
         
         {/* Validation Message */}
         {isAssignDisabled && !isSubmitting && (
-          <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-xs text-amber-800 text-center">
+          <div className="mt-2 p-1.5 bg-amber-50/80 border border-amber-200/60 rounded-md animate-fade-in">
+            <p className="text-xs text-amber-800 text-center leading-tight">
               {isConducenteEsterno 
                 ? 'Seleziona un conducente esterno' 
                 : 'Seleziona un dipendente'
@@ -293,11 +297,11 @@ export function AssignmentPopup({
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="h-[80vh] flex flex-col p-0 rounded-t-xl border-t">
-          <SheetHeader className="p-4 pb-3 border-b bg-background/95">
-            <SheetTitle className="text-lg font-bold text-foreground">Assegna Servizio</SheetTitle>
-            <SheetDescription className="text-xs text-muted-foreground">
-              Seleziona un conducente per questo servizio
+        <SheetContent side="bottom" className="h-[75vh] flex flex-col p-0 rounded-t-xl border-t animate-slide-in-right">
+          <SheetHeader className="p-3.5 pb-2.5 border-b bg-background/95 backdrop-blur-sm">
+            <SheetTitle className="text-lg font-semibold text-foreground">Assegna Servizio</SheetTitle>
+            <SheetDescription className="text-xs text-muted-foreground leading-tight">
+              Seleziona un conducente
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto">
@@ -310,11 +314,11 @@ export function AssignmentPopup({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md mx-auto p-0 gap-0 rounded-lg border shadow-xl">
-        <DialogHeader className="p-4 pb-3 border-b bg-background/95">
-          <DialogTitle className="text-lg font-bold text-foreground">Assegna Servizio</DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Seleziona un conducente per questo servizio
+      <DialogContent className="w-[88vw] max-w-sm mx-auto p-0 gap-0 rounded-xl border shadow-xl animate-scale-in">
+        <DialogHeader className="p-3.5 pb-2.5 border-b bg-background/95 backdrop-blur-sm">
+          <DialogTitle className="text-lg font-semibold text-foreground">Assegna Servizio</DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground leading-tight">
+            Seleziona un conducente
           </DialogDescription>
         </DialogHeader>
         <div className="max-h-[70vh] overflow-y-auto">
