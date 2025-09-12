@@ -180,22 +180,22 @@ export function AssignmentPopup({
         </div>
       </div>
       
-      <div className={`${isMobile ? 'p-4' : 'p-6'} pt-4 border-t mt-6`}>
+      <div className={`${isMobile ? 'p-4' : 'p-6'} pt-6 border-t mt-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`}>
         <div className="flex w-full gap-3">
           <Button 
             variant="outline" 
             onClick={onClose} 
-            className="flex-1 h-12 text-base font-medium"
+            className="flex-1 h-12 text-base font-medium border-2 hover:bg-muted/50"
           >
             Annulla
           </Button>
           <Button 
             onClick={handleAssign}
             disabled={isAssignDisabled}
-            className="flex-1 h-12 text-base font-medium"
+            className="flex-1 h-12 text-base font-medium bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-            Assegna
+            {isSubmitting ? 'Assegnazione...' : 'Assegna Servizio'}
           </Button>
         </div>
       </div>
