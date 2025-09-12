@@ -50,14 +50,14 @@ export function UserSelection({
       )}
 
       <RadioGroup value={selectedUserId} onValueChange={onUserSelect}>
-        <div className={`users-list space-y-3 ${mobile ? 'max-h-[50vh] overflow-y-auto pr-2' : ''}`}>
+        <div className={`users-list space-y-4 ${mobile ? 'max-h-[50vh] overflow-y-auto pr-2' : ''}`}>
           
           {/* Available Users Section */}
           {availableUsers.length > 0 && (
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-green-700 bg-green-50 px-2 py-1 rounded">
-                Disponibili ({availableUsers.length})
-              </Label>
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-muted-foreground px-1">
+                Disponibili • {availableUsers.length}
+              </div>
               {availableUsers.map((user) => (
                 <UserCard
                   key={user.id}
@@ -71,10 +71,10 @@ export function UserSelection({
 
           {/* Unavailable Users Section */}
           {unavailableUsers.length > 0 && (
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-red-700 bg-red-50 px-2 py-1 rounded">
-                Non disponibili ({unavailableUsers.length})
-              </Label>
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-muted-foreground px-1">
+                Non disponibili • {unavailableUsers.length}
+              </div>
               {unavailableUsers.map((user) => (
                 <UserCard
                   key={user.id}
