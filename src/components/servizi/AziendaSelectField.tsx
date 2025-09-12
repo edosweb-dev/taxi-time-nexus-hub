@@ -73,18 +73,18 @@ export function AziendaSelectField() {
         control={control}
         name="azienda_id"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="h-full flex flex-col">
             <FormLabel>Azienda *</FormLabel>
             <Select
               value={field.value}
               onValueChange={field.onChange}
             >
-              <FormControl>
-                <SelectTrigger>
+              <FormControl className="flex-1">
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Seleziona un'azienda" />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent className="bg-background border shadow-lg z-50">
                 <div className="p-2">
                   <Input
                     placeholder="Cerca azienda..."

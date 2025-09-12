@@ -47,7 +47,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       control={form.control}
       name="referente_id"
       render={({ field }) => (
-        <FormItem>
+        <FormItem className="h-full flex flex-col">
           <FormLabel className="flex items-center gap-2">
             Referente (opzionale)
             <span className="text-xs text-muted-foreground font-normal">
@@ -61,8 +61,8 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
             }} 
             value={field.value || 'all'}
           >
-            <FormControl>
-              <SelectTrigger>
+            <FormControl className="flex-1">
+              <SelectTrigger className="h-10">
                 <SelectValue placeholder={
                   isLoading 
                     ? "Caricamento..." 
@@ -72,7 +72,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
                 } />
               </SelectTrigger>
             </FormControl>
-            <SelectContent>
+            <SelectContent className="bg-background border shadow-lg z-50">
               <SelectItem value="all">
                 <div className="flex flex-col items-start">
                   <span>Tutti i referenti</span>
