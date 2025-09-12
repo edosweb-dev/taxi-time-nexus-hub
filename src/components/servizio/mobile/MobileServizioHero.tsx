@@ -11,7 +11,7 @@ interface MobileServizioHeroProps {
   servizio: {
     id: string;
     cliente: { nome: string; telefono?: string };
-    data: Date;
+    data: string | Date;
     orario: string;
     stato: StatoServizio;
     autista?: { nome: string; telefono?: string; avatar?: string };
@@ -46,6 +46,17 @@ export function MobileServizioHero({ servizio }: MobileServizioHeroProps) {
   };
 
   const badgeConfig = getBadgeConfig();
+
+  const formattedDate = (() => {
+    const raw: any = servizio.data;
+    const d: Date = raw instanceof Date ? raw : new Date(raw);
+    if (!d || isNaN(d.getTime())) return 'Data non disponibile';
+    try {
+      return format(d, 'EEEE d MMMM yyyy', { locale: it });
+    } catch {
+      return 'Data non disponibile';
+    }
+  })();
 
   const handleCall = (numero: string) => {
     window.open(`tel:${numero}`, '_self');
@@ -99,7 +110,7 @@ export function MobileServizioHero({ servizio }: MobileServizioHeroProps) {
           <Clock className="datetime-icon" />
           <div className="datetime-info">
             <span className="date-text">
-              {format(servizio.data, 'EEEE d MMMM yyyy', { locale: it })}
+              {formattedDate}
             </span>
             <span className="time-text">{servizio.orario}</span>
           </div>
