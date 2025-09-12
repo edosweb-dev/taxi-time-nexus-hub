@@ -223,7 +223,7 @@ export default function DashboardPage() {
 
   return (
     <MainLayout title="Dashboard" showBottomNav={true}>
-      <div className="space-y-4 sm:space-y-8 p-4 sm:p-6">
+      <div className="space-y-4 sm:space-y-8 p-4 sm:p-6 bg-gradient-to-br from-background via-background/50 to-muted/30 rounded-xl shadow-lg border border-border/50 backdrop-blur-sm">
         {/* Header Hero Section */}
         <div className="space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
