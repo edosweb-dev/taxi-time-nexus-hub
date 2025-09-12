@@ -112,19 +112,19 @@ function UserCard({ user, selectedUserId, mobile = false, disabled = false }: Us
   const isSelected = selectedUserId === user.id;
   
   return (
-    <div className="user-option flex items-start gap-3">
+    <div className="user-option flex items-start gap-2 w-full">
       <RadioGroupItem
         value={user.id}
         id={user.id}
         disabled={disabled}
-        className="mt-4 flex-shrink-0"
+        className="mt-3 flex-shrink-0"
       />
       <label
         htmlFor={user.id}
         className={`
-          user-card flex-1 flex items-center justify-between p-4 
-          border-2 rounded-lg cursor-pointer transition-all duration-200
-          ${mobile ? 'min-h-[4rem]' : 'min-h-[3.5rem]'}
+          user-card flex-1 flex items-center justify-between p-3 min-w-0
+          border rounded-lg cursor-pointer transition-all duration-200
+          ${mobile ? 'min-h-[3.5rem]' : 'min-h-[3rem]'}
           ${isSelected 
             ? 'border-primary bg-primary/5' 
             : disabled
@@ -133,33 +133,28 @@ function UserCard({ user, selectedUserId, mobile = false, disabled = false }: Us
           }
         `}
       >
-        <div className="user-info flex items-center gap-3 flex-1">
-          <Avatar className="w-10 h-10 flex-shrink-0">
-            <AvatarFallback className="text-sm font-medium">
+        <div className="user-info flex items-center gap-2 flex-1 min-w-0">
+          <Avatar className="w-8 h-8 flex-shrink-0">
+            <AvatarFallback className="text-xs font-medium">
               {(user.first_name || '').charAt(0)}{(user.last_name || '').charAt(0)}
             </AvatarFallback>
           </Avatar>
           
           <div className="user-details flex flex-col gap-0.5 min-w-0 flex-1">
-            <span className="user-name font-semibold text-sm truncate">
+            <span className="user-name font-medium text-sm truncate">
               {user.first_name} {user.last_name}
             </span>
-            <span className="user-role text-xs text-muted-foreground capitalize">
-              {user.role === 'admin' ? 'Amministratore' : 
+            <span className="user-role text-xs text-muted-foreground">
+              {user.role === 'admin' ? 'Admin' : 
                user.role === 'socio' ? 'Socio' : 'Dipendente'}
             </span>
-            {user.email && (
-              <span className="user-email text-xs text-muted-foreground truncate">
-                {user.email}
-              </span>
-            )}
           </div>
         </div>
         
-        <div className="user-status flex flex-col items-end gap-1 flex-shrink-0">
+        <div className="user-status flex-shrink-0">
           <Badge
             variant={user.isRecommended ? 'default' : 'secondary'}
-            className={`text-xs px-2 py-1 ${
+            className={`text-xs px-2 py-0.5 ${
               user.isRecommended 
                 ? 'bg-green-100 text-green-800 border-green-200' 
                 : 'bg-red-100 text-red-800 border-red-200'
