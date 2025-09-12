@@ -109,7 +109,7 @@ export default function ServizioDetailPage() {
           
           {/* Mobile Action Buttons - Sticky at bottom */}
           {(canBeCompleted || canBeConsuntivato || canBeEdited) && (
-            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-3 pb-safe-bottom z-50">
+            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 pb-safe-bottom z-50">
               <div className="px-2">
                 <div className="flex gap-2">
                   {canBeCompleted && (
@@ -147,7 +147,7 @@ export default function ServizioDetailPage() {
               </div>
               
               {/* Spacer to prevent content overlap */}
-              <div className="h-14" />
+              <div className="h-20" />
             </div>
           )}
         </div>
