@@ -249,8 +249,8 @@ export function AssignmentPopup({
       </div>
       
       {/* Action Footer */}
-      <div className={`sticky bottom-0 ${isMobile ? 'p-3' : 'p-4'} pt-3 border-t bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-lg`}>
-        <div className="flex w-full gap-2">
+      <div className={`sticky bottom-0 ${isMobile ? 'px-4 py-3' : 'px-4 py-4'} border-t bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-lg`}>
+        <div className="flex w-full gap-2 max-w-full">
           <Button 
             variant="outline" 
             onClick={onClose} 
