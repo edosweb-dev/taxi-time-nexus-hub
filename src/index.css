@@ -491,6 +491,504 @@ body {
     margin-right: 0 !important;
   }
 
+  /* ===============================================
+   * MOBILE SERVIZIO DETAIL OPTIMIZATION
+   * =============================================== */
+
+  /* Mobile Hero Card */
+  .mobile-hero-card {
+    background: hsl(var(--card));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px hsl(var(--primary) / 0.1);
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* Header Cliente + Stato */
+  .hero-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .cliente-info {
+    flex: 1;
+  }
+
+  .cliente-nome {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+  }
+
+  .stato-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .cliente-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .action-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+
+  .action-button:hover {
+    background: hsl(var(--accent));
+    transform: scale(1.05);
+  }
+
+  /* DateTime Section */
+  .datetime-section {
+    padding: 1rem;
+    background: hsl(var(--primary) / 0.05);
+    border: 1px solid hsl(var(--primary) / 0.1);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .datetime-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .datetime-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: hsl(var(--primary));
+    flex-shrink: 0;
+  }
+
+  .datetime-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .date-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    text-transform: capitalize;
+  }
+
+  .time-text {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: hsl(var(--primary));
+  }
+
+  .datetime-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin-left: 2rem;
+  }
+
+  /* Route Section */
+  .route-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .route-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .route-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.25rem;
+  }
+
+  .route-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid hsl(var(--background));
+    box-shadow: 0 0 0 2px currentColor;
+  }
+
+  .pickup-dot {
+    color: hsl(var(--chart-1));
+  }
+
+  .destination-dot {
+    color: hsl(var(--destructive));
+  }
+
+  .route-line {
+    width: 2px;
+    height: 1.5rem;
+    background: hsl(var(--border));
+    margin: 0.5rem auto;
+    margin-left: 0.75rem;
+    transform: translateX(-1px);
+  }
+
+  .route-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .route-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin-bottom: 0.25rem;
+  }
+
+  .route-address {
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: var(--transition-smooth);
+  }
+
+  .route-address:active {
+    background: hsl(var(--accent));
+  }
+
+  .route-address span:first-child {
+    display: block;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.25rem;
+  }
+
+  .route-city {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .navigate-button {
+    height: 32px;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+    background: hsl(var(--secondary));
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Autista Section */
+  .autista-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: hsl(var(--muted));
+    border-radius: 8px;
+  }
+
+  .autista-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .autista-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .autista-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .autista-label {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .autista-nome {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  .autista-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* No Autista */
+  .no-autista-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: hsl(var(--destructive) / 0.1);
+    border-radius: 8px;
+    border: 1px solid hsl(var(--destructive) / 0.2);
+  }
+
+  .no-autista-text {
+    font-weight: 500;
+    color: hsl(var(--destructive));
+  }
+
+  /* Mobile Sections */
+  .mobile-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .collapsible-section {
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .section-trigger {
+    width: 100%;
+    padding: 1rem;
+    justify-content: space-between;
+    height: auto;
+    font-weight: normal;
+    background: transparent;
+  }
+
+  .section-trigger:hover {
+    background: hsl(var(--accent) / 0.5);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+  }
+
+  .section-chevron {
+    color: hsl(var(--muted-foreground));
+    transition: transform 0.2s ease;
+  }
+
+  .section-content {
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  /* Operational Details */
+  .operational-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .detail-row.full-width {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  .detail-value {
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .detail-note {
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+    line-height: 1.4;
+    padding: 0.75rem;
+    background: hsl(var(--muted));
+    border-radius: 6px;
+    border-left: 3px solid hsl(var(--primary));
+  }
+
+  /* Financial Details */
+  .financial-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .financial-summary {
+    padding: 1rem;
+    background: hsl(var(--primary) / 0.05);
+    border-radius: 6px;
+    border: 1px solid hsl(var(--primary) / 0.2);
+  }
+
+  .price-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .price-label {
+    font-weight: 600;
+    color: hsl(var(--primary));
+  }
+
+  .price-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: hsl(var(--primary));
+  }
+
+  .financial-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+  }
+
+  .breakdown-row.total {
+    border-top: 1px solid hsl(var(--border));
+    font-weight: 600;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+  }
+
+  /* Documentation */
+  .documentation {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .doc-section h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0 0 0.5rem 0;
+  }
+
+  .doc-section p {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* History Timeline */
+  .history-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .history-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: hsl(var(--muted));
+    border-radius: 6px;
+  }
+
+  .history-time {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .history-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .history-action {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+  }
+
+  .history-user {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Passeggeri List */
+  .passeggeri-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .passeggero-item {
+    padding: 0.75rem;
+    background: hsl(var(--muted));
+    border-radius: 6px;
+  }
+
+  .passeggero-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .passeggero-nome {
+    font-weight: 500;
+    color: hsl(var(--foreground));
+  }
+
+  .passeggero-telefono {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
   /* SIDEBAR MOBILE - DRAWER */
   .mobile-sidebar {
     position: fixed;
