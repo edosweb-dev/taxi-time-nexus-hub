@@ -9,6 +9,7 @@ import { ServizioDetailsForm } from "./ServizioDetailsForm";
 import { PasseggeroForm } from "./passeggeri/PasseggeroForm";
 import { useServizioForm } from "@/hooks/useServizioForm";
 import { IndirizziIntermediSummary } from "./IndirizziIntermediSummary";
+import { CheckCircle2 } from "lucide-react";
 
 export function NuovoServizioForm() {
   const navigate = useNavigate();
@@ -64,68 +65,88 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="relative min-h-full">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pb-24">
+          
           {/* Step 1: Service Details */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
-                1
+          <div className="group">
+            <div className="bg-card border rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-xl shadow-lg">
+                  <span className="text-sm font-bold">1</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Dettagli del servizio</h2>
+                  <p className="text-sm text-muted-foreground">Informazioni principali del trasporto</p>
+                </div>
               </div>
-              <h2 className="text-xl font-semibold">Dettagli del servizio</h2>
+              <ServizioDetailsForm />
             </div>
-            <ServizioDetailsForm />
           </div>
 
           {/* Step 2: Passengers */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
-                2
+          <div className="group">
+            <div className="bg-card border rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg">
+                  <span className="text-sm font-bold">2</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Gestione passeggeri</h2>
+                  <p className="text-sm text-muted-foreground">Aggiungi e configura i passeggeri del servizio</p>
+                </div>
               </div>
-              <h2 className="text-xl font-semibold">Gestione passeggeri</h2>
-            </div>
-            <div className="bg-card border rounded-lg p-6">
-              <PasseggeroForm userRole={profile?.role} />
+              <div className="bg-gradient-to-br from-muted/30 to-muted/50 border rounded-lg p-6">
+                <PasseggeroForm userRole={profile?.role} />
+              </div>
             </div>
           </div>
 
           {/* Step 3: Summary */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
-                3
+          <div className="group">
+            <div className="bg-card border rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg">
+                  <span className="text-sm font-bold">3</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Riepilogo del percorso</h2>
+                  <p className="text-sm text-muted-foreground">Verifica le informazioni prima di creare il servizio</p>
+                </div>
               </div>
-              <h2 className="text-xl font-semibold">Riepilogo</h2>
-            </div>
-            <div className="bg-muted/30 border rounded-lg p-6">
-              <IndirizziIntermediSummary />
+              <div className="bg-gradient-to-br from-muted/20 to-muted/40 border rounded-lg p-6">
+                <IndirizziIntermediSummary />
+              </div>
             </div>
           </div>
         </form>
         
-        {/* Action Buttons - Sticky Bottom */}
-        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 mt-6">
-          <div className="flex justify-end space-x-4">
+        {/* Enhanced Action Buttons - Sticky Bottom */}
+        <div className="sticky bottom-0 bg-background/98 backdrop-blur-lg border-t border-border/50 p-6 mt-8">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate(-1)}
+              className="w-full sm:w-auto min-w-[120px]"
             >
               Annulla
             </Button>
             <Button 
               type="submit" 
               disabled={isCreating}
-              className="min-w-[140px]"
+              className="w-full sm:w-auto min-w-[160px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
               onClick={form.handleSubmit(onSubmit)}
             >
               {isCreating ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
-                  Creazione...
+                  Creazione in corso...
                 </div>
               ) : (
-                "Crea servizio"
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Crea servizio
+                </div>
               )}
             </Button>
           </div>
