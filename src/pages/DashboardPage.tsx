@@ -66,7 +66,7 @@ function MetricCard({
 
   return (
     <Card className="transition-all duration-200 hover:shadow-lg border-0 bg-gradient-to-br from-card to-card/50">
-      <CardContent className="p-4 sm:p-6">
+      <CardContent className="p-4 sm:p-6 border border-border/20 rounded-lg">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <div className={`p-1.5 sm:p-2 rounded-lg ${getIconColor()}`}>
             <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
