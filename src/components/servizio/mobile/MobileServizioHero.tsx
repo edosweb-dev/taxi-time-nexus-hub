@@ -136,15 +136,6 @@ export function MobileServizioHero({ servizio }: MobileServizioHeroProps) {
               <span>{servizio.pickup.indirizzo}</span>
               <span className="route-city">{servizio.pickup.citta}</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleNavigate(servizio.pickup.indirizzo)}
-              className="navigate-button"
-            >
-              <Navigation className="w-3 h-3 mr-1" />
-              Naviga
-            </Button>
           </div>
         </div>
 
@@ -160,15 +151,6 @@ export function MobileServizioHero({ servizio }: MobileServizioHeroProps) {
               <span>{servizio.destinazione.indirizzo}</span>
               <span className="route-city">{servizio.destinazione.citta}</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleNavigate(servizio.destinazione.indirizzo)}
-              className="navigate-button"
-            >
-              <Navigation className="w-3 h-3 mr-1" />
-              Naviga
-            </Button>
           </div>
         </div>
       </div>
