@@ -29,6 +29,11 @@ export function formatCurrency(value?: number | null): string {
  * @returns L'indice del servizio nel sistema ordinato cronologicamente
  */
 export function getServizioIndex(targetId: string, allServizi: Servizio[]): number {
+  // Safety check: ensure allServizi is a valid array
+  if (!allServizi || !Array.isArray(allServizi) || allServizi.length === 0) {
+    return 0;
+  }
+  
   // Ordina i servizi per data di creazione (dal più vecchio al più nuovo)
   const sortedServizi = [...allServizi].sort((a, b) => 
     new Date(a.created_at).getTime() - new Date(b.created_at).getTime()

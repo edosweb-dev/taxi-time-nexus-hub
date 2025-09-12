@@ -46,7 +46,7 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   onFirma
 }) => {
   // Calcola l'indice globale stabile basato sulla data di creazione
-  const globalIndex = getServizioIndex(servizio.id, allServizi);
+  const globalIndex = getServizioIndex(servizio.id, allServizi || []);
   // Logica ottimizzata per pulsanti in base allo stato
   const isToAssign = servizio.stato === 'da_assegnare';
   const canBeAssigned = isAdminOrSocio && onSelect && isToAssign;

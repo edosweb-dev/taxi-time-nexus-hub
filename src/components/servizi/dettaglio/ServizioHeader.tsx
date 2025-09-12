@@ -31,7 +31,7 @@ export function ServizioHeader({
   const navigate = useNavigate();
   
   // Calculate stable global index based on creation date
-  const globalIndex = getServizioIndex(servizio.id, allServizi);
+  const globalIndex = getServizioIndex(servizio.id, allServizi || []);
   
   const safeFormatISO = (iso?: string, fmt: string = "EEEE d MMMM yyyy") => {
     if (!iso) return "—";
