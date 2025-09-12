@@ -14,7 +14,7 @@ import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { getStatoBadge, getUserName } from "./utils";
 import { ServizioExpandedRow } from "./ServizioExpandedRow";
-import { formatProgressiveId } from "./utils/formatUtils";
+import { formatProgressiveId, getServizioIndex } from "./utils/formatUtils";
 
 interface ServizioTableRowProps {
   servizio: Servizio;
@@ -23,7 +23,7 @@ interface ServizioTableRowProps {
   passengerCount: number;
   isExpanded: boolean;
   isAdminOrSocio: boolean;
-  index: number; // Aggiunto indice per l'ID progressivo
+  allServizi: Servizio[]; // Changed from index to allServizi
   onToggleExpand: (id: string) => void;
   onNavigateToDetail: (id: string) => void;
   onSelect?: (servizio: Servizio) => void;
@@ -38,13 +38,15 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   passengerCount,
   isExpanded,
   isAdminOrSocio,
-  index,
+  allServizi,
   onToggleExpand,
   onNavigateToDetail,
   onSelect,
   onCompleta,
   onFirma
 }) => {
+  // Calcola l'indice globale stabile basato sulla data di creazione
+  const globalIndex = getServizioIndex(servizio.id, allServizi);
   // Logica ottimizzata per pulsanti in base allo stato
   const isToAssign = servizio.stato === 'da_assegnare';
   const canBeAssigned = isAdminOrSocio && onSelect && isToAssign;
@@ -59,7 +61,7 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
         onClick={() => onToggleExpand(servizio.id)}
       >
         <TableCell className="font-medium">
-          {formatProgressiveId(servizio.id, index)}
+          {formatProgressiveId(servizio.id, globalIndex)}
         </TableCell>
         <TableCell className="font-medium">
           {servizio.numero_commessa || "N/D"}

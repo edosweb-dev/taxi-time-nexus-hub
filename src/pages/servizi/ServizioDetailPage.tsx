@@ -42,6 +42,7 @@ export default function ServizioDetailPage() {
     getAziendaName,
     formatCurrency,
     servizioIndex,
+    allServizi,
   } = useServizioDetail(id);
 
   const [assegnazioneSheetOpen, setAssegnazioneSheetOpen] = useState(false);
@@ -187,9 +188,9 @@ export default function ServizioDetailPage() {
             canBeEdited={canBeEdited}
             canBeCompleted={canBeCompleted}
             canBeConsuntivato={canBeConsuntivato}
+            allServizi={allServizi || []}
             onCompleta={() => setCompletaDialogOpen(true)}
             onConsuntiva={() => setConsuntivaDialogOpen(true)}
-            index={servizioIndex}
           />
         </div>
 

@@ -7,16 +7,16 @@ import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
 import { Servizio } from "@/lib/types/servizi";
 import { getStatoBadge } from "@/components/servizi/utils";
-import { formatProgressiveId } from "../utils/formatUtils";
+import { formatProgressiveId, getServizioIndex } from "../utils/formatUtils";
 
 interface ServizioHeaderProps {
   servizio: Servizio;
   canBeEdited: boolean;
   canBeCompleted: boolean;
   canBeConsuntivato: boolean;
+  allServizi: Servizio[]; // Added for stable indexing
   onCompleta: () => void;
   onConsuntiva: () => void;
-  index?: number;
 }
 
 export function ServizioHeader({
@@ -24,11 +24,14 @@ export function ServizioHeader({
   canBeEdited,
   canBeCompleted,
   canBeConsuntivato,
+  allServizi,
   onCompleta,
-  onConsuntiva,
-  index = 0
+  onConsuntiva
 }: ServizioHeaderProps) {
   const navigate = useNavigate();
+  
+  // Calculate stable global index based on creation date
+  const globalIndex = getServizioIndex(servizio.id, allServizi);
   
   const safeFormatISO = (iso?: string, fmt: string = "EEEE d MMMM yyyy") => {
     if (!iso) return "—";
@@ -64,7 +67,7 @@ export function ServizioHeader({
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight">
             {servizio.numero_commessa 
               ? `Commessa N° ${servizio.numero_commessa}` 
-              : `Servizio N° ${formatProgressiveId(servizio.id, index)}`}
+              : `Servizio N° ${formatProgressiveId(servizio.id, globalIndex)}`}
           </h1>
           
           {/* Date and time - Mobile optimized */}

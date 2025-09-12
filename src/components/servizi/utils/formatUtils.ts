@@ -1,4 +1,6 @@
 
+import { Servizio } from "@/lib/types/servizi";
+
 /**
  * Formatta un ID come numero progressivo
  * @param id L'UUID del servizio
@@ -21,12 +23,20 @@ export function formatCurrency(value?: number | null): string {
 
 /**
  * Calcola l'indice progressivo di un servizio nell'elenco completo dei servizi
+ * ordinato per data di creazione (dal più vecchio al più nuovo)
  * @param targetId L'ID del servizio di cui si vuole calcolare l'indice
- * @param allServizi Tutti i servizi nel sistema
- * @returns L'indice del servizio nel sistema
+ * @param allServizi Tutti i servizi nel sistema con campo created_at
+ * @returns L'indice del servizio nel sistema ordinato cronologicamente
  */
-export function getServizioIndex(targetId: string, allServizi: { id: string }[]): number {
-  return allServizi.findIndex(servizio => servizio.id === targetId);
+export function getServizioIndex(targetId: string, allServizi: Servizio[]): number {
+  // Ordina i servizi per data di creazione (dal più vecchio al più nuovo)
+  const sortedServizi = [...allServizi].sort((a, b) => 
+    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+  
+  // Trova l'indice del servizio target nell'array ordinato
+  const index = sortedServizi.findIndex(servizio => servizio.id === targetId);
+  return index >= 0 ? index : 0;
 }
 
 /**

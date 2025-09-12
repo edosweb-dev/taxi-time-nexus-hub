@@ -21,7 +21,7 @@ interface ServizioCardProps {
   onCompleta?: (servizio: Servizio) => void;
   onFirma?: (servizio: Servizio) => void;
   index: number;
-  allServizi?: { id: string }[]; // Added for global indexing
+  allServizi?: Servizio[]; // Updated type for stable indexing
 }
 
 export const ServizioCard = ({

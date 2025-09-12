@@ -72,9 +72,6 @@ export const ServizioTable = ({
               </TableRow>
             ) : (
               servizi.map((servizio) => {
-                // Get the index of the service in the global list
-                const globalIndex = getServizioIndex(servizio.id, allServizi);
-                
                 return (
                   <ServizioTableRow
                     key={servizio.id}
@@ -84,7 +81,7 @@ export const ServizioTable = ({
                     passengerCount={passeggeriCounts[servizio.id] || 0}
                     isExpanded={expandedRow === servizio.id}
                     isAdminOrSocio={isAdminOrSocio}
-                    index={globalIndex}
+                    allServizi={allServizi}
                     onToggleExpand={toggleRowExpand}
                     onNavigateToDetail={onNavigateToDetail}
                     onSelect={onSelect}

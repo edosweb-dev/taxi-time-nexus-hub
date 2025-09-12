@@ -74,6 +74,7 @@ export function useServizioDetail(id?: string) {
     getAzienda,
     getUserName,
     servizioIndex,
+    allServizi, // Add allServizi to return value
     refetch,
     completaDialogOpen,
     setCompletaDialogOpen,

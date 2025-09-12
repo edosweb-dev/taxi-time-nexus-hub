@@ -6,15 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Formatta un ID come numero progressivo
- * @param id L'UUID del servizio
- * @param index L'indice nell'array dei servizi
- * @returns L'ID formattato come numero progressivo (es. #001, #002, ecc.)
- */
-export function formatProgressiveId(id: string, index: number): string {
-  return `#${String(index + 1).padStart(3, '0')}`;
-}
 
 /**
  * Formatta un valore monetario

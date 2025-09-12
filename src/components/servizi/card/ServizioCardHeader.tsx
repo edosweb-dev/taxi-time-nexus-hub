@@ -10,7 +10,7 @@ import { formatProgressiveId, getServizioIndex } from "../utils/formatUtils";
 interface ServizioCardHeaderProps {
   servizio: Servizio;
   index: number;
-  allServizi?: { id: string }[]; // Optional to maintain backward compatibility
+  allServizi?: Servizio[]; // Updated type
 }
 
 export const ServizioCardHeader = ({ servizio, index, allServizi }: ServizioCardHeaderProps) => {
