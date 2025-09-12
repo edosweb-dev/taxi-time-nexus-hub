@@ -91,6 +91,8 @@ export default function ServizioDetailPage() {
             servizio={servizio} 
             passeggeri={passeggeri}
             formatCurrency={formatCurrency}
+            users={users}
+            getUserName={getUserName}
           />
           
           {/* Mobile Action Buttons - Sticky at bottom */}

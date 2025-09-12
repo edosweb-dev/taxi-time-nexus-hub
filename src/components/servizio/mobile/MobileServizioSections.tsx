@@ -8,6 +8,8 @@ interface MobileServizioSectionsProps {
   servizio: any;
   passeggeri?: any[];
   formatCurrency: (value: number | string) => string;
+  users: any[];
+  getUserName: (users: any[], userId?: string) => string | null;
 }
 
 interface SectionProps {
@@ -61,7 +63,7 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false, priori
   );
 }
 
-export function MobileServizioSections({ servizio, passeggeri, formatCurrency }: MobileServizioSectionsProps) {
+export function MobileServizioSections({ servizio, passeggeri, formatCurrency, users, getUserName }: MobileServizioSectionsProps) {
   const safeFormat = (value?: string | Date, fmt: string = 'dd/MM HH:mm') => {
     if (!value) return '—';
     const d = value instanceof Date ? value : new Date(value);
@@ -91,6 +93,38 @@ export function MobileServizioSections({ servizio, passeggeri, formatCurrency }:
             <span className="detail-label">Metodo Pagamento</span>
             <span className="detail-value">{servizio.metodo_pagamento || 'Da definire'}</span>
           </div>
+
+          {/* Informazioni veicolo */}
+          <div className="detail-row">
+            <span className="detail-label">Veicolo</span>
+            <span className="detail-value">{servizio.veicolo?.nome || 'Da assegnare'}</span>
+          </div>
+
+          {/* Autista assegnato */}
+          <div className="detail-row">
+            <span className="detail-label">Assegnato a</span>
+            <span className="detail-value">
+              {servizio.conducente_esterno ? 'Conducente esterno' : 
+               servizio.assegnato_a ? getUserName(users, servizio.assegnato_a) || 'Sconosciuto' : 
+               'Non assegnato'}
+            </span>
+          </div>
+
+          {/* Ore lavorate se disponibili */}
+          {servizio.ore_lavorate && (
+            <div className="detail-row">
+              <span className="detail-label">Ore Lavorate</span>
+              <span className="detail-value">{servizio.ore_lavorate} ore</span>
+            </div>
+          )}
+
+          {/* Ore effettive se disponibili */}
+          {servizio.ore_effettive && (
+            <div className="detail-row">
+              <span className="detail-label">Ore Effettive</span>
+              <span className="detail-value">{servizio.ore_effettive} ore</span>
+            </div>
+          )}
           
           {passeggeri && passeggeri.length > 0 && (
             <div className="detail-row">
