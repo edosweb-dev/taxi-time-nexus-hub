@@ -109,20 +109,15 @@ export default function ServizioDetailPage() {
           
           {/* Mobile Action Buttons - Sticky at bottom */}
           {(canBeCompleted || canBeConsuntivato || canBeEdited) && (
-            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 pb-safe-bottom z-50">
-              <div className="max-w-md mx-auto space-y-3">
-                <div className="text-xs font-medium text-muted-foreground text-center mb-3">
-                  Azioni disponibili
-                </div>
-                
-                <div className="flex flex-col gap-2">
+            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-3 pb-safe-bottom z-50">
+              <div className="max-w-md mx-auto">
+                <div className="flex flex-col gap-1.5">
                   {canBeCompleted && (
                     <Button 
                       onClick={() => setCompletaDialogOpen(true)}
-                      size="lg"
-                      className="w-full h-12 text-base font-medium"
+                      className="w-full h-10 text-sm font-medium"
                     >
-                      <CheckCircle2 className="h-5 w-5 mr-2" />
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
                       Completa servizio
                     </Button>
                   )}
@@ -131,10 +126,9 @@ export default function ServizioDetailPage() {
                     <Button 
                       onClick={() => setConsuntivaDialogOpen(true)}
                       variant="secondary"
-                      size="lg"
-                      className="w-full h-12 text-base font-medium"
+                      className="w-full h-10 text-sm font-medium"
                     >
-                      <FileText className="h-5 w-5 mr-2" />
+                      <FileText className="h-4 w-4 mr-2" />
                       Consuntiva servizio
                     </Button>
                   )}
@@ -143,10 +137,9 @@ export default function ServizioDetailPage() {
                     <Button 
                       onClick={() => navigate(`/servizi/${servizio.id}/edit`)}
                       variant="outline"
-                      size="lg"
-                      className="w-full h-12 text-base font-medium"
+                      className="w-full h-10 text-sm font-medium"
                     >
-                      <Edit className="h-5 w-5 mr-2" />
+                      <Edit className="h-4 w-4 mr-2" />
                       Modifica servizio
                     </Button>
                   )}
@@ -154,7 +147,7 @@ export default function ServizioDetailPage() {
               </div>
               
               {/* Spacer to prevent content overlap */}
-              <div className="h-20" />
+              <div className="h-14" />
             </div>
           )}
         </div>
