@@ -112,7 +112,7 @@ function QuickActionCard({
       className="group cursor-pointer transition-all duration-200 sm:hover:shadow-lg sm:hover:scale-105 border-0 bg-gradient-to-br from-card to-card/80 active:scale-95 sm:active:scale-100"
       onClick={onClick}
     >
-      <CardContent className="p-3 sm:p-6 sm:border-2 sm:border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/40 group-hover:shadow-lg transition-all duration-300">
+      <CardContent className="p-3 sm:p-6 sm:border-2 sm:border-primary/20 sm:bg-gradient-to-br sm:from-primary/5 sm:to-primary/10 group-hover:border-primary/40 group-hover:shadow-lg transition-all duration-300">
         <div className="flex items-center justify-between mb-2 sm:mb-3">
           <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
             <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
