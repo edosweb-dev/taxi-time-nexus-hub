@@ -79,6 +79,10 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+/* Safe area utility for iOS bottom inset */
+.pb-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 /* ===============================================
  * MOBILE LAYOUT UNIFICATO
  * =============================================== */
@@ -989,6 +993,16 @@ body {
     color: hsl(var(--muted-foreground));
   }
 
+  /* Ensure full scrollable content on mobile detail page */
+  .mobile-servizio-detail {
+    min-height: calc(100vh - 120px); /* header + possible sticky actions */
+    padding-bottom: 100px; /* space for sticky actions */
+  }
+
+  /* Allow collapsible content to overflow naturally */
+  .section-content {
+    overflow: visible;
+  }
   /* SIDEBAR MOBILE - DRAWER */
   .mobile-sidebar {
     position: fixed;
