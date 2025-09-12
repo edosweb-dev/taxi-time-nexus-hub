@@ -62,6 +62,16 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false, priori
 }
 
 export function MobileServizioSections({ servizio, passeggeri, formatCurrency }: MobileServizioSectionsProps) {
+  const safeFormat = (value?: string | Date, fmt: string = 'dd/MM HH:mm') => {
+    if (!value) return '—';
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) return '—';
+    try {
+      return format(d, fmt);
+    } catch {
+      return '—';
+    }
+  };
   return (
     <div className="mobile-sections">
       {/* Dettagli Operativi - Priority High */}
@@ -178,7 +188,7 @@ export function MobileServizioSections({ servizio, passeggeri, formatCurrency }:
         <div className="history-timeline">
           <div className="history-item">
             <div className="history-time">
-              {format(new Date(servizio.created_at), 'dd/MM HH:mm')}
+              {safeFormat(servizio.created_at, 'dd/MM HH:mm')}
             </div>
             <div className="history-content">
               <span className="history-action">Servizio creato</span>
@@ -189,7 +199,7 @@ export function MobileServizioSections({ servizio, passeggeri, formatCurrency }:
           {servizio.updated_at !== servizio.created_at && (
             <div className="history-item">
               <div className="history-time">
-                {format(new Date(servizio.updated_at), 'dd/MM HH:mm')}
+                {safeFormat(servizio.updated_at, 'dd/MM HH:mm')}
               </div>
               <div className="history-content">
                 <span className="history-action">Ultima modifica</span>
