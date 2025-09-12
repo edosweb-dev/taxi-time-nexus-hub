@@ -500,7 +500,10 @@ body {
    * =============================================== */
 
   /* Mobile Hero Card */
-  .mobile-hero-card {
+  .mobile-hero-card.compact {
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
     background: hsl(var(--card));
     border-radius: 12px;
     padding: 1.5rem;
