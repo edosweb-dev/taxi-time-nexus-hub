@@ -2,16 +2,17 @@ import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Servizio, StatoServizio } from '@/lib/types/servizi';
 import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
-import { UserSelection } from './UserSelection';
 import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
 
 interface AssignmentPopupProps {
@@ -172,23 +173,87 @@ export function AssignmentPopup({
               />
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Label className="text-base font-semibold text-foreground">Seleziona Dipendente</Label>
+              
+              {/* Alert for no available users */}
+              {!isLoading && availableUsers.length === 0 && (
+                <Alert className="border-amber-200 bg-amber-50">
+                  <AlertCircle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-800">
+                    Nessun dipendente disponibile al momento. Tutti sono impegnati o offline.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Alert for no shifts configured */}
+              {!isLoading && !hasShiftsConfigured && users.length > 0 && (
+                <Alert className="border-blue-200 bg-blue-50">
+                  <AlertCircle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    Nessun turno configurato per questa data. Tutti i dipendenti sono mostrati come disponibili.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               {isLoading ? (
-                <div className="flex items-center justify-center py-12 px-4">
+                <div className="flex items-center justify-center py-8 px-4">
                   <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="text-sm text-muted-foreground font-medium">Caricamento dipendenti...</span>
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">Caricamento dipendenti...</span>
                   </div>
                 </div>
               ) : (
-                <UserSelection
-                  users={users}
-                  selectedUserId={selectedDipendente}
-                  onUserSelect={setSelectedDipendente}
-                  mobile={isMobile}
-                  hasShiftsConfigured={hasShiftsConfigured}
-                />
+                <Select value={selectedDipendente} onValueChange={setSelectedDipendente}>
+                  <SelectTrigger className="w-full h-12 text-base">
+                    <SelectValue placeholder="Scegli un dipendente..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {/* Available users first */}
+                    {availableUsers.map((user) => (
+                      <SelectItem key={user.id} value={user.id} className="py-3">
+                        <div className="flex flex-col gap-1 w-full">
+                          <span className="font-medium text-foreground">
+                            {user.first_name && user.last_name 
+                              ? `${user.first_name} ${user.last_name}` 
+                              : user.first_name || user.last_name || 'Utente senza nome'
+                            }
+                          </span>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span className="capitalize">{user.role}</span>
+                            <span>•</span>
+                            <span className="text-emerald-600 font-medium">Disponibile</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                    
+                    {/* Unavailable users */}
+                    {unavailableUsers.map((user) => (
+                      <SelectItem key={user.id} value={user.id} disabled className="py-3 opacity-60">
+                        <div className="flex flex-col gap-1 w-full">
+                          <span className="font-medium text-muted-foreground">
+                            {user.first_name && user.last_name 
+                              ? `${user.first_name} ${user.last_name}` 
+                              : user.first_name || user.last_name || 'Utente senza nome'
+                            }
+                          </span>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span className="capitalize">{user.role}</span>
+                            <span>•</span>
+                            <span className="text-red-600 font-medium">Non disponibile</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                    
+                    {users.length === 0 && (
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                        Nessun dipendente trovato
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
               )}
             </div>
           )}
