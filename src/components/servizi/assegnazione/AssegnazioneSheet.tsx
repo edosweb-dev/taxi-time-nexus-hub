@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -169,15 +169,15 @@ export function AssegnazioneSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-full sm:max-w-sm overflow-y-auto p-4 sm:p-6">
-        <SheetHeader>
-          <SheetTitle>Assegna Servizio</SheetTitle>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm mx-auto">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg">Assegna Servizio</DialogTitle>
+        </DialogHeader>
         
-        <div className="grid gap-4 pt-3">
-          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-            <Label htmlFor="conducente-esterno" className="text-sm font-medium">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between py-2 px-3 bg-muted/50 rounded-md">
+            <Label htmlFor="conducente-esterno" className="text-sm">
               Conducente Esterno
             </Label>
             <Switch 
@@ -201,11 +201,10 @@ export function AssegnazioneSheet({
               unavailableUsers={unavailableUsers}
             />
           )}
-          
         </div>
         
-        <SheetFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between mt-4 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row pt-3">
+          <Button variant="outline" onClick={onClose} className="flex-1">
             Annulla
           </Button>
           <Button 
@@ -214,12 +213,13 @@ export function AssegnazioneSheet({
               isSubmitting || 
               (isConducenteEsterno ? !selectedConducenteEsternoId : !selectedDipendente)
             }
+            className="flex-1"
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Assegna
           </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
