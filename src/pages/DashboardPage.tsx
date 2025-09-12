@@ -236,7 +236,7 @@ export default function DashboardPage() {
               </p>
             </div>
             
-            <div className="flex items-center gap-2 lg:gap-4">
+            <div className="hidden sm:flex items-center gap-2 lg:gap-4">
               <Badge variant="outline" className="text-xs lg:text-base lg:px-4 lg:py-2">
                 {profile?.role === 'admin' ? 'Admin' : 
                  profile?.role === 'socio' ? 'Socio' : 'Utente'}
