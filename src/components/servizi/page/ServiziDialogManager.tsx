@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Servizio } from "@/lib/types/servizi";
 import { useUsers } from "@/hooks/useUsers";
-import { AssegnazioneSheet } from "../assegnazione";
+import { AssignmentPopup } from "../assegnazione";
 import { CompletaServizioSheet } from "../completamento";
 import { FirmaServizio } from "../../firma/FirmaServizio";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
@@ -43,7 +43,7 @@ export const ServiziDialogManager = ({
     <>
       {selectedServizio && (
         <>
-          <AssegnazioneSheet
+          <AssignmentPopup
             servizio={selectedServizio}
             open={showAssegnazioneDialog}
             onOpenChange={setShowAssegnazioneDialog}

@@ -42,6 +42,55 @@
   --gradient-bg: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)/0.3));
 }
 
+/* Assignment Popup Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Touch target optimization */
+  .user-option {
+    min-height: 64px; /* Ensure 64px touch targets */
+  }
+  
+  .user-card {
+    min-height: 4rem;
+    touch-action: manipulation; /* Prevent zoom on double-tap */
+  }
+  
+  /* Smooth scrolling for user lists */
+  .users-list {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+  
+  .users-list::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .users-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .users-list::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 2px;
+  }
+  
+  /* Enhanced visual feedback for selection */
+  .user-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Bottom sheet specific styles */
+  .assignment-sheet {
+    border-radius: 1rem 1rem 0 0;
+  }
+  
+  /* Improved badge visibility on mobile */
+  .status-badge {
+    font-weight: 600;
+    letter-spacing: 0.025em;
+  }
+}
+
 .dark {
   --background: 210 15% 8%;
   --foreground: 210 15% 92%;

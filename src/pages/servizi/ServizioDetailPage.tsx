@@ -14,7 +14,7 @@ import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
 import { ServizioDialogs } from "@/components/servizi/dettaglio/ServizioDialogs";
 import { MobileServizioHero } from "@/components/servizio/mobile/MobileServizioHero";
 import { MobileServizioSections } from "@/components/servizio/mobile/MobileServizioSections";
-import { AssegnazioneSheet } from "@/components/servizi/assegnazione/AssegnazioneSheet";
+import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function ServizioDetailPage() {
@@ -162,18 +162,16 @@ export default function ServizioDetailPage() {
           users={users}
         />
 
-        {/* Assegnazione Sheet per mobile */}
-        {isMobile && (
-          <AssegnazioneSheet
-            open={assegnazioneSheetOpen}
-            onOpenChange={setAssegnazioneSheetOpen}
-            onClose={() => {
-              setAssegnazioneSheetOpen(false);
-              refetch();
-            }}
-            servizio={servizio}
-          />
-        )}
+        {/* Assignment Popup - ottimizzato per mobile e desktop */}
+        <AssignmentPopup
+          open={assegnazioneSheetOpen}
+          onOpenChange={setAssegnazioneSheetOpen}
+          onClose={() => {
+            setAssegnazioneSheetOpen(false);
+            refetch();
+          }}
+          servizio={servizio}
+        />
       </MainLayout>
     );
   }
