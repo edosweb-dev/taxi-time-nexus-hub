@@ -170,54 +170,63 @@ export function AssegnazioneSheet({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xs mx-auto p-4">
-        <DialogHeader className="pb-1">
-          <DialogTitle className="text-base">Assegna Servizio</DialogTitle>
+      <DialogContent className="w-[95vw] max-w-md mx-auto p-0 gap-0">
+        <DialogHeader className="p-6 pb-4">
+          <DialogTitle className="text-xl font-semibold">Assegna Servizio</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-2">
-          <div className="flex items-center justify-between py-1.5 px-2 bg-muted/40 rounded">
-            <Label htmlFor="conducente-esterno" className="text-xs font-medium">
-              Conducente Esterno
-            </Label>
-            <Switch 
-              id="conducente-esterno" 
-              checked={isConducenteEsterno}
-              onCheckedChange={setIsConducenteEsterno}
-            />
+        <div className="px-6 space-y-6">
+          <div className="space-y-3">
+            <Label className="text-base font-medium">Tipo di conducente</Label>
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+              <span className="text-sm font-medium">Conducente Esterno</span>
+              <Switch 
+                id="conducente-esterno" 
+                checked={isConducenteEsterno}
+                onCheckedChange={setIsConducenteEsterno}
+              />
+            </div>
           </div>
           
-          {isConducenteEsterno ? (
-            <ConducenteEsternoSelect
-              selectedConducenteId={selectedConducenteEsternoId}
-              setSelectedConducenteId={setSelectedConducenteEsternoId}
-            />
-          ) : (
-            <DipendenteSelectForm
-              isLoadingAvailableUsers={isLoadingAvailableUsers}
-              selectedDipendente={selectedDipendente}
-              setSelectedDipendente={setSelectedDipendente}
-              availableUsers={availableUsers}
-              unavailableUsers={unavailableUsers}
-            />
-          )}
+          <div className="space-y-3">
+            {isConducenteEsterno ? (
+              <ConducenteEsternoSelect
+                selectedConducenteId={selectedConducenteEsternoId}
+                setSelectedConducenteId={setSelectedConducenteEsternoId}
+              />
+            ) : (
+              <DipendenteSelectForm
+                isLoadingAvailableUsers={isLoadingAvailableUsers}
+                selectedDipendente={selectedDipendente}
+                setSelectedDipendente={setSelectedDipendente}
+                availableUsers={availableUsers}
+                unavailableUsers={unavailableUsers}
+              />
+            )}
+          </div>
         </div>
         
-        <DialogFooter className="flex flex-col-reverse gap-1.5 sm:flex-row pt-2">
-          <Button variant="outline" onClick={onClose} className="flex-1 h-8 text-xs">
-            Annulla
-          </Button>
-          <Button 
-            onClick={handleAssign}
-            disabled={
-              isSubmitting || 
-              (isConducenteEsterno ? !selectedConducenteEsternoId : !selectedDipendente)
-            }
-            className="flex-1 h-8 text-xs"
-          >
-            {isSubmitting && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
-            Assegna
-          </Button>
+        <DialogFooter className="p-6 pt-4 border-t mt-6">
+          <div className="flex w-full gap-3">
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              className="flex-1 h-12 text-base font-medium"
+            >
+              Annulla
+            </Button>
+            <Button 
+              onClick={handleAssign}
+              disabled={
+                isSubmitting || 
+                (isConducenteEsterno ? !selectedConducenteEsternoId : !selectedDipendente)
+              }
+              className="flex-1 h-12 text-base font-medium"
+            >
+              {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+              Assegna
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
