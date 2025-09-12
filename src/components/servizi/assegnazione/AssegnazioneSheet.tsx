@@ -170,14 +170,14 @@ export function AssegnazioneSheet({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm mx-auto">
-        <DialogHeader className="pb-2">
-          <DialogTitle className="text-lg">Assegna Servizio</DialogTitle>
+      <DialogContent className="max-w-xs mx-auto p-4">
+        <DialogHeader className="pb-1">
+          <DialogTitle className="text-base">Assegna Servizio</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-3">
-          <div className="flex items-center justify-between py-2 px-3 bg-muted/50 rounded-md">
-            <Label htmlFor="conducente-esterno" className="text-sm">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between py-1.5 px-2 bg-muted/40 rounded">
+            <Label htmlFor="conducente-esterno" className="text-xs font-medium">
               Conducente Esterno
             </Label>
             <Switch 
@@ -203,8 +203,8 @@ export function AssegnazioneSheet({
           )}
         </div>
         
-        <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row pt-3">
-          <Button variant="outline" onClick={onClose} className="flex-1">
+        <DialogFooter className="flex flex-col-reverse gap-1.5 sm:flex-row pt-2">
+          <Button variant="outline" onClick={onClose} className="flex-1 h-8 text-xs">
             Annulla
           </Button>
           <Button 
@@ -213,9 +213,9 @@ export function AssegnazioneSheet({
               isSubmitting || 
               (isConducenteEsterno ? !selectedConducenteEsternoId : !selectedDipendente)
             }
-            className="flex-1"
+            className="flex-1 h-8 text-xs"
           >
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSubmitting && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
             Assegna
           </Button>
         </DialogFooter>
