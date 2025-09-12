@@ -185,16 +185,6 @@ export function AssignmentPopup({
                   </AlertDescription>
                 </Alert>
               )}
-
-              {/* Alert for no shifts configured */}
-              {!isLoading && !hasShiftsConfigured && users.length > 0 && (
-                <Alert className="border-blue-200 bg-blue-50">
-                  <AlertCircle className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-blue-800">
-                    Nessun turno configurato per questa data. Tutti i dipendenti sono mostrati come disponibili.
-                  </AlertDescription>
-                </Alert>
-              )}
               
               {isLoading ? (
                 <div className="flex items-center justify-center py-8 px-4">
