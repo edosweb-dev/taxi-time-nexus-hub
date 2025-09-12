@@ -34,9 +34,9 @@ export function ServizioInfoTab({
   firmaDigitaleAttiva,
 }: ServizioInfoTabProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Row 1: Informazioni principali | Assegnazione e veicolo */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <BasicInfoSection 
           servizio={servizio}
           users={users}
@@ -52,7 +52,7 @@ export function ServizioInfoTab({
       </div>
       
       {/* Row 2: Percorso del servizio | Dati operativi */}
-      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 md:gap-6">
         <div className="lg:col-span-7">
           <RouteSection servizio={servizio} passeggeri={passeggeri} />
         </div>
@@ -66,27 +66,27 @@ export function ServizioInfoTab({
       </div>
       
       {/* Row 3: Passeggeri | Informazioni finanziarie */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Passengers Summary */}
-        <div className="bg-card border rounded-lg p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* Passengers Summary - Mobile optimized */}
+        <div className="bg-card border rounded-lg p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-lg font-semibold">Passeggeri</div>
-            <span className="bg-primary/10 text-primary px-3 py-2 rounded-full text-sm font-medium">
+            <div className="text-base md:text-lg font-semibold">Passeggeri</div>
+            <span className="bg-primary/10 text-primary px-2 md:px-3 py-1 md:py-2 rounded-full text-xs md:text-sm font-medium">
               {passeggeri.length}
             </span>
           </div>
           
           {passeggeri.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-2">👥</div>
+            <div className="text-center py-6 md:py-8">
+              <div className="text-3xl md:text-4xl mb-2">👥</div>
               <p className="text-sm text-muted-foreground">Nessun passeggero</p>
             </div>
           ) : (
-            <div className="space-y-3 max-h-64 overflow-y-auto">
+            <div className="space-y-2 md:space-y-3 max-h-48 md:max-h-64 overflow-y-auto">
               {passeggeri.map((passeggero: any, index: number) => (
-                <div key={passeggero.id} className="bg-muted/30 rounded-lg p-3">
+                <div key={passeggero.id} className="bg-muted/30 rounded-lg p-3 animate-fade-in">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
+                    <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium flex-shrink-0">
                       #{index + 1}
                     </span>
                     <div className="font-medium text-sm truncate">{passeggero.nome_cognome}</div>

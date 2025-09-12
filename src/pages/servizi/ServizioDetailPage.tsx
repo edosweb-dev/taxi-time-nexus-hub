@@ -4,7 +4,8 @@ import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
 import { useUsers } from "@/hooks/useUsers";
 import { getUserName } from "@/components/servizi/utils/userUtils";
-import { Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, FileText, Edit } from "lucide-react";
 import { ServizioHeader } from "@/components/servizi/dettaglio/ServizioHeader";
 import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/ServizioLoadingError";
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
@@ -45,9 +46,9 @@ export default function ServizioDetailPage() {
   
   return (
     <MainLayout>
-      <div className="space-y-6">
-        {/* Header Section */}
-        <div className="mb-8">
+      <div className="space-y-4 md:space-y-6 px-2 md:px-0">
+        {/* Header Section - Optimized for mobile */}
+        <div className="mb-4 md:mb-8">
           <ServizioHeader
             servizio={servizio}
             canBeEdited={canBeEdited}
@@ -59,53 +60,74 @@ export default function ServizioDetailPage() {
           />
         </div>
 
-        {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content Area - Full width on large screens */}
-          <div className="lg:col-span-4 space-y-6">
-            <ServizioTabs
-              servizio={servizio}
-              passeggeri={passeggeri}
-              users={users}
-              activeTab=""
-              onTabChange={() => {}}
-              getAziendaName={getAziendaName}
-              getAzienda={getAzienda}
-              getUserName={getUserName}
-              formatCurrency={formatCurrency}
-              firmaDigitaleAttiva={firmaDigitaleAttiva}
-            />
-            
-            {/* Action Buttons - Mobile/Bottom */}
-            <div className="lg:hidden bg-card border rounded-lg p-6">
-              <div className="text-sm font-medium text-muted-foreground mb-3">Azioni disponibili</div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {canBeCompleted && (
-                  <button 
-                    onClick={() => setCompletaDialogOpen(true)}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Completa servizio
-                  </button>
+        {/* Main Content - Mobile optimized */}
+        <div className="space-y-4 md:space-y-6">
+          <ServizioTabs
+            servizio={servizio}
+            passeggeri={passeggeri}
+            users={users}
+            activeTab=""
+            onTabChange={() => {}}
+            getAziendaName={getAziendaName}
+            getAzienda={getAzienda}
+            getUserName={getUserName}
+            formatCurrency={formatCurrency}
+            firmaDigitaleAttiva={firmaDigitaleAttiva}
+          />
+          
+          {/* Mobile Action Buttons - Sticky at bottom */}
+          <div className="lg:hidden">
+            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 pb-safe-bottom z-50">
+              <div className="max-w-md mx-auto space-y-3">
+                {(canBeCompleted || canBeConsuntivato || canBeEdited) && (
+                  <div className="text-xs font-medium text-muted-foreground text-center mb-3">
+                    Azioni disponibili
+                  </div>
                 )}
-                {canBeConsuntivato && (
-                  <button 
-                    onClick={() => setConsuntivaDialogOpen(true)}
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Consuntiva
-                  </button>
-                )}
-                {canBeEdited && (
-                  <button 
-                    onClick={() => navigate(`/servizi/${servizio.id}/edit`)}
-                    className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Modifica servizio
-                  </button>
-                )}
+                
+                <div className="flex flex-col gap-2">
+                  {canBeCompleted && (
+                    <Button 
+                      onClick={() => setCompletaDialogOpen(true)}
+                      size="lg"
+                      className="w-full h-12 text-base font-medium animate-fade-in"
+                    >
+                      <CheckCircle2 className="h-5 w-5 mr-2" />
+                      Completa servizio
+                    </Button>
+                  )}
+                  
+                  {canBeConsuntivato && (
+                    <Button 
+                      onClick={() => setConsuntivaDialogOpen(true)}
+                      variant="secondary"
+                      size="lg"
+                      className="w-full h-12 text-base font-medium animate-fade-in"
+                    >
+                      <FileText className="h-5 w-5 mr-2" />
+                      Consuntiva servizio
+                    </Button>
+                  )}
+                  
+                  {canBeEdited && (
+                    <Button 
+                      onClick={() => navigate(`/servizi/${servizio.id}/edit`)}
+                      variant="outline"
+                      size="lg"
+                      className="w-full h-12 text-base font-medium animate-fade-in"
+                    >
+                      <Edit className="h-5 w-5 mr-2" />
+                      Modifica servizio
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
+            
+            {/* Spacer to prevent content from being hidden behind sticky buttons */}
+            {(canBeCompleted || canBeConsuntivato || canBeEdited) && (
+              <div className="h-32" />
+            )}
           </div>
         </div>
 

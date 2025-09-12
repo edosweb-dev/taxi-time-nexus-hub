@@ -31,54 +31,64 @@ export function ServizioHeader({
   const navigate = useNavigate();
   
   return (
-    <div className="bg-card border rounded-lg p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        {/* Left Side - Title and Info */}
-        <div className="space-y-3">
-          {/* Breadcrumb and Status */}
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/servizi")} className="text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              ← Elenco servizi
-            </Button>
-            {getStatoBadge(servizio.stato)}
-          </div>
+    <div className="bg-card border rounded-lg p-4 md:p-6">
+      <div className="flex flex-col gap-4">
+        {/* Breadcrumb and Status - Mobile optimized */}
+        <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate("/servizi")} 
+            className="text-muted-foreground hover:text-foreground self-start"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            <span className="hidden xs:inline">Elenco servizi</span>
+            <span className="xs:hidden">Indietro</span>
+          </Button>
+          {getStatoBadge(servizio.stato)}
+        </div>
+        
+        {/* Main Title - Mobile optimized */}
+        <div className="space-y-2">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight">
+            {servizio.numero_commessa 
+              ? `Commessa N° ${servizio.numero_commessa}` 
+              : `Servizio N° ${formatProgressiveId(servizio.id, index)}`}
+          </h1>
           
-          {/* Main Title */}
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              {servizio.numero_commessa 
-                ? `Commessa N° ${servizio.numero_commessa}` 
-                : `Servizio N° ${formatProgressiveId(servizio.id, index)}`}
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-              <span>{format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}</span>
-              {servizio.orario_servizio && (
-                <>
-                  <span className="h-1 w-1 bg-muted-foreground rounded-full" />
-                  <span>ore {servizio.orario_servizio}</span>
-                </>
-              )}
-            </div>
+          {/* Date and time - Mobile optimized */}
+          <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 text-sm text-muted-foreground">
+            <span className="font-medium">
+              {format(parseISO(servizio.data_servizio), "EEEE d MMMM yyyy", { locale: it })}
+            </span>
+            {servizio.orario_servizio && (
+              <div className="flex items-center gap-2">
+                <span className="hidden xs:block h-1 w-1 bg-muted-foreground rounded-full" />
+                <span className="font-medium">ore {servizio.orario_servizio}</span>
+              </div>
+            )}
           </div>
         </div>
         
-        {/* Right Side - Desktop Actions */}
-        <div className="hidden sm:flex gap-3">
+        {/* Desktop Actions - Hidden on mobile since we have sticky bottom actions */}
+        <div className="hidden lg:flex gap-3 justify-end">
           {canBeCompleted && (
             <Button onClick={onCompleta} size="lg" className="whitespace-nowrap">
+              <CheckCircle2 className="h-4 w-4 mr-2" />
               Completa servizio
             </Button>
           )}
           
           {canBeConsuntivato && (
             <Button onClick={onConsuntiva} variant="secondary" size="lg" className="whitespace-nowrap">
+              <FileText className="h-4 w-4 mr-2" />
               Consuntiva servizio
             </Button>
           )}
           
           {canBeEdited && (
             <Button onClick={() => navigate(`/servizi/${servizio.id}/edit`)} variant="outline" size="lg" className="whitespace-nowrap">
+              <Edit className="h-4 w-4 mr-2" />
               Modifica servizio
             </Button>
           )}
