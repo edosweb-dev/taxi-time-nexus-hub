@@ -109,7 +109,7 @@ function QuickActionCard({
 }) {
   return (
     <Card 
-      className="group cursor-pointer transition-all duration-200 sm:hover:shadow-lg sm:hover:scale-105 border-0 bg-gradient-to-br from-card to-card/80 active:scale-95 sm:active:scale-100"
+      className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-0 bg-gradient-to-br from-card to-card/80 active:scale-95"
       onClick={onClick}
     >
       <CardContent className="p-3 sm:p-6 sm:border-2 sm:border-primary/20 sm:bg-gradient-to-br sm:from-primary/5 sm:to-primary/10 transition-all duration-300">
