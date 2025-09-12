@@ -642,7 +642,7 @@ export type Database = {
           ore_fatturate: number | null
           ore_finali: number | null
           ore_lavorate: number | null
-          referente_id: string
+          referente_id: string | null
           stato: string
           veicolo_id: string | null
         }
@@ -676,7 +676,7 @@ export type Database = {
           ore_fatturate?: number | null
           ore_finali?: number | null
           ore_lavorate?: number | null
-          referente_id: string
+          referente_id?: string | null
           stato?: string
           veicolo_id?: string | null
         }
@@ -710,7 +710,7 @@ export type Database = {
           ore_fatturate?: number | null
           ore_finali?: number | null
           ore_lavorate?: number | null
-          referente_id?: string
+          referente_id?: string | null
           stato?: string
           veicolo_id?: string | null
         }
