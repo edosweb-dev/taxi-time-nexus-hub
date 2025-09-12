@@ -30,42 +30,68 @@ export function ConducenteEsternoSelect({
 
   return (
     <>
-      <div className="grid w-full items-center gap-1.5">
-        <Label htmlFor="conducente-esterno-select">Seleziona Conducente Esterno</Label>
-        <div className="flex gap-2">
+      <div className="grid w-full items-center gap-3">
+        <Label htmlFor="conducente-esterno-select" className="text-sm font-semibold text-foreground">
+          Seleziona Conducente Esterno
+        </Label>
+        <div className="flex gap-3">
           <Select value={selectedConducenteId} onValueChange={setSelectedConducenteId}>
-            <SelectTrigger id="conducente-esterno-select" className="flex-1">
+            <SelectTrigger 
+              id="conducente-esterno-select" 
+              className="flex-1 h-12 border-2 focus:border-primary transition-all duration-200 rounded-xl"
+            >
               <SelectValue placeholder="Seleziona un conducente esterno" />
             </SelectTrigger>
-            <SelectContent className="max-h-80">
+            <SelectContent className="max-h-80 rounded-xl border-2 shadow-lg">
               {isLoading ? (
-                <div className="flex items-center justify-center p-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="flex items-center justify-center p-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <span className="ml-2 text-sm text-muted-foreground">Caricamento...</span>
                 </div>
               ) : conducenti.length > 0 ? (
                 conducenti.map((conducente) => (
-                  <SelectItem key={conducente.id} value={conducente.id}>
-                    <div>
-                      <div className="font-medium">{conducente.nome_cognome}</div>
-                      {conducente.email && (
-                        <div className="text-xs text-muted-foreground">{conducente.email}</div>
-                      )}
+                  <SelectItem 
+                    key={conducente.id} 
+                    value={conducente.id}
+                    className="py-3 px-4 cursor-pointer hover:bg-muted/50 focus:bg-primary/5 rounded-lg mx-1 my-0.5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                        <span className="text-xs font-semibold">
+                          {conducente.nome_cognome.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="font-medium text-sm">{conducente.nome_cognome}</div>
+                        {conducente.email && (
+                          <div className="text-xs text-muted-foreground">{conducente.email}</div>
+                        )}
+                      </div>
                     </div>
                   </SelectItem>
                 ))
               ) : (
-                <div className="p-2 text-center text-sm text-muted-foreground">
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
+                    <span className="text-xs font-semibold">?</span>
+                  </div>
                   Nessun conducente esterno disponibile
                 </div>
               )}
             </SelectContent>
           </Select>
           
-          <Button type="button" variant="outline" size="sm" onClick={handleCreateNew}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm" 
+            onClick={handleCreateNew}
+            className="h-12 px-4 border-2 hover:border-primary/50 transition-all duration-200 rounded-xl"
+          >
             <Plus className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground">
           Seleziona un conducente esterno dalla lista o aggiungine uno nuovo
         </p>
       </div>
