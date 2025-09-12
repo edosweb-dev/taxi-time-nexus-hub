@@ -137,13 +137,6 @@ export default function ProfilePage() {
               </div>
 
               <Separator />
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">ID Utente</Label>
-                <div className="p-2 bg-muted rounded text-xs font-mono">
-                  {user?.id}
-                </div>
-              </div>
             </CardContent>
           </Card>
 
