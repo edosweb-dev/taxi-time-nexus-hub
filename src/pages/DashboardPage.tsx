@@ -66,26 +66,26 @@ function MetricCard({
 
   return (
     <Card className="transition-all duration-200 hover:shadow-lg border-0 bg-gradient-to-br from-card to-card/50">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`p-2 rounded-lg ${getIconColor()}`}>
-            <Icon className="w-5 h-5" />
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className={`p-1.5 sm:p-2 rounded-lg ${getIconColor()}`}>
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           {trend && (
             <div className="flex items-center gap-1">
               {getTrendIcon()}
-              <span className={`text-sm font-medium ${getTrendColor()}`}>
+              <span className={`text-xs sm:text-sm font-medium ${getTrendColor()}`}>
                 {trend}
               </span>
             </div>
           )}
         </div>
         
-        <div className="space-y-1">
-          <p className="text-2xl font-bold text-foreground">{value}</p>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <div className="space-y-0.5 sm:space-y-1">
+          <p className="text-xl sm:text-2xl font-bold text-foreground">{value}</p>
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</p>
           {description && (
-            <p className="text-xs text-muted-foreground">{description}</p>
+            <p className="text-xs text-muted-foreground hidden sm:block">{description}</p>
           )}
         </div>
       </CardContent>
@@ -112,19 +112,19 @@ function QuickActionCard({
       className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-0 bg-gradient-to-br from-card to-card/80"
       onClick={onClick}
     >
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Icon className="w-6 h-6 text-primary" />
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
           </div>
           <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
         </div>
         
-        <div className="space-y-1">
-          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+        <div className="space-y-0.5 sm:space-y-1">
+          <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
             {title}
           </h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>
         </div>
       </CardContent>
     </Card>
@@ -223,22 +223,22 @@ export default function DashboardPage() {
 
   return (
     <MainLayout title="Dashboard" showBottomNav={true}>
-      <div className="space-y-8 p-6">
+      <div className="space-y-4 sm:space-y-8 p-4 sm:p-6">
         {/* Header Hero Section */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Dashboard
               </h1>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-base sm:text-lg text-muted-foreground">
                 Benvenuto, {fullName}
               </p>
             </div>
             
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-sm">
-                {profile?.role === 'admin' ? 'Amministratore' : 
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Badge variant="outline" className="text-xs sm:text-sm">
+                {profile?.role === 'admin' ? 'Admin' : 
                  profile?.role === 'socio' ? 'Socio' : 'Utente'}
               </Badge>
               <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
         </div>
 
         {/* KPI Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {metrics.map((metric, index) => (
             <MetricCard
               key={index}
@@ -265,14 +265,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions Section */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground">
               Azioni Rapide
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {quickActions.map((action, index) => (
               <QuickActionCard
                 key={index}
@@ -287,24 +287,24 @@ export default function DashboardPage() {
 
         {/* Recent Activity Section */}
         <Card className="border-0 bg-gradient-to-br from-muted/50 to-muted/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               Attività Recente
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="pt-0">
+            <div className="space-y-3 sm:space-y-4">
               {[
                 { time: '10:30', event: 'Nuovo servizio prenotato', user: 'Mario Rossi' },
                 { time: '09:15', event: 'Turno completato', user: 'Luca Bianchi' },
                 { time: '08:45', event: 'Veicolo in manutenzione', user: 'Sistema' }
               ].map((activity, index) => (
                 <div key={index} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <div className="w-2 h-2 rounded-full bg-primary"></div>
                     <div>
-                      <p className="text-sm font-medium">{activity.event}</p>
+                      <p className="text-xs sm:text-sm font-medium">{activity.event}</p>
                       <p className="text-xs text-muted-foreground">{activity.user}</p>
                     </div>
                   </div>
