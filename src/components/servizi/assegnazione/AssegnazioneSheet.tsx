@@ -170,14 +170,16 @@ export function AssegnazioneSheet({
 
   return (
     <Sheet open={open} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="sm:max-w-md overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-sm overflow-y-auto p-4 sm:p-6">
         <SheetHeader>
           <SheetTitle>Assegna Servizio</SheetTitle>
         </SheetHeader>
         
-        <div className="grid gap-6 pt-4">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="conducente-esterno">Conducente Esterno</Label>
+        <div className="grid gap-4 pt-3">
+          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+            <Label htmlFor="conducente-esterno" className="text-sm font-medium">
+              Conducente Esterno
+            </Label>
             <Switch 
               id="conducente-esterno" 
               checked={isConducenteEsterno}
@@ -202,7 +204,7 @@ export function AssegnazioneSheet({
           
         </div>
         
-        <SheetFooter className="flex justify-between sm:justify-between mt-6">
+        <SheetFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between mt-4 pt-4 border-t">
           <Button variant="outline" onClick={onClose}>
             Annulla
           </Button>
