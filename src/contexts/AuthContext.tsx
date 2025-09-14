@@ -31,11 +31,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for existing impersonation state
-    const storedImpersonation = localStorage.getItem('impersonation_data');
+    // Check for existing impersonation state (security fix - use sessionStorage with expiry)
+    const storedImpersonation = sessionStorage.getItem('impersonation_data');
     if (storedImpersonation) {
       try {
         const impersonationData = JSON.parse(storedImpersonation);
+        // Check if impersonation has expired (24 hours)
+        if (impersonationData.expiry && Date.now() > impersonationData.expiry) {
+          sessionStorage.removeItem('impersonation_data');
+          return;
+        }
         setIsImpersonating(true);
         setOriginalAdminId(impersonationData.originalAdminId);
         setUser({ id: impersonationData.targetUser.id, email: impersonationData.targetUser.email });
@@ -44,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       } catch (error) {
         console.error('[AuthContext] Failed to restore impersonation state:', error);
-        localStorage.removeItem('impersonation_data');
+        sessionStorage.removeItem('impersonation_data');
       }
     }
 
@@ -241,8 +246,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser({ id: targetUser.id, email: targetUser.email });
         setProfile(targetUser);
         
-        // Store impersonation state in localStorage for persistence
-        localStorage.setItem('impersonation_data', JSON.stringify(data.impersonationData));
+        // Store impersonation state securely in sessionStorage with expiry
+        const impersonationDataWithExpiry = {
+          ...data.impersonationData,
+          expiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        };
+        sessionStorage.setItem('impersonation_data', JSON.stringify(impersonationDataWithExpiry));
         
         console.log('[AuthContext] Impersonation started successfully');
         
@@ -265,7 +274,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Clear impersonation state
     setIsImpersonating(false);
     setOriginalAdminId(null);
-    localStorage.removeItem('impersonation_data');
+    sessionStorage.removeItem('impersonation_data');
     
     // Restore original admin session
     const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -285,7 +294,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isImpersonating) {
         setIsImpersonating(false);
         setOriginalAdminId(null);
-        localStorage.removeItem('impersonation_data');
+        sessionStorage.removeItem('impersonation_data');
       }
       
       await supabase.auth.signOut();

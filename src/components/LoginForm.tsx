@@ -18,42 +18,34 @@ export function LoginForm() {
   
   const { signIn, loading } = useAuth();
 
-  // Load remembered credentials on component mount
+  // Load only remembered email (security fix - never store passwords)
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
-    const rememberedPassword = localStorage.getItem('rememberedPassword');
     const rememberedState = localStorage.getItem('rememberMe') === 'true';
     
-    if (rememberedEmail && rememberedPassword && rememberedState) {
+    if (rememberedEmail && rememberedState) {
       setEmail(rememberedEmail);
-      setPassword(rememberedPassword);
       setRememberMe(true);
     }
+    
+    // Clear any previously stored passwords (security cleanup)
+    localStorage.removeItem('rememberedPassword');
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('[LoginForm] Tentativo di login con:', { 
-      email, 
-      passwordLength: password.length,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Save or remove credentials based on rememberMe state
+    // Save only email if remember me is checked (security fix)
     if (rememberMe) {
       localStorage.setItem('rememberedEmail', email);
-      localStorage.setItem('rememberedPassword', password);
       localStorage.setItem('rememberMe', 'true');
     } else {
       localStorage.removeItem('rememberedEmail');
-      localStorage.removeItem('rememberedPassword');
       localStorage.setItem('rememberMe', 'false');
     }
     
     try {
       await signIn(email, password);
-      console.log('[LoginForm] SignIn completato senza errori');
     } catch (error) {
       console.error('[LoginForm] Errore durante signIn:', error);
     }
