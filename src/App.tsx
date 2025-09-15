@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
@@ -7,30 +7,39 @@ import { LayoutProvider } from './contexts/LayoutContext';
 import { AuthGuard } from './components/AuthGuard';
 import LoginPage from './pages/LoginPage';
 import Index from './pages/Index';
-import { MobileUIShowcase } from './components/mobile-first/MobileUIShowcase';
-import DashboardPage from './pages/DashboardPage';
-import ClientDashboardPage from './pages/cliente/ClientDashboardPage';
-import ImpostazioniPage from './pages/ImpostazioniPage';
-import ServiziPage from './pages/servizi/ServiziPage';
-import NuovoServizioPage from './pages/servizi/NuovoServizioPage';
-import ServizioDetailPage from './pages/servizi/ServizioDetailPage';
-import EditServizioPage from './pages/servizi/EditServizioPage';
-import UsersPage from './pages/UsersPage';
-import VeicoliPage from './pages/veicoli/VeicoliPage';
-import ConducentiEsterniPage from './pages/conducenti-esterni/ConducentiEsterniPage';
-import StipendiPage from './pages/StipendiPage';
-import MobileServiziPage from './pages/servizi/MobileServiziPage';
-import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
-import CalendarioServiziPage from './pages/CalendarioServiziPage';
-import ReportServiziPage from './pages/ReportServiziPage';
-import CalendarioTurniPage from './pages/CalendarioTurniPage';
-import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
-import AziendePage from './pages/aziende/AziendePage';
-import NuovaAziendaPage from './pages/aziende/NuovaAziendaPage';
-import AziendaDetailPage from './pages/aziende/AziendaDetailPage';
-import ReferenteDetailPage from './pages/referenti/ReferenteDetailPage';
-import FeedbackPage from './pages/FeedbackPage';
-import ProfilePage from './pages/ProfilePage';
+
+// Lazy load components for better performance
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ClientDashboardPage = lazy(() => import('./pages/cliente/ClientDashboardPage'));
+const MobileUIShowcase = lazy(() => import('./components/mobile-first/MobileUIShowcase').then(module => ({ default: module.MobileUIShowcase })));
+const ImpostazioniPage = lazy(() => import('./pages/ImpostazioniPage'));
+const ServiziPage = lazy(() => import('./pages/servizi/ServiziPage'));
+const NuovoServizioPage = lazy(() => import('./pages/servizi/NuovoServizioPage'));
+const ServizioDetailPage = lazy(() => import('./pages/servizi/ServizioDetailPage'));
+const EditServizioPage = lazy(() => import('./pages/servizi/EditServizioPage'));
+const UsersPage = lazy(() => import('./pages/UsersPage'));
+const VeicoliPage = lazy(() => import('./pages/veicoli/VeicoliPage'));
+const ConducentiEsterniPage = lazy(() => import('./pages/conducenti-esterni/ConducentiEsterniPage'));
+const StipendiPage = lazy(() => import('./pages/StipendiPage'));
+const MobileServiziPage = lazy(() => import('./pages/servizi/MobileServiziPage'));
+const SpeseAziendaliPage = lazy(() => import('./pages/SpeseAziendaliPage'));
+const CalendarioServiziPage = lazy(() => import('./pages/CalendarioServiziPage'));
+const ReportServiziPage = lazy(() => import('./pages/ReportServiziPage'));
+const CalendarioTurniPage = lazy(() => import('./pages/CalendarioTurniPage'));
+const ShiftReportsPage = lazy(() => import('./pages/shifts/ShiftReportsPage'));
+const AziendePage = lazy(() => import('./pages/aziende/AziendePage'));
+const NuovaAziendaPage = lazy(() => import('./pages/aziende/NuovaAziendaPage'));
+const AziendaDetailPage = lazy(() => import('./pages/aziende/AziendaDetailPage'));
+const ReferenteDetailPage = lazy(() => import('./pages/referenti/ReferenteDetailPage'));
+const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+
+// Loading component for Suspense fallback
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -42,25 +51,26 @@ function App() {
         <AuthProvider>
           <LayoutProvider>
             <QueryClientProvider client={queryClient}>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/login" element={<LoginPage />} />
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/login" element={<LoginPage />} />
 
-                {/* Index Route - handles role-based redirections */}
-                <Route path="/" element={<Index />} />
+                  {/* Index Route - handles role-based redirections */}
+                  <Route path="/" element={<Index />} />
 
-                {/* Dashboard Routes */}
-                <Route path="/dashboard" element={
-                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                    <DashboardPage />
-                  </AuthGuard>
-                } />
-                
-                <Route path="/dashboard-cliente" element={
-                  <AuthGuard allowedRoles={['cliente']}>
-                    <ClientDashboardPage />
-                  </AuthGuard>
-                } />
+                  {/* Dashboard Routes */}
+                  <Route path="/dashboard" element={
+                    <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                      <DashboardPage />
+                    </AuthGuard>
+                  } />
+                  
+                  <Route path="/dashboard-cliente" element={
+                    <AuthGuard allowedRoles={['cliente']}>
+                      <ClientDashboardPage />
+                    </AuthGuard>
+                  } />
 
                 {/* Impostazioni Routes */}
                 <Route path="/impostazioni" element={
@@ -208,9 +218,10 @@ function App() {
                   </AuthGuard>
                 } />
                 
-                {/* 404 Route */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+                  {/* 404 Route */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
             </QueryClientProvider>
           </LayoutProvider>
         </AuthProvider>
