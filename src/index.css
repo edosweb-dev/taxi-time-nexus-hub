@@ -165,13 +165,25 @@ html, body {
     min-width: 44px;
 }
 
+/* Miglioramento specifico per viewport molto stretti */
+@media (max-width: 374px) {
+  .login-container {
+    padding: 0.75rem !important;
+  }
+  
+  .login-form-card {
+    padding: 1rem !important;
+    margin: 0;
+  }
+}
+
 /* Desktop centering and optimization */
 @media (min-width: 641px) {
   .login-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 2rem !important;
   }
   
   .login-form-card {

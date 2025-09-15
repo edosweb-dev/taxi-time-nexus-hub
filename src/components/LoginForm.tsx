@@ -160,11 +160,13 @@ export function LoginForm() {
               setEmailError(error);
             }}
             className={`
-              w-full px-4 py-3 text-base
+              w-full px-3 py-3 sm:px-4 text-base sm:text-sm
               border-2 rounded-xl
+              bg-background text-foreground
+              placeholder:text-muted-foreground
               focus:ring-0 focus:border-primary
               transition-all duration-200
-              min-h-[52px]
+              min-h-[48px] sm:min-h-[52px]
               ${emailError ? 'border-destructive form-field-error' : 'border-border hover:border-primary/50'}
             `}
             disabled={isAuthenticating}
@@ -206,11 +208,13 @@ export function LoginForm() {
               setPasswordError(error);
             }}
             className={`
-              w-full px-4 py-3 pr-14 text-base
+              w-full px-3 py-3 pr-12 sm:px-4 sm:pr-14 text-base sm:text-sm
               border-2 rounded-xl
+              bg-background text-foreground
+              placeholder:text-muted-foreground
               focus:ring-0 focus:border-primary
               transition-all duration-200
-              min-h-[52px]
+              min-h-[48px] sm:min-h-[52px]
               ${passwordError ? 'border-destructive form-field-error' : 'border-border hover:border-primary/50'}
             `}
             disabled={isAuthenticating}
@@ -274,7 +278,7 @@ export function LoginForm() {
       <div className="pt-2">
         <Button 
           type="submit" 
-          className="w-full py-4 px-6 text-base font-semibold min-h-[56px] rounded-xl bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg shadow-primary/20 flex items-center justify-center focus:ring-4 focus:ring-primary/30" 
+          className="w-full py-3 px-4 sm:py-3.5 text-base sm:text-sm font-semibold min-h-[48px] sm:min-h-[52px] rounded-xl bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg shadow-primary/20 flex items-center justify-center focus:ring-4 focus:ring-primary/30" 
           disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
         >
           {loading || isAuthenticating ? (
