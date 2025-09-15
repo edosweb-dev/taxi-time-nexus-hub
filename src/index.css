@@ -167,7 +167,6 @@
     transform: scale(0.98);
   }
 }
-}
 
 /* Safe area for devices with notches */
 @supports (padding: max(0px)) {
