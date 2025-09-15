@@ -84,6 +84,56 @@
   }
 }
 
+/* Mobile optimizations and safe areas */
+@media (max-width: 640px) {
+  /* Prevent auto-zoom on iOS */
+  input[type="email"],
+  input[type="password"] {
+    font-size: 16px !important;
+  }
+  
+  /* Ensure proper touch targets */
+  button, 
+  input[type="checkbox"],
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Optimize viewport for mobile */
+  .login-container {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height */
+  }
+  
+  /* Improve readability */
+  .form-label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Smooth mobile transitions */
+  .mobile-transition {
+    transition: all 0.2s ease-out;
+  }
+  
+  /* Touch-friendly focus states */
+  .focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+/* Safe area for devices with notches */
+@supports (padding: max(0px)) {
+  .login-container {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
 /* Assignment Popup Mobile Optimizations */
 @media (max-width: 768px) {
   /* Touch target optimization */

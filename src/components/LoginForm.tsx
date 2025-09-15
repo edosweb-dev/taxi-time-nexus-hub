@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -141,8 +140,11 @@ export function LoginForm() {
         </div>
       )}
 
+      {/* Email Field - Mobile Optimized */}
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
+        <Label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+          Email
+        </Label>
         <Input
           id="email"
           type="email"
@@ -156,16 +158,28 @@ export function LoginForm() {
             const error = validateEmail(email);
             setEmailError(error);
           }}
-          className={`h-10 transition-all ${emailError ? 'border-destructive form-field-error' : ''}`}
+          className={`
+            w-full px-4 py-4 text-base
+            border rounded-lg
+            focus:ring-2 focus:ring-ring focus:border-transparent
+            transition-all duration-200
+            min-h-[56px]
+            ${emailError ? 'border-destructive form-field-error' : 'border-input'}
+          `}
           disabled={isAuthenticating}
+          autoComplete="email"
+          inputMode="email"
         />
         {emailError && (
-          <p className="text-xs text-destructive animate-fade-in">{emailError}</p>
+          <p className="text-xs text-destructive animate-fade-in mt-1">{emailError}</p>
         )}
       </div>
 
+      {/* Password Field - Mobile Optimized */}
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
+        <Label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+          Password
+        </Label>
         <div className="relative">
           <Input
             id="password"
@@ -179,48 +193,64 @@ export function LoginForm() {
               const error = validatePassword(password);
               setPasswordError(error);
             }}
-            className={`h-10 pr-10 transition-all ${passwordError ? 'border-destructive form-field-error' : ''}`}
+            className={`
+              w-full px-4 py-4 pr-12 text-base
+              border rounded-lg
+              focus:ring-2 focus:ring-ring focus:border-transparent
+              transition-all duration-200
+              min-h-[56px]
+              ${passwordError ? 'border-destructive form-field-error' : 'border-input'}
+            `}
             disabled={isAuthenticating}
+            autoComplete="current-password"
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-0 top-0 h-full px-2 hover:bg-transparent"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground focus:ring-2 focus:ring-ring focus:rounded min-h-[44px] min-w-[44px]"
             onClick={() => setShowPassword(!showPassword)}
+            disabled={isAuthenticating}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-muted-foreground" />
+              <EyeOff className="h-5 w-5" />
             ) : (
-              <Eye className="h-4 w-4 text-muted-foreground" />
+              <Eye className="h-5 w-5" />
             )}
           </Button>
         </div>
         {passwordError && (
-          <p className="text-xs text-destructive animate-fade-in">{passwordError}</p>
+          <p className="text-xs text-destructive animate-fade-in mt-1">{passwordError}</p>
         )}
       </div>
 
-      <div className="flex items-center space-x-2">
+      {/* Remember me checkbox - Mobile optimized */}
+      <div className="flex items-center py-2">
         <Checkbox 
           id="rememberMe" 
           checked={rememberMe}
           onCheckedChange={(checked) => setRememberMe(checked === true)}
+          className="w-5 h-5 cursor-pointer"
+          disabled={isAuthenticating}
         />
-        <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer text-foreground">
+        <Label 
+          htmlFor="rememberMe" 
+          className="ml-3 text-sm font-normal cursor-pointer text-foreground select-none"
+        >
           Ricorda credenziali
         </Label>
       </div>
 
+      {/* Login button - Mobile optimized */}
       <Button 
         type="submit" 
-        className="w-full h-10 font-medium transition-all hover:scale-[1.02]" 
+        className="w-full py-4 px-6 text-base font-semibold min-h-[56px] transition-all duration-200 hover:scale-[1.02] flex items-center justify-center focus:ring-4 focus:ring-ring/30" 
         disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
       >
         {loading || isAuthenticating ? (
           <>
-            <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></span> 
-            {isAuthenticating ? 'Autenticazione in corso...' : 'Accesso in corso...'}
+            <span className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></span> 
+            {isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}
           </>
         ) : lockoutTime && lockoutTime > Date.now() ? (
           <>
@@ -228,22 +258,36 @@ export function LoginForm() {
           </>
         ) : (
           <>
-            <LogIn className="mr-2 h-4 w-4" /> Accedi
+            <LogIn className="mr-2 h-5 w-5" /> Accedi
           </>
         )}
       </Button>
       
-      <div className="flex justify-between text-sm pt-4 border-t border-border">
-        <RecuperaPasswordDialog>
-          <Button variant="link" size="sm" className="px-0 h-auto font-normal">
-            Recupera password
+      {/* Footer links - Mobile optimized */}
+      <div className="pt-6 border-t border-border">
+        <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+          <RecuperaPasswordDialog>
+            <Button 
+              variant="link" 
+              size="sm" 
+              className="px-1 h-auto font-medium text-base py-2 min-h-[44px] focus:ring-2 focus:ring-ring"
+              disabled={isAuthenticating}
+            >
+              Recupera password
+            </Button>
+          </RecuperaPasswordDialog>
+          <Button 
+            asChild 
+            variant="link" 
+            size="sm" 
+            className="px-1 h-auto font-medium text-base py-2 min-h-[44px] focus:ring-2 focus:ring-ring"
+            disabled={isAuthenticating}
+          >
+            <Link to="/assistenza" className="flex items-center">
+              <HelpCircle className="mr-2 h-4 w-4" /> Assistenza
+            </Link>
           </Button>
-        </RecuperaPasswordDialog>
-        <Button asChild variant="link" size="sm" className="px-0 h-auto font-normal">
-          <Link to="/assistenza">
-            <HelpCircle className="mr-1 h-3.5 w-3.5" /> Assistenza
-          </Link>
-        </Button>
+        </div>
       </div>
     </form>
   );
