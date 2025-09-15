@@ -13,10 +13,10 @@ export function AuthLayout({ children }: PropsWithChildren) {
             {/* Logo Section - Centrato */}
             <div className="text-center auth-enter">
               <div className="mb-6 sm:mb-8">
-                <img 
+                <img
                   src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
                   alt="Taxitime Logo" 
-                  className="h-16 w-auto sm:h-20 mx-auto object-contain"
+                  className="h-24 w-auto sm:h-32 mx-auto object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                     const parent = (e.target as HTMLElement).parentElement;
