@@ -13,6 +13,21 @@ html, body {
   box-sizing: border-box;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Typography system - mobile first approach */
 :root {
   /* Base colors - Professional design system */
@@ -129,6 +144,17 @@ html, body {
     transform: translateY(0) scale(1);
     filter: blur(0);
   }
+}
+
+/* Centramento forzato per login */
+.login-centered {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100vw;
+  position: relative;
 }
 
 /* Login container optimization */
