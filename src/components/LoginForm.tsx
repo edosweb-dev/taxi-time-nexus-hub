@@ -129,7 +129,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white/95 backdrop-blur-xl border border-border/50 rounded-2xl p-5 sm:p-8 shadow-xl">
+    <div className="w-full max-w-sm sm:max-w-md mx-auto bg-white/95 backdrop-blur-xl border border-border/50 rounded-2xl p-5 sm:p-8 shadow-xl">
       <form onSubmit={handleLogin} className="space-y-6 login-form auth-enter">
         {/* Progressive Loading Bar */}
         {isAuthenticating && (
