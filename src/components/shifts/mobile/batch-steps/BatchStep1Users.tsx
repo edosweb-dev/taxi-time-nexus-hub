@@ -57,7 +57,7 @@ export function BatchStep1Users({ control, users, isAdminOrSocio }: BatchStep1Us
             name="selectedUsers"
             render={() => (
               <FormItem>
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {employees.map((user) => (
                     <FormField
                       key={user.id}
@@ -66,7 +66,7 @@ export function BatchStep1Users({ control, users, isAdminOrSocio }: BatchStep1Us
                       render={({ field }) => (
                         <FormItem
                           key={user.id}
-                          className="flex flex-row items-start space-x-3 space-y-0"
+                          className="flex flex-row items-center space-x-2 space-y-0 py-1"
                         >
                           <FormControl>
                             <Checkbox
@@ -80,12 +80,13 @@ export function BatchStep1Users({ control, users, isAdminOrSocio }: BatchStep1Us
                                       )
                                     );
                               }}
+                              className="h-4 w-4"
                             />
                           </FormControl>
-                          <FormLabel className="text-sm font-normal">
+                          <FormLabel className="text-xs font-normal cursor-pointer">
                             <div>
-                              <div className="font-medium">{getUserDisplayName(user)}</div>
-                              <div className="text-xs text-muted-foreground capitalize">
+                              <div className="font-medium text-sm">{getUserDisplayName(user)}</div>
+                              <div className="text-xs text-muted-foreground capitalize opacity-70">
                                 {user.role}
                               </div>
                             </div>
