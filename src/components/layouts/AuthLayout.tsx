@@ -33,7 +33,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
         </div>
 
         {/* Form Card - Enhanced mobile design */}
-        <div className="w-full bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-6 sm:p-8 shadow-xl shadow-black/5">
+        <div className="w-full max-w-sm mx-auto bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-6 sm:p-8 shadow-xl shadow-black/5">
           {children}
         </div>
 
