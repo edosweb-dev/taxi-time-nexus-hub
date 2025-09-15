@@ -12,16 +12,16 @@ export function AuthLayout({ children }: PropsWithChildren) {
           <div className="space-y-8">
             {/* Logo Section - Centrato */}
             <div className="text-center auth-enter">
-              <div className="mx-auto h-20 w-20 sm:h-24 sm:w-24 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl shadow-lg border border-primary/10 flex items-center justify-center mb-6 sm:mb-8">
+              <div className="mb-6 sm:mb-8">
                 <img 
                   src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
                   alt="Taxitime Logo" 
-                  className="h-10 w-auto sm:h-12 object-contain transition-transform duration-300 hover:scale-105"
+                  className="h-16 w-auto sm:h-20 mx-auto object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                     const parent = (e.target as HTMLElement).parentElement;
                     if (parent) {
-                      parent.innerHTML = '<div class="text-primary text-lg font-bold tracking-wider">TAXI</div>';
+                      parent.innerHTML = '<div class="text-primary text-xl font-bold tracking-wider text-center">TAXI</div>';
                     }
                   }}
                 />
