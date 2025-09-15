@@ -129,55 +129,67 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4 login-form auth-enter">
+    <form onSubmit={handleLogin} className="space-y-6 login-form auth-enter">
       {/* Progressive Loading Bar */}
       {isAuthenticating && (
-        <div className="w-full bg-secondary rounded-full h-1 mb-4 overflow-hidden">
+        <div className="w-full bg-muted/30 rounded-full h-1.5 mb-6 overflow-hidden">
           <div 
-            className="login-progress h-1 rounded-full transition-all duration-300"
+            className="login-progress h-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow transition-all duration-300"
             style={{ width: `${authProgress}%` }}
           />
         </div>
       )}
 
-      {/* Email Field - Mobile Optimized */}
-      <div className="space-y-2">
-        <Label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+      {/* Email Field - Enhanced mobile design */}
+      <div className="space-y-3">
+        <Label htmlFor="email" className="text-sm font-semibold text-foreground">
           Email
         </Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="nome@azienda.com"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            if (emailError) setEmailError(null);
-          }}
-          onBlur={() => {
-            const error = validateEmail(email);
-            setEmailError(error);
-          }}
-          className={`
-            w-full px-4 py-4 text-base
-            border rounded-lg
-            focus:ring-2 focus:ring-ring focus:border-transparent
-            transition-all duration-200
-            min-h-[56px]
-            ${emailError ? 'border-destructive form-field-error' : 'border-input'}
-          `}
-          disabled={isAuthenticating}
-          autoComplete="email"
-          inputMode="email"
-        />
+        <div className="relative">
+          <Input
+            id="email"
+            type="email"
+            placeholder="nome@azienda.com"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (emailError) setEmailError(null);
+            }}
+            onBlur={() => {
+              const error = validateEmail(email);
+              setEmailError(error);
+            }}
+            className={`
+              w-full px-4 py-4 text-base
+              border-2 rounded-xl
+              focus:ring-0 focus:border-primary
+              transition-all duration-200
+              min-h-[56px]
+              ${emailError ? 'border-destructive form-field-error' : 'border-border hover:border-primary/50'}
+            `}
+            disabled={isAuthenticating}
+            autoComplete="email"
+            inputMode="email"
+          />
+          {emailError && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="w-5 h-5 rounded-full bg-destructive/10 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-destructive"></div>
+              </div>
+            </div>
+          )}
+        </div>
         {emailError && (
-          <p className="text-xs text-destructive animate-fade-in mt-1">{emailError}</p>
+          <p className="text-xs text-destructive animate-fade-in flex items-center gap-2 mt-2">
+            <span className="w-1 h-1 rounded-full bg-destructive"></span>
+            {emailError}
+          </p>
         )}
       </div>
 
-      {/* Password Field - Mobile Optimized */}
-      <div className="space-y-2">
-        <Label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+      {/* Password Field - Enhanced mobile design */}
+      <div className="space-y-3">
+        <Label htmlFor="password" className="text-sm font-semibold text-foreground">
           Password
         </Label>
         <div className="relative">
@@ -194,83 +206,103 @@ export function LoginForm() {
               setPasswordError(error);
             }}
             className={`
-              w-full px-4 py-4 pr-12 text-base
-              border rounded-lg
-              focus:ring-2 focus:ring-ring focus:border-transparent
+              w-full px-4 py-4 pr-14 text-base
+              border-2 rounded-xl
+              focus:ring-0 focus:border-primary
               transition-all duration-200
               min-h-[56px]
-              ${passwordError ? 'border-destructive form-field-error' : 'border-input'}
+              ${passwordError ? 'border-destructive form-field-error' : 'border-border hover:border-primary/50'}
             `}
             disabled={isAuthenticating}
             autoComplete="current-password"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground focus:ring-2 focus:ring-ring focus:rounded min-h-[44px] min-w-[44px]"
-            onClick={() => setShowPassword(!showPassword)}
-            disabled={isAuthenticating}
-          >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+            {passwordError && (
+              <div className="w-5 h-5 rounded-full bg-destructive/10 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-destructive"></div>
+              </div>
             )}
-          </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="p-2 text-muted-foreground hover:text-foreground focus:ring-2 focus:ring-primary/20 focus:rounded-lg min-h-[44px] min-w-[44px] hover:bg-muted/50"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={isAuthenticating}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
         </div>
         {passwordError && (
-          <p className="text-xs text-destructive animate-fade-in mt-1">{passwordError}</p>
+          <p className="text-xs text-destructive animate-fade-in flex items-center gap-2 mt-2">
+            <span className="w-1 h-1 rounded-full bg-destructive"></span>
+            {passwordError}
+          </p>
         )}
       </div>
 
-      {/* Remember me checkbox - Mobile optimized */}
-      <div className="flex items-center py-2">
-        <Checkbox 
-          id="rememberMe" 
-          checked={rememberMe}
-          onCheckedChange={(checked) => setRememberMe(checked === true)}
-          className="w-5 h-5 cursor-pointer"
-          disabled={isAuthenticating}
-        />
-        <Label 
-          htmlFor="rememberMe" 
-          className="ml-3 text-sm font-normal cursor-pointer text-foreground select-none"
+      {/* Remember me checkbox - Refined design */}
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center">
+          <Checkbox 
+            id="rememberMe" 
+            checked={rememberMe}
+            onCheckedChange={(checked) => setRememberMe(checked === true)}
+            className="w-5 h-5 cursor-pointer border-2 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+            disabled={isAuthenticating}
+          />
+          <Label 
+            htmlFor="rememberMe" 
+            className="ml-3 text-sm font-medium cursor-pointer text-foreground select-none"
+          >
+            Ricorda credenziali
+          </Label>
+        </div>
+        {loginAttempts > 0 && lockoutTime && lockoutTime <= Date.now() && (
+          <span className="text-xs text-muted-foreground">
+            {3 - loginAttempts} tentativi rimasti
+          </span>
+        )}
+      </div>
+
+      {/* Enhanced login button */}
+      <div className="pt-2">
+        <Button 
+          type="submit" 
+          className="w-full py-4 px-6 text-base font-semibold min-h-[56px] rounded-xl bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg shadow-primary/20 flex items-center justify-center focus:ring-4 focus:ring-primary/30" 
+          disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
         >
-          Ricorda credenziali
-        </Label>
+          {loading || isAuthenticating ? (
+            <div className="flex items-center">
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
+              <span>{isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}</span>
+            </div>
+          ) : lockoutTime && lockoutTime > Date.now() ? (
+            <div className="flex items-center text-muted-foreground">
+              <span>Account temporaneamente bloccato</span>
+            </div>
+          ) : (
+            <div className="flex items-center">
+              <LogIn className="mr-3 h-5 w-5" />
+              <span>Accedi</span>
+            </div>
+          )}
+        </Button>
       </div>
-
-      {/* Login button - Mobile optimized */}
-      <Button 
-        type="submit" 
-        className="w-full py-4 px-6 text-base font-semibold min-h-[56px] transition-all duration-200 hover:scale-[1.02] flex items-center justify-center focus:ring-4 focus:ring-ring/30" 
-        disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
-      >
-        {loading || isAuthenticating ? (
-          <>
-            <span className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></span> 
-            {isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}
-          </>
-        ) : lockoutTime && lockoutTime > Date.now() ? (
-          <>
-            Account bloccato
-          </>
-        ) : (
-          <>
-            <LogIn className="mr-2 h-5 w-5" /> Accedi
-          </>
-        )}
-      </Button>
       
-      {/* Footer links - Mobile optimized */}
-      <div className="pt-6 border-t border-border">
-        <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+      {/* Elegant footer links */}
+      <div className="pt-8 border-t border-border/50">
+        <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
           <RecuperaPasswordDialog>
             <Button 
-              variant="link" 
+              variant="ghost" 
               size="sm" 
-              className="px-1 h-auto font-medium text-base py-2 min-h-[44px] focus:ring-2 focus:ring-ring"
+              className="text-sm font-medium py-2 px-4 rounded-lg hover:bg-muted/50 transition-colors min-h-[44px] focus:ring-2 focus:ring-primary/20"
               disabled={isAuthenticating}
             >
               Recupera password
@@ -278,13 +310,14 @@ export function LoginForm() {
           </RecuperaPasswordDialog>
           <Button 
             asChild 
-            variant="link" 
+            variant="ghost" 
             size="sm" 
-            className="px-1 h-auto font-medium text-base py-2 min-h-[44px] focus:ring-2 focus:ring-ring"
+            className="text-sm font-medium py-2 px-4 rounded-lg hover:bg-muted/50 transition-colors min-h-[44px] focus:ring-2 focus:ring-primary/20"
             disabled={isAuthenticating}
           >
             <Link to="/assistenza" className="flex items-center">
-              <HelpCircle className="mr-2 h-4 w-4" /> Assistenza
+              <HelpCircle className="mr-2 h-4 w-4" /> 
+              Assistenza
             </Link>
           </Button>
         </div>
