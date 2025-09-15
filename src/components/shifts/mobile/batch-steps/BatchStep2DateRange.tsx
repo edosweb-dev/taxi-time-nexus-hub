@@ -36,8 +36,8 @@ export function BatchStep2DateRange({ control }: BatchStep2DateRangeProps) {
             Periodo
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-4">
+        <CardContent className="space-y-4 p-4">
+          <div className="space-y-4 w-full">
             <FormField
               control={control}
               name="startDate"
@@ -50,16 +50,18 @@ export function BatchStep2DateRange({ control }: BatchStep2DateRangeProps) {
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal min-w-0",
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? (
-                            format(field.value, "PPP", { locale: it })
-                          ) : (
-                            <span>Seleziona data</span>
-                          )}
-                          <CalendarDays className="ml-auto h-4 w-4 opacity-50" />
+                          <span className="truncate flex-1">
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: it })
+                            ) : (
+                              "Seleziona data"
+                            )}
+                          </span>
+                          <CalendarDays className="ml-2 h-4 w-4 opacity-50 flex-shrink-0" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
@@ -91,16 +93,18 @@ export function BatchStep2DateRange({ control }: BatchStep2DateRangeProps) {
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal min-w-0",
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? (
-                            format(field.value, "PPP", { locale: it })
-                          ) : (
-                            <span>Seleziona data</span>
-                          )}
-                          <CalendarDays className="ml-auto h-4 w-4 opacity-50" />
+                          <span className="truncate flex-1">
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: it })
+                            ) : (
+                              "Seleziona data"
+                            )}
+                          </span>
+                          <CalendarDays className="ml-2 h-4 w-4 opacity-50 flex-shrink-0" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
