@@ -160,11 +160,11 @@ export function LoginForm() {
               setEmailError(error);
             }}
             className={`
-              w-full px-4 py-4 text-base
+              w-full px-4 py-3 text-base
               border-2 rounded-xl
               focus:ring-0 focus:border-primary
               transition-all duration-200
-              min-h-[56px]
+              min-h-[52px]
               ${emailError ? 'border-destructive form-field-error' : 'border-border hover:border-primary/50'}
             `}
             disabled={isAuthenticating}
@@ -206,11 +206,11 @@ export function LoginForm() {
               setPasswordError(error);
             }}
             className={`
-              w-full px-4 py-4 pr-14 text-base
+              w-full px-4 py-3 pr-14 text-base
               border-2 rounded-xl
               focus:ring-0 focus:border-primary
               transition-all duration-200
-              min-h-[56px]
+              min-h-[52px]
               ${passwordError ? 'border-destructive form-field-error' : 'border-border hover:border-primary/50'}
             `}
             disabled={isAuthenticating}

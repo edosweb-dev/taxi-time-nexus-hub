@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global layout fixes - Prevent horizontal scroll */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 /* Typography system - mobile first approach */
 :root {
   /* Base colors - Professional design system */
@@ -120,8 +131,24 @@
   }
 }
 
-/* Mobile optimizations and safe areas */
+/* Login container optimization */
+.login-container {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Mobile layout fixes */
 @media (max-width: 640px) {
+  /* Prevent horizontal scroll on mobile */
+  .login-form-card {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  
   /* Enhance mobile input experience */
   input[type="email"],
   input[type="password"] {
@@ -136,7 +163,22 @@
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+}
+
+/* Desktop centering and optimization */
+@media (min-width: 641px) {
+  .login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
   }
+  
+  .login-form-card {
+    width: 100%;
+    max-width: 400px;
+  }
+}
   
   /* Modern glass morphism effects */
   .backdrop-blur-xl {
