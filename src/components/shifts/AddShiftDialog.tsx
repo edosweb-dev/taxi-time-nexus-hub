@@ -26,7 +26,7 @@ import {
   DateRangeFields
 } from './form-fields';
 import { ShiftFormData } from './types';
-import { MobileShiftFormWrapper, MobileStepShiftForm } from './mobile';
+import { MobileShiftFormWrapper, MobileShiftSelector } from './mobile';
 
 interface AddShiftDialogProps {
   open: boolean;
@@ -354,7 +354,7 @@ export function AddShiftDialog({
           : 'Inserisci i dettagli del nuovo turno.'}
       >
         {isMobile ? (
-          <MobileStepShiftForm
+          <MobileShiftSelector
             onSubmit={handleMobileSubmit}
             onCancel={handleMobileCancel}
             isAdminOrSocio={isAdminOrSocio}
