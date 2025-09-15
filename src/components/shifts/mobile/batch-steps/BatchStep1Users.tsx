@@ -20,6 +20,7 @@ interface BatchStep1UsersProps {
 
 export function BatchStep1Users({ control, users, isAdminOrSocio }: BatchStep1UsersProps) {
   if (!isAdminOrSocio) {
+    // If not admin/socio, automatically set current user
     return (
       <Card>
         <CardContent className="pt-6">

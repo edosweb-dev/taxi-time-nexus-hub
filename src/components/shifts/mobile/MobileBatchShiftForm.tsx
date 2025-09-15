@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { Form } from '@/components/ui/form';
 import { ShiftFormData, ShiftType, HalfDayType } from '../types';
 import { validateBatchShifts, createBatchShifts } from '../utils/batchValidation';
 import { BatchStep1Users } from './batch-steps/BatchStep1Users';
@@ -266,76 +267,80 @@ export function MobileBatchShiftForm({
         </CardHeader>
       </Card>
 
-      {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {currentStep === 1 && (
-          <BatchStep1Users 
-            control={form.control}
-            users={users}
-            isAdminOrSocio={isAdminOrSocio}
-          />
-        )}
-        {currentStep === 2 && (
-          <BatchStep2DateRange 
-            control={form.control}
-          />
-        )}
-        {currentStep === 3 && (
-          <BatchStep3ShiftType 
-            control={form.control}
-            watchShiftType={watchedValues.shiftType}
-          />
-        )}
-        {currentStep === 4 && (
-          <BatchStep4Preview 
-            shifts={generatedShifts}
-            users={users}
-            onRegenerate={generateShiftsPreview}
-          />
-        )}
-      </div>
-
-      {/* Navigation */}
-      <Card className="border-t rounded-t-none">
-        <CardContent className="p-4">
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={currentStep === 1 ? onCancel : handlePrev}
-              disabled={isLoading}
-              className="flex-1"
-            >
-              {currentStep === 1 ? (
-                "Annulla"
-              ) : (
-                <>
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Indietro
-                </>
-              )}
-            </Button>
-
-            <Button
-              type="button"
-              onClick={currentStep === STEPS.length ? handleSubmit : handleNext}
-              disabled={isLoading}
-              className="flex-1"
-            >
-              {isLoading ? (
-                "Creazione..."
-              ) : currentStep === STEPS.length ? (
-                `Crea ${generatedShifts.length} Turni`
-              ) : (
-                <>
-                  Avanti
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </>
-              )}
-            </Button>
+      {/* Form Content with Form Provider */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="flex-1 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-4">
+            {currentStep === 1 && (
+              <BatchStep1Users 
+                control={form.control}
+                users={users}
+                isAdminOrSocio={isAdminOrSocio}
+              />
+            )}
+            {currentStep === 2 && (
+              <BatchStep2DateRange 
+                control={form.control}
+              />
+            )}
+            {currentStep === 3 && (
+              <BatchStep3ShiftType 
+                control={form.control}
+                watchShiftType={watchedValues.shiftType}
+              />
+            )}
+            {currentStep === 4 && (
+              <BatchStep4Preview 
+                shifts={generatedShifts}
+                users={users}
+                onRegenerate={generateShiftsPreview}
+              />
+            )}
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Navigation */}
+          <Card className="border-t rounded-t-none">
+            <CardContent className="p-4">
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={currentStep === 1 ? onCancel : handlePrev}
+                  disabled={isLoading}
+                  className="flex-1"
+                >
+                  {currentStep === 1 ? (
+                    "Annulla"
+                  ) : (
+                    <>
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Indietro
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={currentStep === STEPS.length ? handleSubmit : handleNext}
+                  disabled={isLoading}
+                  className="flex-1"
+                >
+                  {isLoading ? (
+                    "Creazione..."
+                  ) : currentStep === STEPS.length ? (
+                    `Crea ${generatedShifts.length} Turni`
+                  ) : (
+                    <>
+                      Avanti
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+      </Form>
     </div>
   );
 }
