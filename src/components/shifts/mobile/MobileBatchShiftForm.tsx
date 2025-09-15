@@ -83,7 +83,7 @@ export function MobileBatchShiftForm({
   const form = useForm<BatchShiftFormValues>({
     resolver: zodResolver(batchShiftSchema),
     defaultValues: {
-      selectedUsers: [],
+      selectedUsers: isAdminOrSocio ? [] : [user?.id || ''],
       startDate: defaultDate || new Date(),
       endDate: defaultDate || new Date(),
       selectedDays: [1, 2, 3, 4, 5], // Monday to Friday by default
@@ -124,6 +124,8 @@ export function MobileBatchShiftForm({
   const validateCurrentStep = async (): Promise<boolean> => {
     switch (currentStep) {
       case 1:
+        // Se non è admin/socio, passa automaticamente (utente corrente preselezionato)
+        if (!isAdminOrSocio) return true;
         return await trigger('selectedUsers');
       case 2:
         return await trigger(['startDate', 'endDate', 'selectedDays']);
