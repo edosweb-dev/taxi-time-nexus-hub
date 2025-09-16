@@ -447,8 +447,8 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
 
           </div>
 
-          {/* Calendar Content - Full height with proper scroll */}
-          <div className="flex-1 min-h-0 h-full">
+          {/* Calendar Content - Full height */}
+          <div className="flex-1 overflow-hidden">
             <CalendarioView
               viewMode={viewMode}
               currentDate={currentDate}
