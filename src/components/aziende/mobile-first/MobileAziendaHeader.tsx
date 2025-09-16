@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, LayoutGrid, List } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 
 interface MobileAziendaHeaderProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  viewMode: "cards" | "table";
-  onViewModeChange: () => void;
   onAddAzienda: () => void;
   totalCount: number;
   filteredCount: number;
@@ -15,8 +13,6 @@ interface MobileAziendaHeaderProps {
 export function MobileAziendaHeader({
   searchTerm,
   onSearchChange,
-  viewMode,
-  onViewModeChange,
   onAddAzienda,
   totalCount,
   filteredCount,
@@ -35,21 +31,7 @@ export function MobileAziendaHeader({
       </div>
       
       {/* Actions row */}
-      <div className="flex items-center justify-between gap-2">
-        {/* View toggle - compact on mobile */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onViewModeChange}
-          className="px-3 shrink-0"
-        >
-          {viewMode === "cards" ? (
-            <List className="h-4 w-4" />
-          ) : (
-            <LayoutGrid className="h-4 w-4" />
-          )}
-        </Button>
-        
+      <div className="flex items-center justify-between gap-2">        
         {/* Results counter - hidden on very small screens */}
         {searchTerm && (
           <div className="text-xs text-muted-foreground hidden xs:block truncate">

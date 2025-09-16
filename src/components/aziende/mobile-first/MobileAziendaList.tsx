@@ -5,7 +5,6 @@ import { ReferentiDialog } from "../ReferentiDialog";
 import { Pagination } from "../Pagination";
 import { MobileAziendaHeader } from "./MobileAziendaHeader";
 import { MobileAziendaCard } from "./MobileAziendaCard";
-import { MobileAziendaTable } from "./MobileAziendaTable";
 import { Building2, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -27,7 +26,6 @@ export function MobileAziendaList({
 }: MobileAziendaListProps) {
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState<"cards" | "table">(isMobile ? "cards" : "table");
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,13 +33,6 @@ export function MobileAziendaList({
   const itemsPerPage = isMobile ? 8 : 12;
   
   const { data: referentiByAzienda = {} } = useAllReferenti();
-
-  // Update view mode based on screen size
-  useEffect(() => {
-    if (isMobile && viewMode === "table") {
-      setViewMode("cards");
-    }
-  }, [isMobile, viewMode]);
 
   const filteredAziende = useMemo(() => {
     if (!searchTerm) return aziende;
@@ -71,11 +62,6 @@ export function MobileAziendaList({
     setReferentiDialogOpen(true);
   };
 
-  const handleViewModeChange = () => {
-    // On mobile, always stay in cards mode
-    if (isMobile) return;
-    setViewMode(viewMode === "cards" ? "table" : "cards");
-  };
 
   // Empty state
   if (aziende.length === 0) {
@@ -102,8 +88,6 @@ export function MobileAziendaList({
         <MobileAziendaHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          viewMode={viewMode}
-          onViewModeChange={handleViewModeChange}
           onAddAzienda={onAddAzienda}
           totalCount={aziende.length}
           filteredCount={filteredAziende.length}
@@ -127,38 +111,25 @@ export function MobileAziendaList({
       <MobileAziendaHeader
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        viewMode={viewMode}
-        onViewModeChange={handleViewModeChange}
         onAddAzienda={onAddAzienda}
         totalCount={aziende.length}
         filteredCount={filteredAziende.length}
       />
 
-      {/* Content based on view mode */}
-      {viewMode === "cards" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {paginatedAziende.map((azienda) => (
-            <MobileAziendaCard
-              key={azienda.id}
-              azienda={azienda}
-              referentiCount={referentiByAzienda[azienda.id]?.length || 0}
-              onView={() => onView(azienda)}
-              onEdit={() => onEdit(azienda)}
-              onDelete={() => onDelete(azienda)}
-              onReferentiClick={() => handleReferentiClick(azienda)}
-            />
-          ))}
-        </div>
-      ) : (
-        <MobileAziendaTable
-          aziende={paginatedAziende}
-          referentiByAzienda={referentiByAzienda}
-          onView={onView}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onReferentiClick={handleReferentiClick}
-        />
-      )}
+      {/* Content - always cards view */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {paginatedAziende.map((azienda) => (
+          <MobileAziendaCard
+            key={azienda.id}
+            azienda={azienda}
+            referentiCount={referentiByAzienda[azienda.id]?.length || 0}
+            onView={() => onView(azienda)}
+            onEdit={() => onEdit(azienda)}
+            onDelete={() => onDelete(azienda)}
+            onReferentiClick={() => handleReferentiClick(azienda)}
+          />
+        ))}
+      </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
