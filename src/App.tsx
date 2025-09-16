@@ -36,8 +36,8 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  <div className="flex items-center justify-center min-h-screen w-full">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
   </div>
 );
 
