@@ -248,11 +248,11 @@ export function AssignmentPopup({
       
       {/* Action Footer */}
       <div className={`sticky bottom-0 ${isMobile ? 'px-4 py-2.5' : 'px-5 py-3'} border-t bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/90 shadow-sm`}>
-        <div className="flex w-full gap-2.5 max-w-full animate-fade-in">
+        <div className="flex justify-center gap-2 max-w-full animate-fade-in">
           <Button 
             variant="outline" 
             onClick={onClose} 
-            className="flex-1 h-9 text-sm font-medium border hover:bg-muted/50 transition-all duration-200 hover-scale"
+            className="w-24 h-9 text-sm font-medium border hover:bg-muted/50 transition-all duration-200"
             disabled={isSubmitting}
           >
             Annulla
@@ -260,15 +260,15 @@ export function AssignmentPopup({
           <Button 
             onClick={handleAssign}
             disabled={isAssignDisabled}
-            className="flex-1 h-9 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover-scale"
+            className="w-32 h-9 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Assegnazione...
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Assegna...
               </>
             ) : (
-              'Assegna Servizio'
+              'Assegna'
             )}
           </Button>
         </div>
