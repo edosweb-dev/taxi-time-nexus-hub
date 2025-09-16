@@ -31,14 +31,7 @@ export function MobileAziendaHeader({
       </div>
       
       {/* Actions row */}
-      <div className="flex items-center justify-between gap-2">        
-        {/* Results counter - hidden on very small screens */}
-        {searchTerm && (
-          <div className="text-xs text-muted-foreground hidden xs:block truncate">
-            {filteredCount} di {totalCount}
-          </div>
-        )}
-        
+      <div className="flex items-center justify-end gap-2">        
         {/* Add button - full text on larger screens, icon only on small */}
         <Button onClick={onAddAzienda} size="sm" className="shrink-0">
           <Plus className="h-4 w-4 sm:mr-2" />
@@ -46,9 +39,9 @@ export function MobileAziendaHeader({
         </Button>
       </div>
       
-      {/* Mobile results counter */}
+      {/* Results counter */}
       {searchTerm && (
-        <div className="text-xs text-muted-foreground xs:hidden">
+        <div className="text-xs text-muted-foreground">
           {filteredCount} di {totalCount} aziende
         </div>
       )}
