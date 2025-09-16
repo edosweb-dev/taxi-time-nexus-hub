@@ -204,7 +204,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
         />
       )}
 
-      <div className="flex flex-col h-[calc(100vh-160px)]">
+      <div className="flex flex-col min-h-0 flex-1">
         <div className="flex-1 flex flex-col overflow-hidden bg-background rounded-xl border border-border/50 shadow-sm min-h-0">
           {/* Header Controls compatto */}
           <div className="border-b bg-background/95 backdrop-blur-sm px-4 py-3 flex-shrink-0">
@@ -448,7 +448,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
           </div>
 
           {/* Calendar Content - Full height */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-auto min-h-[600px]">
             <CalendarioView
               viewMode={viewMode}
               currentDate={currentDate}

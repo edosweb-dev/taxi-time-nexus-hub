@@ -1,5 +1,5 @@
 import React from 'react';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday as isDateToday } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday as isDateToday, addDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Shift } from '@/components/shifts/types';
 import { Profile } from '@/lib/types';
@@ -16,11 +16,13 @@ interface MonthViewProps {
 
 export function MonthView({ currentDate, shifts, employees, onCreateShift, onEditShift }: MonthViewProps) {
   const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
   
-  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  // Force exactly 42 days (6 weeks complete)
+  const calendarDays = [];
+  for (let i = 0; i < 42; i++) {
+    calendarDays.push(addDays(calendarStart, i));
+  }
   const weekdays = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
   const getShiftsForDay = (date: Date) => {
