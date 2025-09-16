@@ -429,7 +429,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                       className="h-8 px-2 text-xs"
                     >
                       <Users className="h-3 w-3 mr-1" />
-                      Inserimento
+                       Inserimento massivo
                     </Button>
                     
                     <Button 
