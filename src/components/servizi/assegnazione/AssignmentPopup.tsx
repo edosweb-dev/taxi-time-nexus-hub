@@ -188,12 +188,12 @@ export function AssignmentPopup({
                   </div>
                 </div>
               ) : (
-                <div className="animate-scale-in">
+                <div>
                   <Select value={selectedDipendente} onValueChange={setSelectedDipendente}>
                     <SelectTrigger className="w-full h-9 text-sm border-border/50 hover:border-border transition-colors">
                       <SelectValue placeholder="Scegli un dipendente..." />
                     </SelectTrigger>
-                    <SelectContent className="max-h-[140px] animate-scale-in">
+                    <SelectContent className="max-h-32 w-full" side="bottom" align="start" sideOffset={4}>
                       {/* Available users first */}
                       {availableUsers.map((user) => (
                         <SelectItem key={user.id} value={user.id} className="py-1.5 hover:bg-accent/50 transition-colors">
@@ -233,7 +233,7 @@ export function AssignmentPopup({
                       ))}
                       
                       {users.length === 0 && (
-                        <div className="p-2.5 text-center text-xs text-muted-foreground animate-fade-in">
+                        <div className="p-2.5 text-center text-xs text-muted-foreground">
                           Nessun dipendente trovato
                         </div>
                       )}
