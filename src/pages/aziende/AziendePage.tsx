@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
+import { DesktopAziendaList } from '@/components/aziende/DesktopAziendaList';
 import { MobileAziendaList } from '@/components/aziende/mobile-first/MobileAziendaList';
 import { AziendaFormManager } from '@/components/aziende/AziendaFormManager';
 import { Button } from '@/components/ui/button';
@@ -68,13 +69,23 @@ export default function AziendePage() {
           <span className="font-medium text-foreground">Aziende</span>
         </nav>
 
-        <MobileAziendaList 
-          aziende={aziende}
-          onEdit={handleEditAzienda}
-          onDelete={handleDeleteAzienda}
-          onView={handleViewAzienda}
-          onAddAzienda={handleAddAzienda}
-        />
+        {isMobile ? (
+          <MobileAziendaList 
+            aziende={aziende}
+            onEdit={handleEditAzienda}
+            onDelete={handleDeleteAzienda}
+            onView={handleViewAzienda}
+            onAddAzienda={handleAddAzienda}
+          />
+        ) : (
+          <DesktopAziendaList 
+            aziende={aziende}
+            onEdit={handleEditAzienda}
+            onDelete={handleDeleteAzienda}
+            onView={handleViewAzienda}
+            onAddAzienda={handleAddAzienda}
+          />
+        )}
 
         <AziendaFormManager
           mode={isMobile ? 'sheet' : 'dialog'}
