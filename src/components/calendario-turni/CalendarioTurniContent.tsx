@@ -205,7 +205,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
       )}
 
       <div className="h-[calc(100vh-180px)] flex flex-col">
-        <div className="flex-1 overflow-hidden bg-background rounded-xl border border-border/50 shadow-sm">
+        <div className="flex-1 flex flex-col overflow-hidden bg-background rounded-xl border border-border/50 shadow-sm">
           {/* Header Controls compatto */}
           <div className="border-b bg-background/95 backdrop-blur-sm px-4 py-3 flex-shrink-0">
             {/* Mobile Layout - Ottimizzato */}
@@ -447,8 +447,8 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
 
           </div>
 
-          {/* Calendar Content - Massimo spazio */}
-          <div className="flex-1 overflow-hidden">
+          {/* Calendar Content - Massimo spazio con scroll ottimizzato */}
+          <div className="flex-1 min-h-0 overflow-auto">
             <CalendarioView
               viewMode={viewMode}
               currentDate={currentDate}

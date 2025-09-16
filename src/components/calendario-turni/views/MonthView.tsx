@@ -53,18 +53,18 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
 
   return (
     <div className="flex-1 overflow-auto bg-background h-full">
-      <div className="h-full flex flex-col">
+      <div className="min-h-full flex flex-col">
         {/* Header giorni della settimana - Compatto */}
-        <div className="grid grid-cols-7 border-b bg-muted/30 flex-shrink-0">
+        <div className="grid grid-cols-7 border-b bg-muted/30 flex-shrink-0 sticky top-0 z-10">
           {weekdays.map((day) => (
-            <div key={day} className="py-2 px-3 text-center font-semibold text-sm text-foreground/80 border-r last:border-r-0">
+            <div key={day} className="py-3 px-3 text-center font-semibold text-sm text-foreground/80 border-r last:border-r-0 bg-muted/30">
               {day}
             </div>
           ))}
         </div>
 
-        {/* Griglia calendario - Uso massimo spazio */}
-        <div className="grid grid-cols-7 auto-rows-fr flex-1 min-h-0">
+        {/* Griglia calendario - Righe con altezza minima e massima visibilità */}
+        <div className="grid grid-cols-7" style={{ gridTemplateRows: `repeat(${Math.ceil(calendarDays.length / 7)}, minmax(120px, 1fr))` }}>
           {calendarDays.map((date, index) => {
             const dayShifts = getShiftsForDay(date);
             const isCurrentMonth = isSameMonth(date, currentDate);
@@ -75,19 +75,20 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
               <div
                 key={date.toISOString()}
                 className={`
-                  group relative p-2 border-r border-b last:border-r-0 cursor-pointer 
+                  group relative p-3 border-r border-b last:border-r-0 cursor-pointer 
                   transition-all duration-200 ease-in-out hover:bg-accent/50 hover:shadow-sm
+                  min-h-[120px] flex flex-col
                   ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground hover:bg-muted/30' : 'bg-background'}
                   ${isTodayDate ? 'bg-primary/8 border-primary/30' : ''}
                   ${isWeekend && isCurrentMonth ? 'bg-muted/8' : ''}
                 `}
                 onClick={() => onCreateShift(date)}
               >
-                {/* Numero del giorno - Compatto */}
-                <div className="flex items-center justify-between mb-2">
+                {/* Numero del giorno - Più prominente */}
+                <div className="flex items-center justify-between mb-3 flex-shrink-0">
                   <div className={`
-                    text-sm font-medium transition-all duration-200 w-6 h-6 flex items-center justify-center rounded-md
-                    ${isTodayDate ? 'bg-primary text-primary-foreground font-semibold' : 'hover:bg-accent/50'}
+                    text-sm font-medium transition-all duration-200 w-7 h-7 flex items-center justify-center rounded-lg
+                    ${isTodayDate ? 'bg-primary text-primary-foreground font-semibold shadow-md' : 'hover:bg-accent/50'}
                   `}>
                     {format(date, 'd')}
                   </div>
@@ -99,44 +100,45 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                   )}
                 </div>
 
-                {/* Turni del giorno - Layout compatto */}
-                <div className="space-y-1">
-                  <div className="flex flex-wrap gap-1">{dayShifts.slice(0, 6).map((shift) => {
+                {/* Turni del giorno - Layout ottimizzato con scroll */}
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  <div className="space-y-1">
+                    {dayShifts.map((shift) => {
                       const user = getUserInfo(shift.user_id);
                       const userColor = user?.color || '#6B7280';
 
                       return (
                         <div
                           key={shift.id}
-                          className="group/shift relative"
+                          className="group/shift relative mb-1"
                           onClick={(e) => {
                             e.stopPropagation();
                             onEditShift(shift);
                           }}
                         >
-                          {/* Avatar compatto */}
+                          {/* Badge turno completo */}
                           <div
-                            className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold cursor-pointer 
-                                     transition-all duration-200 hover:scale-110 border border-white/20"
+                            className="w-full px-2 py-1 rounded-md text-xs font-medium cursor-pointer 
+                                     transition-all duration-200 hover:shadow-sm hover:scale-[1.02] border border-white/20"
                             style={{ 
                               backgroundColor: userColor,
                               color: 'white'
                             }}
                             title={`${user?.first_name} ${user?.last_name} - ${getShiftTypeLabel(shift)}`}
                           >
-                            {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
+                            <div className="flex items-center justify-between">
+                              <span className="truncate font-semibold">
+                                {user?.first_name} {user?.last_name?.[0]}.
+                              </span>
+                              <span className="text-xs opacity-90 ml-1">
+                                {shift.shift_type === 'specific_hours' && shift.start_time ? shift.start_time.substring(0, 5) : ''}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  
-                  {/* Contatore compatto */}
-                  {dayShifts.length > 6 && (
-                    <div className="text-xs text-muted-foreground text-center bg-muted/50 px-1 py-0.5 rounded">
-                      +{dayShifts.length - 6}
-                    </div>
-                  )}
                 </div>
               </div>
             );
