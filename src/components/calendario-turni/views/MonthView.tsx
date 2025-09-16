@@ -52,8 +52,8 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
   };
 
   return (
-    <div className="h-auto min-h-[600px] max-h-[calc(100vh-200px)] overflow-y-auto bg-background">
-      <div className="h-full flex flex-col">
+    <div className="flex-1 overflow-auto bg-background h-full">
+      <div className="min-h-full flex flex-col">
         {/* Header giorni della settimana - Compatto */}
         <div className="grid grid-cols-7 border-b bg-muted/30 flex-shrink-0 sticky top-0 z-10">
           {weekdays.map((day) => (
@@ -63,8 +63,8 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
           ))}
         </div>
 
-        {/* Griglia calendario - 6 righe fisse per garantire visibilità completa */}
-        <div className="flex-1 grid grid-cols-7 auto-rows-fr min-h-[500px]">
+        {/* Griglia calendario - Righe con altezza minima e massima visibilità */}
+        <div className="grid grid-cols-7" style={{ gridTemplateRows: `repeat(${Math.ceil(calendarDays.length / 7)}, minmax(140px, 1fr))` }}>
           {calendarDays.map((date, index) => {
             const dayShifts = getShiftsForDay(date);
             const isCurrentMonth = isSameMonth(date, currentDate);
@@ -75,9 +75,9 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
               <div
                 key={date.toISOString()}
                 className={`
-                  group relative p-3 border-r border-b cursor-pointer 
+                  group relative p-3 border-r border-b last:border-r-0 cursor-pointer 
                   transition-all duration-200 ease-in-out hover:bg-accent/50 hover:shadow-sm
-                  h-full min-h-[100px] flex flex-col
+                  min-h-[140px] flex flex-col
                   ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground hover:bg-muted/30' : 'bg-background'}
                   ${isTodayDate ? 'bg-primary/8 border-primary/30' : ''}
                   ${isWeekend && isCurrentMonth ? 'bg-muted/8' : ''}
