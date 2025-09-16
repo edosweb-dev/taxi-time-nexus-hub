@@ -64,7 +64,7 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
         </div>
 
         {/* Griglia calendario - 6 righe fisse per garantire visibilità completa */}
-        <div className="flex-1 grid grid-cols-7 grid-rows-6 gap-0 min-h-[500px]">
+        <div className="flex-1 grid grid-cols-7 auto-rows-fr min-h-[500px]">
           {calendarDays.map((date, index) => {
             const dayShifts = getShiftsForDay(date);
             const isCurrentMonth = isSameMonth(date, currentDate);
