@@ -146,20 +146,14 @@ export function AssignmentPopup({
         {/* Driver Type Selection */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-foreground">Tipo di conducente</Label>
-          <div className="flex items-center justify-between p-2.5 bg-muted/20 rounded-lg border border-border/30 hover:bg-muted/30 transition-all duration-200 hover-scale">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium text-foreground">Conducente Esterno</span>
-              <span className="text-xs text-muted-foreground">
-                {isConducenteEsterno ? 'Esterno selezionato' : 'Dipendente selezionato'}
-              </span>
-            </div>
-            <Switch 
-              id="conducente-esterno" 
-              checked={isConducenteEsterno}
-              onCheckedChange={setIsConducenteEsterno}
-              className="data-[state=checked]:bg-primary scale-90"
-            />
-          </div>
+           <div className="flex items-center justify-between p-2 rounded border">
+             <span className="text-sm">Conducente Esterno</span>
+             <Switch 
+               id="conducente-esterno" 
+               checked={isConducenteEsterno}
+               onCheckedChange={setIsConducenteEsterno}
+             />
+           </div>
         </div>
         
         {/* Selection Area */}
