@@ -69,17 +69,11 @@ export default function AziendePage() {
             <span className="font-medium text-foreground">Aziende</span>
           </nav>
           
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="page-title">Aziende</h1>
-              <p className="text-description hidden sm:block">
-                Gestisci le aziende clienti
-              </p>
-            </div>
-            <Button onClick={handleAddAzienda}>
-              <Building2 className="h-4 w-4 mr-2" />
-              Nuova Azienda
-            </Button>
+          <div>
+            <h1 className="page-title">Aziende</h1>
+            <p className="text-description hidden sm:block">
+              Gestisci le aziende clienti
+            </p>
           </div>
         </div>
 
