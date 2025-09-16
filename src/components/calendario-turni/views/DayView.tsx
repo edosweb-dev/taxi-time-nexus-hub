@@ -72,7 +72,7 @@ export function DayView({ currentDate, shifts, employees, onCreateShift, onEditS
                       {user?.first_name} {user?.last_name}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Dipendente • {user?.role}
+                      {user?.role}
                     </div>
                   </div>
                 </div>
