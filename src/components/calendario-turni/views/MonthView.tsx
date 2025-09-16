@@ -62,8 +62,8 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
         ))}
       </div>
 
-      {/* Griglia calendario - Mostra tutti i giorni del mese */}
-      <div className="flex-1 grid grid-cols-7" style={{ gridTemplateRows: `repeat(6, 1fr)` }}>
+      {/* Griglia calendario - 6 settimane complete con giorni adiacenti */}
+      <div className="flex-1 grid grid-cols-7 grid-rows-6 min-h-0">
         {calendarDays.map((date, index) => {
           const dayShifts = getShiftsForDay(date);
           const isCurrentMonth = isSameMonth(date, currentDate);
