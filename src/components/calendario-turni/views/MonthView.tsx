@@ -100,45 +100,45 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                   )}
                 </div>
 
-                {/* Turni del giorno - Layout ottimizzato con scroll */}
-                <div className="flex-1 min-h-0 overflow-y-auto">
-                  <div className="space-y-1">
-                    {dayShifts.map((shift) => {
+                {/* Turni del giorno - Layout ottimizzato con cerchietti */}
+                <div className="flex-1 min-h-0">
+                  <div className="flex flex-wrap gap-1">
+                    {dayShifts.slice(0, 8).map((shift) => {
                       const user = getUserInfo(shift.user_id);
                       const userColor = user?.color || '#6B7280';
 
                       return (
                         <div
                           key={shift.id}
-                          className="group/shift relative mb-1"
+                          className="group/shift relative"
                           onClick={(e) => {
                             e.stopPropagation();
                             onEditShift(shift);
                           }}
                         >
-                          {/* Badge turno completo */}
+                          {/* Avatar cerchietto compatto */}
                           <div
-                            className="w-full px-2 py-1 rounded-md text-xs font-medium cursor-pointer 
-                                     transition-all duration-200 hover:shadow-sm hover:scale-[1.02] border border-white/20"
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer 
+                                     transition-all duration-200 hover:scale-110 hover:shadow-md border border-white/30"
                             style={{ 
                               backgroundColor: userColor,
                               color: 'white'
                             }}
                             title={`${user?.first_name} ${user?.last_name} - ${getShiftTypeLabel(shift)}`}
                           >
-                            <div className="flex items-center justify-between">
-                              <span className="truncate font-semibold">
-                                {user?.first_name} {user?.last_name?.[0]}.
-                              </span>
-                              <span className="text-xs opacity-90 ml-1">
-                                {shift.shift_type === 'specific_hours' && shift.start_time ? shift.start_time.substring(0, 5) : ''}
-                              </span>
-                            </div>
+                            {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
                           </div>
                         </div>
                       );
                     })}
-                  </div>
+                    
+                    {/* Contatore per turni extra */}
+                    {dayShifts.length > 8 && (
+                      <div className="w-6 h-6 rounded-full bg-muted text-muted-foreground text-xs font-bold flex items-center justify-center border border-border">
+                        +{dayShifts.length - 8}
+                      </div>
+                    )}
+                   </div>
                 </div>
               </div>
             );
