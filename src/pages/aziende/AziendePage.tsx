@@ -61,21 +61,12 @@ export default function AziendePage() {
       showBottomNav={true}
     >
       <div className="space-y-6">
-        {/* Header with breadcrumb and controls */}
-        <div className="space-y-4">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">Aziende</span>
-          </nav>
-          
-          <div>
-            <h1 className="page-title">Aziende</h1>
-            <p className="text-description hidden sm:block">
-              Gestisci le aziende clienti
-            </p>
-          </div>
-        </div>
+        {/* Header with breadcrumb */}
+        <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <Home className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" />
+          <span className="font-medium text-foreground">Aziende</span>
+        </nav>
 
         <MobileAziendaList 
           aziende={aziende}
