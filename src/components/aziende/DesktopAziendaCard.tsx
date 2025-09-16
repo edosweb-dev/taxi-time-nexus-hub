@@ -75,34 +75,34 @@ export function DesktopAziendaCard({
           <span>{referentiCount} referenti</span>
         </div>
         
-        {/* Action buttons - always visible on desktop */}
+        {/* Action buttons - icon only for space optimization */}
         <div className="flex gap-2 pt-4 border-t">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={onView}
             className="flex-1 hover:bg-primary hover:text-primary-foreground transition-colors"
+            title="Visualizza azienda"
           >
-            <Eye className="h-4 w-4 mr-2" />
-            Visualizza
+            <Eye className="h-4 w-4" />
           </Button>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={onEdit}
             className="flex-1 hover:bg-blue-500 hover:text-white transition-colors"
+            title="Modifica azienda"
           >
-            <Edit className="h-4 w-4 mr-2" />
-            Modifica
+            <Edit className="h-4 w-4" />
           </Button>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={onDelete}
             className="flex-1 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+            title="Elimina azienda"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Elimina
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
         
