@@ -1,0 +1,2 @@
+// Re-export all aziende API functions and types from the aziende module
+export { getAziende, getAziendaById, createAzienda, updateAzienda, deleteAzienda, type AziendaFormData } from './aziende/index';
