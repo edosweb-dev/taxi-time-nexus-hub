@@ -2,23 +2,39 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { MobileAziendaList } from '@/components/aziende/mobile-first/MobileAziendaList';
-import { AziendaSheet } from '@/components/aziende/AziendaSheet';
-import { ChevronRight, Home } from 'lucide-react';
+import { AziendaTableView } from '@/components/aziende/AziendaTableView';
+import { AziendaFormManager } from '@/components/aziende/AziendaFormManager';
+import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { ChevronRight, Home, ArrowLeft, Grid3X3, List, Building2 } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
 import { Azienda } from '@/lib/types';
 import { AziendaFormData } from '@/lib/api/aziende';
-import { toast } from '@/components/ui/use-toast';
-import { createAzienda, updateAzienda, deleteAzienda } from '@/lib/api/aziende';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function AziendePage() {
   const navigate = useNavigate();
-  const { aziende, refetch } = useAziende();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { aziende, createCompany, updateCompany, deleteCompany, isCreating, isUpdating, isDeleting } = useAziende();
+  const isMobile = useIsMobile();
+  
+  // View mode state
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    return localStorage.getItem('aziende-view-mode') as 'grid' | 'list' || 'grid';
+  });
+  
+  // Form state
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Update view mode with persistence
+  const updateViewMode = (mode: 'grid' | 'list') => {
+    setViewMode(mode);
+    localStorage.setItem('aziende-view-mode', mode);
+  };
 
   const handleAddAzienda = () => {
-    navigate('/nuova-azienda');
+    setSelectedAzienda(null);
+    setIsFormOpen(true);
   };
 
   const handleViewAzienda = (azienda: Azienda) => {
@@ -27,76 +43,118 @@ export default function AziendePage() {
 
   const handleEditAzienda = (azienda: Azienda) => {
     setSelectedAzienda(azienda);
-    setIsSheetOpen(true);
+    setIsFormOpen(true);
   };
 
-  const handleDeleteAzienda = async (azienda: Azienda) => {
+  const handleDeleteAzienda = (azienda: Azienda) => {
     if (confirm('Sei sicuro di voler eliminare questa azienda?')) {
-      try {
-        await deleteAzienda(azienda.id);
-        toast({
-          title: "Azienda eliminata",
-          description: "L'azienda è stata eliminata con successo.",
-        });
-        refetch();
-      } catch (error) {
-        toast({
-          title: "Errore",
-          description: "Si è verificato un errore durante l'eliminazione dell'azienda.",
-          variant: "destructive",
-        });
-      }
+      deleteCompany(azienda.id);
     }
   };
 
-  const handleSubmit = async (data: AziendaFormData) => {
-    try {
-      setIsSubmitting(true);
-      if (selectedAzienda) {
-        await updateAzienda(selectedAzienda.id, data);
-        toast({
-          title: "Azienda aggiornata",
-          description: "L'azienda è stata aggiornata con successo.",
-        });
-      } else {
-        await createAzienda(data);
-        toast({
-          title: "Azienda creata",
-          description: "L'azienda è stata creata con successo.",
-        });
-      }
-      setIsSheetOpen(false);
-      refetch();
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio dell'azienda.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+  const handleFormSubmit = (data: AziendaFormData) => {
+    if (selectedAzienda) {
+      updateCompany(selectedAzienda.id, data);
+    } else {
+      createCompany(data);
     }
+    setIsFormOpen(false);
+    setSelectedAzienda(null);
   };
 
+  const handleFormCancel = () => {
+    setIsFormOpen(false);
+    setSelectedAzienda(null);
+  };
+
+  // Vista Lista = Full-page (no sidebar)
+  if (viewMode === 'list') {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-40 bg-background border-b">
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => updateViewMode('grid')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Torna a Griglia
+              </Button>
+              <h1 className="text-xl font-semibold">Aziende - Vista Lista</h1>
+            </div>
+            <Button onClick={handleAddAzienda}>
+              <Building2 className="h-4 w-4 mr-2" />
+              Nuova Azienda
+            </Button>
+          </div>
+        </div>
+        <div className="px-6 py-6">
+          <AziendaTableView
+            onEdit={handleEditAzienda}
+            onDelete={handleDeleteAzienda}
+            onView={handleViewAzienda}
+            onAddAzienda={handleAddAzienda}
+          />
+        </div>
+        
+        <AziendaFormManager
+          mode={isMobile ? 'sheet' : 'dialog'}
+          isOpen={isFormOpen}
+          onOpenChange={setIsFormOpen}
+          onSubmit={handleFormSubmit}
+          azienda={selectedAzienda}
+          isSubmitting={isCreating || isUpdating}
+        />
+      </div>
+    );
+  }
+
+  // Vista Griglia = Layout standard con sidebar
   return (
     <MainLayout 
       title="Aziende" 
       showBottomNav={true}
     >
-      <div className="space-y-4">
-        {/* Header mobile-first */}
-        <div className="space-y-3">
+      <div className="space-y-6">
+        {/* Header with breadcrumb and controls */}
+        <div className="space-y-4">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
             <Home className="h-4 w-4" />
             <ChevronRight className="h-4 w-4" />
             <span className="font-medium text-foreground">Aziende</span>
           </nav>
           
-          <div>
-            <h1 className="page-title">Aziende</h1>
-            <p className="text-description hidden sm:block">
-              Gestisci le aziende clienti
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="page-title">Aziende</h1>
+              <p className="text-description hidden sm:block">
+                Gestisci le aziende clienti
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {!isMobile && (
+                <ToggleGroup 
+                  type="single" 
+                  value={viewMode} 
+                  onValueChange={(value) => value && updateViewMode(value as 'grid' | 'list')}
+                  className="border"
+                >
+                  <ToggleGroupItem value="grid" className="px-3">
+                    <Grid3X3 className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="list" className="px-3">
+                    <List className="h-4 w-4" />
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              )}
+              <Button onClick={handleAddAzienda}>
+                <Building2 className="h-4 w-4 mr-2" />
+                Nuova Azienda
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -108,12 +166,13 @@ export default function AziendePage() {
           onAddAzienda={handleAddAzienda}
         />
 
-        <AziendaSheet
-          isOpen={isSheetOpen}
-          onOpenChange={setIsSheetOpen}
-          onSubmit={handleSubmit}
+        <AziendaFormManager
+          mode={isMobile ? 'sheet' : 'dialog'}
+          isOpen={isFormOpen}
+          onOpenChange={setIsFormOpen}
+          onSubmit={handleFormSubmit}
           azienda={selectedAzienda}
-          isSubmitting={isSubmitting}
+          isSubmitting={isCreating || isUpdating}
         />
       </div>
     </MainLayout>
