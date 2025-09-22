@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { LogIn, HelpCircle, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
@@ -160,19 +158,20 @@ export function LoginForm() {
               setEmailError(error);
             }}
             className={`
-              w-full px-4 py-3 text-base
+              w-full px-4 py-3
               border rounded-lg
               bg-background text-foreground
               placeholder:text-muted-foreground
               focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
               transition-all duration-200
-              min-h-[48px]
               ${emailError ? 'border-destructive' : 'border-border'}
             `}
             style={{
-              fontSize: '16px',
-              minHeight: '48px',
-              WebkitTextSizeAdjust: '100%'
+              fontSize: '16px !important',
+              minHeight: '48px !important',
+              WebkitTextSizeAdjust: '100%',
+              WebkitAppearance: 'none',
+              zoom: 'normal'
             }}
             disabled={isAuthenticating}
             autoComplete="email"
@@ -202,33 +201,32 @@ export function LoginForm() {
                 setPasswordError(error);
               }}
               className={`
-                w-full px-4 py-3 pr-12 text-base
+                w-full px-4 py-3 pr-12
                 border rounded-lg
                 bg-background text-foreground
                 placeholder:text-muted-foreground
                 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
                 transition-all duration-200
-                min-h-[48px]
                 ${passwordError ? 'border-destructive' : 'border-border'}
               `}
               style={{
-                fontSize: '16px',
-                minHeight: '48px',
-                WebkitTextSizeAdjust: '100%'
+                fontSize: '16px !important',
+                minHeight: '48px !important',
+                WebkitTextSizeAdjust: '100%',
+                WebkitAppearance: 'none',
+                zoom: 'normal'
               }}
               disabled={isAuthenticating}
               autoComplete="current-password"
             />
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation rounded-md flex items-center justify-center transition-colors"
               style={{
-                width: '44px',
-                height: '44px',
-                minWidth: '44px',
-                minHeight: '44px'
+                width: '44px !important',
+                height: '44px !important',
+                minWidth: '44px !important',
+                minHeight: '44px !important'
               }}
               onClick={() => setShowPassword(!showPassword)}
               disabled={isAuthenticating}
@@ -239,7 +237,7 @@ export function LoginForm() {
               ) : (
                 <Eye className="h-5 w-5" />
               )}
-            </Button>
+            </button>
           </div>
           {passwordError && (
             <p className="text-xs text-destructive animate-fade-in">{passwordError}</p>
@@ -247,22 +245,26 @@ export function LoginForm() {
         </div>
 
         {/* Remember me checkbox */}
-        <div className="flex items-center touch-manipulation">
-          <label 
-            htmlFor="rememberMe" 
-            className="flex items-center cursor-pointer text-foreground"
-            style={{ padding: '12px', margin: '-12px' }}
-          >
-            <Checkbox 
-              id="rememberMe" 
-              checked={rememberMe}
-              onCheckedChange={(checked) => setRememberMe(checked === true)}
-              className="w-5 h-5 mr-3"
-              disabled={isAuthenticating}
-            />
-            <span className="text-sm font-medium">Ricorda credenziali</span>
-          </label>
-        </div>
+        <label 
+          htmlFor="rememberMe" 
+          className="flex items-center cursor-pointer text-foreground touch-manipulation"
+          style={{ 
+            padding: '16px !important', 
+            margin: '-16px !important',
+            minHeight: '44px !important',
+            minWidth: '44px !important'
+          }}
+        >
+          <input
+            id="rememberMe"
+            type="checkbox" 
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="w-5 h-5 mr-3 cursor-pointer"
+            disabled={isAuthenticating}
+          />
+          <span className="text-sm font-medium">Ricorda credenziali</span>
+        </label>
 
         {/* Login button */}
         <Button 
