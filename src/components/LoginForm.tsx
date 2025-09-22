@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { MobileInput } from '@/components/ui/mobile-input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { LogIn, HelpCircle, Eye, EyeOff } from 'lucide-react';
@@ -146,7 +146,7 @@ export function LoginForm() {
           <Label htmlFor="email" className="text-sm font-medium text-foreground">
             Email
           </Label>
-          <Input
+          <MobileInput
             id="email"
             type="email"
             placeholder="nome@azienda.com"
@@ -160,7 +160,7 @@ export function LoginForm() {
               setEmailError(error);
             }}
             className={`
-              w-full px-4 py-3 text-base sm:text-sm
+              w-full px-4 py-3 text-base
               border rounded-lg
               bg-background text-foreground
               placeholder:text-muted-foreground
@@ -172,6 +172,8 @@ export function LoginForm() {
             disabled={isAuthenticating}
             autoComplete="email"
             inputMode="email"
+            preventZoom={true}
+            fluid={true}
           />
           {emailError && (
             <p className="text-xs text-destructive animate-fade-in">{emailError}</p>
@@ -184,7 +186,7 @@ export function LoginForm() {
             Password
           </Label>
           <div className="relative">
-            <Input
+            <MobileInput
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
@@ -197,7 +199,7 @@ export function LoginForm() {
                 setPasswordError(error);
               }}
               className={`
-                w-full px-4 py-3 pr-12 text-base sm:text-sm
+                w-full px-4 py-3 pr-12 text-base
                 border rounded-lg
                 bg-background text-foreground
                 placeholder:text-muted-foreground
@@ -208,14 +210,17 @@ export function LoginForm() {
               `}
               disabled={isAuthenticating}
               autoComplete="current-password"
+              preventZoom={true}
+              fluid={true}
             />
             <Button
               type="button"
               variant="ghost"
-              size="sm"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground"
+              size="icon"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 h-11 w-11 min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground touch-manipulation"
               onClick={() => setShowPassword(!showPassword)}
               disabled={isAuthenticating}
+              aria-label={showPassword ? "Nascondi password" : "Mostra password"}
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
@@ -230,7 +235,7 @@ export function LoginForm() {
         </div>
 
         {/* Remember me checkbox */}
-        <div className="flex items-center">
+        <div className="flex items-center space-x-3 p-2 -m-2 touch-manipulation">
           <Checkbox 
             id="rememberMe" 
             checked={rememberMe}
@@ -240,7 +245,7 @@ export function LoginForm() {
           />
           <Label 
             htmlFor="rememberMe" 
-            className="ml-3 text-sm font-medium cursor-pointer text-foreground"
+            className="text-sm font-medium cursor-pointer text-foreground flex-1"
           >
             Ricorda credenziali
           </Label>
@@ -249,7 +254,7 @@ export function LoginForm() {
         {/* Login button */}
         <Button 
           type="submit" 
-          className="w-full py-3.5 px-4 text-base sm:text-sm font-semibold min-h-[48px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 flex items-center justify-center" 
+          className="w-full py-3.5 px-4 text-base font-semibold min-h-[48px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 flex items-center justify-center touch-manipulation" 
           disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
         >
           {loading || isAuthenticating ? (
