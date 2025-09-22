@@ -127,12 +127,12 @@ export function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-8">
-      <div className="max-w-md mx-auto">
+    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-8 flex flex-col justify-center">
+      <div className="max-w-md mx-auto w-full">
 
         {/* CARD BIANCA - QUI VA TUTTO IL FORM */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-hidden">
+          <form onSubmit={handleLogin} className="space-y-4 w-full">
             
             {/* Progressive Loading Bar */}
             {isAuthenticating && (
