@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { MobileInput } from '@/components/ui/mobile-input';
+
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { LogIn, HelpCircle, Eye, EyeOff } from 'lucide-react';
@@ -146,7 +146,7 @@ export function LoginForm() {
           <Label htmlFor="email" className="text-sm font-medium text-foreground">
             Email
           </Label>
-          <MobileInput
+          <input
             id="email"
             type="email"
             placeholder="nome@azienda.com"
@@ -169,11 +169,14 @@ export function LoginForm() {
               min-h-[48px]
               ${emailError ? 'border-destructive' : 'border-border'}
             `}
+            style={{
+              fontSize: '16px',
+              minHeight: '48px',
+              WebkitTextSizeAdjust: '100%'
+            }}
             disabled={isAuthenticating}
             autoComplete="email"
             inputMode="email"
-            preventZoom={true}
-            fluid={true}
           />
           {emailError && (
             <p className="text-xs text-destructive animate-fade-in">{emailError}</p>
@@ -186,7 +189,7 @@ export function LoginForm() {
             Password
           </Label>
           <div className="relative">
-            <MobileInput
+            <input
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
@@ -208,16 +211,25 @@ export function LoginForm() {
                 min-h-[48px]
                 ${passwordError ? 'border-destructive' : 'border-border'}
               `}
+              style={{
+                fontSize: '16px',
+                minHeight: '48px',
+                WebkitTextSizeAdjust: '100%'
+              }}
               disabled={isAuthenticating}
               autoComplete="current-password"
-              preventZoom={true}
-              fluid={true}
             />
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 h-11 w-11 min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground touch-manipulation"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation"
+              style={{
+                width: '44px',
+                height: '44px',
+                minWidth: '44px',
+                minHeight: '44px'
+              }}
               onClick={() => setShowPassword(!showPassword)}
               disabled={isAuthenticating}
               aria-label={showPassword ? "Nascondi password" : "Mostra password"}
@@ -235,20 +247,21 @@ export function LoginForm() {
         </div>
 
         {/* Remember me checkbox */}
-        <div className="flex items-center space-x-3 p-2 -m-2 touch-manipulation">
-          <Checkbox 
-            id="rememberMe" 
-            checked={rememberMe}
-            onCheckedChange={(checked) => setRememberMe(checked === true)}
-            className="w-5 h-5 cursor-pointer"
-            disabled={isAuthenticating}
-          />
-          <Label 
+        <div className="flex items-center touch-manipulation">
+          <label 
             htmlFor="rememberMe" 
-            className="text-sm font-medium cursor-pointer text-foreground flex-1"
+            className="flex items-center cursor-pointer text-foreground"
+            style={{ padding: '12px', margin: '-12px' }}
           >
-            Ricorda credenziali
-          </Label>
+            <Checkbox 
+              id="rememberMe" 
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked === true)}
+              className="w-5 h-5 mr-3"
+              disabled={isAuthenticating}
+            />
+            <span className="text-sm font-medium">Ricorda credenziali</span>
+          </label>
         </div>
 
         {/* Login button */}
