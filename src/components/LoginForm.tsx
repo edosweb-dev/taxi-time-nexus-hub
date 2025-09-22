@@ -127,7 +127,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="mx-5 sm:mx-8 max-w-sm sm:max-w-md w-full bg-white/95 backdrop-blur-xl border border-border/50 rounded-2xl p-6 sm:p-8 shadow-xl">
+    <div className="mx-5 sm:mx-8 max-w-sm sm:max-w-md w-full bg-white/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl" style={{ padding: '30px' }}>
       <form onSubmit={handleLogin} className="space-y-6 login-form auth-enter">
         {/* Progressive Loading Bar */}
         {isAuthenticating && (
