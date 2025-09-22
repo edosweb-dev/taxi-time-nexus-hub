@@ -127,194 +127,202 @@ export function LoginForm() {
   };
 
   return (
-    <div className="mx-5 sm:mx-8 max-w-sm sm:max-w-md w-full bg-white/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl" style={{ padding: '30px' }}>
-      <form onSubmit={handleLogin} className="space-y-6 login-form auth-enter">
-        {/* Progressive Loading Bar */}
-        {isAuthenticating && (
-          <div className="w-full bg-muted/30 rounded-full h-1.5 mb-6 overflow-hidden">
-            <div 
-              className="login-progress h-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow transition-all duration-300"
-              style={{ width: `${authProgress}%` }}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex items-center justify-center min-h-screen px-6 py-12">
+        <div className="w-full max-w-md space-y-8">
+          
+          {/* Logo Section - Outside the card */}
+          <div className="text-center">
+            <div className="mx-auto h-16 w-16 bg-primary rounded-full flex items-center justify-center mb-4">
+              <span className="text-2xl font-bold text-primary-foreground">T</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900">Benvenuto</h2>
+            <p className="text-gray-600 mt-2">Accedi al tuo account</p>
           </div>
-        )}
 
-        {/* Email Field */}
-        <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium text-foreground">
-            Email
-          </Label>
-          <input
-            id="email"
-            type="email"
-            placeholder="nome@azienda.com"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (emailError) setEmailError(null);
-            }}
-            onBlur={() => {
-              const error = validateEmail(email);
-              setEmailError(error);
-            }}
-            className={`
-              w-full px-4 py-3
-              border rounded-lg
-              bg-background text-foreground
-              placeholder:text-muted-foreground
-              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-              transition-all duration-200
-              ${emailError ? 'border-destructive' : 'border-border'}
-            `}
-            style={{
-              fontSize: '16px !important',
-              minHeight: '48px !important',
-              WebkitTextSizeAdjust: '100%',
-              WebkitAppearance: 'none',
-              zoom: 'normal'
-            }}
-            disabled={isAuthenticating}
-            autoComplete="email"
-            inputMode="email"
-          />
-          {emailError && (
-            <p className="text-xs text-destructive animate-fade-in">{emailError}</p>
-          )}
-        </div>
-
-        {/* Password Field */}
-        <div className="space-y-2">
-          <Label htmlFor="password" className="text-sm font-medium text-foreground">
-            Password
-          </Label>
-          <div className="relative">
-            <input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (passwordError) setPasswordError(null);
-              }}
-              onBlur={() => {
-                const error = validatePassword(password);
-                setPasswordError(error);
-              }}
-              className={`
-                w-full px-4 py-3 pr-12
-                border rounded-lg
-                bg-background text-foreground
-                placeholder:text-muted-foreground
-                focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                transition-all duration-200
-                ${passwordError ? 'border-destructive' : 'border-border'}
-              `}
-              style={{
-                fontSize: '16px !important',
-                minHeight: '48px !important',
-                WebkitTextSizeAdjust: '100%',
-                WebkitAppearance: 'none',
-                zoom: 'normal'
-              }}
-              disabled={isAuthenticating}
-              autoComplete="current-password"
-            />
-            <button
-              type="button"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation rounded-md flex items-center justify-center transition-colors"
-              style={{
-                width: '44px !important',
-                height: '44px !important',
-                minWidth: '44px !important',
-                minHeight: '44px !important'
-              }}
-              onClick={() => setShowPassword(!showPassword)}
-              disabled={isAuthenticating}
-              aria-label={showPassword ? "Nascondi password" : "Mostra password"}
-            >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" />
-              ) : (
-                <Eye className="h-5 w-5" />
+          {/* LOGIN CARD - Form inside */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+            <form onSubmit={handleLogin} className="space-y-6 login-form auth-enter">
+              {/* Progressive Loading Bar */}
+              {isAuthenticating && (
+                <div className="w-full bg-muted/30 rounded-full h-1.5 mb-6 overflow-hidden">
+                  <div 
+                    className="login-progress h-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow transition-all duration-300"
+                    style={{ width: `${authProgress}%` }}
+                  />
+                </div>
               )}
-            </button>
-          </div>
-          {passwordError && (
-            <p className="text-xs text-destructive animate-fade-in">{passwordError}</p>
-          )}
-        </div>
 
-        {/* Remember me checkbox */}
-        <label 
-          htmlFor="rememberMe" 
-          className="flex items-center cursor-pointer text-foreground touch-manipulation"
-          style={{ 
-            padding: '16px !important', 
-            margin: '-16px !important',
-            minHeight: '44px !important',
-            minWidth: '44px !important'
-          }}
-        >
-          <input
-            id="rememberMe"
-            type="checkbox" 
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            className="w-5 h-5 mr-3 cursor-pointer"
-            disabled={isAuthenticating}
-          />
-          <span className="text-sm font-medium">Ricorda credenziali</span>
-        </label>
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                  Email
+                </Label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="nome@azienda.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError(null);
+                  }}
+                  onBlur={() => {
+                    const error = validateEmail(email);
+                    setEmailError(error);
+                  }}
+                  className={`
+                    w-full px-4 py-3
+                    border rounded-lg
+                    bg-background text-foreground
+                    placeholder:text-muted-foreground
+                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
+                    transition-all duration-200
+                    ${emailError ? 'border-destructive' : 'border-border'}
+                  `}
+                  style={{
+                    fontSize: '16px !important',
+                    minHeight: '48px !important',
+                    WebkitTextSizeAdjust: '100%',
+                    WebkitAppearance: 'none',
+                    zoom: 'normal'
+                  }}
+                  disabled={isAuthenticating}
+                  autoComplete="email"
+                  inputMode="email"
+                />
+                {emailError && (
+                  <p className="text-xs text-destructive animate-fade-in">{emailError}</p>
+                )}
+              </div>
 
-        {/* Login button */}
-        <Button 
-          type="submit" 
-          className="w-full py-3.5 px-4 text-base font-semibold min-h-[48px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 flex items-center justify-center touch-manipulation" 
-          disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
-        >
-          {loading || isAuthenticating ? (
-            <div className="flex items-center">
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
-              <span>{isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}</span>
-            </div>
-          ) : lockoutTime && lockoutTime > Date.now() ? (
-            <span>Account bloccato</span>
-          ) : (
-            <div className="flex items-center">
-              <LogIn className="mr-2 h-5 w-5" />
-              <span>Accedi</span>
-            </div>
-          )}
-        </Button>
-        
-        {/* Footer links */}
-        <div className="pt-6 border-t border-border/50">
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
-            <RecuperaPasswordDialog>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-sm font-medium py-2 px-4 rounded-lg hover:bg-muted/50 transition-colors min-h-[44px]"
-                disabled={isAuthenticating}
+              {/* Password Field */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                  Password
+                </Label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (passwordError) setPasswordError(null);
+                    }}
+                    onBlur={() => {
+                      const error = validatePassword(password);
+                      setPasswordError(error);
+                    }}
+                    className={`
+                      w-full px-4 py-3 pr-12
+                      border rounded-lg
+                      bg-background text-foreground
+                      placeholder:text-muted-foreground
+                      focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
+                      transition-all duration-200
+                      ${passwordError ? 'border-destructive' : 'border-border'}
+                    `}
+                    style={{
+                      fontSize: '16px !important',
+                      minHeight: '48px !important',
+                      WebkitTextSizeAdjust: '100%',
+                      WebkitAppearance: 'none',
+                      zoom: 'normal'
+                    }}
+                    disabled={isAuthenticating}
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation rounded-md flex items-center justify-center transition-colors"
+                    style={{
+                      width: '44px !important',
+                      height: '44px !important',
+                      minWidth: '44px !important',
+                      minHeight: '44px !important'
+                    }}
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isAuthenticating}
+                    aria-label={showPassword ? "Nascondi password" : "Mostra password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {passwordError && (
+                  <p className="text-xs text-destructive animate-fade-in">{passwordError}</p>
+                )}
+              </div>
+
+              {/* Remember me checkbox */}
+              <label 
+                htmlFor="rememberMe" 
+                className="flex items-center cursor-pointer text-foreground touch-manipulation"
+                style={{ 
+                  padding: '16px !important', 
+                  margin: '-16px !important',
+                  minHeight: '44px !important',
+                  minWidth: '44px !important'
+                }}
               >
-                Recupera password
+                <input
+                  id="rememberMe"
+                  type="checkbox" 
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-5 h-5 mr-3 cursor-pointer"
+                  disabled={isAuthenticating}
+                />
+                <span className="text-sm font-medium">Ricorda credenziali</span>
+              </label>
+
+              {/* Login button */}
+              <Button 
+                type="submit" 
+                className="w-full py-3.5 px-4 text-base font-semibold min-h-[48px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 flex items-center justify-center touch-manipulation" 
+                disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
+              >
+                {loading || isAuthenticating ? (
+                  <div className="flex items-center">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
+                    <span>{isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}</span>
+                  </div>
+                ) : lockoutTime && lockoutTime > Date.now() ? (
+                  <span>Account bloccato</span>
+                ) : (
+                  <div className="flex items-center">
+                    <LogIn className="mr-2 h-5 w-5" />
+                    <span>Accedi</span>
+                  </div>
+                )}
               </Button>
-            </RecuperaPasswordDialog>
-            <Button 
-              asChild 
-              variant="ghost" 
-              size="sm" 
-              className="text-sm font-medium py-2 px-4 rounded-lg hover:bg-muted/50 transition-colors min-h-[44px]"
-              disabled={isAuthenticating}
-            >
-              <Link to="/assistenza" className="flex items-center">
-                <HelpCircle className="mr-2 h-4 w-4" /> 
+            </form>
+            
+            {/* Footer links inside the card */}
+            <div className="mt-6 flex items-center justify-between text-sm">
+              <RecuperaPasswordDialog>
+                <button className="text-primary hover:text-primary/80 font-medium">
+                  Recupera password  
+                </button>
+              </RecuperaPasswordDialog>
+              <Link to="/assistenza" className="text-gray-500 hover:text-gray-700 flex items-center">
+                <HelpCircle className="mr-1 h-4 w-4" /> 
                 Assistenza
               </Link>
-            </Button>
+            </div>
           </div>
+
+          {/* Footer text outside the card */}
+          <div className="text-center">
+            <p className="text-xs text-gray-400">Sicuro e veloce</p>
+          </div>
+          
         </div>
-      </form>
+      </div>
     </div>
   );
 }
