@@ -127,59 +127,80 @@ export function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="flex items-center justify-center min-h-screen px-6 py-12">
-        <div className="w-full max-w-md space-y-8">
-          
-          {/* Logo Section - Outside the card */}
-          <div className="text-center">
-            <div className="mx-auto h-16 w-16 bg-primary rounded-full flex items-center justify-center mb-4">
-              <span className="text-2xl font-bold text-primary-foreground">T</span>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">Benvenuto</h2>
-            <p className="text-gray-600 mt-2">Accedi al tuo account</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-8">
+      <div className="max-w-md mx-auto">
+        
+        {/* LOGO E TITOLI - UNA VOLTA SOLA */}
+        <div className="text-center mb-8">
+          <div className="mx-auto h-16 w-16 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
+            <span className="text-2xl font-bold text-white">T</span>
           </div>
+          <h1 className="text-2xl font-bold text-gray-900">Benvenuto</h1>
+          <p className="text-gray-600 mt-1">Accedi al tuo account</p>
+        </div>
 
-          {/* LOGIN CARD - Form inside */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-            <form onSubmit={handleLogin} className="space-y-6 login-form auth-enter">
-              {/* Progressive Loading Bar */}
-              {isAuthenticating && (
-                <div className="w-full bg-muted/30 rounded-full h-1.5 mb-6 overflow-hidden">
-                  <div 
-                    className="login-progress h-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow transition-all duration-300"
-                    style={{ width: `${authProgress}%` }}
-                  />
-                </div>
-              )}
+        {/* CARD BIANCA - QUI VA TUTTO IL FORM */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <form onSubmit={handleLogin} className="space-y-4">
+            
+            {/* Progressive Loading Bar */}
+            {isAuthenticating && (
+              <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4 overflow-hidden">
+                <div 
+                  className="login-progress h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
+                  style={{ width: `${authProgress}%` }}
+                />
+              </div>
+            )}
 
-              {/* Email Field */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  Email
-                </Label>
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="nome@azienda.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError(null);
+                }}
+                onBlur={() => {
+                  const error = validateEmail(email);
+                  setEmailError(error);
+                }}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${emailError ? 'border-red-500' : 'border-gray-300'}`}
+                style={{
+                  fontSize: '16px !important',
+                  minHeight: '48px !important',
+                  WebkitTextSizeAdjust: '100%',
+                  WebkitAppearance: 'none',
+                  zoom: 'normal'
+                }}
+                disabled={isAuthenticating}
+                autoComplete="email"
+                inputMode="email"
+              />
+              {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <div className="relative">
                 <input
-                  id="email"
-                  type="email"
-                  placeholder="nome@azienda.com"
-                  value={email}
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
                   onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailError) setEmailError(null);
+                    setPassword(e.target.value);
+                    if (passwordError) setPasswordError(null);
                   }}
                   onBlur={() => {
-                    const error = validateEmail(email);
-                    setEmailError(error);
+                    const error = validatePassword(password);
+                    setPasswordError(error);
                   }}
-                  className={`
-                    w-full px-4 py-3
-                    border rounded-lg
-                    bg-background text-foreground
-                    placeholder:text-muted-foreground
-                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                    transition-all duration-200
-                    ${emailError ? 'border-destructive' : 'border-border'}
-                  `}
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${passwordError ? 'border-red-500' : 'border-gray-300'}`}
                   style={{
                     fontSize: '16px !important',
                     minHeight: '48px !important',
@@ -188,141 +209,97 @@ export function LoginForm() {
                     zoom: 'normal'
                   }}
                   disabled={isAuthenticating}
-                  autoComplete="email"
-                  inputMode="email"
+                  autoComplete="current-password"
                 />
-                {emailError && (
-                  <p className="text-xs text-destructive animate-fade-in">{emailError}</p>
-                )}
-              </div>
-
-              {/* Password Field */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                  Password
-                </Label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      if (passwordError) setPasswordError(null);
-                    }}
-                    onBlur={() => {
-                      const error = validatePassword(password);
-                      setPasswordError(error);
-                    }}
-                    className={`
-                      w-full px-4 py-3 pr-12
-                      border rounded-lg
-                      bg-background text-foreground
-                      placeholder:text-muted-foreground
-                      focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                      transition-all duration-200
-                      ${passwordError ? 'border-destructive' : 'border-border'}
-                    `}
-                    style={{
-                      fontSize: '16px !important',
-                      minHeight: '48px !important',
-                      WebkitTextSizeAdjust: '100%',
-                      WebkitAppearance: 'none',
-                      zoom: 'normal'
-                    }}
-                    disabled={isAuthenticating}
-                    autoComplete="current-password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation rounded-md flex items-center justify-center transition-colors"
-                    style={{
-                      width: '44px !important',
-                      height: '44px !important',
-                      minWidth: '44px !important',
-                      minHeight: '44px !important'
-                    }}
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isAuthenticating}
-                    aria-label={showPassword ? "Nascondi password" : "Mostra password"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-                {passwordError && (
-                  <p className="text-xs text-destructive animate-fade-in">{passwordError}</p>
-                )}
-              </div>
-
-              {/* Remember me checkbox */}
-              <label 
-                htmlFor="rememberMe" 
-                className="flex items-center cursor-pointer text-foreground touch-manipulation"
-                style={{ 
-                  padding: '16px !important', 
-                  margin: '-16px !important',
-                  minHeight: '44px !important',
-                  minWidth: '44px !important'
-                }}
-              >
-                <input
-                  id="rememberMe"
-                  type="checkbox" 
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-5 h-5 mr-3 cursor-pointer"
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-500 hover:text-gray-700"
+                  style={{
+                    width: '44px !important',
+                    height: '44px !important',
+                    minWidth: '44px !important',
+                    minHeight: '44px !important'
+                  }}
                   disabled={isAuthenticating}
-                />
-                <span className="text-sm font-medium">Ricorda credenziali</span>
-              </label>
+                  aria-label={showPassword ? "Nascondi password" : "Mostra password"}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+            </div>
 
-              {/* Login button */}
-              <Button 
-                type="submit" 
-                className="w-full py-3.5 px-4 text-base font-semibold min-h-[48px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 flex items-center justify-center touch-manipulation" 
-                disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
-              >
-                {loading || isAuthenticating ? (
-                  <div className="flex items-center">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
-                    <span>{isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}</span>
-                  </div>
-                ) : lockoutTime && lockoutTime > Date.now() ? (
-                  <span>Account bloccato</span>
-                ) : (
-                  <div className="flex items-center">
-                    <LogIn className="mr-2 h-5 w-5" />
-                    <span>Accedi</span>
-                  </div>
-                )}
-              </Button>
-            </form>
-            
-            {/* Footer links inside the card */}
-            <div className="mt-6 flex items-center justify-between text-sm">
+            {/* Remember me */}
+            <label 
+              htmlFor="rememberMe" 
+              className="flex items-center cursor-pointer"
+              style={{ 
+                padding: '16px !important', 
+                margin: '-16px !important',
+                minHeight: '44px !important',
+                minWidth: '44px !important'
+              }}
+            >
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 text-blue-600 mr-3 cursor-pointer"
+                disabled={isAuthenticating}
+              />
+              <span className="text-sm text-gray-700">Ricorda credenziali</span>
+            </label>
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 min-h-[48px] flex items-center justify-center"
+            >
+              {loading || isAuthenticating ? (
+                <div className="flex items-center">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
+                  <span>{isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}</span>
+                </div>
+              ) : lockoutTime && lockoutTime > Date.now() ? (
+                <span>Account bloccato</span>
+              ) : (
+                <div className="flex items-center">
+                  <LogIn className="mr-2 h-5 w-5" />
+                  <span>Accedi</span>
+                </div>
+              )}
+            </button>
+
+            {/* Links */}
+            <div className="flex justify-between items-center text-sm pt-4">
               <RecuperaPasswordDialog>
-                <button className="text-primary hover:text-primary/80 font-medium">
-                  Recupera password  
+                <button 
+                  type="button"
+                  className="text-blue-600 hover:underline"
+                  disabled={isAuthenticating}
+                >
+                  Recupera password
                 </button>
               </RecuperaPasswordDialog>
-              <Link to="/assistenza" className="text-gray-500 hover:text-gray-700 flex items-center">
+              <Link to="/assistenza" className="text-gray-500 hover:underline flex items-center">
                 <HelpCircle className="mr-1 h-4 w-4" /> 
-                Assistenza
+                Assistenza  
               </Link>
             </div>
-          </div>
 
-          {/* Footer text outside the card */}
-          <div className="text-center">
-            <p className="text-xs text-gray-400">Sicuro e veloce</p>
-          </div>
-          
+          </form>
         </div>
+
+        {/* Footer */}
+        <div className="text-center mt-6">
+          <p className="text-xs text-gray-400">Sicuro e veloce</p>
+        </div>
+
       </div>
     </div>
   );
+
 }
