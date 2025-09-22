@@ -1,8 +1,16 @@
 import React from 'react';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useNavigate } from 'react-router-dom';
 
 interface MobileHeaderProps {
   onMenuToggle?: () => void;
@@ -15,7 +23,8 @@ export function MobileHeader({
   showSearch = false,
   onSearch
 }: MobileHeaderProps) {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const getInitials = () => {
     if (!profile?.first_name && !profile?.last_name) return 'U';
@@ -77,15 +86,51 @@ export function MobileHeader({
           )}
 
           {/* User Profile */}
-          <Avatar className="w-9 h-9 border-2 border-primary-foreground/20 ml-2 hover-scale">
-            <AvatarFallback className="
-              bg-primary-foreground text-primary 
-              text-sm font-bold
-              transition-colors duration-200
-            ">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="
+                  w-9 h-9 rounded-full p-0 
+                  text-primary-foreground hover:bg-primary-foreground/20 
+                  active:scale-95 transition-all duration-200 
+                  touch-manipulation
+                "
+                aria-label="Menu utente"
+              >
+                <Avatar className="w-9 h-9 border-2 border-primary-foreground/20">
+                  <AvatarFallback className="
+                    bg-primary-foreground text-primary 
+                    text-sm font-bold
+                    transition-colors duration-200
+                  ">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-48 mt-2"
+              sideOffset={8}
+            >
+              <DropdownMenuItem 
+                onClick={() => navigate('/profile')}
+                className="cursor-pointer"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Profilo e Impostazioni
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={signOut}
+                className="cursor-pointer text-destructive focus:text-destructive"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
