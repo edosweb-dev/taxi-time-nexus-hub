@@ -129,15 +129,6 @@ export function LoginForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-8">
       <div className="max-w-md mx-auto">
-        
-        {/* LOGO E TITOLI - UNA VOLTA SOLA */}
-        <div className="text-center mb-8">
-          <div className="mx-auto h-16 w-16 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
-            <span className="text-2xl font-bold text-white">T</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Benvenuto</h1>
-          <p className="text-gray-600 mt-1">Accedi al tuo account</p>
-        </div>
 
         {/* CARD BIANCA - QUI VA TUTTO IL FORM */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
