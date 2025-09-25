@@ -29,6 +29,9 @@ export function MobileOptimizedServiziPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   
+  // Touch isolation state (CRITICO per isolare swipe)
+  const [touchStart, setTouchStart] = useState<{x: number, y: number, time: number} | null>(null);
+  
   // Memoized tabs to prevent unnecessary recalculations
   const tabsData = React.useMemo(() => [
     { id: 'tutti', label: 'Tutti', count: servizi?.length || 0 },
@@ -82,7 +85,7 @@ export function MobileOptimizedServiziPage() {
     }
   }, [activeTab, tabsData]);
   
-  // Scroll management logic
+  // Scroll management logic (ottimizzato)
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -94,6 +97,34 @@ export function MobileOptimizedServiziPage() {
     setIsScrolling(true);
     const timeout = setTimeout(() => setIsScrolling(false), 150);
     return () => clearTimeout(timeout);
+  }, []);
+
+  // STEP 1 - TOUCH ISOLATION HANDLERS (CRITICO per isolare swipe)
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStart({
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now()
+    });
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStart) return;
+    
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStart.x);
+    const deltaY = Math.abs(touch.clientY - touchStart.y);
+    
+    // Se movimento orizzontale > verticale E supera soglia, blocca scroll pagina
+    if (deltaX > deltaY && deltaX > 10) {
+      e.preventDefault(); // Impedisce scroll verticale pagina
+      e.stopPropagation(); // Ferma propagazione evento
+    }
+  }, [touchStart]);
+
+  const handleTouchEnd = useCallback(() => {
+    setTouchStart(null);
   }, []);
 
   // Setup scroll listeners and initial state
@@ -189,16 +220,20 @@ export function MobileOptimizedServiziPage() {
             </div>
           )}
           
-          {/* Optimized scroll container */}
+          {/* Optimized scroll container with touch isolation */}
           <div 
             ref={scrollContainerRef}
             className="flex overflow-x-auto scrollbar-hide gap-3 scroll-smooth snap-x snap-mandatory pb-1 -mb-1"
             onScroll={handleScroll}
             onKeyDown={handleKeyDown}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             role="tablist"
             aria-label="Filtri servizi"
             tabIndex={0}
             style={{
+              touchAction: 'pan-x', // CRITICO: solo scroll orizzontale
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               WebkitOverflowScrolling: 'touch',
@@ -210,7 +245,10 @@ export function MobileOptimizedServiziPage() {
                 key={tab.id}
                 data-tab={tab.id}
                 data-active={activeTab === tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Evita conflitti con touch events
+                  setActiveTab(tab.id);
+                }}
                 role="tab"
                 tabIndex={activeTab === tab.id ? 0 : -1}
                 aria-selected={activeTab === tab.id}
@@ -223,7 +261,7 @@ export function MobileOptimizedServiziPage() {
                   min-w-fit border shadow-sm min-h-[44px] snap-start flex-shrink-0
                   active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
                   text-xs sm:text-sm
-                  xs:px-3 xs:gap-1.5 xs:py-2
+                  xs:px-4 xs:gap-1.5 xs:py-2
                   ${activeTab === tab.id 
                     ? 'bg-primary text-primary-foreground border-primary shadow-md ring-2 ring-primary/20' 
                     : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/60'
