@@ -73,11 +73,19 @@ export function DesktopServiziContent({
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={onNavigateToNewServizio}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => window.location.href = '/report-servizi'}
+          >
             <BarChart3 className="h-4 w-4 mr-2" />
             Report
           </Button>
-          <Button variant="outline" size="sm" onClick={onNavigateToNewServizio}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => window.location.href = '/calendario-servizi'}
+          >
             <Calendar className="h-4 w-4 mr-2" />
             Calendario
           </Button>
