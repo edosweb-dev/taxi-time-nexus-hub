@@ -116,15 +116,27 @@ export function MobileOptimizedServiziPage() {
     const deltaX = Math.abs(touch.clientX - touchStart.x);
     const deltaY = Math.abs(touch.clientY - touchStart.y);
     
-    // Se movimento orizzontale > verticale E supera soglia, blocca scroll pagina
-    if (deltaX > deltaY && deltaX > 10) {
+    // CRITICO: Se movimento orizzontale > verticale, blocca completamente eventi sulla pagina
+    if (deltaX > deltaY && deltaX > 5) {
       e.preventDefault(); // Impedisce scroll verticale pagina
-      e.stopPropagation(); // Ferma propagazione evento
+      e.stopPropagation(); // Ferma propagazione a elementi padre
+      
+      // Forza il container a rimanere nella sua area
+      const container = scrollContainerRef.current;
+      if (container) {
+        container.style.overflowY = 'hidden'; // Blocca temporaneamente scroll verticale
+      }
     }
   }, [touchStart]);
 
   const handleTouchEnd = useCallback(() => {
     setTouchStart(null);
+    
+    // Ripristina scroll normale dopo touch
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.style.overflowY = ''; // Ripristina scroll verticale
+    }
   }, []);
 
   // Setup scroll listeners and initial state
@@ -192,9 +204,15 @@ export function MobileOptimizedServiziPage() {
         </div>
       </div>
 
-      {/* Enhanced Mobile Tabs with Scroll Indicators */}
+      {/* Enhanced Mobile Tabs with Complete Isolation */}
       <div className="sticky top-[69px] z-10 bg-background border-b overflow-hidden">
-        <div className="relative px-4 py-3">
+        <div 
+          className="relative px-4 py-3"
+          style={{
+            isolation: 'isolate', // Isola completamente il layer
+            contain: 'layout style paint', // Ottimizzazione contenimento
+          }}
+        >
           {/* Left fade indicator */}
           <div 
             className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background via-background/80 to-transparent z-20 pointer-events-none transition-opacity duration-200 ${
@@ -220,7 +238,7 @@ export function MobileOptimizedServiziPage() {
             </div>
           )}
           
-          {/* Optimized scroll container with touch isolation */}
+          {/* Isolated horizontal scroll container */}
           <div 
             ref={scrollContainerRef}
             className="flex overflow-x-auto scrollbar-hide gap-3 scroll-smooth snap-x snap-mandatory pb-1 -mb-1"
@@ -233,11 +251,16 @@ export function MobileOptimizedServiziPage() {
             aria-label="Filtri servizi"
             tabIndex={0}
             style={{
-              touchAction: 'pan-x', // CRITICO: solo scroll orizzontale
+              touchAction: 'pan-x', // SOLO scroll orizzontale
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               WebkitOverflowScrolling: 'touch',
-              willChange: isScrolling ? 'transform' : 'auto'
+              willChange: isScrolling ? 'transform' : 'auto',
+              isolation: 'isolate', // Isolamento completo
+              contain: 'layout', // Contiene il layout
+              overflowY: 'hidden', // Blocca esplicitamente scroll verticale
+              height: 'auto', // Altezza fissa per contenere l'area
+              minHeight: '44px' // Altezza minima per touch
             }}
           >
             {tabsData.map((tab, index) => (
@@ -246,9 +269,12 @@ export function MobileOptimizedServiziPage() {
                 data-tab={tab.id}
                 data-active={activeTab === tab.id}
                 onClick={(e) => {
-                  e.stopPropagation(); // Evita conflitti con touch events
+                  e.preventDefault(); // Previene comportamenti indesiderati
+                  e.stopPropagation(); // Blocca propagazione evento
                   setActiveTab(tab.id);
                 }}
+                onTouchStart={(e) => e.stopPropagation()} // Isola touch eventi del pulsante
+                onTouchEnd={(e) => e.stopPropagation()} // Isola touch eventi del pulsante
                 role="tab"
                 tabIndex={activeTab === tab.id ? 0 : -1}
                 aria-selected={activeTab === tab.id}
