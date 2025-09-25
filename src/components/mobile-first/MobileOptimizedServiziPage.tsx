@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Search, Calendar, MapPin, Clock, User, Plus, Filter, Calendar as CalendarIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,8 @@ export function MobileOptimizedServiziPage() {
 
   const [activeTab, setActiveTab] = useState('tutti');
   const [searchQuery, setSearchQuery] = useState('');
+  const scrollContainerRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const tabs = [
     { id: 'tutti', label: 'Tutti', count: servizi?.length || 0 },
@@ -29,6 +31,61 @@ export function MobileOptimizedServiziPage() {
     { id: 'assegnati', label: 'Assegnati', count: servizi?.filter(s => s.stato === 'assegnato').length || 0 },
     { id: 'completati', label: 'Completati', count: servizi?.filter(s => s.stato === 'completato').length || 0 }
   ];
+
+  // Gestione eventi touch per isolare scroll
+  const handleTouchStart = useCallback((e) => {
+    setIsDragging(false);
+  }, []);
+
+  const handleTouchMove = useCallback((e) => {
+    setIsDragging(true);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    setTimeout(() => setIsDragging(false), 100);
+  }, []);
+
+  // Click handler che previene azione se stai scrollando
+  const handleFiltroClick = useCallback((filtroId) => {
+    if (isDragging) return; // Non cambiare filtro se stavi scrollando
+    
+    setActiveTab(filtroId);
+  }, [isDragging]);
+
+  // Applica eventi al container
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);  
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+
+  // DEBUG - Console logging per troubleshooting
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    console.log('🔍 FILTRI DEBUG:');
+    console.log('Container scrollWidth:', container.scrollWidth);
+    console.log('Container clientWidth:', container.clientWidth); 
+    console.log('Should scroll:', container.scrollWidth > container.clientWidth);
+    console.log('Computed overflow-x:', getComputedStyle(container).overflowX);
+    console.log('Computed touch-action:', getComputedStyle(container).touchAction);
+    
+    // Test scroll programmatico
+    container.scrollLeft = 50;
+    setTimeout(() => {
+      console.log('Scroll test - scrollLeft after 50px:', container.scrollLeft);
+    }, 100);
+  }, [tabs]);
 
   // Filter services based on active tab and search
   const filteredServizi = servizi?.filter(servizio => {
@@ -111,73 +168,64 @@ export function MobileOptimizedServiziPage() {
         </div>
       </div>
 
-      {/* Enhanced Mobile Tabs */}
-      <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30 relative">
-        {/* Fade indicators for scroll */}
-        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-background/95 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-background/95 to-transparent z-10 pointer-events-none" />
-        
-        <div 
-          ref={(el) => {
-            // Auto-scroll to active filter on mount/change
-            if (el && activeTab) {
-              const activeButton = el.querySelector(`[data-tab="${activeTab}"]`);
-              if (activeButton) {
-                setTimeout(() => {
-                  activeButton.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'nearest', 
-                    inline: 'center' 
-                  });
-                }, 100);
-              }
-            }
-          }}
-          className="isolated-horizontal-scroll flex px-4 py-3 gap-2 scroll-smooth snap-x snap-mandatory"
-          style={{
-            touchAction: 'pan-x',
-            WebkitOverflowScrolling: 'touch',
-          }}
-        >
-          {tabs.map((tab, index) => (
-            <button
-              key={tab.id}
-              data-tab={tab.id}
-              data-active={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium 
-                whitespace-nowrap transition-all duration-300 touch-manipulation
-                min-w-fit border shadow-sm flex-shrink-0 snap-start min-h-[44px]
-                ${activeTab === tab.id 
-                  ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
-                  : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/80'
-                }
-                active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1
-              `}
-              style={{
-                transformOrigin: 'center',
-                transform: activeTab === tab.id ? 'translateY(-1px)' : 'none'
-              }}
-            >
-              <span className="font-semibold">{tab.label}</span>
-              <div className={`
-                flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
-                transition-colors duration-200
-                ${activeTab === tab.id 
-                  ? 'bg-primary-foreground text-primary' 
-                  : 'bg-muted text-muted-foreground'
-                }
-              `}>
-                {tab.count}
-              </div>
-              
-              {/* Active indicator */}
-              {activeTab === tab.id && (
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full animate-pulse" />
-              )}
-            </button>
-          ))}
+      {/* CONTAINER PARENT CON OVERRIDE */}
+      <div className="filters-container-parent sticky top-0 z-10 bg-background border-b overflow-visible">
+        <div className="px-4 py-3">
+          {/* CONTAINER SCROLL FORZATO */}
+          <div 
+            ref={scrollContainerRef}
+            className="force-horizontal-scroll flex gap-2 scroll-smooth snap-x snap-mandatory pb-1 -mb-1"
+            style={{
+              overflowX: 'auto',
+              overflowY: 'visible', 
+              touchAction: 'pan-x',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
+            {/* BOTTONI FILTRI CON PREVENT DEFAULT */}
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                data-tab={tab.id}
+                data-active={activeTab === tab.id}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleFiltroClick(tab.id);
+                }}
+                className={`
+                  flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium 
+                  whitespace-nowrap transition-all duration-300 touch-manipulation
+                  min-w-fit border shadow-sm min-h-[44px] snap-start flex-shrink-0
+                  ${activeTab === tab.id 
+                    ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/80'
+                  }
+                  active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1
+                `}
+                style={{ minWidth: 'max-content' }}
+              >
+                <span className="font-semibold">{tab.label}</span>
+                <div className={`
+                  flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
+                  transition-colors duration-200
+                  ${activeTab === tab.id 
+                    ? 'bg-primary-foreground text-primary' 
+                    : 'bg-muted text-muted-foreground'
+                  }
+                `}>
+                  {tab.count}
+                </div>
+                
+                {/* Active indicator */}
+                {activeTab === tab.id && (
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
         
         {/* Subtle gradient fade on scroll */}

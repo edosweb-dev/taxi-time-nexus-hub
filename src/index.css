@@ -521,6 +521,27 @@ body {
     overflow-x: auto !important;
   }
   
+  /* FORZA SCROLL FILTRI - SOLUZIONE AGGRESSIVA */
+  .force-horizontal-scroll {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    touch-action: pan-x !important;
+    will-change: scroll-position !important;
+  }
+
+  .force-horizontal-scroll::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* SICUREZZA - Assicura che i parent non blocchino */
+  .filters-container-parent {
+    overflow-x: visible !important;
+    contain: none !important;
+  }
+
   /* Create an isolated scroll container that works despite body overflow-x: hidden */
   .isolated-horizontal-scroll {
     position: relative;
