@@ -109,10 +109,24 @@ export function LoginForm() {
       setAuthProgress(100);
       setLoginAttempts(0); // Reset on success
       setLockoutTime(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[LoginForm] Errore durante signIn:', error);
       const newAttempts = loginAttempts + 1;
       setLoginAttempts(newAttempts);
+      
+      // Enhanced error handling with better user messages
+      let errorMessage = 'Si è verificato un errore. Riprova';
+      if (error?.message) {
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Email o password non corretti';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Troppi tentativi. Riprova tra 5 minuti';
+        } else if (error.message.includes('refresh token')) {
+          errorMessage = 'Sessione scaduta, riprova';
+        }
+      }
+      
+      toast.error(errorMessage);
       
       if (newAttempts >= 3) {
         setLockoutTime(Date.now() + 5 * 60 * 1000); // 5 min lockout
@@ -127,170 +141,150 @@ export function LoginForm() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-8 flex flex-col justify-center">
-      <div className="max-w-md mx-auto w-full">
-
-        {/* CARD BIANCA - QUI VA TUTTO IL FORM */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-hidden">
-          <form onSubmit={handleLogin} className="space-y-4 w-full">
+    <div className="w-full max-w-sm mx-auto">
+      {/* CARD BIANCA - CONTENUTO DEL FORM */}
+      <div className="bg-card border border-border rounded-xl shadow-sm p-6 overflow-hidden">
+        <form onSubmit={handleLogin} className="space-y-4 w-full" aria-label="Form di accesso">
             
-            {/* Progressive Loading Bar */}
-            {isAuthenticating && (
-              <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4 overflow-hidden">
-                <div 
-                  className="login-progress h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
-                  style={{ width: `${authProgress}%` }}
-                />
-              </div>
-            )}
+          {/* Progressive Loading Bar */}
+          {isAuthenticating && (
+            <div className="w-full bg-muted rounded-full h-1.5 mb-4 overflow-hidden">
+              <div 
+                className="login-progress h-1.5 rounded-full bg-primary transition-all duration-300"
+                style={{ width: `${authProgress}%` }}
+              />
+            </div>
+          )}
 
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="nome@azienda.com"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError(null);
+              }}
+              onBlur={() => {
+                const error = validateEmail(email);
+                setEmailError(error);
+              }}
+              className={`w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring text-base bg-background text-foreground ${emailError ? 'border-destructive form-field-error' : ''}`}
+              disabled={isAuthenticating}
+              autoComplete="email"
+              inputMode="email"
+            />
+            {emailError && (
+              <p className="text-destructive text-sm mt-1" role="alert" aria-live="polite">{emailError}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+            <div className="relative">
               <input
-                id="email"
-                type="email"
-                placeholder="nome@azienda.com"
-                value={email}
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
                 onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (emailError) setEmailError(null);
+                  setPassword(e.target.value);
+                  if (passwordError) setPasswordError(null);
                 }}
                 onBlur={() => {
-                  const error = validateEmail(email);
-                  setEmailError(error);
+                  const error = validatePassword(password);
+                  setPasswordError(error);
                 }}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${emailError ? 'border-red-500' : 'border-gray-300'}`}
-                style={{
-                  fontSize: '16px !important',
-                  minHeight: '48px !important',
-                  WebkitTextSizeAdjust: '100%',
-                  WebkitAppearance: 'none',
-                  zoom: 'normal'
-                }}
+                className={`w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring pr-12 text-base bg-background text-foreground ${passwordError ? 'border-destructive form-field-error' : ''}`}
                 disabled={isAuthenticating}
-                autoComplete="email"
-                inputMode="email"
+                autoComplete="current-password"
               />
-              {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none min-h-touch min-w-touch flex items-center justify-center"
+                disabled={isAuthenticating}
+                aria-label={showPassword ? "Nascondi password" : "Mostra password"}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
+            {passwordError && (
+              <p className="text-destructive text-sm mt-1" role="alert" aria-live="polite">{passwordError}</p>
+            )}
+          </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (passwordError) setPasswordError(null);
-                  }}
-                  onBlur={() => {
-                    const error = validatePassword(password);
-                    setPasswordError(error);
-                  }}
-                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${passwordError ? 'border-red-500' : 'border-gray-300'}`}
-                  style={{
-                    fontSize: '16px !important',
-                    minHeight: '48px !important',
-                    WebkitTextSizeAdjust: '100%',
-                    WebkitAppearance: 'none',
-                    zoom: 'normal'
-                  }}
-                  disabled={isAuthenticating}
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-500 hover:text-gray-700"
-                  style={{
-                    width: '44px !important',
-                    height: '44px !important',
-                    minWidth: '44px !important',
-                    minHeight: '44px !important'
-                  }}
-                  disabled={isAuthenticating}
-                  aria-label={showPassword ? "Nascondi password" : "Mostra password"}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
-            </div>
-
-            {/* Remember me */}
-            <label 
-              htmlFor="rememberMe" 
-              className="flex items-center cursor-pointer"
-              style={{ 
-                padding: '16px !important', 
-                margin: '-16px !important',
-                minHeight: '44px !important',
-                minWidth: '44px !important'
-              }}
-            >
+          {/* Remember Me */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center p-2">
               <input
-                id="rememberMe"
+                id="remember-me"
+                name="remember-me"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 text-blue-600 mr-3 cursor-pointer"
+                className="h-4 w-4 text-primary focus:ring-ring border-border rounded cursor-pointer"
                 disabled={isAuthenticating}
               />
-              <span className="text-sm text-gray-700">Ricorda credenziali</span>
-            </label>
-
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={loading || isAuthenticating || (lockoutTime && lockoutTime > Date.now())}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 min-h-[48px] flex items-center justify-center"
-            >
-              {loading || isAuthenticating ? (
-                <div className="flex items-center">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
-                  <span>{isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}</span>
-                </div>
-              ) : lockoutTime && lockoutTime > Date.now() ? (
-                <span>Account bloccato</span>
-              ) : (
-                <div className="flex items-center">
-                  <LogIn className="mr-2 h-5 w-5" />
-                  <span>Accedi</span>
-                </div>
-              )}
-            </button>
-
-            {/* Links */}
-            <div className="flex justify-between items-center text-sm pt-4">
-              <RecuperaPasswordDialog>
-                <button 
-                  type="button"
-                  className="text-blue-600 hover:underline"
-                  disabled={isAuthenticating}
-                >
-                  Recupera password
-                </button>
-              </RecuperaPasswordDialog>
-              <Link to="/assistenza" className="text-gray-500 hover:underline flex items-center">
-                <HelpCircle className="mr-1 h-4 w-4" /> 
-                Assistenza  
-              </Link>
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-foreground cursor-pointer">
+                Ricorda email
+              </label>
             </div>
+          </div>
 
-          </form>
-        </div>
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={isAuthenticating || loading || lockoutTime !== null && lockoutTime > Date.now()}
+            aria-busy={isAuthenticating || loading}
+            className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed transition-colors duration-200 font-medium text-base min-h-touch"
+          >
+            {loading || isAuthenticating ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
+                <span>{isAuthenticating ? 'Autenticazione...' : 'Accesso in corso...'}</span>
+              </div>
+            ) : lockoutTime && lockoutTime > Date.now() ? (
+              <span>Account bloccato</span>
+            ) : (
+              <div className="flex items-center justify-center">
+                <LogIn className="mr-2 h-5 w-5" />
+                <span>Accedi</span>
+              </div>
+            )}
+          </button>
 
-        {/* Footer */}
-        <div className="text-center mt-6">
-          <p className="text-xs text-gray-400">Sicuro e veloce</p>
-        </div>
+          {/* Links utili */}
+          <div className="text-center space-y-3 pt-4">
+            <RecuperaPasswordDialog>
+              <button 
+                type="button" 
+                className="text-primary hover:text-primary/80 text-sm underline py-2 px-1 inline-block min-h-touch flex items-center mx-auto"
+                disabled={isAuthenticating}
+              >
+                Password dimenticata?
+              </button>
+            </RecuperaPasswordDialog>
+            
+            <p className="text-xs text-muted-foreground">
+              Problemi di accesso?{" "}
+              <button 
+                type="button" 
+                className="text-primary hover:text-primary/80 underline py-2 px-1 inline-block min-h-touch"
+                onClick={() => console.log('Contatta assistenza')}
+                disabled={isAuthenticating}
+              >
+                Assistenza
+              </button>
+            </p>
+          </div>
 
+        </form>
       </div>
     </div>
   );
-
 }
