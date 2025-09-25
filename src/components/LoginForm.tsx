@@ -144,7 +144,7 @@ export function LoginForm() {
     <div className="w-full mx-auto overflow-hidden">
       {/* CARD BIANCA - CONTENUTO DEL FORM */}
       <div className="bg-card border border-border rounded-xl shadow-sm p-4 sm:p-6 overflow-hidden w-full">
-        <form onSubmit={handleLogin} className="space-y-4 w-full" aria-label="Form di accesso">
+        <form onSubmit={handleLogin} className="space-y-3 w-full" aria-label="Form di accesso">
             
           {/* Progressive Loading Bar */}
           {isAuthenticating && (

@@ -3,20 +3,20 @@ import { PropsWithChildren } from "react";
 
 export function AuthLayout({ children }: PropsWithChildren) {
   return (
-    <div className="login-centered min-h-screen min-h-[100dvh] w-full bg-gradient-to-br from-background via-background to-muted/10 flex items-center justify-center px-6 py-8 sm:px-8 lg:px-8 overflow-hidden">
+    <div className="login-centered min-h-screen min-h-[100dvh] w-full bg-gradient-to-br from-background via-background to-muted/10 flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.03),transparent)]"></div>
       
       <div className="w-full flex items-center justify-center relative z-10 overflow-hidden">
-        <div className="w-full max-w-md animate-fade-in">
-          <div className="space-y-8">
+        <div className="w-full max-w-xs sm:max-w-sm md:max-w-md animate-fade-in">
+          <div className="space-y-6">
             {/* Logo Section - Centrato */}
             <div className="text-center auth-enter">
-              <div className="mb-6 sm:mb-8">
+              <div className="mb-4 sm:mb-6">
                 <img
                   src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
                   alt="Taxitime Logo" 
-                  className="h-24 w-auto sm:h-32 mx-auto object-contain"
+                  className="h-20 w-auto sm:h-28 mx-auto object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                     const parent = (e.target as HTMLElement).parentElement;
