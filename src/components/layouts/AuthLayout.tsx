@@ -3,12 +3,12 @@ import { PropsWithChildren } from "react";
 
 export function AuthLayout({ children }: PropsWithChildren) {
   return (
-    <div className="login-centered min-h-screen min-h-[100dvh] w-full bg-gradient-to-br from-background via-background to-muted/10 flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="login-centered min-h-screen min-h-[100dvh] w-full bg-gradient-to-br from-background via-background to-muted/10 flex items-center justify-center px-6 py-8 sm:px-8 lg:px-8 overflow-hidden">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.03),transparent)]"></div>
       
       <div className="w-full flex items-center justify-center relative z-10 overflow-hidden">
-        <div className="w-full max-w-xs sm:max-w-sm md:max-w-md animate-fade-in">
+        <div className="w-full max-w-[280px] sm:max-w-sm md:max-w-md animate-fade-in">
           <div className="space-y-6">
             {/* Logo Section - Centrato */}
             <div className="text-center auth-enter">
