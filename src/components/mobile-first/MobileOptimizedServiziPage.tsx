@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Search, Calendar, MapPin, Clock, User, Plus, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,42 +22,117 @@ export function MobileOptimizedServiziPage() {
 
   const [activeTab, setActiveTab] = useState('tutti');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const tabs = [
+  
+  // Scroll management state
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  
+  // Memoized tabs to prevent unnecessary recalculations
+  const tabsData = React.useMemo(() => [
     { id: 'tutti', label: 'Tutti', count: servizi?.length || 0 },
     { id: 'da-assegnare', label: 'Da Assegnare', count: servizi?.filter(s => s.stato === 'da_assegnare').length || 0 },
     { id: 'assegnati', label: 'Assegnati', count: servizi?.filter(s => s.stato === 'assegnato').length || 0 },
     { id: 'completati', label: 'Completati', count: servizi?.filter(s => s.stato === 'completato').length || 0 }
-  ];
+  ], [servizi]);
 
-  // Filter services based on active tab and search
-  const filteredServizi = servizi?.filter(servizio => {
-    const matchesSearch = !searchQuery || 
-      servizio.numero_commessa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      servizio.indirizzo_presa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      servizio.aziende?.nome?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // Map tab IDs to actual service states
-    let matchesTab = false;
-    switch (activeTab) {
-      case 'tutti':
-        matchesTab = true;
-        break;
-      case 'da-assegnare':
-        matchesTab = servizio.stato === 'da_assegnare';
-        break;
-      case 'assegnati':
-        matchesTab = servizio.stato === 'assegnato';
-        break;
-      case 'completati':
-        matchesTab = servizio.stato === 'completato';
-        break;
-      default:
-        matchesTab = false;
+  // Optimized filter function with useMemo
+  const filteredServizi = React.useMemo(() => {
+    return servizi?.filter(servizio => {
+      const matchesSearch = !searchQuery || 
+        servizio.numero_commessa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        servizio.indirizzo_presa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        servizio.aziende?.nome?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // Map tab IDs to actual service states
+      let matchesTab = false;
+      switch (activeTab) {
+        case 'tutti':
+          matchesTab = true;
+          break;
+        case 'da-assegnare':
+          matchesTab = servizio.stato === 'da_assegnare';
+          break;
+        case 'assegnati':
+          matchesTab = servizio.stato === 'assegnato';
+          break;
+        case 'completati':
+          matchesTab = servizio.stato === 'completato';
+          break;
+        default:
+          matchesTab = false;
+      }
+
+      return matchesSearch && matchesTab;
+    }) || [];
+  }, [servizi, searchQuery, activeTab]);
+
+  // Keyboard navigation handler
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const currentIndex = tabsData.findIndex(tab => tab.id === activeTab);
+      const nextIndex = e.key === 'ArrowRight' 
+        ? Math.min(currentIndex + 1, tabsData.length - 1)
+        : Math.max(currentIndex - 1, 0);
+      
+      setActiveTab(tabsData[nextIndex].id);
     }
+  }, [activeTab, tabsData]);
+  
+  // Scroll management logic
+  const handleScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+    
+    setIsScrolling(true);
+    const timeout = setTimeout(() => setIsScrolling(false), 150);
+    return () => clearTimeout(timeout);
+  }, []);
 
-    return matchesSearch && matchesTab;
-  }) || [];
+  // Setup scroll listeners and initial state
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    // Check initial scroll state
+    handleScroll();
+    
+    // Add scroll listener with passive for performance
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  // Auto-scroll to active tab when it changes
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const activeButton = container.querySelector(`[data-tab="${activeTab}"]`) as HTMLElement;
+    if (activeButton) {
+      activeButton.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest',
+        inline: 'center' 
+      });
+    }
+  }, [activeTab]);
+
+  // Responsive resize handler
+  useEffect(() => {
+    const handleResize = () => {
+      handleScroll();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleScroll]);
 
   if (!isMobile) {
     return null; // Fallback to regular component
@@ -86,37 +161,95 @@ export function MobileOptimizedServiziPage() {
         </div>
       </div>
 
-      {/* Enhanced Mobile Tabs */}
-      <div className="sticky top-[69px] z-10 bg-background border-b px-4 py-3 overflow-hidden">
-        <div className="flex overflow-x-auto scrollbar-hide gap-2 scroll-smooth snap-x snap-mandatory pb-1 -mb-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                relative flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium 
-                whitespace-nowrap transition-all duration-300 touch-manipulation
-                min-w-fit border shadow-sm min-h-[44px] snap-start flex-shrink-0
-                ${activeTab === tab.id 
-                  ? 'bg-primary text-primary-foreground border-primary shadow-md' 
-                  : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-                }
-                active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50
-              `}
-            >
-              <span className="font-semibold">{tab.label}</span>
-              <div className={`
-                flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
-                transition-colors duration-200
-                ${activeTab === tab.id 
-                  ? 'bg-primary-foreground text-primary' 
-                  : 'bg-muted text-muted-foreground'
-                }
-              `}>
-                {tab.count}
+      {/* Enhanced Mobile Tabs with Scroll Indicators */}
+      <div className="sticky top-[69px] z-10 bg-background border-b overflow-hidden">
+        <div className="relative px-4 py-3">
+          {/* Left fade indicator */}
+          <div 
+            className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background via-background/80 to-transparent z-20 pointer-events-none transition-opacity duration-200 ${
+              canScrollLeft ? 'opacity-100' : 'opacity-0'
+            }`} 
+          />
+          
+          {/* Right fade indicator */}
+          <div 
+            className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background via-background/80 to-transparent z-20 pointer-events-none transition-opacity duration-200 ${
+              canScrollRight ? 'opacity-100' : 'opacity-0'
+            }`} 
+          />
+          
+          {/* Scroll indicator dots */}
+          {canScrollRight && (
+            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 z-30 pointer-events-none">
+              <div className="flex gap-0.5">
+                <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse" />
+                <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse delay-75" />
+                <div className="w-1 h-1 bg-primary/80 rounded-full animate-pulse delay-150" />
               </div>
-            </button>
-          ))}
+            </div>
+          )}
+          
+          {/* Optimized scroll container */}
+          <div 
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto scrollbar-hide gap-3 scroll-smooth snap-x snap-mandatory pb-1 -mb-1"
+            onScroll={handleScroll}
+            onKeyDown={handleKeyDown}
+            role="tablist"
+            aria-label="Filtri servizi"
+            tabIndex={0}
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch',
+              willChange: isScrolling ? 'transform' : 'auto'
+            }}
+          >
+            {tabsData.map((tab, index) => (
+              <button
+                key={tab.id}
+                data-tab={tab.id}
+                data-active={activeTab === tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                aria-selected={activeTab === tab.id}
+                aria-setsize={tabsData.length}
+                aria-posinset={index + 1}
+                aria-label={`${tab.label} - ${tab.count} servizi`}
+                className={`
+                  relative flex items-center gap-2 px-5 py-2.5 rounded-full font-medium 
+                  whitespace-nowrap transition-all duration-200 touch-manipulation
+                  min-w-fit border shadow-sm min-h-[44px] snap-start flex-shrink-0
+                  active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
+                  text-xs sm:text-sm
+                  xs:px-3 xs:gap-1.5 xs:py-2
+                  ${activeTab === tab.id 
+                    ? 'bg-primary text-primary-foreground border-primary shadow-md ring-2 ring-primary/20' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/60'
+                  }
+                `}
+              >
+                <span className="font-semibold text-xs sm:text-sm truncate max-w-[120px] xs:max-w-[80px]">{tab.label}</span>
+                <div className={`
+                  flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
+                  transition-colors duration-200 border flex-shrink-0
+                  xs:min-w-[18px] xs:h-4 xs:px-1 xs:text-[10px]
+                  ${activeTab === tab.id 
+                    ? 'bg-primary-foreground text-primary border-primary-foreground' 
+                    : 'bg-muted text-muted-foreground border-muted-foreground/20'
+                  }
+                `}>
+                  {tab.count}
+                </div>
+                
+                {/* Active tab indicator */}
+                {activeTab === tab.id && (
+                  <div className="absolute -bottom-[1px] left-1/2 transform -translate-x-1/2 w-4 h-1 bg-primary rounded-t-full" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
