@@ -41,7 +41,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
             </div>
 
             {/* Form Section */}
-            <div className="transform transition-all duration-500 hover:scale-[1.02]">
+            <div>
               {children}
             </div>
 
