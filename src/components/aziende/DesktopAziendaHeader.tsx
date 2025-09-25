@@ -1,13 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Plus, Building2 } from "lucide-react";
+import { Search, Plus, Grid, List } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 interface DesktopAziendaHeaderProps {
   searchTerm: string;
-  onSearchChange: (value: string) => void;
+  onSearchChange: (term: string) => void;
   onAddAzienda: () => void;
   totalCount: number;
   filteredCount: number;
+  viewMode: 'cards' | 'table';
+  onViewModeChange: (mode: 'cards' | 'table') => void;
 }
 
 export function DesktopAziendaHeader({
@@ -16,32 +19,32 @@ export function DesktopAziendaHeader({
   onAddAzienda,
   totalCount,
   filteredCount,
+  viewMode,
+  onViewModeChange,
 }: DesktopAziendaHeaderProps) {
   return (
-    <div className="bg-card border rounded-lg p-6 space-y-4">
-      {/* Header section */}
+    <div className="space-y-4">
+      {/* Top row: Title and Add button */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Building2 className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">Gestione Aziende</h2>
-            <p className="text-sm text-muted-foreground">
-              {totalCount} aziende totali
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Aziende</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {filteredCount === totalCount 
+              ? `${totalCount} aziende totali`
+              : `${filteredCount} di ${totalCount} aziende`
+            }
+          </p>
         </div>
-        <Button onClick={onAddAzienda} size="lg" className="gap-2">
-          <Plus className="h-5 w-5" />
+        <Button onClick={onAddAzienda} className="gap-2">
+          <Plus className="h-4 w-4" />
           Nuova Azienda
         </Button>
       </div>
-      
-      {/* Search section */}
-      <div className="flex items-center gap-4">
+
+      {/* Bottom row: Search and View toggle */}
+      <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Cerca per nome, P.IVA, email, telefono o città..."
             value={searchTerm}
@@ -50,12 +53,14 @@ export function DesktopAziendaHeader({
           />
         </div>
         
-        {/* Results counter */}
-        {searchTerm && (
-          <div className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-lg">
-            {filteredCount} di {totalCount} aziende
-          </div>
-        )}
+        <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && onViewModeChange(value as 'cards' | 'table')}>
+          <ToggleGroupItem value="cards" aria-label="Vista griglia">
+            <Grid className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="table" aria-label="Vista tabella">
+            <List className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
     </div>
   );

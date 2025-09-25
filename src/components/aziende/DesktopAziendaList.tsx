@@ -5,6 +5,7 @@ import { ReferentiDialog } from "./ReferentiDialog";
 import { Pagination } from "./Pagination";
 import { DesktopAziendaHeader } from "./DesktopAziendaHeader";
 import { DesktopAziendaCard } from "./DesktopAziendaCard";
+import { AziendaTableView } from "./AziendaTableView";
 import { Building2, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -27,6 +28,7 @@ export function DesktopAziendaList({
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   
   const itemsPerPage = 9; // 3x3 grid for desktop
   
@@ -70,6 +72,8 @@ export function DesktopAziendaList({
           onAddAzienda={onAddAzienda}
           totalCount={aziende.length}
           filteredCount={filteredAziende.length}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
         
         <div className="text-center py-20 bg-card border rounded-lg">
@@ -103,6 +107,8 @@ export function DesktopAziendaList({
           onAddAzienda={onAddAzienda}
           totalCount={aziende.length}
           filteredCount={filteredAziende.length}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
         
         <div className="text-center py-20 bg-card border rounded-lg">
@@ -133,34 +139,47 @@ export function DesktopAziendaList({
         onAddAzienda={onAddAzienda}
         totalCount={aziende.length}
         filteredCount={filteredAziende.length}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
-      {/* Cards grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {paginatedAziende.map((azienda) => (
-          <DesktopAziendaCard
-            key={azienda.id}
-            azienda={azienda}
-            referentiCount={referentiByAzienda[azienda.id]?.length || 0}
-            onView={() => onView(azienda)}
-            onEdit={() => onEdit(azienda)}
-            onDelete={() => onDelete(azienda)}
-            onReferentiClick={() => handleReferentiClick(azienda)}
-          />
-        ))}
-      </div>
+      {viewMode === 'table' ? (
+        <AziendaTableView
+          aziende={filteredAziende}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onView={onView}
+        />
+      ) : (
+        <>
+          {/* Cards grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {paginatedAziende.map((azienda) => (
+              <DesktopAziendaCard
+                key={azienda.id}
+                azienda={azienda}
+                referentiCount={referentiByAzienda[azienda.id]?.length || 0}
+                onView={() => onView(azienda)}
+                onEdit={() => onEdit(azienda)}
+                onDelete={() => onDelete(azienda)}
+                onReferentiClick={() => handleReferentiClick(azienda)}
+              />
+            ))}
+          </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={filteredAziende.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filteredAziende.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
+        </>
       )}
       
       {/* Referenti Dialog */}
