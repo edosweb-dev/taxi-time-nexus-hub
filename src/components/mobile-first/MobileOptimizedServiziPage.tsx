@@ -112,8 +112,27 @@ export function MobileOptimizedServiziPage() {
       </div>
 
       {/* Enhanced Mobile Tabs */}
-      <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30">
+      <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30 relative">
+        {/* Fade indicators for scroll */}
+        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-background/95 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-background/95 to-transparent z-10 pointer-events-none" />
+        
         <div 
+          ref={(el) => {
+            // Auto-scroll to active filter on mount/change
+            if (el && activeTab) {
+              const activeButton = el.querySelector(`[data-tab="${activeTab}"]`);
+              if (activeButton) {
+                setTimeout(() => {
+                  activeButton.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest', 
+                    inline: 'center' 
+                  });
+                }, 100);
+              }
+            }
+          }}
           className="isolated-horizontal-scroll flex px-4 py-3 gap-2 scroll-smooth snap-x snap-mandatory"
           style={{
             touchAction: 'pan-x',
@@ -123,6 +142,8 @@ export function MobileOptimizedServiziPage() {
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
+              data-tab={tab.id}
+              data-active={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
                 relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium 
