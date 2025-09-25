@@ -303,14 +303,12 @@ export function LoginForm() {
             
             <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
               <span>Problemi di accesso?</span>
-              <button 
-                type="button" 
+              <Link
+                to="/assistenza"
                 className="text-primary hover:text-primary/80 font-medium py-1 px-2 rounded hover:bg-primary/10 transition-all duration-200"
-                onClick={() => console.log('Contatta assistenza')}
-                disabled={isAuthenticating}
               >
                 Contatta l'assistenza
-              </button>
+              </Link>
             </div>
           </div>
 

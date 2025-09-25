@@ -33,6 +33,7 @@ const AziendaDetailPage = lazy(() => import('./pages/aziende/AziendaDetailPage')
 const ReferenteDetailPage = lazy(() => import('./pages/referenti/ReferenteDetailPage'));
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AssistenzaPage = lazy(() => import('./pages/AssistenzaPage'));
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -55,6 +56,7 @@ function App() {
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/assistenza" element={<AssistenzaPage />} />
 
                   {/* Index Route - handles role-based redirections */}
                   <Route path="/" element={<Index />} />
