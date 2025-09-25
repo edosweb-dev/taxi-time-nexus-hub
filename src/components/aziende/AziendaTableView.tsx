@@ -59,19 +59,19 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg">
+      <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-[200px]">Azienda</TableHead>
-              <TableHead>P.IVA</TableHead>
-              <TableHead>Contatti</TableHead>
-              <TableHead>Indirizzo</TableHead>
-              <TableHead className="text-center">Referenti</TableHead>
-              <TableHead className="text-center">Firma</TableHead>
-              <TableHead className="text-center">Provvigione</TableHead>
-              <TableHead className="text-center">Fatturazione</TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="min-w-[220px]">Azienda</TableHead>
+              <TableHead className="min-w-[120px]">P.IVA</TableHead>
+              <TableHead className="min-w-[160px]">Contatti</TableHead>
+              <TableHead className="min-w-[180px]">Indirizzo</TableHead>
+              <TableHead className="text-center min-w-[80px]">Referenti</TableHead>
+              <TableHead className="text-center min-w-[80px]">Firma</TableHead>
+              <TableHead className="text-center min-w-[100px]">Provvigione</TableHead>
+              <TableHead className="text-center min-w-[90px]">Fatturazione</TableHead>
+              <TableHead className="text-center min-w-[200px]">Azioni</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -101,20 +101,19 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                 return (
                   <TableRow 
                     key={azienda.id} 
-                    className="hover:bg-muted/50 cursor-pointer"
-                    onClick={() => onView(azienda)}
+                    className="hover:bg-muted/50"
                   >
                     <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mt-1">
                           <Building2 className="h-5 w-5 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-foreground truncate">
+                          <p className="font-semibold text-foreground leading-tight break-words">
                             {azienda.nome}
                           </p>
                           {azienda.citta && (
-                            <p className="text-xs text-muted-foreground truncate">
+                            <p className="text-xs text-muted-foreground mt-1">
                               {azienda.citta}
                             </p>
                           )}
@@ -235,40 +234,70 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                     </TableCell>
                     
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">Apri menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            onView(azienda);
-                          }}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            Visualizza
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(azienda);
-                          }}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Modifica
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(azienda);
-                            }}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Elimina
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-center space-x-1 gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onView(azienda);
+                                }}
+                                className="h-8 px-2"
+                              >
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Visualizza dettagli</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onEdit(azienda);
+                                }}
+                                className="h-8 px-2"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Modifica azienda</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-3 w-3" />
+                              <span className="sr-only">Altre azioni</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(azienda);
+                              }}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Elimina
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
