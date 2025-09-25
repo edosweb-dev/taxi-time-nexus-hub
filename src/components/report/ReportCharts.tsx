@@ -13,7 +13,7 @@ interface ReportChartsProps {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C'];
 
-export function ReportCharts({ servizi, aziende, conducenti, veicoli }: ReportChartsProps) {
+export function ReportCharts({ servizi = [], aziende = [], conducenti = [], veicoli = [] }: ReportChartsProps) {
   // Dati per grafico temporale (ultimi 30 giorni)
   const timelineData = useMemo(() => {
     const last30Days = eachDayOfInterval({
@@ -27,8 +27,11 @@ export function ReportCharts({ servizi, aziende, conducenti, veicoli }: ReportCh
       
       return {
         date: format(date, 'dd/MM', { locale: it }),
-        servizi: dayServizi.length,
-        fatturato: dayServizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
+        servizi: dayServizi.length || 0,
+        fatturato: dayServizi.reduce((sum, s) => {
+          const incasso = Number(s.incasso_ricevuto || s.incasso_previsto || 0);
+          return sum + (isNaN(incasso) ? 0 : incasso);
+        }, 0)
       };
     });
   }, [servizi]);
@@ -38,9 +41,12 @@ export function ReportCharts({ servizi, aziende, conducenti, veicoli }: ReportCh
     const aziendaStats = aziende.map(azienda => {
       const aziendaServizi = servizi.filter(s => s.azienda_id === azienda.id);
       return {
-        name: azienda.nome.length > 15 ? azienda.nome.substring(0, 15) + '...' : azienda.nome,
-        value: aziendaServizi.length,
-        fatturato: aziendaServizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
+        name: azienda.nome && azienda.nome.length > 15 ? azienda.nome.substring(0, 15) + '...' : (azienda.nome || 'N/A'),
+        value: aziendaServizi.length || 0,
+        fatturato: aziendaServizi.reduce((sum, s) => {
+          const incasso = Number(s.incasso_ricevuto || s.incasso_previsto || 0);
+          return sum + (isNaN(incasso) ? 0 : incasso);
+        }, 0)
       };
     }).filter(item => item.value > 0)
       .sort((a, b) => b.value - a.value)
@@ -56,12 +62,15 @@ export function ReportCharts({ servizi, aziende, conducenti, veicoli }: ReportCh
       const completati = conducenteServizi.filter(s => s.stato === 'completato').length;
       
       return {
-        name: `${conducente.first_name} ${conducente.last_name}`.length > 12 
-          ? `${conducente.first_name} ${conducente.last_name}`.substring(0, 12) + '...'
-          : `${conducente.first_name} ${conducente.last_name}`,
-        totali: conducenteServizi.length,
-        completati: completati,
-        ore: conducenteServizi.reduce((sum, s) => sum + (s.ore_effettive || 0), 0)
+        name: `${conducente.first_name || ''} ${conducente.last_name || ''}`.trim().length > 12 
+          ? `${conducente.first_name || ''} ${conducente.last_name || ''}`.trim().substring(0, 12) + '...'
+          : `${conducente.first_name || ''} ${conducente.last_name || ''}`.trim() || 'N/A',
+        totali: conducenteServizi.length || 0,
+        completati: completati || 0,
+        ore: conducenteServizi.reduce((sum, s) => {
+          const ore = Number(s.ore_effettive || 0);
+          return sum + (isNaN(ore) ? 0 : ore);
+        }, 0)
       };
     }).filter(item => item.totali > 0)
       .sort((a, b) => b.completati - a.completati);
@@ -73,13 +82,16 @@ export function ReportCharts({ servizi, aziende, conducenti, veicoli }: ReportCh
   const veicoliData = useMemo(() => {
     const veicoliStats = veicoli.map(veicolo => {
       const veicoloServizi = servizi.filter(s => s.veicolo_id === veicolo.id);
-      const ore = veicoloServizi.reduce((sum, s) => sum + (s.ore_effettive || 2), 0); // Default 2h se non specificato
+      const ore = veicoloServizi.reduce((sum, s) => {
+        const oreValue = Number(s.ore_effettive || 2);
+        return sum + (isNaN(oreValue) ? 2 : oreValue);
+      }, 0); // Default 2h se non specificato
       
       return {
-        name: veicolo.targa,
-        servizi: veicoloServizi.length,
-        ore: ore,
-        utilizzo: Math.min(ore / (30 * 8) * 100, 100) // Max 8h/giorno per 30 giorni
+        name: veicolo.targa || 'N/A',
+        servizi: veicoloServizi.length || 0,
+        ore: ore || 0,
+        utilizzo: ore > 0 ? Math.min((ore / (30 * 8)) * 100, 100) : 0 // Max 8h/giorno per 30 giorni
       };
     }).filter(item => item.servizi > 0)
       .sort((a, b) => b.utilizzo - a.utilizzo);
@@ -94,7 +106,7 @@ export function ReportCharts({ servizi, aziende, conducenti, veicoli }: ReportCh
           <p className="font-semibold">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }}>
-              {entry.dataKey === 'fatturato' ? `€${entry.value?.toFixed(2)}` : entry.value}
+              {entry.dataKey === 'fatturato' ? `€${(Number(entry.value) || 0).toFixed(2)}` : (Number(entry.value) || 0)}
             </p>
           ))}
         </div>
@@ -102,6 +114,19 @@ export function ReportCharts({ servizi, aziende, conducenti, veicoli }: ReportCh
     }
     return null;
   };
+
+  // Safety check for empty data
+  if (!servizi.length) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="flex items-center justify-center h-[200px]">
+            <p className="text-muted-foreground">Nessun servizio disponibile per generare i grafici</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
