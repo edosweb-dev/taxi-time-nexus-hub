@@ -86,6 +86,31 @@ export function MobileOptimizedServiziPage() {
         </div>
       </div>
 
+      {/* CTA Buttons - Minimal */}
+      <div className="px-4 py-2 border-b border-border/30">
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => window.location.href = '/report-servizi'}
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs gap-1"
+          >
+            <Calendar className="w-3 h-3" />
+            Report
+          </Button>
+          
+          <Button 
+            onClick={() => window.location.href = '/calendario-servizi'}
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs gap-1"
+          >
+            <CalendarIcon className="w-3 h-3" />
+            Calendario  
+          </Button>
+        </div>
+      </div>
+
       {/* Enhanced Mobile Tabs */}
       <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30">
         <div 
@@ -273,24 +298,6 @@ export function MobileOptimizedServiziPage() {
         )}
       </div>
 
-      {/* CTA Buttons Report e Calendario */}
-      <div className="fixed bottom-20 left-4 right-4 flex gap-3 z-40">
-        <Button 
-          onClick={() => window.location.href = '/report-servizi'}
-          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] shadow-lg"
-        >
-          <Calendar className="w-5 h-5" />
-          Report
-        </Button>
-        
-        <Button 
-          onClick={() => window.location.href = '/calendario-servizi'}
-          className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] shadow-lg"
-        >
-          <CalendarIcon className="w-5 h-5" />
-          Calendario  
-        </Button>
-      </div>
 
       {/* Floating Action Button */}
       {isAdminOrSocio && (
