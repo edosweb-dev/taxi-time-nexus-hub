@@ -369,8 +369,8 @@ body {
    ======================================== */
 
 @media (max-width: 768px) {
-  /* CONTAINER PRINCIPALE - FULL WIDTH */
-  .mobile-container {
+  /* CONTAINER PRINCIPALE - FULL WIDTH - Only for dashboard pages, NOT auth pages */
+  .mobile-container:not(.login-centered):not(.auth-layout) {
     width: 100vw !important;
     max-width: 100vw !important;
     min-height: 100vh;
@@ -378,6 +378,11 @@ body {
     padding: 0 !important;
     margin: 0 !important;
     padding-bottom: 5rem; /* Spazio per bottom nav */
+  }
+  
+  /* Auth pages get proper padding */
+  .login-centered, .auth-layout {
+    padding: 1rem !important;
   }
 
   /* HEADER MOBILE - FULL WIDTH */
@@ -1397,8 +1402,8 @@ body {
     flex-shrink: 0;
   }
 
-  /* Container base */
-  .mobile-container {
+  /* Container base - exclude auth layouts */
+  .mobile-container:not(.login-centered):not(.auth-layout) {
     width: 100%;
     min-height: 100vh;
     overflow-x: hidden;
@@ -1479,8 +1484,8 @@ body {
     margin-top: 2px;
   }
 
-  /* Spazio per bottom nav nel body */
-  .mobile-container {
+  /* Spazio per bottom nav nel body - exclude auth layouts */
+  .mobile-container:not(.login-centered):not(.auth-layout) {
     padding-bottom: 80px !important;
   }
 }
@@ -1490,7 +1495,7 @@ body {
    ======================================== */
 
 @media (min-width: 768px) and (max-width: 1024px) {
-  .mobile-container {
+  .mobile-container:not(.login-centered):not(.auth-layout) {
     max-width: 768px;
     margin: 0 auto;
     padding: 0 2rem;
@@ -1515,7 +1520,7 @@ body {
    ======================================== */
 
 @media (min-width: 1024px) {
-  .mobile-container {
+  .mobile-container:not(.login-centered):not(.auth-layout) {
     display: none; /* Usa layout desktop */
   }
 
