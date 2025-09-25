@@ -45,16 +45,9 @@ export function AuthLayout({ children }: PropsWithChildren) {
               {children}
             </div>
 
-            {/* Footer Enhanced */}
-            <div className="text-center space-y-4 animate-fade-in-delay">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent flex-1"></div>
-                <p className="text-xs text-muted-foreground/80 font-medium tracking-wide">
-                  SICURO • VELOCE • AFFIDABILE
-                </p>
-                <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent flex-1"></div>
-              </div>
-            </div>
+             {/* Footer Enhanced */}
+             <div className="text-center space-y-4 animate-fade-in-delay">
+             </div>
           </div>
         </div>
       </div>
