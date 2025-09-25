@@ -521,25 +521,35 @@ body {
     overflow-x: auto !important;
   }
   
-  /* FORZA SCROLL FILTRI - SOLUZIONE AGGRESSIVA */
-  .force-horizontal-scroll {
+  /* APPROCCIO CHIRURGICO - Isola lo scroll SOLO ai filtri */
+  .filters-scroll-isolated {
+    /* Isola completamente lo scroll ai filtri */
+    contain: layout style paint;
     overflow-x: auto !important;
     overflow-y: visible !important;
     -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
-    touch-action: pan-x !important;
     will-change: scroll-position !important;
   }
 
-  .force-horizontal-scroll::-webkit-scrollbar {
+  .filters-scroll-isolated::-webkit-scrollbar {
     display: none !important;
   }
 
-  /* SICUREZZA - Assicura che i parent non blocchino */
-  .filters-container-parent {
-    overflow-x: visible !important;
-    contain: none !important;
+  /* SICUREZZA PAGINA - Forza contenimento globale */
+  .page-container-safe {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .mobile-layout-safe {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
   }
 
   /* Create an isolated scroll container that works despite body overflow-x: hidden */

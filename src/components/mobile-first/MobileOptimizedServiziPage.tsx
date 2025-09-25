@@ -52,6 +52,23 @@ export function MobileOptimizedServiziPage() {
     setActiveTab(filtroId);
   }, [isDragging]);
 
+  // DEBUG DIMENSIONI PAGINA
+  useEffect(() => {
+    console.log('📱 DIMENSIONI PAGINA:');
+    console.log('window.innerWidth:', window.innerWidth);
+    console.log('document.body.scrollWidth:', document.body.scrollWidth);
+    console.log('document.body.clientWidth:', document.body.clientWidth);
+    console.log('Overflow check:', document.body.scrollWidth > window.innerWidth ? '❌ OVERFLOW!' : '✅ OK');
+    
+    // Identifica elementi che causano overflow
+    const elements = document.querySelectorAll('*');
+    elements.forEach(el => {
+      if (el.scrollWidth > window.innerWidth) {
+        console.log('⚠️ Elemento overflow:', el.className, 'scrollWidth:', el.scrollWidth);
+      }
+    });
+  }, []);
+
   // Applica eventi al container
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -129,7 +146,7 @@ export function MobileOptimizedServiziPage() {
   }
 
   return (
-    <>
+    <div className="page-container-safe mobile-layout-safe">
       {/* Search */}
       <div className="mobile-search">
         <div className="relative">
@@ -168,71 +185,55 @@ export function MobileOptimizedServiziPage() {
         </div>
       </div>
 
-      {/* CONTAINER PARENT CON OVERRIDE */}
-      <div className="filters-container-parent sticky top-0 z-10 bg-background border-b overflow-visible">
-        <div className="px-4 py-3">
-          {/* CONTAINER SCROLL FORZATO */}
-          <div 
-            ref={scrollContainerRef}
-            className="force-horizontal-scroll flex gap-2 scroll-smooth snap-x snap-mandatory pb-1 -mb-1"
-            style={{
-              overflowX: 'auto',
-              overflowY: 'visible', 
-              touchAction: 'pan-x',
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}
-          >
-            {/* BOTTONI FILTRI CON PREVENT DEFAULT */}
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                data-tab={tab.id}
-                data-active={activeTab === tab.id}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleFiltroClick(tab.id);
-                }}
-                className={`
-                  flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium 
-                  whitespace-nowrap transition-all duration-300 touch-manipulation
-                  min-w-fit border shadow-sm min-h-[44px] snap-start flex-shrink-0
-                  ${activeTab === tab.id 
-                    ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
-                    : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/80'
-                  }
-                  active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1
-                `}
-                style={{ minWidth: 'max-content' }}
-              >
-                <span className="font-semibold">{tab.label}</span>
-                <div className={`
-                  flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
-                  transition-colors duration-200
-                  ${activeTab === tab.id 
-                    ? 'bg-primary-foreground text-primary' 
-                    : 'bg-muted text-muted-foreground'
-                  }
-                `}>
-                  {tab.count}
-                </div>
-                
-                {/* Active indicator */}
-                {activeTab === tab.id && (
-                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full animate-pulse" />
-                )}
-              </button>
-            ))}
-          </div>
+      {/* FILTRI CON CONTENIMENTO CHIRURGICO */}
+      <div className="sticky top-0 z-10 bg-background border-b">
+        <div 
+          ref={scrollContainerRef}
+          className="filters-scroll-isolated flex px-4 py-3 gap-2 scroll-smooth snap-x snap-mandatory"
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              data-tab={tab.id}
+              data-active={activeTab === tab.id}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFiltroClick(tab.id);
+              }}
+              className={`
+                flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium 
+                whitespace-nowrap transition-all duration-300 touch-manipulation
+                min-w-fit border shadow-sm min-h-[44px] snap-start flex-shrink-0
+                ${activeTab === tab.id 
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
+                  : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/80'
+                }
+                active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1
+              `}
+            >
+              <span className="font-semibold">{tab.label}</span>
+              <div className={`
+                flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
+                transition-colors duration-200
+                ${activeTab === tab.id 
+                  ? 'bg-primary-foreground text-primary' 
+                  : 'bg-muted text-muted-foreground'
+                }
+              `}>
+                {tab.count}
+              </div>
+              
+              {/* Active indicator */}
+              {activeTab === tab.id && (
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full animate-pulse" />
+              )}
+            </button>
+          ))}
         </div>
-        
-        {/* Subtle gradient fade on scroll */}
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background/95 to-transparent pointer-events-none" />
       </div>
 
-      {/* Lista servizi */}
+      {/* Lista servizi con contenimento normale */}
       <div className="services-list">
         {filteredServizi.length > 0 ? (
           filteredServizi.map((servizio) => (
@@ -365,7 +366,6 @@ export function MobileOptimizedServiziPage() {
         )}
       </div>
 
-
       {/* Floating Action Button */}
       {isAdminOrSocio && (
         <Button
@@ -376,6 +376,6 @@ export function MobileOptimizedServiziPage() {
           <Plus className="h-5 w-5" />
         </Button>
       )}
-    </>
+    </div>
   );
 }
