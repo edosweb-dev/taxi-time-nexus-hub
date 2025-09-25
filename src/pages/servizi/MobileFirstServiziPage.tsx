@@ -47,8 +47,8 @@ export default function MobileFirstServiziPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen -m-2 sm:-m-4 md:m-0 md:space-y-6">
-        {/* Mobile-First Content with no margins for full viewport usage */}
+      <div className="min-h-screen bg-gray-50">
+        {/* Mobile-First Content with clean container system */}
         <MobileFirstServiziContent 
           servizi={servizi}
           users={users}
