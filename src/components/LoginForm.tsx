@@ -143,8 +143,8 @@ export function LoginForm() {
   return (
     <div className="w-full mx-auto overflow-hidden">
       {/* CARD BIANCA - CONTENUTO DEL FORM */}
-      <div className="bg-card border border-border rounded-xl shadow-sm px-2 py-4 sm:px-4 sm:py-6 overflow-hidden w-full mx-auto">
-        <form onSubmit={handleLogin} className="space-y-3 w-full" aria-label="Form di accesso">
+      <div className="bg-card border border-border rounded-xl shadow-sm p-4 sm:p-6 mx-4">
+        <form onSubmit={handleLogin} className="space-y-4" aria-label="Form di accesso">
             
           {/* Progressive Loading Bar */}
           {isAuthenticating && (
@@ -237,12 +237,13 @@ export function LoginForm() {
           </div>
 
           {/* Submit button */}
-          <button
-            type="submit"
-            disabled={isAuthenticating || loading || lockoutTime !== null && lockoutTime > Date.now()}
-            aria-busy={isAuthenticating || loading}
-            className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed transition-colors duration-200 font-medium text-base min-h-touch"
-          >
+          <div className="flex justify-center mt-4">
+            <button
+              type="submit"
+              disabled={isAuthenticating || loading || lockoutTime !== null && lockoutTime > Date.now()}
+              aria-busy={isAuthenticating || loading}
+              className="bg-primary text-primary-foreground py-3 px-8 rounded-lg hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed transition-colors duration-200 font-medium text-base min-h-touch min-w-[200px]"
+            >
             {loading || isAuthenticating ? (
               <div className="flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
@@ -256,7 +257,8 @@ export function LoginForm() {
                 <span>Accedi</span>
               </div>
             )}
-          </button>
+            </button>
+          </div>
 
           {/* Links utili */}
           <div className="text-center space-y-3 pt-4">
