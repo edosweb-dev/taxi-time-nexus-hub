@@ -15,22 +15,19 @@ export function AuthLayout({ children }: PropsWithChildren) {
           <div className="space-y-8">
             {/* Logo Section - Enhanced */}
             <div className="text-center auth-enter">
-              <div className="mb-6 sm:mb-8 transform transition-transform duration-500 hover:scale-105">
-                <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full transform scale-150 opacity-50"></div>
-                  <img
-                    src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
-                    alt="Taxitime Logo" 
-                    className="h-24 w-auto sm:h-32 mx-auto object-contain relative z-10 filter drop-shadow-lg"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                      const parent = (e.target as HTMLElement).parentElement;
-                      if (parent) {
-                        parent.innerHTML = '<div class="text-primary text-2xl font-bold tracking-wider text-center bg-primary/10 px-6 py-3 rounded-lg">TAXI</div>';
-                      }
-                    }}
-                  />
-                </div>
+              <div className="mb-6 sm:mb-8">
+                <img
+                  src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
+                  alt="Taxitime Logo" 
+                  className="h-24 w-auto sm:h-32 mx-auto object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    const parent = (e.target as HTMLElement).parentElement;
+                    if (parent) {
+                      parent.innerHTML = '<div class="text-primary text-2xl font-bold tracking-wider text-center">TAXI</div>';
+                    }
+                  }}
+                />
               </div>
               
               <div className="space-y-2 animate-slide-up">
