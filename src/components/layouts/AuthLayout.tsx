@@ -1,16 +1,17 @@
 
 import { PropsWithChildren } from "react";
+import "../../styles/auth.css";
 
 export function AuthLayout({ children }: PropsWithChildren) {
   return (
-    <div className="login-centered min-h-screen min-h-[100dvh] w-full bg-gradient-to-br from-background via-background to-muted/10 flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="auth-page login-centered min-h-screen min-h-[100dvh] w-full bg-gradient-to-br from-background via-background to-muted/10 flex items-center justify-center overflow-hidden">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.03),transparent)]"></div>
       
       <div className="w-full flex items-center justify-center relative z-10 overflow-hidden">
         <div 
-          className="w-full max-w-[280px] sm:max-w-sm md:max-w-md animate-fade-in mx-auto"
-          style={{ maxWidth: "min(calc(100vw - 32px), 448px)" }}
+          className="auth-container w-full max-w-[280px] sm:max-w-sm md:max-w-md animate-fade-in mx-auto"
+          style={{ maxWidth: "min(calc(100vw - 40px), 448px)" }}
         >
           <div className="space-y-6">
             {/* Logo Section - Centrato */}

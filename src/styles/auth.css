@@ -1,0 +1,59 @@
+/* Override globali per pagine auth */
+.auth-page {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  min-height: 100vh;
+}
+
+/* Responsive padding */
+@media (min-width: 640px) {
+  .auth-page {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .auth-page {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+}
+
+/* Assicura che il form non sia mai più largo della viewport */
+.auth-page .auth-container {
+  max-width: calc(100vw - 40px);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .auth-page .auth-container {
+    max-width: 400px;
+  }
+}
+
+@media (min-width: 768px) {
+  .auth-page .auth-container {
+    max-width: 448px;
+  }
+}
+
+/* Fix per evitare che altre regole globali interferiscano */
+.auth-page * {
+  box-sizing: border-box;
+}
+
+.auth-page .mobile-container {
+  padding: inherit !important;
+}
+
+/* Garantisce che nessuna regola globale possa sovrascrivere i padding auth */
+.auth-page {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+/* Override per assicurare che i container interni rispettino i limiti */
+.auth-page .w-full {
+  max-width: 100% !important;
+}
