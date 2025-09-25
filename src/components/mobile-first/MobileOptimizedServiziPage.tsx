@@ -114,11 +114,9 @@ export function MobileOptimizedServiziPage() {
       {/* Enhanced Mobile Tabs */}
       <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30">
         <div 
-          className="flex overflow-x-auto scrollbar-hide px-4 py-3 gap-2 scroll-smooth snap-x snap-mandatory"
+          className="isolated-horizontal-scroll flex px-4 py-3 gap-2 scroll-smooth snap-x snap-mandatory"
           style={{
             touchAction: 'pan-x',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
           }}
         >
