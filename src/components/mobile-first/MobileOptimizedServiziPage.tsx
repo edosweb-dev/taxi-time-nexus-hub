@@ -88,15 +88,23 @@ export function MobileOptimizedServiziPage() {
 
       {/* Enhanced Mobile Tabs */}
       <div className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30">
-        <div className="flex overflow-x-auto scrollbar-hide px-4 py-3 gap-2">
+        <div 
+          className="flex overflow-x-auto scrollbar-hide px-4 py-3 gap-2 scroll-smooth snap-x snap-mandatory"
+          style={{
+            touchAction: 'pan-x',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                relative flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium 
+                relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium 
                 whitespace-nowrap transition-all duration-300 touch-manipulation
-                min-w-fit border shadow-sm
+                min-w-fit border shadow-sm flex-shrink-0 snap-start min-h-[44px]
                 ${activeTab === tab.id 
                   ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
                   : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground hover:border-border/80'
