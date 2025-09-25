@@ -15,7 +15,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
           <div className="space-y-8">
             {/* Logo Section - Enhanced */}
             <div className="text-center auth-enter">
-              <div className="mb-6 sm:mb-8">
+              <div className="mb-3 sm:mb-4">
                 <img
                   src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
                   alt="Taxitime Logo" 
