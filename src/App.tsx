@@ -23,8 +23,8 @@ const ConducentiEsterniPage = lazy(() => import('./pages/conducenti-esterni/Cond
 const StipendiPage = lazy(() => import('./pages/StipendiPage'));
 const MobileServiziPage = lazy(() => import('./pages/servizi/MobileServiziPage'));
 const SpeseAziendaliPage = lazy(() => import('./pages/SpeseAziendaliPage'));
-const CalendarioServiziPage = lazy(() => import('./pages/CalendarioServiziPage'));
-const ReportServiziPage = lazy(() => import('./pages/ReportServiziPage'));
+const CalendarioPage = lazy(() => import('./pages/CalendarioPage'));
+const ReportPage = lazy(() => import('./pages/ReportPage'));
 const CalendarioTurniPage = lazy(() => import('./pages/CalendarioTurniPage'));
 const ShiftReportsPage = lazy(() => import('./pages/shifts/ShiftReportsPage'));
 const AziendePage = lazy(() => import('./pages/aziende/AziendePage'));
@@ -109,12 +109,12 @@ function App() {
                 } />
                 <Route path="/calendario-servizi" element={
                   <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                    <CalendarioServiziPage />
+                    <CalendarioPage />
                   </AuthGuard>
                 } />
                 <Route path="/report-servizi" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
-                    <ReportServiziPage />
+                    <ReportPage />
                   </AuthGuard>
                 } />
 

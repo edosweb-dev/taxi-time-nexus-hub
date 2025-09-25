@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Calendar, MapPin, Clock, User, Plus, Filter } from 'lucide-react';
+import { Search, Calendar, MapPin, Clock, User, Plus, Filter, Calendar as CalendarIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -273,14 +273,33 @@ export function MobileOptimizedServiziPage() {
         )}
       </div>
 
+      {/* CTA Buttons Report e Calendario */}
+      <div className="fixed bottom-20 left-4 right-4 flex gap-3 z-40">
+        <Button 
+          onClick={() => window.location.href = '/report-servizi'}
+          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] shadow-lg"
+        >
+          <Calendar className="w-5 h-5" />
+          Report
+        </Button>
+        
+        <Button 
+          onClick={() => window.location.href = '/calendario-servizi'}
+          className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] shadow-lg"
+        >
+          <CalendarIcon className="w-5 h-5" />
+          Calendario  
+        </Button>
+      </div>
+
       {/* Floating Action Button */}
       {isAdminOrSocio && (
         <Button
           onClick={handleNavigateToNewServizio}
-          className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg touch-target z-40"
+          className="fixed bottom-32 right-4 h-12 w-12 rounded-full shadow-lg touch-target z-40"
           size="icon"
         >
-          <Plus className="h-6 w-6" />
+          <Plus className="h-5 w-5" />
         </Button>
       )}
     </>
