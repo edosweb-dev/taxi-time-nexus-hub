@@ -63,9 +63,6 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
         <TableCell className="font-medium">
           {formatProgressiveId(servizio.id, globalIndex)}
         </TableCell>
-        <TableCell className="font-medium">
-          {servizio.numero_commessa || "N/D"}
-        </TableCell>
         <TableCell>{aziendaName}</TableCell>
         <TableCell>{format(parseISO(servizio.data_servizio), "dd/MM/yyyy")}</TableCell>
         <TableCell>{servizio.orario_servizio}</TableCell>
@@ -85,8 +82,8 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
             <span className="text-muted-foreground">Non assegnato</span>
           )}
         </TableCell>
-        <TableCell className="w-48">
-          <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+        <TableCell className="w-32">
+          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             {/* Se da assegnare: mostra solo pulsante Assegna */}
             {isToAssign ? (
               <>
@@ -98,10 +95,9 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
                       e.stopPropagation();
                       onSelect(servizio);
                     }}
-                    className="min-w-[80px]"
+                    className="h-8 px-2"
                   >
-                    <Users className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Assegna</span>
+                    <Users className="h-3 w-3" />
                   </Button>
                 )}
               </>
@@ -116,11 +112,10 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
                     e.stopPropagation();
                     if (canBeCompleted) onCompleta?.(servizio);
                   }}
-                  className="min-w-[80px]"
-                  style={{ opacity: canBeCompleted ? 1 : 0.5 }}
+                  className="h-8 px-2"
+                  style={{ opacity: canBeCompleted ? 1 : 0.3 }}
                 >
-                  <CheckSquare className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">Completa</span>
+                  <CheckSquare className="h-3 w-3" />
                 </Button>
                 
                 <Button 
@@ -131,11 +126,10 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
                     e.stopPropagation();
                     if (canBeSigned) onFirma?.(servizio);
                   }}
-                  className="min-w-[70px]"
-                  style={{ opacity: canBeSigned ? 1 : 0.5 }}
+                  className="h-8 px-2"
+                  style={{ opacity: canBeSigned ? 1 : 0.3 }}
                 >
-                  <Clipboard className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">Firma</span>
+                  <Clipboard className="h-3 w-3" />
                 </Button>
               </>
             )}
@@ -143,8 +137,8 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
             {/* Menu dropdown sempre presente per dettagli */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
-                  <ChevronDown className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="h-8 px-2" onClick={(e) => e.stopPropagation()}>
+                  <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -162,7 +156,7 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
       </TableRow>
       {isExpanded && (
         <TableRow>
-          <TableCell colSpan={9} className="bg-muted/30 p-4">
+          <TableCell colSpan={8} className="bg-muted/30 p-4">
             <ServizioExpandedRow 
               servizio={servizio}
               users={users}
