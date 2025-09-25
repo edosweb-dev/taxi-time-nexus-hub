@@ -54,9 +54,11 @@ export function ReportFilters({
   const [selectedPeriod, setSelectedPeriod] = useState('month');
 
   const handleFilterChange = (key: keyof ReportFiltersData, value: any) => {
+    // Convert "all" to empty string for filter logic
+    const processedValue = value === 'all' ? '' : value;
     onFiltersChange({
       ...filters,
-      [key]: value
+      [key]: processedValue
     });
   };
 
@@ -197,12 +199,12 @@ export function ReportFilters({
               <Building2 className="h-4 w-4" />
               Azienda
             </Label>
-            <Select value={filters.aziendaId} onValueChange={(value) => handleFilterChange('aziendaId', value)}>
+            <Select value={filters.aziendaId || 'all'} onValueChange={(value) => handleFilterChange('aziendaId', value)}>
               <SelectTrigger className="min-h-[40px]">
                 <SelectValue placeholder="Tutte le aziende" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutte le aziende</SelectItem>
+                <SelectItem value="all">Tutte le aziende</SelectItem>
                 {aziende.map(azienda => (
                   <SelectItem key={azienda.id} value={azienda.id}>
                     {azienda.nome}
@@ -218,12 +220,12 @@ export function ReportFilters({
               <User className="h-4 w-4" />
               Referente
             </Label>
-            <Select value={filters.referenteId} onValueChange={(value) => handleFilterChange('referenteId', value)}>
+            <Select value={filters.referenteId || 'all'} onValueChange={(value) => handleFilterChange('referenteId', value)}>
               <SelectTrigger className="min-h-[40px]">
                 <SelectValue placeholder="Tutti i referenti" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i referenti</SelectItem>
+                <SelectItem value="all">Tutti i referenti</SelectItem>
                 {referenti.map(referente => (
                   <SelectItem key={referente.id} value={referente.id}>
                     {referente.first_name} {referente.last_name}
@@ -239,12 +241,12 @@ export function ReportFilters({
               <Users className="h-4 w-4" />
               Conducente
             </Label>
-            <Select value={filters.conducenteId} onValueChange={(value) => handleFilterChange('conducenteId', value)}>
+            <Select value={filters.conducenteId || 'all'} onValueChange={(value) => handleFilterChange('conducenteId', value)}>
               <SelectTrigger className="min-h-[40px]">
                 <SelectValue placeholder="Tutti i conducenti" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i conducenti</SelectItem>
+                <SelectItem value="all">Tutti i conducenti</SelectItem>
                 {conducenti.map(conducente => (
                   <SelectItem key={conducente.id} value={conducente.id}>
                     {conducente.first_name} {conducente.last_name}
@@ -257,12 +259,12 @@ export function ReportFilters({
           {/* Veicolo */}
           <div className="space-y-2">
             <Label className="text-sm">Veicolo</Label>
-            <Select value={filters.veicoloId} onValueChange={(value) => handleFilterChange('veicoloId', value)}>
+            <Select value={filters.veicoloId || 'all'} onValueChange={(value) => handleFilterChange('veicoloId', value)}>
               <SelectTrigger className="min-h-[40px]">
                 <SelectValue placeholder="Tutti i veicoli" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i veicoli</SelectItem>
+                <SelectItem value="all">Tutti i veicoli</SelectItem>
                 {veicoli.map(veicolo => (
                   <SelectItem key={veicolo.id} value={veicolo.id}>
                     {veicolo.targa} - {veicolo.modello}

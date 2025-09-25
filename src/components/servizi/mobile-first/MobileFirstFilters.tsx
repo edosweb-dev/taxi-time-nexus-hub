@@ -52,14 +52,14 @@ export function MobileFirstFilters({
       <div className="space-y-2">
         <Label htmlFor="azienda">Azienda</Label>
         <Select
-          value={filters.aziendaId}
-          onValueChange={(value) => onFiltersChange({ ...filters, aziendaId: value })}
+          value={filters.aziendaId || 'all'}
+          onValueChange={(value) => onFiltersChange({ ...filters, aziendaId: value === 'all' ? '' : value })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Seleziona azienda" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tutte le aziende</SelectItem>
+            <SelectItem value="all">Tutte le aziende</SelectItem>
             {aziende.map((azienda) => (
               <SelectItem key={azienda.id} value={azienda.id}>
                 {azienda.nome}
@@ -73,14 +73,14 @@ export function MobileFirstFilters({
       <div className="space-y-2">
         <Label htmlFor="assignee">Assegnato a</Label>
         <Select
-          value={filters.assigneeId}
-          onValueChange={(value) => onFiltersChange({ ...filters, assigneeId: value })}
+          value={filters.assigneeId || 'all'}
+          onValueChange={(value) => onFiltersChange({ ...filters, assigneeId: value === 'all' ? '' : value })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Seleziona operatore" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tutti gli operatori</SelectItem>
+            <SelectItem value="all">Tutti gli operatori</SelectItem>
             {users.filter(user => user.role === 'dipendente').map((user) => (
               <SelectItem key={user.id} value={user.id}>
                 {user.first_name} {user.last_name}
