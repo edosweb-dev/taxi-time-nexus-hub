@@ -1,6 +1,6 @@
 import { Servizio } from '@/lib/types/servizi';
 import { Profile, Azienda } from '@/lib/types';
-import { MobileFirstServiceCard } from './MobileFirstServiceCard';
+import { OptimizedMobileServiceCard } from './OptimizedMobileServiceCard';
 
 interface MobileFirstServiceListProps {
   servizi: Servizio[];
@@ -42,9 +42,9 @@ export function MobileFirstServiceList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {servizi.map((servizio) => (
-        <MobileFirstServiceCard
+        <OptimizedMobileServiceCard
           key={servizio.id}
           servizio={servizio}
           aziendaName={getAziendaName(servizio.azienda_id)}
@@ -55,7 +55,6 @@ export function MobileFirstServiceList({
           onCompleta={onCompleta}
           onFirma={onFirma}
           isAdminOrSocio={isAdminOrSocio}
-          allServizi={allServizi}
         />
       ))}
     </div>
