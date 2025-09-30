@@ -6,6 +6,7 @@ import { Profile, Azienda, UserRole } from '@/lib/types';
 import { toast } from '@/components/ui/sonner';
 import { UserFormData } from '@/lib/api/users/types';
 import { AziendaFormData } from '@/lib/api/aziende';
+import { Passeggero, getPasseggeriByAzienda } from '@/lib/api/passeggeri';
 
 export function useAziendaDetail(id: string | undefined, currentUserID: string | undefined) {
   const navigate = useNavigate();
@@ -14,6 +15,10 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   const [isEditMode, setIsEditMode] = useState(false);
   const [isUserSheetOpen, setIsUserSheetOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [referenteToDelete, setReferenteToDelete] = useState<Profile | null>(null);
+  const [passeggeri, setPasseggeri] = useState<Passeggero[]>([]);
+  const [isLoadingPasseggeri, setIsLoadingPasseggeri] = useState(false);
 
   const { 
     getCompanyDetails, 
@@ -49,6 +54,26 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     }
   }, [error, navigate]);
 
+  // Load passengers when azienda ID is available
+  useEffect(() => {
+    const loadPasseggeri = async () => {
+      if (!id) return;
+      
+      try {
+        setIsLoadingPasseggeri(true);
+        const data = await getPasseggeriByAzienda(id);
+        setPasseggeri(data);
+      } catch (error) {
+        console.error('Error loading passengers:', error);
+        toast.error("Errore nel caricamento dei passeggeri");
+      } finally {
+        setIsLoadingPasseggeri(false);
+      }
+    };
+
+    loadPasseggeri();
+  }, [id]);
+
   const handleBack = () => {
     navigate('/aziende');
   };
@@ -79,8 +104,15 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   };
 
   const handleDeleteUser = (user: Profile) => {
-    if (window.confirm(`Sei sicuro di voler eliminare ${user.first_name} ${user.last_name}?`)) {
-      deleteUser(user.id);
+    setReferenteToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteUser = () => {
+    if (referenteToDelete) {
+      deleteUser(referenteToDelete.id);
+      setDeleteDialogOpen(false);
+      setReferenteToDelete(null);
     }
   };
 
@@ -115,6 +147,11 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     isUserSheetOpen,
     setIsUserSheetOpen,
     selectedUser,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+    referenteToDelete,
+    passeggeri,
+    isLoadingPasseggeri,
     handleBack,
     handleEditAzienda,
     handleCancelEdit,
@@ -122,6 +159,7 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     handleAddUser,
     handleEditUser,
     handleDeleteUser,
+    confirmDeleteUser,
     handleSubmitUser,
     isUpdating,
     isCreatingUser,

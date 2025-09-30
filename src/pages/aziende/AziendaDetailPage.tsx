@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -6,13 +5,18 @@ import { AziendaForm } from '@/components/aziende/AziendaForm';
 import { UserSheet } from '@/components/users/UserSheet';
 import { Loader2, ArrowLeft, Edit, Save, X, Home, ChevronRight } from 'lucide-react';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
+import { MobileAziendaDetailHeader } from '@/components/aziende/detail/mobile/MobileAziendaDetailHeader';
+import { MobileAziendaDetailTabs } from '@/components/aziende/detail/mobile/MobileAziendaDetailTabs';
+import { DeleteReferenteDialog } from '@/components/aziende/DeleteReferenteDialog';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function AziendaDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const currentUserID = user?.id;
+  const isMobile = useIsMobile();
   
   const {
     azienda,
@@ -24,6 +28,11 @@ export default function AziendaDetailPage() {
     isUserSheetOpen,
     setIsUserSheetOpen,
     selectedUser,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+    referenteToDelete,
+    passeggeri,
+    isLoadingPasseggeri,
     handleBack,
     handleEditAzienda,
     handleCancelEdit,
@@ -31,6 +40,7 @@ export default function AziendaDetailPage() {
     handleAddUser,
     handleEditUser,
     handleDeleteUser,
+    confirmDeleteUser,
     handleSubmitUser,
     isUpdating,
     isCreatingUser,
@@ -64,41 +74,52 @@ export default function AziendaDetailPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Header con breadcrumb */}
-        <div className="space-y-4">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span 
-              className="hover:text-foreground cursor-pointer transition-colors duration-200" 
-              onClick={handleBack}
-            >
-              Aziende
-            </span>
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">{azienda.nome}</span>
-          </nav>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-3">
-              <h1 className="page-title">{azienda.nome}</h1>
-              <p className="text-description">
-                Dettagli e gestione azienda cliente
-              </p>
-            </div>
-            {!isEditMode ? (
-              <Button onClick={handleEditAzienda} size="sm">
-                <Edit className="mr-2 h-4 w-4" /> Modifica
-              </Button>
-            ) : (
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={handleCancelEdit} size="sm">
-                  <X className="mr-2 h-4 w-4" /> Annulla
-                </Button>
+        {/* Mobile Header */}
+        {isMobile && !isEditMode && (
+          <MobileAziendaDetailHeader
+            azienda={azienda}
+            onBack={handleBack}
+            onEdit={handleEditAzienda}
+          />
+        )}
+
+        {/* Desktop Header con breadcrumb */}
+        {!isMobile && (
+          <div className="space-y-4">
+            <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Home className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
+              <span 
+                className="hover:text-foreground cursor-pointer transition-colors duration-200" 
+                onClick={handleBack}
+              >
+                Aziende
+              </span>
+              <ChevronRight className="h-4 w-4" />
+              <span className="font-medium text-foreground">{azienda.nome}</span>
+            </nav>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                <h1 className="page-title">{azienda.nome}</h1>
+                <p className="text-description">
+                  Dettagli e gestione azienda cliente
+                </p>
               </div>
-            )}
+              {!isEditMode ? (
+                <Button onClick={handleEditAzienda} size="sm">
+                  <Edit className="mr-2 h-4 w-4" /> Modifica
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={handleCancelEdit} size="sm">
+                    <X className="mr-2 h-4 w-4" /> Annulla
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {isEditMode ? (
           <AziendaForm
@@ -108,15 +129,30 @@ export default function AziendaDetailPage() {
             isSubmitting={isUpdating}
           />
         ) : (
-          <div className="space-y-6">
-            <InfoTab 
-              azienda={azienda} 
-              referenti={referenti}
-              onAddReferente={handleAddUser}
-              onEditReferente={handleEditUser}
-              onDeleteReferente={handleDeleteUser}
-            />
-          </div>
+          <>
+            {isMobile ? (
+              <MobileAziendaDetailTabs
+                azienda={azienda}
+                referenti={referenti}
+                passeggeri={passeggeri}
+                isLoadingUsers={isLoadingUsers}
+                isLoadingPasseggeri={isLoadingPasseggeri}
+                onAddReferente={handleAddUser}
+                onEditReferente={handleEditUser}
+                onDeleteReferente={handleDeleteUser}
+              />
+            ) : (
+              <div className="space-y-6">
+                <InfoTab 
+                  azienda={azienda} 
+                  referenti={referenti}
+                  onAddReferente={handleAddUser}
+                  onEditReferente={handleEditUser}
+                  onDeleteReferente={handleDeleteUser}
+                />
+              </div>
+            )}
+          </>
         )}
         
         <UserSheet
@@ -131,6 +167,12 @@ export default function AziendaDetailPage() {
           preselectedAzienda={azienda}
         />
 
+        <DeleteReferenteDialog
+          referente={referenteToDelete}
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={confirmDeleteUser}
+        />
       </div>
     </MainLayout>
   );
