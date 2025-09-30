@@ -5,7 +5,6 @@ import { ReferentiDialog } from "../ReferentiDialog";
 import { Pagination } from "../Pagination";
 import { MobileAziendaHeader } from "./MobileAziendaHeader";
 import { MobileAziendaCard } from "./MobileAziendaCard";
-import { MobileAziendaFilters } from "./MobileAziendaFilters";
 import { MobileAziendaCardSkeleton } from "./MobileAziendaCardSkeleton";
 import { Building2, Search, Plus, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,6 @@ export function MobileAziendaList({
 }: MobileAziendaListProps) {
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("tutte");
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,15 +43,6 @@ export function MobileAziendaList({
 
   const filteredAziende = useMemo(() => {
     let filtered = aziende;
-
-    // Apply filter
-    if (activeFilter === 'con-firma') {
-      filtered = filtered.filter(a => a.firma_digitale_attiva);
-    } else if (activeFilter === 'con-provvigione') {
-      filtered = filtered.filter(a => a.provvigione);
-    } else if (activeFilter === 'senza-referenti') {
-      filtered = filtered.filter(a => !referentiByAzienda[a.id] || referentiByAzienda[a.id].length === 0);
-    }
 
     // Apply search
     if (searchTerm) {
@@ -67,12 +56,12 @@ export function MobileAziendaList({
     }
     
     return filtered;
-  }, [aziende, searchTerm, activeFilter, referentiByAzienda]);
+  }, [aziende, searchTerm, referentiByAzienda]);
 
-  // Reset to first page when search or filter changes
+  // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, activeFilter]);
+  }, [searchTerm]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredAziende.length / itemsPerPage);
@@ -151,24 +140,14 @@ export function MobileAziendaList({
           filteredCount={filteredAziende.length}
         />
         
-        <MobileAziendaFilters
-          aziende={aziende}
-          referentiByAzienda={referentiByAzienda}
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-        />
-        
         <div className="flex flex-col items-center justify-center py-12 px-4">
           <Search className="h-16 w-16 text-muted-foreground/50 mb-4" />
           <h3 className="text-lg font-semibold mb-2">Nessun risultato</h3>
           <p className="text-sm text-muted-foreground text-center mb-4">
             Prova a modificare i criteri di ricerca o filtri
           </p>
-          <Button variant="outline" onClick={() => {
-            setSearchTerm("");
-            setActiveFilter("tutte");
-          }}>
-            Resetta filtri
+          <Button variant="outline" onClick={() => setSearchTerm("")}>
+            Resetta ricerca
           </Button>
         </div>
       </div>
@@ -182,13 +161,6 @@ export function MobileAziendaList({
         onSearchChange={setSearchTerm}
         totalCount={aziende.length}
         filteredCount={filteredAziende.length}
-      />
-
-      <MobileAziendaFilters
-        aziende={aziende}
-        referentiByAzienda={referentiByAzienda}
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
       />
 
       {/* Content - cards list */}
