@@ -8,13 +8,13 @@ interface MobileAziendaFormHeaderProps {
 
 export function MobileAziendaFormHeader({ title, onBack }: MobileAziendaFormHeaderProps) {
   return (
-    <div className="sticky top-0 z-20 bg-background border-b">
+    <div className="sticky top-0 z-30 bg-background border-b">
       <div className="flex items-center gap-3 px-4 py-3">
         <Button
           variant="ghost"
           size="icon"
           onClick={onBack}
-          className="flex-shrink-0 min-h-[44px] min-w-[44px]"
+          className="flex-shrink-0 min-h-[48px] min-w-[48px]"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>

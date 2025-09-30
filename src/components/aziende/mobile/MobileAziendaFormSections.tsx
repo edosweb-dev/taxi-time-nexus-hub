@@ -18,7 +18,7 @@ export function MobileAziendaFormSections({ control }: MobileAziendaFormSections
   return (
     <Accordion 
       type="multiple" 
-      defaultValue={['info', 'contacts', 'settings']}
+      defaultValue={['info']}
       className="w-full px-4 py-4 space-y-3"
     >
       <AccordionItem value="info" className="border rounded-lg px-4 bg-card">

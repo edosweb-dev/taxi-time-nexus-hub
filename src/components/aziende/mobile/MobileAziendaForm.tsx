@@ -122,7 +122,7 @@ export function MobileAziendaForm({ azienda, onSubmit, onCancel, isSubmitting }:
   };
 
   return (
-    <div className="fixed inset-0 z-40 bg-background flex flex-col lg:relative lg:z-0">
+    <div className="min-h-screen bg-background flex flex-col">
       <MobileAziendaFormHeader
         title={isEditing ? 'Modifica Azienda' : 'Nuova Azienda'}
         onBack={handleBack}

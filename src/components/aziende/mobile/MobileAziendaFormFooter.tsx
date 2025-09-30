@@ -15,7 +15,7 @@ export function MobileAziendaFormFooter({
   isEditing 
 }: MobileAziendaFormFooterProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 z-50 safe-area-inset-bottom">
+    <div className="sticky bottom-0 left-0 right-0 bg-background border-t p-4 pb-safe z-30">
       <div className="flex gap-3">
         <Button
           type="button"
