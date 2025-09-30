@@ -66,7 +66,7 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false, priori
 
 export function MobileServizioSections({ servizio, passeggeri, formatCurrency, users, getUserName }: MobileServizioSectionsProps) {
   const { veicoli } = useVeicoli();
-  const veicolo = (veicoli || []).find(v => v.id === servizio.veicolo_id);
+  const veicolo = veicoli.find(v => v.id === servizio.veicolo_id);
   const safeFormat = (value?: string | Date, fmt: string = 'dd/MM HH:mm') => {
     if (!value) return '—';
     const d = value instanceof Date ? value : new Date(value);

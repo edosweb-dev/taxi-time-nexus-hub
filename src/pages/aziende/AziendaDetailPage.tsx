@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { AziendaForm } from '@/components/aziende/AziendaForm';
-import { MobileAziendaForm } from '@/components/aziende/mobile/MobileAziendaForm';
+import { MobileAziendaFormStepper } from '@/components/aziende/mobile/MobileAziendaFormStepper';
 import { UserSheet } from '@/components/users/UserSheet';
 import { Loader2, ArrowLeft, Edit, Save, X, Home, ChevronRight } from 'lucide-react';
 import { InfoTab } from '@/components/aziende/detail/InfoTab';
@@ -124,7 +124,7 @@ export default function AziendaDetailPage() {
 
         {isEditMode ? (
           isMobile ? (
-            <MobileAziendaForm
+            <MobileAziendaFormStepper
               azienda={azienda}
               onSubmit={handleSubmitAzienda}
               onCancel={handleCancelEdit}
