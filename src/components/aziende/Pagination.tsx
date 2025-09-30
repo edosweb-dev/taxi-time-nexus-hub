@@ -63,7 +63,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
@@ -73,7 +73,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -86,7 +86,7 @@ export function Pagination({
               size="sm"
               onClick={() => typeof page === 'number' && onPageChange(page)}
               disabled={page === '...'}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
             >
               {page}
             </Button>
@@ -98,7 +98,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -108,7 +108,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>

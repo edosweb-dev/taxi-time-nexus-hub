@@ -4,8 +4,8 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { DesktopAziendaList } from '@/components/aziende/DesktopAziendaList';
 import { MobileAziendaList } from '@/components/aziende/mobile-first/MobileAziendaList';
 import { AziendaFormManager } from '@/components/aziende/AziendaFormManager';
-import { Button } from '@/components/ui/button';
-import { ChevronRight, Home, Building2 } from 'lucide-react';
+import { DeleteAziendaDialog } from '@/components/aziende/DeleteAziendaDialog';
+import { ChevronRight, Home } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
 import { Azienda } from '@/lib/types';
 import { AziendaFormData } from '@/lib/api/aziende';
@@ -19,6 +19,10 @@ export default function AziendePage() {
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
+  
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [aziendaToDelete, setAziendaToDelete] = useState<Azienda | null>(null);
 
   const handleAddAzienda = () => {
     setSelectedAzienda(null);
@@ -35,8 +39,15 @@ export default function AziendePage() {
   };
 
   const handleDeleteAzienda = (azienda: Azienda) => {
-    if (confirm('Sei sicuro di voler eliminare questa azienda?')) {
-      deleteCompany(azienda.id);
+    setAziendaToDelete(azienda);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (aziendaToDelete) {
+      deleteCompany(aziendaToDelete.id);
+      setDeleteDialogOpen(false);
+      setAziendaToDelete(null);
     }
   };
 
@@ -62,8 +73,8 @@ export default function AziendePage() {
       showBottomNav={true}
     >
       <div className="space-y-6">
-        {/* Header with breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+        {/* Breadcrumb - SOLO DESKTOP */}
+        <nav className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
           <Home className="h-4 w-4" />
           <ChevronRight className="h-4 w-4" />
           <span className="font-medium text-foreground">Aziende</span>
@@ -94,6 +105,13 @@ export default function AziendePage() {
           onSubmit={handleFormSubmit}
           azienda={selectedAzienda}
           isSubmitting={isCreating || isUpdating}
+        />
+
+        <DeleteAziendaDialog
+          azienda={aziendaToDelete}
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={confirmDelete}
         />
       </div>
     </MainLayout>
