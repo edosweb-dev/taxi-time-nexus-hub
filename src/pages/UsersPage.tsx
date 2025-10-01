@@ -14,11 +14,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useNavigate } from 'react-router-dom';
 
 export default function UsersPage() {
   const { users, isLoading, refetch, deleteUser, isDeleting } = useUsers();
   const { profile } = useAuth();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,8 +33,12 @@ export default function UsersPage() {
   };
 
   const handleEditUser = (user: Profile) => {
-    setSelectedUser(user);
-    setIsSheetOpen(true);
+    if (isMobile) {
+      navigate(`/users/${user.id}`);
+    } else {
+      setSelectedUser(user);
+      setIsSheetOpen(true);
+    }
   };
 
   const handleDeleteUser = async (user: Profile) => {

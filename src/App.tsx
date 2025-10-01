@@ -18,6 +18,7 @@ const NuovoServizioPage = lazy(() => import('./pages/servizi/NuovoServizioPage')
 const ServizioDetailPage = lazy(() => import('./pages/servizi/ServizioDetailPage'));
 const EditServizioPage = lazy(() => import('./pages/servizi/EditServizioPage'));
 const UsersPage = lazy(() => import('./pages/UsersPage'));
+const UserDetailPage = lazy(() => import('./pages/UserDetailPage'));
 const VeicoliPage = lazy(() => import('./pages/veicoli/VeicoliPage'));
 const ConducentiEsterniPage = lazy(() => import('./pages/conducenti-esterni/ConducentiEsterniPage'));
 const StipendiPage = lazy(() => import('./pages/StipendiPage'));
@@ -146,6 +147,11 @@ function App() {
                 <Route path="/users" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <UsersPage />
+                  </AuthGuard>
+                } />
+                <Route path="/users/:id" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <UserDetailPage />
                   </AuthGuard>
                 } />
 
