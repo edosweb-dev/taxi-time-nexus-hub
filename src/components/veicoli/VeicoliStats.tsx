@@ -70,24 +70,27 @@ export function VeicoliStats({ veicoli, onQuickFilter }: VeicoliStatsProps) {
           <Card 
             key={index}
             className={cn(
-              "transition-all duration-200",
-              onQuickFilter && "cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              "transition-all duration-200 border-2",
+              onQuickFilter && "cursor-pointer hover:shadow-lg hover:-translate-y-1 hover:border-primary/50 active:scale-95"
             )}
             onClick={stat.onClick}
+            role={onQuickFilter ? "button" : undefined}
+            tabIndex={onQuickFilter ? 0 : undefined}
+            aria-label={onQuickFilter ? `Filtra per ${stat.title}` : undefined}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium line-clamp-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-xs sm:text-sm font-semibold line-clamp-1">
                 {stat.title}
               </CardTitle>
-              <div className={cn("p-2 rounded-lg", stat.bgColor)}>
-                <Icon className={cn("h-4 w-4", stat.iconColor)} />
+              <div className={cn("p-3 rounded-xl", stat.bgColor)}>
+                <Icon className={cn("h-5 w-5", stat.iconColor)} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className={cn("text-2xl font-bold", stat.textColor)}>
+              <div className={cn("text-3xl font-bold mb-1", stat.textColor)}>
                 {stat.value}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs font-medium text-muted-foreground">
                 {stat.title === "Totale Veicoli" && "Flotta completa"}
                 {stat.title === "Veicoli Attivi" && "Disponibili"}
                 {stat.title === "Fuori Servizio" && "Non disponibili"}

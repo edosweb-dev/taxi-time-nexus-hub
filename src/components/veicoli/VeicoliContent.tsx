@@ -99,7 +99,7 @@ export function VeicoliContent({
         {filteredCount === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-5">
             {filteredVeicoli.map(veicolo => (
               <VeicoloCardMobile
                 key={veicolo.id}
