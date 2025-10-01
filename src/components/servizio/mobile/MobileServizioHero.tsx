@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Phone, MessageCircle, Navigation, Clock, User } from 'lucide-react';
+import { Phone, MessageCircle, Navigation, Clock, User, MapPin, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -25,25 +25,25 @@ interface MobileServizioHeroProps {
 }
 
 export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizio }: MobileServizioHeroProps) {
-  // stato badge handled via local config
+  const [isExpanded, setIsExpanded] = useState(false);
   
   // Get the badge properties for styling
   const getBadgeConfig = () => {
     switch (servizio.stato) {
       case 'da_assegnare':
-        return { variant: 'destructive' as const, bg: 'bg-red-50', label: 'Da Assegnare' };
+        return { variant: 'destructive' as const, label: 'Da Assegnare' };
       case 'assegnato':
-        return { variant: 'secondary' as const, bg: 'bg-blue-50', label: 'Assegnato' };
+        return { variant: 'secondary' as const, label: 'Assegnato' };
       case 'completato':
-        return { variant: 'outline' as const, bg: 'bg-green-50', label: 'Completato' };
+        return { variant: 'outline' as const, label: 'Completato' };
       case 'consuntivato':
-        return { variant: 'default' as const, bg: 'bg-green-100', label: 'Consuntivato' };
+        return { variant: 'default' as const, label: 'Consuntivato' };
       case 'annullato':
-        return { variant: 'destructive' as const, bg: 'bg-red-100', label: 'Annullato' };
+        return { variant: 'destructive' as const, label: 'Annullato' };
       case 'non_accettato':
-        return { variant: 'destructive' as const, bg: 'bg-orange-50', label: 'Non Accettato' };
+        return { variant: 'destructive' as const, label: 'Non Accettato' };
       default:
-        return { variant: 'secondary' as const, bg: 'bg-gray-50', label: servizio.stato };
+        return { variant: 'secondary' as const, label: servizio.stato };
     }
   };
 
@@ -74,139 +74,232 @@ export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizi
   };
 
   return (
-    <div className={`mobile-hero-card compact mt-5 ${badgeConfig.bg}`}>
-      {/* Header compatto con Cliente e Stato */}
-      <div className="hero-header compact">
-        <div className="cliente-info">
-          <h1 className="cliente-nome compact">{servizio.cliente.nome}</h1>
-          <Badge variant={badgeConfig.variant} className="stato-badge compact">
+    <div className="bg-card border border-border rounded-xl mt-5 overflow-hidden shadow-sm transition-all duration-300">
+      {/* Compact Header - Always Visible */}
+      <div className="p-4 space-y-3">
+        {/* Status + Cliente */}
+        <div className="flex items-center justify-between gap-2">
+          <Badge variant={badgeConfig.variant} className="text-xs font-semibold px-2 py-1">
             {badgeConfig.label}
           </Badge>
+          <h2 className="font-semibold text-base truncate flex-1 text-center">
+            {servizio.cliente.nome}
+          </h2>
         </div>
-        
-        {servizio.cliente.telefono && (
-          <div className="cliente-actions compact">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleCall(servizio.cliente.telefono!)}
-              className="action-button compact"
-            >
-              <Phone className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleMessage(servizio.cliente.telefono!)}
-              className="action-button compact"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-            </Button>
-          </div>
-        )}
-      </div>
 
-      {/* Data e Ora compatte */}
-      <div className="datetime-section compact">
-        <Clock className="datetime-icon compact" />
-        <div className="datetime-info compact">
-          <span className="date-text compact">
-            {formattedDate}
-          </span>
-          <span className="time-text compact">{servizio.orario}</span>
+        {/* Timing Compatto */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-primary/5 rounded-lg p-2">
+          <Clock className="h-4 w-4 text-primary flex-shrink-0" />
+          <span className="font-semibold text-primary">{servizio.orario}</span>
+          <span>Ritiro</span>
+          <span>•</span>
+          <span className="font-medium">{servizio.pickup.citta}</span>
         </div>
-        
-        {(servizio.durata || servizio.distanza) && (
-          <div className="datetime-meta compact">
-            {servizio.durata && <span className="text-xs">{servizio.durata}</span>}
-            {servizio.distanza && <span className="text-xs">{servizio.distanza}</span>}
-          </div>
-        )}
-      </div>
 
-      {/* Percorso compatto */}
-      <div className="route-section compact">
-        <div className="route-point pickup compact">
-          <div className="route-indicator compact">
-            <div className="route-dot pickup-dot compact"></div>
-          </div>
-          <div className="route-content compact">
-            <div className="route-label compact">Ritiro</div>
-            <div className="route-address compact" onClick={() => handleNavigate(servizio.pickup.indirizzo)}>
-              <span className="text-sm">{servizio.pickup.indirizzo}</span>
-              <span className="route-city compact text-xs">{servizio.pickup.citta}</span>
+        {/* Route Compatta */}
+        <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm truncate">{servizio.destinazione.citta}</div>
+              {!isExpanded && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                  {servizio.durata && (
+                    <>
+                      <span>{servizio.durata}</span>
+                      {servizio.distanza && <span>•</span>}
+                    </>
+                  )}
+                  {servizio.distanza && <span>{servizio.distanza}</span>}
+                </div>
+              )}
             </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
           </div>
         </div>
 
-        <div className="route-line compact"></div>
-
-        <div className="route-point destination compact">
-          <div className="route-indicator compact">
-            <div className="route-dot destination-dot compact"></div>
-          </div>
-          <div className="route-content compact">
-            <div className="route-label compact">Destinazione</div>
-            <div className="route-address compact" onClick={() => handleNavigate(servizio.destinazione.indirizzo)}>
-              <span className="text-sm">{servizio.destinazione.indirizzo}</span>
-              <span className="route-city compact text-xs">{servizio.destinazione.citta}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Autista compatto */}
-      {servizio.autista ? (
-        <div className="autista-section compact">
-          <div className="autista-info compact">
-            <Avatar className="autista-avatar compact">
+        {/* Autista Compatto (se assegnato) */}
+        {servizio.autista ? (
+          <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-2">
+            <Avatar className="h-8 w-8">
               <AvatarImage src={servizio.autista.avatar} />
               <AvatarFallback className="text-xs">
                 {servizio.autista.nome.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
-            <div className="autista-details compact">
-              <span className="autista-label compact text-xs">Autista</span>
-              <span className="autista-nome compact text-sm">{servizio.autista.nome}</span>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-muted-foreground">Autista</div>
+              <div className="font-medium text-sm truncate">{servizio.autista.nome}</div>
             </div>
           </div>
+        ) : isAdmin && servizio.stato === 'da_assegnare' ? (
+          <button
+            onClick={onAssegnaServizio}
+            className="w-full flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg p-3 transition-colors"
+          >
+            <User className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Tocca per assegnare</span>
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 bg-destructive/10 rounded-lg p-2 text-destructive">
+            <User className="h-4 w-4" />
+            <span className="text-sm font-medium">Nessun autista assegnato</span>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 pt-2 border-t">
+          {servizio.cliente.telefono && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleCall(servizio.cliente.telefono!)}
+                className="flex-1 min-h-[40px]"
+              >
+                <Phone className="h-4 w-4 mr-1" />
+                <span className="text-xs">Cliente</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleMessage(servizio.cliente.telefono!)}
+                className="flex-1 min-h-[40px]"
+              >
+                <MessageCircle className="h-4 w-4 mr-1" />
+                <span className="text-xs">SMS</span>
+              </Button>
+            </>
+          )}
           
-          {servizio.autista.telefono && (
-            <div className="autista-actions compact">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleCall(servizio.autista.telefono!)}
-                className="action-button compact"
-              >
-                <Phone className="w-3.5 h-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleMessage(servizio.autista.telefono!)}
-                className="action-button compact"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-              </Button>
-            </div>
+          {servizio.autista?.telefono && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleCall(servizio.autista.telefono!)}
+              className="flex-1 min-h-[40px]"
+            >
+              <Phone className="h-4 w-4 mr-1" />
+              <span className="text-xs">Autista</span>
+            </Button>
           )}
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleNavigate(servizio.destinazione.indirizzo)}
+            className="flex-1 min-h-[40px]"
+          >
+            <Navigation className="h-4 w-4 mr-1" />
+            <span className="text-xs">Mappa</span>
+          </Button>
+
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="min-h-[40px] px-3"
+          >
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
         </div>
-      ) : (
-        <div 
-          className={`no-autista-section compact ${isAdmin && servizio.stato === 'da_assegnare' ? 'clickable' : ''}`}
-          onClick={isAdmin && servizio.stato === 'da_assegnare' ? onAssegnaServizio : undefined}
-        >
-          <User className="w-4 h-4 text-muted-foreground" />
-          <span className="no-autista-text compact text-sm">
-            {isAdmin && servizio.stato === 'da_assegnare' 
-              ? 'Tocca per assegnare il servizio' 
-              : 'Nessun autista assegnato'
-            }
-          </span>
-          {isAdmin && servizio.stato === 'da_assegnare' && (
-            <span className="assign-hint">👆</span>
-          )}
+      </div>
+
+      {/* Expanded Details - Collapsible */}
+      {isExpanded && (
+        <div className="border-t bg-muted/20 animate-accordion-down">
+          <div className="p-4 space-y-4">
+            {/* Data Completa */}
+            <div>
+              <div className="text-xs text-muted-foreground font-medium mb-1">Data Servizio</div>
+              <div className="text-sm font-medium capitalize">{formattedDate}</div>
+            </div>
+
+            {/* Percorso Dettagliato */}
+            <div className="space-y-3">
+              <div className="text-xs text-muted-foreground font-medium">Percorso Completo</div>
+              
+              {/* Pickup Dettagliato */}
+              <div className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 rounded-full bg-chart-1 border-2 border-background shadow-sm" />
+                  <div className="w-0.5 h-full bg-border min-h-[40px]" />
+                </div>
+                <div className="flex-1 pb-4">
+                  <div className="text-xs text-muted-foreground font-medium mb-1">Ritiro</div>
+                  <div 
+                    className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
+                    onClick={() => handleNavigate(servizio.pickup.indirizzo)}
+                  >
+                    {servizio.pickup.indirizzo}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{servizio.pickup.citta}</div>
+                </div>
+              </div>
+
+              {/* Destinazione Dettagliata */}
+              <div className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-muted-foreground font-medium mb-1">Destinazione</div>
+                  <div 
+                    className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
+                    onClick={() => handleNavigate(servizio.destinazione.indirizzo)}
+                  >
+                    {servizio.destinazione.indirizzo}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{servizio.destinazione.citta}</div>
+                </div>
+              </div>
+
+              {/* Durata e Distanza */}
+              {(servizio.durata || servizio.distanza) && (
+                <div className="flex items-center gap-4 pt-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
+                  {servizio.durata && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>{servizio.durata}</span>
+                    </div>
+                  )}
+                  {servizio.distanza && (
+                    <div className="flex items-center gap-1">
+                      <ArrowRight className="h-3 w-3" />
+                      <span>{servizio.distanza}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Dettagli Autista Espansi */}
+            {servizio.autista && (
+              <div>
+                <div className="text-xs text-muted-foreground font-medium mb-2">Dettagli Autista</div>
+                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={servizio.autista.avatar} />
+                      <AvatarFallback>
+                        {servizio.autista.nome.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{servizio.autista.nome}</div>
+                      {servizio.autista.telefono && (
+                        <div className="text-xs text-muted-foreground">{servizio.autista.telefono}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
