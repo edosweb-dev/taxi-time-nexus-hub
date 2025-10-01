@@ -348,7 +348,7 @@ export function MobileOptimizedServiziPage() {
                   )}
                   
                   {servizio.note && (
-                    <div className="text-xs text-muted-foreground bg-muted/30 rounded p-2 line-clamp-2">
+                    <div className="text-xs text-muted-foreground bg-muted/30 rounded p-2">
                       <strong>Note:</strong> {servizio.note}
                     </div>
                   )}
