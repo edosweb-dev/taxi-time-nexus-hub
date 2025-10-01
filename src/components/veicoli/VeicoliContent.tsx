@@ -30,20 +30,21 @@ export function VeicoliContent({
 }: VeicoliContentProps) {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
-  // Filter vehicles by status
-  const veicoliAttivi = veicoli.filter(v => v.attivo);
-  const veicoliInattivi = veicoli.filter(v => !v.attivo);
+  // Filter vehicles by status - handle undefined veicoli
+  const safeVeicoli = veicoli || [];
+  const veicoliAttivi = safeVeicoli.filter(v => v.attivo);
+  const veicoliInattivi = safeVeicoli.filter(v => !v.attivo);
   
   // Filter vehicles based on selected status
   const filteredVeicoli = statusFilter === 'all' 
-    ? veicoli 
+    ? safeVeicoli 
     : statusFilter === 'active' 
     ? veicoliAttivi 
     : veicoliInattivi;
 
   return (
       <div className="space-y-6">
-        <VeicoliStats veicoli={veicoli} />
+        <VeicoliStats veicoli={safeVeicoli} />
 
         <Tabs defaultValue="tutti" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-md">
@@ -54,7 +55,7 @@ export function VeicoliContent({
         
         <TabsContent value="tutti" className="space-y-4">
           <VeicoloList 
-            veicoli={veicoli}
+            veicoli={safeVeicoli}
             onEdit={onEdit}
             onDelete={onDelete}
             onAddVeicolo={onAddVeicolo}
