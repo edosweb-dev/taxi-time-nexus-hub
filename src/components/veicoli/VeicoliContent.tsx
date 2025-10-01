@@ -76,7 +76,7 @@ export function VeicoliContent({
   );
 
   return (
-    <div className="space-y-4 md:space-y-6 -mx-4 md:mx-0">
+    <div className="space-y-3 md:space-y-6 -mx-4 md:mx-0">
       {/* Stats Cards - Full width mobile */}
       <div className="px-4 md:px-0">
         <VeicoliStats veicoli={safeVeicoli} onQuickFilter={handleQuickFilter} />
@@ -105,7 +105,7 @@ export function VeicoliContent({
         {filteredCount === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-3">
             {filteredVeicoli.map(veicolo => (
               <VeicoloCardMobile
                 key={veicolo.id}
