@@ -16,14 +16,14 @@ export default function CalendarioTurniPage() {
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   useEffect(() => {
-    // Attiva padding ridotto quando si monta la pagina
-    setPaddingMode('minimal');
+    // Per mobile view, nessun padding; per desktop, minimal
+    setPaddingMode(isMobile ? 'full-width' : 'minimal');
     
     // Ripristina padding default quando si smonta
     return () => {
       setPaddingMode('default');
     };
-  }, [setPaddingMode]);
+  }, [setPaddingMode, isMobile]);
 
   return (
     <MainLayout>
