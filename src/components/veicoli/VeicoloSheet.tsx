@@ -11,6 +11,7 @@ import { VeicoloForm } from './VeicoloForm';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Car, Edit, Plus } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface VeicoloSheetProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function VeicoloSheet({
   isSubmitting,
 }: VeicoloSheetProps) {
   const isEditing = !!veicolo;
+  const isMobile = useIsMobile();
 
   // Helper function to get vehicle initials
   const getVehicleInitials = (modello: string, targa: string) => {
@@ -38,7 +40,10 @@ export function VeicoloSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[700px] overflow-y-auto">
+      <SheetContent 
+        side={isMobile ? "bottom" : "right"}
+        className={isMobile ? "h-[90vh] overflow-y-auto" : "sm:max-w-[700px] overflow-y-auto"}
+      >
         <SheetHeader className="space-y-4 pb-6 border-b">
           <div className="flex items-start gap-4">
             <Avatar className="h-16 w-16 border-2 border-primary/20">
