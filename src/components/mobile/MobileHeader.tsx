@@ -33,7 +33,8 @@ export function MobileHeader({
 
   return (
     <div className="
-      sticky top-0 z-50 w-full
+      w-full max-w-none
+      sticky top-0 z-50
       bg-primary text-primary-foreground 
       shadow-md border-b border-primary/20
     ">

@@ -15,7 +15,7 @@ export function MobileAziendaHeader({
   filteredCount,
 }: MobileAziendaHeaderProps) {
   return (
-    <div className="sticky top-0 z-20 bg-background border-b md:hidden">
+    <div className="w-full sticky top-0 z-20 bg-background border-b md:hidden">
       {/* Title bar con stats */}
       <div className="flex items-center justify-between px-4 py-3">
         <div>

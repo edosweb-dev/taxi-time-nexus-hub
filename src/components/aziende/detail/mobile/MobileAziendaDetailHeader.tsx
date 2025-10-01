@@ -20,7 +20,7 @@ export function MobileAziendaDetailHeader({
   onEdit
 }: MobileAziendaDetailHeaderProps) {
   return (
-    <div className="sticky top-0 z-20 bg-background border-b md:hidden">
+    <div className="w-full sticky top-0 z-20 bg-background border-b md:hidden">
       <div className="flex items-center justify-between px-4 py-3">
         {/* Back button + Title */}
         <div className="flex items-center gap-3 flex-1 min-w-0">

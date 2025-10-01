@@ -14,7 +14,7 @@ export function MobileServiziHeader({
   const { headingClass } = useResponsiveStyles();
   
   return (
-    <div className="bg-primary text-primary-foreground w-full p-4">
+    <div className="w-full max-w-none bg-primary text-primary-foreground p-4 sticky top-0 z-20">
       <div className="flex items-center justify-between">
         <h1 className={`${headingClass} font-bold`}>Servizi</h1>
         {isAdminOrSocio && (

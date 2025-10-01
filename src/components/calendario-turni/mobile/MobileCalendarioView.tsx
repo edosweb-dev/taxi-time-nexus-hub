@@ -92,7 +92,7 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
   return (
     <div className="mobile-calendario">
       {/* Header Mobile - Compatto */}
-      <div className="mobile-calendario-header-compact">
+      <div className="w-full mobile-calendario-header-compact">
         <div className="header-controls-compact">
           <TouchOptimizer minSize="lg">
             <Button

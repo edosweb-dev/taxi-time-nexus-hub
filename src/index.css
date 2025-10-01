@@ -1728,6 +1728,8 @@ button:focus-visible {
 
   /* Mobile Calendario Header - Compatto */
   .mobile-calendario-header-compact {
+    width: 100%;
+    max-width: 100vw;
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 12px;
