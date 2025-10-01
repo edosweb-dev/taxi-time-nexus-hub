@@ -96,26 +96,60 @@ export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizi
           <span className="font-medium">{servizio.pickup.citta}</span>
         </div>
 
-        {/* Route Compatta */}
-        <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-          <div className="flex items-start gap-2">
-            <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm truncate">{servizio.destinazione.citta}</div>
-              {!isExpanded && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                  {servizio.durata && (
-                    <>
-                      <span>{servizio.durata}</span>
-                      {servizio.distanza && <span>•</span>}
-                    </>
-                  )}
-                  {servizio.distanza && <span>{servizio.distanza}</span>}
+        {/* Percorso Completo - Sempre Visibile */}
+        <div className="bg-muted/30 rounded-lg p-3 space-y-3">
+          {/* Pickup */}
+          <div className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <div className="w-3 h-3 rounded-full bg-chart-1 border-2 border-background shadow-sm" />
+              <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
+            </div>
+            <div className="flex-1 pb-2">
+              <div className="text-xs text-muted-foreground font-medium mb-1">Ritiro</div>
+              <div 
+                className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
+                onClick={() => handleNavigate(servizio.pickup.indirizzo)}
+              >
+                {servizio.pickup.indirizzo}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">{servizio.pickup.citta}</div>
+            </div>
+          </div>
+
+          {/* Destinazione */}
+          <div className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm" />
+            </div>
+            <div className="flex-1">
+              <div className="text-xs text-muted-foreground font-medium mb-1">Destinazione</div>
+              <div 
+                className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
+                onClick={() => handleNavigate(servizio.destinazione.indirizzo)}
+              >
+                {servizio.destinazione.indirizzo}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">{servizio.destinazione.citta}</div>
+            </div>
+          </div>
+
+          {/* Durata e Distanza */}
+          {(servizio.durata || servizio.distanza) && (
+            <div className="flex items-center gap-4 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
+              {servizio.durata && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span>{servizio.durata}</span>
+                </div>
+              )}
+              {servizio.distanza && (
+                <div className="flex items-center gap-1">
+                  <ArrowRight className="h-3 w-3" />
+                  <span>{servizio.distanza}</span>
                 </div>
               )}
             </div>
-            <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </div>
+          )}
         </div>
 
         {/* Autista Compatto (se assegnato) */}
@@ -186,16 +220,6 @@ export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizi
 
           <Button
             size="sm"
-            variant="outline"
-            onClick={() => handleNavigate(servizio.destinazione.indirizzo)}
-            className="flex-1 min-h-[40px]"
-          >
-            <Navigation className="h-4 w-4 mr-1" />
-            <span className="text-xs">Mappa</span>
-          </Button>
-
-          <Button
-            size="sm"
             variant="ghost"
             onClick={() => setIsExpanded(!isExpanded)}
             className="min-h-[40px] px-3"
@@ -217,64 +241,6 @@ export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizi
             <div>
               <div className="text-xs text-muted-foreground font-medium mb-1">Data Servizio</div>
               <div className="text-sm font-medium capitalize">{formattedDate}</div>
-            </div>
-
-            {/* Percorso Dettagliato */}
-            <div className="space-y-3">
-              <div className="text-xs text-muted-foreground font-medium">Percorso Completo</div>
-              
-              {/* Pickup Dettagliato */}
-              <div className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full bg-chart-1 border-2 border-background shadow-sm" />
-                  <div className="w-0.5 h-full bg-border min-h-[40px]" />
-                </div>
-                <div className="flex-1 pb-4">
-                  <div className="text-xs text-muted-foreground font-medium mb-1">Ritiro</div>
-                  <div 
-                    className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => handleNavigate(servizio.pickup.indirizzo)}
-                  >
-                    {servizio.pickup.indirizzo}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{servizio.pickup.citta}</div>
-                </div>
-              </div>
-
-              {/* Destinazione Dettagliata */}
-              <div className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs text-muted-foreground font-medium mb-1">Destinazione</div>
-                  <div 
-                    className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => handleNavigate(servizio.destinazione.indirizzo)}
-                  >
-                    {servizio.destinazione.indirizzo}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{servizio.destinazione.citta}</div>
-                </div>
-              </div>
-
-              {/* Durata e Distanza */}
-              {(servizio.durata || servizio.distanza) && (
-                <div className="flex items-center gap-4 pt-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
-                  {servizio.durata && (
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      <span>{servizio.durata}</span>
-                    </div>
-                  )}
-                  {servizio.distanza && (
-                    <div className="flex items-center gap-1">
-                      <ArrowRight className="h-3 w-3" />
-                      <span>{servizio.distanza}</span>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Dettagli Autista Espansi */}
