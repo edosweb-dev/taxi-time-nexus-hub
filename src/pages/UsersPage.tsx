@@ -33,9 +33,12 @@ export default function UsersPage() {
   };
 
   const handleEditUser = (user: Profile) => {
+    console.log('[UsersPage] handleEditUser called', { user, isMobile });
     if (isMobile) {
+      console.log('[UsersPage] Navigating to:', `/users/${user.id}`);
       navigate(`/users/${user.id}`);
     } else {
+      console.log('[UsersPage] Opening sheet for user:', user.id);
       setSelectedUser(user);
       setIsSheetOpen(true);
     }
