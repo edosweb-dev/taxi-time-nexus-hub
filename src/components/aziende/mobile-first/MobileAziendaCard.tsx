@@ -69,12 +69,14 @@ export function MobileAziendaCard({
 
         {/* Provvigione */}
         {azienda.provvigione && (
-          <Badge variant="default" className="text-xs flex items-center gap-1">
-            <CreditCard className="h-3 w-3" />
-            Provv. {azienda.provvigione_tipo === 'percentuale' 
-              ? `${azienda.provvigione_valore}%` 
-              : `€${azienda.provvigione_valore}`
-            }
+          <Badge variant="secondary" className="text-xs flex items-center gap-1.5 px-2.5 py-1">
+            <CreditCard className="h-3.5 w-3.5" />
+            <span className="font-medium">
+              Provv. {azienda.provvigione_tipo === 'percentuale' 
+                ? `${azienda.provvigione_valore}%` 
+                : `€${azienda.provvigione_valore}`
+              }
+            </span>
           </Badge>
         )}
 
