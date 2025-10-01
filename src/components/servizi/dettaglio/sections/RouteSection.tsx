@@ -21,7 +21,7 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
         <CardTitle className="text-lg">Percorso del servizio</CardTitle>
       </CardHeader>
       <CardContent className="flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+        <div className={`grid grid-cols-1 gap-4 h-full ${passeggeriConIndirizziIntermedi.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
           {/* Partenza */}
           <div className="flex flex-col p-4 bg-primary/5 rounded-lg border-l-4 border-primary min-h-[120px]">
             <div className="text-sm font-medium text-primary mb-2">Partenza</div>
@@ -34,7 +34,7 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
           </div>
           
           {/* Tappa intermedia */}
-          {passeggeriConIndirizziIntermedi.length > 0 ? (
+          {passeggeriConIndirizziIntermedi.length > 0 && (
             <div className="flex flex-col p-4 bg-accent/5 rounded-lg border-l-4 border-accent min-h-[120px]">
               <div className="text-sm font-medium text-accent-foreground mb-2">Tappa intermedia</div>
               <div className="space-y-2 flex-1">
@@ -77,11 +77,6 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
                   </div>
                 ))}
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center p-4 bg-muted/10 rounded-lg border-2 border-dashed border-muted-foreground/20 min-h-[120px]">
-              <div className="text-2xl mb-1">🛤️</div>
-              <div className="text-xs text-muted-foreground text-center">Nessuna tappa intermedia</div>
             </div>
           )}
           
