@@ -13,7 +13,7 @@ interface VeicoloCardMobileProps {
 
 export function VeicoloCardMobile({ veicolo, onEdit, onDelete }: VeicoloCardMobileProps) {
   return (
-    <Card className="p-5 border-border rounded-xl hover:shadow-lg transition-all duration-200 active:scale-[0.99]">
+    <Card className="p-4 md:p-5 border-border rounded-xl hover:shadow-lg transition-all duration-200 active:scale-[0.99]">
       {/* Header: Status + Actions */}
       <div className="flex items-center justify-between mb-4">
         <Badge 

@@ -63,7 +63,7 @@ export function VeicoliStats({ veicoli, onQuickFilter }: VeicoliStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
@@ -78,19 +78,19 @@ export function VeicoliStats({ veicoli, onQuickFilter }: VeicoliStatsProps) {
             tabIndex={onQuickFilter ? 0 : undefined}
             aria-label={onQuickFilter ? `Filtra per ${stat.title}` : undefined}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-xs sm:text-sm font-semibold line-clamp-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 md:pb-3">
+              <CardTitle className="text-xs font-semibold line-clamp-1">
                 {stat.title}
               </CardTitle>
-              <div className={cn("p-3 rounded-xl", stat.bgColor)}>
-                <Icon className={cn("h-5 w-5", stat.iconColor)} />
+              <div className={cn("p-2 rounded-lg md:p-3 md:rounded-xl", stat.bgColor)}>
+                <Icon className={cn("h-4 w-4 md:h-5 md:w-5", stat.iconColor)} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className={cn("text-3xl font-bold mb-1", stat.textColor)}>
+              <div className={cn("text-2xl md:text-3xl font-bold mb-1", stat.textColor)}>
                 {stat.value}
               </div>
-              <p className="text-xs font-medium text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground line-clamp-1">
                 {stat.title === "Totale Veicoli" && "Flotta completa"}
                 {stat.title === "Veicoli Attivi" && "Disponibili"}
                 {stat.title === "Fuori Servizio" && "Non disponibili"}

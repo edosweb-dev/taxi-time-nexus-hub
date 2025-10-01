@@ -62,7 +62,7 @@ export function VeicoliFilters({
     activeFilters.posti.length;
 
   return (
-    <div className="space-y-5 md:hidden p-4 bg-muted/20 rounded-xl">
+    <div className="space-y-4 md:hidden p-4 bg-muted/20 rounded-xl">
       {/* Status Filters */}
       <div>
         <Label className="text-base font-semibold mb-3 block">Stato</Label>

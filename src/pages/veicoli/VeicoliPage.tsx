@@ -77,9 +77,9 @@ export default function VeicoliPage() {
       title="Veicoli" 
       showBottomNav={true}
     >
-      <div className="space-y-6">
-        {/* Header con breadcrumb */}
-        <div className="space-y-4">
+      <div className="space-y-4 md:space-y-6">
+        {/* Header con breadcrumb - Solo desktop */}
+        <div className="space-y-4 hidden md:block">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
             <Home className="h-4 w-4" />
             <ChevronRight className="h-4 w-4" />

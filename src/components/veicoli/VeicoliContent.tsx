@@ -76,30 +76,36 @@ export function VeicoliContent({
   );
 
   return (
-    <div className="space-y-6">
-      {/* Stats Cards - Interactive on mobile */}
-      <VeicoliStats veicoli={safeVeicoli} onQuickFilter={handleQuickFilter} />
+    <div className="space-y-4 md:space-y-6 -mx-4 md:mx-0">
+      {/* Stats Cards - Full width mobile */}
+      <div className="px-4 md:px-0">
+        <VeicoliStats veicoli={safeVeicoli} onQuickFilter={handleQuickFilter} />
+      </div>
 
-      {/* Mobile Search + Filters */}
-      <VeicoliMobileHeader
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        totalCount={totalCount}
-        filteredCount={filteredCount}
-      />
+      {/* Mobile Search + Filters - Full width */}
+      <div className="px-4 md:px-0">
+        <VeicoliMobileHeader
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          totalCount={totalCount}
+          filteredCount={filteredCount}
+        />
+      </div>
 
-      <VeicoliFilters
-        activeFilters={activeFilters}
-        onFilterChange={handleFilterChange}
-        veicoli={safeVeicoli}
-      />
+      <div className="px-4 md:px-0">
+        <VeicoliFilters
+          activeFilters={activeFilters}
+          onFilterChange={handleFilterChange}
+          veicoli={safeVeicoli}
+        />
+      </div>
 
-      {/* Mobile Cards Layout */}
-      <div className="md:hidden">
+      {/* Mobile Cards Layout - Full width */}
+      <div className="md:hidden px-4">
         {filteredCount === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 gap-5">
+          <div className="grid grid-cols-1 gap-4">
             {filteredVeicoli.map(veicolo => (
               <VeicoloCardMobile
                 key={veicolo.id}

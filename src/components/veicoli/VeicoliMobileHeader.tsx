@@ -19,7 +19,7 @@ export function VeicoliMobileHeader({
   const hasSearch = searchQuery.trim().length > 0;
 
   return (
-    <div className="md:hidden space-y-4 mb-6">
+    <div className="md:hidden space-y-4">
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
