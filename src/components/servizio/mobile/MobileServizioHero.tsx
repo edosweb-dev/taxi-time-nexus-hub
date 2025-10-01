@@ -74,7 +74,7 @@ export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizi
   };
 
   return (
-    <div className={`mobile-hero-card compact ${badgeConfig.bg}`}>
+    <div className={`mobile-hero-card compact mt-5 ${badgeConfig.bg}`}>
       {/* Header compatto con Cliente e Stato */}
       <div className="hero-header compact">
         <div className="cliente-info">
