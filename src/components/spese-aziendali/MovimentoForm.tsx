@@ -230,9 +230,9 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
                 <SelectContent>
                   {modalitaAttive
                     .filter((modalita) => {
-                      // Per prelievi, solo Carta e Contanti
+                      // Per prelievi, solo Carta, Carta di credito e Contanti
                       if (tipologia === 'prelievo') {
-                        return modalita.nome === 'Carta' || modalita.nome === 'Contanti';
+                        return modalita.nome === 'Carta' || modalita.nome === 'Contanti' || modalita.nome === 'Carta di credito';
                       }
                       // Per spese e incassi, tutte le modalità
                       return true;
