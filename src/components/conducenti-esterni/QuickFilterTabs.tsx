@@ -10,8 +10,8 @@ interface QuickFilterTabsProps {
 
 export function QuickFilterTabs({ activeFilter, onChange, counts }: QuickFilterTabsProps) {
   return (
-    <div className="px-8 py-4 bg-muted/30 border-b overflow-x-auto">
-      <div className="flex gap-3 justify-center max-w-2xl mx-auto">
+    <div className="px-8 py-4 bg-muted/30 border-b">
+      <div className="flex gap-3 justify-center items-center flex-wrap max-w-2xl mx-auto">
         <button
           onClick={() => onChange('tutti')}
           className={`flex-shrink-0 h-12 px-6 rounded-xl font-semibold text-base transition-all active:scale-95 ${

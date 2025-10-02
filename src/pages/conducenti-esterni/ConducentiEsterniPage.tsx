@@ -25,23 +25,10 @@ export default function ConducentiEsterniPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Header con breadcrumb */}
-        <div className="space-y-4">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">Conducenti Esterni</span>
-          </nav>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-3">
-              <h1 className="page-title">Gestione Conducenti Esterni</h1>
-              <p className="text-description">
-                Amministra i conducenti esterni per l'assegnazione dei servizi
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Header */}
+      <div>
+        <h1 className="page-title">Gestione Conducenti Esterni</h1>
+      </div>
 
         <ConducentiEsterniContent
           onEdit={handleEdit}
