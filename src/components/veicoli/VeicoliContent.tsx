@@ -115,7 +115,7 @@ export function VeicoliContent({
         />
 
         {/* Enhanced Cards Grid */}
-        <div className="px-4 pt-4 pb-24 space-y-4">
+        <div className="px-8 pt-4 pb-24 space-y-4">
           {displayedVeicoli.length === 0 ? (
             <EmptyState />
           ) : (

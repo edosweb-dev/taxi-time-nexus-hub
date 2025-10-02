@@ -40,7 +40,7 @@ export function QuickFilterTabs({
 
   return (
     <div className="bg-background border-b border-border">
-      <div className="flex overflow-x-auto scrollbar-hide px-4 gap-2">
+      <div className="flex overflow-x-auto scrollbar-hide px-8 gap-2">
         {tabs.map(tab => {
           const isActive = activeFilter === tab.key;
           
