@@ -56,27 +56,7 @@ export function ConducenteEsternoCardEnhanced({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl">
-      {/* Swipe Actions Background */}
-      <div className="absolute inset-0 flex">
-        {/* Left side - Edit (Blue) */}
-        <div className="w-1/2 bg-blue-500 flex items-center justify-start pl-6">
-          <Pencil className="w-6 h-6 text-white" />
-          <span className="ml-2 text-white font-medium">Modifica</span>
-        </div>
-        {/* Right side - Toggle (Green) */}
-        <div className="w-1/2 bg-emerald-500 flex items-center justify-end pr-6">
-          <span className="mr-2 text-white font-medium">
-            {conducente.attivo ? 'Disattiva' : 'Attiva'}
-          </span>
-          {conducente.attivo ? (
-            <UserX className="w-6 h-6 text-white" />
-          ) : (
-            <RotateCcw className="w-6 h-6 text-white" />
-          )}
-        </div>
-      </div>
-
+    <div className="relative rounded-xl">
       {/* Card Content */}
       <div
         className="relative bg-card rounded-xl shadow-sm border p-6 transition-transform duration-150"
