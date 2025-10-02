@@ -67,11 +67,11 @@ export function VeicoloCardEnhanced({
 
         {/* Primary Info: Targa (large, prominent) */}
         <div className="flex items-center gap-3">
-          <h3 className="text-2xl font-black font-mono tracking-wider text-foreground uppercase">
-            {veicolo.targa}
-          </h3>
-          <p className="text-lg font-semibold text-foreground">
+          <h3 className="text-2xl font-black text-foreground">
             {veicolo.modello}
+          </h3>
+          <p className="text-sm font-mono font-semibold text-muted-foreground uppercase">
+            {veicolo.targa}
           </p>
         </div>
 
