@@ -16,8 +16,8 @@ export function FloatingActionButton({
       onClick={onClick}
       size="icon"
       className={cn(
-        // Fixed positioning - bottom-6 right-6
-        "fixed bottom-6 right-6 z-50",
+        // Fixed positioning - higher on mobile to avoid bottom nav
+        "fixed bottom-24 right-6 z-50",
         // Size: 64x64px for prominent touch target
         "h-16 w-16 rounded-2xl",
         // Styling
@@ -26,7 +26,7 @@ export function FloatingActionButton({
         "hover:shadow-3xl hover:scale-110",
         "active:scale-95",
         "transition-all duration-200",
-        // Ensure above mobile nav (if present)
+        // Desktop positioning
         "md:bottom-8 md:right-8",
         className
       )}
