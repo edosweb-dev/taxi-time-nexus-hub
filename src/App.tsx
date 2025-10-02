@@ -21,6 +21,7 @@ const UsersPage = lazy(() => import('./pages/UsersPage'));
 const UserDetailPage = lazy(() => import('./pages/UserDetailPage'));
 const VeicoliPage = lazy(() => import('./pages/veicoli/VeicoliPage'));
 const ConducentiEsterniPage = lazy(() => import('./pages/conducenti-esterni/ConducentiEsterniPage'));
+const ConducenteEsternoDetailPage = lazy(() => import('./pages/conducenti-esterni/ConducenteEsternoDetailPage'));
 const StipendiPage = lazy(() => import('./pages/StipendiPage'));
 const MobileServiziPage = lazy(() => import('./pages/servizi/MobileServiziPage'));
 const SpeseAziendaliPage = lazy(() => import('./pages/SpeseAziendaliPage'));
@@ -173,6 +174,16 @@ function App() {
                 <Route path="/conducenti-esterni" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ConducentiEsterniPage />
+                  </AuthGuard>
+                } />
+                <Route path="/conducenti-esterni/nuovo" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <ConducenteEsternoDetailPage />
+                  </AuthGuard>
+                } />
+                <Route path="/conducenti-esterni/:id" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <ConducenteEsternoDetailPage />
                   </AuthGuard>
                 } />
 

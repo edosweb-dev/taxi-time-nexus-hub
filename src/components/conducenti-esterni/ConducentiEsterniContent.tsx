@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ConducenteEsternoList } from './ConducenteEsternoList';
 import { ConducentiEsterniStats } from './ConducentiEsterniStats';
 import { ConducenteEsternoSheet } from './ConducenteEsternoSheet';
@@ -38,9 +39,24 @@ export function ConducentiEsterniContent({
   selectedConducente,
   mode,
 }: ConducentiEsterniContentProps) {
+  const navigate = useNavigate();
   const { data: conducenti = [], isLoading } = useConducentiEsterni();
   const { mutate: deleteConducente } = useDeleteConducenteEsterno();
   const { mutate: reactivateConducente } = useReactivateConducenteEsterno();
+
+  // Detect mobile
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Local state
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,6 +102,26 @@ export function ConducentiEsterniContent({
   );
 
   // Handlers
+  const handleEditClick = (conducente: ConducenteEsterno) => {
+    if (isMobile) {
+      // Su mobile, naviga alla pagina profilo
+      navigate(`/conducenti-esterni/${conducente.id}`);
+    } else {
+      // Su desktop, apri lo sheet
+      onEdit(conducente);
+    }
+  };
+
+  const handleAddClick = () => {
+    if (isMobile) {
+      // Su mobile, naviga alla pagina nuovo conducente
+      navigate('/conducenti-esterni/nuovo?mode=create');
+    } else {
+      // Su desktop, apri lo sheet
+      onAddConducente();
+    }
+  };
+
   const handleToggle = (conducente: ConducenteEsterno) => {
     setConducenteToToggle(conducente);
   };
@@ -154,7 +190,7 @@ export function ConducentiEsterniContent({
               <ConducenteEsternoCardEnhanced
                 key={conducente.id}
                 conducente={conducente}
-                onEdit={onEdit}
+                onEdit={handleEditClick}
                 onToggle={handleToggle}
                 onCall={handleCall}
               />
@@ -166,8 +202,8 @@ export function ConducentiEsterniContent({
         <div className="hidden lg:block">
           <ConducenteEsternoList
             conducenti={filteredConducenti}
-            onEdit={onEdit}
-            onAddConducente={onAddConducente}
+            onEdit={handleEditClick}
+            onAddConducente={handleAddClick}
             title={
               activeFilter === 'tutti'
                 ? 'Tutti i Conducenti'
@@ -187,15 +223,17 @@ export function ConducentiEsterniContent({
       </div>
 
       {/* FAB */}
-      <FloatingActionButton onClick={onAddConducente} />
+      <FloatingActionButton onClick={handleAddClick} />
 
-      {/* Sheet laterale per form */}
-      <ConducenteEsternoSheet
-        open={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
-        conducente={selectedConducente}
-        mode={mode}
-      />
+      {/* Sheet laterale per form - Solo desktop */}
+      {!isMobile && (
+        <ConducenteEsternoSheet
+          open={isSheetOpen}
+          onOpenChange={setIsSheetOpen}
+          conducente={selectedConducente}
+          mode={mode}
+        />
+      )}
 
       {/* Conferma Delete/Reactivate Dialog */}
       <AlertDialog open={!!conducenteToToggle} onOpenChange={() => setConducenteToToggle(null)}>
