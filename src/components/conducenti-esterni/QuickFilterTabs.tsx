@@ -14,7 +14,7 @@ export function QuickFilterTabs({ activeFilter, onChange, counts }: QuickFilterT
       <div className="flex gap-3 justify-center items-center">
         <button
           onClick={() => onChange('tutti')}
-          className={`flex-shrink-0 h-12 px-6 rounded-xl font-semibold text-base transition-all active:scale-95 ${
+          className={`flex-shrink-0 h-10 px-4 rounded-xl font-semibold text-sm transition-all active:scale-95 ${
             activeFilter === 'tutti'
               ? 'bg-primary text-primary-foreground shadow-lg'
               : 'bg-background text-foreground border-2 border-border hover:border-primary/50'
@@ -30,7 +30,7 @@ export function QuickFilterTabs({ activeFilter, onChange, counts }: QuickFilterT
         
         <button
           onClick={() => onChange('attivi')}
-          className={`flex-shrink-0 h-12 px-6 rounded-xl font-semibold text-base transition-all active:scale-95 ${
+          className={`flex-shrink-0 h-10 px-4 rounded-xl font-semibold text-sm transition-all active:scale-95 ${
             activeFilter === 'attivi'
               ? 'bg-primary text-primary-foreground shadow-lg'
               : 'bg-background text-foreground border-2 border-border hover:border-primary/50'
@@ -46,7 +46,7 @@ export function QuickFilterTabs({ activeFilter, onChange, counts }: QuickFilterT
         
         <button
           onClick={() => onChange('inattivi')}
-          className={`flex-shrink-0 h-12 px-6 rounded-xl font-semibold text-base transition-all active:scale-95 ${
+          className={`flex-shrink-0 h-10 px-4 rounded-xl font-semibold text-sm transition-all active:scale-95 ${
             activeFilter === 'inattivi'
               ? 'bg-primary text-primary-foreground shadow-lg'
               : 'bg-background text-foreground border-2 border-border hover:border-primary/50'
