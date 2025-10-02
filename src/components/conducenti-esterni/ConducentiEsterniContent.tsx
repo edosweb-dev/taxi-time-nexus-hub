@@ -103,11 +103,15 @@ export function ConducentiEsterniContent({
 
   // Handlers
   const handleEditClick = (conducente: ConducenteEsterno) => {
+    console.log('[ConducentiEsterniContent] Edit clicked for conducente:', conducente.id, 'isMobile:', isMobile);
     if (isMobile) {
       // Su mobile, naviga alla pagina profilo
-      navigate(`/conducenti-esterni/${conducente.id}`);
+      const path = `/conducenti-esterni/${conducente.id}`;
+      console.log('[ConducentiEsterniContent] Navigating to:', path);
+      navigate(path);
     } else {
       // Su desktop, apri lo sheet
+      console.log('[ConducentiEsterniContent] Opening sheet');
       onEdit(conducente);
     }
   };
