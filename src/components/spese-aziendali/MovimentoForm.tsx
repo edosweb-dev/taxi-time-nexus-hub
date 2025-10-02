@@ -52,14 +52,14 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
   const { addMovimento } = useSpeseAziendali();
   const { modalitaAttive } = useModalitaPagamenti();
 
-  // Fetch soci
+  // Fetch soci e admin
   const { data: soci } = useQuery({
-    queryKey: ['soci'],
+    queryKey: ['soci-admin'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, first_name, last_name')
-        .eq('role', 'socio');
+        .in('role', ['socio', 'admin']);
 
       if (error) throw error;
       return data;
