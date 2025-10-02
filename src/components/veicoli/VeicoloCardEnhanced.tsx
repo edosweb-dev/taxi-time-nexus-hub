@@ -41,6 +41,7 @@ export function VeicoloCardEnhanced({
     <Card 
       className={cn(
         "p-6 border-2 border-border rounded-xl shadow-sm",
+        "m-5", // 20px margin esterno
         "transition-all duration-200",
         "active:scale-[0.98]"
       )}
