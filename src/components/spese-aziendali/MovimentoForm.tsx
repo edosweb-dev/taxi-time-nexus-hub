@@ -30,7 +30,19 @@ const formSchema = z.object({
   socio_id: z.string().optional(),
   note: z.string().optional(),
   is_pending: z.boolean().default(false),
-});
+}).refine(
+  (data) => {
+    // Socio obbligatorio per incassi e prelievi
+    if ((data.tipologia === 'incasso' || data.tipologia === 'prelievo') && !data.socio_id) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Seleziona il socio che ha effettuato il movimento',
+    path: ['socio_id'],
+  }
+);
 
 interface MovimentoFormProps {
   onSuccess: () => void;
@@ -204,7 +216,11 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
           name="modalita_pagamento_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Modalità di pagamento</FormLabel>
+              <FormLabel>
+                {tipologia === 'prelievo' 
+                  ? 'Modalità di prelievo' 
+                  : 'Modalità di pagamento'}
+              </FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -212,11 +228,20 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {modalitaAttive.map((modalita) => (
-                    <SelectItem key={modalita.id} value={modalita.id}>
-                      {modalita.nome}
-                    </SelectItem>
-                  ))}
+                  {modalitaAttive
+                    .filter((modalita) => {
+                      // Per prelievi, solo Carta e Contanti
+                      if (tipologia === 'prelievo') {
+                        return modalita.nome === 'Carta' || modalita.nome === 'Contanti';
+                      }
+                      // Per spese e incassi, tutte le modalità
+                      return true;
+                    })
+                    .map((modalita) => (
+                      <SelectItem key={modalita.id} value={modalita.id}>
+                        {modalita.nome}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
               <FormMessage />
