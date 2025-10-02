@@ -3,3 +3,7 @@ export * from './ConducenteEsternoForm';
 export * from './ConducenteEsternoList';
 export * from './ConducentiEsterniContent';
 export * from './ConducentiEsterniStats';
+export * from './ConducenteEsternoCardEnhanced';
+export * from './SmartSearchBar';
+export * from './QuickFilterTabs';
+export * from './FloatingActionButton';
