@@ -76,14 +76,14 @@ export function VeicoliContent({
   );
 
   return (
-    <div className="space-y-3 md:space-y-6 -mx-4 md:mx-0">
+    <div className="space-y-2 md:space-y-6 -mx-4 md:mx-0">
       {/* Stats Cards - Full width mobile */}
-      <div className="px-4 md:px-0">
+      <div className="px-3 md:px-0 pt-2">
         <VeicoliStats veicoli={safeVeicoli} onQuickFilter={handleQuickFilter} />
       </div>
 
       {/* Mobile Search + Filters - Full width */}
-      <div className="px-4 md:px-0">
+      <div className="px-3 md:px-0">
         <VeicoliMobileHeader
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -92,7 +92,7 @@ export function VeicoliContent({
         />
       </div>
 
-      <div className="px-4 md:px-0">
+      <div className="px-3 md:px-0">
         <VeicoliFilters
           activeFilters={activeFilters}
           onFilterChange={handleFilterChange}
@@ -101,11 +101,11 @@ export function VeicoliContent({
       </div>
 
       {/* Mobile Cards Layout - Full width */}
-      <div className="md:hidden px-4">
+      <div className="md:hidden px-3">
         {filteredCount === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-2">
             {filteredVeicoli.map(veicolo => (
               <VeicoloCardMobile
                 key={veicolo.id}
