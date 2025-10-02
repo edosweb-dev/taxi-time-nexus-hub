@@ -13,91 +13,104 @@ interface VeicoloCardMobileProps {
 
 export function VeicoloCardMobile({ veicolo, onEdit, onDelete }: VeicoloCardMobileProps) {
   return (
-    <Card className="p-3 border-border rounded-lg hover:shadow-md transition-shadow">
-      {/* Header: Status + Actions */}
-      <div className="flex items-center justify-between mb-2">
-        <Badge 
-          variant={veicolo.attivo ? 'default' : 'secondary'}
-          className={cn(
-            "text-[10px] font-medium px-2 py-0.5",
-            veicolo.attivo ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : ""
-          )}
-        >
-          {veicolo.attivo ? 'ATTIVO' : 'INATTIVO'}
-        </Badge>
-        
-        <div className="flex gap-1">
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            onClick={() => onEdit(veicolo)}
-            className="h-8 w-8"
-            aria-label={`Modifica veicolo ${veicolo.targa}`}
+    <Card className="p-6 border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="space-y-4">
+        {/* Header: Status + Actions */}
+        <div className="flex items-center justify-between">
+          <Badge 
+            variant={veicolo.attivo ? 'default' : 'secondary'}
+            className={cn(
+              "px-3 py-1.5 text-sm font-semibold rounded-lg",
+              veicolo.attivo 
+                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400" 
+                : "bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400"
+            )}
           >
-            <Edit className="h-3.5 w-3.5" />
-          </Button>
-          {veicolo.attivo && (
+            {veicolo.attivo ? 'ATTIVO' : 'INATTIVO'}
+          </Badge>
+          
+          <div className="flex gap-2">
             <Button 
               size="icon" 
-              variant="ghost" 
-              onClick={() => onDelete(veicolo)}
-              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-              aria-label={`Elimina veicolo ${veicolo.targa}`}
+              variant="outline"
+              onClick={() => onEdit(veicolo)}
+              className="h-11 w-11 rounded-lg border-border hover:border-primary/40"
+              aria-label={`Modifica veicolo ${veicolo.targa}`}
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Edit className="h-4 w-4" />
             </Button>
-          )}
+            {veicolo.attivo && (
+              <Button 
+                size="icon" 
+                variant="outline"
+                onClick={() => onDelete(veicolo)}
+                className="h-11 w-11 rounded-lg border-border hover:border-destructive/40 hover:text-destructive"
+                aria-label={`Elimina veicolo ${veicolo.targa}`}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Primary Info: Targa + Modello */}
-      <div className="space-y-1 mb-2">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-base font-mono tracking-wider text-foreground">
-            {veicolo.targa}
-          </h3>
-          {veicolo.anno && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>{veicolo.anno}</span>
+        {/* Primary Info: Targa + Modello */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-xl font-mono tracking-wider text-foreground">
+              {veicolo.targa}
+            </h3>
+            {veicolo.anno && (
+              <div className="text-right">
+                <span className="text-xs text-muted-foreground">Anno</span>
+                <p className="text-base font-semibold text-foreground">{veicolo.anno}</p>
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <span className="text-xs text-muted-foreground">Modello</span>
+            <p className="text-lg font-semibold text-foreground">{veicolo.modello}</p>
+          </div>
+        </div>
+
+        {/* Secondary Info: Posti + Colore */}
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-50 rounded-lg dark:bg-blue-900/30">
+              <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">Posti</span>
+              <p className="text-sm font-semibold text-foreground">{veicolo.numero_posti || '-'}</p>
+            </div>
+          </div>
+          
+          {veicolo.colore && (
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-50 rounded-lg dark:bg-purple-900/30">
+                <div 
+                  className="w-4 h-4 rounded-full border border-border/50"
+                  style={{ backgroundColor: veicolo.colore.toLowerCase() }}
+                />
+              </div>
+              <div>
+                <span className="text-xs text-muted-foreground">Colore</span>
+                <p className="text-sm font-semibold text-foreground capitalize">{veicolo.colore}</p>
+              </div>
             </div>
           )}
         </div>
-        
-        <p className="text-sm font-medium text-foreground">
-          {veicolo.modello}
-        </p>
-      </div>
 
-      {/* Secondary Info: Posti + Colore */}
-      <div className="flex items-center justify-between pt-2 border-t border-border/50 text-sm">
-        <div className="flex items-center gap-1.5">
-          <Users className="h-3.5 w-3.5 text-muted-foreground" />
-          <span>
-            <span className="font-medium text-foreground">{veicolo.numero_posti || '-'}</span>
-            <span className="text-muted-foreground"> posti</span>
-          </span>
-        </div>
-        
-        {veicolo.colore && (
-          <div className="flex items-center gap-1.5">
-            <div 
-              className="w-3.5 h-3.5 rounded-full border border-border"
-              style={{ backgroundColor: veicolo.colore.toLowerCase() }}
-            />
-            <span className="text-foreground text-xs font-medium capitalize">{veicolo.colore}</span>
+        {/* Notes indicator if present */}
+        {veicolo.note && (
+          <div className="pt-3 border-t border-border/50">
+            <span className="text-xs text-muted-foreground">Note</span>
+            <p className="text-sm text-foreground mt-1 line-clamp-2">
+              {veicolo.note}
+            </p>
           </div>
         )}
       </div>
-
-      {/* Notes indicator if present */}
-      {veicolo.note && (
-        <div className="mt-2 pt-2 border-t border-border/50">
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {veicolo.note}
-          </p>
-        </div>
-      )}
     </Card>
   );
 }

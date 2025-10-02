@@ -62,11 +62,11 @@ export function VeicoliFilters({
     activeFilters.posti.length;
 
   return (
-    <div className="space-y-3 md:hidden">
+    <div className="space-y-5 md:hidden">
       {/* Status Filters */}
       <div>
-        <Label className="text-xs font-medium mb-1.5 block text-muted-foreground">Stato</Label>
-        <div className="flex gap-2 flex-wrap">
+        <Label className="text-base font-semibold mb-3 block text-foreground">Stato</Label>
+        <div className="flex gap-3 flex-wrap">
           {filterOptions.stato.map(option => (
             <FilterChip
               key={option.value}
@@ -82,8 +82,8 @@ export function VeicoliFilters({
 
       {/* Posti Filters */}
       <div>
-        <Label className="text-xs font-medium mb-1.5 block text-muted-foreground">Capacità</Label>
-        <div className="flex gap-2 flex-wrap">
+        <Label className="text-base font-semibold mb-3 block text-foreground">Capacità</Label>
+        <div className="flex gap-3 flex-wrap">
           {filterOptions.posti.map(option => (
             <FilterChip
               key={option.value}
@@ -100,17 +100,17 @@ export function VeicoliFilters({
 
       {/* Active Filters Summary */}
       {hasActiveFilters && (
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <span className="text-xs text-muted-foreground">
-            {activeFiltersCount} {activeFiltersCount === 1 ? 'filtro' : 'filtri'}
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+          <span className="text-sm text-muted-foreground font-medium">
+            {activeFiltersCount} {activeFiltersCount === 1 ? 'filtro attivo' : 'filtri attivi'}
           </span>
           <Button 
             variant="ghost" 
             size="sm"
             onClick={() => onFilterChange('clear')}
-            className="h-7 text-xs px-2"
+            className="h-9 text-sm px-3"
           >
-            Cancella
+            Cancella tutto
           </Button>
         </div>
       )}
@@ -132,23 +132,23 @@ function FilterChip({ children, active, onClick, count, disabled }: FilterChipPr
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all min-h-[36px]",
-        "active:scale-95",
+        "inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium border-2 transition-all duration-200 min-h-[48px]",
+        "active:scale-95 transform",
         active 
-          ? "bg-primary text-primary-foreground border-primary shadow-sm" 
-          : "bg-background border-border hover:bg-muted",
+          ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" 
+          : "bg-background border-border hover:bg-muted hover:border-muted-foreground/40",
         disabled && "opacity-50 cursor-not-allowed"
       )}
       aria-pressed={active}
       aria-label={`${children}${count > 0 ? `: ${count} veicoli` : ''}`}
     >
-      <span className="font-semibold">{children}</span>
-      {count > 0 && (
+      <span className="font-semibold whitespace-nowrap">{children}</span>
+      {count !== undefined && (
         <Badge 
-          variant="secondary" 
+          variant={active ? "secondary" : "outline"}
           className={cn(
-            "h-4 px-1.5 text-[10px] font-bold leading-none",
-            active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted"
+            "ml-1 h-5 min-w-[20px] text-xs font-bold",
+            active ? "bg-primary-foreground/20 text-primary-foreground" : ""
           )}
         >
           {count}

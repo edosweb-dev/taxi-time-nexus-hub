@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Car, Users, CheckCircle, AlertCircle } from 'lucide-react';
+import { Car, Users, CheckCircle, AlertCircle, ChevronRight } from 'lucide-react';
 import { Veicolo } from '@/lib/types/veicoli';
 import { cn } from '@/lib/utils';
 
@@ -63,32 +63,39 @@ export function VeicoliStats({ veicoli, onQuickFilter }: VeicoliStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+    <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
           <Card 
             key={index}
             className={cn(
-              "transition-all duration-200",
-              onQuickFilter && "cursor-pointer hover:shadow-md hover:border-primary/50 active:scale-95"
+              "transition-all duration-200 border-2",
+              onQuickFilter && "cursor-pointer hover:shadow-md hover:border-primary/30 active:scale-95"
             )}
             onClick={stat.onClick}
             role={onQuickFilter ? "button" : undefined}
             tabIndex={onQuickFilter ? 0 : undefined}
             aria-label={onQuickFilter ? `Filtra per ${stat.title}` : undefined}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
-              <div className={cn("p-1.5 rounded-lg", stat.bgColor)}>
-                <Icon className={cn("h-3.5 w-3.5", stat.iconColor)} />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-3">
+              <div className={cn("p-3 rounded-xl border", stat.bgColor)}>
+                <Icon className={cn("h-5 w-5", stat.iconColor)} />
               </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="p-3 pt-0">
-              <div className={cn("text-xl font-bold mb-0.5", stat.textColor)}>
+            <CardContent className="p-5 pt-0">
+              <div className={cn("text-2xl font-bold mb-1", stat.textColor)}>
                 {stat.value}
               </div>
-              <p className="text-[10px] font-medium text-muted-foreground line-clamp-2 leading-tight">
+              <p className="text-sm font-semibold text-foreground mb-0.5">
                 {stat.title}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {stat.title === "Totale Veicoli" && "Flotta completa"}
+                {stat.title === "Veicoli Attivi" && "Operativi"}
+                {stat.title === "Fuori Servizio" && "Manutenzione"}
+                {stat.title === "Grandi (7+ posti)" && "7+ posti"}
               </p>
             </CardContent>
           </Card>

@@ -19,16 +19,16 @@ export function VeicoliMobileHeader({
   const hasSearch = searchQuery.trim().length > 0;
 
   return (
-    <div className="md:hidden space-y-2">
+    <div className="md:hidden space-y-3">
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
         <Input
           type="search"
           placeholder="Cerca targa o modello..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 pr-10 h-10 text-sm bg-muted/30 rounded-lg"
+          className="pl-12 pr-12 h-14 text-base bg-background border-2 border-border focus:border-primary rounded-xl shadow-sm"
           aria-label="Cerca veicoli"
         />
         {hasSearch && (
@@ -36,10 +36,10 @@ export function VeicoliMobileHeader({
             size="icon"
             variant="ghost"
             onClick={() => onSearchChange('')}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 rounded-lg"
             aria-label="Cancella ricerca"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -47,24 +47,22 @@ export function VeicoliMobileHeader({
       {/* Results Counter */}
       {hasSearch && (
         <div className={cn(
-          "flex items-center justify-between text-xs px-0.5",
-          filteredCount === 0 ? "text-destructive" : "text-muted-foreground"
+          "flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2",
+          filteredCount === 0 && "bg-destructive/10"
         )}>
-          <span className="font-medium">
+          <span className="text-sm text-muted-foreground">
             {filteredCount > 0 ? (
-              <>
-                <strong className="text-foreground">{filteredCount}</strong> di {totalCount}
-              </>
+              <>Trovati <strong className="font-semibold text-foreground">{filteredCount}</strong> di {totalCount} veicoli</>
             ) : (
-              <>Nessun risultato</>
+              <>Nessun risultato per "<span className="font-medium text-foreground">{searchQuery}</span>"</>
             )}
           </span>
           {filteredCount > 0 && filteredCount < totalCount && (
             <Button 
-              variant="link" 
+              variant="ghost" 
               size="sm"
               onClick={() => onSearchChange('')}
-              className="h-auto p-0 text-xs text-primary"
+              className="h-8 text-primary hover:text-primary/80"
             >
               Cancella
             </Button>
