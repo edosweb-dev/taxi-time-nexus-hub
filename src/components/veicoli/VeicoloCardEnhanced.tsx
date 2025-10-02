@@ -55,10 +55,10 @@ export function VeicoloCardEnhanced({
           <Badge 
             variant={veicolo.attivo ? 'default' : 'secondary'}
             className={cn(
-              "px-3 py-1.5 text-sm font-bold rounded-lg",
+              "px-2 py-0.5 text-xs font-semibold rounded-md",
               veicolo.attivo 
-                ? "bg-green-500/10 text-green-700 border-2 border-green-500/30 dark:bg-green-900/30 dark:text-green-400 dark:border-green-500/50" 
-                : "bg-gray-500/10 text-gray-700 border-2 border-gray-500/30 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-500/50"
+                ? "bg-green-500/10 text-green-700 border border-green-500/30 dark:bg-green-900/30 dark:text-green-400 dark:border-green-500/50" 
+                : "bg-gray-500/10 text-gray-700 border border-gray-500/30 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-500/50"
             )}
           >
             {veicolo.attivo ? '● ATTIVO' : '○ INATTIVO'}
