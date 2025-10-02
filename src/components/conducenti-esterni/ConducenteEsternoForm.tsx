@@ -96,7 +96,7 @@ export function ConducenteEsternoForm({
                 <FormItem>
                   <FormLabel>Nome e Cognome *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Mario Rossi" />
+                    <Input {...field} placeholder="Mario Rossi" className="h-11 px-4" autoCapitalize="words" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,7 +125,7 @@ export function ConducenteEsternoForm({
                       Email
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" placeholder="mario.rossi@email.com" />
+                      <Input {...field} type="email" placeholder="mario.rossi@email.com" className="h-11 px-4" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -142,7 +142,7 @@ export function ConducenteEsternoForm({
                       Telefono
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="+39 123 456 7890" />
+                      <Input {...field} type="tel" placeholder="+39 123 456 7890" className="h-11 px-4" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -188,7 +188,7 @@ export function ConducenteEsternoForm({
                       </div>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} className="h-8 w-14" />
                     </FormControl>
                   </FormItem>
                 )}
@@ -203,7 +203,7 @@ export function ConducenteEsternoForm({
             type="button" 
             variant="outline" 
             onClick={onCancel}
-            className="flex items-center gap-2"
+            className="h-11 px-4 flex items-center gap-2"
           >
             <X className="h-4 w-4" />
             Annulla
@@ -211,7 +211,7 @@ export function ConducenteEsternoForm({
           <Button 
             type="submit" 
             disabled={isSubmitting}
-            className="flex items-center gap-2"
+            className="h-11 px-4 flex items-center gap-2"
           >
             <Save className="h-4 w-4" />
             {isSubmitting ? 'Salvataggio...' : isEditing ? 'Aggiorna Conducente' : 'Crea Conducente'}
