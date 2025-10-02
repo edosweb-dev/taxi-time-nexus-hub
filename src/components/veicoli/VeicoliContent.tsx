@@ -77,10 +77,6 @@ export function VeicoliContent({
 
   return (
     <div className="space-y-2 md:space-y-6 -mx-4 md:mx-0">
-      {/* Stats Cards - Hidden on mobile, visible on desktop */}
-      <div className="hidden md:block px-3 md:px-0 pt-2">
-        <VeicoliStats veicoli={safeVeicoli} onQuickFilter={handleQuickFilter} />
-      </div>
 
       {/* Mobile Search + Filters - Full width */}
       <div className="px-3 md:px-0">
