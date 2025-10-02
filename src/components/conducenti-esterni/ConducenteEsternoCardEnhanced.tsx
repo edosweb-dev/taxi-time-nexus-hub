@@ -107,7 +107,12 @@ export function ConducenteEsternoCardEnhanced({
         {/* Action Buttons - Touch Compliant */}
         <div className="flex gap-3">
           <button
-            onClick={() => onEdit(conducente)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEdit(conducente);
+            }}
             className="flex-1 h-12 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-400 rounded-lg font-medium transition-colors active:scale-95"
           >
             <Pencil className="w-5 h-5" />
@@ -116,7 +121,12 @@ export function ConducenteEsternoCardEnhanced({
 
           {conducente.telefono && (
             <button
-              onClick={() => onCall?.(conducente.telefono!)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onCall?.(conducente.telefono!);
+              }}
               className="h-12 w-12 flex items-center justify-center bg-green-50 hover:bg-green-100 dark:bg-green-950/30 dark:hover:bg-green-950/50 text-green-700 dark:text-green-400 rounded-lg transition-colors active:scale-95"
               aria-label="Chiama conducente"
             >
@@ -125,7 +135,12 @@ export function ConducenteEsternoCardEnhanced({
           )}
 
           <button
-            onClick={() => onToggle(conducente)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggle(conducente);
+            }}
             className="h-12 w-12 flex items-center justify-center bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors active:scale-95"
             aria-label={conducente.attivo ? 'Disattiva conducente' : 'Riattiva conducente'}
           >
