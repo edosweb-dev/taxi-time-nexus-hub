@@ -1,13 +1,15 @@
 import { VeicoloList } from './VeicoloList';
 import { VeicoliStats } from './VeicoliStats';
 import { VeicoloSheet } from './VeicoloSheet';
-import { VeicoliMobileHeader } from './VeicoliMobileHeader';
-import { VeicoliFilters } from './VeicoliFilters';
-import { VeicoloCardMobile } from './VeicoloCardMobile';
+import { SmartSearchBar } from './SmartSearchBar';
+import { QuickFilterTabs } from './QuickFilterTabs';
+import { VeicoloCardEnhanced } from './VeicoloCardEnhanced';
+import { FloatingActionButton } from './FloatingActionButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
 import { useVeicoliSearch } from '@/hooks/useVeicoliSearch';
 import { Search } from 'lucide-react';
+import { useState } from 'react';
 
 interface VeicoliContentProps {
   veicoli: Veicolo[];
@@ -35,6 +37,9 @@ export function VeicoliContent({
   // Handle undefined veicoli
   const safeVeicoli = veicoli || [];
   
+  // Mobile filter state
+  const [mobileQuickFilter, setMobileQuickFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  
   // Use search and filter hook
   const {
     searchQuery,
@@ -47,9 +52,23 @@ export function VeicoliContent({
     handleQuickFilter
   } = useVeicoliSearch(safeVeicoli);
 
+  // Apply quick filter on top of search results
+  const displayedVeicoli = filteredVeicoli.filter(v => {
+    if (mobileQuickFilter === 'active') return v.attivo;
+    if (mobileQuickFilter === 'inactive') return !v.attivo;
+    return true;
+  });
+
   // Desktop tabs filtering (preserved for desktop)
   const veicoliAttivi = safeVeicoli.filter(v => v.attivo);
   const veicoliInattivi = safeVeicoli.filter(v => !v.attivo);
+
+  // Toggle status handler
+  const handleToggleStatus = async (veicolo: Veicolo) => {
+    // For now, just call onDelete which handles deactivation
+    // In a full implementation, this would call a dedicated toggle API
+    onDelete(veicolo);
+  };
 
   // Empty state component
   const EmptyState = () => (
@@ -76,42 +95,43 @@ export function VeicoliContent({
   );
 
   return (
-    <div className="space-y-2 md:space-y-6 -mx-4 md:mx-0">
-
-      {/* Mobile Search + Filters - Full width */}
-      <div className="px-3 md:px-0">
-        <VeicoliMobileHeader
+    <div className="min-h-screen md:space-y-6 -mx-4 md:mx-0">
+      {/* MOBILE LAYOUT - Enhanced UI */}
+      <div className="md:hidden">
+        {/* Smart Search Bar - Sticky */}
+        <SmartSearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           totalCount={totalCount}
           filteredCount={filteredCount}
+          sticky={true}
         />
-      </div>
 
-      <div className="px-3 md:px-0">
-        <VeicoliFilters
-          activeFilters={activeFilters}
-          onFilterChange={handleFilterChange}
+        {/* Quick Filter Tabs */}
+        <QuickFilterTabs
           veicoli={safeVeicoli}
+          activeFilter={mobileQuickFilter}
+          onFilterChange={setMobileQuickFilter}
         />
-      </div>
 
-      {/* Mobile Cards Layout - Full width */}
-      <div className="md:hidden px-3">
-        {filteredCount === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="grid grid-cols-1 gap-2">
-            {filteredVeicoli.map(veicolo => (
-              <VeicoloCardMobile
+        {/* Enhanced Cards Grid */}
+        <div className="px-4 pt-4 pb-24 space-y-4">
+          {displayedVeicoli.length === 0 ? (
+            <EmptyState />
+          ) : (
+            displayedVeicoli.map(veicolo => (
+              <VeicoloCardEnhanced
                 key={veicolo.id}
                 veicolo={veicolo}
                 onEdit={onEdit}
-                onDelete={onDelete}
+                onToggleStatus={handleToggleStatus}
               />
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
+
+        {/* Floating Action Button */}
+        <FloatingActionButton onClick={onAddVeicolo} />
       </div>
 
       {/* Desktop Tabs Layout (preserved) */}
