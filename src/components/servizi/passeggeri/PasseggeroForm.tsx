@@ -2,7 +2,7 @@
 import React from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Users } from "lucide-react";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { PasseggeroCard } from "./PasseggeroCard";
 import { PasseggeroSelector } from "./PasseggeroSelector";
@@ -44,7 +44,7 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header compatto */}
       <div className="flex flex-col gap-3">
         {azienda_id && !referente_id && (
@@ -61,6 +61,38 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
           <PasseggeriList userRole={userRole} />
         </div>
       </div>
+
+      {/* Lista passeggeri già aggiunti - Nuovo feedback contestuale */}
+      {fields.length > 0 && (
+        <div className="bg-muted/30 rounded-lg p-4 border-2 border-dashed">
+          <h4 className="font-medium mb-3 text-sm flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            Passeggeri nel servizio ({fields.length})
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {fields.map((field, idx) => {
+              const passeggero = useWatch({ control, name: `passeggeri.${idx}` });
+              const nome = passeggero?.nome || '';
+              const cognome = passeggero?.cognome || '';
+              const nomeCompleto = `${nome} ${cognome}`.trim() || `Passeggero ${idx + 1}`;
+              
+              return (
+                <div 
+                  key={field.id}
+                  className="p-3 rounded-lg border bg-background text-sm"
+                >
+                  <p className="font-medium truncate">{nomeCompleto}</p>
+                  {passeggero?.telefono && (
+                    <p className="text-xs text-muted-foreground mt-1 truncate">
+                      {passeggero.telefono}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Passenger Selector */}
       <div className="bg-muted/30 border-2 border-dashed rounded-lg p-4">
@@ -84,8 +116,8 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
         </div>
       ) : (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold">Passeggeri aggiunti ({fields.length})</h3>
-          <div className="grid gap-3">
+          <h3 className="text-sm font-semibold">Compila le informazioni dei passeggeri</h3>
+          <div className="grid gap-4">
             {fields.map((field, index) => (
               <PasseggeroCard 
                 key={field.id}
