@@ -41,18 +41,22 @@ export function PasseggeriList({ userRole }: PasseggeriListProps) {
           Visualizza tutti i passeggeri ({passeggeri.length})
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col p-4 sm:p-6">
-        <DialogHeader className="flex-shrink-0 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Users className="h-5 w-5 text-primary" />
-            Passeggeri dell'azienda
-            <Badge variant="secondary" className="ml-auto">
-              {passeggeri.length} {passeggeri.length === 1 ? 'passeggero' : 'passeggeri'}
-            </Badge>
+      <DialogContent className="w-full h-full max-h-full sm:max-w-4xl sm:max-h-[80vh] sm:rounded-lg overflow-hidden flex flex-col p-0">
+        <DialogHeader className="flex-shrink-0 p-4 sm:p-6 pb-3 border-b bg-muted/30">
+          <DialogTitle className="flex items-center gap-3 text-lg sm:text-xl">
+            <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold truncate">Passeggeri dell'azienda</h3>
+              <p className="text-xs text-muted-foreground font-normal mt-0.5">
+                {passeggeri.length} {passeggeri.length === 1 ? 'passeggero trovato' : 'passeggeri trovati'}
+              </p>
+            </div>
           </DialogTitle>
         </DialogHeader>
         
-        <div className="flex-1 overflow-y-auto -mx-4 px-4 sm:-mx-6 sm:px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -68,34 +72,36 @@ export function PasseggeriList({ userRole }: PasseggeriListProps) {
               ))}
             </div>
           ) : passeggeri.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <div className="bg-muted/50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <Users className="h-10 w-10 opacity-50" />
+            <div className="text-center py-16 px-4 text-muted-foreground">
+              <div className="bg-muted/50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                <Users className="h-12 w-12 opacity-40" />
               </div>
-              <p className="text-base font-medium">Nessun passeggero trovato</p>
-              <p className="text-sm mt-1">Non ci sono passeggeri per questa azienda e referente.</p>
+              <p className="text-lg font-semibold text-foreground mb-2">Nessun passeggero trovato</p>
+              <p className="text-sm">Non ci sono passeggeri registrati per questa azienda e referente.</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4 pb-4">
               {passeggeri.map((passeggero) => (
-                <Card key={passeggero.id} className="hover:shadow-lg hover:border-primary/50 transition-all duration-200">
-                  <CardHeader className="pb-3 bg-muted/30">
-                    <CardTitle className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
-                      <span className="font-semibold text-foreground">{passeggero.nome_cognome}</span>
-                      <Badge variant="outline" className="text-xs w-fit">
-                        ID: {passeggero.id.slice(-8)}
+                <Card key={passeggero.id} className="border-2 hover:border-primary/50 transition-all duration-200 overflow-hidden">
+                  <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-muted/50 to-muted/20">
+                    <CardTitle className="text-base font-semibold flex items-start justify-between gap-3">
+                      <span className="flex-1 text-foreground leading-snug">{passeggero.nome_cognome}</span>
+                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 font-mono flex-shrink-0">
+                        #{passeggero.id.slice(-6)}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-4 space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <CardContent className="pt-4 px-4 pb-4">
+                    <div className="space-y-3">
                       {/* Nome e Cognome separati */}
                       {(passeggero.nome || passeggero.cognome) && (
-                        <div className="flex items-start gap-3 text-sm p-2 rounded-md bg-background">
-                          <Users className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-muted">
+                          <div className="bg-primary/10 p-2 rounded-md flex-shrink-0">
+                            <Users className="h-4 w-4 text-primary" />
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Nome completo</p>
-                            <p className="text-foreground truncate">
+                            <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide mb-1">Nome completo</p>
+                            <p className="text-sm text-foreground font-medium">
                               {passeggero.nome} {passeggero.cognome}
                             </p>
                           </div>
@@ -104,44 +110,52 @@ export function PasseggeriList({ userRole }: PasseggeriListProps) {
                       
                       {/* Email */}
                       {passeggero.email && (
-                        <div className="flex items-start gap-3 text-sm p-2 rounded-md bg-background">
-                          <Mail className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-muted">
+                          <div className="bg-primary/10 p-2 rounded-md flex-shrink-0">
+                            <Mail className="h-4 w-4 text-primary" />
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Email</p>
-                            <p className="text-foreground truncate">{passeggero.email}</p>
+                            <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide mb-1">Email</p>
+                            <p className="text-sm text-foreground break-all">{passeggero.email}</p>
                           </div>
                         </div>
                       )}
                       
                       {/* Telefono */}
                       {passeggero.telefono && (
-                        <div className="flex items-start gap-3 text-sm p-2 rounded-md bg-background">
-                          <Phone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-muted">
+                          <div className="bg-primary/10 p-2 rounded-md flex-shrink-0">
+                            <Phone className="h-4 w-4 text-primary" />
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Telefono</p>
-                            <p className="text-foreground">{passeggero.telefono}</p>
+                            <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide mb-1">Telefono</p>
+                            <p className="text-sm text-foreground font-medium">{passeggero.telefono}</p>
                           </div>
                         </div>
                       )}
                       
                       {/* Località */}
                       {passeggero.localita && (
-                        <div className="flex items-start gap-3 text-sm p-2 rounded-md bg-background">
-                          <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-muted">
+                          <div className="bg-primary/10 p-2 rounded-md flex-shrink-0">
+                            <MapPin className="h-4 w-4 text-primary" />
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Località</p>
-                            <p className="text-foreground truncate">{passeggero.localita}</p>
+                            <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide mb-1">Località</p>
+                            <p className="text-sm text-foreground font-medium">{passeggero.localita}</p>
                           </div>
                         </div>
                       )}
                       
                       {/* Indirizzo */}
                       {passeggero.indirizzo && (
-                        <div className="flex items-start gap-3 text-sm p-2 rounded-md bg-background">
-                          <Home className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-muted">
+                          <div className="bg-primary/10 p-2 rounded-md flex-shrink-0">
+                            <Home className="h-4 w-4 text-primary" />
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Indirizzo</p>
-                            <p className="text-foreground truncate">{passeggero.indirizzo}</p>
+                            <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide mb-1">Indirizzo</p>
+                            <p className="text-sm text-foreground">{passeggero.indirizzo}</p>
                           </div>
                         </div>
                       )}
