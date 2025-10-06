@@ -29,7 +29,7 @@
   
   /* Fluid Form Elements */
   --fluid-input-height: clamp(2.5rem, 3vw, 3rem);    /* 40px - 48px */
-  --fluid-input-padding-x: clamp(0.75rem, 2vw, 1rem); /* 12px - 16px */
+  --fluid-input-padding-x: clamp(0.75rem, 2vw, 1.25rem); /* 12px - 20px */
   --fluid-input-padding-y: clamp(0.5rem, 1.5vw, 0.75rem); /* 8px - 12px */
   
   --fluid-button-height: clamp(2.25rem, 3vw, 2.75rem); /* 36px - 44px */
