@@ -149,7 +149,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                 placeholder="Cerca per nome, email, località..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-11"
               />
             </div>
           )}
