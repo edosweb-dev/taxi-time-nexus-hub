@@ -7,6 +7,7 @@ import { ServizioFormData } from "@/lib/types/servizi";
 import { PasseggeroCard } from "./PasseggeroCard";
 import { PasseggeroSelector } from "./PasseggeroSelector";
 import { PasseggeriList } from "./PasseggeriList";
+import { PassengerListItem } from "./PassengerListItem";
 
 export function PasseggeroForm({ userRole }: { userRole?: string }) {
   const { control, setValue } = useFormContext<ServizioFormData>();
@@ -70,26 +71,13 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
             Passeggeri nel servizio ({fields.length})
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {fields.map((field, idx) => {
-              const passeggero = useWatch({ control, name: `passeggeri.${idx}` });
-              const nome = passeggero?.nome || '';
-              const cognome = passeggero?.cognome || '';
-              const nomeCompleto = `${nome} ${cognome}`.trim() || `Passeggero ${idx + 1}`;
-              
-              return (
-                <div 
-                  key={field.id}
-                  className="p-3 rounded-lg border bg-background text-sm"
-                >
-                  <p className="font-medium truncate">{nomeCompleto}</p>
-                  {passeggero?.telefono && (
-                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                      {passeggero.telefono}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
+            {fields.map((field, idx) => (
+              <PassengerListItem 
+                key={field.id}
+                index={idx}
+                fieldId={field.id}
+              />
+            ))}
           </div>
         </div>
       )}
