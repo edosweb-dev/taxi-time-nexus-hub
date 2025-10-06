@@ -10,7 +10,7 @@ export default function NuovoServizioPage() {
     <MainLayout>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header con breadcrumb */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
             <Home className="h-4 w-4" />
             <ChevronRight className="h-4 w-4" />
