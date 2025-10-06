@@ -12,11 +12,13 @@ export function MobileButton({
   className = '',
   touchOptimized = true,
   fluid = false,
+  variant = 'default',
   ...props 
 }: MobileButtonProps) {
   return (
     <Button
       {...props}
+      variant={variant}
       className={cn(
         // Touch-optimized sizing
         touchOptimized && 'min-h-touch min-w-touch',
@@ -26,6 +28,8 @@ export function MobileButton({
         'px-fluid-lg py-fluid-sm',
         // Better text sizing
         'text-fluid-text-base',
+        // Force white text for default variant
+        variant === 'default' && 'text-white',
         // Improved touch feedback
         'active:scale-95 transition-transform duration-150',
         // No text selection
