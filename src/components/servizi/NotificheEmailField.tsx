@@ -75,7 +75,7 @@ export function NotificheEmailField() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="space-y-1">
           <h4 className="text-lg font-medium text-foreground">Notifiche Email</h4>
           <p className="text-sm text-muted-foreground">
@@ -85,7 +85,7 @@ export function NotificheEmailField() {
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="default" className="w-full md:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi Email
             </Button>
