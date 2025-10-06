@@ -65,7 +65,7 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="relative min-h-full">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pb-24">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
           
           {/* Step 1: Service Details */}
           <div className="group">
@@ -127,6 +127,7 @@ export function NuovoServizioForm() {
               type="button"
               variant="outline"
               onClick={() => navigate(-1)}
+              size="lg"
               className="w-full sm:w-auto min-w-[120px]"
             >
               Annulla
@@ -134,6 +135,7 @@ export function NuovoServizioForm() {
             <Button 
               type="submit" 
               disabled={isCreating}
+              size="lg"
               className="w-full sm:w-auto min-w-[160px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
               onClick={form.handleSubmit(onSubmit)}
             >

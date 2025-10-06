@@ -1,6 +1,6 @@
-
 import { useFormContext } from "react-hook-form";
 import { ServizioFormData } from "@/lib/types/servizi";
+import { MobileInput } from "@/components/ui/mobile-input";
 
 interface PasseggeroCustomAddressFormProps {
   index: number;
@@ -15,10 +15,9 @@ export const PasseggeroCustomAddressForm = ({ index }: PasseggeroCustomAddressFo
         <label htmlFor={`passeggeri.${index}.orario_presa_personalizzato`} className="block text-sm font-medium mb-1">
           Orario di presa personalizzato
         </label>
-        <input
+        <MobileInput
           type="time"
           {...register(`passeggeri.${index}.orario_presa_personalizzato`)}
-          className="w-full border rounded p-2"
         />
       </div>
       
@@ -26,9 +25,8 @@ export const PasseggeroCustomAddressForm = ({ index }: PasseggeroCustomAddressFo
         <label htmlFor={`passeggeri.${index}.luogo_presa_personalizzato`} className="block text-sm font-medium mb-1">
           Indirizzo di presa intermedio
         </label>
-        <input
+        <MobileInput
           {...register(`passeggeri.${index}.luogo_presa_personalizzato`)}
-          className="w-full border rounded p-2"
           placeholder="Inserisci l'indirizzo intermedio di presa"
         />
       </div>
@@ -37,9 +35,8 @@ export const PasseggeroCustomAddressForm = ({ index }: PasseggeroCustomAddressFo
         <label htmlFor={`passeggeri.${index}.destinazione_personalizzato`} className="block text-sm font-medium mb-1">
           Destinazione intermedia
         </label>
-        <input
+        <MobileInput
           {...register(`passeggeri.${index}.destinazione_personalizzato`)}
-          className="w-full border rounded p-2"
           placeholder="Inserisci la destinazione intermedia"
         />
       </div>

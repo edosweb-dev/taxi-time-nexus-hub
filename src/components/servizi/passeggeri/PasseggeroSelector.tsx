@@ -8,6 +8,8 @@ import { Plus, User, UserPlus, Search, MapPin, Mail, Phone } from 'lucide-react'
 import { usePasseggeri } from '@/hooks/usePasseggeri';
 import { Passeggero, PasseggeroFormData } from '@/lib/types/servizi';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MobileInput } from '@/components/ui/mobile-input';
+import { MobileButton } from '@/components/ui/mobile-button';
 
 interface PasseggeroSelectorProps {
   azienda_id?: string;
@@ -248,35 +250,34 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                     onChange={(e) => setNewPasseggero(prev => ({ ...prev, indirizzo: e.target.value }))}
                   />
                 </div>
-                <Input
+                <MobileInput
                   placeholder="Email aziendale"
                   type="email"
                   value={newPasseggero.email}
                   onChange={(e) => setNewPasseggero(prev => ({ ...prev, email: e.target.value }))}
                 />
-                <Input
+                <MobileInput
                   placeholder="Telefono"
+                  type="tel"
                   value={newPasseggero.telefono}
                   onChange={(e) => setNewPasseggero(prev => ({ ...prev, telefono: e.target.value }))}
                 />
               </div>
               <div className="flex gap-2">
-                <Button
+                <MobileButton
                   type="button"
-                  size="sm"
                   onClick={handleCreateNew}
                   disabled={!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()}
                 >
                   Aggiungi
-                </Button>
-                <Button
+                </MobileButton>
+                <MobileButton
                   type="button"
-                  size="sm"
                   variant="outline"
                   onClick={() => setShowNewForm(false)}
                 >
                   Annulla
-                </Button>
+                </MobileButton>
               </div>
             </div>
           )}

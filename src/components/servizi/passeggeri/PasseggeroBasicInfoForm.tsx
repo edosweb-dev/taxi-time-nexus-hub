@@ -4,6 +4,7 @@ import { ServizioFormData } from "@/lib/types/servizi";
 import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasseggeroCustomAddressForm } from "./PasseggeroCustomAddressForm";
+import { MobileInput } from "@/components/ui/mobile-input";
 
 interface PasseggeroBasicInfoFormProps {
   index: number;
@@ -20,14 +21,13 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
   
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor={`passeggeri.${index}.nome`} className="block text-sm font-medium mb-1">
             Nome
           </label>
-          <input
+          <MobileInput
             {...register(`passeggeri.${index}.nome`)}
-            className="w-full border rounded p-2"
             placeholder="Nome"
           />
         </div>
@@ -35,22 +35,20 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <label htmlFor={`passeggeri.${index}.cognome`} className="block text-sm font-medium mb-1">
             Cognome
           </label>
-          <input
+          <MobileInput
             {...register(`passeggeri.${index}.cognome`)}
-            className="w-full border rounded p-2"
             placeholder="Cognome"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor={`passeggeri.${index}.localita`} className="block text-sm font-medium mb-1">
             Località
           </label>
-          <input
+          <MobileInput
             {...register(`passeggeri.${index}.localita`)}
-            className="w-full border rounded p-2"
             placeholder="Città/Località"
           />
         </div>
@@ -58,22 +56,21 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <label htmlFor={`passeggeri.${index}.indirizzo`} className="block text-sm font-medium mb-1">
             Indirizzo
           </label>
-          <input
+          <MobileInput
             {...register(`passeggeri.${index}.indirizzo`)}
-            className="w-full border rounded p-2"
             placeholder="Via, numero civico"
           />
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor={`passeggeri.${index}.telefono`} className="block text-sm font-medium mb-1">
             Telefono
           </label>
-          <input
+          <MobileInput
+            type="tel"
             {...register(`passeggeri.${index}.telefono`)}
-            className="w-full border rounded p-2"
             placeholder="Numero telefono"
           />
         </div>
@@ -81,9 +78,9 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-1">
             Email aziendale
           </label>
-          <input
+          <MobileInput
+            type="email"
             {...register(`passeggeri.${index}.email`)}
-            className="w-full border rounded p-2"
             placeholder="email@azienda.com"
           />
         </div>
@@ -93,18 +90,24 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
         <FormField
           name={`passeggeri.${index}.usa_indirizzo_personalizzato`}
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={(checked) => {
-                    setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
-                  }}
-                />
-              </FormControl>
-              <FormLabel className="font-normal">
-                Questo passeggero ha indirizzi intermedi diversi
-              </FormLabel>
+            <FormItem className="col-span-full p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center space-x-3">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
+                    }}
+                    className="h-6 w-6"
+                  />
+                </FormControl>
+                <FormLabel className="text-base font-medium cursor-pointer flex-1">
+                  📍 Indirizzo di presa personalizzato
+                </FormLabel>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 ml-9">
+                Attiva se questo passeggero ha un punto di ritiro diverso
+              </p>
             </FormItem>
           )}
         />
