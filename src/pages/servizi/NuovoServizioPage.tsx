@@ -1,8 +1,6 @@
-
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { NuovoServizioForm } from "@/components/servizi/NuovoServizioForm";
-import { ArrowLeft, CheckCircle2, FileText, Users, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronRight, Home, FileText, Users, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function NuovoServizioPage() {
@@ -10,30 +8,30 @@ export default function NuovoServizioPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-full">
-        {/* Modern Header */}
-        <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-b">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center gap-4 mb-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(-1)}
-                className="h-9 w-9 p-0"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                  Nuovo Servizio
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Compila i campi per creare un nuovo servizio di trasporto
-                </p>
-              </div>
+      <div className="space-y-6">
+        {/* Header con breadcrumb */}
+        <div className="space-y-4">
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Home className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" />
+            <span className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate('/servizi')}>
+              Servizi
+            </span>
+            <ChevronRight className="h-4 w-4" />
+            <span className="font-medium text-foreground">Nuovo Servizio</span>
+          </nav>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Nuovo Servizio</h1>
+              <p className="text-muted-foreground text-lg">
+                Compila i campi per creare un nuovo servizio di trasporto
+              </p>
             </div>
-            
-            {/* Enhanced Progress Steps */}
+          </div>
+
+          {/* Progress Steps - Solo desktop */}
+          <div className="hidden md:block">
             <div className="relative">
               {/* Progress Line */}
               <div className="absolute top-6 left-6 right-6 h-0.5 bg-muted">
@@ -41,7 +39,7 @@ export default function NuovoServizioPage() {
               </div>
               
               {/* Steps */}
-              <div className="relative flex justify-between">
+              <div className="relative flex justify-between max-w-2xl mx-auto">
                 <div className="flex flex-col items-center">
                   <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg">
                     <FileText className="h-5 w-5" />
@@ -71,9 +69,7 @@ export default function NuovoServizioPage() {
         </div>
 
         {/* Form Content */}
-        <div className="container mx-auto px-4 py-8">
-          <NuovoServizioForm />
-        </div>
+        <NuovoServizioForm />
       </div>
     </MainLayout>
   );
