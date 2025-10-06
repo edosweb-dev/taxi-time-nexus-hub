@@ -225,56 +225,81 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                   </span>
                 )}
               </Label>
-              <div className="grid gap-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    placeholder="Nome *"
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="nome-nuovo" className="text-xs text-muted-foreground mb-1 block">Nome *</Label>
+                  <MobileInput
+                    id="nome-nuovo"
+                    placeholder="Inserisci nome"
                     value={newPasseggero.nome}
                     onChange={(e) => setNewPasseggero(prev => ({ ...prev, nome: e.target.value }))}
                   />
-                  <Input
-                    placeholder="Cognome *"
+                </div>
+                <div>
+                  <Label htmlFor="cognome-nuovo" className="text-xs text-muted-foreground mb-1 block">Cognome *</Label>
+                  <MobileInput
+                    id="cognome-nuovo"
+                    placeholder="Inserisci cognome"
                     value={newPasseggero.cognome}
                     onChange={(e) => setNewPasseggero(prev => ({ ...prev, cognome: e.target.value }))}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    placeholder="Località"
+                <div>
+                  <Label htmlFor="localita-nuovo" className="text-xs text-muted-foreground mb-1 block">Località</Label>
+                  <MobileInput
+                    id="localita-nuovo"
+                    placeholder="Inserisci località"
                     value={newPasseggero.localita}
                     onChange={(e) => setNewPasseggero(prev => ({ ...prev, localita: e.target.value }))}
                   />
-                  <Input
-                    placeholder="Indirizzo"
+                </div>
+                <div>
+                  <Label htmlFor="indirizzo-nuovo" className="text-xs text-muted-foreground mb-1 block">Indirizzo</Label>
+                  <MobileInput
+                    id="indirizzo-nuovo"
+                    placeholder="Inserisci indirizzo"
                     value={newPasseggero.indirizzo}
                     onChange={(e) => setNewPasseggero(prev => ({ ...prev, indirizzo: e.target.value }))}
                   />
                 </div>
-                <MobileInput
-                  placeholder="Email aziendale"
-                  type="email"
-                  value={newPasseggero.email}
-                  onChange={(e) => setNewPasseggero(prev => ({ ...prev, email: e.target.value }))}
-                />
-                <MobileInput
-                  placeholder="Telefono"
-                  type="tel"
-                  value={newPasseggero.telefono}
-                  onChange={(e) => setNewPasseggero(prev => ({ ...prev, telefono: e.target.value }))}
-                />
+                <div>
+                  <Label htmlFor="email-nuovo" className="text-xs text-muted-foreground mb-1 block">Email</Label>
+                  <MobileInput
+                    id="email-nuovo"
+                    placeholder="email@azienda.com"
+                    type="email"
+                    value={newPasseggero.email}
+                    onChange={(e) => setNewPasseggero(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="telefono-nuovo" className="text-xs text-muted-foreground mb-1 block">Telefono</Label>
+                  <MobileInput
+                    id="telefono-nuovo"
+                    placeholder="+39 123 456 7890"
+                    type="tel"
+                    value={newPasseggero.telefono}
+                    onChange={(e) => setNewPasseggero(prev => ({ ...prev, telefono: e.target.value }))}
+                  />
+                </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <MobileButton
                   type="button"
                   onClick={handleCreateNew}
                   disabled={!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()}
+                  fluid
+                  className="sm:flex-1"
                 >
-                  Aggiungi
+                  <Plus className="h-4 w-4 mr-2" />
+                  Aggiungi Passeggero
                 </MobileButton>
                 <MobileButton
                   type="button"
                   variant="outline"
                   onClick={() => setShowNewForm(false)}
+                  fluid
+                  className="sm:flex-1"
                 >
                   Annulla
                 </MobileButton>
