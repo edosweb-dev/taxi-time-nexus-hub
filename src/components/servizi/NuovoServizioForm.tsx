@@ -69,8 +69,8 @@ export function NuovoServizioForm() {
           
           {/* Step 1: Service Details */}
           <div className="group">
-            <div className="bg-card border rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
+            <div className="bg-card border rounded-xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-xl shadow-lg">
                   <span className="text-sm font-bold">1</span>
                 </div>
@@ -85,8 +85,8 @@ export function NuovoServizioForm() {
 
           {/* Step 2: Passengers */}
           <div className="group">
-            <div className="bg-card border rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
+            <div className="bg-card border rounded-xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg">
                   <span className="text-sm font-bold">2</span>
                 </div>
@@ -95,7 +95,7 @@ export function NuovoServizioForm() {
                   <p className="text-sm text-muted-foreground">Aggiungi e configura i passeggeri del servizio</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-muted/30 to-muted/50 border rounded-lg p-6">
+              <div className="bg-gradient-to-br from-muted/30 to-muted/50 border rounded-lg p-4 md:p-6">
                 <PasseggeroForm userRole={profile?.role} />
               </div>
             </div>
@@ -103,8 +103,8 @@ export function NuovoServizioForm() {
 
           {/* Step 3: Summary */}
           <div className="group">
-            <div className="bg-card border rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
+            <div className="bg-card border rounded-xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg">
                   <span className="text-sm font-bold">3</span>
                 </div>
@@ -113,7 +113,7 @@ export function NuovoServizioForm() {
                   <p className="text-sm text-muted-foreground">Verifica le informazioni prima di creare il servizio</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-muted/20 to-muted/40 border rounded-lg p-6">
+              <div className="bg-gradient-to-br from-muted/20 to-muted/40 border rounded-lg p-4 md:p-6">
                 <IndirizziIntermediSummary />
               </div>
             </div>
@@ -126,7 +126,16 @@ export function NuovoServizioForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                const hasData = form.formState.isDirty;
+                if (hasData) {
+                  if (confirm("Ci sono dati non salvati. Sicuro di voler uscire?")) {
+                    navigate(-1);
+                  }
+                } else {
+                  navigate(-1);
+                }
+              }}
               size="lg"
               className="w-full sm:w-auto min-w-[120px]"
             >

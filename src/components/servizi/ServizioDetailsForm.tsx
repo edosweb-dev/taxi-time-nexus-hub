@@ -3,6 +3,8 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { MobileInput } from "@/components/ui/mobile-input";
+import { MobileTextarea } from "@/components/ui/mobile-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { AziendaSelectField } from "./AziendaSelectField";
@@ -49,10 +51,9 @@ export function ServizioDetailsForm() {
                 <FormItem>
                   <FormLabel>Data servizio *</FormLabel>
                   <FormControl>
-                    <Input 
+                    <MobileInput 
                       type="date" 
                       {...field}
-                      className="w-full"
                     />
                   </FormControl>
                   <FormMessage />
@@ -67,10 +68,9 @@ export function ServizioDetailsForm() {
                 <FormItem>
                   <FormLabel>Orario servizio *</FormLabel>
                   <FormControl>
-                    <Input 
+                    <MobileInput 
                       type="time" 
                       {...field}
-                      className="w-full"
                     />
                   </FormControl>
                   <FormMessage />
@@ -85,7 +85,7 @@ export function ServizioDetailsForm() {
                 <FormItem>
                   <FormLabel>Numero commessa</FormLabel>
                   <FormControl>
-                    <Input 
+                    <MobileInput 
                       placeholder="ES-2024-001"
                       {...field}
                     />
@@ -108,7 +108,7 @@ export function ServizioDetailsForm() {
                 <FormItem>
                   <FormLabel>Città (Presa)</FormLabel>
                   <FormControl>
-                    <Input 
+                    <MobileInput 
                       placeholder="Milano"
                       {...field}
                     />
@@ -125,7 +125,7 @@ export function ServizioDetailsForm() {
                 <FormItem>
                   <FormLabel>Indirizzo di presa *</FormLabel>
                   <FormControl>
-                    <Input 
+                    <MobileInput 
                       placeholder="Via Roma 123"
                       {...field}
                     />
@@ -148,7 +148,7 @@ export function ServizioDetailsForm() {
                 <FormItem>
                   <FormLabel>Città (Destinazione)</FormLabel>
                   <FormControl>
-                    <Input 
+                    <MobileInput 
                       placeholder="Ferno"
                       {...field}
                     />
@@ -165,7 +165,7 @@ export function ServizioDetailsForm() {
                 <FormItem>
                   <FormLabel>Indirizzo di destinazione *</FormLabel>
                   <FormControl>
-                    <Input 
+                    <MobileInput 
                       placeholder="Aeroporto di Malpensa"
                       {...field}
                     />
@@ -215,7 +215,7 @@ export function ServizioDetailsForm() {
                   <FormItem>
                     <FormLabel>Ore effettive</FormLabel>
                     <FormControl>
-                      <Input 
+                      <MobileInput 
                         type="number"
                         step="0.5"
                         placeholder="0"
@@ -240,7 +240,7 @@ export function ServizioDetailsForm() {
                   <FormItem>
                     <FormLabel>Ore fatturate</FormLabel>
                     <FormControl>
-                      <Input 
+                      <MobileInput 
                         type="number"
                         step="0.5"
                         placeholder="0"
@@ -276,9 +276,8 @@ export function ServizioDetailsForm() {
               <FormItem>
                 <FormLabel>Note</FormLabel>
                 <FormControl>
-                  <Textarea 
+                  <MobileTextarea 
                     placeholder="Eventuali note aggiuntive..."
-                    className="resize-none"
                     rows={3}
                     {...field}
                   />
