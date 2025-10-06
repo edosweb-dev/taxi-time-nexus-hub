@@ -34,14 +34,8 @@ export default function ImpostazioniPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-          {/* Header con breadcrumb */}
+          {/* Header */}
           <div className="space-y-4">
-            <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Home className="h-4 w-4" />
-              <ChevronRight className="h-4 w-4" />
-              <span className="font-medium text-foreground">Impostazioni</span>
-            </nav>
-            
             <div className="space-y-6">
               {/* Header principale */}
               <div className="flex items-center gap-3">

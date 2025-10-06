@@ -143,20 +143,8 @@ export default function CalendarioServiziPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Header con breadcrumb - stile coerente */}
+        {/* Header */}
         <div className="space-y-4">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span 
-              className="cursor-pointer hover:text-foreground" 
-              onClick={() => navigate('/servizi')}
-            >
-              Servizi
-            </span>
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">Calendario</span>
-          </nav>
           
           <div className="flex items-center justify-between">
             <div className="space-y-3">

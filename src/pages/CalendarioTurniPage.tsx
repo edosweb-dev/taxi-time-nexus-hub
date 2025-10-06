@@ -32,15 +32,6 @@ export default function CalendarioTurniPage() {
           <MobileCalendarioView isAdminOrSocio={isAdminOrSocio} />
         ) : (
           <>
-            {/* Breadcrumb Navigation compatto */}
-            <div className="mb-4">
-              <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Home className="h-4 w-4" />
-                <ChevronRight className="h-4 w-4" />
-                <span className="font-medium text-foreground">Calendario Turni</span>
-              </nav>
-            </div>
-
             <CalendarioTurniContent isAdminOrSocio={isAdminOrSocio} />
           </>
         )}

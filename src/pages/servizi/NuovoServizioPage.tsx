@@ -9,18 +9,8 @@ export default function NuovoServizioPage() {
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header con breadcrumb */}
+        {/* Header */}
         <div className="space-y-6">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate('/servizi')}>
-              Servizi
-            </span>
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">Nuovo Servizio</span>
-          </nav>
-          
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground">Nuovo Servizio</h1>

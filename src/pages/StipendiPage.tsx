@@ -176,19 +176,6 @@ export default function StipendiPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Breadcrumb */}
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Stipendi</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
         {/* Header con controlli */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <StipendiHeader

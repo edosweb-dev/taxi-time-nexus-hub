@@ -73,13 +73,6 @@ export default function AziendePage() {
       showBottomNav={true}
     >
       <div className="space-y-6">
-        {/* Breadcrumb - SOLO DESKTOP */}
-        <nav className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
-          <Home className="h-4 w-4" />
-          <ChevronRight className="h-4 w-4" />
-          <span className="font-medium text-foreground">Aziende</span>
-        </nav>
-
         {isMobile ? (
           <MobileAziendaList 
             aziende={aziende}

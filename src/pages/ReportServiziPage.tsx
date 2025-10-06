@@ -196,21 +196,8 @@ export default function ReportServiziPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Header con breadcrumb */}
+        {/* Header */}
         <div className="space-y-4">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span 
-              className="cursor-pointer hover:text-foreground" 
-              onClick={() => navigate('/servizi')}
-            >
-              Servizi
-            </span>
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">Report</span>
-          </nav>
-          
           <div className="flex items-center justify-between">
             <div className="space-y-3">
               <h1 className="page-title flex items-center gap-2">

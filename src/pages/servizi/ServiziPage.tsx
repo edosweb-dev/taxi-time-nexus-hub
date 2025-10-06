@@ -64,17 +64,6 @@ export default function ServiziPage() {
 
   return (
     <MainLayout>
-      {/* Breadcrumb Navigation - Solo su desktop */}
-      {!isMobile && (
-        <div className="mb-6">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Home className="h-4 w-4" />
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">Servizi</span>
-          </nav>
-        </div>
-      )}
-
       {/* Responsive content optimized for mobile and desktop */}
       <ResponsiveServiziContent
         servizi={servizi}
