@@ -239,7 +239,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                   </span>
                 )}
               </Label>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="nome-nuovo" className="text-xs text-muted-foreground mb-1 block">Nome *</Label>
                   <MobileInput
@@ -300,6 +300,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
               <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <MobileButton
                   type="button"
+                  variant="default"
                   onClick={handleCreateNew}
                   disabled={!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()}
                   fluid
