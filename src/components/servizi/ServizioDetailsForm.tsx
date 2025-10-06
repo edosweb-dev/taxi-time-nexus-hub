@@ -29,8 +29,7 @@ export function ServizioDetailsForm() {
   const canEditOreFields = profile?.role === 'admin' || profile?.role === 'socio';
 
   return (
-    <div className="bg-card border rounded-lg">
-      <div className="p-6 space-y-8">
+    <div className="space-y-6">
         {/* Section: Company & Contact */}
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-foreground border-b pb-2">Azienda e contatto</h3>
@@ -287,7 +286,6 @@ export function ServizioDetailsForm() {
             )}
           />
         </div>
-      </div>
     </div>
   );
 }

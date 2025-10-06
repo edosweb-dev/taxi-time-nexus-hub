@@ -23,7 +23,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor={`passeggeri.${index}.nome`} className="block text-sm font-medium mb-1">
+          <label htmlFor={`passeggeri.${index}.nome`} className="block text-sm font-medium mb-2">
             Nome
           </label>
           <MobileInput
@@ -32,7 +32,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           />
         </div>
         <div>
-          <label htmlFor={`passeggeri.${index}.cognome`} className="block text-sm font-medium mb-1">
+          <label htmlFor={`passeggeri.${index}.cognome`} className="block text-sm font-medium mb-2">
             Cognome
           </label>
           <MobileInput
@@ -44,7 +44,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor={`passeggeri.${index}.localita`} className="block text-sm font-medium mb-1">
+          <label htmlFor={`passeggeri.${index}.localita`} className="block text-sm font-medium mb-2">
             Località
           </label>
           <MobileInput
@@ -53,7 +53,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           />
         </div>
         <div>
-          <label htmlFor={`passeggeri.${index}.indirizzo`} className="block text-sm font-medium mb-1">
+          <label htmlFor={`passeggeri.${index}.indirizzo`} className="block text-sm font-medium mb-2">
             Indirizzo
           </label>
           <MobileInput
@@ -65,7 +65,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
       
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor={`passeggeri.${index}.telefono`} className="block text-sm font-medium mb-1">
+          <label htmlFor={`passeggeri.${index}.telefono`} className="block text-sm font-medium mb-2">
             Telefono
           </label>
           <MobileInput
@@ -75,7 +75,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           />
         </div>
         <div>
-          <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-1">
+          <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-2">
             Email aziendale
           </label>
           <MobileInput
