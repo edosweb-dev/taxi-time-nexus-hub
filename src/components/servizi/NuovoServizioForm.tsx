@@ -28,13 +28,25 @@ export function NuovoServizioForm() {
 
   const canGoNext = () => {
     const values = form.getValues();
+    console.log('[NuovoServizioForm] canGoNext - currentStep:', currentStep);
+    console.log('[NuovoServizioForm] canGoNext - form values:', values);
+    
     switch (currentStep) {
       case 0: // Step 1: Azienda e Percorso
-        return values.azienda_id && 
+        const step0Valid = values.azienda_id && 
                values.data_servizio && 
                values.orario_servizio &&
                values.indirizzo_presa && 
                values.indirizzo_destinazione;
+        console.log('[NuovoServizioForm] Step 0 validation:', {
+          azienda_id: values.azienda_id,
+          data_servizio: values.data_servizio,
+          orario_servizio: values.orario_servizio,
+          indirizzo_presa: values.indirizzo_presa,
+          indirizzo_destinazione: values.indirizzo_destinazione,
+          result: step0Valid
+        });
+        return step0Valid;
       case 1: // Step 2: Dettagli Operativi
         return values.metodo_pagamento;
       case 2: // Step 3: Comunicazione
@@ -47,6 +59,8 @@ export function NuovoServizioForm() {
   };
 
   const handleNext = async () => {
+    console.log('[NuovoServizioForm] handleNext - currentStep:', currentStep);
+    
     const fieldsToValidate = {
       0: ["azienda_id", "data_servizio", "orario_servizio", "indirizzo_presa", "indirizzo_destinazione"],
       1: ["metodo_pagamento"],
@@ -54,10 +68,18 @@ export function NuovoServizioForm() {
       3: ["passeggeri"],
     }[currentStep] || [];
 
+    console.log('[NuovoServizioForm] Fields to validate:', fieldsToValidate);
+    
     const isValid = await form.trigger(fieldsToValidate as any);
+    console.log('[NuovoServizioForm] Validation result:', isValid);
+    console.log('[NuovoServizioForm] Form errors:', form.formState.errors);
+    console.log('[NuovoServizioForm] canGoNext result:', canGoNext());
+    
     if (isValid && canGoNext()) {
+      console.log('[NuovoServizioForm] Proceeding to next step');
       setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
     } else {
+      console.log('[NuovoServizioForm] Cannot proceed - validation failed or required fields missing');
       toast.error("Compila tutti i campi obbligatori prima di procedere");
     }
   };
