@@ -8,54 +8,13 @@ export default function NuovoServizioPage() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 space-y-6">
-        {/* Header */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Nuovo Servizio</h1>
-              <p className="text-muted-foreground text-lg">
-                Compila i campi per creare un nuovo servizio di trasporto
-              </p>
-            </div>
-          </div>
-
-          {/* Progress Steps - Solo desktop */}
-          <div className="hidden md:block">
-            <div className="relative">
-              {/* Progress Line */}
-              <div className="absolute top-6 left-6 right-6 h-0.5 bg-muted">
-                <div className="h-full bg-gradient-to-r from-primary to-primary/50 rounded-full transition-all duration-500" style={{ width: '0%' }}></div>
-              </div>
-              
-              {/* Steps */}
-              <div className="relative flex justify-between max-w-2xl mx-auto">
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium mt-2">Dettagli</span>
-                  <span className="text-xs text-muted-foreground">Servizio</span>
-                </div>
-                
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-muted text-muted-foreground flex items-center justify-center">
-                    <Users className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium mt-2">Passeggeri</span>
-                  <span className="text-xs text-muted-foreground">Gestione</span>
-                </div>
-                
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-muted text-muted-foreground flex items-center justify-center">
-                    <CheckCircle2 className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium mt-2">Conferma</span>
-                  <span className="text-xs text-muted-foreground">Riepilogo</span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 space-y-6 py-6">
+        {/* Header - Più compatto */}
+        <div className="space-y-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Nuovo Servizio</h1>
+          <p className="text-muted-foreground">
+            Compila i campi per creare un nuovo servizio di trasporto
+          </p>
         </div>
 
         {/* Form Content */}

@@ -29,20 +29,20 @@ export function ServizioDetailsForm() {
   const canEditOreFields = profile?.role === 'admin' || profile?.role === 'socio';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
         {/* Section: Company & Contact */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground border-b pb-2">Azienda e contatto</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Azienda e contatto</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <AziendaSelectField />
             <ReferenteSelectField aziendaId={azienda_id || ""} />
           </div>
         </div>
 
         {/* Section: Schedule */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground border-b pb-2">Data e orario</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Data e orario</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <FormField
               control={control}
               name="data_servizio"
@@ -97,9 +97,9 @@ export function ServizioDetailsForm() {
         </div>
 
         {/* Section: Pickup Location */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground border-b pb-2">Punto di partenza</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Punto di partenza</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <FormField
               control={control}
               name="citta_presa"
@@ -137,9 +137,9 @@ export function ServizioDetailsForm() {
         </div>
 
         {/* Section: Destination */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground border-b pb-2">Destinazione</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Destinazione</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <FormField
               control={control}
               name="citta_destinazione"
@@ -177,9 +177,9 @@ export function ServizioDetailsForm() {
         </div>
 
         {/* Section: Service Details */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground border-b pb-2">Dettagli operativi</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Dettagli operativi</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <FormField
               control={control}
               name="metodo_pagamento"
@@ -266,8 +266,8 @@ export function ServizioDetailsForm() {
         <NotificheEmailField />
 
         {/* Section: Notes */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground border-b pb-2">Note aggiuntive</h3>
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Note aggiuntive</h3>
           <FormField
             control={control}
             name="note"

@@ -65,64 +65,66 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="relative min-h-full">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pb-24">
           
           {/* Step 1: Service Details */}
-          <div className="group">
-            <div className="bg-card border rounded-xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-xl shadow-lg">
-                  <span className="text-sm font-bold">1</span>
+          <div className="bg-card border rounded-lg shadow-sm">
+            <div className="p-4 md:p-6 border-b bg-muted/30">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
+                  1
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Dettagli del servizio</h2>
-                  <p className="text-sm text-muted-foreground">Informazioni principali del trasporto</p>
+                  <h2 className="text-lg font-semibold text-foreground">Dettagli del servizio</h2>
+                  <p className="text-xs text-muted-foreground">Informazioni principali</p>
                 </div>
               </div>
+            </div>
+            <div className="p-4 md:p-6">
               <ServizioDetailsForm />
             </div>
           </div>
 
           {/* Step 2: Passengers */}
-          <div className="group">
-            <div className="bg-card border rounded-xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg">
-                  <span className="text-sm font-bold">2</span>
+          <div className="bg-card border rounded-lg shadow-sm">
+            <div className="p-4 md:p-6 border-b bg-muted/30">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
+                  2
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Gestione passeggeri</h2>
-                  <p className="text-sm text-muted-foreground">Aggiungi e configura i passeggeri del servizio</p>
+                  <h2 className="text-lg font-semibold text-foreground">Gestione passeggeri</h2>
+                  <p className="text-xs text-muted-foreground">Aggiungi i passeggeri</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-muted/30 to-muted/50 border rounded-lg p-4 md:p-6">
-                <PasseggeroForm userRole={profile?.role} />
-              </div>
+            </div>
+            <div className="p-4 md:p-6">
+              <PasseggeroForm userRole={profile?.role} />
             </div>
           </div>
 
           {/* Step 3: Summary */}
-          <div className="group">
-            <div className="bg-card border rounded-xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg">
-                  <span className="text-sm font-bold">3</span>
+          <div className="bg-card border rounded-lg shadow-sm">
+            <div className="p-4 md:p-6 border-b bg-muted/30">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
+                  3
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Riepilogo del percorso</h2>
-                  <p className="text-sm text-muted-foreground">Verifica le informazioni prima di creare il servizio</p>
+                  <h2 className="text-lg font-semibold text-foreground">Riepilogo del percorso</h2>
+                  <p className="text-xs text-muted-foreground">Verifica le informazioni</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-muted/20 to-muted/40 border rounded-lg p-4 md:p-6">
-                <IndirizziIntermediSummary />
-              </div>
+            </div>
+            <div className="p-4 md:p-6">
+              <IndirizziIntermediSummary />
             </div>
           </div>
         </form>
         
-        {/* Enhanced Action Buttons - Sticky Bottom */}
-        <div className="sticky bottom-0 bg-background/98 backdrop-blur-lg border-t border-border/50 p-6 mt-8">
-          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+        {/* Action Buttons - Sticky Bottom */}
+        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
             <Button
               type="button"
               variant="outline"
@@ -136,22 +138,20 @@ export function NuovoServizioForm() {
                   navigate(-1);
                 }
               }}
-              size="lg"
-              className="w-full sm:w-auto min-w-[120px]"
+              className="w-full sm:w-auto"
             >
               Annulla
             </Button>
             <Button 
               type="submit" 
               disabled={isCreating}
-              size="lg"
-              className="w-full sm:w-auto min-w-[160px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
+              className="w-full sm:w-auto"
               onClick={form.handleSubmit(onSubmit)}
             >
               {isCreating ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
-                  Creazione in corso...
+                  Creazione...
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
