@@ -90,6 +90,8 @@ export function AziendaSelectField() {
                     placeholder="Cerca azienda..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     className="mb-2"
                   />
                 </div>
