@@ -29,8 +29,10 @@ export function MobileInput({
         'min-h-[var(--fluid-input-height)]',
         // Fluid width on mobile
         fluid && 'w-full',
-        // Better padding
-        'px-[var(--fluid-input-padding-x)] py-[var(--fluid-input-padding-y)]',
+        // Responsive horizontal padding - FIX PRINCIPALE
+        'px-3 md:px-5 lg:px-6',
+        // Vertical padding
+        'py-[var(--fluid-input-padding-y)]',
         // Enhanced mobile styling
         'text-fluid-text-base',
         className
@@ -55,8 +57,10 @@ export function MobileTextarea({
         preventZoom && 'text-base',
         // Fluid width
         fluid && 'w-full',
-        // Better padding and spacing
-        'px-[var(--fluid-input-padding-x)] py-[var(--fluid-input-padding-y)]',
+        // Responsive horizontal padding - FIX PRINCIPALE
+        'px-3 md:px-5 lg:px-6',
+        // Vertical padding
+        'py-[var(--fluid-input-padding-y)]',
         // Enhanced mobile styling
         'text-fluid-text-base',
         // Better line height for mobile
@@ -79,7 +83,7 @@ export function MobileSearchInput({
       type="search"
       placeholder={placeholder}
       className={cn(
-        'pl-10 pr-4', // Space for search icon
+        'pl-10 pr-3 md:pr-5 lg:pr-6', // Space for search icon + responsive padding
         className
       )}
     />
