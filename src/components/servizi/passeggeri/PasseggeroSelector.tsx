@@ -144,8 +144,8 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
           </Label>
           {passeggeri.length > 0 && (
             <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+              <MobileInput
                 placeholder="Cerca per nome, email, località..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
