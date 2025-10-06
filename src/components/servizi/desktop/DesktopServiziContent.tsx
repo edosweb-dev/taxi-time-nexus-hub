@@ -8,6 +8,8 @@ import { ServizioTable } from '../ServizioTable';
 import { Servizio } from '@/lib/types/servizi';
 import { Profile } from '@/lib/types';
 import { groupServiziByStatus } from '../utils/groupingUtils';
+import { InserimentoServizioModal } from '../InserimentoServizioModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DesktopServiziContentProps {
   servizi: Servizio[];
@@ -41,11 +43,22 @@ export function DesktopServiziContent({
   onClearFilters
 }: DesktopServiziContentProps) {
   const [activeTab, setActiveTab] = useState<string>('da_assegnare');
+  const [showModal, setShowModal] = useState(false);
+  const { profile } = useAuth();
   
   const serviziByStatus = groupServiziByStatus(servizi);
 
+  const handleNewServizio = () => {
+    if (profile?.role === 'admin' || profile?.role === 'socio') {
+      setShowModal(true);
+    } else {
+      onNavigateToNewServizio();
+    }
+  };
+
   // Count servizi by status for tab badges
   const statusCounts = {
+    bozza: serviziByStatus.bozza.length,
     da_assegnare: serviziByStatus.da_assegnare.length,
     assegnato: serviziByStatus.assegnato.length,
     completato: serviziByStatus.completato.length,
@@ -90,17 +103,30 @@ export function DesktopServiziContent({
             Calendario
           </Button>
           {isAdminOrSocio && (
-            <Button size="sm" onClick={onNavigateToNewServizio}>
+            <Button size="sm" onClick={handleNewServizio}>
               <Plus className="h-4 w-4 mr-2" />
               Nuovo Servizio
             </Button>
           )}
         </div>
       </div>
+      
+      <InserimentoServizioModal 
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      />
 
       {/* Desktop Tabbed Table View */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="bozza" className="relative">
+            Bozze
+            {statusCounts.bozza > 0 && (
+              <span className="ml-1 rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
+                {statusCounts.bozza}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="da_assegnare" className="relative">
             Da Assegnare
             {statusCounts.da_assegnare > 0 && (
@@ -137,7 +163,7 @@ export function DesktopServiziContent({
           <TabsTrigger value="consuntivato">Consuntivati</TabsTrigger>
         </TabsList>
 
-        {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
+        {(["bozza", "da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
           <TabsContent key={status} value={status} className="mt-0">
             <div className="rounded-md border h-[600px] flex flex-col">
               <ServizioTable

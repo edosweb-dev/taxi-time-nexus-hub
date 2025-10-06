@@ -1,0 +1,97 @@
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { MobileTextarea } from "@/components/ui/mobile-input";
+import { AziendaSelectField } from "./AziendaSelectField";
+import { ReferenteSelectField } from "./ReferenteSelectField";
+import { useNavigate } from "react-router-dom";
+import { useServizi } from "@/hooks/useServizi";
+import { toast } from "sonner";
+import { useWatch } from "react-hook-form";
+
+const servizioVeloceSchema = z.object({
+  azienda_id: z.string().min(1, "Azienda obbligatoria"),
+  referente_id: z.string().optional(),
+  note: z.string().optional(),
+});
+
+type ServizioVeloceFormData = z.infer<typeof servizioVeloceSchema>;
+
+export const ServizioVeloceForm = () => {
+  const navigate = useNavigate();
+  const { createServizio, isCreating } = useServizi();
+  
+  const form = useForm<ServizioVeloceFormData>({
+    resolver: zodResolver(servizioVeloceSchema),
+    defaultValues: {
+      azienda_id: "",
+      referente_id: "",
+      note: "",
+    },
+  });
+
+  const aziendaId = useWatch({ control: form.control, name: "azienda_id" });
+
+  const onSubmit = (data: ServizioVeloceFormData) => {
+    createServizio({
+      servizio: {
+        azienda_id: data.azienda_id,
+        referente_id: data.referente_id || "",
+        note: data.note,
+        // Campi obbligatori DB con placeholder
+        data_servizio: new Date().toISOString().split('T')[0],
+        orario_servizio: "00:00",
+        indirizzo_presa: "Da definire",
+        indirizzo_destinazione: "Da definire",
+        metodo_pagamento: "da_definire",
+        stato: "bozza",
+      },
+      passeggeri: [],
+    });
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6 py-6 px-4">
+      <header>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Inserimento Veloce</h1>
+        <p className="text-muted-foreground text-sm">
+          Crea una bozza con i dati essenziali. Potrai completare in seguito.
+        </p>
+      </header>
+
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card className="p-6 space-y-6">
+            <AziendaSelectField />
+            <ReferenteSelectField aziendaId={aziendaId} />
+            
+            <div className="space-y-2">
+              <Label>Note</Label>
+              <MobileTextarea
+                placeholder="Aggiungi note o dettagli da ricordare..."
+                rows={4}
+                {...form.register("note")}
+              />
+            </div>
+          </Card>
+
+          <div className="sticky bottom-0 bg-background border-t p-4 mt-6 -mx-4 flex gap-3 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/servizi")}
+            >
+              Annulla
+            </Button>
+            <Button type="submit" disabled={isCreating}>
+              {isCreating ? "Salvataggio..." : "Salva bozza"}
+            </Button>
+          </div>
+        </form>
+      </FormProvider>
+    </div>
+  );
+};

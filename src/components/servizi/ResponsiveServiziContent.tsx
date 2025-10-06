@@ -111,6 +111,7 @@ export function ResponsiveServiziContent({
 
   // Count servizi by status for tab badges
   const statusCounts = {
+    bozza: serviziByStatus.bozza.length,
     da_assegnare: serviziByStatus.da_assegnare.length,
     assegnato: serviziByStatus.assegnato.length,
     completato: serviziByStatus.completato.length,
@@ -218,6 +219,7 @@ export function ResponsiveServiziContent({
         <div className="w-full bg-card border-b">
           <MobileFirstTabs
             tabs={[
+              { id: 'bozza', label: 'Bozze', count: statusCounts.bozza },
               { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
               { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
               { id: 'completato', label: 'Completati', count: statusCounts.completato },

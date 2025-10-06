@@ -1,20 +1,70 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { FormProvider } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useServizi } from "@/hooks/useServizi";
 import { toast } from "@/components/ui/sonner";
-import { ServizioDetailsForm } from "./ServizioDetailsForm";
-import { PasseggeroForm } from "./passeggeri/PasseggeroForm";
 import { useServizioForm } from "@/hooks/useServizioForm";
-import { IndirizziIntermediSummary } from "./IndirizziIntermediSummary";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Step1AziendaPercorso } from "./steps/Step1AziendaPercorso";
+import { Step2DettagliOperativi } from "./steps/Step2DettagliOperativi";
+import { Step3ComunicazioneNote } from "./steps/Step3ComunicazioneNote";
+import { Step4Passeggeri } from "./steps/Step4Passeggeri";
+import { cn } from "@/lib/utils";
+
+const STEPS = [
+  { id: 0, title: "Azienda e Percorso", description: "Dati principali del servizio" },
+  { id: 1, title: "Dettagli Operativi", description: "Pagamento e veicolo" },
+  { id: 2, title: "Comunicazione", description: "Email e note" },
+  { id: 3, title: "Passeggeri", description: "Gestione passeggeri" },
+];
 
 export function NuovoServizioForm() {
   const navigate = useNavigate();
   const { form, profile } = useServizioForm();
   const { createServizio, isCreating } = useServizi();
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const canGoNext = () => {
+    const values = form.getValues();
+    switch (currentStep) {
+      case 0: // Step 1: Azienda e Percorso
+        return values.azienda_id && 
+               values.data_servizio && 
+               values.orario_servizio &&
+               values.indirizzo_presa && 
+               values.indirizzo_destinazione;
+      case 1: // Step 2: Dettagli Operativi
+        return values.metodo_pagamento;
+      case 2: // Step 3: Comunicazione
+        return true; // Note opzionale
+      case 3: // Step 4: Passeggeri
+        return values.passeggeri?.length > 0;
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = async () => {
+    const fieldsToValidate = {
+      0: ["azienda_id", "data_servizio", "orario_servizio", "indirizzo_presa", "indirizzo_destinazione"],
+      1: ["metodo_pagamento"],
+      2: [],
+      3: ["passeggeri"],
+    }[currentStep] || [];
+
+    const isValid = await form.trigger(fieldsToValidate as any);
+    if (isValid && canGoNext()) {
+      setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
+    } else {
+      toast.error("Compila tutti i campi obbligatori prima di procedere");
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
 
   const onSubmit = async (values: any) => {
     try {
@@ -48,8 +98,6 @@ export function NuovoServizioForm() {
         email_notifiche: values.email_notifiche || [],
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,
-          // Se non usa indirizzo personalizzato, i campi personalizzati saranno null
-          // Se usa indirizzo personalizzato, assicuriamoci che i campi siano compilati
           orario_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.orario_presa_personalizzato || values.orario_servizio : null,
           luogo_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.luogo_presa_personalizzato || values.indirizzo_presa : null,
           destinazione_personalizzato: p.usa_indirizzo_personalizzato ? p.destinazione_personalizzato || values.indirizzo_destinazione : null
@@ -65,66 +113,40 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="relative min-h-full">
+        {/* Progress Indicator */}
+        <div className="mb-6">
+          <div className="flex items-center justify-center gap-2">
+            {STEPS.map((step, idx) => (
+              <div
+                key={step.id}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300",
+                  idx <= currentStep ? "bg-primary" : "bg-muted",
+                  idx === currentStep ? "w-16" : "w-12"
+                )}
+              />
+            ))}
+          </div>
+          <div className="text-center mt-4">
+            <h2 className="text-xl font-bold">{STEPS[currentStep].title}</h2>
+            <p className="text-sm text-muted-foreground">{STEPS[currentStep].description}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Step {currentStep + 1} di {STEPS.length}
+            </p>
+          </div>
+        </div>
+
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
-          
-          {/* Step 1: Service Details */}
-          <div className="bg-card border rounded-lg shadow-sm">
-            <div className="p-6 md:p-8 border-b bg-muted/30">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
-                  1
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">Dettagli del servizio</h2>
-                  <p className="text-xs text-muted-foreground">Informazioni principali</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-6 md:p-8">
-              <ServizioDetailsForm />
-            </div>
-          </div>
-
-          {/* Step 2: Passengers */}
-          <div className="bg-card border rounded-lg shadow-sm">
-            <div className="p-6 md:p-8 border-b bg-muted/30">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
-                  2
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">Gestione passeggeri</h2>
-                  <p className="text-xs text-muted-foreground">Aggiungi i passeggeri</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-6 md:p-8">
-              <PasseggeroForm userRole={profile?.role} />
-            </div>
-          </div>
-
-          {/* Step 3: Summary */}
-          <div className="bg-card border rounded-lg shadow-sm">
-            <div className="p-6 md:p-8 border-b bg-muted/30">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
-                  3
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">Riepilogo del percorso</h2>
-                  <p className="text-xs text-muted-foreground">Verifica le informazioni</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-6 md:p-8">
-              <IndirizziIntermediSummary />
-            </div>
-          </div>
+          {/* Render current step */}
+          {currentStep === 0 && <Step1AziendaPercorso />}
+          {currentStep === 1 && <Step2DettagliOperativi />}
+          {currentStep === 2 && <Step3ComunicazioneNote />}
+          {currentStep === 3 && <Step4Passeggeri />}
         </form>
         
-        {/* Action Buttons - Sticky Bottom */}
+        {/* Navigation Buttons - Sticky Bottom */}
         <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4">
-          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between">
             <Button
               type="button"
               variant="outline"
@@ -142,24 +164,51 @@ export function NuovoServizioForm() {
             >
               Annulla
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isCreating}
-              className="w-full sm:w-auto"
-              onClick={form.handleSubmit(onSubmit)}
-            >
-              {isCreating ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
-                  Creazione...
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Crea servizio
-                </div>
+
+            <div className="flex gap-2">
+              {currentStep > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrevious}
+                  className="w-full sm:w-auto"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  Indietro
+                </Button>
               )}
-            </Button>
+              
+              {currentStep < STEPS.length - 1 ? (
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={!canGoNext()}
+                  className="w-full sm:w-auto"
+                >
+                  Avanti
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button 
+                  type="submit" 
+                  disabled={isCreating || !canGoNext()}
+                  className="w-full sm:w-auto"
+                  onClick={form.handleSubmit(onSubmit)}
+                >
+                  {isCreating ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
+                      Creazione...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Crea servizio
+                    </div>
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

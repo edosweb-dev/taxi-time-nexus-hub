@@ -22,7 +22,13 @@ export function useServiziPage() {
   };
 
   const handleNavigateToNewServizio = () => {
-    navigate("/nuovo-servizio");
+    // If user is cliente, go directly to complete form
+    if (profile?.role === 'cliente') {
+      navigate("/nuovo-servizio?mode=completo");
+    } else {
+      // For admin/socio, the modal will be shown by the component
+      navigate("/nuovo-servizio");
+    }
   };
 
   return {
@@ -35,5 +41,6 @@ export function useServiziPage() {
     refetch,
     handleNavigateToDetail,
     handleNavigateToNewServizio,
+    profile,
   };
 }

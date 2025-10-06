@@ -3,6 +3,7 @@ import { Servizio, StatoServizio } from "@/lib/types/servizi";
 
 export const groupServiziByStatus = (servizi: Servizio[]) => {
   const result: Record<StatoServizio, Servizio[]> = {
+    bozza: [],
     da_assegnare: [],
     assegnato: [],
     completato: [],
