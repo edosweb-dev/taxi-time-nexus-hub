@@ -12,7 +12,7 @@ export const PasseggeroCustomAddressForm = ({ index }: PasseggeroCustomAddressFo
   return (
     <div className="space-y-4 mt-4 p-3 bg-muted/50 rounded-md">
       <div>
-        <label htmlFor={`passeggeri.${index}.orario_presa_personalizzato`} className="block text-sm font-medium mb-1">
+        <label htmlFor={`passeggeri.${index}.orario_presa_personalizzato`} className="block text-sm font-medium mb-2">
           Orario di presa personalizzato
         </label>
         <MobileInput
@@ -22,7 +22,7 @@ export const PasseggeroCustomAddressForm = ({ index }: PasseggeroCustomAddressFo
       </div>
       
       <div>
-        <label htmlFor={`passeggeri.${index}.luogo_presa_personalizzato`} className="block text-sm font-medium mb-1">
+        <label htmlFor={`passeggeri.${index}.luogo_presa_personalizzato`} className="block text-sm font-medium mb-2">
           Indirizzo di presa intermedio
         </label>
         <MobileInput
@@ -32,7 +32,7 @@ export const PasseggeroCustomAddressForm = ({ index }: PasseggeroCustomAddressFo
       </div>
       
       <div>
-        <label htmlFor={`passeggeri.${index}.destinazione_personalizzato`} className="block text-sm font-medium mb-1">
+        <label htmlFor={`passeggeri.${index}.destinazione_personalizzato`} className="block text-sm font-medium mb-2">
           Destinazione intermedia
         </label>
         <MobileInput
