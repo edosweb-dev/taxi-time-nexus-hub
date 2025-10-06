@@ -31,6 +31,8 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
   });
 
   const handleSelectExisting = (passeggero: Passeggero) => {
+    console.log('[PasseggeroSelector] Selecting existing passenger:', passeggero);
+    
     // Se nome e cognome sono null, li estraiamo da nome_cognome
     let nome = passeggero.nome;
     let cognome = passeggero.cognome;
@@ -46,7 +48,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       }
     }
 
-    onPasseggeroSelect({
+    const passeggeroData = {
       id: passeggero.id,
       passeggero_id: passeggero.id,
       nome_cognome: passeggero.nome_cognome || `${nome || ''} ${cognome || ''}`.trim(),
@@ -58,13 +60,22 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       telefono: passeggero.telefono || '',
       usa_indirizzo_personalizzato: false,
       is_existing: true,
-    });
+    };
+    
+    console.log('[PasseggeroSelector] Calling onPasseggeroSelect with:', passeggeroData);
+    onPasseggeroSelect(passeggeroData);
   };
 
   const handleCreateNew = () => {
-    if (!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()) return;
+    console.log('[PasseggeroSelector] handleCreateNew called');
+    console.log('[PasseggeroSelector] newPasseggero:', newPasseggero);
+    
+    if (!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()) {
+      console.log('[PasseggeroSelector] Nome or cognome is empty, aborting');
+      return;
+    }
 
-    onPasseggeroSelect({
+    const passeggeroData = {
       nome_cognome: `${newPasseggero.nome} ${newPasseggero.cognome}`,
       nome: newPasseggero.nome,
       cognome: newPasseggero.cognome,
@@ -74,7 +85,10 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       telefono: newPasseggero.telefono,
       usa_indirizzo_personalizzato: false,
       is_existing: false,
-    });
+    };
+    
+    console.log('[PasseggeroSelector] Calling onPasseggeroSelect with new passenger:', passeggeroData);
+    onPasseggeroSelect(passeggeroData);
 
     setNewPasseggero({ nome: '', cognome: '', localita: '', indirizzo: '', email: '', telefono: '' });
     setShowNewForm(false);

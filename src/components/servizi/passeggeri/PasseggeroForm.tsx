@@ -23,11 +23,17 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
+    console.log('[PasseggeroForm] handlePasseggeroSelect called with:', passeggero);
+    console.log('[PasseggeroForm] Current fields count:', fields.length);
+    
     const currentIndex = fields.length;
     append(passeggero);
     
+    console.log('[PasseggeroForm] Passenger appended at index:', currentIndex);
+    
     // Assicuriamoci che tutti i campi siano popolati correttamente
     setTimeout(() => {
+      console.log('[PasseggeroForm] Setting values for passenger at index:', currentIndex);
       setValue(`passeggeri.${currentIndex}.nome`, passeggero.nome || '');
       setValue(`passeggeri.${currentIndex}.cognome`, passeggero.cognome || '');
       setValue(`passeggeri.${currentIndex}.localita`, passeggero.localita || '');
