@@ -304,7 +304,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                   onClick={handleCreateNew}
                   disabled={!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()}
                   fluid
-                  className="sm:flex-1"
+                  className="sm:flex-1 text-white"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Aggiungi Passeggero
