@@ -65,11 +65,11 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="relative min-h-full">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pb-24">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
           
           {/* Step 1: Service Details */}
           <div className="bg-card border rounded-lg shadow-sm">
-            <div className="p-4 md:p-6 border-b bg-muted/30">
+            <div className="p-6 md:p-8 border-b bg-muted/30">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
                   1
@@ -80,14 +80,14 @@ export function NuovoServizioForm() {
                 </div>
               </div>
             </div>
-            <div className="p-4 md:p-6">
+            <div className="p-6 md:p-8">
               <ServizioDetailsForm />
             </div>
           </div>
 
           {/* Step 2: Passengers */}
           <div className="bg-card border rounded-lg shadow-sm">
-            <div className="p-4 md:p-6 border-b bg-muted/30">
+            <div className="p-6 md:p-8 border-b bg-muted/30">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
                   2
@@ -98,14 +98,14 @@ export function NuovoServizioForm() {
                 </div>
               </div>
             </div>
-            <div className="p-4 md:p-6">
+            <div className="p-6 md:p-8">
               <PasseggeroForm userRole={profile?.role} />
             </div>
           </div>
 
           {/* Step 3: Summary */}
           <div className="bg-card border rounded-lg shadow-sm">
-            <div className="p-4 md:p-6 border-b bg-muted/30">
+            <div className="p-6 md:p-8 border-b bg-muted/30">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-lg font-bold text-sm">
                   3
@@ -116,7 +116,7 @@ export function NuovoServizioForm() {
                 </div>
               </div>
             </div>
-            <div className="p-4 md:p-6">
+            <div className="p-6 md:p-8">
               <IndirizziIntermediSummary />
             </div>
           </div>
