@@ -206,15 +206,15 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
         {/* Crea nuovo passeggero */}
         <div className="border-t pt-4">
           {!showNewForm ? (
-            <Button
+            <MobileButton
               type="button"
               variant="outline"
-              className="w-full"
+              fluid
               onClick={() => setShowNewForm(true)}
             >
               <UserPlus className="h-4 w-4 mr-2" />
               Crea nuovo passeggero
-            </Button>
+            </MobileButton>
           ) : (
             <div className="space-y-3">
               <Label className="text-sm font-medium flex items-center gap-2">
