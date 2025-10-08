@@ -119,119 +119,125 @@ export function NuovoServizioForm() {
 
   return (
     <FormProvider {...form}>
-      <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-6">
-        {/* Header Compatto - NON sticky su desktop */}
-        <div className={cn(
-          "pb-3 mb-6 border-b",
-          "sticky top-0 bg-background/95 backdrop-blur-sm z-10 md:static md:bg-transparent"
-        )}>
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-medium">
-              {STEPS[currentStep].title}
-              <span className="text-sm text-muted-foreground ml-2">
-                (Step {currentStep + 1}/{STEPS.length})
-              </span>
-            </h1>
-            
-            {/* Progress dots compatti */}
-            <div className="flex gap-1.5">
-              {STEPS.map((step, idx) => (
-                <div
-                  key={step.id}
-                  className={cn(
-                    "h-2 w-2 rounded-full transition-all",
-                    idx === currentStep && "bg-primary scale-125",
-                    idx < currentStep && "bg-primary",
-                    idx > currentStep && "bg-muted"
-                  )}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mb-6">
-          {/* Render current step */}
-          {currentStep === 0 && <Step1AziendaPercorso />}
-          {currentStep === 1 && <Step2DettagliOperativi />}
-          {currentStep === 2 && <Step3ComunicazioneNote />}
-          {currentStep === 3 && <Step4Passeggeri />}
-        </form>
-        
-        {/* Navigation Buttons - sticky mobile, normale desktop */}
-        <div className={cn(
-          "border-t pt-4 mt-6",
-          "sticky bottom-0 bg-background/95 backdrop-blur-sm z-20 md:static md:bg-transparent",
-          "pb-[calc(1rem+env(safe-area-inset-bottom))]",
-          "transition-transform duration-200",
-          keyboardVisible && "translate-y-full"
-        )}>
-          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between sm:gap-3">
-            <MobileButton
-              type="button"
-              variant="outline"
-              onClick={() => {
-                const hasData = form.formState.isDirty;
-                if (hasData) {
-                  setShowCancelDialog(true);
-                } else {
-                  navigate(-1);
-                }
-              }}
-              className="w-full sm:w-auto"
-              touchOptimized={true}
-            >
-              Annulla
-            </MobileButton>
-
-            <div className="flex gap-3">
-              {currentStep > 0 && (
-                <MobileButton
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrevious}
-                  className="w-full sm:w-auto"
-                  touchOptimized={true}
-                >
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  Indietro
-                </MobileButton>
-              )}
+      <div className="w-full min-h-screen">
+        {/* Container con padding responsive - NO max-width */}
+        <div className="w-full px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 py-6">
+          
+          {/* Header compatto - 1 riga */}
+          <div className={cn(
+            "pb-3 mb-6 border-b",
+            "sticky top-0 bg-background/95 backdrop-blur-sm z-10 md:static md:bg-transparent"
+          )}>
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-medium">
+                {STEPS[currentStep].title}
+                <span className="text-sm text-muted-foreground ml-2">
+                  (Step {currentStep + 1}/{STEPS.length})
+                </span>
+              </h1>
               
-              {currentStep < STEPS.length - 1 ? (
-                <MobileButton
-                  type="button"
-                  onClick={handleNext}
-                  disabled={!canGoNext()}
-                  className="w-full sm:w-auto"
-                  touchOptimized={true}
-                >
-                  Avanti
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </MobileButton>
-              ) : (
-                <MobileButton 
-                  type="submit" 
-                  disabled={isCreating || !canGoNext()}
-                  className="w-full sm:w-auto"
-                  onClick={form.handleSubmit(onSubmit)}
-                  touchOptimized={true}
-                >
-                  {isCreating ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
-                      Creazione...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Crea servizio
-                    </div>
-                  )}
-                </MobileButton>
-              )}
+              {/* Progress dots minimal */}
+              <div className="flex gap-1.5">
+                {STEPS.map((step, idx) => (
+                  <div
+                    key={step.id}
+                    className={cn(
+                      "h-2 w-2 rounded-full transition-all",
+                      idx === currentStep && "bg-primary scale-125",
+                      idx < currentStep && "bg-primary",
+                      idx > currentStep && "bg-muted"
+                    )}
+                  />
+                ))}
+              </div>
             </div>
           </div>
+
+          {/* Content Area - Step Components */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mb-6">
+            {currentStep === 0 && <Step1AziendaPercorso />}
+            {currentStep === 1 && <Step2DettagliOperativi />}
+            {currentStep === 2 && <Step3ComunicazioneNote />}
+            {currentStep === 3 && <Step4Passeggeri />}
+          </form>
+
+          {/* Footer Navigation - sticky mobile, normale desktop */}
+          <div className={cn(
+            "border-t pt-4 mt-6",
+            "sticky bottom-0 bg-background/95 backdrop-blur-sm z-20 -mx-6 px-6 pb-4 md:static md:bg-transparent md:mx-0 md:px-0 md:pb-0",
+            "transition-transform duration-200",
+            keyboardVisible && "translate-y-full"
+          )}>
+            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between sm:gap-3">
+              {/* Bottone Annulla - sinistra desktop, bottom mobile */}
+              <MobileButton
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const hasData = form.formState.isDirty;
+                  if (hasData) {
+                    setShowCancelDialog(true);
+                  } else {
+                    navigate(-1);
+                  }
+                }}
+                className="w-full sm:w-auto"
+                touchOptimized={true}
+              >
+                Annulla
+              </MobileButton>
+
+              {/* Bottoni Navigation - destra desktop, top mobile */}
+              <div className="flex gap-3">
+                {currentStep > 0 && (
+                  <MobileButton
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                    className="w-full sm:w-auto"
+                    touchOptimized={true}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Indietro
+                  </MobileButton>
+                )}
+                
+                {currentStep < STEPS.length - 1 ? (
+                  <MobileButton
+                    type="button"
+                    onClick={handleNext}
+                    disabled={!canGoNext()}
+                    className="w-full sm:w-auto"
+                    touchOptimized={true}
+                  >
+                    Avanti
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </MobileButton>
+                ) : (
+                  <MobileButton 
+                    type="submit" 
+                    disabled={isCreating || !canGoNext()}
+                    className="w-full sm:w-auto"
+                    onClick={form.handleSubmit(onSubmit)}
+                    touchOptimized={true}
+                  >
+                    {isCreating ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
+                        Creazione...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Crea servizio
+                      </div>
+                    )}
+                  </MobileButton>
+                )}
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Cancel Confirmation Dialog */}
