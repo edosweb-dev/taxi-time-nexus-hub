@@ -6,6 +6,7 @@ import { MobileButton } from "@/components/ui/mobile-button";
 import { useServizi } from "@/hooks/useServizi";
 import { toast } from "@/components/ui/sonner";
 import { useServizioForm } from "@/hooks/useServizioForm";
+import { useKeyboardVisible } from "@/hooks/use-keyboard-visible";
 import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Step1AziendaPercorso } from "./steps/Step1AziendaPercorso";
 import { Step2DettagliOperativi } from "./steps/Step2DettagliOperativi";
@@ -25,6 +26,7 @@ export function NuovoServizioForm() {
   const { form, profile } = useServizioForm();
   const { createServizio, isCreating } = useServizi();
   const [currentStep, setCurrentStep] = useState(0);
+  const keyboardVisible = useKeyboardVisible();
 
   const canGoNext = () => {
     const values = form.getValues();
@@ -157,7 +159,13 @@ export function NuovoServizioForm() {
         </form>
         
         {/* Navigation Buttons - Sticky Bottom */}
-        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4">
+        <div className={cn(
+          "sticky bottom-0 z-20",
+          "bg-background/95 backdrop-blur-sm border-t",
+          "p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]",
+          "transition-transform duration-200",
+          keyboardVisible && "translate-y-full"
+        )}>
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between">
             <MobileButton
               type="button"
