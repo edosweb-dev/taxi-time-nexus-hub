@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { FormProvider } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { MobileButton } from "@/components/ui/mobile-button";
 import { useServizi } from "@/hooks/useServizi";
 import { toast } from "@/components/ui/sonner";
 import { useServizioForm } from "@/hooks/useServizioForm";
@@ -150,7 +150,7 @@ export function NuovoServizioForm() {
         {/* Navigation Buttons - Sticky Bottom */}
         <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4">
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between">
-            <Button
+            <MobileButton
               type="button"
               variant="outline"
               onClick={() => {
@@ -164,39 +164,43 @@ export function NuovoServizioForm() {
                 }
               }}
               className="w-full sm:w-auto"
+              touchOptimized={true}
             >
               Annulla
-            </Button>
+            </MobileButton>
 
             <div className="flex gap-2">
               {currentStep > 0 && (
-                <Button
+                <MobileButton
                   type="button"
                   variant="outline"
                   onClick={handlePrevious}
                   className="w-full sm:w-auto"
+                  touchOptimized={true}
                 >
                   <ChevronLeft className="h-4 w-4 mr-2" />
                   Indietro
-                </Button>
+                </MobileButton>
               )}
               
               {currentStep < STEPS.length - 1 ? (
-                <Button
+                <MobileButton
                   type="button"
                   onClick={handleNext}
                   disabled={!canGoNext()}
                   className="w-full sm:w-auto"
+                  touchOptimized={true}
                 >
                   Avanti
                   <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
+                </MobileButton>
               ) : (
-                <Button 
+                <MobileButton 
                   type="submit" 
                   disabled={isCreating || !canGoNext()}
                   className="w-full sm:w-auto"
                   onClick={form.handleSubmit(onSubmit)}
+                  touchOptimized={true}
                 >
                   {isCreating ? (
                     <div className="flex items-center gap-2">
@@ -209,7 +213,7 @@ export function NuovoServizioForm() {
                       Crea servizio
                     </div>
                   )}
-                </Button>
+                </MobileButton>
               )}
             </div>
           </div>

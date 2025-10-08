@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { MobileInput } from "@/components/ui/mobile-input";
 import { Settings } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect, SelectItem } from "@/components/ui/mobile-select";
 import { ProvvigioneServizioField } from "../ProvvigioneServizioField";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { useImpostazioni } from "@/hooks/useImpostazioni";
@@ -31,20 +31,19 @@ export const Step2DettagliOperativi = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Metodo di pagamento *</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona metodo di pagamento" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
+            <FormControl>
+              <MobileSelect
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder="Seleziona metodo di pagamento"
+              >
                 {metodiPagamento.map((metodo) => (
                   <SelectItem key={metodo} value={metodo}>
                     {metodo}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </MobileSelect>
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
@@ -57,16 +56,15 @@ export const Step2DettagliOperativi = () => {
           name="veicolo_id"
           render={({ field }) => (
             <FormItem>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona veicolo (opzionale)" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
+              <FormControl>
+                <MobileSelect
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Seleziona veicolo (opzionale)"
+                >
                   <SelectItem value="">Nessun veicolo</SelectItem>
-                </SelectContent>
-              </Select>
+                </MobileSelect>
+              </FormControl>
             </FormItem>
           )}
         />

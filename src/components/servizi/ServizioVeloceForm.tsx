@@ -2,7 +2,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { MobileButton } from "@/components/ui/mobile-button";
 import { Label } from "@/components/ui/label";
 import { MobileTextarea } from "@/components/ui/mobile-input";
 import { AziendaSelectField } from "./AziendaSelectField";
@@ -90,16 +90,17 @@ export const ServizioVeloceForm = () => {
           </Card>
 
           <div className="sticky bottom-0 bg-background border-t p-4 mt-6 -mx-4 flex gap-3 justify-end">
-            <Button
+            <MobileButton
               type="button"
               variant="outline"
               onClick={() => navigate("/servizi")}
+              touchOptimized={true}
             >
               Annulla
-            </Button>
-            <Button type="submit" disabled={isCreating}>
+            </MobileButton>
+            <MobileButton type="submit" disabled={isCreating} touchOptimized={true}>
               {isCreating ? "Salvataggio..." : "Salva bozza"}
-            </Button>
+            </MobileButton>
           </div>
         </form>
       </FormProvider>
