@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useServiziPage } from '@/hooks/useServiziPage';
 import { MainLayout } from '@/components/layouts/MainLayout';
+import { InserimentoServizioModal } from '@/components/servizi/InserimentoServizioModal';
 
 export function MobileOptimizedServiziPage() {
   const {
@@ -24,6 +25,7 @@ export function MobileOptimizedServiziPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const scrollContainerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showInserimentoModal, setShowInserimentoModal] = useState(false);
 
   const tabs = [
     { id: 'tutti', label: 'Tutti', count: servizi?.length || 0 },
@@ -369,13 +371,19 @@ export function MobileOptimizedServiziPage() {
       {/* Floating Action Button */}
       {isAdminOrSocio && (
         <Button
-          onClick={handleNavigateToNewServizio}
+          onClick={() => setShowInserimentoModal(true)}
           className="fixed bottom-32 right-4 h-12 w-12 rounded-full shadow-lg touch-target z-40"
           size="icon"
         >
           <Plus className="h-5 w-5" />
         </Button>
       )}
+
+      {/* Inserimento Servizio Modal */}
+      <InserimentoServizioModal
+        open={showInserimentoModal}
+        onClose={() => setShowInserimentoModal(false)}
+      />
     </div>
   );
 }
