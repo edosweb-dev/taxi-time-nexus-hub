@@ -87,24 +87,27 @@ export const ServizioVeloceForm = () => {
             </div>
           </Card>
 
-          <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-3 mt-4 -mx-4 flex gap-2 justify-end">
-            <MobileButton
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/servizi")}
-              touchOptimized={true}
-              className="h-10 px-3"
-            >
-              Annulla
-            </MobileButton>
-            <MobileButton 
-              type="submit" 
-              disabled={isCreating} 
-              touchOptimized={true}
-              className="h-10 px-4"
-            >
-              {isCreating ? "Salvataggio..." : "Salva"}
-            </MobileButton>
+          <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4 mt-4 -mx-4">
+            <div className="flex flex-col items-center gap-3 w-full">
+              <MobileButton
+                type="submit"
+                disabled={isCreating}
+                touchOptimized={true}
+                className="w-[80%] min-h-[44px]"
+              >
+                {isCreating ? "Salvataggio..." : "Salva bozza"}
+              </MobileButton>
+              
+              <MobileButton
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/servizi")}
+                touchOptimized={true}
+                className="w-[80%] min-h-[44px]"
+              >
+                Annulla
+              </MobileButton>
+            </div>
           </div>
         </form>
       </FormProvider>
