@@ -18,7 +18,7 @@ export function AssignmentInfoSection({
   users,
   getUserName,
 }: AssignmentInfoSectionProps) {
-  const { veicoli } = useVeicoli();
+  const { veicoli = [] } = useVeicoli();
   
   const { data: conducenteEsterno } = useQuery({
     queryKey: ['conducente-esterno', servizio.conducente_esterno_id],
