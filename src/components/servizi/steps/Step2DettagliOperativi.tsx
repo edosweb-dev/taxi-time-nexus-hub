@@ -50,7 +50,7 @@ export const Step2DettagliOperativi = () => {
       />
 
       <div className="space-y-2">
-        <Label>Veicolo</Label>
+        <Label className="text-base md:text-sm">Veicolo</Label>
         <FormField
           control={control}
           name="veicolo_id"
@@ -73,7 +73,7 @@ export const Step2DettagliOperativi = () => {
       {canEditOreFields && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Ore effettive</Label>
+            <Label className="text-base md:text-sm">Ore effettive</Label>
             <MobileInput 
               type="number" 
               step="0.1"
@@ -82,7 +82,7 @@ export const Step2DettagliOperativi = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label>Ore fatturate</Label>
+            <Label className="text-base md:text-sm">Ore fatturate</Label>
             <MobileInput 
               type="number" 
               step="0.1"

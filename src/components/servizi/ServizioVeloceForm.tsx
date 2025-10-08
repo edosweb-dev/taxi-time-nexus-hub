@@ -80,7 +80,7 @@ export const ServizioVeloceForm = () => {
             <ReferenteSelectField aziendaId={aziendaId} />
             
             <div className="space-y-2">
-              <Label>Note</Label>
+              <Label className="text-base md:text-sm">Note</Label>
               <MobileTextarea
                 placeholder="Aggiungi note o dettagli da ricordare..."
                 rows={4}

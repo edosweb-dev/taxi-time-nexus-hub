@@ -31,14 +31,14 @@ export const Step1AziendaPercorso = () => {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Data servizio *</Label>
+            <Label className="text-base md:text-sm">Data servizio *</Label>
             <MobileInput 
               type="date" 
               {...register("data_servizio")} 
             />
           </div>
           <div className="space-y-2">
-            <Label>Orario servizio *</Label>
+            <Label className="text-base md:text-sm">Orario servizio *</Label>
             <MobileInput 
               type="time" 
               {...register("orario_servizio")} 
@@ -46,7 +46,7 @@ export const Step1AziendaPercorso = () => {
           </div>
         </div>
         <div className="space-y-2">
-          <Label>Numero commessa</Label>
+          <Label className="text-base md:text-sm">Numero commessa</Label>
           <MobileInput 
             placeholder="ES-2024-001" 
             {...register("numero_commessa")} 
@@ -65,14 +65,14 @@ export const Step1AziendaPercorso = () => {
           <p className="text-sm font-medium text-muted-foreground">Partenza</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Città</Label>
+              <Label className="text-base md:text-sm">Città</Label>
               <MobileInput 
                 placeholder="Milano" 
                 {...register("citta_presa")} 
               />
             </div>
             <div className="space-y-2">
-              <Label>Indirizzo di presa *</Label>
+              <Label className="text-base md:text-sm">Indirizzo di presa *</Label>
               <MobileInput 
                 placeholder="Via Roma 123" 
                 {...register("indirizzo_presa")} 
@@ -85,14 +85,14 @@ export const Step1AziendaPercorso = () => {
           <p className="text-sm font-medium text-muted-foreground">Destinazione</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Città</Label>
+              <Label className="text-base md:text-sm">Città</Label>
               <MobileInput 
                 placeholder="Ferno" 
                 {...register("citta_destinazione")} 
               />
             </div>
             <div className="space-y-2">
-              <Label>Indirizzo di destinazione *</Label>
+              <Label className="text-base md:text-sm">Indirizzo di destinazione *</Label>
               <MobileInput 
                 placeholder="Aeroporto Malpensa" 
                 {...register("indirizzo_destinazione")} 
