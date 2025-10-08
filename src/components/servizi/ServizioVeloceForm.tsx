@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useServizi } from "@/hooks/useServizi";
 import { toast } from "sonner";
 import { useWatch } from "react-hook-form";
+import { useEffect, useRef } from "react";
 
 const servizioVeloceSchema = z.object({
   azienda_id: z.string().min(1, "Azienda obbligatoria"),
@@ -23,6 +24,7 @@ type ServizioVeloceFormData = z.infer<typeof servizioVeloceSchema>;
 export const ServizioVeloceForm = () => {
   const navigate = useNavigate();
   const { createServizio, isCreating } = useServizi();
+  const wasCreatingRef = useRef(false);
   
   const form = useForm<ServizioVeloceFormData>({
     resolver: zodResolver(servizioVeloceSchema),
@@ -34,6 +36,15 @@ export const ServizioVeloceForm = () => {
   });
 
   const aziendaId = useWatch({ control: form.control, name: "azienda_id" });
+
+  // Redirect to servizi list after successful save
+  useEffect(() => {
+    if (wasCreatingRef.current && !isCreating) {
+      // Creation completed (isCreating changed from true to false)
+      navigate('/servizi?tab=bozze');
+    }
+    wasCreatingRef.current = isCreating;
+  }, [isCreating, navigate]);
 
   const onSubmit = (data: ServizioVeloceFormData) => {
     createServizio({
