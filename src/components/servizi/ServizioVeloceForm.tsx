@@ -65,41 +65,45 @@ export const ServizioVeloceForm = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 py-6 px-4">
+    <div className="max-w-2xl mx-auto space-y-4 py-4 px-4">
       <header>
-        <h1 className="text-2xl md:text-3xl font-bold mb-2">Inserimento Veloce</h1>
-        <p className="text-muted-foreground text-sm">
-          Crea una bozza con i dati essenziali. Potrai completare in seguito.
-        </p>
+        <h1 className="text-xl md:text-2xl font-semibold mb-0">Inserimento Veloce</h1>
       </header>
 
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Card className="p-6 space-y-6">
+          <Card className="p-4 space-y-4">
             <AziendaSelectField />
             <ReferenteSelectField aziendaId={aziendaId} />
             
-            <div className="space-y-2">
-              <Label className="text-base md:text-sm">Note</Label>
+            <div className="space-y-1">
+              <Label className="text-sm">Note</Label>
               <MobileTextarea
-                placeholder="Aggiungi note o dettagli da ricordare..."
-                rows={4}
+                placeholder="Note rapide..."
+                rows={3}
+                className="resize-none"
                 {...form.register("note")}
               />
             </div>
           </Card>
 
-          <div className="sticky bottom-0 bg-background border-t p-4 mt-6 -mx-4 flex gap-3 justify-end">
+          <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-3 mt-4 -mx-4 flex gap-2 justify-end">
             <MobileButton
               type="button"
               variant="outline"
               onClick={() => navigate("/servizi")}
               touchOptimized={true}
+              className="h-10 px-3"
             >
               Annulla
             </MobileButton>
-            <MobileButton type="submit" disabled={isCreating} touchOptimized={true}>
-              {isCreating ? "Salvataggio..." : "Salva bozza"}
+            <MobileButton 
+              type="submit" 
+              disabled={isCreating} 
+              touchOptimized={true}
+              className="h-10 px-4"
+            >
+              {isCreating ? "Salvataggio..." : "Salva"}
             </MobileButton>
           </div>
         </form>
