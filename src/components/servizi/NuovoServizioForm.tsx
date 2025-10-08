@@ -166,7 +166,7 @@ export function NuovoServizioForm() {
           "transition-transform duration-200",
           keyboardVisible && "translate-y-full"
         )}>
-          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between sm:gap-3">
             <MobileButton
               type="button"
               variant="outline"
@@ -186,7 +186,7 @@ export function NuovoServizioForm() {
               Annulla
             </MobileButton>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               {currentStep > 0 && (
                 <MobileButton
                   type="button"
