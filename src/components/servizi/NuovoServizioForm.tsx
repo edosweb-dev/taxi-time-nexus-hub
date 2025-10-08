@@ -120,8 +120,8 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="w-full min-h-screen">
-        {/* Container con padding responsive - NO max-width */}
-        <div className="w-full px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 py-6">
+        {/* Container con padding MINIMO - massimizza spazio content */}
+        <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16 py-6">
           
           {/* Header compatto - 1 riga */}
           <div className={cn(
@@ -161,15 +161,15 @@ export function NuovoServizioForm() {
             {currentStep === 3 && <Step4Passeggeri />}
           </form>
 
-          {/* Footer Navigation - sticky mobile, normale desktop */}
+          {/* Footer Navigation - BOTTONI GRANDI - sticky mobile, normale desktop */}
           <div className={cn(
-            "border-t pt-4 mt-6",
+            "border-t pt-6 mt-8",
             "sticky bottom-0 bg-background/95 backdrop-blur-sm z-20 -mx-6 px-6 pb-4 md:static md:bg-transparent md:mx-0 md:px-0 md:pb-0",
             "transition-transform duration-200",
             keyboardVisible && "translate-y-full"
           )}>
-            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between sm:gap-3">
-              {/* Bottone Annulla - sinistra desktop, bottom mobile */}
+            <div className="flex flex-col-reverse sm:flex-row gap-4 sm:justify-between sm:gap-4">
+              {/* Bottone Annulla - PIÙ GRANDE - sinistra desktop, bottom mobile */}
               <MobileButton
                 type="button"
                 variant="outline"
@@ -178,23 +178,23 @@ export function NuovoServizioForm() {
                   if (hasData) {
                     setShowCancelDialog(true);
                   } else {
-                    navigate(-1);
+                  navigate(-1);
                   }
                 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[140px]"
                 touchOptimized={true}
               >
                 Annulla
               </MobileButton>
 
-              {/* Bottoni Navigation - destra desktop, top mobile */}
-              <div className="flex gap-3">
+              {/* Bottoni Navigation - PIÙ GRANDI - destra desktop, top mobile */}
+              <div className="flex gap-4">
                 {currentStep > 0 && (
                   <MobileButton
                     type="button"
                     variant="outline"
                     onClick={handlePrevious}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[140px]"
                     touchOptimized={true}
                   >
                     <ChevronLeft className="h-4 w-4 mr-2" />
@@ -207,7 +207,7 @@ export function NuovoServizioForm() {
                     type="button"
                     onClick={handleNext}
                     disabled={!canGoNext()}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[140px]"
                     touchOptimized={true}
                   >
                     Avanti
@@ -217,13 +217,13 @@ export function NuovoServizioForm() {
                   <MobileButton 
                     type="submit" 
                     disabled={isCreating || !canGoNext()}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[160px]"
                     onClick={form.handleSubmit(onSubmit)}
                     touchOptimized={true}
                   >
                     {isCreating ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
+                        <div className="w-5 h-5 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
                         Creazione...
                       </div>
                     ) : (
