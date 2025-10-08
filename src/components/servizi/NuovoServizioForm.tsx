@@ -119,40 +119,38 @@ export function NuovoServizioForm() {
 
   return (
     <FormProvider {...form}>
-      <div className="relative min-h-full">
-        {/* Progress Indicator - Sticky Header */}
+      <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+        {/* Header Compatto - NON sticky su desktop */}
         <div className={cn(
-          "sticky top-0 z-10",
-          "bg-background/95 backdrop-blur-sm",
-          "border-b",
-          "pb-6 mb-6",
-          "-mx-4 px-4 pt-4",
-          "md:-mx-6 md:px-6",
-          "lg:-mx-8 lg:px-8",
-          "transition-all duration-200"
+          "pb-3 mb-6 border-b",
+          "sticky top-0 bg-background/95 backdrop-blur-sm z-10 md:static md:bg-transparent"
         )}>
-          <div className="flex items-center justify-center gap-2">
-            {STEPS.map((step, idx) => (
-              <div
-                key={step.id}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-300",
-                  idx <= currentStep ? "bg-primary" : "bg-muted",
-                  idx === currentStep ? "w-16" : "w-12"
-                )}
-              />
-            ))}
-          </div>
-          <div className="text-center mt-4">
-            <h2 className="text-xl font-bold">{STEPS[currentStep].title}</h2>
-            <p className="text-sm text-muted-foreground">{STEPS[currentStep].description}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Step {currentStep + 1} di {STEPS.length}
-            </p>
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg font-medium">
+              {STEPS[currentStep].title}
+              <span className="text-sm text-muted-foreground ml-2">
+                (Step {currentStep + 1}/{STEPS.length})
+              </span>
+            </h1>
+            
+            {/* Progress dots compatti */}
+            <div className="flex gap-1.5">
+              {STEPS.map((step, idx) => (
+                <div
+                  key={step.id}
+                  className={cn(
+                    "h-2 w-2 rounded-full transition-all",
+                    idx === currentStep && "bg-primary scale-125",
+                    idx < currentStep && "bg-primary",
+                    idx > currentStep && "bg-muted"
+                  )}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mb-6">
           {/* Render current step */}
           {currentStep === 0 && <Step1AziendaPercorso />}
           {currentStep === 1 && <Step2DettagliOperativi />}
@@ -160,11 +158,11 @@ export function NuovoServizioForm() {
           {currentStep === 3 && <Step4Passeggeri />}
         </form>
         
-        {/* Navigation Buttons - Sticky Bottom */}
+        {/* Navigation Buttons - sticky mobile, normale desktop */}
         <div className={cn(
-          "sticky bottom-0 z-20",
-          "bg-background/95 backdrop-blur-sm border-t",
-          "p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]",
+          "border-t pt-4 mt-6",
+          "sticky bottom-0 bg-background/95 backdrop-blur-sm z-20 md:static md:bg-transparent",
+          "pb-[calc(1rem+env(safe-area-inset-bottom))]",
           "transition-transform duration-200",
           keyboardVisible && "translate-y-full"
         )}>
