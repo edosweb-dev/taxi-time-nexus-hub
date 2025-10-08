@@ -14,6 +14,10 @@ export const InserimentoServizioModal = ({ open, onClose }: InserimentoServizioM
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
+  // Debug logging
+  console.log('🔍 Modal props:', { open, isMobile });
+  console.log('🔍 Window width:', window.innerWidth);
+
   const handleVeloce = () => {
     navigate("/nuovo-servizio?mode=veloce");
     onClose();
