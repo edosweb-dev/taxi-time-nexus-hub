@@ -7,6 +7,7 @@ import { useServizi } from "@/hooks/useServizi";
 import { toast } from "@/components/ui/sonner";
 import { useServizioForm } from "@/hooks/useServizioForm";
 import { useKeyboardVisible } from "@/hooks/use-keyboard-visible";
+import { CancelConfirmDialog } from "./CancelConfirmDialog";
 import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Step1AziendaPercorso } from "./steps/Step1AziendaPercorso";
 import { Step2DettagliOperativi } from "./steps/Step2DettagliOperativi";
@@ -27,6 +28,7 @@ export function NuovoServizioForm() {
   const { createServizio, isCreating } = useServizi();
   const [currentStep, setCurrentStep] = useState(0);
   const keyboardVisible = useKeyboardVisible();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const canGoNext = () => {
     const values = form.getValues();
@@ -173,9 +175,7 @@ export function NuovoServizioForm() {
               onClick={() => {
                 const hasData = form.formState.isDirty;
                 if (hasData) {
-                  if (confirm("Ci sono dati non salvati. Sicuro di voler uscire?")) {
-                    navigate(-1);
-                  }
+                  setShowCancelDialog(true);
                 } else {
                   navigate(-1);
                 }
@@ -235,6 +235,16 @@ export function NuovoServizioForm() {
             </div>
           </div>
         </div>
+
+        {/* Cancel Confirmation Dialog */}
+        <CancelConfirmDialog
+          open={showCancelDialog}
+          onOpenChange={setShowCancelDialog}
+          onConfirm={() => {
+            setShowCancelDialog(false);
+            navigate(-1);
+          }}
+        />
       </div>
     </FormProvider>
   );
