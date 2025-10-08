@@ -12,21 +12,23 @@ export const Step1AziendaPercorso = () => {
   const aziendaId = useWatch({ control, name: "azienda_id" });
 
   return (
-    <Card className="p-6 md:p-8 space-y-8">
+    <Card className="w-full p-6 md:p-8 space-y-8">
       {/* SEZIONE 1: Azienda e Contatto */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Building2 className="h-5 w-5" />
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <Building2 className="h-4 w-4" />
           Azienda e Contatto
         </h3>
-        <AziendaSelectField />
-        {aziendaId && <ReferenteSelectField aziendaId={aziendaId} />}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <AziendaSelectField />
+          {aziendaId && <ReferenteSelectField aziendaId={aziendaId} />}
+        </div>
       </div>
 
       {/* SEZIONE 2: Data e Orario */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
           Data e Orario
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -56,8 +58,8 @@ export const Step1AziendaPercorso = () => {
 
       {/* SEZIONE 3: Percorso */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <MapPin className="h-5 w-5" />
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
           Percorso
         </h3>
         

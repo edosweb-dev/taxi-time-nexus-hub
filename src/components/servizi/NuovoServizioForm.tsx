@@ -2,13 +2,13 @@
 import React, { useState } from "react";
 import { FormProvider } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { MobileButton } from "@/components/ui/mobile-button";
+import { Button } from "@/components/ui/button";
 import { useServizi } from "@/hooks/useServizi";
 import { toast } from "@/components/ui/sonner";
 import { useServizioForm } from "@/hooks/useServizioForm";
 import { useKeyboardVisible } from "@/hooks/use-keyboard-visible";
 import { CancelConfirmDialog } from "./CancelConfirmDialog";
-import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Step1AziendaPercorso } from "./steps/Step1AziendaPercorso";
 import { Step2DettagliOperativi } from "./steps/Step2DettagliOperativi";
 import { Step3ComunicazioneNote } from "./steps/Step3ComunicazioneNote";
@@ -120,57 +120,58 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="w-full min-h-screen">
-        {/* Container con padding MINIMO - massimizza spazio content */}
-        <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16 py-6">
+        {/* Container con ZERO max-width, solo padding minimo */}
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6">
           
-          {/* Header compatto - 1 riga */}
+          {/* Header Ultra-Compatto */}
           <div className={cn(
-            "pb-3 mb-6 border-b",
+            "pb-2 mb-4 border-b flex items-center justify-between",
             "sticky top-0 bg-background/95 backdrop-blur-sm z-10 md:static md:bg-transparent"
           )}>
-            <div className="flex items-center justify-between">
-              <h1 className="text-lg font-medium">
+            <div className="flex items-center gap-3">
+              <h1 className="text-base font-medium text-muted-foreground">
                 {STEPS[currentStep].title}
-                <span className="text-sm text-muted-foreground ml-2">
-                  (Step {currentStep + 1}/{STEPS.length})
-                </span>
               </h1>
-              
-              {/* Progress dots minimal */}
-              <div className="flex gap-1.5">
-                {STEPS.map((step, idx) => (
-                  <div
-                    key={step.id}
-                    className={cn(
-                      "h-2 w-2 rounded-full transition-all",
-                      idx === currentStep && "bg-primary scale-125",
-                      idx < currentStep && "bg-primary",
-                      idx > currentStep && "bg-muted"
-                    )}
-                  />
-                ))}
-              </div>
+              <span className="text-xs text-muted-foreground">
+                (Step {currentStep + 1}/{STEPS.length})
+              </span>
+            </div>
+            
+            {/* Progress inline compatto */}
+            <div className="flex gap-1">
+              {STEPS.map((step, idx) => (
+                <div
+                  key={step.id}
+                  className={cn(
+                    "h-1.5 w-6 rounded-full transition-all",
+                    idx === currentStep && "bg-primary w-8",
+                    idx < currentStep && "bg-primary",
+                    idx > currentStep && "bg-muted"
+                  )}
+                />
+              ))}
             </div>
           </div>
 
-          {/* Content Area - Step Components */}
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mb-6">
+          {/* Content Area - ZERO restriction */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mb-8">
             {currentStep === 0 && <Step1AziendaPercorso />}
             {currentStep === 1 && <Step2DettagliOperativi />}
             {currentStep === 2 && <Step3ComunicazioneNote />}
             {currentStep === 3 && <Step4Passeggeri />}
           </form>
 
-          {/* Footer Navigation - BOTTONI GRANDI - sticky mobile, normale desktop */}
+          {/* Footer Navigation - Bottoni GRANDI e VISIBILI */}
           <div className={cn(
-            "border-t pt-6 mt-8",
+            "border-t pt-6 mt-8 bg-background",
             "sticky bottom-0 bg-background/95 backdrop-blur-sm z-20 -mx-6 px-6 pb-4 md:static md:bg-transparent md:mx-0 md:px-0 md:pb-0",
             "transition-transform duration-200",
             keyboardVisible && "translate-y-full"
           )}>
-            <div className="flex flex-col-reverse sm:flex-row gap-4 sm:justify-between sm:gap-4">
-              {/* Bottone Annulla - PIÙ GRANDE - sinistra desktop, bottom mobile */}
-              <MobileButton
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+              
+              {/* Bottone Annulla */}
+              <Button
                 type="button"
                 variant="outline"
                 onClick={() => {
@@ -178,61 +179,60 @@ export function NuovoServizioForm() {
                   if (hasData) {
                     setShowCancelDialog(true);
                   } else {
-                  navigate(-1);
+                    navigate(-1);
                   }
                 }}
-                className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[140px]"
-                touchOptimized={true}
+                size="lg"
+                className="h-12 px-8 text-base font-medium border-2 hover:bg-accent"
               >
                 Annulla
-              </MobileButton>
+              </Button>
 
-              {/* Bottoni Navigation - PIÙ GRANDI - destra desktop, top mobile */}
-              <div className="flex gap-4">
+              {/* Gruppo Bottoni Navigation */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 {currentStep > 0 && (
-                  <MobileButton
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={handlePrevious}
-                    className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[140px]"
-                    touchOptimized={true}
+                    size="lg"
+                    className="h-12 px-8 text-base font-medium border-2 hover:bg-accent"
                   >
                     <ChevronLeft className="h-4 w-4 mr-2" />
                     Indietro
-                  </MobileButton>
+                  </Button>
                 )}
                 
                 {currentStep < STEPS.length - 1 ? (
-                  <MobileButton
-                    type="button"
+                  <Button
                     onClick={handleNext}
                     disabled={!canGoNext()}
-                    className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[140px]"
-                    touchOptimized={true}
+                    size="lg"
+                    className="h-12 px-8 text-base font-medium min-w-[160px]"
                   >
                     Avanti
                     <ChevronRight className="h-4 w-4 ml-2" />
-                  </MobileButton>
+                  </Button>
                 ) : (
-                  <MobileButton 
-                    type="submit" 
-                    disabled={isCreating || !canGoNext()}
-                    className="w-full sm:w-auto h-12 px-8 text-base font-medium min-w-[160px]"
+                  <Button
+                    type="submit"
                     onClick={form.handleSubmit(onSubmit)}
-                    touchOptimized={true}
+                    disabled={isCreating || !canGoNext()}
+                    size="lg"
+                    className="h-12 px-8 text-base font-medium min-w-[180px]"
                   >
                     {isCreating ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-current border-r-transparent rounded-full animate-spin"></div>
-                        Creazione...
-                      </div>
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Salvataggio...
+                      </>
                     ) : (
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4" />
-                        Crea servizio
-                      </div>
+                      <>
+                        Salva Servizio
+                        <CheckCircle2 className="ml-2 h-5 w-5" />
+                      </>
                     )}
-                  </MobileButton>
+                  </Button>
                 )}
               </div>
             </div>
