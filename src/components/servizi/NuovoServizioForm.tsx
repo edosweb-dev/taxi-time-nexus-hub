@@ -116,8 +116,17 @@ export function NuovoServizioForm() {
   return (
     <FormProvider {...form}>
       <div className="relative min-h-full">
-        {/* Progress Indicator */}
-        <div className="mb-6">
+        {/* Progress Indicator - Sticky Header */}
+        <div className={cn(
+          "sticky top-0 z-10",
+          "bg-background/95 backdrop-blur-sm",
+          "border-b",
+          "pb-6 mb-6",
+          "-mx-4 px-4 pt-4",
+          "md:-mx-6 md:px-6",
+          "lg:-mx-8 lg:px-8",
+          "transition-all duration-200"
+        )}>
           <div className="flex items-center justify-center gap-2">
             {STEPS.map((step, idx) => (
               <div
