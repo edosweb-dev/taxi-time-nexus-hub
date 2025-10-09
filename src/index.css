@@ -133,7 +133,7 @@ body {
     max-width: 100% !important;
   }
   
-  /* Checkbox size optimization */
+  /* Checkbox perfettamente quadrata */
   input[type="checkbox"],
   [role="checkbox"],
   button[role="checkbox"] {
@@ -141,20 +141,14 @@ body {
     height: 20px !important;
     min-width: 20px !important;
     min-height: 20px !important;
+    border-radius: 4px !important;
+    flex-shrink: 0;
   }
   
-  /* Touch area padding (invisible but tappable) */
-  input[type="checkbox"],
-  [role="checkbox"],
-  button[role="checkbox"] {
-    padding: 12px;
-    margin: -12px;
-  }
-  
-  /* Label checkbox spacing */
-  .flex.items-center.space-x-2 {
-    align-items: center;
-    gap: 0.5rem;
+  /* Svg interno checkbox (check mark) */
+  [role="checkbox"] svg {
+    width: 14px !important;
+    height: 14px !important;
   }
 }
 
@@ -2463,6 +2457,15 @@ button:focus-visible {
     padding-left: 4rem !important;
     padding-right: 4rem !important;
   }
+}
+
+/* Checkbox sempre quadrata */
+[role="checkbox"],
+button[role="checkbox"] {
+  aspect-ratio: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Fix doppio scroll - ensure single scrollbar */

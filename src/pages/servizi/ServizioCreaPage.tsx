@@ -674,7 +674,7 @@ export const ServizioCreaPage = () => {
             
             <div className="space-y-4">
               {/* Checkbox Conducente Esterno */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 pl-0.5 mt-4">
                 <Controller
                   name="conducente_esterno"
                   control={form.control}
@@ -682,11 +682,11 @@ export const ServizioCreaPage = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      className="h-4 w-4 sm:h-5 sm:w-5"
+                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
                     />
                   )}
                 />
-                <Label className="text-sm sm:text-base">Conducente Esterno</Label>
+                <Label className="text-sm sm:text-base cursor-pointer">Conducente Esterno</Label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -878,7 +878,7 @@ export const ServizioCreaPage = () => {
               </div>
 
               {/* Checkbox Provvigione */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 pl-0.5 mt-4">
                 <Controller
                   name="applica_provvigione"
                   control={form.control}
@@ -886,11 +886,11 @@ export const ServizioCreaPage = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      className="h-4 w-4 sm:h-5 sm:w-5"
+                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
                     />
                   )}
                 />
-                <Label className="text-sm sm:text-base">Applica Provvigione</Label>
+                <Label className="text-sm sm:text-base cursor-pointer">Applica Provvigione</Label>
               </div>
             </div>
           </Card>
@@ -1040,7 +1040,7 @@ export const ServizioCreaPage = () => {
                         </p>
                       ) : (
                         passeggeri?.map((pass) => (
-                          <div key={pass.id} className="flex items-center space-x-2">
+                          <div key={pass.id} className="flex items-center space-x-2 pl-0.5">
                             <Checkbox
                               checked={field.value.includes(pass.id)}
                               onCheckedChange={(checked) => {
@@ -1049,9 +1049,9 @@ export const ServizioCreaPage = () => {
                                   : field.value.filter(id => id !== pass.id);
                                 field.onChange(newValue);
                               }}
-                              className="h-4 w-4 sm:h-5 sm:w-5"
+                              className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5"
                             />
-                            <Label className="text-sm sm:text-base font-normal">
+                            <Label className="text-sm sm:text-base font-normal cursor-pointer">
                               {pass.nome_cognome}
                               {pass.email && ` (${pass.email})`}
                             </Label>
@@ -1172,7 +1172,7 @@ export const ServizioCreaPage = () => {
                       </p>
                     ) : (
                       emailNotifiche?.map((email) => (
-                        <div key={email.id} className="flex items-center space-x-2">
+                        <div key={email.id} className="flex items-center space-x-2 pl-0.5">
                           <Checkbox
                             checked={field.value.includes(email.id)}
                             onCheckedChange={(checked) => {
@@ -1181,9 +1181,9 @@ export const ServizioCreaPage = () => {
                                 : field.value.filter(id => id !== email.id);
                               field.onChange(newValue);
                             }}
-                            className="h-4 w-4 sm:h-5 sm:w-5"
+                            className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5"
                           />
-                          <Label className="text-sm sm:text-base font-normal">
+                          <Label className="text-sm sm:text-base font-normal cursor-pointer">
                             {email.nome} ({email.email})
                           </Label>
                         </div>
