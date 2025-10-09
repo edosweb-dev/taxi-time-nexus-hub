@@ -2270,6 +2270,22 @@ button:focus-visible {
   max-width: none !important;
 }
 
+/* Forza FORM element a width 100% */
+.wizard-fullwidth form {
+  width: 100% !important;
+  max-width: none !important;
+  display: block !important;
+}
+
+/* Forza tutti i div figli diretti */
+.wizard-fullwidth > div,
+.wizard-fullwidth > div > div,
+.wizard-fullwidth > div > div > form,
+.wizard-fullwidth > div > div > form > div {
+  width: 100% !important;
+  max-width: none !important;
+}
+
 /* Container interno con padding controllato */
 .wizard-fullwidth > div {
   padding-left: 1rem !important;
@@ -2277,11 +2293,15 @@ button:focus-visible {
 }
 
 /* Form e Card a larghezza piena */
-.wizard-fullwidth form,
 .wizard-fullwidth [class*="card"],
 .wizard-fullwidth [class*="Card"] {
   width: 100% !important;
   max-width: none !important;
+}
+
+/* Space-y containers */
+.wizard-fullwidth [class*="space-y"] {
+  width: 100% !important;
 }
 
 /* Responsive padding progressivo */
