@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
-import { useServizi } from "@/hooks/useServizi";
+import { useServiziWithPasseggeri, ServizioWithPasseggeri } from "@/hooks/useServiziWithPasseggeri";
 import { useAziende } from "@/hooks/useAziende";
 import { useUsers } from "@/hooks/useUsers";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -13,7 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Calendar, MapPin, Loader2, Search, Filter } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, MoreVertical, CheckCircle, XCircle, FileText, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
@@ -22,7 +24,7 @@ export default function ServiziPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
-  const { servizi = [], isLoading, error } = useServizi();
+  const { data: servizi = [], isLoading, error } = useServiziWithPasseggeri();
   const { aziende = [] } = useAziende();
   const { users = [] } = useUsers();
   
@@ -36,7 +38,7 @@ export default function ServiziPage() {
 
   // Filter servizi based on filters
   const filteredServizi = useMemo(() => {
-    return servizi.filter((s: Servizio) => {
+    return servizi.filter((s: ServizioWithPasseggeri) => {
       if (filters.azienda && filters.azienda !== 'all' && s.azienda_id !== filters.azienda) return false;
       if (filters.referente && filters.referente !== 'all' && s.referente_id !== filters.referente) return false;
       if (filters.stato && filters.stato !== 'all' && s.stato !== filters.stato) return false;
@@ -56,10 +58,10 @@ export default function ServiziPage() {
   // Group servizi by status for mobile tabs
   const serviziByStatus = useMemo(() => ({
     tutti: filteredServizi,
-    da_assegnare: filteredServizi.filter((s: Servizio) => s.stato === 'da_assegnare'),
-    assegnato: filteredServizi.filter((s: Servizio) => s.stato === 'assegnato'),
-    completato: filteredServizi.filter((s: Servizio) => s.stato === 'completato'),
-    consuntivato: filteredServizi.filter((s: Servizio) => s.stato === 'consuntivato')
+    da_assegnare: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'da_assegnare'),
+    assegnato: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'assegnato'),
+    completato: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'completato'),
+    consuntivato: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'consuntivato')
   }), [filteredServizi]);
 
   const getStatusColor = (stato: string) => {
@@ -84,7 +86,7 @@ export default function ServiziPage() {
     return labels[stato] || stato;
   };
 
-  const renderMobileCard = (servizio: Servizio) => (
+  const renderMobileCard = (servizio: ServizioWithPasseggeri) => (
     <Card 
       key={servizio.id}
       className="w-full p-3 sm:p-4 cursor-pointer hover:shadow-md transition-shadow"
@@ -353,80 +355,200 @@ export default function ServiziPage() {
               </Tabs>
             ) : (
               /* DESKTOP: Table */
-              <Card className="w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Azienda</TableHead>
-                      <TableHead>Commessa</TableHead>
-                      <TableHead>Percorso</TableHead>
-                      <TableHead>Conducente</TableHead>
-                      <TableHead>Stato</TableHead>
-                      <TableHead className="text-right">Importo</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredServizi.length === 0 ? (
+              <TooltipProvider>
+                <Card className="w-full">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                          Nessun servizio trovato
-                        </TableCell>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Azienda</TableHead>
+                        <TableHead>Commessa</TableHead>
+                        <TableHead>Passeggeri</TableHead>
+                        <TableHead>Percorso</TableHead>
+                        <TableHead>Conducente</TableHead>
+                        <TableHead>Stato</TableHead>
+                        <TableHead className="text-right">Importo</TableHead>
+                        <TableHead className="text-right">Azioni</TableHead>
                       </TableRow>
-                    ) : (
-                      filteredServizi.map((servizio: Servizio) => (
-                        <TableRow 
-                          key={servizio.id}
-                          className="cursor-pointer hover:bg-muted/50"
-                          onClick={() => navigate(`/servizi/${servizio.id}`)}
-                        >
-                          <TableCell className="font-medium">
-                            {format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}
-                            <br />
-                            <span className="text-xs text-muted-foreground">
-                              {servizio.orario_servizio}
-                            </span>
-                          </TableCell>
-                          <TableCell>{servizio.aziende?.nome || 'N/A'}</TableCell>
-                          <TableCell className="text-xs">{servizio.numero_commessa || '-'}</TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="text-xs space-y-0.5">
-                              <p className="truncate">
-                                <span className="text-muted-foreground">Da:</span> {servizio.indirizzo_presa}
-                              </p>
-                              <p className="truncate">
-                                <span className="text-muted-foreground">A:</span> {servizio.indirizzo_destinazione}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {servizio.assegnato_a ? (
-                              (() => {
-                                const assignedUser = users.find((u: any) => u.id === servizio.assegnato_a);
-                                return assignedUser ? `${assignedUser.first_name} ${assignedUser.last_name}` : 'Assegnato';
-                              })()
-                            ) : (
-                              <span className="text-muted-foreground text-xs">Non assegnato</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(servizio.stato)}>
-                              {getStatusLabel(servizio.stato)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right font-semibold">
-                            {servizio.incasso_previsto ? (
-                              `€${servizio.incasso_previsto.toFixed(2)}`
-                            ) : (
-                              '-'
-                            )}
+                    </TableHeader>
+                    <TableBody>
+                      {filteredServizi.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                            Nessun servizio trovato
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
+                      ) : (
+                        filteredServizi.map((servizio: ServizioWithPasseggeri) => (
+                          <TableRow 
+                            key={servizio.id}
+                            className="hover:bg-muted/50"
+                          >
+                            <TableCell 
+                              className="font-medium cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}
+                              <br />
+                              <span className="text-xs text-muted-foreground">
+                                {servizio.orario_servizio}
+                              </span>
+                            </TableCell>
+                            <TableCell 
+                              className="cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {servizio.aziende?.nome || 'N/A'}
+                            </TableCell>
+                            <TableCell 
+                              className="text-xs cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {servizio.numero_commessa || '-'}
+                            </TableCell>
+                            
+                            {/* Passeggeri con Tooltip */}
+                            <TableCell 
+                              className="cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {servizio.passeggeriCount && servizio.passeggeriCount > 0 ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex items-center gap-1 cursor-help">
+                                      <Users className="h-4 w-4 text-muted-foreground" />
+                                      <span className="font-medium">{servizio.passeggeriCount}</span>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="right" className="max-w-xs">
+                                    <div className="space-y-1">
+                                      <p className="font-semibold text-xs">Passeggeri:</p>
+                                      {servizio.passeggeri?.map((p, idx) => (
+                                        <p key={p.id} className="text-xs">
+                                          {idx + 1}. {p.nome_cognome}
+                                        </p>
+                                      ))}
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <span className="text-muted-foreground text-xs">-</span>
+                              )}
+                            </TableCell>
+
+                            {/* Percorso con Città */}
+                            <TableCell 
+                              className="max-w-xs cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              <div className="text-xs space-y-0.5">
+                                <p className="truncate">
+                                  <span className="text-muted-foreground">Da:</span>{' '}
+                                  {servizio.citta_presa && (
+                                    <span className="font-medium">{servizio.citta_presa}</span>
+                                  )}
+                                  {servizio.citta_presa && servizio.indirizzo_presa && ', '}
+                                  {servizio.indirizzo_presa}
+                                </p>
+                                <p className="truncate">
+                                  <span className="text-muted-foreground">A:</span>{' '}
+                                  {servizio.citta_destinazione && (
+                                    <span className="font-medium">{servizio.citta_destinazione}</span>
+                                  )}
+                                  {servizio.citta_destinazione && servizio.indirizzo_destinazione && ', '}
+                                  {servizio.indirizzo_destinazione}
+                                </p>
+                              </div>
+                            </TableCell>
+
+                            <TableCell 
+                              className="cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {servizio.assegnato_a ? (
+                                (() => {
+                                  const assignedUser = users.find((u: any) => u.id === servizio.assegnato_a);
+                                  return assignedUser ? `${assignedUser.first_name} ${assignedUser.last_name}` : 'Assegnato';
+                                })()
+                              ) : (
+                                <span className="text-muted-foreground text-xs">Non assegnato</span>
+                              )}
+                            </TableCell>
+                            
+                            <TableCell 
+                              className="cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              <Badge className={getStatusColor(servizio.stato)}>
+                                {getStatusLabel(servizio.stato)}
+                              </Badge>
+                            </TableCell>
+                            
+                            <TableCell 
+                              className="text-right font-semibold cursor-pointer"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {servizio.incasso_previsto ? (
+                                `€${servizio.incasso_previsto.toFixed(2)}`
+                              ) : (
+                                '-'
+                              )}
+                            </TableCell>
+
+                            {/* Azioni in base allo stato */}
+                            <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    Visualizza Dettagli
+                                  </DropdownMenuItem>
+                                  
+                                  {servizio.stato === 'da_assegnare' && (
+                                    <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Assegna Servizio
+                                    </DropdownMenuItem>
+                                  )}
+                                  
+                                  {servizio.stato === 'assegnato' && (
+                                    <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Completa Servizio
+                                    </DropdownMenuItem>
+                                  )}
+                                  
+                                  {servizio.stato === 'completato' && (
+                                    <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
+                                      <FileText className="h-4 w-4 mr-2" />
+                                      Consuntiva Servizio
+                                    </DropdownMenuItem>
+                                  )}
+                                  
+                                  {(servizio.stato === 'da_assegnare' || servizio.stato === 'assegnato') && (
+                                    <DropdownMenuItem 
+                                      onClick={() => navigate(`/servizi/${servizio.id}`)}
+                                      className="text-destructive focus:text-destructive"
+                                    >
+                                      <XCircle className="h-4 w-4 mr-2" />
+                                      Annulla Servizio
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </TooltipProvider>
             )}
           </>
         )}
