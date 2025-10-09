@@ -360,21 +360,19 @@ export default function ServiziPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[100px]">Data</TableHead>
-                        <TableHead className="w-[150px]">Azienda</TableHead>
-                        <TableHead className="w-[100px]">Commessa</TableHead>
-                        <TableHead className="w-[80px]">Passeggeri</TableHead>
-                        <TableHead className="min-w-[300px]">Percorso</TableHead>
-                        <TableHead className="w-[140px]">Conducente</TableHead>
-                        <TableHead className="w-[120px]">Stato</TableHead>
-                        <TableHead className="w-[100px] text-right">Importo</TableHead>
+                        <TableHead className="w-[80px]">ID</TableHead>
+                        <TableHead className="w-[180px]">Azienda</TableHead>
+                        <TableHead className="min-w-[350px]">Percorso</TableHead>
+                        <TableHead className="w-[140px]">Data e Orario</TableHead>
+                        <TableHead className="w-[130px]">Stato</TableHead>
+                        <TableHead className="w-[100px]">Passeggeri</TableHead>
                         <TableHead className="w-[80px] text-right">Azioni</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredServizi.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                             Nessun servizio trovato
                           </TableCell>
                         </TableRow>
@@ -384,66 +382,36 @@ export default function ServiziPage() {
                             key={servizio.id}
                             className="hover:bg-muted/50"
                           >
+                            {/* ID */}
                             <TableCell 
-                              className="font-medium cursor-pointer w-[100px]"
+                              className="font-mono text-xs cursor-pointer w-[80px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
-                              <div className="whitespace-nowrap">
-                                {format(new Date(servizio.data_servizio), 'dd/MM/yy', { locale: it })}
-                              </div>
-                              <div className="text-xs text-muted-foreground whitespace-nowrap">
-                                {servizio.orario_servizio}
+                              <div className="truncate" title={servizio.id}>
+                                #{servizio.id.slice(0, 8)}
                               </div>
                             </TableCell>
+
+                            {/* Azienda */}
                             <TableCell 
-                              className="cursor-pointer w-[150px]"
+                              className="cursor-pointer w-[180px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
-                              <div className="truncate" title={servizio.aziende?.nome || 'N/A'}>
-                                {servizio.aziende?.nome || 'N/A'}
+                              <div className="space-y-0.5">
+                                <div className="font-medium truncate" title={servizio.aziende?.nome || 'N/A'}>
+                                  {servizio.aziende?.nome || 'N/A'}
+                                </div>
+                                {servizio.numero_commessa && (
+                                  <div className="text-xs text-muted-foreground truncate" title={servizio.numero_commessa}>
+                                    {servizio.numero_commessa}
+                                  </div>
+                                )}
                               </div>
-                            </TableCell>
-                            <TableCell 
-                              className="text-xs cursor-pointer w-[100px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
-                            >
-                              <div className="truncate" title={servizio.numero_commessa || '-'}>
-                                {servizio.numero_commessa || '-'}
-                              </div>
-                            </TableCell>
-                            
-                            {/* Passeggeri con Tooltip */}
-                            <TableCell 
-                              className="cursor-pointer w-[80px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
-                            >
-                              {servizio.passeggeriCount && servizio.passeggeriCount > 0 ? (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="flex items-center gap-1.5 cursor-help justify-center">
-                                      <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                                      <span className="font-medium text-sm">{servizio.passeggeriCount}</span>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="right" className="max-w-xs">
-                                    <div className="space-y-1">
-                                      <p className="font-semibold text-xs">Passeggeri:</p>
-                                      {servizio.passeggeri?.map((p, idx) => (
-                                        <p key={p.id} className="text-xs">
-                                          {idx + 1}. {p.nome_cognome}
-                                        </p>
-                                      ))}
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              ) : (
-                                <span className="text-muted-foreground text-xs">-</span>
-                              )}
                             </TableCell>
 
                             {/* Percorso con Città */}
                             <TableCell 
-                              className="min-w-[300px] cursor-pointer"
+                              className="min-w-[350px] cursor-pointer"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               <div className="text-xs space-y-1">
@@ -474,42 +442,56 @@ export default function ServiziPage() {
                               </div>
                             </TableCell>
 
+                            {/* Data e Orario */}
                             <TableCell 
                               className="cursor-pointer w-[140px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
-                              <div className="truncate text-sm">
-                                {servizio.assegnato_a ? (
-                                  (() => {
-                                    const assignedUser = users.find((u: any) => u.id === servizio.assegnato_a);
-                                    return assignedUser ? `${assignedUser.first_name} ${assignedUser.last_name}` : 'Assegnato';
-                                  })()
-                                ) : (
-                                  <span className="text-muted-foreground text-xs">Non assegnato</span>
-                                )}
+                              <div className="whitespace-nowrap font-medium">
+                                {format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}
+                              </div>
+                              <div className="text-xs text-muted-foreground whitespace-nowrap">
+                                {servizio.orario_servizio}
                               </div>
                             </TableCell>
                             
+                            {/* Stato */}
                             <TableCell 
-                              className="cursor-pointer w-[120px]"
+                              className="cursor-pointer w-[130px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               <Badge className={getStatusColor(servizio.stato)}>
                                 {getStatusLabel(servizio.stato)}
                               </Badge>
                             </TableCell>
-                            
+
+                            {/* Passeggeri con Tooltip */}
                             <TableCell 
-                              className="text-right font-semibold cursor-pointer w-[100px]"
+                              className="cursor-pointer w-[100px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
-                              <div className="whitespace-nowrap">
-                                {servizio.incasso_previsto ? (
-                                  `€${servizio.incasso_previsto.toFixed(2)}`
-                                ) : (
-                                  '-'
-                                )}
-                              </div>
+                              {servizio.passeggeriCount && servizio.passeggeriCount > 0 ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex items-center gap-1.5 cursor-help justify-center">
+                                      <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                      <span className="font-medium text-sm">{servizio.passeggeriCount}</span>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="right" className="max-w-xs">
+                                    <div className="space-y-1">
+                                      <p className="font-semibold text-xs">Passeggeri:</p>
+                                      {servizio.passeggeri?.map((p, idx) => (
+                                        <p key={p.id} className="text-xs">
+                                          {idx + 1}. {p.nome_cognome}
+                                        </p>
+                                      ))}
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <span className="text-muted-foreground text-xs">-</span>
+                              )}
                             </TableCell>
 
                             {/* Azioni in base allo stato */}
