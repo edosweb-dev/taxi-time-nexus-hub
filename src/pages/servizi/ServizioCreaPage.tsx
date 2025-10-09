@@ -439,7 +439,7 @@ export const ServizioCreaPage = () => {
 
   return (
     <MainLayout>
-    <div className="w-full p-3 sm:p-4 md:p-6 lg:p-8">
+    <div className="w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-4 sm:mb-6">
         <Button
@@ -1214,8 +1214,9 @@ export const ServizioCreaPage = () => {
         </div>
 
         {/* Footer Buttons - Sticky Mobile */}
-        <div className="sticky bottom-0 left-0 right-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-3 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0 sm:relative sm:bg-transparent z-10 shadow-lg sm:shadow-none">
-          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
+        <div className="sticky inset-x-0 bottom-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-3 sm:pb-0 sm:relative sm:bg-transparent z-10 shadow-lg sm:shadow-none">
+          <div className="px-3 sm:px-0">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -1234,6 +1235,7 @@ export const ServizioCreaPage = () => {
             >
               Annulla
             </Button>
+            </div>
           </div>
         </div>
       </form>

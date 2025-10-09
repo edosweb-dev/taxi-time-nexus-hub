@@ -58,8 +58,8 @@ export function MainLayout({
         />
         
         {/* Mobile Content */}
-        <main className="mobile-content-unified">
-          <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter`}>
+        <main className="mobile-content-unified w-full max-w-full overflow-x-hidden">
+          <div className={`w-full max-w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter`}>
             {children}
           </div>
         </main>
@@ -107,10 +107,10 @@ export function MainLayout({
           </div>
         </Sidebar>
         
-        <main className="flex-1 bg-background">
+        <main className="flex-1 bg-background w-full max-w-full overflow-x-hidden">
           <ImpersonationBanner />
           
-          <div className={`w-full ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
+          <div className={`w-full max-w-full ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
             {children}
           </div>
         </main>
