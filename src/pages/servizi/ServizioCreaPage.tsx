@@ -1,13 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MainLayout } from "@/components/layouts/MainLayout";
 import { toast } from "sonner";
 import { Building2, Calendar, MapPin, Info, ArrowLeft } from "lucide-react";
 
@@ -19,12 +29,12 @@ const servizioSchema = z.object({
   indirizzo_presa: z.string().min(1, "Inserisci l'indirizzo di partenza"),
   indirizzo_destinazione: z.string().min(1, "Inserisci l'indirizzo di destinazione"),
   metodo_pagamento: z.string().min(1, "Seleziona un metodo di pagamento"),
-  citta_presa: z.string().optional(),
-  citta_destinazione: z.string().optional(),
-  numero_commessa: z.string().optional(),
-  ore_previste: z.string().optional(),
-  incasso_previsto: z.string().optional(),
-  note: z.string().optional(),
+  citta_presa: z.string().optional().nullable(),
+  citta_destinazione: z.string().optional().nullable(),
+  numero_commessa: z.string().optional().nullable(),
+  ore_previste: z.string().optional().nullable(),
+  incasso_previsto: z.string().optional().nullable(),
+  note: z.string().optional().nullable(),
 });
 
 type ServizioFormData = z.infer<typeof servizioSchema>;
@@ -33,11 +43,7 @@ export const ServizioCreaPage = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ServizioFormData>({
+  const form = useForm<ServizioFormData>({
     resolver: zodResolver(servizioSchema),
     defaultValues: {
       data_servizio: new Date().toISOString().split('T')[0],
@@ -45,26 +51,88 @@ export const ServizioCreaPage = () => {
     },
   });
 
+  const { formState: { errors } } = form;
+
+  // Query aziende
+  const { data: aziende, isLoading: isLoadingAziende } = useQuery({
+    queryKey: ["aziende"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("aziende")
+        .select("id, nome")
+        .order("nome");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Query metodi pagamento
+  const { data: metodiPagamento } = useQuery({
+    queryKey: ["modalita-pagamenti"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("modalita_pagamenti")
+        .select("id, nome")
+        .eq("attivo", true)
+        .order("nome");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const onSubmit = async (data: ServizioFormData) => {
     setIsSubmitting(true);
     try {
-      // TODO: Implementare chiamata API per creare servizio
-      console.log("Creazione servizio:", data);
-      
-      // Simulazione delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Utente non autenticato");
+
+      // Prepare servizio data
+      const servizioData = {
+        azienda_id: data.azienda_id,
+        created_by: user.id,
+        data_servizio: data.data_servizio,
+        orario_servizio: data.orario_servizio,
+        indirizzo_presa: data.indirizzo_presa,
+        citta_presa: data.citta_presa || null,
+        indirizzo_destinazione: data.indirizzo_destinazione,
+        citta_destinazione: data.citta_destinazione || null,
+        metodo_pagamento: data.metodo_pagamento,
+        numero_commessa: data.numero_commessa || null,
+        ore_effettive: data.ore_previste ? parseFloat(data.ore_previste) : null,
+        incasso_previsto: data.incasso_previsto ? parseFloat(data.incasso_previsto) : null,
+        note: data.note || null,
+        stato: "da_assegnare",
+      };
+
+      // Insert servizio
+      const { data: servizio, error } = await supabase
+        .from("servizi")
+        .insert(servizioData)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log("Servizio creato:", servizio);
       toast.success("Servizio creato con successo!");
       navigate("/servizi");
     } catch (error) {
       console.error("Errore creazione servizio:", error);
-      toast.error("Errore nella creazione del servizio");
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : "Errore nella creazione del servizio"
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
+    <MainLayout>
     <div className="w-full min-h-screen p-4 md:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6">
@@ -84,7 +152,7 @@ export const ServizioCreaPage = () => {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-7xl">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-7xl">
         <div className="space-y-6">
           
           {/* SEZIONE 1: Azienda e Data */}
@@ -100,10 +168,33 @@ export const ServizioCreaPage = () => {
                 <Label htmlFor="azienda_id">
                   Azienda <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="azienda_id"
-                  placeholder="Seleziona azienda"
-                  {...register("azienda_id")}
+                <Controller
+                  name="azienda_id"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona azienda" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {isLoadingAziende ? (
+                          <SelectItem value="loading" disabled>
+                            Caricamento...
+                          </SelectItem>
+                        ) : aziende?.length === 0 ? (
+                          <SelectItem value="empty" disabled>
+                            Nessuna azienda trovata
+                          </SelectItem>
+                        ) : (
+                          aziende?.map((azienda) => (
+                            <SelectItem key={azienda.id} value={azienda.id}>
+                              {azienda.nome}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
                 {errors.azienda_id && (
                   <p className="text-sm text-destructive">
@@ -120,7 +211,7 @@ export const ServizioCreaPage = () => {
                 <Input
                   id="data_servizio"
                   type="date"
-                  {...register("data_servizio")}
+                  {...form.register("data_servizio")}
                 />
                 {errors.data_servizio && (
                   <p className="text-sm text-destructive">
@@ -137,7 +228,7 @@ export const ServizioCreaPage = () => {
                 <Input
                   id="orario_servizio"
                   type="time"
-                  {...register("orario_servizio")}
+                  {...form.register("orario_servizio")}
                 />
                 {errors.orario_servizio && (
                   <p className="text-sm text-destructive">
@@ -152,7 +243,7 @@ export const ServizioCreaPage = () => {
                 <Input
                   id="numero_commessa"
                   placeholder="ES-2024-001"
-                  {...register("numero_commessa")}
+                  {...form.register("numero_commessa")}
                 />
               </div>
             </div>
@@ -177,7 +268,7 @@ export const ServizioCreaPage = () => {
                     <Input
                       id="citta_presa"
                       placeholder="Es: Milano"
-                      {...register("citta_presa")}
+                      {...form.register("citta_presa")}
                     />
                   </div>
                   <div className="space-y-2">
@@ -187,7 +278,7 @@ export const ServizioCreaPage = () => {
                     <Input
                       id="indirizzo_presa"
                       placeholder="Es: Via Roma 123"
-                      {...register("indirizzo_presa")}
+                      {...form.register("indirizzo_presa")}
                     />
                     {errors.indirizzo_presa && (
                       <p className="text-sm text-destructive">
@@ -209,7 +300,7 @@ export const ServizioCreaPage = () => {
                     <Input
                       id="citta_destinazione"
                       placeholder="Es: Roma"
-                      {...register("citta_destinazione")}
+                      {...form.register("citta_destinazione")}
                     />
                   </div>
                   <div className="space-y-2">
@@ -219,7 +310,7 @@ export const ServizioCreaPage = () => {
                     <Input
                       id="indirizzo_destinazione"
                       placeholder="Es: Aeroporto Fiumicino"
-                      {...register("indirizzo_destinazione")}
+                      {...form.register("indirizzo_destinazione")}
                     />
                     {errors.indirizzo_destinazione && (
                       <p className="text-sm text-destructive">
@@ -244,10 +335,23 @@ export const ServizioCreaPage = () => {
                 <Label htmlFor="metodo_pagamento">
                   Metodo Pagamento <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="metodo_pagamento"
-                  placeholder="Es: Contanti, Bonifico"
-                  {...register("metodo_pagamento")}
+                <Controller
+                  name="metodo_pagamento"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona metodo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {metodiPagamento?.map((metodo) => (
+                          <SelectItem key={metodo.id} value={metodo.nome}>
+                            {metodo.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
                 {errors.metodo_pagamento && (
                   <p className="text-sm text-destructive">
@@ -263,7 +367,7 @@ export const ServizioCreaPage = () => {
                   type="number"
                   step="0.5"
                   placeholder="4.5"
-                  {...register("ore_previste")}
+                  {...form.register("ore_previste")}
                 />
               </div>
 
@@ -274,7 +378,7 @@ export const ServizioCreaPage = () => {
                   type="number"
                   step="0.01"
                   placeholder="200.00"
-                  {...register("incasso_previsto")}
+                  {...form.register("incasso_previsto")}
                 />
               </div>
             </div>
@@ -286,7 +390,7 @@ export const ServizioCreaPage = () => {
                 id="note"
                 placeholder="Note aggiuntive sul servizio..."
                 rows={3}
-                {...register("note")}
+                {...form.register("note")}
               />
             </div>
           </Card>
@@ -314,5 +418,6 @@ export const ServizioCreaPage = () => {
         </div>
       </form>
     </div>
+    </MainLayout>
   );
 };
