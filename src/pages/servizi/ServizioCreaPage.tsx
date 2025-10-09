@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,6 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { toast } from "sonner";
 import { 
@@ -30,7 +38,8 @@ import {
   Car,
   Euro,
   Users,
-  Mail
+  Mail,
+  Plus
 } from "lucide-react";
 
 // Schema validazione completo
@@ -87,6 +96,22 @@ export const ServizioCreaPage = () => {
   const watchAziendaId = form.watch("azienda_id");
   const watchConducenteEsterno = form.watch("conducente_esterno");
   const watchMetodoPagamento = form.watch("metodo_pagamento");
+
+  const queryClient = useQueryClient();
+
+  const [isAddingPasseggero, setIsAddingPasseggero] = useState(false);
+  const [isAddingEmail, setIsAddingEmail] = useState(false);
+  const [newPasseggero, setNewPasseggero] = useState({
+    nome_cognome: "",
+    email: "",
+    telefono: "",
+    localita: "",
+    indirizzo: "",
+  });
+  const [newEmail, setNewEmail] = useState({
+    nome: "",
+    email: "",
+  });
 
   // Query aziende
   const { data: aziende, isLoading: isLoadingAziende } = useQuery({
@@ -208,6 +233,121 @@ export const ServizioCreaPage = () => {
     },
     enabled: !!watchAziendaId,
   });
+
+  // Create Passeggero
+  const handleCreatePasseggero = async () => {
+    if (!watchAziendaId) {
+      toast.error("Seleziona prima un'azienda");
+      return;
+    }
+
+    if (!newPasseggero.nome_cognome) {
+      toast.error("Nome e cognome obbligatorio");
+      return;
+    }
+
+    setIsAddingPasseggero(true);
+    try {
+      const { data, error } = await supabase
+        .from("passeggeri")
+        .insert({
+          azienda_id: watchAziendaId,
+          referente_id: form.watch("referente_id") || null,
+          nome_cognome: newPasseggero.nome_cognome,
+          email: newPasseggero.email || null,
+          telefono: newPasseggero.telefono || null,
+          localita: newPasseggero.localita || null,
+          indirizzo: newPasseggero.indirizzo || null,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Aggiungi automaticamente ai selezionati
+      const currentIds = form.watch("passeggeri_ids");
+      form.setValue("passeggeri_ids", [...currentIds, data.id]);
+
+      // Invalida query per refresh
+      queryClient.invalidateQueries({ queryKey: ["passeggeri", watchAziendaId] });
+
+      // Reset form
+      setNewPasseggero({
+        nome_cognome: "",
+        email: "",
+        telefono: "",
+        localita: "",
+        indirizzo: "",
+      });
+
+      toast.success("Passeggero aggiunto!");
+    } catch (error) {
+      console.error("Errore creazione passeggero:", error);
+      toast.error("Errore nella creazione del passeggero");
+    } finally {
+      setIsAddingPasseggero(false);
+    }
+  };
+
+  // Create Email Notifica
+  const handleCreateEmail = async () => {
+    if (!watchAziendaId) {
+      toast.error("Seleziona prima un'azienda");
+      return;
+    }
+
+    if (!newEmail.nome || !newEmail.email) {
+      toast.error("Nome e email obbligatori");
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail.email)) {
+      toast.error("Formato email non valido");
+      return;
+    }
+
+    setIsAddingEmail(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Utente non autenticato");
+
+      const { data, error } = await supabase
+        .from("email_notifiche")
+        .insert({
+          azienda_id: watchAziendaId,
+          nome: newEmail.nome,
+          email: newEmail.email,
+          attivo: true,
+          created_by: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Aggiungi automaticamente ai selezionati
+      const currentIds = form.watch("email_notifiche_ids");
+      form.setValue("email_notifiche_ids", [...currentIds, data.id]);
+
+      // Invalida query per refresh
+      queryClient.invalidateQueries({ queryKey: ["email-notifiche", watchAziendaId] });
+
+      // Reset form
+      setNewEmail({
+        nome: "",
+        email: "",
+      });
+
+      toast.success("Email aggiunta!");
+    } catch (error) {
+      console.error("Errore creazione email:", error);
+      toast.error("Errore nella creazione dell'email");
+    } finally {
+      setIsAddingEmail(false);
+    }
+  };
 
   const onSubmit = async (data: ServizioFormData) => {
     setIsSubmitting(true);
@@ -738,11 +878,117 @@ export const ServizioCreaPage = () => {
 
           {/* SEZIONE 5: Passeggeri */}
           <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Users className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Passeggeri (Opzionale)</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">Passeggeri (Opzionale)</h2>
+              </div>
+              
+              {/* Button Aggiungi Passeggero */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    disabled={!watchAziendaId}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuovo Passeggero
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Aggiungi Passeggero</SheetTitle>
+                    <SheetDescription>
+                      Crea un nuovo passeggero per questa azienda
+                    </SheetDescription>
+                  </SheetHeader>
+                  
+                  <div className="space-y-4 mt-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-pass-nome">
+                        Nome e Cognome <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="new-pass-nome"
+                        placeholder="Mario Rossi"
+                        value={newPasseggero.nome_cognome}
+                        onChange={(e) => setNewPasseggero({
+                          ...newPasseggero,
+                          nome_cognome: e.target.value
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="new-pass-email">Email</Label>
+                      <Input
+                        id="new-pass-email"
+                        type="email"
+                        placeholder="mario.rossi@example.com"
+                        value={newPasseggero.email}
+                        onChange={(e) => setNewPasseggero({
+                          ...newPasseggero,
+                          email: e.target.value
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="new-pass-telefono">Telefono</Label>
+                      <Input
+                        id="new-pass-telefono"
+                        type="tel"
+                        placeholder="+39 333 1234567"
+                        value={newPasseggero.telefono}
+                        onChange={(e) => setNewPasseggero({
+                          ...newPasseggero,
+                          telefono: e.target.value
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="new-pass-localita">Località</Label>
+                      <Input
+                        id="new-pass-localita"
+                        placeholder="Milano"
+                        value={newPasseggero.localita}
+                        onChange={(e) => setNewPasseggero({
+                          ...newPasseggero,
+                          localita: e.target.value
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="new-pass-indirizzo">Indirizzo</Label>
+                      <Input
+                        id="new-pass-indirizzo"
+                        placeholder="Via Roma 123"
+                        value={newPasseggero.indirizzo}
+                        onChange={(e) => setNewPasseggero({
+                          ...newPasseggero,
+                          indirizzo: e.target.value
+                        })}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={handleCreatePasseggero}
+                      disabled={isAddingPasseggero || !newPasseggero.nome_cognome}
+                      className="w-full"
+                    >
+                      {isAddingPasseggero ? "Creazione..." : "Crea Passeggero"}
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
             
+            {/* Lista Passeggeri Esistenti */}
             <div className="space-y-2">
               <Label>Seleziona Passeggeri</Label>
               <Controller
@@ -756,7 +1002,7 @@ export const ServizioCreaPage = () => {
                       </p>
                     ) : passeggeri?.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        Nessun passeggero disponibile
+                        Nessun passeggero disponibile. Creane uno con il pulsante sopra.
                       </p>
                     ) : (
                       passeggeri?.map((pass) => (
@@ -785,11 +1031,79 @@ export const ServizioCreaPage = () => {
 
           {/* SEZIONE 6: Email Notifiche */}
           <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Mail className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Email Notifiche (Opzionale)</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">Email Notifiche (Opzionale)</h2>
+              </div>
+              
+              {/* Button Aggiungi Email */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    disabled={!watchAziendaId}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuova Email
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Aggiungi Email Notifica</SheetTitle>
+                    <SheetDescription>
+                      Crea una nuova email da notificare per questa azienda
+                    </SheetDescription>
+                  </SheetHeader>
+                  
+                  <div className="space-y-4 mt-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-email-nome">
+                        Nome Contatto <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="new-email-nome"
+                        placeholder="Es: Ufficio Logistica"
+                        value={newEmail.nome}
+                        onChange={(e) => setNewEmail({
+                          ...newEmail,
+                          nome: e.target.value
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="new-email-address">
+                        Email <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="new-email-address"
+                        type="email"
+                        placeholder="logistica@azienda.it"
+                        value={newEmail.email}
+                        onChange={(e) => setNewEmail({
+                          ...newEmail,
+                          email: e.target.value
+                        })}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={handleCreateEmail}
+                      disabled={isAddingEmail || !newEmail.nome || !newEmail.email}
+                      className="w-full"
+                    >
+                      {isAddingEmail ? "Creazione..." : "Crea Email Notifica"}
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
             
+            {/* Lista Email Esistenti */}
             <div className="space-y-2">
               <Label>Seleziona Email da Notificare</Label>
               <Controller
@@ -803,7 +1117,7 @@ export const ServizioCreaPage = () => {
                       </p>
                     ) : emailNotifiche?.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        Nessuna email configurata
+                        Nessuna email configurata. Creane una con il pulsante sopra.
                       </p>
                     ) : (
                       emailNotifiche?.map((email) => (
