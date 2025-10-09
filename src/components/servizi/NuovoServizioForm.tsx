@@ -184,12 +184,12 @@ export function NuovoServizioForm() {
           </div>
 
           {/* Content Area - ZERO restriction */}
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mb-8">
+          <div style={{ width: '100%', maxWidth: 'none' }} className="space-y-6 mb-8">
             {currentStep === 0 && <Step1AziendaPercorso />}
             {currentStep === 1 && <Step2DettagliOperativi />}
             {currentStep === 2 && <Step3ComunicazioneNote />}
             {currentStep === 3 && <Step4Passeggeri />}
-          </form>
+          </div>
 
           {/* Footer Navigation - Bottoni GRANDI e VISIBILI */}
           <div className={cn(
@@ -245,7 +245,7 @@ export function NuovoServizioForm() {
                   </Button>
                 ) : (
                   <Button
-                    type="submit"
+                    type="button"
                     onClick={form.handleSubmit(onSubmit)}
                     disabled={isCreating || !canGoNext()}
                     size="lg"
