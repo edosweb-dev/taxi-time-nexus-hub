@@ -132,6 +132,30 @@ body {
   .max-w-5xl {
     max-width: 100% !important;
   }
+  
+  /* Checkbox size optimization */
+  input[type="checkbox"],
+  [role="checkbox"],
+  button[role="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+  }
+  
+  /* Touch area padding (invisible but tappable) */
+  input[type="checkbox"],
+  [role="checkbox"],
+  button[role="checkbox"] {
+    padding: 12px;
+    margin: -12px;
+  }
+  
+  /* Label checkbox spacing */
+  .flex.items-center.space-x-2 {
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 
 /* Typography system - mobile first approach */

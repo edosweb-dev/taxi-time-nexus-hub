@@ -886,10 +886,11 @@ export const ServizioCreaPage = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      className="h-4 w-4 sm:h-5 sm:w-5"
                     />
                   )}
                 />
-                <Label>Applica Provvigione</Label>
+                <Label className="text-sm sm:text-base">Applica Provvigione</Label>
               </div>
             </div>
           </Card>
@@ -1048,8 +1049,9 @@ export const ServizioCreaPage = () => {
                                   : field.value.filter(id => id !== pass.id);
                                 field.onChange(newValue);
                               }}
+                              className="h-4 w-4 sm:h-5 sm:w-5"
                             />
-                            <Label className="font-normal">
+                            <Label className="text-sm sm:text-base font-normal">
                               {pass.nome_cognome}
                               {pass.email && ` (${pass.email})`}
                             </Label>
@@ -1179,8 +1181,9 @@ export const ServizioCreaPage = () => {
                                 : field.value.filter(id => id !== email.id);
                               field.onChange(newValue);
                             }}
+                            className="h-4 w-4 sm:h-5 sm:w-5"
                           />
-                          <Label className="font-normal">
+                          <Label className="text-sm sm:text-base font-normal">
                             {email.nome} ({email.email})
                           </Label>
                         </div>
