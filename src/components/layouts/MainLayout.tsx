@@ -38,9 +38,9 @@ export function MainLayout({
   // Optimized mobile-first responsive padding system
   const getPaddingClasses = (mode: string) => {
     const paddingModes = {
-      'default': 'px-fluid-md py-fluid-sm xs:px-fluid-lg xs:py-fluid-md sm:px-6 sm:py-4 md:px-8 md:py-6 lg:px-10 xl:px-12 2xl:px-16',
-      'minimal': 'px-fluid-sm py-fluid-xs xs:px-fluid-md xs:py-fluid-sm sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-8 xl:px-10 2xl:px-12', 
-      'full-width': 'px-fluid-xs py-fluid-xs xs:px-fluid-sm xs:py-fluid-sm sm:px-2 sm:py-2 md:px-4 md:py-3 lg:px-6 xl:px-8 2xl:px-10'
+      'default': 'px-4 py-4 sm:px-6 sm:py-4 md:px-6 md:py-6 lg:px-8 lg:py-6 xl:px-8 2xl:px-8',
+      'minimal': 'px-2 py-2 sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-6 xl:px-6 2xl:px-6', 
+      'full-width': 'px-2 py-2 sm:px-2 sm:py-2 md:px-4 md:py-3 lg:px-4 xl:px-4 2xl:px-4'
     };
     return paddingModes[mode] || paddingModes['default'];
   };
