@@ -12,7 +12,7 @@ export const Step1AziendaPercorso = () => {
   const aziendaId = useWatch({ control, name: "azienda_id" });
 
   return (
-    <Card className="w-full p-6 md:p-8 space-y-8">
+    <Card className="w-full p-4 md:p-6 space-y-6">
       {/* SEZIONE 1: Azienda e Contatto */}
       <div className="space-y-4">
         <h3 className="text-base font-semibold flex items-center gap-2">

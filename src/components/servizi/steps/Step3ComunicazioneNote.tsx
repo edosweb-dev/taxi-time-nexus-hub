@@ -9,7 +9,7 @@ export const Step3ComunicazioneNote = () => {
   const { register } = useFormContext<ServizioFormData>();
 
   return (
-    <Card className="p-6 md:p-8 space-y-6">
+    <Card className="w-full p-4 md:p-6 space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Mail className="h-5 w-5" />

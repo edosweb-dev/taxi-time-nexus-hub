@@ -19,7 +19,7 @@ export const Step2DettagliOperativi = () => {
   const metodiPagamento = impostazioni?.metodi_pagamento?.map(m => m.nome) || [];
 
   return (
-    <Card className="p-6 md:p-8 space-y-6">
+    <Card className="w-full p-4 md:p-6 space-y-6">
       <h3 className="text-lg font-semibold flex items-center gap-2">
         <Settings className="h-5 w-5" />
         Dettagli Operativi

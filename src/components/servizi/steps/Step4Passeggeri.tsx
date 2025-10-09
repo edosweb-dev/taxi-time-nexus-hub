@@ -6,7 +6,7 @@ export const Step4Passeggeri = () => {
   const { profile } = useAuth();
 
   return (
-    <Card className="p-6 md:p-8">
+    <Card className="w-full p-4 md:p-6">
       <PasseggeroForm userRole={profile?.role} />
     </Card>
   );
