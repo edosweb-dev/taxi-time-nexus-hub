@@ -28,18 +28,18 @@ export default function ServiziPage() {
   
   const [activeTab, setActiveTab] = useState("tutti");
   const [filters, setFilters] = useState({
-    azienda: "",
-    referente: "",
-    stato: "",
+    azienda: "all",
+    referente: "all",
+    stato: "all",
     searchTerm: ""
   });
 
   // Filter servizi based on filters
   const filteredServizi = useMemo(() => {
     return servizi.filter((s: Servizio) => {
-      if (filters.azienda && s.azienda_id !== filters.azienda) return false;
-      if (filters.referente && s.referente_id !== filters.referente) return false;
-      if (filters.stato && s.stato !== filters.stato) return false;
+      if (filters.azienda && filters.azienda !== 'all' && s.azienda_id !== filters.azienda) return false;
+      if (filters.referente && filters.referente !== 'all' && s.referente_id !== filters.referente) return false;
+      if (filters.stato && filters.stato !== 'all' && s.stato !== filters.stato) return false;
       if (filters.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
         return (
@@ -206,7 +206,7 @@ export default function ServiziPage() {
                     <SelectValue placeholder="Tutte" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutte</SelectItem>
+                    <SelectItem value="all">Tutte</SelectItem>
                     {aziende.map((a: any) => (
                       <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
                     ))}
@@ -225,7 +225,7 @@ export default function ServiziPage() {
                     <SelectValue placeholder="Tutti" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti</SelectItem>
+                    <SelectItem value="all">Tutti</SelectItem>
                     {users.filter((u: any) => u.role === 'cliente').map((u: any) => (
                       <SelectItem key={u.id} value={u.id}>
                         {u.first_name} {u.last_name}
@@ -246,7 +246,7 @@ export default function ServiziPage() {
                     <SelectValue placeholder="Tutti" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti</SelectItem>
+                    <SelectItem value="all">Tutti</SelectItem>
                     <SelectItem value="da_assegnare">Da Assegnare</SelectItem>
                     <SelectItem value="assegnato">Assegnato</SelectItem>
                     <SelectItem value="completato">Completato</SelectItem>
@@ -258,12 +258,12 @@ export default function ServiziPage() {
             </div>
 
             {/* Reset Filtri */}
-            {(filters.azienda || filters.referente || filters.stato || filters.searchTerm) && (
+            {(filters.azienda !== 'all' || filters.referente !== 'all' || filters.stato !== 'all' || filters.searchTerm) && (
               <Button 
                 variant="ghost" 
                 size="sm"
                 className="mt-4"
-                onClick={() => setFilters({ azienda: "", referente: "", stato: "", searchTerm: "" })}
+                onClick={() => setFilters({ azienda: "all", referente: "all", stato: "all", searchTerm: "" })}
               >
                 Reset Filtri
               </Button>
