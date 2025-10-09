@@ -79,7 +79,7 @@ export function MainLayout({
   // Desktop Layout
   return (
     <SidebarProvider>
-      <div className="flex h-dvh w-full overflow-hidden">
+      <div className="flex min-h-screen w-full">
         <Sidebar 
           className="border-r border-border/50 text-white h-full flex-shrink-0 shadow-xl" 
           collapsible="icon"
@@ -107,13 +107,11 @@ export function MainLayout({
           </div>
         </Sidebar>
         
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+        <main className="flex-1 bg-background">
           <ImpersonationBanner />
           
-          <div className="flex-1">
-            <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
-              {children}
-            </div>
+          <div className={`w-full ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
+            {children}
           </div>
         </main>
         
