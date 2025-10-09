@@ -435,36 +435,38 @@ export const ServizioCreaPage = () => {
 
   return (
     <MainLayout>
-    <div className="w-full p-4 md:p-6 lg:p-8">
+    <div className="w-full p-3 sm:p-4 md:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Button
           variant="ghost"
           onClick={() => navigate("/servizi")}
-          className="mb-4"
+          className="mb-3 sm:mb-4 -ml-2"
+          size="sm"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Torna ai Servizi
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          <span className="hidden sm:inline">Torna ai Servizi</span>
+          <span className="sm:hidden">Indietro</span>
         </Button>
         
-        <h1 className="text-2xl md:text-3xl font-bold">Nuovo Servizio</h1>
-        <p className="text-muted-foreground mt-1">
-          Compila i campi per creare un nuovo servizio taxi/NCC
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Nuovo Servizio</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">
+          Compila i campi per creare un nuovo servizio
         </p>
       </div>
 
       {/* Form */}
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-7xl">
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           
           {/* SEZIONE 1: Azienda e Contatto */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Building2 className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Azienda e Contatto</h2>
+          <Card className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Azienda e Contatto</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {/* Azienda */}
               <div className="space-y-2">
                 <Label htmlFor="azienda_id">
@@ -475,7 +477,7 @@ export const ServizioCreaPage = () => {
                   control={form.control}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-base">
                         <SelectValue placeholder="Seleziona azienda" />
                       </SelectTrigger>
                       <SelectContent>
@@ -517,7 +519,7 @@ export const ServizioCreaPage = () => {
                       onValueChange={field.onChange}
                       disabled={!watchAziendaId}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-base">
                         <SelectValue placeholder="Seleziona referente" />
                       </SelectTrigger>
                       <SelectContent>
@@ -540,6 +542,7 @@ export const ServizioCreaPage = () => {
                 <Input
                   id="data_servizio"
                   type="date"
+                  className="text-base"
                   {...form.register("data_servizio")}
                 />
                 {errors.data_servizio && (
@@ -557,6 +560,7 @@ export const ServizioCreaPage = () => {
                 <Input
                   id="orario_servizio"
                   type="time"
+                  className="text-base"
                   {...form.register("orario_servizio")}
                 />
                 {errors.orario_servizio && (
@@ -572,6 +576,7 @@ export const ServizioCreaPage = () => {
                 <Input
                   id="numero_commessa"
                   placeholder="ES-2024-001"
+                  className="text-base"
                   {...form.register("numero_commessa")}
                 />
               </div>
@@ -579,10 +584,10 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 2: Percorso */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Percorso</h2>
+          <Card className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
             </div>
             
             <div className="space-y-6">
@@ -591,12 +596,13 @@ export const ServizioCreaPage = () => {
                 <h3 className="text-sm font-medium mb-3 text-muted-foreground">
                   Punto di Partenza
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="citta_presa">Città</Label>
                     <Input
                       id="citta_presa"
                       placeholder="Es: Milano"
+                      className="text-base"
                       {...form.register("citta_presa")}
                     />
                   </div>
@@ -607,6 +613,7 @@ export const ServizioCreaPage = () => {
                     <Input
                       id="indirizzo_presa"
                       placeholder="Es: Via Roma 123"
+                      className="text-base"
                       {...form.register("indirizzo_presa")}
                     />
                     {errors.indirizzo_presa && (
@@ -623,12 +630,13 @@ export const ServizioCreaPage = () => {
                 <h3 className="text-sm font-medium mb-3 text-muted-foreground">
                   Destinazione
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="citta_destinazione">Città</Label>
                     <Input
                       id="citta_destinazione"
                       placeholder="Es: Roma"
+                      className="text-base"
                       {...form.register("citta_destinazione")}
                     />
                   </div>
@@ -639,6 +647,7 @@ export const ServizioCreaPage = () => {
                     <Input
                       id="indirizzo_destinazione"
                       placeholder="Es: Aeroporto Fiumicino"
+                      className="text-base"
                       {...form.register("indirizzo_destinazione")}
                     />
                     {errors.indirizzo_destinazione && (
@@ -653,10 +662,10 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 3: Assegnazione */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <User className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Assegnazione (Opzionale)</h2>
+          <Card className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Assegnazione (Opzionale)</h2>
             </div>
             
             <div className="space-y-4">
@@ -675,7 +684,7 @@ export const ServizioCreaPage = () => {
                 <Label>Conducente Esterno</Label>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* Conducente - conditional */}
                 {!watchConducenteEsterno ? (
                   <div className="space-y-2">
@@ -685,7 +694,7 @@ export const ServizioCreaPage = () => {
                       control={form.control}
                       render={({ field }) => (
                         <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger>
+                          <SelectTrigger className="text-base">
                             <SelectValue placeholder="Seleziona conducente" />
                           </SelectTrigger>
                           <SelectContent>
@@ -707,7 +716,7 @@ export const ServizioCreaPage = () => {
                       control={form.control}
                       render={({ field }) => (
                         <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger>
+                          <SelectTrigger className="text-base">
                             <SelectValue placeholder="Seleziona conducente esterno" />
                           </SelectTrigger>
                           <SelectContent>
@@ -731,7 +740,7 @@ export const ServizioCreaPage = () => {
                     control={form.control}
                     render={({ field }) => (
                       <Select value={field.value || ""} onValueChange={field.onChange}>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-base">
                           <SelectValue placeholder="Seleziona veicolo" />
                         </SelectTrigger>
                         <SelectContent>
@@ -750,14 +759,14 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 4: Dettagli Economici */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Euro className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Dettagli Economici</h2>
+          <Card className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Dettagli Economici</h2>
             </div>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="metodo_pagamento">
                     Metodo Pagamento <span className="text-destructive">*</span>
@@ -767,7 +776,7 @@ export const ServizioCreaPage = () => {
                     control={form.control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-base">
                           <SelectValue placeholder="Seleziona metodo" />
                         </SelectTrigger>
                         <SelectContent>
@@ -794,6 +803,7 @@ export const ServizioCreaPage = () => {
                     type="number"
                     step="0.5"
                     placeholder="4.5"
+                    className="text-base"
                     {...form.register("ore_effettive")}
                   />
                 </div>
@@ -805,6 +815,7 @@ export const ServizioCreaPage = () => {
                     type="number"
                     step="0.5"
                     placeholder="4.5"
+                    className="text-base"
                     {...form.register("ore_fatturate")}
                   />
                 </div>
@@ -816,6 +827,7 @@ export const ServizioCreaPage = () => {
                     type="number"
                     step="0.01"
                     placeholder="200.00"
+                    className="text-base"
                     {...form.register("incasso_previsto")}
                   />
                 </div>
@@ -827,6 +839,7 @@ export const ServizioCreaPage = () => {
                     type="number"
                     step="1"
                     placeholder="22"
+                    className="text-base"
                     {...form.register("iva")}
                   />
                 </div>
@@ -840,7 +853,7 @@ export const ServizioCreaPage = () => {
                       control={form.control}
                       render={({ field }) => (
                         <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger>
+                          <SelectTrigger className="text-base">
                             <SelectValue placeholder="Seleziona socio" />
                           </SelectTrigger>
                           <SelectContent>
@@ -877,11 +890,11 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 5: Passeggeri */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center justify-between mb-4">
+          <Card className="p-3 sm:p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold">Passeggeri (Opzionale)</h2>
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <h2 className="text-base sm:text-lg font-semibold">Passeggeri (Opzionale)</h2>
               </div>
               
               {/* Button Aggiungi Passeggero */}
@@ -892,6 +905,7 @@ export const ServizioCreaPage = () => {
                     variant="outline" 
                     size="sm"
                     disabled={!watchAziendaId}
+                    className="w-full sm:w-auto"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Nuovo Passeggero
@@ -1030,11 +1044,11 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 6: Email Notifiche */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center justify-between mb-4">
+          <Card className="p-3 sm:p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold">Email Notifiche (Opzionale)</h2>
+                <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <h2 className="text-base sm:text-lg font-semibold">Email Notifiche (Opzionale)</h2>
               </div>
               
               {/* Button Aggiungi Email */}
@@ -1045,6 +1059,7 @@ export const ServizioCreaPage = () => {
                     variant="outline" 
                     size="sm"
                     disabled={!watchAziendaId}
+                    className="w-full sm:w-auto"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Nuova Email
@@ -1144,10 +1159,10 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 7: Note */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Info className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Note</h2>
+          <Card className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Note</h2>
             </div>
             
             <div className="space-y-2">
@@ -1156,6 +1171,7 @@ export const ServizioCreaPage = () => {
                 id="note"
                 placeholder="Eventuali note sul servizio..."
                 rows={4}
+                className="text-base"
                 {...form.register("note")}
               />
             </div>
@@ -1163,24 +1179,28 @@ export const ServizioCreaPage = () => {
 
         </div>
 
-        {/* Footer Buttons */}
-        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-8 pt-6 border-t">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate("/servizi")}
-            className="w-full sm:w-auto"
-          >
-            Annulla
-          </Button>
+        {/* Footer Buttons - Sticky Mobile */}
+        <div className="sticky bottom-0 left-0 right-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-3 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0 sm:relative sm:bg-transparent z-10">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/servizi")}
+              className="w-full sm:w-auto order-2 sm:order-1"
+              size="lg"
+            >
+              Annulla
+            </Button>
 
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full sm:w-auto min-w-[200px]"
-          >
-            {isSubmitting ? "Creazione in corso..." : "Crea Servizio"}
-          </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto min-w-[200px] order-1 sm:order-2"
+              size="lg"
+            >
+              {isSubmitting ? "Creazione..." : "Crea Servizio"}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

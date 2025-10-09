@@ -46,6 +46,34 @@ body {
   flex-direction: column;
 }
 
+/* ===================================
+   MOBILE TOUCH OPTIMIZATION
+   =================================== */
+
+@media (max-width: 640px) {
+  /* Touch targets min 44x44px */
+  button, 
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+  
+  /* Input padding */
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    padding: 12px;
+    font-size: 16px; /* Evita zoom iOS */
+  }
+  
+  /* Label spacing */
+  label {
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+}
+
 /* Typography system - mobile first approach */
 :root {
   /* Base colors - Professional design system */
