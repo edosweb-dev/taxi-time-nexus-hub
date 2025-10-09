@@ -24,7 +24,7 @@ export const InserimentoServizioModal = ({ open, onClose }: InserimentoServizioM
   };
 
   const handleCompleto = () => {
-    navigate("/nuovo-servizio?mode=completo");
+    navigate("/servizi/crea");
     onClose();
   };
 
