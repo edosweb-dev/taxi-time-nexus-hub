@@ -24,10 +24,10 @@ export function useServiziPage() {
   const handleNavigateToNewServizio = () => {
     // If user is cliente, go directly to complete form
     if (profile?.role === 'cliente') {
-      navigate("/nuovo-servizio?mode=completo");
+      navigate("/servizi/crea");
     } else {
-      // For admin/socio, the modal will be shown by the component
-      navigate("/nuovo-servizio");
+      // For admin/socio, go to new page
+      navigate("/servizi/crea");
     }
   };
 
