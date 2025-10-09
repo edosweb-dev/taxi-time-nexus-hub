@@ -682,10 +682,11 @@ export const ServizioCreaPage = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      className="h-4 w-4 sm:h-5 sm:w-5"
                     />
                   )}
                 />
-                <Label>Conducente Esterno</Label>
+                <Label className="text-sm sm:text-base">Conducente Esterno</Label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
