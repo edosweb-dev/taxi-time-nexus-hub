@@ -435,7 +435,7 @@ export const ServizioCreaPage = () => {
 
   return (
     <MainLayout>
-    <div className="w-full min-h-screen p-4 md:p-6 lg:p-8">
+    <div className="w-full p-4 md:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6">
         <Button
