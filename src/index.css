@@ -118,6 +118,16 @@ body {
 
 /* Force full width mobile - GLOBAL FIX */
 @media (max-width: 640px) {
+  /* Force remove ml-auto su mobile */
+  .ml-auto {
+    margin-left: 0 !important;
+  }
+  
+  /* Flex items no auto margin */
+  .flex .ml-auto {
+    margin-left: 0 !important;
+  }
+  
   /* Force full width su TUTTO */
   body {
     overflow-x: hidden !important;
