@@ -121,7 +121,7 @@ export function NuovoServizioForm() {
     <FormProvider {...form}>
       <div className="w-full min-h-screen">
         {/* Container con padding minimo - massimizza larghezza */}
-        <div className="w-full px-4 sm:px-6 md:px-6 lg:px-8 xl:px-8 py-6">
+        <div className="w-full px-4 md:px-6 py-6">
           
           {/* Header Ultra-Compatto */}
           <div className={cn(

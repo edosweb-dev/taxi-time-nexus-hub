@@ -111,7 +111,7 @@ export function MainLayout({
           <ImpersonationBanner />
           
           <div className="flex-1 overflow-y-auto scroll-smooth">
-            <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
+            <div className="w-full min-h-0 py-4 md:py-6 page-enter">
               {children}
             </div>
           </div>
