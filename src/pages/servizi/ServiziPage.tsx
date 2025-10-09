@@ -122,18 +122,46 @@ export default function ServiziPage() {
           </span>
         </div>
 
-        {/* Percorso */}
+        {/* Percorso con Città in Bold */}
         <div className="flex items-start gap-2">
           <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0 space-y-1">
             <p className="truncate text-xs">
-              <span className="text-muted-foreground">Da:</span> {servizio.indirizzo_presa}
+              <span className="text-muted-foreground">Da:</span>{' '}
+              {servizio.citta_presa && (
+                <>
+                  <span className="font-bold">{servizio.citta_presa}</span>
+                  {servizio.indirizzo_presa && <span> - {servizio.indirizzo_presa}</span>}
+                </>
+              )}
+              {!servizio.citta_presa && servizio.indirizzo_presa && (
+                <span>{servizio.indirizzo_presa}</span>
+              )}
             </p>
             <p className="truncate text-xs">
-              <span className="text-muted-foreground">A:</span> {servizio.indirizzo_destinazione}
+              <span className="text-muted-foreground">A:</span>{' '}
+              {servizio.citta_destinazione && (
+                <>
+                  <span className="font-bold">{servizio.citta_destinazione}</span>
+                  {servizio.indirizzo_destinazione && <span> - {servizio.indirizzo_destinazione}</span>}
+                </>
+              )}
+              {!servizio.citta_destinazione && servizio.indirizzo_destinazione && (
+                <span>{servizio.indirizzo_destinazione}</span>
+              )}
             </p>
           </div>
         </div>
+
+        {/* Passeggeri */}
+        {servizio.passeggeriCount && servizio.passeggeriCount > 0 && (
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-xs">
+              {servizio.passeggeriCount} {servizio.passeggeriCount === 1 ? 'passeggero' : 'passeggeri'}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Card Footer: Pagamento + Importo */}
