@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FormProvider } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,36 @@ export function NuovoServizioForm() {
   const [currentStep, setCurrentStep] = useState(0);
   const keyboardVisible = useKeyboardVisible();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  // Force width dopo render
+  useEffect(() => {
+    const forceWidth = () => {
+      // Trova tutti gli elementi che potrebbero limitare
+      const selectors = [
+        'form',
+        '[class*="card"]',
+        '[class*="space-y"]',
+        '.w-full',
+      ];
+      
+      selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+          if (el instanceof HTMLElement) {
+            el.style.width = '100%';
+            el.style.maxWidth = 'none';
+            el.style.minWidth = '0';
+          }
+        });
+      });
+    };
+    
+    // Esegui immediatamente e dopo ogni render
+    forceWidth();
+    const timer = setInterval(forceWidth, 100);
+    
+    return () => clearInterval(timer);
+  }, [currentStep]);
 
   const canGoNext = () => {
     const values = form.getValues();
