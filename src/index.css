@@ -627,7 +627,7 @@ body {
   /* LISTA SERVIZI - FULL WIDTH */
   .services-list {
     width: 100% !important;
-    padding: 1rem !important;
+    padding: 0 !important;
     margin: 0 !important;
   }
 
@@ -1790,7 +1790,7 @@ body {
   }
 
   .services-list {
-    padding: 1.5rem 2rem;
+    padding: 0 !important;
   }
 }
 
