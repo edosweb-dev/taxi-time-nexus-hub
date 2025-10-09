@@ -38,9 +38,9 @@ export function MainLayout({
   // Optimized mobile-first responsive padding system
   const getPaddingClasses = (mode: string) => {
     const paddingModes = {
-      'default': 'px-4 py-4 sm:px-6 sm:py-4 md:px-6 md:py-6 lg:px-8 lg:py-6 xl:px-8 2xl:px-8',
-      'minimal': 'px-2 py-2 sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-6 xl:px-6 2xl:px-6', 
-      'full-width': 'px-2 py-2 sm:px-2 sm:py-2 md:px-4 md:py-3 lg:px-4 xl:px-4 2xl:px-4'
+      'default': 'px-3 py-4 sm:px-6 sm:py-4 md:px-6 md:py-6 lg:px-8 lg:py-6',
+      'minimal': 'px-2 py-2 sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-6', 
+      'full-width': 'px-2 py-2 sm:px-2 sm:py-2 md:px-4 md:py-3 lg:px-4'
     };
     return paddingModes[mode] || paddingModes['default'];
   };
@@ -58,7 +58,7 @@ export function MainLayout({
         />
         
         {/* Mobile Content */}
-        <main className="mobile-content-unified w-full max-w-full overflow-x-hidden">
+        <main className="mobile-content-unified w-full max-w-full overflow-x-hidden px-0 mx-0">
           <div className={`w-full max-w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter`}>
             {children}
           </div>
