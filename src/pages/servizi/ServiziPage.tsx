@@ -415,28 +415,32 @@ export default function ServiziPage() {
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               <div className="text-xs space-y-1">
-                                <div className="flex items-start gap-1">
+                                <div className="flex items-center gap-1">
                                   <span className="text-muted-foreground flex-shrink-0">Da:</span>
-                                  <div className="flex-1 min-w-0">
+                                  <div className="flex-1 min-w-0 truncate">
                                     {servizio.citta_presa && (
-                                      <span className="font-semibold">{servizio.citta_presa}</span>
+                                      <>
+                                        <span className="font-bold">{servizio.citta_presa}</span>
+                                        {servizio.indirizzo_presa && <span> - {servizio.indirizzo_presa}</span>}
+                                      </>
                                     )}
-                                    {servizio.citta_presa && servizio.indirizzo_presa && (
-                                      <span className="text-muted-foreground">, </span>
+                                    {!servizio.citta_presa && servizio.indirizzo_presa && (
+                                      <span>{servizio.indirizzo_presa}</span>
                                     )}
-                                    <span className="truncate block">{servizio.indirizzo_presa}</span>
                                   </div>
                                 </div>
-                                <div className="flex items-start gap-1">
+                                <div className="flex items-center gap-1">
                                   <span className="text-muted-foreground flex-shrink-0">A:</span>
-                                  <div className="flex-1 min-w-0">
+                                  <div className="flex-1 min-w-0 truncate">
                                     {servizio.citta_destinazione && (
-                                      <span className="font-semibold">{servizio.citta_destinazione}</span>
+                                      <>
+                                        <span className="font-bold">{servizio.citta_destinazione}</span>
+                                        {servizio.indirizzo_destinazione && <span> - {servizio.indirizzo_destinazione}</span>}
+                                      </>
                                     )}
-                                    {servizio.citta_destinazione && servizio.indirizzo_destinazione && (
-                                      <span className="text-muted-foreground">, </span>
+                                    {!servizio.citta_destinazione && servizio.indirizzo_destinazione && (
+                                      <span>{servizio.indirizzo_destinazione}</span>
                                     )}
-                                    <span className="truncate block">{servizio.indirizzo_destinazione}</span>
                                   </div>
                                 </div>
                               </div>
