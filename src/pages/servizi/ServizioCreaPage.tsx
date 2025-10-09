@@ -39,7 +39,9 @@ import {
   Euro,
   Users,
   Mail,
-  Plus
+  Plus,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 // Schema validazione completo
@@ -77,6 +79,8 @@ type ServizioFormData = z.infer<typeof servizioSchema>;
 export const ServizioCreaPage = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPasseggeriOpen, setIsPasseggeriOpen] = useState(false);
+  const [isEmailOpen, setIsEmailOpen] = useState(false);
 
   const form = useForm<ServizioFormData>({
     resolver: zodResolver(servizioSchema),
@@ -457,7 +461,7 @@ export const ServizioCreaPage = () => {
 
       {/* Form */}
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-7xl">
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4 sm:space-y-6 pb-20 sm:pb-0">
           
           {/* SEZIONE 1: Azienda e Contatto */}
           <Card className="p-3 sm:p-4 md:p-6">
@@ -468,8 +472,8 @@ export const ServizioCreaPage = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {/* Azienda */}
-              <div className="space-y-2">
-                <Label htmlFor="azienda_id">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="azienda_id" className="font-medium">
                   Azienda <span className="text-destructive">*</span>
                 </Label>
                 <Controller
@@ -508,8 +512,8 @@ export const ServizioCreaPage = () => {
               </div>
 
               {/* Referente */}
-              <div className="space-y-2">
-                <Label>Referente</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="font-medium">Referente</Label>
                 <Controller
                   name="referente_id"
                   control={form.control}
@@ -535,8 +539,8 @@ export const ServizioCreaPage = () => {
               </div>
 
               {/* Data Servizio */}
-              <div className="space-y-2">
-                <Label htmlFor="data_servizio">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="data_servizio" className="font-medium">
                   Data Servizio <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -553,8 +557,8 @@ export const ServizioCreaPage = () => {
               </div>
 
               {/* Orario Servizio */}
-              <div className="space-y-2">
-                <Label htmlFor="orario_servizio">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="orario_servizio" className="font-medium">
                   Orario <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -571,11 +575,11 @@ export const ServizioCreaPage = () => {
               </div>
 
               {/* Numero Commessa */}
-              <div className="space-y-2">
-                <Label htmlFor="numero_commessa">Numero Commessa</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="numero_commessa" className="font-medium">Numero Commessa</Label>
                 <Input
                   id="numero_commessa"
-                  placeholder="ES-2024-001"
+                  placeholder="Opzionale: ES-2024-001"
                   className="text-base"
                   {...form.register("numero_commessa")}
                 />
@@ -597,8 +601,8 @@ export const ServizioCreaPage = () => {
                   Punto di Partenza
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="citta_presa">Città</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="citta_presa" className="font-medium">Città</Label>
                     <Input
                       id="citta_presa"
                       placeholder="Es: Milano"
@@ -606,8 +610,8 @@ export const ServizioCreaPage = () => {
                       {...form.register("citta_presa")}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="indirizzo_presa">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="indirizzo_presa" className="font-medium">
                       Indirizzo Presa <span className="text-destructive">*</span>
                     </Label>
                     <Input
@@ -631,8 +635,8 @@ export const ServizioCreaPage = () => {
                   Destinazione
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="citta_destinazione">Città</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="citta_destinazione" className="font-medium">Città</Label>
                     <Input
                       id="citta_destinazione"
                       placeholder="Es: Roma"
@@ -640,8 +644,8 @@ export const ServizioCreaPage = () => {
                       {...form.register("citta_destinazione")}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="indirizzo_destinazione">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="indirizzo_destinazione" className="font-medium">
                       Indirizzo Destinazione <span className="text-destructive">*</span>
                     </Label>
                     <Input
@@ -687,8 +691,8 @@ export const ServizioCreaPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* Conducente - conditional */}
                 {!watchConducenteEsterno ? (
-                  <div className="space-y-2">
-                    <Label>Assegna a Dipendente/Socio</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="font-medium">Assegna a Dipendente/Socio</Label>
                     <Controller
                       name="assegnato_a"
                       control={form.control}
@@ -709,8 +713,8 @@ export const ServizioCreaPage = () => {
                     />
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <Label>Conducente Esterno</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="font-medium">Conducente Esterno</Label>
                     <Controller
                       name="conducente_esterno_id"
                       control={form.control}
@@ -733,8 +737,8 @@ export const ServizioCreaPage = () => {
                 )}
 
                 {/* Veicolo */}
-                <div className="space-y-2">
-                  <Label>Veicolo</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="font-medium">Veicolo</Label>
                   <Controller
                     name="veicolo_id"
                     control={form.control}
@@ -767,8 +771,8 @@ export const ServizioCreaPage = () => {
             
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="metodo_pagamento">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="metodo_pagamento" className="font-medium">
                     Metodo Pagamento <span className="text-destructive">*</span>
                   </Label>
                   <Controller
@@ -796,44 +800,44 @@ export const ServizioCreaPage = () => {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="ore_effettive">Ore Effettive</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_effettive" className="font-medium">Ore Effettive</Label>
                   <Input
                     id="ore_effettive"
                     type="number"
                     step="0.5"
-                    placeholder="4.5"
+                    placeholder="Opzionale: 4.5"
                     className="text-base"
                     {...form.register("ore_effettive")}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="ore_fatturate">Ore Fatturate</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_fatturate" className="font-medium">Ore Fatturate</Label>
                   <Input
                     id="ore_fatturate"
                     type="number"
                     step="0.5"
-                    placeholder="4.5"
+                    placeholder="Opzionale: 4.5"
                     className="text-base"
                     {...form.register("ore_fatturate")}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="incasso_previsto">Incasso Previsto (€)</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="incasso_previsto" className="font-medium">Incasso Previsto (€)</Label>
                   <Input
                     id="incasso_previsto"
                     type="number"
                     step="0.01"
-                    placeholder="200.00"
+                    placeholder="Opzionale: 200.00"
                     className="text-base"
                     {...form.register("incasso_previsto")}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="iva">IVA (%)</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="iva" className="font-medium">IVA (%)</Label>
                   <Input
                     id="iva"
                     type="number"
@@ -846,8 +850,8 @@ export const ServizioCreaPage = () => {
 
                 {/* Consegna Contanti (conditional) */}
                 {watchMetodoPagamento === "Contanti" && (
-                  <div className="space-y-2">
-                    <Label>Consegna Contanti a</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="font-medium">Consegna Contanti a</Label>
                     <Controller
                       name="consegna_contanti_a"
                       control={form.control}
@@ -891,11 +895,23 @@ export const ServizioCreaPage = () => {
 
           {/* SEZIONE 5: Passeggeri */}
           <Card className="p-3 sm:p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 sm:mb-4">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <h2 className="text-base sm:text-lg font-semibold">Passeggeri (Opzionale)</h2>
-              </div>
+            <div className="space-y-3 mb-4">
+              {/* Header con toggle collapsible */}
+              <button
+                type="button"
+                onClick={() => setIsPasseggeriOpen(!isPasseggeriOpen)}
+                className="flex items-center justify-between w-full text-left sm:cursor-default sm:pointer-events-none"
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <h2 className="text-base sm:text-lg font-semibold">Passeggeri (Opzionale)</h2>
+                </div>
+                {isPasseggeriOpen ? (
+                  <ChevronUp className="h-4 w-4 sm:hidden" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 sm:hidden" />
+                )}
+              </button>
               
               {/* Button Aggiungi Passeggero */}
               <Sheet>
@@ -903,7 +919,7 @@ export const ServizioCreaPage = () => {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    size="sm"
+                    size="default"
                     disabled={!watchAziendaId}
                     className="w-full sm:w-auto"
                   >
@@ -920,8 +936,8 @@ export const ServizioCreaPage = () => {
                   </SheetHeader>
                   
                   <div className="space-y-4 mt-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-pass-nome">
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="new-pass-nome" className="font-medium">
                         Nome e Cognome <span className="text-destructive">*</span>
                       </Label>
                       <Input
@@ -935,8 +951,8 @@ export const ServizioCreaPage = () => {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="new-pass-email">Email</Label>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="new-pass-email" className="font-medium">Email</Label>
                       <Input
                         id="new-pass-email"
                         type="email"
@@ -949,8 +965,8 @@ export const ServizioCreaPage = () => {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="new-pass-telefono">Telefono</Label>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="new-pass-telefono" className="font-medium">Telefono</Label>
                       <Input
                         id="new-pass-telefono"
                         type="tel"
@@ -963,8 +979,8 @@ export const ServizioCreaPage = () => {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="new-pass-localita">Località</Label>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="new-pass-localita" className="font-medium">Località</Label>
                       <Input
                         id="new-pass-localita"
                         placeholder="Milano"
@@ -976,8 +992,8 @@ export const ServizioCreaPage = () => {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="new-pass-indirizzo">Indirizzo</Label>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="new-pass-indirizzo" className="font-medium">Indirizzo</Label>
                       <Input
                         id="new-pass-indirizzo"
                         placeholder="Via Roma 123"
@@ -1002,54 +1018,69 @@ export const ServizioCreaPage = () => {
               </Sheet>
             </div>
             
-            {/* Lista Passeggeri Esistenti */}
-            <div className="space-y-2">
-              <Label>Seleziona Passeggeri</Label>
-              <Controller
-                name="passeggeri_ids"
-                control={form.control}
-                render={({ field }) => (
-                  <div className="border rounded-md p-4 space-y-2 max-h-60 overflow-y-auto">
-                    {!watchAziendaId ? (
-                      <p className="text-sm text-muted-foreground">
-                        Seleziona prima un'azienda
-                      </p>
-                    ) : passeggeri?.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        Nessun passeggero disponibile. Creane uno con il pulsante sopra.
-                      </p>
-                    ) : (
-                      passeggeri?.map((pass) => (
-                        <div key={pass.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            checked={field.value.includes(pass.id)}
-                            onCheckedChange={(checked) => {
-                              const newValue = checked
-                                ? [...field.value, pass.id]
-                                : field.value.filter(id => id !== pass.id);
-                              field.onChange(newValue);
-                            }}
-                          />
-                          <Label className="font-normal">
-                            {pass.nome_cognome}
-                            {pass.email && ` (${pass.email})`}
-                          </Label>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              />
+            {/* Contenuto collapsible */}
+            <div className={`${isPasseggeriOpen ? 'block' : 'hidden'} sm:block`}>
+              {/* Lista Passeggeri Esistenti */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="font-medium">Seleziona Passeggeri</Label>
+                <Controller
+                  name="passeggeri_ids"
+                  control={form.control}
+                  render={({ field }) => (
+                    <div className="border rounded-md p-4 space-y-2 max-h-60 overflow-y-auto">
+                      {!watchAziendaId ? (
+                        <p className="text-sm text-muted-foreground">
+                          Seleziona prima un'azienda
+                        </p>
+                      ) : passeggeri?.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          Nessun passeggero disponibile. Creane uno con il pulsante sopra.
+                        </p>
+                      ) : (
+                        passeggeri?.map((pass) => (
+                          <div key={pass.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              checked={field.value.includes(pass.id)}
+                              onCheckedChange={(checked) => {
+                                const newValue = checked
+                                  ? [...field.value, pass.id]
+                                  : field.value.filter(id => id !== pass.id);
+                                field.onChange(newValue);
+                              }}
+                            />
+                            <Label className="font-normal">
+                              {pass.nome_cognome}
+                              {pass.email && ` (${pass.email})`}
+                            </Label>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
             </div>
           </Card>
 
           {/* SEZIONE 6: Email Notifiche */}
           <Card className="p-3 sm:p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 sm:mb-4">
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <h2 className="text-base sm:text-lg font-semibold">Email Notifiche (Opzionale)</h2>
-              </div>
+            <div className="space-y-3 mb-4">
+              {/* Header con toggle collapsible */}
+              <button
+                type="button"
+                onClick={() => setIsEmailOpen(!isEmailOpen)}
+                className="flex items-center justify-between w-full text-left sm:cursor-default sm:pointer-events-none"
+              >
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <h2 className="text-base sm:text-lg font-semibold">Email Notifiche (Opzionale)</h2>
+                </div>
+                {isEmailOpen ? (
+                  <ChevronUp className="h-4 w-4 sm:hidden" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 sm:hidden" />
+                )}
+              </button>
               
               {/* Button Aggiungi Email */}
               <Sheet>
@@ -1057,7 +1088,7 @@ export const ServizioCreaPage = () => {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    size="sm"
+                    size="default"
                     disabled={!watchAziendaId}
                     className="w-full sm:w-auto"
                   >
@@ -1074,8 +1105,8 @@ export const ServizioCreaPage = () => {
                   </SheetHeader>
                   
                   <div className="space-y-4 mt-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-email-nome">
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="new-email-nome" className="font-medium">
                         Nome Contatto <span className="text-destructive">*</span>
                       </Label>
                       <Input
@@ -1089,8 +1120,8 @@ export const ServizioCreaPage = () => {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="new-email-address">
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="new-email-address" className="font-medium">
                         Email <span className="text-destructive">*</span>
                       </Label>
                       <Input
@@ -1118,9 +1149,11 @@ export const ServizioCreaPage = () => {
               </Sheet>
             </div>
             
-            {/* Lista Email Esistenti */}
-            <div className="space-y-2">
-              <Label>Seleziona Email da Notificare</Label>
+            {/* Contenuto collapsible */}
+            <div className={`${isEmailOpen ? 'block' : 'hidden'} sm:block`}>
+              {/* Lista Email Esistenti */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="font-medium">Seleziona Email da Notificare</Label>
               <Controller
                 name="email_notifiche_ids"
                 control={form.control}
@@ -1155,6 +1188,7 @@ export const ServizioCreaPage = () => {
                   </div>
                 )}
               />
+              </div>
             </div>
           </Card>
 
@@ -1165,11 +1199,11 @@ export const ServizioCreaPage = () => {
               <h2 className="text-base sm:text-lg font-semibold">Note</h2>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="note">Note Aggiuntive</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="note" className="font-medium">Note Aggiuntive</Label>
               <Textarea
                 id="note"
-                placeholder="Eventuali note sul servizio..."
+                placeholder="Opzionale: Eventuali note sul servizio..."
                 rows={4}
                 className="text-base"
                 {...form.register("note")}
@@ -1180,8 +1214,17 @@ export const ServizioCreaPage = () => {
         </div>
 
         {/* Footer Buttons - Sticky Mobile */}
-        <div className="sticky bottom-0 left-0 right-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-3 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0 sm:relative sm:bg-transparent z-10">
+        <div className="sticky bottom-0 left-0 right-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-3 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0 sm:relative sm:bg-transparent z-10 shadow-lg sm:shadow-none">
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto min-w-[200px] order-1 sm:order-2"
+              size="lg"
+            >
+              {isSubmitting ? "Creazione..." : "Crea Servizio"}
+            </Button>
+
             <Button
               type="button"
               variant="outline"
@@ -1190,15 +1233,6 @@ export const ServizioCreaPage = () => {
               size="lg"
             >
               Annulla
-            </Button>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full sm:w-auto min-w-[200px] order-1 sm:order-2"
-              size="lg"
-            >
-              {isSubmitting ? "Creazione..." : "Crea Servizio"}
             </Button>
           </div>
         </div>

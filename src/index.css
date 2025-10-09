@@ -47,7 +47,7 @@ body {
 }
 
 /* ===================================
-   MOBILE TOUCH OPTIMIZATION
+   MOBILE OPTIMIZATIONS
    =================================== */
 
 @media (max-width: 640px) {
@@ -57,6 +57,7 @@ body {
   input[type="checkbox"],
   input[type="radio"] {
     min-height: 44px;
+    touch-action: manipulation;
   }
   
   /* Input padding */
@@ -67,10 +68,31 @@ body {
     font-size: 16px; /* Evita zoom iOS */
   }
   
-  /* Label spacing */
+  /* Label più visibili */
   label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
     margin-bottom: 6px;
-    font-size: 14px;
+  }
+  
+  /* Card header title */
+  h2 {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+  
+  /* Input focus ring più evidente */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  
+  /* Sheet overlay più scuro mobile */
+  [data-radix-dialog-overlay] {
+    background-color: rgba(0, 0, 0, 0.7);
   }
 }
 
