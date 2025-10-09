@@ -2253,3 +2253,62 @@ button:focus-visible {
     animation: none;
   }
 }
+
+/* ========================================
+   FIX: Larghezza massima wizard nuovo servizio
+   ======================================== */
+
+.wizard-fullwidth {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Rimuovi limitazioni max-width da tutti i discendenti */
+.wizard-fullwidth * {
+  max-width: none !important;
+}
+
+/* Container interno con padding controllato */
+.wizard-fullwidth > div {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Form e Card a larghezza piena */
+.wizard-fullwidth form,
+.wizard-fullwidth [class*="card"],
+.wizard-fullwidth [class*="Card"] {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Responsive padding progressivo */
+@media (min-width: 768px) {
+  .wizard-fullwidth > div {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wizard-fullwidth > div {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .wizard-fullwidth > div {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  .wizard-fullwidth > div {
+    padding-left: 4rem !important;
+    padding-right: 4rem !important;
+  }
+}

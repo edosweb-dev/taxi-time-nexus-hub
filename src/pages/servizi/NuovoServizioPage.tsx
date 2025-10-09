@@ -19,8 +19,9 @@ export default function NuovoServizioPage() {
   // Altrimenti mostra il form completo (wizard)
   return (
     <MainLayout>
-      {/* Form Content - nessuna limitazione, gestisce la propria larghezza */}
-      <NuovoServizioForm />
+      <div className="wizard-fullwidth -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-8 xl:-mx-8">
+        <NuovoServizioForm />
+      </div>
     </MainLayout>
   );
 }
