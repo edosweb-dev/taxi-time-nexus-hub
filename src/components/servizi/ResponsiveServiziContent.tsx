@@ -233,7 +233,7 @@ export function ResponsiveServiziContent({
         </div>
 
         {/* Service List */}
-        <div className="w-full pb-20">
+        <div className="w-full pb-20 px-0">
           {serviziByStatus[activeTab as keyof typeof serviziByStatus].length > 0 ? (
             <MobileFirstServiceList
               servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}

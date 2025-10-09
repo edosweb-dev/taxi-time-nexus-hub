@@ -42,7 +42,7 @@ export function MobileFirstServiceList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 px-0">
       {servizi.map((servizio) => (
         <MobileFirstServiceCard
           key={servizio.id}
