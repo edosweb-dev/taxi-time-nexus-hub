@@ -460,11 +460,11 @@ export const ServizioCreaPage = () => {
       </div>
 
       {/* Form */}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-7xl">
-        <div className="space-y-4 sm:space-y-6 pb-20 sm:pb-0">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full sm:max-w-7xl">
+        <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
           
           {/* SEZIONE 1: Azienda e Contatto */}
-          <Card className="p-3 sm:p-4 md:p-6">
+          <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               <h2 className="text-base sm:text-lg font-semibold">Azienda e Contatto</h2>
@@ -588,7 +588,7 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 2: Percorso */}
-          <Card className="p-3 sm:p-4 md:p-6">
+          <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
@@ -666,7 +666,7 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 3: Assegnazione */}
-          <Card className="p-3 sm:p-4 md:p-6">
+          <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               <h2 className="text-base sm:text-lg font-semibold">Assegnazione (Opzionale)</h2>
@@ -763,7 +763,7 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 4: Dettagli Economici */}
-          <Card className="p-3 sm:p-4 md:p-6">
+          <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               <h2 className="text-base sm:text-lg font-semibold">Dettagli Economici</h2>
@@ -894,7 +894,7 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 5: Passeggeri */}
-          <Card className="p-3 sm:p-4 md:p-6">
+          <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
               {/* Header con toggle collapsible */}
               <button
@@ -1063,7 +1063,7 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 6: Email Notifiche */}
-          <Card className="p-3 sm:p-4 md:p-6">
+          <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
               {/* Header con toggle collapsible */}
               <button
@@ -1193,7 +1193,7 @@ export const ServizioCreaPage = () => {
           </Card>
 
           {/* SEZIONE 7: Note */}
-          <Card className="p-3 sm:p-4 md:p-6">
+          <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Info className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               <h2 className="text-base sm:text-lg font-semibold">Note</h2>

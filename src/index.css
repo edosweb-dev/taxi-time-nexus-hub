@@ -116,6 +116,24 @@ body {
   }
 }
 
+/* Force full width mobile */
+@media (max-width: 640px) {
+  form {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  [data-radix-card] {
+    width: 100% !important;
+  }
+  
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl {
+    max-width: 100% !important;
+  }
+}
+
 /* Typography system - mobile first approach */
 :root {
   /* Base colors - Professional design system */
