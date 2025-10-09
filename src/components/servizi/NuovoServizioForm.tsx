@@ -141,10 +141,28 @@ export function NuovoServizioForm() {
         })),
       });
 
+      toast.success("Servizio creato con successo!");
       navigate("/servizi");
     } catch (error: any) {
       console.error("Error submitting form:", error);
+      toast.error("Errore durante la creazione del servizio");
     }
+  };
+
+  const handleSubmit = async () => {
+    // Trigger validation manuale
+    const isValid = await form.trigger();
+    
+    if (!isValid) {
+      toast.error("Compila tutti i campi obbligatori");
+      return;
+    }
+    
+    // Get form data
+    const data = form.getValues();
+    
+    // Submit logic
+    await onSubmit(data);
   };
 
   return (
@@ -246,7 +264,7 @@ export function NuovoServizioForm() {
                 ) : (
                   <Button
                     type="button"
-                    onClick={form.handleSubmit(onSubmit)}
+                    onClick={handleSubmit}
                     disabled={isCreating || !canGoNext()}
                     size="lg"
                     className="h-12 px-8 text-base font-medium min-w-[180px]"
