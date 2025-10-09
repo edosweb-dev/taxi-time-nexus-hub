@@ -2332,3 +2332,19 @@ button:focus-visible {
     padding-right: 4rem !important;
   }
 }
+
+/* Fix doppio scroll - ensure single scrollbar */
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

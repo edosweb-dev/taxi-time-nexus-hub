@@ -110,7 +110,7 @@ export function MainLayout({
         <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
           <ImpersonationBanner />
           
-          <div className="flex-1 overflow-y-auto scroll-smooth">
+          <div className="flex-1">
             <div className={`w-full min-h-0 ${getPaddingClasses(paddingMode)} page-enter safe-area-left safe-area-right`}>
               {children}
             </div>
