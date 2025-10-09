@@ -49,7 +49,7 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       <Toaster />
       <BrowserRouter>
         <AuthProvider>

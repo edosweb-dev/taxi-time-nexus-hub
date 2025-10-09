@@ -116,23 +116,56 @@ body {
   }
 }
 
-/* Force full width mobile */
+/* Force full width mobile - GLOBAL FIX */
 @media (max-width: 640px) {
-  form {
+  /* Force full width su TUTTO */
+  body {
+    overflow-x: hidden !important;
+  }
+  
+  main,
+  [role="main"] {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Container generici */
+  .container,
+  [class*="container"],
+  [class*="wrapper"] {
     width: 100% !important;
     max-width: 100% !important;
   }
   
-  [data-radix-card] {
-    width: 100% !important;
-  }
-  
+  /* Max-width classes override */
   .max-w-7xl,
   .max-w-6xl,
-  .max-w-5xl {
+  .max-w-5xl,
+  .max-w-4xl,
+  .max-w-3xl,
+  .max-w-2xl,
+  .max-w-xl,
+  .max-w-screen-2xl,
+  .max-w-screen-xl,
+  .max-w-screen-lg {
     max-width: 100% !important;
   }
   
+  /* Table responsive */
+  table,
+  [role="table"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Form e Card */
+  form,
+  [data-radix-card] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   /* Checkbox perfettamente quadrata */
   input[type="checkbox"],
   [role="checkbox"],
