@@ -65,7 +65,7 @@ export const ServizioVeloceForm = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 py-4 px-4">
+    <div className="w-full space-y-4 py-4 px-4">
       <header>
         <h1 className="text-xl md:text-2xl font-semibold mb-0">Inserimento Veloce</h1>
       </header>
