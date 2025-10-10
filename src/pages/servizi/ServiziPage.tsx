@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, MoreVertical, CheckCircle, XCircle, FileText, Eye } from "lucide-react";
+import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, MoreVertical, CheckCircle, XCircle, FileText, Eye, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
@@ -752,51 +752,59 @@ export default function ServiziPage() {
                             </TableCell>
 
                             {/* Azioni in base allo stato */}
-                            <TableCell className="text-right w-[80px]" onClick={(e) => e.stopPropagation()}>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
+                            <TableCell className="text-right w-auto" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-end gap-2">
+                                {/* Button Assegna Servizio - Solo per servizi da_assegnare e admin/socio */}
+                                {servizio.stato === 'da_assegnare' && isAdminOrSocio && (
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={(e) => handleAssignClick(e, servizio)}
+                                  >
+                                    <UserPlus className="h-4 w-4 mr-1" />
+                                    Assegna
                                   </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                  <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
-                                    <Eye className="h-4 w-4 mr-2" />
-                                    Visualizza Dettagli
-                                  </DropdownMenuItem>
-                                  
-                                  {servizio.stato === 'da_assegnare' && (
+                                )}
+
+                                {/* Dropdown Menu - Altre azioni */}
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
                                     <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
-                                      <CheckCircle className="h-4 w-4 mr-2" />
-                                      Assegna Servizio
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      Visualizza Dettagli
                                     </DropdownMenuItem>
-                                  )}
-                                  
-                                  {servizio.stato === 'assegnato' && (
-                                    <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
-                                      <CheckCircle className="h-4 w-4 mr-2" />
-                                      Completa Servizio
-                                    </DropdownMenuItem>
-                                  )}
-                                  
-                                  {servizio.stato === 'completato' && (
-                                    <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
-                                      <FileText className="h-4 w-4 mr-2" />
-                                      Consuntiva Servizio
-                                    </DropdownMenuItem>
-                                  )}
-                                  
-                                  {(servizio.stato === 'da_assegnare' || servizio.stato === 'assegnato') && (
-                                    <DropdownMenuItem 
-                                      onClick={() => navigate(`/servizi/${servizio.id}`)}
-                                      className="text-destructive focus:text-destructive"
-                                    >
-                                      <XCircle className="h-4 w-4 mr-2" />
-                                      Annulla Servizio
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                                    
+                                    {servizio.stato === 'assegnato' && (
+                                      <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Completa Servizio
+                                      </DropdownMenuItem>
+                                    )}
+                                    
+                                    {servizio.stato === 'completato' && (
+                                      <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
+                                        <FileText className="h-4 w-4 mr-2" />
+                                        Consuntiva Servizio
+                                      </DropdownMenuItem>
+                                    )}
+                                    
+                                    {(servizio.stato === 'da_assegnare' || servizio.stato === 'assegnato') && (
+                                      <DropdownMenuItem 
+                                        onClick={() => navigate(`/servizi/${servizio.id}`)}
+                                        className="text-destructive focus:text-destructive"
+                                      >
+                                        <XCircle className="h-4 w-4 mr-2" />
+                                        Annulla Servizio
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))
