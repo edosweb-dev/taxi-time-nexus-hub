@@ -180,16 +180,6 @@ export function AziendaFormManager({
 
             {/* Form content in container */}
             <div className="container mx-auto max-w-2xl space-y-8">
-              <div className="space-y-4">
-                <HeaderContent />
-                <p className="text-muted-foreground">
-                  {isEditing 
-                    ? "Modifica i dettagli e le configurazioni dell'azienda esistente"
-                    : "Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema"
-                  }
-                </p>
-              </div>
-              
               {formContent}
             </div>
           </div>
