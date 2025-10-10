@@ -152,32 +152,36 @@ export function AssignmentPopup({
   const content = (
     <>
       {/* Main Content Area */}
-      <div className={`${isMobile ? 'px-4 pb-1' : 'px-5 pb-2'} space-y-4 animate-fade-in`}>
+      <div className="space-y-6 animate-fade-in">
         
         {/* Driver Type Selection - Tabs */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">Tipo di conducente</Label>
+        <div className="space-y-3">
+          <Label className="text-sm font-semibold">Tipo di conducente</Label>
           <Tabs value={tipoConducente} onValueChange={(v) => setTipoConducente(v as 'dipendente' | 'esterno')} className="w-full">
-            <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="dipendente">Dipendente</TabsTrigger>
-              <TabsTrigger value="esterno">Esterno</TabsTrigger>
+            <TabsList className={`w-full grid grid-cols-2 ${isMobile ? 'h-11' : 'h-10'}`}>
+              <TabsTrigger value="dipendente" className="text-sm">Dipendente</TabsTrigger>
+              <TabsTrigger value="esterno" className="text-sm">Esterno</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
         
         {/* Selection Area */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           {isConducenteEsterno ? (
-            <div className="space-y-2 animate-scale-in">
-              <Label htmlFor="conducente-ext" className="text-sm font-medium">Conducente Esterno</Label>
+            <div className="space-y-3 animate-scale-in">
+              <Label htmlFor="conducente-ext" className="text-sm font-semibold">
+                Conducente Esterno <span className="text-red-500">*</span>
+              </Label>
               <ConducenteEsternoSelect
                 selectedConducenteId={selectedConducenteEsternoId}
                 setSelectedConducenteId={setSelectedConducenteEsternoId}
               />
             </div>
           ) : (
-            <div className="space-y-2 animate-scale-in">
-              <Label htmlFor="dipendente" className="text-sm font-medium">Dipendente *</Label>
+            <div className="space-y-3 animate-scale-in">
+              <Label htmlFor="dipendente" className="text-sm font-semibold">
+                Dipendente <span className="text-red-500">*</span>
+              </Label>
               
               {/* Alert for no available users */}
               {!isLoading && availableUsers.length === 0 && (
@@ -199,13 +203,13 @@ export function AssignmentPopup({
               ) : (
                 <div>
                   <Select value={selectedDipendente} onValueChange={setSelectedDipendente}>
-                    <SelectTrigger id="dipendente" className={`w-full ${isMobile ? 'h-12' : 'h-10'} text-sm`}>
+                    <SelectTrigger id="dipendente" className={`w-full ${isMobile ? 'h-12' : 'h-11'} text-sm bg-background`}>
                       <SelectValue placeholder="Seleziona dipendente..." />
                     </SelectTrigger>
-                    <SelectContent className="max-h-64 w-full">{/* ... keep existing code (user items) ... */}
+                    <SelectContent className="max-h-64 w-full">
                       {/* Available users first */}
                       {availableUsers.map((user) => (
-                        <SelectItem key={user.id} value={user.id} className="py-1.5 hover:bg-accent/50 transition-colors">
+                        <SelectItem key={user.id} value={user.id} className={`${isMobile ? 'py-3' : 'py-2.5'} hover:bg-accent/50 transition-colors`}>
                           <div className="flex flex-col gap-0.5 w-full">
                             <span className="font-medium text-foreground text-sm leading-tight">
                               {user.first_name && user.last_name 
@@ -224,7 +228,7 @@ export function AssignmentPopup({
                       
                       {/* Unavailable users */}
                       {unavailableUsers.map((user) => (
-                        <SelectItem key={user.id} value={user.id} disabled className="py-1.5 opacity-50">
+                        <SelectItem key={user.id} value={user.id} disabled className={`${isMobile ? 'py-3' : 'py-2.5'} opacity-50`}>
                           <div className="flex flex-col gap-0.5 w-full">
                             <span className="font-medium text-muted-foreground text-sm leading-tight">
                               {user.first_name && user.last_name 
@@ -255,16 +259,18 @@ export function AssignmentPopup({
         </div>
         
         {/* Veicolo Selection (opzionale) */}
-        <div className="space-y-2">
-          <Label htmlFor="veicolo" className="text-sm font-medium">Veicolo (opzionale)</Label>
+        <div className="space-y-3">
+          <Label htmlFor="veicolo" className="text-sm font-semibold">
+            Veicolo <span className="text-muted-foreground text-xs font-normal">(opzionale)</span>
+          </Label>
           <Select value={selectedVeicolo || 'none'} onValueChange={(v) => setSelectedVeicolo(v === 'none' ? '' : v)}>
-            <SelectTrigger id="veicolo" className={`w-full ${isMobile ? 'h-12' : 'h-10'} text-sm`}>
+            <SelectTrigger id="veicolo" className={`w-full ${isMobile ? 'h-12' : 'h-11'} text-sm bg-background`}>
               <SelectValue placeholder="Seleziona veicolo..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Nessun veicolo</SelectItem>
+              <SelectItem value="none" className={isMobile ? 'py-3' : 'py-2.5'}>Nessun veicolo</SelectItem>
               {veicoliAttivi?.map((veicolo) => (
-                <SelectItem key={veicolo.id} value={veicolo.id}>
+                <SelectItem key={veicolo.id} value={veicolo.id} className={isMobile ? 'py-3' : 'py-2.5'}>
                   {veicolo.modello} - {veicolo.targa}
                 </SelectItem>
               ))}
@@ -276,20 +282,28 @@ export function AssignmentPopup({
         {!selectedDipendente && !isConducenteEsterno && (
           <Alert className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
             <AlertCircle className="h-4 w-4 text-yellow-600" />
-            <AlertDescription className="text-yellow-800 dark:text-yellow-200 text-sm">
+            <AlertDescription className="text-yellow-800 dark:text-yellow-200 text-sm ml-2">
               Seleziona un dipendente per continuare
+            </AlertDescription>
+          </Alert>
+        )}
+        {!selectedConducenteEsternoId && isConducenteEsterno && (
+          <Alert className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
+            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800 dark:text-yellow-200 text-sm ml-2">
+              Seleziona un conducente esterno per continuare
             </AlertDescription>
           </Alert>
         )}
       </div>
       
       {/* Action Footer - Fixed bottom */}
-      <div className={`sticky bottom-0 ${isMobile ? 'px-4 py-3' : 'px-5 py-4'} border-t bg-background/95 backdrop-blur-lg`}>
+      <div className={`sticky bottom-0 ${isMobile ? 'px-6 py-4' : 'px-6 py-4'} border-t bg-background`}>
         <div className="flex gap-3 max-w-full">
           <Button 
             variant="outline" 
             onClick={onClose} 
-            className={`flex-1 ${isMobile ? 'h-12' : 'h-10'} font-medium`}
+            className={`flex-1 ${isMobile ? 'h-12 text-base' : 'h-11'} font-medium`}
             disabled={isSubmitting}
           >
             Annulla
@@ -297,7 +311,7 @@ export function AssignmentPopup({
           <Button 
             onClick={handleAssign}
             disabled={isAssignDisabled}
-            className={`flex-1 ${isMobile ? 'h-12' : 'h-10'} font-semibold`}
+            className={`flex-1 ${isMobile ? 'h-12 text-base' : 'h-11'} font-semibold`}
           >
             {isSubmitting ? (
               <>
@@ -323,13 +337,13 @@ export function AssignmentPopup({
           side="bottom" 
           className="h-[85vh] flex flex-col p-0 rounded-t-2xl border-t"
         >
-          <SheetHeader className="px-4 pt-4 pb-3 border-b">
-            <SheetTitle className="text-lg font-semibold">Assegna Servizio</SheetTitle>
-            <SheetDescription className="text-sm text-muted-foreground">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b">
+            <SheetTitle className="text-xl font-semibold">Assegna Servizio</SheetTitle>
+            <SheetDescription className="text-sm text-muted-foreground mt-1">
               Seleziona conducente e veicolo
             </SheetDescription>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex-1 overflow-y-auto px-6 py-6">
             {content}
           </div>
         </SheetContent>
@@ -340,13 +354,13 @@ export function AssignmentPopup({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md p-0 gap-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="text-lg font-semibold">Assegna Servizio</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b space-y-2">
+          <DialogTitle className="text-xl font-semibold">Assegna Servizio</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Seleziona il conducente e opzionalmente un veicolo
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[70vh] overflow-y-auto py-4">
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-6">
           {content}
         </div>
       </DialogContent>
