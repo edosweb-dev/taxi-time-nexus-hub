@@ -251,14 +251,14 @@ export function MobileServizioSections({ servizio, passeggeri = [], formatCurren
         >
           <div className="space-y-3">
             {passeggeri.map((passeggero, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
-                <User className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div className="flex-1 space-y-1">
-                  <p className="font-medium text-sm">
+              <div key={index} className="flex items-start gap-3 p-4 rounded-lg border bg-card">
+                <User className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-1.5 min-w-0">
+                  <p className="font-semibold text-base text-foreground">
                     {passeggero.nome} {passeggero.cognome}
                   </p>
                   {passeggero.telefono && (
-                    <p className="text-xs text-muted-foreground">{passeggero.telefono}</p>
+                    <p className="text-sm text-muted-foreground">{passeggero.telefono}</p>
                   )}
                 </div>
               </div>
