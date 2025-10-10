@@ -15,8 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, MoreVertical, CheckCircle, XCircle, FileText, Eye, UserPlus } from "lucide-react";
+// DropdownMenu rimosso - sostituito con icone dirette con tooltip
+import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, CheckCircle, XCircle, FileText, Eye, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
@@ -751,59 +751,118 @@ export default function ServiziPage() {
                               )}
                             </TableCell>
 
-                            {/* Azioni in base allo stato */}
-                            <TableCell className="text-right w-auto" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex items-center justify-end gap-2">
-                                {/* Button Assegna Servizio - Solo per servizi da_assegnare e admin/socio */}
+                            {/* Azioni con icone e tooltip */}
+                            <TableCell className="text-right min-w-[120px]" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-end gap-1">
+                                
+                                {/* Assegna - Solo se da_assegnare e admin/socio */}
                                 {servizio.stato === 'da_assegnare' && isAdminOrSocio && (
-                                  <Button
-                                    size="sm"
-                                    variant="default"
-                                    onClick={(e) => handleAssignClick(e, servizio)}
-                                  >
-                                    <UserPlus className="h-4 w-4 mr-1" />
-                                    Assegna
-                                  </Button>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        className="h-8 w-8"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleAssignClick(e, servizio);
+                                        }}
+                                      >
+                                        <UserPlus className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Assegna Servizio</p>
+                                    </TooltipContent>
+                                  </Tooltip>
                                 )}
 
-                                {/* Dropdown Menu - Altre azioni */}
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm">
-                                      <MoreVertical className="h-4 w-4" />
+                                {/* Visualizza Dettagli - Sempre visibile */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="icon" 
+                                      variant="ghost" 
+                                      className="h-8 w-8"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/servizi/${servizio.id}`);
+                                      }}
+                                    >
+                                      <Eye className="h-4 w-4" />
                                     </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
-                                      <Eye className="h-4 w-4 mr-2" />
-                                      Visualizza Dettagli
-                                    </DropdownMenuItem>
-                                    
-                                    {servizio.stato === 'assegnato' && (
-                                      <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
-                                        <CheckCircle className="h-4 w-4 mr-2" />
-                                        Completa Servizio
-                                      </DropdownMenuItem>
-                                    )}
-                                    
-                                    {servizio.stato === 'completato' && (
-                                      <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}`)}>
-                                        <FileText className="h-4 w-4 mr-2" />
-                                        Consuntiva Servizio
-                                      </DropdownMenuItem>
-                                    )}
-                                    
-                                    {(servizio.stato === 'da_assegnare' || servizio.stato === 'assegnato') && (
-                                      <DropdownMenuItem 
-                                        onClick={() => navigate(`/servizi/${servizio.id}`)}
-                                        className="text-destructive focus:text-destructive"
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Visualizza Dettagli</p>
+                                  </TooltipContent>
+                                </Tooltip>
+
+                                {/* Completa - Solo se assegnato */}
+                                {servizio.stato === 'assegnato' && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        className="h-8 w-8"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(`/servizi/${servizio.id}`);
+                                        }}
                                       >
-                                        <XCircle className="h-4 w-4 mr-2" />
-                                        Annulla Servizio
-                                      </DropdownMenuItem>
-                                    )}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Completa Servizio</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+
+                                {/* Consuntiva - Solo se completato */}
+                                {servizio.stato === 'completato' && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        className="h-8 w-8"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(`/servizi/${servizio.id}`);
+                                        }}
+                                      >
+                                        <FileText className="h-4 w-4 text-blue-600" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Consuntiva Servizio</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+
+                                {/* Annulla - Se da_assegnare o assegnato */}
+                                {(servizio.stato === 'da_assegnare' || servizio.stato === 'assegnato') && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        className="h-8 w-8"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(`/servizi/${servizio.id}`);
+                                        }}
+                                      >
+                                        <XCircle className="h-4 w-4 text-red-600" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Annulla Servizio</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+
                               </div>
                             </TableCell>
                           </TableRow>
