@@ -20,47 +20,63 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
   const { form, profile } = useServizioForm();
   const { updateServizio, isUpdatingServizio } = useServizi();
 
+  // Loading state - aspetta che i dati siano disponibili
+  if (!servizio || !passeggeri) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   // Precompila il form con i dati esistenti - usa servizio.id come dependency per resettare solo quando cambia servizio
   useEffect(() => {
-    if (servizio && passeggeri) {
-      console.log('[EditServizioForm] Dati servizio ricevuti:', servizio);
-      console.log('[EditServizioForm] Passeggeri ricevuti:', passeggeri);
-      
+    console.log('[EditServizioForm] useEffect triggered');
+    console.log('[EditServizioForm] servizio:', servizio);
+    console.log('[EditServizioForm] passeggeri:', passeggeri);
+    console.log('[EditServizioForm] form.formState.isDirty:', form.formState.isDirty);
+    console.log('[EditServizioForm] current form values:', form.getValues());
+    
+    if (servizio && passeggeri && passeggeri.length >= 0) {
       const formData = {
-        azienda_id: servizio.azienda_id || "",
-        referente_id: servizio.referente_id || "",
-        numero_commessa: servizio.numero_commessa || "",
-        data_servizio: servizio.data_servizio || new Date().toISOString().split("T")[0],
-        orario_servizio: servizio.orario_servizio || "",
-        indirizzo_presa: servizio.indirizzo_presa || "",
-        indirizzo_destinazione: servizio.indirizzo_destinazione || "",
-        citta_presa: servizio.citta_presa || "",
-        citta_destinazione: servizio.citta_destinazione || "",
-        metodo_pagamento: servizio.metodo_pagamento || "",
-        note: servizio.note || "",
-        veicolo_id: servizio.veicolo_id || "",
-        ore_effettive: servizio.ore_effettive || 0,
-        ore_fatturate: servizio.ore_fatturate || 0,
-        applica_provvigione: servizio.applica_provvigione || false,
+        azienda_id: servizio.azienda_id ?? "",
+        referente_id: servizio.referente_id ?? "",
+        numero_commessa: servizio.numero_commessa ?? "",
+        data_servizio: servizio.data_servizio ?? new Date().toISOString().split("T")[0],
+        orario_servizio: servizio.orario_servizio ?? "",
+        indirizzo_presa: servizio.indirizzo_presa ?? "",
+        indirizzo_destinazione: servizio.indirizzo_destinazione ?? "",
+        citta_presa: servizio.citta_presa ?? "",
+        citta_destinazione: servizio.citta_destinazione ?? "",
+        metodo_pagamento: servizio.metodo_pagamento ?? "",
+        note: servizio.note ?? "",
+        veicolo_id: servizio.veicolo_id ?? "",
+        ore_effettive: servizio.ore_effettive ?? 0,
+        ore_fatturate: servizio.ore_fatturate ?? 0,
+        applica_provvigione: servizio.applica_provvigione ?? false,
         email_notifiche: [],
         passeggeri: passeggeri.map(p => ({
           id: p.id,
           passeggero_id: p.passeggero_id,
           nome_cognome: p.nome_cognome,
-          email: p.email || "",
-          telefono: p.telefono || "",
-          orario_presa_personalizzato: p.orario_presa_personalizzato || "",
-          luogo_presa_personalizzato: p.luogo_presa_personalizzato || "",
-          destinazione_personalizzato: p.destinazione_personalizzato || "",
-          usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato || false,
+          email: p.email ?? "",
+          telefono: p.telefono ?? "",
+          orario_presa_personalizzato: p.orario_presa_personalizzato ?? "",
+          luogo_presa_personalizzato: p.luogo_presa_personalizzato ?? "",
+          destinazione_personalizzato: p.destinazione_personalizzato ?? "",
+          usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato ?? false,
         }))
       };
       
-      console.log('[EditServizioForm] Dati form da impostare:', formData);
+      console.log('[EditServizioForm] Calling form.reset with:', formData);
       form.reset(formData);
-      console.log('[EditServizioForm] Form resettato con successo');
+      
+      // Verifica dopo reset
+      setTimeout(() => {
+        console.log('[EditServizioForm] Form values after reset:', form.getValues());
+      }, 100);
     }
-  }, [servizio?.id, passeggeri]);
+  }, [servizio?.id]);
 
   const onSubmit = async (values: any) => {
     try {
@@ -103,7 +119,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
   };
 
   return (
-    <FormProvider {...form}>
+    <FormProvider {...form} key={servizio.id}>
       <div className="relative min-h-full">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24">
           {/* Step 1: Service Details */}

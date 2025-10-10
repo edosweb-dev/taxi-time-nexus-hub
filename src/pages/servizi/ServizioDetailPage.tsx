@@ -65,15 +65,6 @@ export default function ServizioDetailPage() {
      profile?.role === 'socio' || 
      servizio?.assegnato_a === profile?.id);
   
-  // Can modify only if not signed yet and not completed/consuntivated
-  const canModify = 
-    !servizio?.firma_url && 
-    servizio?.stato !== 'completato' && 
-    servizio?.stato !== 'consuntivato' &&
-    (profile?.role === 'admin' || 
-     profile?.role === 'socio' || 
-     servizio?.created_by === profile?.id);
-  
   if (isLoading) {
     return <ServizioLoading />;
   }
@@ -110,7 +101,7 @@ export default function ServizioDetailPage() {
   };
 
   // Check if there are any actions available for mobile menu
-  const hasMobileActions = canModify || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
+  const hasMobileActions = canBeEdited || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
 
   // Mobile-first layout
   if (isMobile) {
@@ -128,8 +119,8 @@ export default function ServizioDetailPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {/* Modifica - Solo se non firmato e non completato */}
-                {canModify && (
+                {/* Modifica */}
+                {canBeEdited && (
                   <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}/edit`)}>
                     <Edit className="h-4 w-4 mr-2" />
                     Modifica Servizio
