@@ -16,26 +16,25 @@ export default function CalendarioTurniPage() {
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   useEffect(() => {
-    // Nessun padding per mobile
-    setPaddingMode('full-width');
-    
-    // Ripristina padding default quando si smonta
-    return () => {
-      setPaddingMode('default');
-    };
-  }, [setPaddingMode]);
+    if (isMobile) {
+      setPaddingMode('full-width');
+    }
+    return () => setPaddingMode('default');
+  }, [isMobile, setPaddingMode]);
 
   return (
     <MainLayout>
-      <ShiftProvider>
-        {isMobile ? (
-          <MobileCalendarioView isAdminOrSocio={isAdminOrSocio} />
-        ) : (
-          <>
-            <CalendarioTurniContent isAdminOrSocio={isAdminOrSocio} />
-          </>
-        )}
-      </ShiftProvider>
+      <div className="w-full px-0 md:px-4">
+        <ShiftProvider>
+          {isMobile ? (
+            <MobileCalendarioView isAdminOrSocio={isAdminOrSocio} />
+          ) : (
+            <>
+              <CalendarioTurniContent isAdminOrSocio={isAdminOrSocio} />
+            </>
+          )}
+        </ShiftProvider>
+      </div>
     </MainLayout>
   );
 }
