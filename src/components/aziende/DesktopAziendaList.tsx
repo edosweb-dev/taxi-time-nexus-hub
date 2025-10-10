@@ -28,7 +28,7 @@ export function DesktopAziendaList({
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   
   const itemsPerPage = 9; // 3x3 grid for desktop
   
