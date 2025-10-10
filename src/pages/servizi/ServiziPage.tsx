@@ -5,6 +5,7 @@ import { useServiziWithPasseggeri, ServizioWithPasseggeri } from "@/hooks/useSer
 import { useAziende } from "@/hooks/useAziende";
 import { useUsers } from "@/hooks/useUsers";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,20 +20,27 @@ import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, MoreVertical, C
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
+import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 
 export default function ServiziPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { profile } = useAuth();
   
   // REF per container tabs
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   
-  const { data: servizi = [], isLoading, error } = useServiziWithPasseggeri();
+  const { data: servizi = [], isLoading, error, refetch } = useServiziWithPasseggeri();
   const { aziende = [] } = useAziende();
   const { users = [] } = useUsers();
   
   const [activeTab, setActiveTab] = useState<string>("bozza");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
+  const [showAssignmentPopup, setShowAssignmentPopup] = useState(false);
+  
+  // Check if user is admin or socio
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   // FORCE SCROLL LEFT = 0 su mount
   useEffect(() => {
@@ -103,6 +111,12 @@ export default function ServiziPage() {
       consuntivato: 'Consuntivato'
     };
     return labels[stato] || stato;
+  };
+
+  const handleAssignClick = (e: React.MouseEvent, servizio: ServizioWithPasseggeri) => {
+    e.stopPropagation();
+    setSelectedServizio(servizio as Servizio);
+    setShowAssignmentPopup(true);
   };
 
   const renderMobileCard = (servizio: ServizioWithPasseggeri) => (
@@ -194,6 +208,21 @@ export default function ServiziPage() {
           </span>
         )}
       </div>
+
+      {/* Button Assegna per servizi da_assegnare (solo admin/socio) */}
+      {servizio.stato === 'da_assegnare' && isAdminOrSocio && (
+        <div className="mt-3 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={(e) => handleAssignClick(e, servizio)}
+            className="w-full"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Assegna Servizio
+          </Button>
+        </div>
+      )}
     </Card>
   );
 
@@ -784,6 +813,20 @@ export default function ServiziPage() {
         </div>
 
       </div>
+
+      {/* Assignment Popup */}
+      {selectedServizio && (
+        <AssignmentPopup
+          open={showAssignmentPopup}
+          onOpenChange={setShowAssignmentPopup}
+          onClose={() => {
+            setShowAssignmentPopup(false);
+            setSelectedServizio(null);
+            refetch();
+          }}
+          servizio={selectedServizio}
+        />
+      )}
     </MainLayout>
   );
 }
