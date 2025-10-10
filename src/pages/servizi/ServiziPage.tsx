@@ -251,15 +251,40 @@ export default function ServiziPage() {
                 {/* Tab: Bozze */}
                 <TabsTrigger 
                   value="bozza"
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium data-[state=inactive]:bg-muted/60 data-[state=inactive]:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-3 sm:py-2 sm:rounded-md sm:bg-transparent sm:data-[state=inactive]:bg-transparent sm:data-[state=inactive]:text-muted-foreground sm:data-[state=active]:bg-transparent sm:data-[state=active]:text-foreground sm:data-[state=active]:border-b-2 sm:data-[state=active]:border-primary sm:rounded-none transition-all duration-200"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-3
+                    sm:text-base
+                    sm:font-semibold
+                    sm:rounded-none
+                    sm:bg-transparent
+                    sm:border-b-2
+                    sm:border-transparent
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:border-transparent
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:border-muted
+                    sm:data-[state=inactive]:hover:bg-muted/10
+                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:text-primary
+                    sm:data-[state=active]:border-primary
+                    sm:data-[state=active]:font-bold
+                    transition-all duration-200 ease-in-out
+                  "
                 >
                   <span className="whitespace-nowrap">Bozze</span>
                   {statusCounts.bozza > 0 && (
                     <Badge 
                       className={
                         activeTab === 'bozza'
-                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:bg-gray-400 sm:text-white"
-                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-gray-400 text-white"
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-gray-400 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-gray-400 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
                       }
                     >
                       {statusCounts.bozza}
@@ -270,15 +295,40 @@ export default function ServiziPage() {
                 {/* Tab: Da Assegnare */}
                 <TabsTrigger 
                   value="da_assegnare"
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium data-[state=inactive]:bg-muted/60 data-[state=inactive]:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-3 sm:py-2 sm:rounded-md sm:bg-transparent sm:data-[state=inactive]:bg-transparent sm:data-[state=inactive]:text-muted-foreground sm:data-[state=active]:bg-transparent sm:data-[state=active]:text-foreground sm:data-[state=active]:border-b-2 sm:data-[state=active]:border-primary sm:rounded-none transition-all duration-200"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-3
+                    sm:text-base
+                    sm:font-semibold
+                    sm:rounded-none
+                    sm:bg-transparent
+                    sm:border-b-2
+                    sm:border-transparent
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:border-transparent
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:border-muted
+                    sm:data-[state=inactive]:hover:bg-muted/10
+                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:text-primary
+                    sm:data-[state=active]:border-primary
+                    sm:data-[state=active]:font-bold
+                    transition-all duration-200 ease-in-out
+                  "
                 >
                   <span className="whitespace-nowrap">Da Assegnare</span>
                   {statusCounts.da_assegnare > 0 && (
                     <Badge 
                       className={
                         activeTab === 'da_assegnare'
-                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:bg-yellow-500 sm:text-white"
-                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-yellow-500 text-white"
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-yellow-500 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-yellow-500 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
                       }
                     >
                       {statusCounts.da_assegnare}
@@ -289,15 +339,40 @@ export default function ServiziPage() {
                 {/* Tab: Assegnati */}
                 <TabsTrigger 
                   value="assegnato"
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium data-[state=inactive]:bg-muted/60 data-[state=inactive]:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-3 sm:py-2 sm:rounded-md sm:bg-transparent sm:data-[state=inactive]:bg-transparent sm:data-[state=inactive]:text-muted-foreground sm:data-[state=active]:bg-transparent sm:data-[state=active]:text-foreground sm:data-[state=active]:border-b-2 sm:data-[state=active]:border-primary sm:rounded-none transition-all duration-200"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-3
+                    sm:text-base
+                    sm:font-semibold
+                    sm:rounded-none
+                    sm:bg-transparent
+                    sm:border-b-2
+                    sm:border-transparent
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:border-transparent
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:border-muted
+                    sm:data-[state=inactive]:hover:bg-muted/10
+                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:text-primary
+                    sm:data-[state=active]:border-primary
+                    sm:data-[state=active]:font-bold
+                    transition-all duration-200 ease-in-out
+                  "
                 >
                   <span className="whitespace-nowrap">Assegnati</span>
                   {statusCounts.assegnato > 0 && (
                     <Badge 
                       className={
                         activeTab === 'assegnato'
-                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:bg-blue-500 sm:text-white"
-                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-blue-500 text-white"
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-blue-500 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-blue-500 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
                       }
                     >
                       {statusCounts.assegnato}
@@ -308,15 +383,40 @@ export default function ServiziPage() {
                 {/* Tab: Non Accettati */}
                 <TabsTrigger 
                   value="non_accettato"
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium data-[state=inactive]:bg-muted/60 data-[state=inactive]:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-3 sm:py-2 sm:rounded-md sm:bg-transparent sm:data-[state=inactive]:bg-transparent sm:data-[state=inactive]:text-muted-foreground sm:data-[state=active]:bg-transparent sm:data-[state=active]:text-foreground sm:data-[state=active]:border-b-2 sm:data-[state=active]:border-primary sm:rounded-none transition-all duration-200"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-3
+                    sm:text-base
+                    sm:font-semibold
+                    sm:rounded-none
+                    sm:bg-transparent
+                    sm:border-b-2
+                    sm:border-transparent
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:border-transparent
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:border-muted
+                    sm:data-[state=inactive]:hover:bg-muted/10
+                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:text-primary
+                    sm:data-[state=active]:border-primary
+                    sm:data-[state=active]:font-bold
+                    transition-all duration-200 ease-in-out
+                  "
                 >
                   <span className="whitespace-nowrap">Non Accettati</span>
                   {statusCounts.non_accettato > 0 && (
                     <Badge 
                       className={
                         activeTab === 'non_accettato'
-                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:bg-orange-500 sm:text-white"
-                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-orange-500 text-white"
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-orange-500 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-orange-500 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
                       }
                     >
                       {statusCounts.non_accettato}
@@ -327,15 +427,40 @@ export default function ServiziPage() {
                 {/* Tab: Completati */}
                 <TabsTrigger 
                   value="completato"
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium data-[state=inactive]:bg-muted/60 data-[state=inactive]:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-3 sm:py-2 sm:rounded-md sm:bg-transparent sm:data-[state=inactive]:bg-transparent sm:data-[state=inactive]:text-muted-foreground sm:data-[state=active]:bg-transparent sm:data-[state=active]:text-foreground sm:data-[state=active]:border-b-2 sm:data-[state=active]:border-primary sm:rounded-none transition-all duration-200"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-3
+                    sm:text-base
+                    sm:font-semibold
+                    sm:rounded-none
+                    sm:bg-transparent
+                    sm:border-b-2
+                    sm:border-transparent
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:border-transparent
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:border-muted
+                    sm:data-[state=inactive]:hover:bg-muted/10
+                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:text-primary
+                    sm:data-[state=active]:border-primary
+                    sm:data-[state=active]:font-bold
+                    transition-all duration-200 ease-in-out
+                  "
                 >
                   <span className="whitespace-nowrap">Completati</span>
                   {statusCounts.completato > 0 && (
                     <Badge 
                       className={
                         activeTab === 'completato'
-                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:bg-green-500 sm:text-white"
-                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-green-500 text-white"
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-green-500 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-green-500 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
                       }
                     >
                       {statusCounts.completato}
@@ -346,15 +471,40 @@ export default function ServiziPage() {
                 {/* Tab: Annullati */}
                 <TabsTrigger 
                   value="annullato"
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium data-[state=inactive]:bg-muted/60 data-[state=inactive]:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-3 sm:py-2 sm:rounded-md sm:bg-transparent sm:data-[state=inactive]:bg-transparent sm:data-[state=inactive]:text-muted-foreground sm:data-[state=active]:bg-transparent sm:data-[state=active]:text-foreground sm:data-[state=active]:border-b-2 sm:data-[state=active]:border-primary sm:rounded-none transition-all duration-200"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-3
+                    sm:text-base
+                    sm:font-semibold
+                    sm:rounded-none
+                    sm:bg-transparent
+                    sm:border-b-2
+                    sm:border-transparent
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:border-transparent
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:border-muted
+                    sm:data-[state=inactive]:hover:bg-muted/10
+                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:text-primary
+                    sm:data-[state=active]:border-primary
+                    sm:data-[state=active]:font-bold
+                    transition-all duration-200 ease-in-out
+                  "
                 >
                   <span className="whitespace-nowrap">Annullati</span>
                   {statusCounts.annullato > 0 && (
                     <Badge 
                       className={
                         activeTab === 'annullato'
-                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:bg-red-500 sm:text-white"
-                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-red-500 text-white"
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-red-500 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-red-500 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
                       }
                     >
                       {statusCounts.annullato}
@@ -365,15 +515,40 @@ export default function ServiziPage() {
                 {/* Tab: Consuntivati */}
                 <TabsTrigger 
                   value="consuntivato"
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium data-[state=inactive]:bg-muted/60 data-[state=inactive]:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-3 sm:py-2 sm:rounded-md sm:bg-transparent sm:data-[state=inactive]:bg-transparent sm:data-[state=inactive]:text-muted-foreground sm:data-[state=active]:bg-transparent sm:data-[state=active]:text-foreground sm:data-[state=active]:border-b-2 sm:data-[state=active]:border-primary sm:rounded-none transition-all duration-200"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-3
+                    sm:text-base
+                    sm:font-semibold
+                    sm:rounded-none
+                    sm:bg-transparent
+                    sm:border-b-2
+                    sm:border-transparent
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:border-transparent
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:border-muted
+                    sm:data-[state=inactive]:hover:bg-muted/10
+                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:text-primary
+                    sm:data-[state=active]:border-primary
+                    sm:data-[state=active]:font-bold
+                    transition-all duration-200 ease-in-out
+                  "
                 >
                   <span className="whitespace-nowrap">Consuntivati</span>
                   {statusCounts.consuntivato > 0 && (
                     <Badge 
                       className={
                         activeTab === 'consuntivato'
-                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:bg-purple-500 sm:text-white"
-                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-purple-500 text-white"
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-purple-500 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-purple-500 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
                       }
                     >
                       {statusCounts.consuntivato}
