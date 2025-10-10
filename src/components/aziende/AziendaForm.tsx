@@ -114,7 +114,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
       <Form {...form}>
         <div className="space-y-6">
           {/* Main Information Card */}
-          <Card className="border-l-4 border-l-primary shadow-sm">
+          <Card className="shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold flex items-center gap-3">
                 <Building2 className="h-6 w-6 text-primary" />
@@ -127,7 +127,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
           </Card>
           
           {/* Contact Information Card */}
-          <Card className="border-l-4 border-l-blue-500 shadow-sm">
+          <Card className="shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold flex items-center gap-3">
                 <Phone className="h-6 w-6 text-blue-500" />
@@ -140,7 +140,7 @@ export function AziendaForm({ azienda, onSubmit, onCancel, isSubmitting }: Azien
           </Card>
           
           {/* Settings Card */}
-          <Card className="border-l-4 border-l-amber-500 shadow-sm">
+          <Card className="shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold flex items-center gap-3">
                 <Settings className="h-6 w-6 text-amber-500" />
