@@ -73,8 +73,8 @@ export function MobileCalendarioGrid({
   }
 
   return (
-    <Card className="mobile-calendario-grid">
-      <CardContent className="p-4">
+    <Card className="mobile-calendario-grid mx-0">
+      <CardContent className="p-0">
         {/* Header giorni settimana */}
         <div className="weekdays-header">
           {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map((day) => (
