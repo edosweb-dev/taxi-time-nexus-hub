@@ -1,8 +1,6 @@
-import { useState, useMemo } from 'react';
 import { Azienda } from '@/lib/types';
 import { useAllReferenti } from '@/hooks/useReferenti';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -18,8 +16,7 @@ import {
   Trash2, 
   Eye,
   FileText,
-  CreditCard,
-  Search
+  CreditCard
 } from 'lucide-react';
 
 interface AziendaTableViewProps {
@@ -30,33 +27,10 @@ interface AziendaTableViewProps {
 }
 
 export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaTableViewProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const { data: referentiByAzienda = {} } = useAllReferenti();
-
-  const filteredAziende = useMemo(() => {
-    if (!searchTerm) return aziende;
-    
-    return aziende.filter((azienda) =>
-      azienda.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      azienda.partita_iva.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (azienda.email && azienda.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (azienda.telefono && azienda.telefono.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (azienda.citta && azienda.citta.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [aziende, searchTerm]);
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Cerca per nome, P.IVA, email, telefono o città..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
@@ -75,27 +49,24 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredAziende.length === 0 ? (
+            {aziende.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <Building2 className="h-8 w-8 text-muted-foreground" />
                     <div className="space-y-1">
                       <p className="text-sm font-medium">
-                        {searchTerm ? 'Nessun risultato trovato' : 'Nessuna azienda presente'}
+                        Nessuna azienda presente
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {searchTerm 
-                          ? `La ricerca "${searchTerm}" non ha prodotto risultati.`
-                          : 'Aggiungi la prima azienda per iniziare.'
-                        }
+                        Aggiungi la prima azienda per iniziare.
                       </p>
                     </div>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              filteredAziende.map((azienda) => {
+              aziende.map((azienda) => {
                 const referentiCount = referentiByAzienda[azienda.id]?.length || 0;
                 
                 return (
@@ -306,23 +277,6 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
           </TableBody>
         </Table>
       </div>
-      
-      {/* Results count */}
-      {filteredAziende.length > 0 && (
-        <div className="text-sm text-muted-foreground text-center">
-          Mostrati {filteredAziende.length} di {aziende.length} aziende
-          {searchTerm && (
-            <Button
-              variant="link"
-              size="sm"
-              onClick={() => setSearchTerm('')}
-              className="ml-2 h-auto p-0 text-xs"
-            >
-              Cancella ricerca
-            </Button>
-          )}
-        </div>
-      )}
     </div>
   );
 }
