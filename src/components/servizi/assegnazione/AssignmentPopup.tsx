@@ -257,12 +257,12 @@ export function AssignmentPopup({
         {/* Veicolo Selection (opzionale) */}
         <div className="space-y-2">
           <Label htmlFor="veicolo" className="text-sm font-medium">Veicolo (opzionale)</Label>
-          <Select value={selectedVeicolo} onValueChange={setSelectedVeicolo}>
+          <Select value={selectedVeicolo || 'none'} onValueChange={(v) => setSelectedVeicolo(v === 'none' ? '' : v)}>
             <SelectTrigger id="veicolo" className={`w-full ${isMobile ? 'h-12' : 'h-10'} text-sm`}>
               <SelectValue placeholder="Seleziona veicolo..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Nessun veicolo</SelectItem>
+              <SelectItem value="none">Nessun veicolo</SelectItem>
               {veicoliAttivi?.map((veicolo) => (
                 <SelectItem key={veicolo.id} value={veicolo.id}>
                   {veicolo.modello} - {veicolo.targa}
