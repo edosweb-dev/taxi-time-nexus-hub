@@ -255,7 +255,7 @@ export default function ServiziPage() {
                   WebkitOverflowScrolling: 'touch'
                 }}
               >
-                <TabsList className="inline-flex flex-nowrap w-max min-w-full gap-2 sm:gap-4 p-0 bg-transparent justify-start sm:border-b sm:border-border">
+                <TabsList className="inline-flex flex-nowrap w-max min-w-full gap-2 sm:gap-4 p-0 bg-transparent justify-start">
                 
                 {/* Tab: Bozze */}
                 <TabsTrigger 
@@ -270,19 +270,16 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-t-md
-                    sm:border-b-2
+                    sm:rounded-md
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
-                    sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
-                    sm:data-[state=inactive]:hover:bg-background/80
-                    sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=active]:bg-background
-                    sm:data-[state=active]:text-primary
-                    sm:data-[state=active]:border-primary
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
                     sm:data-[state=active]:font-bold
-                    sm:data-[state=active]:shadow-sm
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -313,19 +310,16 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-t-md
-                    sm:border-b-2
+                    sm:rounded-md
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
-                    sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
-                    sm:data-[state=inactive]:hover:bg-background/80
-                    sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=active]:bg-background
-                    sm:data-[state=active]:text-primary
-                    sm:data-[state=active]:border-primary
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
                     sm:data-[state=active]:font-bold
-                    sm:data-[state=active]:shadow-sm
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -356,19 +350,16 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-t-md
-                    sm:border-b-2
+                    sm:rounded-md
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
-                    sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
-                    sm:data-[state=inactive]:hover:bg-background/80
-                    sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=active]:bg-background
-                    sm:data-[state=active]:text-primary
-                    sm:data-[state=active]:border-primary
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
                     sm:data-[state=active]:font-bold
-                    sm:data-[state=active]:shadow-sm
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -399,19 +390,16 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-t-md
-                    sm:border-b-2
+                    sm:rounded-md
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
-                    sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
-                    sm:data-[state=inactive]:hover:bg-background/80
-                    sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=active]:bg-background
-                    sm:data-[state=active]:text-primary
-                    sm:data-[state=active]:border-primary
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
                     sm:data-[state=active]:font-bold
-                    sm:data-[state=active]:shadow-sm
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -442,19 +430,16 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-t-md
-                    sm:border-b-2
+                    sm:rounded-md
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
-                    sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
-                    sm:data-[state=inactive]:hover:bg-background/80
-                    sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=active]:bg-background
-                    sm:data-[state=active]:text-primary
-                    sm:data-[state=active]:border-primary
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
                     sm:data-[state=active]:font-bold
-                    sm:data-[state=active]:shadow-sm
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -485,19 +470,16 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-t-md
-                    sm:border-b-2
+                    sm:rounded-md
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
-                    sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
-                    sm:data-[state=inactive]:hover:bg-background/80
-                    sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=active]:bg-background
-                    sm:data-[state=active]:text-primary
-                    sm:data-[state=active]:border-primary
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
                     sm:data-[state=active]:font-bold
-                    sm:data-[state=active]:shadow-sm
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -528,19 +510,16 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-t-md
-                    sm:border-b-2
+                    sm:rounded-md
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
-                    sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
-                    sm:data-[state=inactive]:hover:bg-background/80
-                    sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=active]:bg-background
-                    sm:data-[state=active]:text-primary
-                    sm:data-[state=active]:border-primary
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
                     sm:data-[state=active]:font-bold
-                    sm:data-[state=active]:shadow-sm
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
                     transition-all duration-200 ease-in-out
                   "
                 >
