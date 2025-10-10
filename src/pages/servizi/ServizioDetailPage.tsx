@@ -121,7 +121,7 @@ export default function ServizioDetailPage() {
               <DropdownMenuContent align="end">
                 {/* Modifica */}
                 {canBeEdited && (
-                  <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}/edit`)}>
+                  <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}/modifica`)}>
                     <Edit className="h-4 w-4 mr-2" />
                     Modifica Servizio
                   </DropdownMenuItem>

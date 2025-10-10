@@ -22,13 +22,50 @@ const STEPS = [
   { id: 3, title: "Passeggeri", description: "Gestione passeggeri" },
 ];
 
-export function NuovoServizioForm() {
+interface NuovoServizioFormProps {
+  mode?: 'create' | 'edit';
+  servizioId?: string;
+  initialData?: any;
+  onSuccess?: () => void;
+}
+
+export function NuovoServizioForm({
+  mode = 'create',
+  servizioId,
+  initialData,
+  onSuccess,
+}: NuovoServizioFormProps = {}) {
   const navigate = useNavigate();
   const { form, profile } = useServizioForm();
-  const { createServizio, isCreating } = useServizi();
+  const { createServizio, updateServizio, isCreating, isUpdatingServizio } = useServizi();
   const [currentStep, setCurrentStep] = useState(0);
   const keyboardVisible = useKeyboardVisible();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  // Pre-popola form se in edit mode
+  useEffect(() => {
+    if (initialData && mode === 'edit') {
+      form.reset({
+        azienda_id: initialData.azienda_id,
+        referente_id: initialData.referente_id,
+        numero_commessa: initialData.numero_commessa,
+        data_servizio: initialData.data_servizio,
+        orario_servizio: initialData.orario_servizio,
+        indirizzo_presa: initialData.indirizzo_presa,
+        indirizzo_destinazione: initialData.indirizzo_destinazione,
+        citta_presa: initialData.citta_presa,
+        citta_destinazione: initialData.citta_destinazione,
+        metodo_pagamento: initialData.metodo_pagamento,
+        note: initialData.note,
+        veicolo_id: initialData.veicolo_id,
+        ore_effettive: initialData.ore_effettive,
+        ore_fatturate: initialData.ore_fatturate,
+        applica_provvigione: initialData.applica_provvigione,
+        email_notifiche: initialData.email_notifiche || [],
+        passeggeri: initialData.passeggeri || [],
+      });
+    }
+  }, [initialData, mode, form]);
 
   // Force width dopo render
   useEffect(() => {
@@ -110,11 +147,9 @@ export function NuovoServizioForm() {
         return;
       }
 
-      // Se è un cliente, assicuriamoci che referente_id sia impostato
-      // Se non c'è referente_id, il passeggero sarà collegato solo all'azienda
       const referente_id = values.referente_id || (profile.role === 'cliente' ? profile.id : null);
 
-      await createServizio({
+      const payload = {
         servizio: {
           azienda_id: values.azienda_id,
           referente_id,
@@ -139,13 +174,24 @@ export function NuovoServizioForm() {
           luogo_presa_personalizzato: p.usa_indirizzo_personalizzato ? p.luogo_presa_personalizzato || values.indirizzo_presa : null,
           destinazione_personalizzato: p.usa_indirizzo_personalizzato ? p.destinazione_personalizzato || values.indirizzo_destinazione : null
         })),
-      });
+      };
 
-      toast.success("Servizio creato con successo!");
-      navigate("/servizi");
+      if (mode === 'edit' && servizioId) {
+        await updateServizio({ servizio: { ...payload.servizio, id: servizioId }, passeggeri: payload.passeggeri });
+        toast.success("Servizio aggiornato con successo!");
+      } else {
+        await createServizio(payload);
+        toast.success("Servizio creato con successo!");
+      }
+
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate("/servizi");
+      }
     } catch (error: any) {
       console.error("Error submitting form:", error);
-      toast.error("Errore durante la creazione del servizio");
+      toast.error(mode === 'edit' ? "Errore durante l'aggiornamento del servizio" : "Errore durante la creazione del servizio");
     }
   };
 
@@ -178,7 +224,7 @@ export function NuovoServizioForm() {
           )}>
             <div className="flex items-center gap-3">
               <h1 className="text-base font-medium text-muted-foreground">
-                {STEPS[currentStep].title}
+                {mode === 'edit' ? 'Modifica Servizio' : 'Nuovo Servizio'} - {STEPS[currentStep].title}
               </h1>
               <span className="text-xs text-muted-foreground">
                 (Step {currentStep + 1}/{STEPS.length})
@@ -265,18 +311,18 @@ export function NuovoServizioForm() {
                   <Button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={isCreating || !canGoNext()}
+                    disabled={(isCreating || isUpdatingServizio) || !canGoNext()}
                     size="lg"
                     className="h-12 px-8 text-base font-medium min-w-[180px]"
                   >
-                    {isCreating ? (
+                    {(isCreating || isUpdatingServizio) ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Salvataggio...
+                        {mode === 'edit' ? 'Aggiornamento...' : 'Salvataggio...'}
                       </>
                     ) : (
                       <>
-                        Salva Servizio
+                        {mode === 'edit' ? 'Aggiorna Servizio' : 'Salva Servizio'}
                         <CheckCircle2 className="ml-2 h-5 w-5" />
                       </>
                     )}

@@ -18,6 +18,7 @@ const ServizioCreaPage = lazy(() => import('./pages/servizi/ServizioCreaPage').t
 const NuovoServizioPage = lazy(() => import('./pages/servizi/NuovoServizioPage'));
 const ServizioDetailPage = lazy(() => import('./pages/servizi/ServizioDetailPage'));
 const EditServizioPage = lazy(() => import('./pages/servizi/EditServizioPage'));
+const ModificaServizioPage = lazy(() => import('./pages/servizi/ModificaServizioPage'));
 const UsersPage = lazy(() => import('./pages/UsersPage'));
 const UserDetailPage = lazy(() => import('./pages/UserDetailPage'));
 const VeicoliPage = lazy(() => import('./pages/veicoli/VeicoliPage'));
@@ -105,6 +106,11 @@ function App() {
                 <Route path="/servizi/crea" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ServizioCreaPage />
+                  </AuthGuard>
+                } />
+                <Route path="/servizi/:id/modifica" element={
+                  <AuthGuard allowedRoles={['admin', 'socio', 'cliente']}>
+                    <ModificaServizioPage />
                   </AuthGuard>
                 } />
                 <Route path="/servizi/:id" element={

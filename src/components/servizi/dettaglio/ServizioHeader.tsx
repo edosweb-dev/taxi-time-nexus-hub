@@ -101,7 +101,7 @@ export function ServizioHeader({
           )}
           
           {canBeEdited && (
-            <Button onClick={() => navigate(`/servizi/${servizio.id}/edit`)} variant="outline" size="lg" className="whitespace-nowrap">
+            <Button onClick={() => navigate(`/servizi/${servizio.id}/modifica`)} variant="outline" size="lg" className="whitespace-nowrap">
               <Edit className="h-4 w-4 mr-2" />
               Modifica servizio
             </Button>
