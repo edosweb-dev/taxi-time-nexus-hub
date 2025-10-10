@@ -77,6 +77,27 @@ export async function updateServizio({ servizio, passeggeri }: UpdateServizioReq
           }
 
           passeggeroId = newPasseggero.id;
+        } else {
+          // Se passeggero ESISTE, aggiorna i suoi dati
+          const { error: updatePasseggeroError } = await supabase
+            .from('passeggeri')
+            .update({
+              nome_cognome: passeggeroData.nome_cognome,
+              nome: passeggeroData.nome,
+              cognome: passeggeroData.cognome,
+              localita: passeggeroData.localita,
+              indirizzo: passeggeroData.indirizzo,
+              email: passeggeroData.email,
+              telefono: passeggeroData.telefono,
+            })
+            .eq('id', passeggeroData.passeggero_id);
+
+          if (updatePasseggeroError) {
+            console.error('Error updating passeggero:', updatePasseggeroError);
+            continue;
+          }
+
+          passeggeroId = passeggeroData.passeggero_id;
         }
 
         // Crea il collegamento servizio-passeggero
