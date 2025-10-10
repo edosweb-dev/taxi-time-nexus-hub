@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { useCompletaServizioForm } from "../hooks/useCompletaServizioForm";
 import { Profile } from "@/lib/types";
 import { MetodoPagamentoOption } from "@/lib/types/impostazioni";
+import { FirmaServizio } from "@/components/firma/FirmaServizio";
 
 interface CompletaServizioFormProps {
   servizioId: string;
@@ -35,6 +36,12 @@ export function CompletaServizioForm({
     adminUsers,
     metodiPagamento,
     impostazioniLoading,
+    isFirmaDigitaleAttiva,
+    firmaLoading,
+    showFirmaDialog,
+    servizioId: formServizioId,
+    onFirmaSalvata,
+    onFirmaDialogClose,
   } = useCompletaServizioForm({
     servizioId,
     metodoDefault,
@@ -45,8 +52,9 @@ export function CompletaServizioForm({
   });
 
   return (
-    <Form {...form}>
-      <form onSubmit={onSubmit} className="space-y-6">
+    <>
+      <Form {...form}>
+        <form onSubmit={onSubmit} className="space-y-6">
         <FormField
           control={form.control}
           name="metodo_pagamento"
@@ -161,11 +169,26 @@ export function CompletaServizioForm({
           >
             Annulla
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Salvataggio..." : "Completa servizio"}
+          <Button type="submit" disabled={isSubmitting || firmaLoading}>
+            {isSubmitting ? "Salvataggio..." : 
+             isFirmaDigitaleAttiva ? "Continua con firma" : "Completa servizio"}
           </Button>
         </DialogFooter>
       </form>
     </Form>
+    
+    {/* Dialog firma integrato */}
+    {isFirmaDigitaleAttiva && (
+      <FirmaServizio
+        servizioId={servizioId}
+        onFirmaSalvata={onFirmaSalvata}
+        open={showFirmaDialog}
+        onOpenChange={(open) => {
+          if (!open) onFirmaDialogClose();
+        }}
+        onComplete={onFirmaSalvata}
+      />
+    )}
+    </>
   );
 }
