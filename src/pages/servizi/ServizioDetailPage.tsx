@@ -7,7 +7,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getUserName } from "@/components/servizi/utils/userUtils";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, FileText, Edit } from "lucide-react";
+import { CheckCircle2, FileText, Edit, Users } from "lucide-react";
 import { ServizioHeader } from "@/components/servizi/dettaglio/ServizioHeader";
 import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/ServizioLoadingError";
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
@@ -187,6 +187,19 @@ export default function ServizioDetailPage() {
             onCompleta={() => setCompletaDialogOpen(true)}
             onConsuntiva={() => setConsuntivaDialogOpen(true)}
           />
+          
+          {/* Button Assegna Servizio - Desktop */}
+          {servizio.stato === 'da_assegnare' && isAdmin && (
+            <div className="mt-4">
+              <Button 
+                onClick={() => setAssegnazioneSheetOpen(true)}
+                variant="default"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Assegna Servizio
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Main Content - Desktop */}
@@ -213,6 +226,17 @@ export default function ServizioDetailPage() {
           onConsuntivaOpenChange={setConsuntivaDialogOpen}
           onComplete={refetch}
           users={users}
+        />
+
+        {/* Assignment Popup - Desktop */}
+        <AssignmentPopup
+          open={assegnazioneSheetOpen}
+          onOpenChange={setAssegnazioneSheetOpen}
+          onClose={() => {
+            setAssegnazioneSheetOpen(false);
+            refetch();
+          }}
+          servizio={servizio}
         />
       </div>
     </MainLayout>
