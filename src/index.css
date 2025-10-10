@@ -479,23 +479,26 @@ body {
     margin: 0 !important;
   }
   
-  /* Tab attivo visibile centro */
+  /* Mobile: pills colorate */
   [role="tab"][data-state="active"] {
-    scroll-margin-left: 12px;
-    scroll-margin-right: 12px;
+    font-weight: 600;
   }
   
-  /* Badge dimensione fissa */
-  [role="tab"] .inline-flex {
-    flex-shrink: 0;
+  [role="tab"][data-state="inactive"] {
+    font-weight: 500;
   }
 }
 
-/* Desktop: tabs più spaziosi */
+/* Desktop: minimal style */
 @media (min-width: 640px) {
   [role="tab"] {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    font-weight: 500;
+    border-radius: 0;
+    padding-bottom: 0.75rem;
+  }
+  
+  [role="tab"][data-state="active"] {
+    font-weight: 600;
   }
 }
 
