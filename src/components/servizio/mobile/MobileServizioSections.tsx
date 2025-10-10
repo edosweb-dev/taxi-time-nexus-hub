@@ -249,13 +249,16 @@ export function MobileServizioSections({ servizio, passeggeri = [], formatCurren
           priority={passengersConfig.priority}
           isVisible={passengersConfig.isVisible}
         >
-          <div className="passeggeri-list">
+          <div className="space-y-3">
             {passeggeri.map((passeggero, index) => (
-              <div key={index} className="passeggero-item">
-                <div className="passeggero-info">
-                  <span className="passeggero-nome">{passeggero.nome} {passeggero.cognome}</span>
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+                <User className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <div className="flex-1 space-y-1">
+                  <p className="font-medium text-sm">
+                    {passeggero.nome} {passeggero.cognome}
+                  </p>
                   {passeggero.telefono && (
-                    <span className="passeggero-telefono">{passeggero.telefono}</span>
+                    <p className="text-xs text-muted-foreground">{passeggero.telefono}</p>
                   )}
                 </div>
               </div>
