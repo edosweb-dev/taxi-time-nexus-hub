@@ -7,7 +7,13 @@ import { useUsers } from "@/hooks/useUsers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getUserName } from "@/components/servizi/utils/userUtils";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, FileText, Edit, Users, Edit3 } from "lucide-react";
+import { CheckCircle2, FileText, Edit, Users, Edit3, MoreVertical, XCircle } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ServizioHeader } from "@/components/servizi/dettaglio/ServizioHeader";
 import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/ServizioLoadingError";
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
@@ -59,6 +65,15 @@ export default function ServizioDetailPage() {
      profile?.role === 'socio' || 
      servizio?.assegnato_a === profile?.id);
   
+  // Can modify only if not signed yet and not completed/consuntivated
+  const canModify = 
+    !servizio?.firma_url && 
+    servizio?.stato !== 'completato' && 
+    servizio?.stato !== 'consuntivato' &&
+    (profile?.role === 'admin' || 
+     profile?.role === 'socio' || 
+     servizio?.created_by === profile?.id);
+  
   if (isLoading) {
     return <ServizioLoading />;
   }
@@ -101,7 +116,41 @@ export default function ServizioDetailPage() {
         title="Dettaglio Servizio"
         headerProps={{
           showBackButton: true,
-          onBackClick: () => navigate('/servizi')
+          onBackClick: () => navigate('/servizi'),
+          rightActions: (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* Modifica - Solo se non firmato e non completato */}
+                {canModify && (
+                  <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}/edit`)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Modifica Servizio
+                  </DropdownMenuItem>
+                )}
+                
+                {/* Consuntiva */}
+                {canBeConsuntivato && (
+                  <DropdownMenuItem onClick={() => setConsuntivaDialogOpen(true)}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Consuntiva
+                  </DropdownMenuItem>
+                )}
+                
+                {/* Assegna */}
+                {servizio.stato === 'da_assegnare' && isAdmin && (
+                  <DropdownMenuItem onClick={() => setAssegnazioneSheetOpen(true)}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Assegna Servizio
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )
         }}
       >
         <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
@@ -118,53 +167,34 @@ export default function ServizioDetailPage() {
             getUserName={getUserName}
           />
           
-          {/* Mobile Action Buttons - Sticky at bottom */}
-          {(canBeCompleted || canBeConsuntivato || canBeEdited || canRequestSignature) && (
+          {/* Mobile Action Buttons - Sticky at bottom - Sequential UX Flow */}
+          {(canRequestSignature || (!canRequestSignature && canBeCompleted)) && (
             <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 z-40">
-              <div className="flex gap-2 flex-wrap">
-                {canRequestSignature && (
-                  <Button
-                    className="flex-1 h-10 text-sm font-medium min-w-[140px]"
-                    variant="outline"
-                    onClick={() => setShowFirmaClienteDialog(true)}
-                  >
-                    <Edit3 className="h-4 w-4 mr-1" />
-                    Firma Cliente
-                  </Button>
-                )}
-                
-                {canBeCompleted && (
-                  <Button 
-                    onClick={() => setCompletaDialogOpen(true)}
-                    className="flex-1 h-10 text-sm font-medium"
-                  >
-                    <CheckCircle2 className="h-4 w-4 mr-1" />
-                    Completa
-                  </Button>
-                )}
-                
-                {canBeConsuntivato && (
-                  <Button 
-                    onClick={() => setConsuntivaDialogOpen(true)}
-                    variant="secondary"
-                    className="flex-1 h-10 text-sm font-medium"
-                  >
-                    <FileText className="h-4 w-4 mr-1" />
-                    Consuntiva
-                  </Button>
-                )}
-                
-                {canBeEdited && (
-                  <Button 
-                    onClick={() => navigate(`/servizi/${servizio.id}/edit`)}
-                    variant="outline"
-                    className="flex-1 h-10 text-sm font-medium"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Modifica
-                  </Button>
-                )}
-              </div>
+              
+              {/* STEP 1: Richiedi Firma Cliente (se non ancora firmato) */}
+              {canRequestSignature && (
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  onClick={() => setShowFirmaClienteDialog(true)}
+                >
+                  <Edit3 className="h-5 w-5" />
+                  Firma Cliente
+                </Button>
+              )}
+
+              {/* STEP 2: Completa Servizio (solo se già firmato o firma non obbligatoria) */}
+              {!canRequestSignature && canBeCompleted && (
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  onClick={() => setCompletaDialogOpen(true)}
+                >
+                  <CheckCircle2 className="h-5 w-5" />
+                  Completa Servizio
+                </Button>
+              )}
+
             </div>
           )}
         </div>
