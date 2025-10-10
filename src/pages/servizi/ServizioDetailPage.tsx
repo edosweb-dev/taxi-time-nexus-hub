@@ -94,7 +94,7 @@ export default function ServizioDetailPage() {
           onBackClick: () => navigate('/servizi')
         }}
       >
-        <div className="mobile-servizio-detail px-4 pb-20">
+        <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
           <MobileServizioHero
             servizio={mobileServizioData} 
             isAdmin={isAdmin}
