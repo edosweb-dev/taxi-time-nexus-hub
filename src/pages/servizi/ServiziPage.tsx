@@ -237,11 +237,10 @@ export default function ServiziPage() {
         <div className="w-full mb-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             
-            {/* Container con sfondo condizionale */}
+            {/* Container con sfondo grigio */}
             <div className="
               w-full
-              sm:bg-background/95 
-              sm:backdrop-blur
+              sm:bg-muted/40
               sm:border sm:border-border 
               sm:rounded-lg 
               sm:shadow-sm
@@ -268,23 +267,22 @@ export default function ServiziPage() {
                     data-[state=inactive]:text-foreground
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
-                    sm:px-4 sm:py-3
+                    sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-none
-                    sm:bg-transparent
+                    sm:rounded-t-md
                     sm:border-b-2
-                    sm:border-transparent
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-background/80
                     sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=inactive]:hover:bg-muted/10
-                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:bg-background
                     sm:data-[state=active]:text-primary
                     sm:data-[state=active]:border-primary
                     sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-sm
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -312,23 +310,22 @@ export default function ServiziPage() {
                     data-[state=inactive]:text-foreground
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
-                    sm:px-4 sm:py-3
+                    sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-none
-                    sm:bg-transparent
+                    sm:rounded-t-md
                     sm:border-b-2
-                    sm:border-transparent
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-background/80
                     sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=inactive]:hover:bg-muted/10
-                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:bg-background
                     sm:data-[state=active]:text-primary
                     sm:data-[state=active]:border-primary
                     sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-sm
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -356,23 +353,22 @@ export default function ServiziPage() {
                     data-[state=inactive]:text-foreground
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
-                    sm:px-4 sm:py-3
+                    sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-none
-                    sm:bg-transparent
+                    sm:rounded-t-md
                     sm:border-b-2
-                    sm:border-transparent
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-background/80
                     sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=inactive]:hover:bg-muted/10
-                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:bg-background
                     sm:data-[state=active]:text-primary
                     sm:data-[state=active]:border-primary
                     sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-sm
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -400,23 +396,22 @@ export default function ServiziPage() {
                     data-[state=inactive]:text-foreground
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
-                    sm:px-4 sm:py-3
+                    sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-none
-                    sm:bg-transparent
+                    sm:rounded-t-md
                     sm:border-b-2
-                    sm:border-transparent
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-background/80
                     sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=inactive]:hover:bg-muted/10
-                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:bg-background
                     sm:data-[state=active]:text-primary
                     sm:data-[state=active]:border-primary
                     sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-sm
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -444,23 +439,22 @@ export default function ServiziPage() {
                     data-[state=inactive]:text-foreground
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
-                    sm:px-4 sm:py-3
+                    sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-none
-                    sm:bg-transparent
+                    sm:rounded-t-md
                     sm:border-b-2
-                    sm:border-transparent
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-background/80
                     sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=inactive]:hover:bg-muted/10
-                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:bg-background
                     sm:data-[state=active]:text-primary
                     sm:data-[state=active]:border-primary
                     sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-sm
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -488,23 +482,22 @@ export default function ServiziPage() {
                     data-[state=inactive]:text-foreground
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
-                    sm:px-4 sm:py-3
+                    sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-none
-                    sm:bg-transparent
+                    sm:rounded-t-md
                     sm:border-b-2
-                    sm:border-transparent
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-background/80
                     sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=inactive]:hover:bg-muted/10
-                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:bg-background
                     sm:data-[state=active]:text-primary
                     sm:data-[state=active]:border-primary
                     sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-sm
                     transition-all duration-200 ease-in-out
                   "
                 >
@@ -532,23 +525,22 @@ export default function ServiziPage() {
                     data-[state=inactive]:text-foreground
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
-                    sm:px-4 sm:py-3
+                    sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-none
-                    sm:bg-transparent
+                    sm:rounded-t-md
                     sm:border-b-2
-                    sm:border-transparent
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:border-transparent
                     sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-background/80
                     sm:data-[state=inactive]:hover:border-muted
-                    sm:data-[state=inactive]:hover:bg-muted/10
-                    sm:data-[state=active]:bg-transparent
+                    sm:data-[state=active]:bg-background
                     sm:data-[state=active]:text-primary
                     sm:data-[state=active]:border-primary
                     sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-sm
                     transition-all duration-200 ease-in-out
                   "
                 >
