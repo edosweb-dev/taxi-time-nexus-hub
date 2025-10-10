@@ -6,14 +6,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Check } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Servizio, StatoServizio } from '@/lib/types/servizi';
 import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
+import { useVeicoliAttivi } from '@/hooks/useVeicoli';
 
 interface AssignmentPopupProps {
   open: boolean;
@@ -31,9 +32,10 @@ export function AssignmentPopup({
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isConducenteEsterno, setIsConducenteEsterno] = useState(false);
+  const [tipoConducente, setTipoConducente] = useState<'dipendente' | 'esterno'>('dipendente');
   const [selectedConducenteEsternoId, setSelectedConducenteEsternoId] = useState('');
   const [selectedDipendente, setSelectedDipendente] = useState<string>('');
+  const [selectedVeicolo, setSelectedVeicolo] = useState<string>('');
   
   const { 
     users, 
@@ -43,6 +45,8 @@ export function AssignmentPopup({
     error,
     hasShiftsConfigured 
   } = useAssignmentUsers(servizio.data_servizio, servizio.id);
+  
+  const { veicoli: veicoliAttivi } = useVeicoliAttivi();
   
   console.log('[AssignmentPopup] Popup opened for service:', {
     id: servizio.id,
@@ -56,13 +60,15 @@ export function AssignmentPopup({
   // Reset form when popup opens
   useEffect(() => {
     if (open) {
-      setIsConducenteEsterno(!!servizio.conducente_esterno);
+      setTipoConducente(servizio.conducente_esterno ? 'esterno' : 'dipendente');
       setSelectedConducenteEsternoId(servizio.conducente_esterno_id || '');
       setSelectedDipendente(servizio.assegnato_a || '');
+      setSelectedVeicolo(servizio.veicolo_id || '');
       console.log('[AssignmentPopup] Form reset with existing values:', {
-        conducenteEsterno: !!servizio.conducente_esterno,
+        tipoConducente: servizio.conducente_esterno ? 'esterno' : 'dipendente',
         conducenteEsternoId: servizio.conducente_esterno_id,
-        assegnatoA: servizio.assegnato_a
+        assegnatoA: servizio.assegnato_a,
+        veicoloId: servizio.veicolo_id
       });
     }
   }, [open, servizio]);
@@ -80,15 +86,19 @@ export function AssignmentPopup({
       setIsSubmitting(true);
       console.log('[AssignmentPopup] Starting assignment process');
       
+      const isConducenteEsterno = tipoConducente === 'esterno';
+      
       let updateData: {
         stato: StatoServizio;
         assegnato_a?: string | null;
+        veicolo_id?: string | null;
         conducente_esterno?: boolean;
         conducente_esterno_id?: string | null;
         conducente_esterno_nome?: string | null;
         conducente_esterno_email?: string | null;
       } = {
-        stato: 'assegnato'
+        stato: 'assegnato',
+        veicolo_id: selectedVeicolo || null
       };
       
       if (isConducenteEsterno) {
@@ -135,40 +145,39 @@ export function AssignmentPopup({
     }
   };
 
+  const isConducenteEsterno = tipoConducente === 'esterno';
   const isAssignDisabled = isSubmitting || 
     (isConducenteEsterno ? !selectedConducenteEsternoId : !selectedDipendente);
 
   const content = (
     <>
       {/* Main Content Area */}
-      <div className={`${isMobile ? 'px-4 pb-1' : 'px-5 pb-2'} space-y-3 animate-fade-in`}>
+      <div className={`${isMobile ? 'px-4 pb-1' : 'px-5 pb-2'} space-y-4 animate-fade-in`}>
         
-        {/* Driver Type Selection */}
+        {/* Driver Type Selection - Tabs */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-foreground">Tipo di conducente</Label>
-           <div className="flex items-center justify-between p-2 rounded border">
-             <span className="text-sm">Conducente Esterno</span>
-             <Switch 
-               id="conducente-esterno" 
-               checked={isConducenteEsterno}
-               onCheckedChange={setIsConducenteEsterno}
-             />
-           </div>
+          <Label className="text-sm font-medium">Tipo di conducente</Label>
+          <Tabs value={tipoConducente} onValueChange={(v) => setTipoConducente(v as 'dipendente' | 'esterno')} className="w-full">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="dipendente">Dipendente</TabsTrigger>
+              <TabsTrigger value="esterno">Esterno</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
         
         {/* Selection Area */}
         <div className="space-y-2">
           {isConducenteEsterno ? (
-            <div className="space-y-1.5 animate-scale-in">
-              <Label className="text-sm font-medium text-foreground">Conducente Esterno</Label>
+            <div className="space-y-2 animate-scale-in">
+              <Label htmlFor="conducente-ext" className="text-sm font-medium">Conducente Esterno</Label>
               <ConducenteEsternoSelect
                 selectedConducenteId={selectedConducenteEsternoId}
                 setSelectedConducenteId={setSelectedConducenteEsternoId}
               />
             </div>
           ) : (
-            <div className="space-y-1.5 animate-scale-in">
-              <Label className="text-sm font-medium text-foreground">Seleziona Dipendente</Label>
+            <div className="space-y-2 animate-scale-in">
+              <Label htmlFor="dipendente" className="text-sm font-medium">Dipendente *</Label>
               
               {/* Alert for no available users */}
               {!isLoading && availableUsers.length === 0 && (
@@ -190,10 +199,10 @@ export function AssignmentPopup({
               ) : (
                 <div>
                   <Select value={selectedDipendente} onValueChange={setSelectedDipendente}>
-                    <SelectTrigger className="w-full h-9 text-sm border-border/50 hover:border-border transition-colors">
-                      <SelectValue placeholder="Scegli un dipendente..." />
+                    <SelectTrigger id="dipendente" className={`w-full ${isMobile ? 'h-12' : 'h-10'} text-sm`}>
+                      <SelectValue placeholder="Seleziona dipendente..." />
                     </SelectTrigger>
-                    <SelectContent className="max-h-32 w-full" side="bottom" align="start" sideOffset={4}>
+                    <SelectContent className="max-h-64 w-full">{/* ... keep existing code (user items) ... */}
                       {/* Available users first */}
                       {availableUsers.map((user) => (
                         <SelectItem key={user.id} value={user.id} className="py-1.5 hover:bg-accent/50 transition-colors">
@@ -244,15 +253,43 @@ export function AssignmentPopup({
             </div>
           )}
         </div>
+        
+        {/* Veicolo Selection (opzionale) */}
+        <div className="space-y-2">
+          <Label htmlFor="veicolo" className="text-sm font-medium">Veicolo (opzionale)</Label>
+          <Select value={selectedVeicolo} onValueChange={setSelectedVeicolo}>
+            <SelectTrigger id="veicolo" className={`w-full ${isMobile ? 'h-12' : 'h-10'} text-sm`}>
+              <SelectValue placeholder="Seleziona veicolo..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Nessun veicolo</SelectItem>
+              {veicoliAttivi?.map((veicolo) => (
+                <SelectItem key={veicolo.id} value={veicolo.id}>
+                  {veicolo.modello} - {veicolo.targa}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* Warning se non selezionato */}
+        {!selectedDipendente && !isConducenteEsterno && (
+          <Alert className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
+            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800 dark:text-yellow-200 text-sm">
+              Seleziona un dipendente per continuare
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
       
-      {/* Action Footer */}
-      <div className={`sticky bottom-0 ${isMobile ? 'px-4 py-2.5' : 'px-5 py-3'} border-t bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/90 shadow-sm`}>
-        <div className="flex justify-center gap-2 max-w-full animate-fade-in">
+      {/* Action Footer - Fixed bottom */}
+      <div className={`sticky bottom-0 ${isMobile ? 'px-4 py-3' : 'px-5 py-4'} border-t bg-background/95 backdrop-blur-lg`}>
+        <div className="flex gap-3 max-w-full">
           <Button 
             variant="outline" 
             onClick={onClose} 
-            className="w-24 h-9 text-sm font-medium border hover:bg-muted/50 transition-all duration-200"
+            className={`flex-1 ${isMobile ? 'h-12' : 'h-10'} font-medium`}
             disabled={isSubmitting}
           >
             Annulla
@@ -260,30 +297,21 @@ export function AssignmentPopup({
           <Button 
             onClick={handleAssign}
             disabled={isAssignDisabled}
-            className="w-32 h-9 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`flex-1 ${isMobile ? 'h-12' : 'h-10'} font-semibold`}
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Assegna...
               </>
             ) : (
-              'Assegna'
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Assegna
+              </>
             )}
           </Button>
         </div>
-        
-        {/* Validation Message */}
-        {isAssignDisabled && !isSubmitting && (
-          <div className="mt-2 p-1.5 bg-amber-50/80 border border-amber-200/60 rounded-md animate-fade-in">
-            <p className="text-xs text-amber-800 text-center leading-tight">
-              {isConducenteEsterno 
-                ? 'Seleziona un conducente esterno' 
-                : 'Seleziona un dipendente'
-              }
-            </p>
-          </div>
-        )}
       </div>
     </>
   );
@@ -291,14 +319,17 @@ export function AssignmentPopup({
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="h-[75vh] flex flex-col p-0 rounded-t-xl border-t animate-slide-in-right">
-          <SheetHeader className="p-3.5 pb-2.5 border-b bg-background/95 backdrop-blur-sm">
-            <SheetTitle className="text-lg font-semibold text-foreground">Assegna Servizio</SheetTitle>
-            <SheetDescription className="text-xs text-muted-foreground leading-tight">
-              Seleziona un conducente
+        <SheetContent 
+          side="bottom" 
+          className="h-[85vh] flex flex-col p-0 rounded-t-2xl border-t"
+        >
+          <SheetHeader className="px-4 pt-4 pb-3 border-b">
+            <SheetTitle className="text-lg font-semibold">Assegna Servizio</SheetTitle>
+            <SheetDescription className="text-sm text-muted-foreground">
+              Seleziona conducente e veicolo
             </SheetDescription>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto py-4">
             {content}
           </div>
         </SheetContent>
@@ -308,14 +339,14 @@ export function AssignmentPopup({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[88vw] max-w-sm mx-auto p-0 gap-0 rounded-xl border shadow-xl animate-scale-in">
-        <DialogHeader className="p-3.5 pb-2.5 border-b bg-background/95 backdrop-blur-sm">
-          <DialogTitle className="text-lg font-semibold text-foreground">Assegna Servizio</DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground leading-tight">
-            Seleziona un conducente
+      <DialogContent className="sm:max-w-md p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <DialogTitle className="text-lg font-semibold">Assegna Servizio</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Seleziona il conducente e opzionalmente un veicolo
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[70vh] overflow-y-auto">
+        <div className="max-h-[70vh] overflow-y-auto py-4">
           {content}
         </div>
       </DialogContent>
