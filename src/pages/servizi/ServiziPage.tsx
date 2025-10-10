@@ -225,17 +225,17 @@ export default function ServiziPage() {
               <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10 sm:hidden" />
               
               {/* Tabs scrollabile */}
-              <div className="overflow-x-auto scrollbar-hide px-3 sm:px-0">
-                <TabsList className="inline-flex w-auto h-auto p-1 gap-2 bg-muted/30">
+              <div className="overflow-x-auto scrollbar-hide px-3 sm:px-0 pb-2">
+                <TabsList className="inline-flex flex-nowrap w-auto h-auto gap-3 p-1.5 bg-muted/30 rounded-lg">
                   
                   {/* Tab: Bozze */}
                   <TabsTrigger 
                     value="bozza" 
-                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
                     <span className="text-sm font-medium">Bozze</span>
                     {statusCounts.bozza > 0 && (
-                      <Badge className="h-6 min-w-[24px] px-2 bg-gray-400 text-white text-xs font-bold">
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-gray-400 text-white text-xs font-bold rounded-full">
                         {statusCounts.bozza}
                       </Badge>
                     )}
@@ -244,11 +244,11 @@ export default function ServiziPage() {
                   {/* Tab: Da Assegnare */}
                   <TabsTrigger 
                     value="da_assegnare" 
-                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
                     <span className="text-sm font-medium">Da Assegnare</span>
                     {statusCounts.da_assegnare > 0 && (
-                      <Badge className="h-6 min-w-[24px] px-2 bg-yellow-500 text-white text-xs font-bold">
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-yellow-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.da_assegnare}
                       </Badge>
                     )}
@@ -257,11 +257,11 @@ export default function ServiziPage() {
                   {/* Tab: Assegnati */}
                   <TabsTrigger 
                     value="assegnato"
-                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
                     <span className="text-sm font-medium">Assegnati</span>
                     {statusCounts.assegnato > 0 && (
-                      <Badge className="h-6 min-w-[24px] px-2 bg-blue-500 text-white text-xs font-bold">
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-blue-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.assegnato}
                       </Badge>
                     )}
@@ -270,11 +270,11 @@ export default function ServiziPage() {
                   {/* Tab: Non Accettati */}
                   <TabsTrigger 
                     value="non_accettato"
-                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
                     <span className="text-sm font-medium">Non Accettati</span>
                     {statusCounts.non_accettato > 0 && (
-                      <Badge className="h-6 min-w-[24px] px-2 bg-orange-500 text-white text-xs font-bold">
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-orange-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.non_accettato}
                       </Badge>
                     )}
@@ -283,11 +283,11 @@ export default function ServiziPage() {
                   {/* Tab: Completati */}
                   <TabsTrigger 
                     value="completato"
-                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
                     <span className="text-sm font-medium">Completati</span>
                     {statusCounts.completato > 0 && (
-                      <Badge className="h-6 min-w-[24px] px-2 bg-green-500 text-white text-xs font-bold">
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-green-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.completato}
                       </Badge>
                     )}
@@ -296,11 +296,11 @@ export default function ServiziPage() {
                   {/* Tab: Annullati */}
                   <TabsTrigger 
                     value="annullato"
-                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
                     <span className="text-sm font-medium">Annullati</span>
                     {statusCounts.annullato > 0 && (
-                      <Badge className="h-6 min-w-[24px] px-2 bg-red-500 text-white text-xs font-bold">
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-red-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.annullato}
                       </Badge>
                     )}
@@ -309,11 +309,11 @@ export default function ServiziPage() {
                   {/* Tab: Consuntivati */}
                   <TabsTrigger 
                     value="consuntivato"
-                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
                     <span className="text-sm font-medium">Consuntivati</span>
                     {statusCounts.consuntivato > 0 && (
-                      <Badge className="h-6 min-w-[24px] px-2 bg-purple-500 text-white text-xs font-bold">
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-purple-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.consuntivato}
                       </Badge>
                     )}

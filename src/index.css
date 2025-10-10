@@ -465,10 +465,18 @@ body {
 
 /* Tabs ottimizzati mobile */
 @media (max-width: 640px) {
-  /* Scroll smooth touch */
+  /* Force spacing tabs mobile */
   [role="tablist"] {
+    display: inline-flex !important;
+    flex-wrap: nowrap !important;
+    gap: 0.75rem !important; /* 12px */
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+  }
+  
+  [role="tab"] {
+    flex-shrink: 0 !important;
+    margin: 0 !important;
   }
   
   /* Tab attivo visibile centro */
