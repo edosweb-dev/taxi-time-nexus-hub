@@ -65,13 +65,15 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
     }
 
     // Trasforma i dati per creare PasseggeroConDettagli
-    const passeggeri: PasseggeroConDettagli[] = (passeggeriData || []).map(item => ({
-      ...item.passeggeri,
-      orario_presa_personalizzato: item.orario_presa_personalizzato,
-      luogo_presa_personalizzato: item.luogo_presa_personalizzato,
-      destinazione_personalizzato: item.destinazione_personalizzato,
-      usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
-    }));
+    const passeggeri: PasseggeroConDettagli[] = (passeggeriData || [])
+      .filter(item => item.passeggeri) // Filtra solo elementi con passeggeri validi
+      .map(item => ({
+        ...item.passeggeri,
+        orario_presa_personalizzato: item.orario_presa_personalizzato,
+        luogo_presa_personalizzato: item.luogo_presa_personalizzato,
+        destinazione_personalizzato: item.destinazione_personalizzato,
+        usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
+      }));
 
     return { 
       servizio: servizio as Servizio || null, 

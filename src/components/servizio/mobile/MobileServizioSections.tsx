@@ -250,24 +250,22 @@ export function MobileServizioSections({ servizio, passeggeri = [], formatCurren
           isVisible={passengersConfig.isVisible}
         >
           <div className="space-y-3">
-            {passeggeri.map((passeggero, index) => {
-              console.log('[MobileServizioSections] Passeggero data:', passeggero);
-              return (
-                <div key={index} className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                  <User className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 space-y-1.5 min-w-0">
-                    <p className="font-semibold text-base text-foreground">
-                      {passeggero.nome && passeggero.cognome 
-                        ? `${passeggero.nome} ${passeggero.cognome}`
-                        : passeggero.nome || passeggero.cognome || 'Passeggero senza nome'}
-                    </p>
-                    {passeggero.telefono && (
-                      <p className="text-sm text-muted-foreground">{passeggero.telefono}</p>
-                    )}
-                  </div>
+            {passeggeri.map((passeggero, index) => (
+              <div key={index} className="flex items-start gap-3 p-4 rounded-lg border bg-card">
+                <User className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-1.5 min-w-0">
+                  <p className="font-semibold text-base text-foreground">
+                    {passeggero.nome_cognome || 'Passeggero senza nome'}
+                  </p>
+                  {passeggero.email && (
+                    <p className="text-sm text-muted-foreground">{passeggero.email}</p>
+                  )}
+                  {passeggero.telefono && (
+                    <p className="text-sm text-muted-foreground">{passeggero.telefono}</p>
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </CollapsibleSection>
       )}
