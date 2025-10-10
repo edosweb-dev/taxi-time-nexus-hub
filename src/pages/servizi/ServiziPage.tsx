@@ -28,11 +28,12 @@ export default function ServiziPage() {
   const { aziende = [] } = useAziende();
   const { users = [] } = useUsers();
   
-  const [activeTab, setActiveTab] = useState<string>("da_assegnare");
+  const [activeTab, setActiveTab] = useState<string>("bozza");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Calculate status counts
   const statusCounts = useMemo(() => ({
+    bozza: servizi.filter(s => s.stato === 'bozza').length,
     da_assegnare: servizi.filter(s => s.stato === 'da_assegnare').length,
     assegnato: servizi.filter(s => s.stato === 'assegnato').length,
     non_accettato: servizi.filter(s => s.stato === 'non_accettato').length,
@@ -62,22 +63,26 @@ export default function ServiziPage() {
 
   const getStatusColor = (stato: string) => {
     const colors: Record<string, string> = {
+      bozza: 'bg-gray-400 text-white',
       da_assegnare: 'bg-yellow-500 text-white',
       assegnato: 'bg-blue-500 text-white',
+      non_accettato: 'bg-orange-500 text-white',
       completato: 'bg-green-500 text-white',
-      consuntivato: 'bg-purple-500 text-white',
-      annullato: 'bg-red-500 text-white'
+      annullato: 'bg-red-500 text-white',
+      consuntivato: 'bg-purple-500 text-white'
     };
     return colors[stato] || 'bg-gray-500 text-white';
   };
 
   const getStatusLabel = (stato: string) => {
     const labels: Record<string, string> = {
+      bozza: 'Bozza',
       da_assegnare: 'Da Assegnare',
       assegnato: 'Assegnato',
+      non_accettato: 'Non Accettato',
       completato: 'Completato',
-      consuntivato: 'Consuntivato',
-      annullato: 'Annullato'
+      annullato: 'Annullato',
+      consuntivato: 'Consuntivato'
     };
     return labels[stato] || stato;
   };
@@ -216,6 +221,21 @@ export default function ServiziPage() {
             <div className="overflow-x-auto px-3 sm:px-0">
               <TabsList className="inline-flex min-w-full sm:w-auto h-auto p-1 bg-muted/30">
                 <TabsTrigger 
+                  value="bozza" 
+                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+                >
+                  <span>Bozze</span>
+                  {statusCounts.bozza > 0 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="ml-2 bg-gray-400 text-white hover:bg-gray-500"
+                    >
+                      {statusCounts.bozza}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+
+                <TabsTrigger 
                   value="da_assegnare" 
                   className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
                 >
@@ -223,7 +243,7 @@ export default function ServiziPage() {
                   {statusCounts.da_assegnare > 0 && (
                     <Badge 
                       variant="secondary" 
-                      className="ml-2 bg-red-500 text-white hover:bg-red-600"
+                      className="ml-2 bg-yellow-500 text-white hover:bg-yellow-600"
                     >
                       {statusCounts.da_assegnare}
                     </Badge>
@@ -238,7 +258,7 @@ export default function ServiziPage() {
                   {statusCounts.assegnato > 0 && (
                     <Badge 
                       variant="secondary" 
-                      className="ml-2 bg-yellow-500 text-white hover:bg-yellow-600"
+                      className="ml-2 bg-blue-500 text-white hover:bg-blue-600"
                     >
                       {statusCounts.assegnato}
                     </Badge>
@@ -251,7 +271,7 @@ export default function ServiziPage() {
                 >
                   <span>Non Accettati</span>
                   {statusCounts.non_accettato > 0 && (
-                    <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
+                    <Badge variant="secondary" className="ml-2 bg-orange-500 text-white hover:bg-orange-600">
                       {statusCounts.non_accettato}
                     </Badge>
                   )}
@@ -278,7 +298,7 @@ export default function ServiziPage() {
                 >
                   <span>Annullati</span>
                   {statusCounts.annullato > 0 && (
-                    <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
+                    <Badge variant="secondary" className="ml-2 bg-red-500 text-white hover:bg-red-600">
                       {statusCounts.annullato}
                     </Badge>
                   )}
