@@ -233,20 +233,30 @@ export default function ServiziPage() {
           </div>
         </div>
 
-        {/* Tabs Responsive Design */}
+        {/* Tabs Responsive con Sfondo Desktop */}
         <div className="w-full mb-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             
-            {/* Container scroll CON REF */}
-            <div 
-              ref={tabsScrollRef}
-              className="w-full overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 pb-3 scrollbar-hide"
-              style={{
-                scrollSnapType: 'x proximity',
-                WebkitOverflowScrolling: 'touch'
-              }}
-            >
-              <TabsList className="inline-flex flex-nowrap w-max min-w-full gap-2 sm:gap-4 p-0 bg-transparent justify-start">
+            {/* Container con sfondo condizionale */}
+            <div className="
+              w-full
+              sm:bg-background/95 
+              sm:backdrop-blur
+              sm:border sm:border-border 
+              sm:rounded-lg 
+              sm:shadow-sm
+              sm:px-6 sm:py-4
+              sm:mb-4
+            ">
+              <div 
+                ref={tabsScrollRef}
+                className="w-full overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 pb-3 sm:pb-0 scrollbar-hide"
+                style={{
+                  scrollSnapType: 'x proximity',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                <TabsList className="inline-flex flex-nowrap w-max min-w-full gap-2 sm:gap-4 p-0 bg-transparent justify-start sm:border-b sm:border-border">
                 
                 {/* Tab: Bozze */}
                 <TabsTrigger 
@@ -259,7 +269,7 @@ export default function ServiziPage() {
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
                     sm:px-4 sm:py-3
-                    sm:text-base
+                    sm:text-sm
                     sm:font-semibold
                     sm:rounded-none
                     sm:bg-transparent
@@ -303,7 +313,7 @@ export default function ServiziPage() {
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
                     sm:px-4 sm:py-3
-                    sm:text-base
+                    sm:text-sm
                     sm:font-semibold
                     sm:rounded-none
                     sm:bg-transparent
@@ -347,7 +357,7 @@ export default function ServiziPage() {
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
                     sm:px-4 sm:py-3
-                    sm:text-base
+                    sm:text-sm
                     sm:font-semibold
                     sm:rounded-none
                     sm:bg-transparent
@@ -391,7 +401,7 @@ export default function ServiziPage() {
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
                     sm:px-4 sm:py-3
-                    sm:text-base
+                    sm:text-sm
                     sm:font-semibold
                     sm:rounded-none
                     sm:bg-transparent
@@ -435,7 +445,7 @@ export default function ServiziPage() {
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
                     sm:px-4 sm:py-3
-                    sm:text-base
+                    sm:text-sm
                     sm:font-semibold
                     sm:rounded-none
                     sm:bg-transparent
@@ -479,7 +489,7 @@ export default function ServiziPage() {
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
                     sm:px-4 sm:py-3
-                    sm:text-base
+                    sm:text-sm
                     sm:font-semibold
                     sm:rounded-none
                     sm:bg-transparent
@@ -523,7 +533,7 @@ export default function ServiziPage() {
                     data-[state=active]:bg-primary
                     data-[state=active]:text-primary-foreground
                     sm:px-4 sm:py-3
-                    sm:text-base
+                    sm:text-sm
                     sm:font-semibold
                     sm:rounded-none
                     sm:bg-transparent
@@ -557,16 +567,17 @@ export default function ServiziPage() {
                 </TabsTrigger>
 
               </TabsList>
+              </div>
             </div>
-          </Tabs>
-        </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        )}
+            {/* Tab Content - All tabs show the same content */}
+            <TabsContent value={activeTab} className="mt-6">
+              {/* Loading State */}
+              {isLoading && (
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              )}
 
         {/* Error State */}
         {error && (
@@ -795,8 +806,11 @@ export default function ServiziPage() {
                 </Card>
               </TooltipProvider>
             )}
-          </>
-        )}
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
 
       </div>
     </MainLayout>
