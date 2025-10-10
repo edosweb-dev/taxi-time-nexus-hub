@@ -165,6 +165,7 @@ export default function ServizioDetailPage() {
             formatCurrency={formatCurrency}
             users={users}
             getUserName={getUserName}
+            firmaDigitaleAttiva={firmaDigitaleAttiva}
           />
           
           {/* Mobile Action Buttons - Sticky at bottom - Sequential UX Flow */}

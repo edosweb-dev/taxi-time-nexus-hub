@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, ChevronUp, Euro, FileText, Settings, History, User, AlertCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Euro, FileText, Settings, History, User, AlertCircle, Edit3 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +15,7 @@ interface MobileServizioSectionsProps {
   formatCurrency: (value: number | string) => string;
   users: any[];
   getUserName: (users: any[], userId?: string) => string | null;
+  firmaDigitaleAttiva?: boolean;
 }
 
 interface SectionProps {
@@ -95,7 +96,14 @@ function CollapsibleSection({
   );
 }
 
-export function MobileServizioSections({ servizio, passeggeri = [], formatCurrency, users, getUserName }: MobileServizioSectionsProps) {
+export function MobileServizioSections({ 
+  servizio, 
+  passeggeri = [], 
+  formatCurrency, 
+  users, 
+  getUserName,
+  firmaDigitaleAttiva = false 
+}: MobileServizioSectionsProps) {
   const { veicoli } = useVeicoli();
   const { profile } = useAuth();
   const veicolo = (veicoli || []).find(v => v.id === servizio.veicolo_id);
@@ -129,6 +137,9 @@ export function MobileServizioSections({ servizio, passeggeri = [], formatCurren
   const passengersConfig = getSectionConfig('passengers');
   const notesConfig = getSectionConfig('notes');
   const historyConfig = getSectionConfig('history');
+  
+  // Check if signature section should be visible
+  const hasSignatureContent = firmaDigitaleAttiva && (servizio.firma_url || servizio.firma_timestamp);
 
   return (
     <div className="mobile-sections space-y-3 pb-8">
@@ -284,6 +295,51 @@ export function MobileServizioSections({ servizio, passeggeri = [], formatCurren
             <div className="doc-section">
               <p>{servizio.note}</p>
             </div>
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {/* Firma Cliente - Context-aware */}
+      {firmaDigitaleAttiva && (
+        <CollapsibleSection
+          id="signature"
+          title="Firma Cliente"
+          icon={<Edit3 className="w-4 h-4" />}
+          defaultOpen={hasSignatureContent}
+          priority="important"
+          isVisible={true}
+        >
+          <div className="space-y-4">
+            {servizio.firma_url ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                    Cliente ha firmato
+                  </Badge>
+                  {servizio.firma_timestamp && (
+                    <span className="text-xs text-muted-foreground">
+                      il {safeFormat(servizio.firma_timestamp, "dd/MM/yyyy 'alle' HH:mm")}
+                    </span>
+                  )}
+                </div>
+                <div className="border rounded-lg p-3 bg-muted/30">
+                  <img 
+                    src={servizio.firma_url} 
+                    alt="Firma cliente" 
+                    className="max-w-full h-auto border rounded"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <Badge variant="secondary" className="mb-2 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
+                  In attesa firma cliente
+                </Badge>
+                <div className="text-xs text-muted-foreground mt-2">
+                  Il cliente non ha ancora firmato digitalmente il servizio
+                </div>
+              </div>
+            )}
           </div>
         </CollapsibleSection>
       )}
