@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServiziWithPasseggeri, ServizioWithPasseggeri } from "@/hooks/useServiziWithPasseggeri";
@@ -24,12 +24,30 @@ export default function ServiziPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
+  // REF per container tabs
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+  
   const { data: servizi = [], isLoading, error } = useServiziWithPasseggeri();
   const { aziende = [] } = useAziende();
   const { users = [] } = useUsers();
   
   const [activeTab, setActiveTab] = useState<string>("bozza");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // FORCE SCROLL LEFT = 0 su mount
+  useEffect(() => {
+    if (tabsScrollRef.current && isMobile) {
+      // Scroll a sinistra immediatamente
+      tabsScrollRef.current.scrollLeft = 0;
+      
+      // Doppio check dopo 100ms (per sicurezza)
+      setTimeout(() => {
+        if (tabsScrollRef.current) {
+          tabsScrollRef.current.scrollLeft = 0;
+        }
+      }, 100);
+    }
+  }, [isMobile]);
 
   // Calculate status counts
   const statusCounts = useMemo(() => ({
@@ -219,9 +237,16 @@ export default function ServiziPage() {
         <div className="w-full mb-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             
-            {/* Container scroll */}
-            <div className="w-full overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 pb-3">
-              <TabsList className="inline-flex flex-nowrap w-max min-w-full gap-2 sm:gap-4 p-0 bg-transparent">
+            {/* Container scroll CON REF */}
+            <div 
+              ref={tabsScrollRef}
+              className="w-full overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 pb-3 scrollbar-hide"
+              style={{
+                scrollSnapType: 'x proximity',
+                WebkitOverflowScrolling: 'touch'
+              }}
+            >
+              <TabsList className="inline-flex flex-nowrap w-max min-w-full gap-2 sm:gap-4 p-0 bg-transparent justify-start">
                 
                 {/* Tab: Bozze */}
                 <TabsTrigger 
