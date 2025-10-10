@@ -35,26 +35,30 @@ export default function NuovaAziendaPage() {
   };
 
   return (
-    <MainLayout 
-      title="Nuova Azienda" 
-      showBottomNav={true}
-    >
-      <div className="w-full px-0 md:px-4">
-        <div className="space-y-6">
-          {/* Back button */}
-          <div className="px-4 md:px-0">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Torna alle Aziende
-            </Button>
-          </div>
+    <MainLayout>
+      <div className="w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-4 sm:mb-6">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            className="mb-3 sm:mb-4 -ml-2"
+            size="sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Torna alle Aziende</span>
+            <span className="sm:hidden">Indietro</span>
+          </Button>
+          
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Nuova Azienda</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
+            Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema
+          </p>
+        </div>
 
-          {/* Form using AziendaFormManager in page mode */}
-          <div className="px-4 md:px-0">
+        {/* Form using AziendaFormManager in page mode */}
+        <div className="w-full sm:max-w-7xl">
+          <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
             <AziendaFormManager
               mode="page"
               onSubmit={handleSubmit}

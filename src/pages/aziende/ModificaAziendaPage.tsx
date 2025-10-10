@@ -47,9 +47,11 @@ export default function ModificaAziendaPage() {
 
   if (isLoading) {
     return (
-      <MainLayout title="Modifica Azienda" showBottomNav={true}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <MainLayout>
+        <div className="w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
         </div>
       </MainLayout>
     );
@@ -57,39 +59,45 @@ export default function ModificaAziendaPage() {
 
   if (!azienda) {
     return (
-      <MainLayout title="Modifica Azienda" showBottomNav={true}>
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-          <p className="text-muted-foreground">Azienda non trovata</p>
-          <Button onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Torna alle Aziende
-          </Button>
+      <MainLayout>
+        <div className="w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8">
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+            <p className="text-muted-foreground">Azienda non trovata</p>
+            <Button onClick={handleBack} size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Torna alle Aziende
+            </Button>
+          </div>
         </div>
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout 
-      title="Modifica Azienda" 
-      showBottomNav={true}
-    >
-      <div className="w-full px-0 md:px-4">
-        <div className="space-y-6">
-          {/* Back button */}
-          <div className="px-4 md:px-0">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Torna alle Aziende
-            </Button>
-          </div>
+    <MainLayout>
+      <div className="w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-4 sm:mb-6">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            className="mb-3 sm:mb-4 -ml-2"
+            size="sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Torna alle Aziende</span>
+            <span className="sm:hidden">Indietro</span>
+          </Button>
+          
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Modifica Azienda</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
+            Modifica i dettagli e le configurazioni dell'azienda esistente
+          </p>
+        </div>
 
-          {/* Form using AziendaFormManager in page mode */}
-          <div className="px-4 md:px-0">
+        {/* Form using AziendaFormManager in page mode */}
+        <div className="w-full sm:max-w-7xl">
+          <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
             <AziendaFormManager
               mode="page"
               azienda={azienda}
