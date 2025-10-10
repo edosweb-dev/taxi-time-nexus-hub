@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Sheet,
   SheetContent,
@@ -15,7 +16,8 @@ import { AziendaForm } from './AziendaForm';
 import { Azienda } from '@/lib/types';
 import { AziendaFormData } from '@/lib/api/aziende';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Building2, Edit, Plus } from 'lucide-react';
+import { Building2, Edit, Plus, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface AziendaFormManagerProps {
   mode: 'sheet' | 'dialog' | 'page';
@@ -148,19 +150,49 @@ export function AziendaFormManager({
       );
 
     case 'page':
+      const navigate = useNavigate();
       return (
-        <div className="container mx-auto max-w-2xl py-8 space-y-8">
-          <div className="space-y-4">
-            <HeaderContent />
-            <p className="text-muted-foreground">
-              {isEditing 
-                ? "Modifica i dettagli e le configurazioni dell'azienda esistente"
-                : "Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema"
-              }
-            </p>
+        <div className="w-full min-h-screen">
+          {/* Container with wizard-style padding */}
+          <div className="w-full py-6">
+            
+            {/* Header with back button - same style as NuovoServizioForm */}
+            <div className="pb-2 mb-4 border-b flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-10 md:static md:bg-transparent">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/aziende')}
+                  className="-ml-2"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Torna alle Aziende</span>
+                  <span className="sm:hidden">Indietro</span>
+                </Button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-medium text-muted-foreground">
+                  {isEditing ? 'Modifica Azienda' : 'Nuova Azienda'}
+                </h1>
+              </div>
+            </div>
+
+            {/* Form content in container */}
+            <div className="container mx-auto max-w-2xl space-y-8">
+              <div className="space-y-4">
+                <HeaderContent />
+                <p className="text-muted-foreground">
+                  {isEditing 
+                    ? "Modifica i dettagli e le configurazioni dell'azienda esistente"
+                    : "Inserisci tutti i dettagli necessari per creare una nuova azienda nel sistema"
+                  }
+                </p>
+              </div>
+              
+              {formContent}
+            </div>
           </div>
-          
-          {formContent}
         </div>
       );
 
