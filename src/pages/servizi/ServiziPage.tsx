@@ -299,7 +299,7 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-md
+                    sm:rounded-full
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:hover:text-foreground
@@ -339,7 +339,7 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-md
+                    sm:rounded-full
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:hover:text-foreground
@@ -379,7 +379,7 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-md
+                    sm:rounded-full
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:hover:text-foreground
@@ -419,7 +419,7 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-md
+                    sm:rounded-full
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:hover:text-foreground
@@ -459,7 +459,7 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-md
+                    sm:rounded-full
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:hover:text-foreground
@@ -499,7 +499,7 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-md
+                    sm:rounded-full
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:hover:text-foreground
@@ -539,7 +539,7 @@ export default function ServiziPage() {
                     sm:px-4 sm:py-2.5
                     sm:text-sm
                     sm:font-semibold
-                    sm:rounded-md
+                    sm:rounded-full
                     sm:data-[state=inactive]:bg-transparent
                     sm:data-[state=inactive]:text-muted-foreground
                     sm:data-[state=inactive]:hover:text-foreground
