@@ -29,10 +29,17 @@ export async function getServizi(): Promise<Servizio[]> {
 
 export async function getServizioById(id: string): Promise<{ servizio: Servizio | null; passeggeri: PasseggeroConDettagli[] }> {
   try {
-    // Get servizio
+    // Get servizio with azienda data
     const { data: servizio, error: servizioError } = await supabase
       .from('servizi')
-      .select('*')
+      .select(`
+        *,
+        aziende (
+          id,
+          nome,
+          firma_digitale_attiva
+        )
+      `)
       .eq('id', id)
       .single();
 
