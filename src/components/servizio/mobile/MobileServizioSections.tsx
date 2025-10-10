@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, ChevronUp, Euro, FileText, Settings, History, User, AlertCircle, Edit3 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Euro, FileText, Settings, History, User, Edit3 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -143,17 +143,6 @@ export function MobileServizioSections({
 
   return (
     <div className="mobile-sections space-y-3 pb-8">
-      {/* Context-aware info banner */}
-      {workflow.autoOpenSections.length > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-2 animate-fade-in">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-            <div className="text-xs text-blue-700 dark:text-blue-300">
-              <strong>Sezioni rilevanti aperte automaticamente</strong> in base allo stato del servizio
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Dettagli Operativi - Context-aware */}
       {operationalConfig?.isVisible && (

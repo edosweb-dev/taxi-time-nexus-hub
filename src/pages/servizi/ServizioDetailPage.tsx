@@ -109,6 +109,9 @@ export default function ServizioDetailPage() {
     distanza: undefined // Add distanza field if available
   };
 
+  // Check if there are any actions available for mobile menu
+  const hasMobileActions = canModify || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
+
   // Mobile-first layout
   if (isMobile) {
     return (
@@ -117,7 +120,7 @@ export default function ServizioDetailPage() {
         headerProps={{
           showBackButton: true,
           onBackClick: () => navigate('/servizi'),
-          rightActions: (
+          rightActions: hasMobileActions ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -150,7 +153,7 @@ export default function ServizioDetailPage() {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          )
+          ) : undefined
         }}
       >
         <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">

@@ -20,7 +20,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
   const { form, profile } = useServizioForm();
   const { updateServizio, isUpdatingServizio } = useServizi();
 
-  // Precompila il form con i dati esistenti
+  // Precompila il form con i dati esistenti - usa servizio.id come dependency per resettare solo quando cambia servizio
   useEffect(() => {
     if (servizio && passeggeri) {
       console.log('[EditServizioForm] Dati servizio ricevuti:', servizio);
@@ -42,6 +42,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         ore_effettive: servizio.ore_effettive || 0,
         ore_fatturate: servizio.ore_fatturate || 0,
         applica_provvigione: servizio.applica_provvigione || false,
+        email_notifiche: [],
         passeggeri: passeggeri.map(p => ({
           id: p.id,
           passeggero_id: p.passeggero_id,
@@ -59,7 +60,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
       form.reset(formData);
       console.log('[EditServizioForm] Form resettato con successo');
     }
-  }, [servizio, passeggeri, form]);
+  }, [servizio?.id, passeggeri]);
 
   const onSubmit = async (values: any) => {
     try {
