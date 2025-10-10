@@ -94,8 +94,8 @@ export default function ServizioDetailPage() {
           onBackClick: () => navigate('/servizi')
         }}
       >
-        <div className="mobile-servizio-detail px-4">
-          <MobileServizioHero 
+        <div className="mobile-servizio-detail px-4 pb-20">
+          <MobileServizioHero
             servizio={mobileServizioData} 
             isAdmin={isAdmin}
             onAssegnaServizio={() => setAssegnazioneSheetOpen(true)}
@@ -110,45 +110,40 @@ export default function ServizioDetailPage() {
           
           {/* Mobile Action Buttons - Sticky at bottom */}
           {(canBeCompleted || canBeConsuntivato || canBeEdited) && (
-            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 pb-safe-bottom z-50">
-              <div className="px-2">
-                <div className="flex gap-2">
-                  {canBeCompleted && (
-                    <Button 
-                      onClick={() => setCompletaDialogOpen(true)}
-                      className="flex-1 h-10 text-sm font-medium"
-                    >
-                      <CheckCircle2 className="h-4 w-4 mr-1" />
-                      Completa
-                    </Button>
-                  )}
-                  
-                  {canBeConsuntivato && (
-                    <Button 
-                      onClick={() => setConsuntivaDialogOpen(true)}
-                      variant="secondary"
-                      className="flex-1 h-10 text-sm font-medium"
-                    >
-                      <FileText className="h-4 w-4 mr-1" />
-                      Consuntiva
-                    </Button>
-                  )}
-                  
-                  {canBeEdited && (
-                    <Button 
-                      onClick={() => navigate(`/servizi/${servizio.id}/edit`)}
-                      variant="outline"
-                      className="flex-1 h-10 text-sm font-medium"
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Modifica
-                    </Button>
-                  )}
-                </div>
+            <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 z-40">
+              <div className="flex gap-2">
+                {canBeCompleted && (
+                  <Button 
+                    onClick={() => setCompletaDialogOpen(true)}
+                    className="flex-1 h-10 text-sm font-medium"
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-1" />
+                    Completa
+                  </Button>
+                )}
+                
+                {canBeConsuntivato && (
+                  <Button 
+                    onClick={() => setConsuntivaDialogOpen(true)}
+                    variant="secondary"
+                    className="flex-1 h-10 text-sm font-medium"
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    Consuntiva
+                  </Button>
+                )}
+                
+                {canBeEdited && (
+                  <Button 
+                    onClick={() => navigate(`/servizi/${servizio.id}/edit`)}
+                    variant="outline"
+                    className="flex-1 h-10 text-sm font-medium"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Modifica
+                  </Button>
+                )}
               </div>
-              
-              {/* Spacer to prevent content overlap */}
-              <div className="h-20" />
             </div>
           )}
         </div>
