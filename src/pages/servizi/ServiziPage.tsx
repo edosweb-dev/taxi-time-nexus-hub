@@ -212,96 +212,92 @@ export default function ServiziPage() {
 
         {/* Tabs con Badge Contatori */}
         <div className="mb-6 -mx-3 sm:mx-0" data-component="servizi-tabs">
-          <div className="overflow-x-auto px-3 sm:px-0">
-            <TabsList className="inline-flex min-w-full sm:w-auto h-auto p-1 bg-muted/30">
-              <TabsTrigger 
-                value="da_assegnare" 
-                onClick={() => setActiveTab('da_assegnare')}
-                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-              >
-                <span>Da Assegnare</span>
-                {statusCounts.da_assegnare > 0 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="ml-2 bg-red-500 text-white hover:bg-red-600"
-                  >
-                    {statusCounts.da_assegnare}
-                  </Badge>
-                )}
-              </TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <div className="overflow-x-auto px-3 sm:px-0">
+              <TabsList className="inline-flex min-w-full sm:w-auto h-auto p-1 bg-muted/30">
+                <TabsTrigger 
+                  value="da_assegnare" 
+                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+                >
+                  <span>Da Assegnare</span>
+                  {statusCounts.da_assegnare > 0 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="ml-2 bg-red-500 text-white hover:bg-red-600"
+                    >
+                      {statusCounts.da_assegnare}
+                    </Badge>
+                  )}
+                </TabsTrigger>
 
-              <TabsTrigger 
-                value="assegnato"
-                onClick={() => setActiveTab('assegnato')}
-                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-              >
-                <span>Assegnati</span>
-                {statusCounts.assegnato > 0 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="ml-2 bg-yellow-500 text-white hover:bg-yellow-600"
-                  >
-                    {statusCounts.assegnato}
-                  </Badge>
-                )}
-              </TabsTrigger>
+                <TabsTrigger 
+                  value="assegnato"
+                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+                >
+                  <span>Assegnati</span>
+                  {statusCounts.assegnato > 0 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="ml-2 bg-yellow-500 text-white hover:bg-yellow-600"
+                    >
+                      {statusCounts.assegnato}
+                    </Badge>
+                  )}
+                </TabsTrigger>
 
-              <TabsTrigger 
-                value="non_accettato"
-                onClick={() => setActiveTab('non_accettato')}
-                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-              >
-                <span>Non Accettati</span>
-                {statusCounts.non_accettato > 0 && (
-                  <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
-                    {statusCounts.non_accettato}
-                  </Badge>
-                )}
-              </TabsTrigger>
+                <TabsTrigger 
+                  value="non_accettato"
+                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+                >
+                  <span>Non Accettati</span>
+                  {statusCounts.non_accettato > 0 && (
+                    <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
+                      {statusCounts.non_accettato}
+                    </Badge>
+                  )}
+                </TabsTrigger>
 
-              <TabsTrigger 
-                value="completato"
-                onClick={() => setActiveTab('completato')}
-                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-              >
-                <span>Completati</span>
-                {statusCounts.completato > 0 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="ml-2 bg-green-500 text-white hover:bg-green-600"
-                  >
-                    {statusCounts.completato}
-                  </Badge>
-                )}
-              </TabsTrigger>
+                <TabsTrigger 
+                  value="completato"
+                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+                >
+                  <span>Completati</span>
+                  {statusCounts.completato > 0 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="ml-2 bg-green-500 text-white hover:bg-green-600"
+                    >
+                      {statusCounts.completato}
+                    </Badge>
+                  )}
+                </TabsTrigger>
 
-              <TabsTrigger 
-                value="annullato"
-                onClick={() => setActiveTab('annullato')}
-                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-              >
-                <span>Annullati</span>
-                {statusCounts.annullato > 0 && (
-                  <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
-                    {statusCounts.annullato}
-                  </Badge>
-                )}
-              </TabsTrigger>
+                <TabsTrigger 
+                  value="annullato"
+                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+                >
+                  <span>Annullati</span>
+                  {statusCounts.annullato > 0 && (
+                    <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
+                      {statusCounts.annullato}
+                    </Badge>
+                  )}
+                </TabsTrigger>
 
-              <TabsTrigger 
-                value="consuntivato"
-                onClick={() => setActiveTab('consuntivato')}
-                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-              >
-                <span>Consuntivati</span>
-                {statusCounts.consuntivato > 0 && (
-                  <Badge variant="secondary" className="ml-2 bg-purple-500 text-white hover:bg-purple-600">
-                    {statusCounts.consuntivato}
-                  </Badge>
-                )}
-              </TabsTrigger>
-            </TabsList>
-          </div>
+                <TabsTrigger 
+                  value="consuntivato"
+                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+                >
+                  <span>Consuntivati</span>
+                  {statusCounts.consuntivato > 0 && (
+                    <Badge variant="secondary" className="ml-2 bg-purple-500 text-white hover:bg-purple-600">
+                      {statusCounts.consuntivato}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </Tabs>
         </div>
 
         {/* Loading State */}
