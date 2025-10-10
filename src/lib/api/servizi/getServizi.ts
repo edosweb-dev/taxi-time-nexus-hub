@@ -56,6 +56,10 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
         passeggeri:passeggero_id (
           id,
           nome_cognome,
+          nome,
+          cognome,
+          localita,
+          indirizzo,
           email,
           telefono,
           azienda_id,
