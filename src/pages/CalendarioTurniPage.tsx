@@ -26,13 +26,15 @@ export default function CalendarioTurniPage() {
     <MainLayout>
       <div className="w-full px-0 md:px-4">
         <ShiftProvider>
-          {isMobile ? (
-            <MobileCalendarioView isAdminOrSocio={isAdminOrSocio} />
-          ) : (
-            <>
-              <CalendarioTurniContent isAdminOrSocio={isAdminOrSocio} />
-            </>
-          )}
+          <div className="flex flex-col items-start w-full">
+            {isMobile ? (
+              <MobileCalendarioView isAdminOrSocio={isAdminOrSocio} />
+            ) : (
+              <>
+                <CalendarioTurniContent isAdminOrSocio={isAdminOrSocio} />
+              </>
+            )}
+          </div>
         </ShiftProvider>
       </div>
     </MainLayout>
