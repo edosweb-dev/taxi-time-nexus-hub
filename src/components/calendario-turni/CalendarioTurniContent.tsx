@@ -30,6 +30,7 @@ import { CalendarioView } from './CalendarioView';
 import { InserimentoMassivoDialog } from './InserimentoMassivoDialog';
 import { ViewFilterDropdown } from '@/components/shifts/filters/ViewFilterDropdown';
 import { Shift } from '@/components/shifts/types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CalendarioTurniContentProps {
   isAdminOrSocio: boolean;
@@ -41,6 +42,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
   const { users } = useUsers();
   const { shifts, isLoading, loadShifts, deleteShift } = useShifts();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -191,6 +193,14 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
     setIsCreationComplete(false);
   };
 
+  const handleOpenInserimentoMassivo = () => {
+    if (isMobile) {
+      navigate('/calendario-turni/inserimento-massivo');
+    } else {
+      setInserimentoMassivoOpen(true);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Inserimento Massivo Dialog */}
@@ -309,7 +319,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                     <Button 
                       variant="outline"
                       size="sm" 
-                      onClick={() => setInserimentoMassivoOpen(true)} 
+                      onClick={handleOpenInserimentoMassivo} 
                       className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl"
                     >
                       <Users className="h-4 w-4" />
@@ -425,7 +435,7 @@ export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniConten
                     <Button 
                       variant="outline"
                       size="sm" 
-                      onClick={() => setInserimentoMassivoOpen(true)} 
+                      onClick={handleOpenInserimentoMassivo} 
                       className="h-8 px-2 text-xs"
                     >
                       <Users className="h-3 w-3 mr-1" />

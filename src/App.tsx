@@ -29,6 +29,7 @@ const SpeseAziendaliPage = lazy(() => import('./pages/SpeseAziendaliPage'));
 const CalendarioPage = lazy(() => import('./pages/CalendarioPage'));
 const ReportPage = lazy(() => import('./pages/ReportPage'));
 const CalendarioTurniPage = lazy(() => import('./pages/CalendarioTurniPage'));
+const MobileInserimentoMassivoPage = lazy(() => import('./pages/calendario-turni/MobileInserimentoMassivoPage'));
 const ShiftReportsPage = lazy(() => import('./pages/shifts/ShiftReportsPage'));
 const AziendePage = lazy(() => import('./pages/aziende/AziendePage'));
 const NuovaAziendaPage = lazy(() => import('./pages/aziende/NuovaAziendaPage'));
@@ -218,11 +219,16 @@ function App() {
                 {/* Shifts Routes - calendario-turni come pagina principale */}
                 <Route path="/turni" element={<Navigate to="/calendario-turni" replace />} />
                 <Route path="/gestione-turni" element={<Navigate to="/calendario-turni" replace />} />
-                <Route path="/calendario-turni" element={
-                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                    <CalendarioTurniPage />
-                  </AuthGuard>
-                } />
+              <Route path="/calendario-turni" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <CalendarioTurniPage />
+                </AuthGuard>
+              } />
+              <Route path="/calendario-turni/inserimento-massivo" element={
+                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                  <MobileInserimentoMassivoPage />
+                </AuthGuard>
+              } />
                 <Route path="/report" element={
                   <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                     <ShiftReportsPage />
