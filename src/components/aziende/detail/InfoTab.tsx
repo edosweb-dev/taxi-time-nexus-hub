@@ -78,7 +78,7 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
   return (
     <div className="grid gap-6 grid-cols-1 lg:grid-cols-5">
       {/* Main Information Card - 60% */}
-      <Card className="lg:col-span-3 border-l-4 border-l-primary shadow-sm">
+      <Card className="lg:col-span-3 shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl font-bold flex items-center gap-3">
             <Building2 className="h-6 w-6 text-primary" />
@@ -184,7 +184,7 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
       </Card>
 
       {/* Contact Information Card - 40% */}
-      <Card className="lg:col-span-2 border-l-4 border-l-blue-500 shadow-sm">
+      <Card className="lg:col-span-2 shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl font-bold flex items-center gap-3">
             <Phone className="h-6 w-6 text-blue-500" />
@@ -244,7 +244,7 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
       </Card>
 
       {/* Referenti Card - 60% */}
-      <Card className="lg:col-span-3 border-l-4 border-l-green-500 shadow-sm">
+      <Card className="lg:col-span-3 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold flex items-center gap-3">
@@ -329,7 +329,7 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
       </Card>
 
       {/* Configuration Settings Card - 40% */}
-      <Card className="lg:col-span-2 border-l-4 border-l-amber-500 shadow-sm">
+      <Card className="lg:col-span-2 shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl font-bold flex items-center gap-3">
             <Building2 className="h-6 w-6 text-amber-500" />
@@ -393,7 +393,7 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
       </Card>
 
       {/* Passeggeri Card - Nuovo blocco */}
-      <Card className="lg:col-span-5 border-l-4 border-l-purple-500 shadow-sm">
+      <Card className="lg:col-span-5 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold flex items-center gap-3">
