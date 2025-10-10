@@ -164,7 +164,7 @@ export function MobileAziendaList({
       />
 
       {/* Content - cards list */}
-      <div className="px-4 py-4 pb-32 space-y-3">
+      <div className="py-4 pb-32 space-y-3">
         {paginatedAziende.map((azienda) => (
           <MobileAziendaCard
             key={azienda.id}
