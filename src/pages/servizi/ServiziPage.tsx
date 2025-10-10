@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServiziWithPasseggeri, ServizioWithPasseggeri } from "@/hooks/useServiziWithPasseggeri";
@@ -30,14 +30,6 @@ export default function ServiziPage() {
   
   const [activeTab, setActiveTab] = useState<string>("bozza");
   const [searchTerm, setSearchTerm] = useState("");
-  const tabsContainerRef = useRef<HTMLDivElement>(null);
-
-  // Scroll tabs a sinistra all'inizio
-  useEffect(() => {
-    if (tabsContainerRef.current) {
-      tabsContainerRef.current.scrollLeft = 0;
-    }
-  }, []);
 
   // Calculate status counts
   const statusCounts = useMemo(() => ({
@@ -224,28 +216,26 @@ export default function ServiziPage() {
         </div>
 
         {/* Tabs Ottimizzati Mobile */}
-        <div className="mb-6 w-full">
+        <div className="mb-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Container scroll orizzontale */}
-            <div className="relative w-full">
-              {/* Gradient fade solo a destra */}
-              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none z-10 sm:hidden" />
+            <div className="relative -mx-3 sm:mx-0">
+              {/* Gradient fade left/right per indicare scroll */}
+              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none z-10 sm:hidden" />
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10 sm:hidden" />
               
-              {/* Tabs scrollabile - parte da sinistra */}
-              <div 
-                ref={tabsContainerRef}
-                className="overflow-x-auto scrollbar-hide pb-2"
-              >
-                <TabsList className="inline-flex flex-nowrap w-auto gap-3 p-1.5 bg-transparent">
+              {/* Tabs scrollabile */}
+              <div className="overflow-x-auto scrollbar-hide px-3 sm:px-0 pb-2">
+                <TabsList className="inline-flex flex-nowrap w-auto h-auto gap-3 p-1.5 bg-muted/30 rounded-lg">
                   
                   {/* Tab: Bozze */}
                   <TabsTrigger 
                     value="bozza" 
-                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md text-base font-semibold data-[state=inactive]:bg-muted/50 data-[state=inactive]:text-foreground/80 data-[state=inactive]:border-2 data-[state=inactive]:border-muted data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:scale-105 transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
-                    <span>Bozze</span>
+                    <span className="text-sm font-medium">Bozze</span>
                     {statusCounts.bozza > 0 && (
-                      <Badge className={activeTab === 'bozza' ? "h-7 min-w-[30px] px-3 bg-white text-gray-600 text-sm font-bold rounded-full shadow-sm" : "h-6 min-w-[28px] px-2.5 bg-gray-400 text-white text-xs font-bold rounded-full"}>
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-gray-400 text-white text-xs font-bold rounded-full">
                         {statusCounts.bozza}
                       </Badge>
                     )}
@@ -254,11 +244,11 @@ export default function ServiziPage() {
                   {/* Tab: Da Assegnare */}
                   <TabsTrigger 
                     value="da_assegnare" 
-                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md text-base font-semibold data-[state=inactive]:bg-muted/50 data-[state=inactive]:text-foreground/80 data-[state=inactive]:border-2 data-[state=inactive]:border-muted data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:scale-105 transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
-                    <span>Da Assegnare</span>
+                    <span className="text-sm font-medium">Da Assegnare</span>
                     {statusCounts.da_assegnare > 0 && (
-                      <Badge className={activeTab === 'da_assegnare' ? "h-7 min-w-[30px] px-3 bg-white text-red-600 text-sm font-bold rounded-full shadow-sm" : "h-6 min-w-[28px] px-2.5 bg-yellow-500 text-white text-xs font-bold rounded-full"}>
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-yellow-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.da_assegnare}
                       </Badge>
                     )}
@@ -267,11 +257,11 @@ export default function ServiziPage() {
                   {/* Tab: Assegnati */}
                   <TabsTrigger 
                     value="assegnato"
-                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md text-base font-semibold data-[state=inactive]:bg-muted/50 data-[state=inactive]:text-foreground/80 data-[state=inactive]:border-2 data-[state=inactive]:border-muted data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:scale-105 transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
-                    <span>Assegnati</span>
+                    <span className="text-sm font-medium">Assegnati</span>
                     {statusCounts.assegnato > 0 && (
-                      <Badge className={activeTab === 'assegnato' ? "h-7 min-w-[30px] px-3 bg-white text-yellow-600 text-sm font-bold rounded-full shadow-sm" : "h-6 min-w-[28px] px-2.5 bg-blue-500 text-white text-xs font-bold rounded-full"}>
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-blue-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.assegnato}
                       </Badge>
                     )}
@@ -280,11 +270,11 @@ export default function ServiziPage() {
                   {/* Tab: Non Accettati */}
                   <TabsTrigger 
                     value="non_accettato"
-                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md text-base font-semibold data-[state=inactive]:bg-muted/50 data-[state=inactive]:text-foreground/80 data-[state=inactive]:border-2 data-[state=inactive]:border-muted data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:scale-105 transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
-                    <span>Non Accettati</span>
+                    <span className="text-sm font-medium">Non Accettati</span>
                     {statusCounts.non_accettato > 0 && (
-                      <Badge className={activeTab === 'non_accettato' ? "h-7 min-w-[30px] px-3 bg-white text-gray-600 text-sm font-bold rounded-full shadow-sm" : "h-6 min-w-[28px] px-2.5 bg-orange-500 text-white text-xs font-bold rounded-full"}>
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-orange-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.non_accettato}
                       </Badge>
                     )}
@@ -293,11 +283,11 @@ export default function ServiziPage() {
                   {/* Tab: Completati */}
                   <TabsTrigger 
                     value="completato"
-                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md text-base font-semibold data-[state=inactive]:bg-muted/50 data-[state=inactive]:text-foreground/80 data-[state=inactive]:border-2 data-[state=inactive]:border-muted data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:scale-105 transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
-                    <span>Completati</span>
+                    <span className="text-sm font-medium">Completati</span>
                     {statusCounts.completato > 0 && (
-                      <Badge className={activeTab === 'completato' ? "h-7 min-w-[30px] px-3 bg-white text-green-600 text-sm font-bold rounded-full shadow-sm" : "h-6 min-w-[28px] px-2.5 bg-green-500 text-white text-xs font-bold rounded-full"}>
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-green-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.completato}
                       </Badge>
                     )}
@@ -306,11 +296,11 @@ export default function ServiziPage() {
                   {/* Tab: Annullati */}
                   <TabsTrigger 
                     value="annullato"
-                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md text-base font-semibold data-[state=inactive]:bg-muted/50 data-[state=inactive]:text-foreground/80 data-[state=inactive]:border-2 data-[state=inactive]:border-muted data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:scale-105 transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
-                    <span>Annullati</span>
+                    <span className="text-sm font-medium">Annullati</span>
                     {statusCounts.annullato > 0 && (
-                      <Badge className={activeTab === 'annullato' ? "h-7 min-w-[30px] px-3 bg-white text-gray-600 text-sm font-bold rounded-full shadow-sm" : "h-6 min-w-[28px] px-2.5 bg-red-500 text-white text-xs font-bold rounded-full"}>
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-red-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.annullato}
                       </Badge>
                     )}
@@ -319,11 +309,11 @@ export default function ServiziPage() {
                   {/* Tab: Consuntivati */}
                   <TabsTrigger 
                     value="consuntivato"
-                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md text-base font-semibold data-[state=inactive]:bg-muted/50 data-[state=inactive]:text-foreground/80 data-[state=inactive]:border-2 data-[state=inactive]:border-muted data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:scale-105 transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-3 min-h-[48px] min-w-max whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-primary data-[state=inactive]:border-2 data-[state=inactive]:border-transparent"
                   >
-                    <span>Consuntivati</span>
+                    <span className="text-sm font-medium">Consuntivati</span>
                     {statusCounts.consuntivato > 0 && (
-                      <Badge className={activeTab === 'consuntivato' ? "h-7 min-w-[30px] px-3 bg-white text-purple-600 text-sm font-bold rounded-full shadow-sm" : "h-6 min-w-[28px] px-2.5 bg-purple-500 text-white text-xs font-bold rounded-full"}>
+                      <Badge className="h-6 min-w-[28px] px-2.5 bg-purple-500 text-white text-xs font-bold rounded-full">
                         {statusCounts.consuntivato}
                       </Badge>
                     )}
