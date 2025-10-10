@@ -14,13 +14,9 @@ import { useLayout } from '@/contexts/LayoutContext';
 
 export default function AziendePage() {
   const navigate = useNavigate();
-  const { aziende, createCompany, updateCompany, deleteCompany, isCreating, isUpdating, isDeleting } = useAziende();
+  const { aziende, deleteCompany } = useAziende();
   const isMobile = useIsMobile();
   const { setPaddingMode } = useLayout();
-  
-  // Form state
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
 
   useEffect(() => {
     if (isMobile) {
@@ -34,8 +30,7 @@ export default function AziendePage() {
   const [aziendaToDelete, setAziendaToDelete] = useState<Azienda | null>(null);
 
   const handleAddAzienda = () => {
-    setSelectedAzienda(null);
-    setIsFormOpen(true);
+    navigate('/aziende/nuovo');
   };
 
   const handleViewAzienda = (azienda: Azienda) => {
@@ -43,8 +38,7 @@ export default function AziendePage() {
   };
 
   const handleEditAzienda = (azienda: Azienda) => {
-    setSelectedAzienda(azienda);
-    setIsFormOpen(true);
+    navigate(`/aziende/${azienda.id}/modifica`);
   };
 
   const handleDeleteAzienda = (azienda: Azienda) => {
@@ -58,21 +52,6 @@ export default function AziendePage() {
       setDeleteDialogOpen(false);
       setAziendaToDelete(null);
     }
-  };
-
-  const handleFormSubmit = (data: AziendaFormData) => {
-    if (selectedAzienda) {
-      updateCompany(selectedAzienda.id, data);
-    } else {
-      createCompany(data);
-    }
-    setIsFormOpen(false);
-    setSelectedAzienda(null);
-  };
-
-  const handleFormCancel = () => {
-    setIsFormOpen(false);
-    setSelectedAzienda(null);
   };
 
   // Vista Griglia - Layout standard con sidebar
@@ -100,15 +79,6 @@ export default function AziendePage() {
             onAddAzienda={handleAddAzienda}
           />
         )}
-
-        <AziendaFormManager
-          mode={isMobile ? 'sheet' : 'dialog'}
-          isOpen={isFormOpen}
-          onOpenChange={setIsFormOpen}
-          onSubmit={handleFormSubmit}
-          azienda={selectedAzienda}
-          isSubmitting={isCreating || isUpdating}
-        />
 
         <DeleteAziendaDialog
           azienda={aziendaToDelete}

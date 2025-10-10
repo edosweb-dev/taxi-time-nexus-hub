@@ -32,6 +32,7 @@ const CalendarioTurniPage = lazy(() => import('./pages/CalendarioTurniPage'));
 const ShiftReportsPage = lazy(() => import('./pages/shifts/ShiftReportsPage'));
 const AziendePage = lazy(() => import('./pages/aziende/AziendePage'));
 const NuovaAziendaPage = lazy(() => import('./pages/aziende/NuovaAziendaPage'));
+const ModificaAziendaPage = lazy(() => import('./pages/aziende/ModificaAziendaPage'));
 const AziendaDetailPage = lazy(() => import('./pages/aziende/AziendaDetailPage'));
 const ReferenteDetailPage = lazy(() => import('./pages/referenti/ReferenteDetailPage'));
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
@@ -132,9 +133,14 @@ function App() {
                     <AziendePage />
                   </AuthGuard>
                 } />
-                <Route path="/nuova-azienda" element={
+                <Route path="/aziende/nuovo" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <NuovaAziendaPage />
+                  </AuthGuard>
+                } />
+                <Route path="/aziende/:id/modifica" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <ModificaAziendaPage />
                   </AuthGuard>
                 } />
                 <Route path="/aziende/:id" element={
@@ -142,6 +148,8 @@ function App() {
                     <AziendaDetailPage />
                   </AuthGuard>
                 } />
+                {/* Legacy route redirect */}
+                <Route path="/nuova-azienda" element={<Navigate to="/aziende/nuovo" replace />} />
 
                 {/* Referenti Routes */}
                 <Route path="/referenti/:id" element={
