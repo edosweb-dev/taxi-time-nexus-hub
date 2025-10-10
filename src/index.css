@@ -463,6 +463,18 @@ body {
   display: none;  /* Chrome/Safari */
 }
 
+/* Tabs visibilità aumentata */
+[role="tab"] {
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+}
+
+/* Tab attivo molto visibile */
+[role="tab"][data-state="active"] {
+  font-weight: 700 !important;
+  transform: scale(1.05);
+}
+
 /* Tabs ottimizzati mobile */
 @media (max-width: 640px) {
   /* Force spacing tabs mobile */
@@ -472,6 +484,7 @@ body {
     gap: 0.75rem !important; /* 12px */
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    scroll-padding-left: 12px;
   }
   
   [role="tab"] {
