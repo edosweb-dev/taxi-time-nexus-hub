@@ -453,36 +453,41 @@ body {
   }
 }
 
-/* Tabs con Badge - Servizi */
-[data-component="servizi-tabs"] [role="tablist"] {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+/* Hide scrollbar ma mantieni funzionalità scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-[data-component="servizi-tabs"] [role="tablist"]::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome/Safari */
 }
 
-/* Tab attivo border blu */
-[role="tab"][data-state="active"] {
-  border-bottom: 2px solid hsl(var(--primary));
-  font-weight: 500;
-}
-
-/* Badge in tab */
-[role="tab"] .inline-flex {
-  pointer-events: none; /* Badge non clickabile */
-}
-
-/* Mobile: scroll touch-friendly */
+/* Tabs ottimizzati mobile */
 @media (max-width: 640px) {
-  [data-component="servizi-tabs"] [role="tablist"] {
+  /* Scroll smooth touch */
+  [role="tablist"] {
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
   }
   
-  [data-component="servizi-tabs"] [role="tab"] {
-    scroll-snap-align: start;
+  /* Tab attivo visibile centro */
+  [role="tab"][data-state="active"] {
+    scroll-margin-left: 12px;
+    scroll-margin-right: 12px;
+  }
+  
+  /* Badge dimensione fissa */
+  [role="tab"] .inline-flex {
+    flex-shrink: 0;
+  }
+}
+
+/* Desktop: tabs più spaziosi */
+@media (min-width: 640px) {
+  [role="tab"] {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 

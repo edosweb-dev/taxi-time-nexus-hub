@@ -215,107 +215,112 @@ export default function ServiziPage() {
           </div>
         </div>
 
-        {/* Tabs con Badge Contatori */}
-        <div className="mb-6 -mx-3 sm:mx-0" data-component="servizi-tabs">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="overflow-x-auto px-3 sm:px-0">
-              <TabsList className="inline-flex min-w-full sm:w-auto h-auto p-1 bg-muted/30">
-                <TabsTrigger 
-                  value="bozza" 
-                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-                >
-                  <span>Bozze</span>
-                  {statusCounts.bozza > 0 && (
-                    <Badge 
-                      variant="secondary" 
-                      className="ml-2 bg-gray-400 text-white hover:bg-gray-500"
-                    >
-                      {statusCounts.bozza}
-                    </Badge>
-                  )}
-                </TabsTrigger>
+        {/* Tabs Ottimizzati Mobile */}
+        <div className="mb-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            {/* Container scroll orizzontale */}
+            <div className="relative -mx-3 sm:mx-0">
+              {/* Gradient fade left/right per indicare scroll */}
+              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none z-10 sm:hidden" />
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10 sm:hidden" />
+              
+              {/* Tabs scrollabile */}
+              <div className="overflow-x-auto scrollbar-hide px-3 sm:px-0">
+                <TabsList className="inline-flex w-auto h-auto p-1 gap-2 bg-muted/30">
+                  
+                  {/* Tab: Bozze */}
+                  <TabsTrigger 
+                    value="bozza" 
+                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                  >
+                    <span className="text-sm font-medium">Bozze</span>
+                    {statusCounts.bozza > 0 && (
+                      <Badge className="h-6 min-w-[24px] px-2 bg-gray-400 text-white text-xs font-bold">
+                        {statusCounts.bozza}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
 
-                <TabsTrigger 
-                  value="da_assegnare" 
-                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-                >
-                  <span>Da Assegnare</span>
-                  {statusCounts.da_assegnare > 0 && (
-                    <Badge 
-                      variant="secondary" 
-                      className="ml-2 bg-yellow-500 text-white hover:bg-yellow-600"
-                    >
-                      {statusCounts.da_assegnare}
-                    </Badge>
-                  )}
-                </TabsTrigger>
+                  {/* Tab: Da Assegnare */}
+                  <TabsTrigger 
+                    value="da_assegnare" 
+                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                  >
+                    <span className="text-sm font-medium">Da Assegnare</span>
+                    {statusCounts.da_assegnare > 0 && (
+                      <Badge className="h-6 min-w-[24px] px-2 bg-yellow-500 text-white text-xs font-bold">
+                        {statusCounts.da_assegnare}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
 
-                <TabsTrigger 
-                  value="assegnato"
-                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-                >
-                  <span>Assegnati</span>
-                  {statusCounts.assegnato > 0 && (
-                    <Badge 
-                      variant="secondary" 
-                      className="ml-2 bg-blue-500 text-white hover:bg-blue-600"
-                    >
-                      {statusCounts.assegnato}
-                    </Badge>
-                  )}
-                </TabsTrigger>
+                  {/* Tab: Assegnati */}
+                  <TabsTrigger 
+                    value="assegnato"
+                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                  >
+                    <span className="text-sm font-medium">Assegnati</span>
+                    {statusCounts.assegnato > 0 && (
+                      <Badge className="h-6 min-w-[24px] px-2 bg-blue-500 text-white text-xs font-bold">
+                        {statusCounts.assegnato}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
 
-                <TabsTrigger 
-                  value="non_accettato"
-                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-                >
-                  <span>Non Accettati</span>
-                  {statusCounts.non_accettato > 0 && (
-                    <Badge variant="secondary" className="ml-2 bg-orange-500 text-white hover:bg-orange-600">
-                      {statusCounts.non_accettato}
-                    </Badge>
-                  )}
-                </TabsTrigger>
+                  {/* Tab: Non Accettati */}
+                  <TabsTrigger 
+                    value="non_accettato"
+                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                  >
+                    <span className="text-sm font-medium">Non Accettati</span>
+                    {statusCounts.non_accettato > 0 && (
+                      <Badge className="h-6 min-w-[24px] px-2 bg-orange-500 text-white text-xs font-bold">
+                        {statusCounts.non_accettato}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
 
-                <TabsTrigger 
-                  value="completato"
-                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-                >
-                  <span>Completati</span>
-                  {statusCounts.completato > 0 && (
-                    <Badge 
-                      variant="secondary" 
-                      className="ml-2 bg-green-500 text-white hover:bg-green-600"
-                    >
-                      {statusCounts.completato}
-                    </Badge>
-                  )}
-                </TabsTrigger>
+                  {/* Tab: Completati */}
+                  <TabsTrigger 
+                    value="completato"
+                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                  >
+                    <span className="text-sm font-medium">Completati</span>
+                    {statusCounts.completato > 0 && (
+                      <Badge className="h-6 min-w-[24px] px-2 bg-green-500 text-white text-xs font-bold">
+                        {statusCounts.completato}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
 
-                <TabsTrigger 
-                  value="annullato"
-                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-                >
-                  <span>Annullati</span>
-                  {statusCounts.annullato > 0 && (
-                    <Badge variant="secondary" className="ml-2 bg-red-500 text-white hover:bg-red-600">
-                      {statusCounts.annullato}
-                    </Badge>
-                  )}
-                </TabsTrigger>
+                  {/* Tab: Annullati */}
+                  <TabsTrigger 
+                    value="annullato"
+                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                  >
+                    <span className="text-sm font-medium">Annullati</span>
+                    {statusCounts.annullato > 0 && (
+                      <Badge className="h-6 min-w-[24px] px-2 bg-red-500 text-white text-xs font-bold">
+                        {statusCounts.annullato}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
 
-                <TabsTrigger 
-                  value="consuntivato"
-                  className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
-                >
-                  <span>Consuntivati</span>
-                  {statusCounts.consuntivato > 0 && (
-                    <Badge variant="secondary" className="ml-2 bg-purple-500 text-white hover:bg-purple-600">
-                      {statusCounts.consuntivato}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-              </TabsList>
+                  {/* Tab: Consuntivati */}
+                  <TabsTrigger 
+                    value="consuntivato"
+                    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
+                  >
+                    <span className="text-sm font-medium">Consuntivati</span>
+                    {statusCounts.consuntivato > 0 && (
+                      <Badge className="h-6 min-w-[24px] px-2 bg-purple-500 text-white text-xs font-bold">
+                        {statusCounts.consuntivato}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+
+                </TabsList>
+              </div>
             </div>
           </Tabs>
         </div>
