@@ -6,7 +6,6 @@ import { useAziende } from "./useAziende";
 import { getServizioIndex } from "@/components/servizi/utils/formatUtils";
 import { useQuery } from "@tanstack/react-query";
 import { formatCurrency as formatCurrencyUtil } from "@/components/servizi/utils/formatUtils";
-import { useFirmaDigitale } from "./useFirmaDigitale";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function useServizioDetail(id?: string) {
@@ -14,7 +13,6 @@ export function useServizioDetail(id?: string) {
   const { servizi: allServizi } = useServizi(); // Get all servizi for global indexing
   const { users } = useUsers();
   const { aziende } = useAziende();
-  const { isFirmaDigitaleAttiva } = useFirmaDigitale();
   const { profile } = useAuth();
   
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
@@ -22,6 +20,9 @@ export function useServizioDetail(id?: string) {
   
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
+  
+  // Calcola firma digitale dall'azienda del servizio, non dal profilo utente
+  const firmaDigitaleAttiva = servizio?.aziende?.firma_digitale_attiva || false;
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
@@ -80,7 +81,7 @@ export function useServizioDetail(id?: string) {
     setCompletaDialogOpen,
     consuntivaDialogOpen,
     setConsuntivaDialogOpen,
-    firmaDigitaleAttiva: isFirmaDigitaleAttiva,
+    firmaDigitaleAttiva,
     formatCurrency: formatCurrencyUtil,
   };
 }
