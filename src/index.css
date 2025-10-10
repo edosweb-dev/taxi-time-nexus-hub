@@ -453,6 +453,39 @@ body {
   }
 }
 
+/* Tabs con Badge - Servizi */
+[data-component="servizi-tabs"] [role="tablist"] {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+[data-component="servizi-tabs"] [role="tablist"]::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Tab attivo border blu */
+[role="tab"][data-state="active"] {
+  border-bottom: 2px solid hsl(var(--primary));
+  font-weight: 500;
+}
+
+/* Badge in tab */
+[role="tab"] .inline-flex {
+  pointer-events: none; /* Badge non clickabile */
+}
+
+/* Mobile: scroll touch-friendly */
+@media (max-width: 640px) {
+  [data-component="servizi-tabs"] [role="tablist"] {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  
+  [data-component="servizi-tabs"] [role="tab"] {
+    scroll-snap-align: start;
+  }
+}
+
 /* Assignment Popup Mobile Optimizations */
 @media (max-width: 768px) {
   /* Touch target optimization */

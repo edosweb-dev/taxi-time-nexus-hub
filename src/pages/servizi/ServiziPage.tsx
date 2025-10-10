@@ -28,41 +28,37 @@ export default function ServiziPage() {
   const { aziende = [] } = useAziende();
   const { users = [] } = useUsers();
   
-  const [activeTab, setActiveTab] = useState("tutti");
-  const [filters, setFilters] = useState({
-    azienda: "all",
-    referente: "all",
-    stato: "all",
-    searchTerm: ""
-  });
+  const [activeTab, setActiveTab] = useState<string>("da_assegnare");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter servizi based on filters
-  const filteredServizi = useMemo(() => {
+  // Calculate status counts
+  const statusCounts = useMemo(() => ({
+    da_assegnare: servizi.filter(s => s.stato === 'da_assegnare').length,
+    assegnato: servizi.filter(s => s.stato === 'assegnato').length,
+    non_accettato: servizi.filter(s => s.stato === 'non_accettato').length,
+    completato: servizi.filter(s => s.stato === 'completato').length,
+    annullato: servizi.filter(s => s.stato === 'annullato').length,
+    consuntivato: servizi.filter(s => s.stato === 'consuntivato').length,
+  }), [servizi]);
+
+  // Filter servizi by search term
+  const searchFilteredServizi = useMemo(() => {
+    if (!searchTerm) return servizi;
+    const term = searchTerm.toLowerCase();
     return servizi.filter((s: ServizioWithPasseggeri) => {
-      if (filters.azienda && filters.azienda !== 'all' && s.azienda_id !== filters.azienda) return false;
-      if (filters.referente && filters.referente !== 'all' && s.referente_id !== filters.referente) return false;
-      if (filters.stato && filters.stato !== 'all' && s.stato !== filters.stato) return false;
-      if (filters.searchTerm) {
-        const term = filters.searchTerm.toLowerCase();
-        return (
-          s.aziende?.nome?.toLowerCase().includes(term) ||
-          s.numero_commessa?.toLowerCase().includes(term) ||
-          s.indirizzo_presa?.toLowerCase().includes(term) ||
-          s.indirizzo_destinazione?.toLowerCase().includes(term)
-        );
-      }
-      return true;
+      return (
+        s.aziende?.nome?.toLowerCase().includes(term) ||
+        s.numero_commessa?.toLowerCase().includes(term) ||
+        s.indirizzo_presa?.toLowerCase().includes(term) ||
+        s.indirizzo_destinazione?.toLowerCase().includes(term)
+      );
     });
-  }, [servizi, filters]);
+  }, [servizi, searchTerm]);
 
-  // Group servizi by status for mobile tabs
-  const serviziByStatus = useMemo(() => ({
-    tutti: filteredServizi,
-    da_assegnare: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'da_assegnare'),
-    assegnato: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'assegnato'),
-    completato: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'completato'),
-    consuntivato: filteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === 'consuntivato')
-  }), [filteredServizi]);
+  // Filter servizi by active tab
+  const filteredServizi = useMemo(() => {
+    return searchFilteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === activeTab);
+  }, [searchFilteredServizi, activeTab]);
 
   const getStatusColor = (stato: string) => {
     const colors: Record<string, string> = {
@@ -201,105 +197,112 @@ export default function ServiziPage() {
           </Button>
         </div>
 
-        {/* Filtri Desktop ONLY */}
-        {!isMobile && (
-          <Card className="w-full p-4 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="h-4 w-4" />
-              <h2 className="font-semibold">Filtri</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Ricerca */}
-              <div>
-                <Label htmlFor="search">Cerca</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="search"
-                    placeholder="Azienda, commessa..."
-                    className="pl-9"
-                    value={filters.searchTerm}
-                    onChange={(e) => setFilters({...filters, searchTerm: e.target.value})}
-                  />
-                </div>
-              </div>
+        {/* Search Bar (opzionale) */}
+        <div className="mb-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Cerca azienda, commessa..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
 
-              {/* Azienda */}
-              <div>
-                <Label htmlFor="azienda">Azienda</Label>
-                <Select 
-                  value={filters.azienda} 
-                  onValueChange={(v) => setFilters({...filters, azienda: v})}
-                >
-                  <SelectTrigger id="azienda">
-                    <SelectValue placeholder="Tutte" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutte</SelectItem>
-                    {aziende.map((a: any) => (
-                      <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Referente */}
-              <div>
-                <Label htmlFor="referente">Referente</Label>
-                <Select 
-                  value={filters.referente} 
-                  onValueChange={(v) => setFilters({...filters, referente: v})}
-                >
-                  <SelectTrigger id="referente">
-                    <SelectValue placeholder="Tutti" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutti</SelectItem>
-                    {users.filter((u: any) => u.role === 'cliente').map((u: any) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        {u.first_name} {u.last_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Stato */}
-              <div>
-                <Label htmlFor="stato">Stato</Label>
-                <Select 
-                  value={filters.stato} 
-                  onValueChange={(v) => setFilters({...filters, stato: v})}
-                >
-                  <SelectTrigger id="stato">
-                    <SelectValue placeholder="Tutti" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutti</SelectItem>
-                    <SelectItem value="da_assegnare">Da Assegnare</SelectItem>
-                    <SelectItem value="assegnato">Assegnato</SelectItem>
-                    <SelectItem value="completato">Completato</SelectItem>
-                    <SelectItem value="consuntivato">Consuntivato</SelectItem>
-                    <SelectItem value="annullato">Annullato</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Reset Filtri */}
-            {(filters.azienda !== 'all' || filters.referente !== 'all' || filters.stato !== 'all' || filters.searchTerm) && (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="mt-4"
-                onClick={() => setFilters({ azienda: "all", referente: "all", stato: "all", searchTerm: "" })}
+        {/* Tabs con Badge Contatori */}
+        <div className="mb-6 -mx-3 sm:mx-0" data-component="servizi-tabs">
+          <div className="overflow-x-auto px-3 sm:px-0">
+            <TabsList className="inline-flex min-w-full sm:w-auto h-auto p-1 bg-muted/30">
+              <TabsTrigger 
+                value="da_assegnare" 
+                onClick={() => setActiveTab('da_assegnare')}
+                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
               >
-                Reset Filtri
-              </Button>
-            )}
-          </Card>
-        )}
+                <span>Da Assegnare</span>
+                {statusCounts.da_assegnare > 0 && (
+                  <Badge 
+                    variant="secondary" 
+                    className="ml-2 bg-red-500 text-white hover:bg-red-600"
+                  >
+                    {statusCounts.da_assegnare}
+                  </Badge>
+                )}
+              </TabsTrigger>
+
+              <TabsTrigger 
+                value="assegnato"
+                onClick={() => setActiveTab('assegnato')}
+                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+              >
+                <span>Assegnati</span>
+                {statusCounts.assegnato > 0 && (
+                  <Badge 
+                    variant="secondary" 
+                    className="ml-2 bg-yellow-500 text-white hover:bg-yellow-600"
+                  >
+                    {statusCounts.assegnato}
+                  </Badge>
+                )}
+              </TabsTrigger>
+
+              <TabsTrigger 
+                value="non_accettato"
+                onClick={() => setActiveTab('non_accettato')}
+                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+              >
+                <span>Non Accettati</span>
+                {statusCounts.non_accettato > 0 && (
+                  <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
+                    {statusCounts.non_accettato}
+                  </Badge>
+                )}
+              </TabsTrigger>
+
+              <TabsTrigger 
+                value="completato"
+                onClick={() => setActiveTab('completato')}
+                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+              >
+                <span>Completati</span>
+                {statusCounts.completato > 0 && (
+                  <Badge 
+                    variant="secondary" 
+                    className="ml-2 bg-green-500 text-white hover:bg-green-600"
+                  >
+                    {statusCounts.completato}
+                  </Badge>
+                )}
+              </TabsTrigger>
+
+              <TabsTrigger 
+                value="annullato"
+                onClick={() => setActiveTab('annullato')}
+                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+              >
+                <span>Annullati</span>
+                {statusCounts.annullato > 0 && (
+                  <Badge variant="secondary" className="ml-2 bg-gray-500 text-white hover:bg-gray-600">
+                    {statusCounts.annullato}
+                  </Badge>
+                )}
+              </TabsTrigger>
+
+              <TabsTrigger 
+                value="consuntivato"
+                onClick={() => setActiveTab('consuntivato')}
+                className="relative px-4 py-2.5 data-[state=active]:bg-background data-[state=active]:text-foreground whitespace-nowrap"
+              >
+                <span>Consuntivati</span>
+                {statusCounts.consuntivato > 0 && (
+                  <Badge variant="secondary" className="ml-2 bg-purple-500 text-white hover:bg-purple-600">
+                    {statusCounts.consuntivato}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
 
         {/* Loading State */}
         {isLoading && (
@@ -318,69 +321,23 @@ export default function ServiziPage() {
         {/* Content */}
         {!isLoading && !error && (
           <>
-            {/* MOBILE: Tabs + Card List */}
+            {/* MOBILE: Card List */}
             {isMobile ? (
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full grid grid-cols-3 mb-4">
-                  <TabsTrigger value="tutti">
-                    Tutti
-                    <span className="ml-1.5 text-xs">({serviziByStatus.tutti.length})</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="da_assegnare">
-                    <span className="hidden sm:inline">Da Assegnare</span>
-                    <span className="sm:hidden">Da Ass.</span>
-                    <span className="ml-1.5 text-xs">({serviziByStatus.da_assegnare.length})</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="assegnato">
-                    <span className="hidden sm:inline">Assegnati</span>
-                    <span className="sm:hidden">Ass.</span>
-                    <span className="ml-1.5 text-xs">({serviziByStatus.assegnato.length})</span>
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* Tab Content - TUTTI */}
-                <TabsContent value="tutti" className="mt-0">
-                  <div className="w-full space-y-3">
-                    {serviziByStatus.tutti.map(renderMobileCard)}
-                    {serviziByStatus.tutti.length === 0 && (
-                      <Card className="w-full p-8 text-center">
-                        <p className="text-muted-foreground mb-4">Nessun servizio trovato</p>
-                        <Button 
-                          onClick={() => navigate("/servizi/crea")}
-                          variant="outline"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Crea il primo servizio
-                        </Button>
-                      </Card>
-                    )}
-                  </div>
-                </TabsContent>
-
-                {/* Tab Content - DA ASSEGNARE */}
-                <TabsContent value="da_assegnare" className="mt-0">
-                  <div className="w-full space-y-3">
-                    {serviziByStatus.da_assegnare.map(renderMobileCard)}
-                    {serviziByStatus.da_assegnare.length === 0 && (
-                      <Card className="w-full p-8 text-center">
-                        <p className="text-muted-foreground">Nessun servizio da assegnare</p>
-                      </Card>
-                    )}
-                  </div>
-                </TabsContent>
-
-                {/* Tab Content - ASSEGNATO */}
-                <TabsContent value="assegnato" className="mt-0">
-                  <div className="w-full space-y-3">
-                    {serviziByStatus.assegnato.map(renderMobileCard)}
-                    {serviziByStatus.assegnato.length === 0 && (
-                      <Card className="w-full p-8 text-center">
-                        <p className="text-muted-foreground">Nessun servizio assegnato</p>
-                      </Card>
-                    )}
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <div className="w-full space-y-3">
+                {filteredServizi.map(renderMobileCard)}
+                {filteredServizi.length === 0 && (
+                  <Card className="w-full p-8 text-center">
+                    <p className="text-muted-foreground mb-4">Nessun servizio trovato</p>
+                    <Button 
+                      onClick={() => navigate("/servizi/crea")}
+                      variant="outline"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Crea il primo servizio
+                    </Button>
+                  </Card>
+                )}
+              </div>
             ) : (
               /* DESKTOP: Table */
               <TooltipProvider>
