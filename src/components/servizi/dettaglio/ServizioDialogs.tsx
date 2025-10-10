@@ -34,6 +34,7 @@ export function ServizioDialogs({
         metodoDefault={servizio.metodo_pagamento}
         onComplete={onComplete}
         users={users}
+        servizio={servizio}
       />
 
       {/* Consuntiva servizio sheet */}

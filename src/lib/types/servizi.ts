@@ -41,6 +41,7 @@ export interface Servizio {
   aziende?: {
     id: string;
     nome: string;
+    firma_digitale_attiva?: boolean;
   };
 }
 

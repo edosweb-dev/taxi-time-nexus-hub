@@ -57,6 +57,7 @@ export const ServiziDialogManager = ({
             onOpenChange={setShowCompletaDialog}
             onComplete={handleDialogClose}
             users={users}
+            servizio={selectedServizio}
           />
           
           {showFirmaDialog && (

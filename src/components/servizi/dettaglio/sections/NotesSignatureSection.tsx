@@ -51,14 +51,14 @@ export function NotesSignatureSection({
       {firmaDigitaleAttiva && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Firma digitale</CardTitle>
+            <CardTitle className="text-lg">Firma Cliente</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {servizio.firma_url ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Badge variant="default" className="bg-green-100 text-green-800">
-                    Firmato
+                  <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                    Cliente ha firmato
                   </Badge>
                   {servizio.firma_timestamp && (
                     <span className="text-sm text-muted-foreground">
@@ -69,18 +69,18 @@ export function NotesSignatureSection({
                 <div className="border rounded-lg p-4 bg-muted/30">
                   <img 
                     src={servizio.firma_url} 
-                    alt="Firma digitale" 
+                    alt="Firma cliente" 
                     className="max-w-full h-auto border rounded"
                   />
                 </div>
               </div>
             ) : (
               <div className="text-center py-6">
-                <Badge variant="secondary" className="mb-2">
-                  Non firmato
+                <Badge variant="secondary" className="mb-2 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
+                  In attesa firma cliente
                 </Badge>
                 <div className="text-sm text-muted-foreground">
-                  Il servizio non è ancora stato firmato digitalmente
+                  Il cliente non ha ancora firmato digitalmente il servizio
                 </div>
               </div>
             )}

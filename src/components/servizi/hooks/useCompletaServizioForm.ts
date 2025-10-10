@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getImpostazioni } from "@/lib/api/impostazioni/getImpostazioni";
 import { completaServizio } from "@/lib/api/servizi";
 import { toast } from "@/components/ui/sonner";
-import { useFirmaDigitale } from "@/hooks/useFirmaDigitale";
+import { Servizio } from "@/lib/types/servizi";
 
 // Form schema
 export const completaServizioSchema = z.object({
@@ -28,6 +28,7 @@ interface UseCompletaServizioFormProps {
   onOpenChange: (open: boolean) => void;
   users: Profile[];
   open: boolean;
+  servizio: Servizio;
 }
 
 export function useCompletaServizioForm({
@@ -36,17 +37,11 @@ export function useCompletaServizioForm({
   onComplete,
   onOpenChange,
   users,
-  open
+  open,
+  servizio
 }: UseCompletaServizioFormProps) {
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
   const [isContanti, setIsContanti] = useState(metodoDefault === 'Contanti');
-  
-  // Check firma digitale
-  const { isFirmaDigitaleAttiva, isLoading: firmaLoading } = useFirmaDigitale();
-  
-  // State per gestire flusso firma
-  const [showFirmaDialog, setShowFirmaDialog] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState<CompletaServizioFormData | null>(null);
   
   // Load impostazioni for metodi pagamento
   const { data: impostazioni, isLoading: impostazioniLoading } = useQuery({
@@ -93,20 +88,16 @@ export function useCompletaServizioForm({
 
   // Submit handler
   async function onSubmit(data: CompletaServizioFormData) {
-    // Se firma obbligatoria, apri dialog firma
-    if (isFirmaDigitaleAttiva) {
-      setPendingFormData(data);
-      setShowFirmaDialog(true);
-      return; // Non completare ancora
-    }
-    
-    // Se firma NON obbligatoria, completa direttamente
-    await completaServizioSenzaFirma(data);
-  }
-  
-  // Funzione completamento senza firma
-  async function completaServizioSenzaFirma(data: CompletaServizioFormData) {
     try {
+      // VALIDAZIONE: Check firma cliente se obbligatoria
+      if (servizio?.aziende?.firma_digitale_attiva && !servizio?.firma_url) {
+        toast.error("Firma cliente mancante", {
+          description: "Richiedi prima la firma del cliente prima di completare il servizio."
+        });
+        return;
+      }
+
+      // Procedi con completamento normale
       const result = await completaServizio({
         id: servizioId,
         metodo_pagamento: data.metodo_pagamento,
@@ -126,22 +117,6 @@ export function useCompletaServizioForm({
       toast.error(`Errore: ${error.message || "Si è verificato un errore"}`);
     }
   }
-  
-  // Callback dopo firma salvata
-  async function onFirmaSalvata() {
-    if (!pendingFormData) return;
-    
-    // Firma salvata → ora completa servizio
-    await completaServizioSenzaFirma(pendingFormData);
-    setShowFirmaDialog(false);
-    setPendingFormData(null);
-  }
-  
-  // Callback chiusura dialog firma
-  function onFirmaDialogClose() {
-    setShowFirmaDialog(false);
-    setPendingFormData(null);
-  }
 
   return {
     form,
@@ -151,12 +126,5 @@ export function useCompletaServizioForm({
     adminUsers,
     metodiPagamento,
     impostazioniLoading,
-    // Nuovi return per firma
-    isFirmaDigitaleAttiva,
-    firmaLoading,
-    showFirmaDialog,
-    servizioId,
-    onFirmaSalvata,
-    onFirmaDialogClose,
   };
 }

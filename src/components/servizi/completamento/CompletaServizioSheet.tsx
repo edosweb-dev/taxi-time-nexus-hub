@@ -3,6 +3,7 @@ import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CompletaServizioForm } from "./CompletaServizioForm";
 import { Profile } from "@/lib/types";
+import { Servizio } from "@/lib/types/servizi";
 
 interface CompletaServizioSheetProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface CompletaServizioSheetProps {
   metodoDefault: string;
   onComplete: () => void;
   users: Profile[];
+  servizio: Servizio;
 }
 
 export function CompletaServizioSheet({
@@ -20,6 +22,7 @@ export function CompletaServizioSheet({
   metodoDefault,
   onComplete,
   users,
+  servizio,
 }: CompletaServizioSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -36,6 +39,7 @@ export function CompletaServizioSheet({
             onOpenChange={onOpenChange}
             users={users}
             open={open}
+            servizio={servizio}
           />
         </div>
       </SheetContent>

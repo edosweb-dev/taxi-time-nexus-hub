@@ -3,6 +3,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CompletaServizioForm } from "./CompletaServizioForm";
 import { Profile } from "@/lib/types";
+import { Servizio } from "@/lib/types/servizi";
 
 interface CompletaServizioDialogProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface CompletaServizioDialogProps {
   metodoDefault: string;
   onComplete: () => void;
   users: Profile[];
+  servizio: Servizio;
 }
 
 export function CompletaServizioDialog({
@@ -20,6 +22,7 @@ export function CompletaServizioDialog({
   metodoDefault,
   onComplete,
   users,
+  servizio,
 }: CompletaServizioDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,6 +38,7 @@ export function CompletaServizioDialog({
           onOpenChange={onOpenChange}
           users={users}
           open={open}
+          servizio={servizio}
         />
       </DialogContent>
     </Dialog>
