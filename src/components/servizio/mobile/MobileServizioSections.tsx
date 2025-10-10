@@ -131,7 +131,7 @@ export function MobileServizioSections({ servizio, passeggeri = [], formatCurren
   const historyConfig = getSectionConfig('history');
 
   return (
-    <div className="mobile-sections space-y-3 pb-4">
+    <div className="mobile-sections space-y-3 pb-8">
       {/* Context-aware info banner */}
       {workflow.autoOpenSections.length > 0 && (
         <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-2 animate-fade-in">
