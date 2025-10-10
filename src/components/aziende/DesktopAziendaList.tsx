@@ -29,27 +29,44 @@ export function DesktopAziendaList({
   const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
+  const [showFirmaDigitale, setShowFirmaDigitale] = useState(false);
+  const [showProvvigioni, setShowProvvigioni] = useState(false);
   
   const itemsPerPage = 9; // 3x3 grid for desktop
   
   const { data: referentiByAzienda = {} } = useAllReferenti();
 
   const filteredAziende = useMemo(() => {
-    if (!searchTerm) return aziende;
+    let filtered = aziende;
     
-    return aziende.filter((azienda) =>
-      azienda.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      azienda.partita_iva.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (azienda.email && azienda.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (azienda.telefono && azienda.telefono.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (azienda.citta && azienda.citta.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [aziende, searchTerm]);
+    // Apply search
+    if (searchTerm) {
+      filtered = filtered.filter((azienda) =>
+        azienda.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        azienda.partita_iva.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (azienda.email && azienda.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (azienda.telefono && azienda.telefono.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (azienda.citta && azienda.citta.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
 
-  // Reset to first page when search changes
+    // Apply firma digitale filter
+    if (showFirmaDigitale) {
+      filtered = filtered.filter((azienda) => azienda.firma_digitale_attiva === true);
+    }
+
+    // Apply provvigioni filter
+    if (showProvvigioni) {
+      filtered = filtered.filter((azienda) => azienda.provvigione === true);
+    }
+    
+    return filtered;
+  }, [aziende, searchTerm, showFirmaDigitale, showProvvigioni]);
+
+  // Reset to first page when search or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, showFirmaDigitale, showProvvigioni]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredAziende.length / itemsPerPage);
@@ -74,6 +91,10 @@ export function DesktopAziendaList({
           filteredCount={filteredAziende.length}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          showFirmaDigitale={showFirmaDigitale}
+          onShowFirmaDigitaleChange={setShowFirmaDigitale}
+          showProvvigioni={showProvvigioni}
+          onShowProvvigioniChange={setShowProvvigioni}
         />
         
         <div className="text-center py-20 bg-card border rounded-lg">
@@ -109,6 +130,10 @@ export function DesktopAziendaList({
           filteredCount={filteredAziende.length}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          showFirmaDigitale={showFirmaDigitale}
+          onShowFirmaDigitaleChange={setShowFirmaDigitale}
+          showProvvigioni={showProvvigioni}
+          onShowProvvigioniChange={setShowProvvigioni}
         />
         
         <div className="text-center py-20 bg-card border rounded-lg">
@@ -141,6 +166,10 @@ export function DesktopAziendaList({
         filteredCount={filteredAziende.length}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        showFirmaDigitale={showFirmaDigitale}
+        onShowFirmaDigitaleChange={setShowFirmaDigitale}
+        showProvvigioni={showProvvigioni}
+        onShowProvvigioniChange={setShowProvvigioni}
       />
 
       {viewMode === 'table' ? (

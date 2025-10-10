@@ -36,6 +36,8 @@ export function MobileAziendaList({
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [referentiDialogOpen, setReferentiDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFirmaDigitale, setShowFirmaDigitale] = useState(false);
+  const [showProvvigioni, setShowProvvigioni] = useState(false);
   
   const itemsPerPage = isMobile ? 8 : 12;
   
@@ -54,14 +56,24 @@ export function MobileAziendaList({
         (azienda.citta && azienda.citta.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
+
+    // Apply firma digitale filter
+    if (showFirmaDigitale) {
+      filtered = filtered.filter((azienda) => azienda.firma_digitale_attiva === true);
+    }
+
+    // Apply provvigioni filter
+    if (showProvvigioni) {
+      filtered = filtered.filter((azienda) => azienda.provvigione === true);
+    }
     
     return filtered;
-  }, [aziende, searchTerm, referentiByAzienda]);
+  }, [aziende, searchTerm, showFirmaDigitale, showProvvigioni]);
 
-  // Reset to first page when search changes
+  // Reset to first page when search or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, showFirmaDigitale, showProvvigioni]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredAziende.length / itemsPerPage);
@@ -83,6 +95,10 @@ export function MobileAziendaList({
           onSearchChange={() => {}}
           totalCount={0}
           filteredCount={0}
+          showFirmaDigitale={false}
+          onShowFirmaDigitaleChange={() => {}}
+          showProvvigioni={false}
+          onShowProvvigioniChange={() => {}}
         />
         <div className="px-4 py-4 space-y-3">
           {[...Array(5)].map((_, i) => (
@@ -138,6 +154,10 @@ export function MobileAziendaList({
           onSearchChange={setSearchTerm}
           totalCount={aziende.length}
           filteredCount={filteredAziende.length}
+          showFirmaDigitale={showFirmaDigitale}
+          onShowFirmaDigitaleChange={setShowFirmaDigitale}
+          showProvvigioni={showProvvigioni}
+          onShowProvvigioniChange={setShowProvvigioni}
         />
         
         <div className="flex flex-col items-center justify-center py-12 px-4">
@@ -161,6 +181,10 @@ export function MobileAziendaList({
         onSearchChange={setSearchTerm}
         totalCount={aziende.length}
         filteredCount={filteredAziende.length}
+        showFirmaDigitale={showFirmaDigitale}
+        onShowFirmaDigitaleChange={setShowFirmaDigitale}
+        showProvvigioni={showProvvigioni}
+        onShowProvvigioniChange={setShowProvvigioni}
       />
 
       {/* Content - cards list */}
