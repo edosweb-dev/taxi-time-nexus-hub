@@ -246,20 +246,13 @@ export default function ServizioDetailPage() {
           passeggeri={passeggeri}
           users={users}
           canBeEdited={canBeEdited}
-          canBeCompleted={canBeCompleted}
-          canBeConsuntivato={canBeConsuntivato}
-          canRequestSignature={canRequestSignature}
           isAdmin={isAdmin}
           getAziendaName={getAziendaName}
-          getAzienda={getAzienda}
           getUserName={getUserName}
           formatCurrency={formatCurrency}
           firmaDigitaleAttiva={firmaDigitaleAttiva}
           veicoloModello={veicoloModello}
           onEdit={() => navigate(`/servizi/${servizio.id}/modifica`)}
-          onCompleta={() => setCompletaDialogOpen(true)}
-          onConsuntiva={() => setConsuntivaDialogOpen(true)}
-          onRichiestiFirma={() => setShowFirmaClienteDialog(true)}
           onAssegna={() => setAssegnazioneSheetOpen(true)}
           onDelete={() => {
             // Add delete logic here

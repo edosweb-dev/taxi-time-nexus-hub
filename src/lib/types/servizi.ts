@@ -7,6 +7,7 @@ export type StatoServizio = 'bozza' | 'da_assegnare' | 'assegnato' | 'completato
 
 export interface Servizio {
   id: string;
+  id_progressivo?: string;
   azienda_id: string;
   referente_id: string;
   numero_commessa?: string;

@@ -1,22 +1,12 @@
 import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
-import { Profile, Azienda } from "@/lib/types";
-import { BasicInfoSection } from "./sections/BasicInfoSection";
-import { RouteSection } from "./sections/RouteSection";
-import { AssignmentInfoSection } from "./sections/AssignmentInfoSection";
-import { FinancialSection } from "./sections/FinancialSection";
-import { OperationalSection } from "./sections/OperationalSection";
-import { NotesSignatureSection } from "./sections/NotesSignatureSection";
+import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User } from "lucide-react";
+import { MapPin, User, Clock } from "lucide-react";
 
 interface ServizioMainContentProps {
   servizio: Servizio;
   passeggeri: PasseggeroConDettagli[];
-  users: Profile[];
-  getAziendaName: (id?: string) => string;
-  getAzienda?: (id?: string) => Azienda | undefined;
-  getUserName: (users: Profile[], id?: string) => string | null;
   formatCurrency: (value?: number | null) => string;
   firmaDigitaleAttiva: boolean;
 }
@@ -24,166 +14,105 @@ interface ServizioMainContentProps {
 export function ServizioMainContent({
   servizio,
   passeggeri,
-  users,
-  getAziendaName,
-  getAzienda,
-  getUserName,
   formatCurrency,
   firmaDigitaleAttiva,
 }: ServizioMainContentProps) {
-  const azienda = getAzienda?.(servizio.azienda_id);
+  const formatTime = (time?: string) => {
+    if (!time) return "—";
+    return time.substring(0, 5);
+  };
 
   return (
-    <div className="grid grid-cols-2 gap-4 auto-rows-min">
-      {/* Col 1: Info Base */}
-      <BasicInfoSection
-        servizio={servizio}
-        users={users}
-        getAziendaName={getAziendaName}
-        getUserName={getUserName}
-      />
-
-      {/* Col 2: Percorso */}
-      <RouteSection servizio={servizio} passeggeri={passeggeri} />
-
-      {/* Col 1: Assegnazione */}
-      <AssignmentInfoSection
-        servizio={servizio}
-        users={users}
-        getUserName={getUserName}
-      />
-
-      {/* Col 2: Economico + Operativo */}
+    <div className="space-y-6">
+      {/* Percorso */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Dettagli Economici e Operativi</CardTitle>
+          <CardTitle className="text-base">Percorso</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Sezione Economica */}
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">ECONOMICO</div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Metodo Pagamento</div>
-                <div className="font-medium">{servizio.metodo_pagamento || "—"}</div>
+        <CardContent className="space-y-3">
+          {/* Partenza */}
+          <div className="flex items-start gap-3">
+            <div className="mt-1 p-1.5 rounded-full bg-primary/10">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-muted-foreground mb-0.5">Partenza</div>
+              <div className="font-medium text-sm">{servizio.indirizzo_presa}</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {formatTime(servizio.orario_servizio)}
               </div>
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Incasso Ricevuto</div>
-                <div className="font-medium">{formatCurrency(servizio.incasso_ricevuto)}</div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Incasso Previsto</div>
-                <div className="font-medium">{formatCurrency(servizio.incasso_previsto)}</div>
-              </div>
-              {servizio.consegna_contanti_a && (
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Contanti a</div>
-                  <div className="font-medium text-xs">{getUserName(users, servizio.consegna_contanti_a)}</div>
-                </div>
-              )}
-              {azienda?.provvigione && (
-                <div className="col-span-2">
-                  <div className="text-xs text-muted-foreground mb-0.5">Provvigione</div>
-                  <div className="font-medium">
-                    {azienda.provvigione_tipo === "percentuale"
-                      ? `${azienda.provvigione_valore}%`
-                      : formatCurrency(azienda.provvigione_valore)}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
-          <div className="border-t" />
+          {/* Fermata intermedia - se presente */}
+          {passeggeri.some(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato) && (
+            <div className="pl-6 border-l-2 border-muted space-y-2">
+              {passeggeri
+                .filter(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato)
+                .map((p, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="mt-1 p-1.5 rounded-full bg-muted">
+                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-muted-foreground mb-0.5">Fermata - {p.nome_cognome}</div>
+                      <div className="font-medium text-sm">{p.luogo_presa_personalizzato}</div>
+                      {p.orario_presa_personalizzato && (
+                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatTime(p.orario_presa_personalizzato)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
 
-          {/* Sezione Operativa */}
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">OPERATIVO</div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <div className="text-xs text-muted-foreground mb-0.5">Passeggeri</div>
-                <div className="font-medium">{passeggeri.length}</div>
-              </div>
-              {servizio.ore_lavorate != null && (
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Ore Lavorate</div>
-                  <div className="font-medium">{servizio.ore_lavorate}h</div>
-                </div>
-              )}
-              {servizio.ore_finali != null && (
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Ore Finali</div>
-                  <div className="font-medium">{servizio.ore_finali}h</div>
-                </div>
-              )}
-              {servizio.ore_effettive != null && (
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Ore Effettive</div>
-                  <div className="font-medium">{servizio.ore_effettive}h</div>
-                </div>
-              )}
-              {servizio.ore_fatturate != null && (
-                <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Ore Fatturate</div>
-                  <div className="font-medium">{servizio.ore_fatturate}h</div>
-                </div>
-              )}
+          {/* Arrivo */}
+          <div className="flex items-start gap-3">
+            <div className="mt-1 p-1.5 rounded-full bg-primary/10">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-muted-foreground mb-0.5">Arrivo</div>
+              <div className="font-medium text-sm">{servizio.indirizzo_destinazione}</div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Full-width: Passeggeri */}
+      {/* Passeggeri */}
       {passeggeri.length > 0 && (
-        <Card className="col-span-2">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Passeggeri ({passeggeri.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-2">
               {passeggeri.map((passeggero, index) => (
                 <div
                   key={passeggero.id || index}
-                  className="p-3 bg-muted/30 rounded-lg border"
+                  className="p-3 bg-muted/30 rounded-lg border flex items-start gap-2"
                 >
-                  <div className="flex items-start gap-2">
-                    <div className="p-1.5 bg-primary/10 rounded-full">
-                      <User className="h-3.5 w-3.5 text-primary" />
+                  <div className="p-1.5 bg-primary/10 rounded-full mt-0.5">
+                    <User className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm mb-1">
+                      {passeggero.nome_cognome}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-xs mb-0.5">
-                        {passeggero.nome_cognome}
+                    {passeggero.email && (
+                      <div className="text-xs text-muted-foreground truncate">
+                        {passeggero.email}
                       </div>
-                      {passeggero.email && (
-                        <div className="text-xs text-muted-foreground truncate">
-                          {passeggero.email}
-                        </div>
-                      )}
-                      {passeggero.telefono && (
-                        <div className="text-xs text-muted-foreground">
-                          {passeggero.telefono}
-                        </div>
-                      )}
-                      {passeggero.orario_presa_personalizzato && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Presa: {passeggero.orario_presa_personalizzato}
-                        </div>
-                      )}
-                      {passeggero.usa_indirizzo_personalizzato && (
-                        <>
-                          {passeggero.luogo_presa_personalizzato && (
-                            <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                              Da: {passeggero.luogo_presa_personalizzato}
-                            </div>
-                          )}
-                          {passeggero.destinazione_personalizzato && (
-                            <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                              A: {passeggero.destinazione_personalizzato}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
+                    )}
+                    {passeggero.telefono && (
+                      <div className="text-xs text-muted-foreground">
+                        {passeggero.telefono}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -192,14 +121,80 @@ export function ServizioMainContent({
         </Card>
       )}
 
-      {/* Full-width: Note e Firma */}
-      {(servizio.note || firmaDigitaleAttiva) && (
-        <div className="col-span-2">
-          <NotesSignatureSection
-            servizio={servizio}
-            firmaDigitaleAttiva={firmaDigitaleAttiva}
-          />
-        </div>
+      {/* Dettagli Economici */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Dettagli Economici</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground mb-1">Metodo Pagamento</div>
+              <div className="font-medium">{servizio.metodo_pagamento || "—"}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground mb-1">Incasso Previsto</div>
+              <div className="font-medium">{formatCurrency(servizio.incasso_previsto)}</div>
+            </div>
+            <div className="col-span-2">
+              <div className="text-xs text-muted-foreground mb-1">Incasso Ricevuto</div>
+              <div className="font-medium text-lg">{formatCurrency(servizio.incasso_ricevuto)}</div>
+            </div>
+            {(servizio.ore_effettive != null || servizio.ore_fatturate != null) && (
+              <>
+                {servizio.ore_effettive != null && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Ore Effettive</div>
+                    <div className="font-medium">{servizio.ore_effettive}h</div>
+                  </div>
+                )}
+                {servizio.ore_fatturate != null && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Ore Fatturate</div>
+                    <div className="font-medium">{servizio.ore_fatturate}h</div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Firma Cliente */}
+      {firmaDigitaleAttiva && servizio.firma_url && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Firma Cliente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-lg p-4 bg-muted/30">
+              <img 
+                src={servizio.firma_url} 
+                alt="Firma cliente" 
+                className="max-h-32 mx-auto"
+              />
+              {servizio.firma_timestamp && (
+                <div className="text-xs text-muted-foreground text-center mt-2">
+                  Firmato il {new Date(servizio.firma_timestamp).toLocaleString("it-IT")}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Note */}
+      {servizio.note && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Note</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+              {servizio.note}
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
