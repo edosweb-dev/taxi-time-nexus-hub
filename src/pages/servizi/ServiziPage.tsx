@@ -129,7 +129,9 @@ export default function ServiziPage() {
       <div className="flex justify-between items-start gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-base truncate">
-            {servizio.aziende?.nome || 'N/A'}
+            {servizio.tipo_cliente === 'privato' 
+              ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente Privato'
+              : servizio.aziende?.nome || 'N/A'}
           </h3>
           {servizio.numero_commessa && (
             <p className="text-xs text-muted-foreground mt-0.5">
