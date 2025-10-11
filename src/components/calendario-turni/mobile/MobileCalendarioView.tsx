@@ -21,6 +21,7 @@ interface MobileCalendarioViewProps {
 export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [startX, setStartX] = useState(0);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [addShiftDialogOpen, setAddShiftDialogOpen] = useState(false);
   const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
   const [quickViewDialogOpen, setQuickViewDialogOpen] = useState(false);
@@ -140,7 +141,7 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
           </TouchOptimizer>
 
           {/* Date Picker - Solo Mobile */}
-          <Popover>
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -154,7 +155,12 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
               <Calendar
                 mode="single"
                 selected={currentDate}
-                onSelect={(date) => date && setCurrentDate(date)}
+                onSelect={(date) => {
+                  if (date) {
+                    setCurrentDate(date);
+                    setDatePickerOpen(false);
+                  }
+                }}
                 initialFocus
                 className={cn("p-3 pointer-events-auto")}
                 locale={it}
