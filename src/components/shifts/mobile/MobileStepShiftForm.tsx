@@ -214,38 +214,43 @@ export function MobileStepShiftForm({
   };
 
   const handleSubmit = async (data: ShiftFormValues) => {
-    console.log('[MobileStepShiftForm] handleSubmit called', { currentStep, totalSteps, data });
+    console.log('[MobileStepShiftForm] Submit triggered', { currentStep, totalSteps, data });
     
     // Validate entire form before submitting
     const isValid = await form.trigger();
     if (!isValid) {
+      console.log('[MobileStepShiftForm] Form validation failed');
       toast.error('Completa tutti i campi obbligatori');
+      return;
+    }
+
+    // Additional validation
+    if (data.shift_type === 'specific_hours' && (!data.start_time || !data.end_time)) {
+      console.log('[MobileStepShiftForm] Time validation failed');
+      toast.error('Inserisci gli orari di inizio e fine');
+      return;
+    }
+    
+    if (data.shift_type === 'half_day' && !data.half_day_type) {
+      console.log('[MobileStepShiftForm] Half day type validation failed');
+      toast.error('Seleziona mattina o pomeriggio');
+      return;
+    }
+
+    if (['sick_leave', 'unavailable'].includes(data.shift_type) && !data.start_date) {
+      console.log('[MobileStepShiftForm] Start date validation failed');
+      toast.error('Seleziona una data di inizio');
+      return;
+    }
+
+    if (data.start_date && data.end_date && data.end_date < data.start_date) {
+      console.log('[MobileStepShiftForm] Date range validation failed');
+      toast.error('La data di fine deve essere successiva alla data di inizio');
       return;
     }
 
     try {
       setIsLoading(true);
-      
-      // Additional validation
-      if (data.shift_type === 'specific_hours' && (!data.start_time || !data.end_time)) {
-        toast.error('Inserisci gli orari di inizio e fine');
-        return;
-      }
-      
-      if (data.shift_type === 'half_day' && !data.half_day_type) {
-        toast.error('Seleziona mattina o pomeriggio');
-        return;
-      }
-
-      if (['sick_leave', 'unavailable'].includes(data.shift_type) && !data.start_date) {
-        toast.error('Seleziona una data di inizio');
-        return;
-      }
-
-      if (data.start_date && data.end_date && data.end_date < data.start_date) {
-        toast.error('La data di fine deve essere successiva alla data di inizio');
-        return;
-      }
       
       const formData: ShiftFormData = {
         user_id: data.user_id,
@@ -259,10 +264,12 @@ export function MobileStepShiftForm({
         notes: data.notes
       };
 
+      console.log('[MobileStepShiftForm] Calling onSubmit with formData:', formData);
       await onSubmit(formData);
+      console.log('[MobileStepShiftForm] Submit successful');
       
     } catch (error) {
-      console.error('Error submitting shift:', error);
+      console.error('[MobileStepShiftForm] Error submitting shift:', error);
       toast.error('Errore nel salvataggio del turno');
     } finally {
       setIsLoading(false);
