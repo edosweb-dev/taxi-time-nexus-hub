@@ -56,14 +56,12 @@ export default function ModificaServizioPage() {
   }
 
   return (
-    <div className="container max-w-7xl mx-auto py-6 px-4">
-      <ServizioCreaForm
-        mode="edit"
-        servizioId={id}
-        initialData={servizio}
-        onSuccess={() => navigate(`/servizi/${id}`)}
-        onCancel={() => navigate(`/servizi/${id}`)}
-      />
-    </div>
+    <ServizioCreaForm
+      mode="edit"
+      servizioId={id}
+      initialData={servizio}
+      onSuccess={() => navigate(`/servizi/${id}`)}
+      onCancel={() => navigate(`/servizi/${id}`)}
+    />
   );
 }
