@@ -83,45 +83,85 @@ export function ClientePrivatoFields() {
 
       {/* Nome + Cognome (Grid) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-base md:text-sm">Nome *</Label>
-          <MobileInput 
-            placeholder="Mario" 
-            {...form.register("cliente_privato_nome")}
-            disabled={!!watchClientePrivatoId}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="cliente_privato_nome"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base md:text-sm">Nome *</FormLabel>
+              <FormControl>
+                <MobileInput 
+                  placeholder="Mario" 
+                  {...field}
+                  value={field.value || ''}
+                  disabled={!!watchClientePrivatoId}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <div className="space-y-2">
-          <Label className="text-base md:text-sm">Cognome *</Label>
-          <MobileInput 
-            placeholder="Rossi" 
-            {...form.register("cliente_privato_cognome")}
-            disabled={!!watchClientePrivatoId}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="cliente_privato_cognome"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base md:text-sm">Cognome *</FormLabel>
+              <FormControl>
+                <MobileInput 
+                  placeholder="Rossi" 
+                  {...field}
+                  value={field.value || ''}
+                  disabled={!!watchClientePrivatoId}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       {/* Email + Telefono (Grid) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-base md:text-sm">Email</Label>
-          <MobileInput 
-            type="email" 
-            placeholder="mario.rossi@email.com" 
-            {...form.register("cliente_privato_email")}
-            disabled={!!watchClientePrivatoId}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="cliente_privato_email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base md:text-sm">Email</FormLabel>
+              <FormControl>
+                <MobileInput 
+                  type="email" 
+                  placeholder="mario.rossi@email.com" 
+                  {...field}
+                  value={field.value || ''}
+                  disabled={!!watchClientePrivatoId}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <div className="space-y-2">
-          <Label className="text-base md:text-sm">Telefono</Label>
-          <MobileInput 
-            placeholder="+39 333 1234567" 
-            {...form.register("cliente_privato_telefono")}
-            disabled={!!watchClientePrivatoId}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="cliente_privato_telefono"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base md:text-sm">Telefono</FormLabel>
+              <FormControl>
+                <MobileInput 
+                  placeholder="+39 333 1234567" 
+                  {...field}
+                  value={field.value || ''}
+                  disabled={!!watchClientePrivatoId}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       {/* Checkbox: Salva in Anagrafica (solo se nuovo cliente) */}

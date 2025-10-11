@@ -96,7 +96,12 @@ const servizioSchema = z.object({
   if (data.tipo_cliente === 'azienda') {
     return !!data.azienda_id;
   }
-  // Validation: se privato → nome+cognome required
+  return true;
+}, {
+  message: "Seleziona un'azienda",
+  path: ["azienda_id"]
+}).refine((data) => {
+  // Validation: se privato → (cliente_privato_id OR nome+cognome) required
   if (data.tipo_cliente === 'privato') {
     return (
       !!data.cliente_privato_id || 
@@ -105,8 +110,8 @@ const servizioSchema = z.object({
   }
   return true;
 }, {
-  message: "Seleziona un'azienda o inserisci i dati del cliente privato",
-  path: ["azienda_id"]
+  message: "Seleziona un cliente dall'anagrafica oppure inserisci nome e cognome",
+  path: ["cliente_privato_nome"]
 });
 
 type ServizioFormData = z.infer<typeof servizioSchema>;
@@ -466,11 +471,23 @@ export const ServizioCreaPage = ({
 
   const onSubmit = async (data: ServizioFormData) => {
     setIsSubmitting(true);
+    
+    console.log("=== INIZIO SUBMIT SERVIZIO ===");
+    console.log("Tipo cliente:", data.tipo_cliente);
+    console.log("Dati form:", {
+      cliente_privato_id: data.cliente_privato_id,
+      cliente_privato_nome: data.cliente_privato_nome,
+      cliente_privato_cognome: data.cliente_privato_cognome,
+      salva_cliente_anagrafica: data.salva_cliente_anagrafica,
+    });
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utente non autenticato");
 
       let clientePrivatoId = data.cliente_privato_id;
+      let clientePrivatoNome = data.cliente_privato_nome;
+      let clientePrivatoCognome = data.cliente_privato_cognome;
 
       // 1. Se cliente privato + salva_anagrafica = true → crea in anagrafica
       if (
@@ -481,6 +498,7 @@ export const ServizioCreaPage = ({
         data.cliente_privato_cognome
       ) {
         try {
+          console.log("Salvataggio cliente in anagrafica...");
           const nuovoCliente = await createClientePrivato({
             nome: data.cliente_privato_nome,
             cognome: data.cliente_privato_cognome,
@@ -491,11 +509,33 @@ export const ServizioCreaPage = ({
             note: data.cliente_privato_note,
           });
           clientePrivatoId = nuovoCliente.id;
+          console.log("Cliente salvato con ID:", clientePrivatoId);
           toast.success("Cliente salvato in anagrafica");
         } catch (error) {
           console.error("Errore creazione cliente:", error);
           toast.error("Errore nel salvataggio cliente");
           // Continua comunque con dati inline
+        }
+      }
+      
+      // 2. Se è stato selezionato un cliente esistente dall'anagrafica, recupera i dati
+      if (data.tipo_cliente === 'privato' && clientePrivatoId && !clientePrivatoNome) {
+        try {
+          console.log("Recupero dati cliente esistente:", clientePrivatoId);
+          const { data: cliente, error } = await supabase
+            .from('clienti_privati')
+            .select('nome, cognome')
+            .eq('id', clientePrivatoId)
+            .single();
+          
+          if (error) throw error;
+          if (cliente) {
+            clientePrivatoNome = cliente.nome;
+            clientePrivatoCognome = cliente.cognome;
+            console.log("Dati cliente recuperati:", { nome: clientePrivatoNome, cognome: clientePrivatoCognome });
+          }
+        } catch (error) {
+          console.error("Errore recupero cliente:", error);
         }
       }
 
@@ -509,10 +549,8 @@ export const ServizioCreaPage = ({
         
         // Campi cliente privato (solo se tipo = privato)
         cliente_privato_id: data.tipo_cliente === 'privato' ? clientePrivatoId : null,
-        cliente_privato_nome: data.tipo_cliente === 'privato' && !clientePrivatoId 
-          ? data.cliente_privato_nome : null,
-        cliente_privato_cognome: data.tipo_cliente === 'privato' && !clientePrivatoId 
-          ? data.cliente_privato_cognome : null,
+        cliente_privato_nome: data.tipo_cliente === 'privato' ? clientePrivatoNome : null,
+        cliente_privato_cognome: data.tipo_cliente === 'privato' ? clientePrivatoCognome : null,
         
         data_servizio: data.data_servizio,
         orario_servizio: data.orario_servizio,
@@ -535,10 +573,16 @@ export const ServizioCreaPage = ({
         consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
         note: data.note || null,
       };
+      
+      console.log("Dati servizio da salvare:", servizioData);
 
       if (mode === 'edit' && servizioId) {
+        console.log("Aggiornamento servizio ID:", servizioId);
         const { error: servizioError } = await supabase.from("servizi").update(servizioData).eq('id', servizioId);
-        if (servizioError) throw servizioError;
+        if (servizioError) {
+          console.error("Errore update servizio:", servizioError);
+          throw servizioError;
+        }
 
         // Gestisci passeggeri/email solo per aziende
         if (data.tipo_cliente === 'azienda') {
@@ -559,8 +603,19 @@ export const ServizioCreaPage = ({
 
         toast.success("Servizio aggiornato con successo!");
       } else {
+        console.log("Creazione nuovo servizio...");
         const { data: servizio, error: servizioError } = await supabase.from("servizi").insert(servizioData).select().single();
-        if (servizioError) throw servizioError;
+        if (servizioError) {
+          console.error("Errore insert servizio:", servizioError);
+          console.error("Dettagli errore:", {
+            message: servizioError.message,
+            details: servizioError.details,
+            hint: servizioError.hint,
+            code: servizioError.code,
+          });
+          throw servizioError;
+        }
+        console.log("Servizio creato con successo:", servizio);
 
         // Gestisci passeggeri/email solo per aziende
         if (data.tipo_cliente === 'azienda') {
@@ -585,11 +640,27 @@ export const ServizioCreaPage = ({
       } else {
         navigate("/servizi");
       }
-    } catch (error) {
-      console.error("Errore:", error);
-      toast.error(mode === 'edit' ? "Errore nell'aggiornamento" : "Errore nella creazione");
+    } catch (error: any) {
+      console.error("=== ERRORE SUBMIT SERVIZIO ===");
+      console.error("Errore completo:", error);
+      
+      let errorMessage = mode === 'edit' ? "Errore nell'aggiornamento" : "Errore nella creazione";
+      
+      // Estrai messaggio specifico da Supabase se disponibile
+      if (error?.message) {
+        errorMessage += ": " + error.message;
+      }
+      if (error?.details) {
+        console.error("Dettagli errore:", error.details);
+      }
+      if (error?.hint) {
+        console.error("Suggerimento:", error.hint);
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
+      console.log("=== FINE SUBMIT SERVIZIO ===");
     }
   };
 
