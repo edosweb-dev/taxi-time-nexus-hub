@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Form } from '@/components/ui/form';
 import { ShiftFormData, ShiftType, HalfDayType } from '../types';
 import { validateBatchShifts, createBatchShifts } from '../utils/batchValidation';
-import { BatchStep1Users } from './batch-steps/BatchStep1Users';
+import { BatchStep1Users } from './batch-steps/BatchStep1UsersOld';
 import { BatchStep2DateRange } from './batch-steps/BatchStep2DateRange';
 import { BatchStep3ShiftType } from './batch-steps/BatchStep3ShiftType';
 import { BatchStep4Preview } from './batch-steps/BatchStep4Preview';
