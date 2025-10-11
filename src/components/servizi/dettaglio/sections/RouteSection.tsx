@@ -16,76 +16,69 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
   );
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="text-lg">Percorso del servizio</CardTitle>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">Percorso</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1">
-        <div className={`grid grid-cols-1 gap-4 h-full ${passeggeriConIndirizziIntermedi.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+      <CardContent>
+        <div className="space-y-3">
           {/* Partenza */}
-          <div className="flex flex-col p-4 bg-primary/5 rounded-lg border-l-4 border-primary min-h-[120px]">
-            <div className="text-sm font-medium text-primary mb-2">Partenza</div>
-            <div className="text-sm font-medium mb-1">{servizio.indirizzo_presa}</div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" />
+              <span>Partenza</span>
+            </div>
+            <div className="text-sm font-medium pl-5">{servizio.indirizzo_presa}</div>
             {servizio.citta_presa && (
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground pl-5">
                 {servizio.citta_presa}
               </div>
             )}
           </div>
           
-          {/* Tappa intermedia */}
+          {/* Tappe intermedie */}
           {passeggeriConIndirizziIntermedi.length > 0 && (
-            <div className="flex flex-col p-4 bg-accent/5 rounded-lg border-l-4 border-accent min-h-[120px]">
-              <div className="text-sm font-medium text-accent-foreground mb-2">Tappa intermedia</div>
-              <div className="space-y-2 flex-1">
-                {passeggeriConIndirizziIntermedi.map((passeggero, index) => (
-                  <div key={passeggero.id || index} className="space-y-1">
-                    <div className="text-xs font-medium text-accent-foreground">
-                      {passeggero.nome_cognome}
-                    </div>
-                    
-                    {/* Orario di presa */}
-                    {passeggero.orario_presa_personalizzato && (
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {passeggero.orario_presa_personalizzato}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Indirizzo di presa intermedio */}
-                    {passeggero.luogo_presa_personalizzato && (
-                      <div className="text-xs">
-                        <span className="font-medium">Presa: </span>
-                        {passeggero.luogo_presa_personalizzato}
-                      </div>
-                    )}
-                    
-                    {/* Destinazione intermedia */}
-                    {passeggero.destinazione_personalizzato && (
-                      <div className="text-xs">
-                        <div className="flex items-center gap-1 mb-1">
-                          <MapPin className="h-3 w-3 text-muted-foreground" />
-                          <span className="font-medium">Destinazione</span>
-                        </div>
-                        <div className="ml-4 text-xs">
-                          {passeggero.destinazione_personalizzato}
-                        </div>
-                      </div>
-                    )}
+            <div className="pl-2 border-l-2 border-muted space-y-2">
+              {passeggeriConIndirizziIntermedi.map((passeggero, index) => (
+                <div key={passeggero.id || index} className="space-y-1 pl-3">
+                  <div className="text-xs font-medium">
+                    {passeggero.nome_cognome}
                   </div>
-                ))}
-              </div>
+                  
+                  {passeggero.orario_presa_personalizzato && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {passeggero.orario_presa_personalizzato}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {passeggero.luogo_presa_personalizzato && (
+                    <div className="text-xs text-muted-foreground">
+                      Presa: {passeggero.luogo_presa_personalizzato}
+                    </div>
+                  )}
+                  
+                  {passeggero.destinazione_personalizzato && (
+                    <div className="text-xs text-muted-foreground">
+                      Dest: {passeggero.destinazione_personalizzato}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
           
           {/* Destinazione finale */}
-          <div className="flex flex-col p-4 bg-secondary/5 rounded-lg border-l-4 border-secondary min-h-[120px]">
-            <div className="text-sm font-medium text-secondary-foreground mb-2">Destinazione finale</div>
-            <div className="text-sm font-medium mb-1">{servizio.indirizzo_destinazione}</div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" />
+              <span>Destinazione</span>
+            </div>
+            <div className="text-sm font-medium pl-5">{servizio.indirizzo_destinazione}</div>
             {servizio.citta_destinazione && (
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground pl-5">
                 {servizio.citta_destinazione}
               </div>
             )}

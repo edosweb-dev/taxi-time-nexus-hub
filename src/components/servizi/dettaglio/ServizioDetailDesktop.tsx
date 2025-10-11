@@ -50,46 +50,42 @@ export function ServizioDetailDesktop({
   onDelete,
 }: ServizioDetailDesktopProps) {
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex gap-6">
-        {/* Sidebar - Sticky */}
-        <aside className="w-72 shrink-0">
-          <div className="sticky top-6">
-            <ServizioSidebar
-              servizio={servizio}
-              canBeEdited={canBeEdited}
-              canBeCompleted={canBeCompleted}
-              canBeConsuntivato={canBeConsuntivato}
-              canRequestSignature={canRequestSignature}
-              isAdmin={isAdmin}
-              users={users}
-              getAziendaName={getAziendaName}
-              getUserName={getUserName}
-              veicoloModello={veicoloModello}
-              onEdit={onEdit}
-              onCompleta={onCompleta}
-              onConsuntiva={onConsuntiva}
-              onRichiestiFirma={onRichiestiFirma}
-              onAssegna={onAssegna}
-              onDelete={onDelete}
-            />
-          </div>
-        </aside>
-
-        {/* Main Content - Scrollable */}
-        <main className="flex-1 min-w-0">
-          <ServizioMainContent
-            servizio={servizio}
-            passeggeri={passeggeri}
-            users={users}
-            getAziendaName={getAziendaName}
-            getAzienda={getAzienda}
-            getUserName={getUserName}
-            formatCurrency={formatCurrency}
-            firmaDigitaleAttiva={firmaDigitaleAttiva}
-          />
-        </main>
+    <div className="flex min-h-screen w-full">
+      {/* Sidebar */}
+      <div className="w-64 flex-shrink-0">
+        <ServizioSidebar
+          servizio={servizio}
+          canBeEdited={canBeEdited}
+          canBeCompleted={canBeCompleted}
+          canBeConsuntivato={canBeConsuntivato}
+          canRequestSignature={canRequestSignature}
+          isAdmin={isAdmin}
+          users={users}
+          getAziendaName={getAziendaName}
+          getUserName={getUserName}
+          veicoloModello={veicoloModello}
+          onEdit={onEdit}
+          onCompleta={onCompleta}
+          onConsuntiva={onConsuntiva}
+          onRichiestiFirma={onRichiestiFirma}
+          onAssegna={onAssegna}
+          onDelete={onDelete}
+        />
       </div>
+
+      {/* Main Content */}
+      <main className="flex-1 p-6">
+        <ServizioMainContent
+          servizio={servizio}
+          passeggeri={passeggeri}
+          users={users}
+          getAziendaName={getAziendaName}
+          getAzienda={getAzienda}
+          getUserName={getUserName}
+          formatCurrency={formatCurrency}
+          firmaDigitaleAttiva={firmaDigitaleAttiva}
+        />
+      </main>
     </div>
   );
 }

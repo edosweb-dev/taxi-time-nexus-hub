@@ -72,119 +72,115 @@ export function ServizioSidebar({
   };
 
   return (
-    <div className="w-72 bg-muted/30 rounded-lg p-6 space-y-6">
-      {/* Header: Numero servizio */}
-      <div>
-        <h2 className="text-2xl font-bold text-foreground">
-          Servizio #{servizio.id.substring(0, 8).toUpperCase()}
-        </h2>
+    <div className="w-64 border-r bg-muted/30 p-4 space-y-4 sticky top-0 h-screen overflow-y-auto">
+      {/* ID Servizio e Stato */}
+      <div className="space-y-2">
+        <div className="text-xs text-muted-foreground">Servizio</div>
+        <div className="text-xl font-bold">#{servizio.id.slice(0, 8)}</div>
+        
+        <Badge className={cn("text-xs", badgeStyle.bg, badgeStyle.text, badgeStyle.border)}>
+          {statusLabel}
+        </Badge>
       </div>
 
-      {/* Badge Stato - LARGE */}
-      <div>
-        <div className={cn(
-          "inline-flex items-center gap-2 rounded-md px-4 py-3 text-lg font-semibold border-2",
-          badgeStyle.bg,
-          badgeStyle.text,
-          badgeStyle.border
-        )}>
-          <span>{badgeStyle.icon}</span>
-          <span>{statusLabel}</span>
+      {/* Informazioni essenziali */}
+      <div className="space-y-2 text-xs pb-4 border-b">
+        {/* Data */}
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5" />
+          <span>{formatDate(servizio.data_servizio)}</span>
         </div>
-      </div>
-
-      {/* Info critiche sempre visibili */}
-      <div className="space-y-4 pb-4 border-b border-border">
-        {/* Data/Orario compatto */}
-        <div className="flex items-start gap-3">
-          <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-          <div>
-            <div className="text-sm font-medium">
-              {formatDate(servizio.data_servizio)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              ore {formatTime(servizio.orario_servizio)}
-            </div>
-          </div>
+        
+        {/* Ora */}
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <Navigation className="h-3.5 w-3.5" />
+          <span>ore {formatTime(servizio.orario_servizio)}</span>
         </div>
 
-        {/* Percorso one-liner */}
-        <div className="flex items-start gap-3">
-          <Navigation className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-          <div className="min-w-0">
-            <div className="text-sm font-medium truncate" title={`${servizio.citta_presa || servizio.indirizzo_presa} → ${servizio.citta_destinazione || servizio.indirizzo_destinazione}`}>
-              {servizio.citta_presa || servizio.indirizzo_presa.split(',')[0]} → {servizio.citta_destinazione || servizio.indirizzo_destinazione.split(',')[0]}
+        {/* Percorso */}
+        <div className="flex items-start gap-1.5 text-muted-foreground pt-1">
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-foreground text-sm truncate">
+              {servizio.citta_presa || servizio.indirizzo_presa.split(',')[0]}
             </div>
-            <div className="text-xs text-muted-foreground">
-              Percorso servizio
+            <div className="text-muted-foreground/60 my-0.5">↓</div>
+            <div className="font-medium text-foreground text-sm truncate">
+              {servizio.citta_destinazione || servizio.indirizzo_destinazione.split(',')[0]}
             </div>
           </div>
         </div>
       </div>
 
-      {/* CTA Buttons */}
-      <div className="border-t pt-4 space-y-2">
+      {/* Azioni principali */}
+      <div className="space-y-1.5 pt-3 border-t">
         {canBeEdited && (
-          <Button 
-            onClick={onEdit}
-            className="w-full h-11 text-base"
-            size="default"
-          >
-            <Pencil className="mr-2 h-4 w-4" />
-            Modifica
+          <Button onClick={onEdit} className="w-full h-8" size="sm">
+            <Pencil className="mr-1.5 h-3.5 w-3.5" />
+            <span className="text-xs">Modifica</span>
           </Button>
         )}
 
         {canBeCompleted && (
           <Button
             onClick={onCompleta}
-            variant="secondary"
-            className="w-full h-11"
+            className="w-full h-8"
+            variant="default"
+            size="sm"
           >
-            <Check className="mr-2 h-4 w-4" />
-            Completa Servizio
+            <Check className="mr-1.5 h-3.5 w-3.5" />
+            <span className="text-xs">Completa</span>
           </Button>
         )}
 
         {canBeConsuntivato && (
           <Button
             onClick={onConsuntiva}
-            variant="secondary"
-            className="w-full h-11"
+            className="w-full h-8"
+            variant="default"
+            size="sm"
           >
-            <Calculator className="mr-2 h-4 w-4" />
-            Consuntiva
+            <Calculator className="mr-1.5 h-3.5 w-3.5" />
+            <span className="text-xs">Consuntiva</span>
           </Button>
         )}
 
-        {/* More Actions Dropdown */}
+        {canRequestSignature && (
+            <Button
+              onClick={onRichiestiFirma}
+              className="w-full h-8"
+              variant="outline"
+              size="sm"
+            >
+              <FileSignature className="mr-1.5 h-3.5 w-3.5" />
+              <span className="text-xs">Richiedi Firma</span>
+            </Button>
+          )}
+
+        {servizio.stato === "da_assegnare" && isAdmin && (
+          <Button onClick={onAssegna} className="w-full h-8" size="sm">
+            <UserPlus className="mr-1.5 h-3.5 w-3.5" />
+            <span className="text-xs">Assegna</span>
+          </Button>
+        )}
+
+        {/* Menu azioni secondarie */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full h-11">
-              <MoreVertical className="mr-2 h-4 w-4" />
-              Altro
+            <Button variant="outline" className="w-full h-8" size="sm">
+              <MoreVertical className="mr-1.5 h-3.5 w-3.5" />
+              <span className="text-xs">Altro</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            {canRequestSignature && (
-              <DropdownMenuItem onClick={onRichiestiFirma}>
-                <FileSignature className="mr-2 h-4 w-4" />
-                Richiedi Firma Cliente
+          <DropdownMenuContent align="end" className="w-48">
+            {isAdmin && (
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Elimina
               </DropdownMenuItem>
             )}
-            {isAdmin && servizio.stato === 'da_assegnare' && (
-              <DropdownMenuItem onClick={onAssegna}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Assegna Servizio
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem 
-              onClick={onDelete}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Elimina
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

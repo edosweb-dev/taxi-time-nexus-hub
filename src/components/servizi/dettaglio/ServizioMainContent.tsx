@@ -34,114 +34,167 @@ export function ServizioMainContent({
   const azienda = getAzienda?.(servizio.azienda_id);
 
   return (
-    <div className="space-y-8">
-      {/* Sezione 1: Informazioni Principali */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Informazioni Principali</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <BasicInfoSection
-            servizio={servizio}
-            users={users}
-            getAziendaName={getAziendaName}
-            getUserName={getUserName}
-          />
-          <RouteSection servizio={servizio} passeggeri={passeggeri} />
-        </div>
-      </div>
+    <div className="grid grid-cols-2 gap-4 auto-rows-min">
+      {/* Col 1: Info Base */}
+      <BasicInfoSection
+        servizio={servizio}
+        users={users}
+        getAziendaName={getAziendaName}
+        getUserName={getUserName}
+      />
 
-      {/* Sezione 2: Assegnazione e Veicolo */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Assegnazione</h2>
-        <AssignmentInfoSection
-          servizio={servizio}
-          users={users}
-          getUserName={getUserName}
-        />
-      </div>
+      {/* Col 2: Percorso */}
+      <RouteSection servizio={servizio} passeggeri={passeggeri} />
 
-      {/* Sezione 3: Dettagli Economici e Operativi */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Dettagli Economici e Operativi</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <FinancialSection
-            servizio={servizio}
-            users={users}
-            azienda={azienda}
-            getUserName={getUserName}
-            formatCurrency={formatCurrency}
-          />
-          <OperationalSection
-            servizio={servizio}
-            passeggeriCount={passeggeri.length}
-          />
-        </div>
-      </div>
+      {/* Col 1: Assegnazione */}
+      <AssignmentInfoSection
+        servizio={servizio}
+        users={users}
+        getUserName={getUserName}
+      />
 
-      {/* Sezione 4: Passeggeri */}
+      {/* Col 2: Economico + Operativo */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Dettagli Economici e Operativi</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Sezione Economica */}
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">ECONOMICO</div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <div className="text-xs text-muted-foreground mb-0.5">Metodo Pagamento</div>
+                <div className="font-medium">{servizio.metodo_pagamento || "—"}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-0.5">Incasso Ricevuto</div>
+                <div className="font-medium">{formatCurrency(servizio.incasso_ricevuto)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-0.5">Incasso Previsto</div>
+                <div className="font-medium">{formatCurrency(servizio.incasso_previsto)}</div>
+              </div>
+              {servizio.consegna_contanti_a && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Contanti a</div>
+                  <div className="font-medium text-xs">{getUserName(users, servizio.consegna_contanti_a)}</div>
+                </div>
+              )}
+              {azienda?.provvigione && (
+                <div className="col-span-2">
+                  <div className="text-xs text-muted-foreground mb-0.5">Provvigione</div>
+                  <div className="font-medium">
+                    {azienda.provvigione_tipo === "percentuale"
+                      ? `${azienda.provvigione_valore}%`
+                      : formatCurrency(azienda.provvigione_valore)}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t" />
+
+          {/* Sezione Operativa */}
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">OPERATIVO</div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <div className="text-xs text-muted-foreground mb-0.5">Passeggeri</div>
+                <div className="font-medium">{passeggeri.length}</div>
+              </div>
+              {servizio.ore_lavorate != null && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Ore Lavorate</div>
+                  <div className="font-medium">{servizio.ore_lavorate}h</div>
+                </div>
+              )}
+              {servizio.ore_finali != null && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Ore Finali</div>
+                  <div className="font-medium">{servizio.ore_finali}h</div>
+                </div>
+              )}
+              {servizio.ore_effettive != null && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Ore Effettive</div>
+                  <div className="font-medium">{servizio.ore_effettive}h</div>
+                </div>
+              )}
+              {servizio.ore_fatturate != null && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Ore Fatturate</div>
+                  <div className="font-medium">{servizio.ore_fatturate}h</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Full-width: Passeggeri */}
       {passeggeri.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">
-            Passeggeri ({passeggeri.length})
-          </h2>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {passeggeri.map((passeggero, index) => (
-                  <div
-                    key={passeggero.id || index}
-                    className="p-4 bg-muted/30 rounded-lg border border-border"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 rounded-full">
-                        <User className="h-4 w-4 text-primary" />
+        <Card className="col-span-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Passeggeri ({passeggeri.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3">
+              {passeggeri.map((passeggero, index) => (
+                <div
+                  key={passeggero.id || index}
+                  className="p-3 bg-muted/30 rounded-lg border"
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="p-1.5 bg-primary/10 rounded-full">
+                      <User className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-xs mb-0.5">
+                        {passeggero.nome_cognome}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm mb-1">
-                          {passeggero.nome_cognome}
+                      {passeggero.email && (
+                        <div className="text-xs text-muted-foreground truncate">
+                          {passeggero.email}
                         </div>
-                        {passeggero.email && (
-                          <div className="text-xs text-muted-foreground truncate">
-                            {passeggero.email}
-                          </div>
-                        )}
-                        {passeggero.telefono && (
-                          <div className="text-xs text-muted-foreground">
-                            {passeggero.telefono}
-                          </div>
-                        )}
-                        {passeggero.orario_presa_personalizzato && (
-                          <div className="text-xs text-muted-foreground mt-2">
-                            Presa: {passeggero.orario_presa_personalizzato}
-                          </div>
-                        )}
-                        {passeggero.usa_indirizzo_personalizzato && (
-                          <>
-                            {passeggero.luogo_presa_personalizzato && (
-                              <div className="text-xs text-muted-foreground mt-1">
-                                Da: {passeggero.luogo_presa_personalizzato}
-                              </div>
-                            )}
-                            {passeggero.destinazione_personalizzato && (
-                              <div className="text-xs text-muted-foreground mt-1">
-                                A: {passeggero.destinazione_personalizzato}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
+                      )}
+                      {passeggero.telefono && (
+                        <div className="text-xs text-muted-foreground">
+                          {passeggero.telefono}
+                        </div>
+                      )}
+                      {passeggero.orario_presa_personalizzato && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Presa: {passeggero.orario_presa_personalizzato}
+                        </div>
+                      )}
+                      {passeggero.usa_indirizzo_personalizzato && (
+                        <>
+                          {passeggero.luogo_presa_personalizzato && (
+                            <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                              Da: {passeggero.luogo_presa_personalizzato}
+                            </div>
+                          )}
+                          {passeggero.destinazione_personalizzato && (
+                            <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                              A: {passeggero.destinazione_personalizzato}
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Sezione 5: Note e Firma */}
+      {/* Full-width: Note e Firma */}
       {(servizio.note || firmaDigitaleAttiva) && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Note e Firma</h2>
+        <div className="col-span-2">
           <NotesSignatureSection
             servizio={servizio}
             firmaDigitaleAttiva={firmaDigitaleAttiva}
