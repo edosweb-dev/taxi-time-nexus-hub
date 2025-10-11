@@ -46,13 +46,23 @@ import {
 
 // Schema validazione completo
 const servizioSchema = z.object({
+  // Tipo cliente
+  tipo_cliente: z.enum(['azienda', 'privato'], {
+    required_error: "Seleziona il tipo di cliente"
+  }).default('azienda'),
+  
   // Esistenti
-  azienda_id: z.string().min(1, "Seleziona un'azienda"),
+  azienda_id: z.string().optional(),
   data_servizio: z.string().min(1, "Inserisci la data"),
   orario_servizio: z.string().min(1, "Inserisci l'orario"),
   indirizzo_presa: z.string().min(1, "Inserisci indirizzo partenza"),
   indirizzo_destinazione: z.string().min(1, "Inserisci indirizzo destinazione"),
   metodo_pagamento: z.string().min(1, "Seleziona metodo pagamento"),
+  
+  // Cliente privato
+  cliente_privato_id: z.string().optional().nullable(),
+  cliente_privato_nome: z.string().optional(),
+  cliente_privato_cognome: z.string().optional(),
   
   // Nuovi
   referente_id: z.string().optional().nullable(),
@@ -72,6 +82,22 @@ const servizioSchema = z.object({
   passeggeri_ids: z.array(z.string()).default([]),
   email_notifiche_ids: z.array(z.string()).default([]),
   note: z.string().optional().nullable(),
+}).refine((data) => {
+  // Validation: se azienda → azienda_id required
+  if (data.tipo_cliente === 'azienda') {
+    return !!data.azienda_id;
+  }
+  // Validation: se privato → nome+cognome required
+  if (data.tipo_cliente === 'privato') {
+    return (
+      !!data.cliente_privato_id || 
+      (!!data.cliente_privato_nome && !!data.cliente_privato_cognome)
+    );
+  }
+  return true;
+}, {
+  message: "Seleziona un'azienda o inserisci i dati del cliente privato",
+  path: ["azienda_id"]
 });
 
 type ServizioFormData = z.infer<typeof servizioSchema>;
@@ -99,6 +125,7 @@ export const ServizioCreaPage = ({
   const form = useForm<ServizioFormData>({
     resolver: zodResolver(servizioSchema),
     defaultValues: {
+      tipo_cliente: 'azienda',
       data_servizio: new Date().toISOString().split('T')[0],
       orario_servizio: "12:00",
       iva: "22",
@@ -153,6 +180,7 @@ export const ServizioCreaPage = ({
   const watchAziendaId = form.watch("azienda_id");
   const watchConducenteEsterno = form.watch("conducente_esterno");
   const watchMetodoPagamento = form.watch("metodo_pagamento");
+  const watchTipoCliente = form.watch("tipo_cliente");
 
   const queryClient = useQueryClient();
 
@@ -522,14 +550,56 @@ export const ServizioCreaPage = ({
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full sm:max-w-7xl">
         <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
           
-          {/* SEZIONE 1: Azienda e Contatto */}
+          {/* SEZIONE 0: Tipo Cliente */}
+          <Card className="w-full p-3 sm:p-4 md:p-6 bg-muted/30">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Tipo Cliente</h2>
+            </div>
+            
+            <Controller
+              name="tipo_cliente"
+              control={form.control}
+              render={({ field }) => (
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="azienda"
+                      checked={field.value === 'azienda'}
+                      onChange={() => field.onChange('azienda')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-base font-medium">🏢 Azienda</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="privato"
+                      checked={field.value === 'privato'}
+                      onChange={() => field.onChange('privato')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-base font-medium">👤 Cliente Privato</span>
+                  </label>
+                </div>
+              )}
+            />
+          </Card>
+
+          {/* SEZIONE 1: Azienda e Contatto (o Cliente Privato) */}
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-base sm:text-lg font-semibold">Azienda e Contatto</h2>
+              {watchTipoCliente === 'azienda' ? (
+                <><Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /><h2 className="text-base sm:text-lg font-semibold">Azienda e Contatto</h2></>
+              ) : (
+                <><User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /><h2 className="text-base sm:text-lg font-semibold">Dati Cliente</h2></>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {watchTipoCliente === 'azienda' ? (
+                <>
               {/* Azienda */}
               <div className="space-y-1.5 sm:space-y-2">
                 <Label htmlFor="azienda_id" className="font-medium">
@@ -643,6 +713,36 @@ export const ServizioCreaPage = ({
                   {...form.register("numero_commessa")}
                 />
               </div>
+                </>
+              ) : (
+                <>
+              {/* Cliente Privato: Nome */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="cliente_privato_nome" className="font-medium">
+                  Nome <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="cliente_privato_nome"
+                  placeholder="Mario"
+                  className="text-base"
+                  {...form.register("cliente_privato_nome")}
+                />
+              </div>
+              
+              {/* Cliente Privato: Cognome */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="cliente_privato_cognome" className="font-medium">
+                  Cognome <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="cliente_privato_cognome"
+                  placeholder="Rossi"
+                  className="text-base"
+                  {...form.register("cliente_privato_cognome")}
+                />
+              </div>
+                </>
+              )}
             </div>
           </Card>
 
