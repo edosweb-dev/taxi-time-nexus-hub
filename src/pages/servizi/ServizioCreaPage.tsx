@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -623,8 +623,9 @@ export const ServizioCreaPage = ({
       </div>
 
       {/* Form */}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full sm:max-w-7xl">
-        <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full sm:max-w-7xl">
+          <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
           
           {/* SEZIONE 0: Tipo Cliente */}
           <Card className="w-full p-3 sm:p-4 md:p-6 bg-muted/30">
@@ -1502,6 +1503,7 @@ export const ServizioCreaPage = ({
           </div>
         </div>
       </form>
+      </FormProvider>
     </div>
     </MainLayout>
   );
