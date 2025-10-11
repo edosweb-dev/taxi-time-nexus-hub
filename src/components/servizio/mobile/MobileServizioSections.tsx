@@ -155,6 +155,45 @@ export function MobileServizioSections({
           isVisible={operationalConfig.isVisible}
         >
         <div className="operational-details">
+          {/* Percorso */}
+          <div className="detail-row full-width">
+            <span className="detail-label">Partenza</span>
+            <div className="detail-value">
+              {servizio.citta_presa && <div className="font-semibold">{servizio.citta_presa}</div>}
+              <div>{servizio.indirizzo_presa}</div>
+            </div>
+          </div>
+
+          {/* Fermate intermedie */}
+          {passeggeri && passeggeri.some((p: any) => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato) && (
+            <div className="detail-row full-width">
+              <span className="detail-label">Fermate intermedie</span>
+              <div className="space-y-2">
+                {passeggeri
+                  .filter((p: any) => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato)
+                  .map((p: any, idx: number) => (
+                    <div key={idx} className="detail-value text-sm">
+                      <div className="font-medium text-muted-foreground">{p.nome_cognome}</div>
+                      <div>{p.luogo_presa_personalizzato}</div>
+                      {p.orario_presa_personalizzato && (
+                        <div className="text-xs text-muted-foreground">
+                          Orario: {p.orario_presa_personalizzato.substring(0, 5)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          <div className="detail-row full-width">
+            <span className="detail-label">Destinazione</span>
+            <div className="detail-value">
+              {servizio.citta_destinazione && <div className="font-semibold">{servizio.citta_destinazione}</div>}
+              <div>{servizio.indirizzo_destinazione}</div>
+            </div>
+          </div>
+
           <div className="detail-row">
             <span className="detail-label">Tipo Servizio</span>
             <span className="detail-value">{servizio.tipo_servizio || 'Standard'}</span>
