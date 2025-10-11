@@ -629,6 +629,7 @@ export type Database = {
           firma_timestamp: string | null
           firma_url: string | null
           id: string
+          id_progressivo: string | null
           incasso_previsto: number | null
           incasso_ricevuto: number | null
           indirizzo_destinazione: string
@@ -663,6 +664,7 @@ export type Database = {
           firma_timestamp?: string | null
           firma_url?: string | null
           id?: string
+          id_progressivo?: string | null
           incasso_previsto?: number | null
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
@@ -697,6 +699,7 @@ export type Database = {
           firma_timestamp?: string | null
           firma_url?: string | null
           id?: string
+          id_progressivo?: string | null
           incasso_previsto?: number | null
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
@@ -1279,6 +1282,10 @@ export type Database = {
       can_update_profile_role: {
         Args: { new_role: string; user_id: string }
         Returns: boolean
+      }
+      generate_servizio_id_progressivo: {
+        Args: { anno_servizio: number }
+        Returns: string
       }
       get_user_role: {
         Args: { user_id: string }
