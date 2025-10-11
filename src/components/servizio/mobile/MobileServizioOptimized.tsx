@@ -103,7 +103,7 @@ export function MobileServizioOptimized({
 
   return (
     <div className="space-y-4 pb-24">
-      {/* Header Card: ID, Azienda, Referente, Stato */}
+      {/* Header Card: ID, Azienda/Cliente, Referente, Stato */}
       <Card className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-primary">{progressiveId}</h2>
@@ -112,8 +112,22 @@ export function MobileServizioOptimized({
         
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground w-20">Azienda:</span>
-            <span className="font-medium">{getAziendaName(servizio.azienda_id)}</span>
+            <span className="text-muted-foreground w-20">
+              {servizio.tipo_cliente === 'privato' ? 'Cliente:' : 'Azienda:'}
+            </span>
+            <span className="font-medium">
+              {servizio.tipo_cliente === 'privato' 
+                ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente Privato'
+                : getAziendaName(servizio.azienda_id)}
+            </span>
+            <Badge 
+              variant="outline" 
+              className={servizio.tipo_cliente === 'privato' 
+                ? 'bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-700' 
+                : 'bg-blue-500/10 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-700'}
+            >
+              {servizio.tipo_cliente === 'privato' ? 'Privato' : 'Azienda'}
+            </Badge>
           </div>
           
           {referenteName && (
