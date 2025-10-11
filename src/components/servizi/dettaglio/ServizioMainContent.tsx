@@ -23,7 +23,7 @@ export function ServizioMainContent({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-2 gap-4">
       {/* Percorso */}
       <Card>
         <CardHeader className="pb-3">
@@ -37,6 +37,9 @@ export function ServizioMainContent({
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs text-muted-foreground mb-0.5">Partenza</div>
+              {servizio.citta_presa && (
+                <div className="font-semibold text-sm">{servizio.citta_presa}</div>
+              )}
               <div className="font-medium text-sm">{servizio.indirizzo_presa}</div>
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                 <Clock className="h-3 w-3" />
@@ -77,6 +80,9 @@ export function ServizioMainContent({
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs text-muted-foreground mb-0.5">Arrivo</div>
+              {servizio.citta_destinazione && (
+                <div className="font-semibold text-sm">{servizio.citta_destinazione}</div>
+              )}
               <div className="font-medium text-sm">{servizio.indirizzo_destinazione}</div>
             </div>
           </div>
@@ -84,12 +90,12 @@ export function ServizioMainContent({
       </Card>
 
       {/* Passeggeri */}
-      {passeggeri.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Passeggeri ({passeggeri.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Passeggeri ({passeggeri.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {passeggeri.length > 0 ? (
             <div className="space-y-2">
               {passeggeri.map((passeggero, index) => (
                 <div
@@ -117,9 +123,13 @@ export function ServizioMainContent({
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="text-sm text-muted-foreground text-center py-4">
+              Nessun passeggero
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Dettagli Economici */}
       <Card>
@@ -157,16 +167,26 @@ export function ServizioMainContent({
               </>
             )}
           </div>
+
+          {/* Note */}
+          {servizio.note && (
+            <div className="mt-4 pt-4 border-t">
+              <div className="text-xs text-muted-foreground mb-1">Note</div>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {servizio.note}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Firma Cliente */}
-      {firmaDigitaleAttiva && servizio.firma_url && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Firma Cliente</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Firma Cliente</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {firmaDigitaleAttiva && servizio.firma_url ? (
             <div className="border rounded-lg p-4 bg-muted/30">
               <img 
                 src={servizio.firma_url} 
@@ -179,23 +199,13 @@ export function ServizioMainContent({
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Note */}
-      {servizio.note && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Note</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {servizio.note}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              {firmaDigitaleAttiva ? "Firma non ancora ricevuta" : "Firma non richiesta"}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
