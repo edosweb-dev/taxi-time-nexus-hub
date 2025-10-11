@@ -43,6 +43,9 @@ import {
   ChevronDown,
   ChevronUp
 } from "lucide-react";
+import { ClientePrivatoFields } from "@/components/servizi/form-fields/ClientePrivatoFields";
+import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePrivato";
+import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 // Schema validazione completo
 const servizioSchema = z.object({
@@ -63,6 +66,12 @@ const servizioSchema = z.object({
   cliente_privato_id: z.string().optional().nullable(),
   cliente_privato_nome: z.string().optional(),
   cliente_privato_cognome: z.string().optional(),
+  cliente_privato_email: z.string().email("Email non valida").optional().or(z.literal('')),
+  cliente_privato_telefono: z.string().optional(),
+  cliente_privato_indirizzo: z.string().optional(),
+  cliente_privato_citta: z.string().optional(),
+  cliente_privato_note: z.string().optional(),
+  salva_cliente_anagrafica: z.boolean().default(false),
   
   // Nuovi
   referente_id: z.string().optional().nullable(),
@@ -126,6 +135,17 @@ export const ServizioCreaPage = ({
     resolver: zodResolver(servizioSchema),
     defaultValues: {
       tipo_cliente: 'azienda',
+      azienda_id: '',
+      referente_id: null,
+      cliente_privato_id: null,
+      cliente_privato_nome: "",
+      cliente_privato_cognome: "",
+      cliente_privato_email: "",
+      cliente_privato_telefono: "",
+      cliente_privato_indirizzo: "",
+      cliente_privato_citta: "",
+      cliente_privato_note: "",
+      salva_cliente_anagrafica: false,
       data_servizio: new Date().toISOString().split('T')[0],
       orario_servizio: "12:00",
       iva: "22",
@@ -148,8 +168,18 @@ export const ServizioCreaPage = ({
         ]);
 
         form.reset({
+          tipo_cliente: initialData.tipo_cliente || 'azienda',
           azienda_id: initialData.azienda_id || '',
           referente_id: initialData.referente_id || null,
+          cliente_privato_id: initialData.cliente_privato_id || null,
+          cliente_privato_nome: initialData.cliente_privato_nome || '',
+          cliente_privato_cognome: initialData.cliente_privato_cognome || '',
+          cliente_privato_email: initialData.clienti_privati?.email || '',
+          cliente_privato_telefono: initialData.clienti_privati?.telefono || '',
+          cliente_privato_indirizzo: initialData.clienti_privati?.indirizzo || '',
+          cliente_privato_citta: initialData.clienti_privati?.citta || '',
+          cliente_privato_note: initialData.clienti_privati?.note || '',
+          salva_cliente_anagrafica: false,
           data_servizio: initialData.data_servizio || new Date().toISOString().split('T')[0],
           orario_servizio: initialData.orario_servizio || "12:00",
           numero_commessa: initialData.numero_commessa || null,
@@ -299,7 +329,7 @@ export const ServizioCreaPage = ({
       if (error) throw error;
       return data;
     },
-    enabled: !!watchAziendaId,
+    enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
   });
 
   // Query: Email Notifiche
@@ -316,7 +346,7 @@ export const ServizioCreaPage = ({
       if (error) throw error;
       return data;
     },
-    enabled: !!watchAziendaId,
+    enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
   });
 
   // Create Passeggero
@@ -440,10 +470,50 @@ export const ServizioCreaPage = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utente non autenticato");
 
+      let clientePrivatoId = data.cliente_privato_id;
+
+      // 1. Se cliente privato + salva_anagrafica = true → crea in anagrafica
+      if (
+        data.tipo_cliente === 'privato' && 
+        data.salva_cliente_anagrafica &&
+        !clientePrivatoId &&
+        data.cliente_privato_nome &&
+        data.cliente_privato_cognome
+      ) {
+        try {
+          const nuovoCliente = await createClientePrivato({
+            nome: data.cliente_privato_nome,
+            cognome: data.cliente_privato_cognome,
+            email: data.cliente_privato_email,
+            telefono: data.cliente_privato_telefono,
+            indirizzo: data.cliente_privato_indirizzo,
+            citta: data.cliente_privato_citta,
+            note: data.cliente_privato_note,
+          });
+          clientePrivatoId = nuovoCliente.id;
+          toast.success("Cliente salvato in anagrafica");
+        } catch (error) {
+          console.error("Errore creazione cliente:", error);
+          toast.error("Errore nel salvataggio cliente");
+          // Continua comunque con dati inline
+        }
+      }
+
       const servizioData = {
-        azienda_id: data.azienda_id,
-        referente_id: data.referente_id || null,
+        tipo_cliente: data.tipo_cliente,
         created_by: user.id,
+        
+        // Campi azienda (solo se tipo = azienda)
+        azienda_id: data.tipo_cliente === 'azienda' ? data.azienda_id : null,
+        referente_id: data.tipo_cliente === 'azienda' ? (data.referente_id || null) : null,
+        
+        // Campi cliente privato (solo se tipo = privato)
+        cliente_privato_id: data.tipo_cliente === 'privato' ? clientePrivatoId : null,
+        cliente_privato_nome: data.tipo_cliente === 'privato' && !clientePrivatoId 
+          ? data.cliente_privato_nome : null,
+        cliente_privato_cognome: data.tipo_cliente === 'privato' && !clientePrivatoId 
+          ? data.cliente_privato_cognome : null,
+        
         data_servizio: data.data_servizio,
         orario_servizio: data.orario_servizio,
         numero_commessa: data.numero_commessa || null,
@@ -470,18 +540,21 @@ export const ServizioCreaPage = ({
         const { error: servizioError } = await supabase.from("servizi").update(servizioData).eq('id', servizioId);
         if (servizioError) throw servizioError;
 
-        await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
-        if (data.passeggeri_ids.length > 0) {
-          const { error: passErr } = await supabase.from("servizi_passeggeri")
-            .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizioId, passeggero_id: pid })));
-          if (passErr) throw passErr;
-        }
+        // Gestisci passeggeri/email solo per aziende
+        if (data.tipo_cliente === 'azienda') {
+          await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
+          if (data.passeggeri_ids.length > 0) {
+            const { error: passErr } = await supabase.from("servizi_passeggeri")
+              .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizioId, passeggero_id: pid })));
+            if (passErr) throw passErr;
+          }
 
-        await supabase.from("servizi_email_notifiche").delete().eq('servizio_id', servizioId);
-        if (data.email_notifiche_ids.length > 0) {
-          const { error: emailErr } = await supabase.from("servizi_email_notifiche")
-            .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizioId, email_notifica_id: eid })));
-          if (emailErr) throw emailErr;
+          await supabase.from("servizi_email_notifiche").delete().eq('servizio_id', servizioId);
+          if (data.email_notifiche_ids.length > 0) {
+            const { error: emailErr } = await supabase.from("servizi_email_notifiche")
+              .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizioId, email_notifica_id: eid })));
+            if (emailErr) throw emailErr;
+          }
         }
 
         toast.success("Servizio aggiornato con successo!");
@@ -489,16 +562,19 @@ export const ServizioCreaPage = ({
         const { data: servizio, error: servizioError } = await supabase.from("servizi").insert(servizioData).select().single();
         if (servizioError) throw servizioError;
 
-        if (data.passeggeri_ids.length > 0) {
-          const { error: passErr } = await supabase.from("servizi_passeggeri")
-            .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizio.id, passeggero_id: pid })));
-          if (passErr) throw passErr;
-        }
+        // Gestisci passeggeri/email solo per aziende
+        if (data.tipo_cliente === 'azienda') {
+          if (data.passeggeri_ids.length > 0) {
+            const { error: passErr } = await supabase.from("servizi_passeggeri")
+              .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizio.id, passeggero_id: pid })));
+            if (passErr) throw passErr;
+          }
 
-        if (data.email_notifiche_ids.length > 0) {
-          const { error: emailErr } = await supabase.from("servizi_email_notifiche")
-            .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizio.id, email_notifica_id: eid })));
-          if (emailErr) throw emailErr;
+          if (data.email_notifiche_ids.length > 0) {
+            const { error: emailErr } = await supabase.from("servizi_email_notifiche")
+              .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizio.id, email_notifica_id: eid })));
+            if (emailErr) throw emailErr;
+          }
         }
 
         toast.success("Servizio creato con successo!");
@@ -714,36 +790,56 @@ export const ServizioCreaPage = ({
                 />
               </div>
                 </>
-              ) : (
-                <>
-              {/* Cliente Privato: Nome */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="cliente_privato_nome" className="font-medium">
-                  Nome <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="cliente_privato_nome"
-                  placeholder="Mario"
-                  className="text-base"
-                  {...form.register("cliente_privato_nome")}
-                />
-              </div>
-              
-              {/* Cliente Privato: Cognome */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="cliente_privato_cognome" className="font-medium">
-                  Cognome <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="cliente_privato_cognome"
-                  placeholder="Rossi"
-                  className="text-base"
-                  {...form.register("cliente_privato_cognome")}
-                />
-              </div>
-                </>
-              )}
+              ) : null}
             </div>
+            
+            {/* Cliente Privato Fields - usa componente dedicato */}
+            {watchTipoCliente === 'privato' && (
+              <div className="mt-4">
+                <ClientePrivatoFields />
+              </div>
+            )}
+            
+            {/* Data e Orario per Cliente Privato */}
+            {watchTipoCliente === 'privato' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-4">
+                {/* Data Servizio */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="data_servizio_privato" className="font-medium">
+                    Data Servizio <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="data_servizio_privato"
+                    type="date"
+                    className="text-base"
+                    {...form.register("data_servizio")}
+                  />
+                  {errors.data_servizio && (
+                    <p className="text-sm text-destructive">
+                      {errors.data_servizio.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Orario Servizio */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="orario_servizio_privato" className="font-medium">
+                    Orario <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="orario_servizio_privato"
+                    type="time"
+                    className="text-base"
+                    {...form.register("orario_servizio")}
+                  />
+                  {errors.orario_servizio && (
+                    <p className="text-sm text-destructive">
+                      {errors.orario_servizio.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* SEZIONE 2: Percorso */}
@@ -1054,7 +1150,8 @@ export const ServizioCreaPage = ({
             </div>
           </Card>
 
-          {/* SEZIONE 5: Passeggeri */}
+          {/* SEZIONE 5: Passeggeri - Solo per aziende */}
+          {watchTipoCliente === 'azienda' && watchAziendaId && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
               {/* Header con toggle collapsible */}
@@ -1223,8 +1320,10 @@ export const ServizioCreaPage = ({
               </div>
             </div>
           </Card>
+          )}
 
-          {/* SEZIONE 6: Email Notifiche */}
+          {/* SEZIONE 6: Email Notifiche - Solo per aziende */}
+          {watchTipoCliente === 'azienda' && watchAziendaId && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
               {/* Header con toggle collapsible */}
@@ -1354,6 +1453,7 @@ export const ServizioCreaPage = ({
               </div>
             </div>
           </Card>
+          )}
 
           {/* SEZIONE 7: Note */}
           <Card className="w-full p-3 sm:p-4 md:p-6">
