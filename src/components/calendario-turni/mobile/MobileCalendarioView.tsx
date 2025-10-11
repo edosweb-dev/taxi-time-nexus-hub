@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { format, addDays, subDays, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TouchOptimizer } from '@/components/ui/touch-optimizer';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import { MobileDayView } from './MobileDayView';
 import { useShifts } from '@/components/shifts/ShiftContext';
 import { Shift } from '@/components/shifts/types';
@@ -123,17 +126,44 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
           </TouchOptimizer>
         </div>
 
-        {/* Today button - Compatto */}
-        <TouchOptimizer minSize="md">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={goToToday}
-            className="today-button-compact"
-          >
-            Oggi
-          </Button>
-        </TouchOptimizer>
+        {/* Action buttons - Compatto */}
+        <div className="flex gap-2">
+          <TouchOptimizer minSize="md">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToToday}
+              className="today-button-compact"
+            >
+              Oggi
+            </Button>
+          </TouchOptimizer>
+
+          {/* Date Picker - Solo Mobile */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <TouchOptimizer minSize="md">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn("today-button-compact")}
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                </Button>
+              </TouchOptimizer>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="center">
+              <Calendar
+                mode="single"
+                selected={currentDate}
+                onSelect={(date) => date && setCurrentDate(date)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+                locale={it}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {/* Content con swipe */}
