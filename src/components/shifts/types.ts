@@ -1,7 +1,41 @@
 import { Profile } from '@/lib/types';
 
-export type ShiftType = 'specific_hours' | 'full_day' | 'half_day' | 'sick_leave' | 'unavailable' | 'extra';
-export type HalfDayType = 'morning' | 'afternoon' | null;
+export type ShiftType = 
+  | 'full_day'      // Giornata Intera
+  | 'half_day'      // Mezza Giornata  
+  | 'extra'         // Extra
+  | 'unavailable';  // Indisponibile
+
+export type HalfDayType = 'morning' | 'afternoon';
+
+/**
+ * Input per inserimento singolo turno
+ */
+export interface SingleShiftInput {
+  user_id: string;
+  shift_date: string;        // YYYY-MM-DD format
+  shift_type: ShiftType;
+  half_day_type?: HalfDayType; // Required solo se shift_type = 'half_day'
+  notes?: string;
+  created_by: string;
+  updated_by: string;
+}
+
+/**
+ * Input per inserimento massivo turni
+ */
+export interface BatchShiftInput {
+  user_ids: string[] | 'all';   // Array di user IDs o 'all' per tutti
+  month: number;                 // 1-12
+  year: number;
+  period_type: 'full_month' | 'single_week' | 'multiple_weeks';
+  week?: number;                 // 1-5, required se period_type = 'single_week'
+  weeks?: number[];              // Array 1-5, required se period_type = 'multiple_weeks'
+  weekdays: number[];            // 0=Domenica, 1=Lunedì, ..., 6=Sabato
+  shift_type: ShiftType;
+  half_day_type?: HalfDayType;  // Required solo se shift_type = 'half_day'
+  notes?: string;
+}
 
 export interface Shift {
   id: string;
@@ -51,3 +85,31 @@ export interface ShiftContextType {
   filteredDate: Date | null;
   setDateFilter: (date: Date | null) => void;
 }
+
+/**
+ * Labels UI per tipi turno
+ */
+export const SHIFT_TYPE_LABELS: Record<ShiftType, string> = {
+  full_day: 'Giornata Intera',
+  half_day: 'Mezza Giornata',
+  extra: 'Extra',
+  unavailable: 'Indisponibile'
+};
+
+/**
+ * Descrizioni per UI/tooltips
+ */
+export const SHIFT_TYPE_DESCRIPTIONS: Record<ShiftType, string> = {
+  full_day: 'Turno per tutta la giornata',
+  half_day: 'Turno di mezza giornata (mattina o pomeriggio)',
+  extra: 'Turno aggiuntivo',
+  unavailable: 'Non disponibile'
+};
+
+/**
+ * Labels per tipo mezza giornata
+ */
+export const HALF_DAY_TYPE_LABELS: Record<HalfDayType, string> = {
+  morning: 'Mattina',
+  afternoon: 'Pomeriggio'
+};
