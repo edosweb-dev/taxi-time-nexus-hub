@@ -139,7 +139,7 @@ export function ClientePrivatoFields() {
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  💾 Salva cliente in anagrafica
+                  Salva cliente in anagrafica
                 </FormLabel>
                 <FormDescription>
                   Il cliente sarà disponibile per essere riutilizzato nei prossimi servizi

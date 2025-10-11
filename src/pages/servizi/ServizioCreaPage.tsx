@@ -645,8 +645,8 @@ export const ServizioCreaPage = ({
                       <SelectValue placeholder="Seleziona tipo cliente" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="azienda">🏢 Azienda</SelectItem>
-                      <SelectItem value="privato">👤 Cliente Privato</SelectItem>
+                      <SelectItem value="azienda">Azienda</SelectItem>
+                      <SelectItem value="privato">Cliente Privato</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
