@@ -20,8 +20,7 @@ import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
 import { ServizioDialogs } from "@/components/servizi/dettaglio/ServizioDialogs";
 import { ServizioDetailDesktop } from "@/components/servizi/dettaglio/ServizioDetailDesktop";
 import { useVeicoli } from "@/hooks/useVeicoli";
-import { MobileServizioHero } from "@/components/servizio/mobile/MobileServizioHero";
-import { MobileServizioSections } from "@/components/servizio/mobile/MobileServizioSections";
+import { MobileServizioOptimized } from "@/components/servizio/mobile/MobileServizioOptimized";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 import { FirmaCliente } from "@/components/servizi/FirmaCliente";
 import { useAuth } from "@/contexts/AuthContext";
@@ -106,6 +105,10 @@ export default function ServizioDetailPage() {
   // Check if there are any actions available for mobile menu
   const hasMobileActions = canBeEdited || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
 
+  // Get veicolo model for sidebar
+  const veicolo = veicoli.find(v => v.id === servizio.veicolo_id);
+  const veicoloModello = veicolo ? veicolo.modello : undefined;
+
   // Mobile-first layout
   if (isMobile) {
     return (
@@ -114,88 +117,25 @@ export default function ServizioDetailPage() {
         headerProps={{
           showBackButton: true,
           onBackClick: () => navigate('/servizi'),
-          rightActions: hasMobileActions ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {/* Modifica */}
-                {canBeEdited && (
-                  <DropdownMenuItem onClick={() => navigate(`/servizi/${servizio.id}/modifica`)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Modifica Servizio
-                  </DropdownMenuItem>
-                )}
-                
-                {/* Consuntiva */}
-                {canBeConsuntivato && (
-                  <DropdownMenuItem onClick={() => setConsuntivaDialogOpen(true)}>
-                    <FileText className="h-4 w-4 mr-2" />
-                    Consuntiva
-                  </DropdownMenuItem>
-                )}
-                
-                {/* Assegna */}
-                {servizio.stato === 'da_assegnare' && isAdmin && (
-                  <DropdownMenuItem onClick={() => setAssegnazioneSheetOpen(true)}>
-                    <Users className="h-4 w-4 mr-2" />
-                    Assegna Servizio
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : undefined
         }}
       >
-        <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
-          <MobileServizioHero
-            servizio={mobileServizioData} 
-            isAdmin={isAdmin}
-            onAssegnaServizio={() => setAssegnazioneSheetOpen(true)}
-          />
-          <MobileServizioSections 
-            servizio={servizio} 
-            passeggeri={passeggeri}
-            formatCurrency={formatCurrency}
-            users={users}
-            getUserName={getUserName}
-            firmaDigitaleAttiva={firmaDigitaleAttiva}
-          />
-          
-          {/* Mobile Action Buttons - Sticky at bottom - Sequential UX Flow */}
-          {(canRequestSignature || (!canRequestSignature && canBeCompleted)) && (
-            <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 z-40">
-              
-              {/* STEP 1: Richiedi Firma Cliente (se non ancora firmato) */}
-              {canRequestSignature && (
-                <Button
-                  className="w-full gap-2"
-                  size="lg"
-                  onClick={() => setShowFirmaClienteDialog(true)}
-                >
-                  <Edit3 className="h-5 w-5" />
-                  Firma Cliente
-                </Button>
-              )}
-
-              {/* STEP 2: Completa Servizio (solo se già firmato o firma non obbligatoria) */}
-              {!canRequestSignature && canBeCompleted && (
-                <Button
-                  className="w-full gap-2"
-                  size="lg"
-                  onClick={() => setCompletaDialogOpen(true)}
-                >
-                  <CheckCircle2 className="h-5 w-5" />
-                  Completa Servizio
-                </Button>
-              )}
-
-            </div>
-          )}
-        </div>
+        <MobileServizioOptimized
+          servizio={servizio}
+          passeggeri={passeggeri}
+          users={users}
+          canBeEdited={canBeEdited}
+          isAdmin={isAdmin}
+          getAziendaName={getAziendaName}
+          getUserName={getUserName}
+          formatCurrency={formatCurrency}
+          firmaDigitaleAttiva={firmaDigitaleAttiva}
+          veicoloModello={veicoloModello}
+          onEdit={() => navigate(`/servizi/${servizio.id}/modifica`)}
+          onAssegna={() => setAssegnazioneSheetOpen(true)}
+          onDelete={() => {
+            navigate('/servizi');
+          }}
+        />
 
         <ServizioDialogs
           servizio={servizio}
@@ -231,10 +171,6 @@ export default function ServizioDetailPage() {
       </MainLayout>
     );
   }
-
-  // Get veicolo model for sidebar
-  const veicolo = veicoli.find(v => v.id === servizio.veicolo_id);
-  const veicoloModello = veicolo ? veicolo.modello : undefined;
 
   // Desktop layout - NEW Sidebar + Main
   return (
