@@ -23,12 +23,29 @@ interface MobileStepShiftFormProps {
   selectedShift?: any;
 }
 
-const STEPS = [
-  { id: 1, title: "Utente e Data", description: "Chi e quando" },
-  { id: 2, title: "Tipo Turno", description: "Modalità di lavoro" },
-  { id: 3, title: "Dettagli", description: "Orari e periodi" },
-  { id: 4, title: "Note", description: "Informazioni extra" }
-];
+// Helper function to determine which steps are required based on shift type
+const getRequiredSteps = (shiftType: string) => {
+  const baseSteps = [
+    { id: 1, title: "Utente e Data", description: "Chi e quando" },
+    { id: 2, title: "Tipo Turno", description: "Modalità di lavoro" }
+  ];
+  
+  // Step 3 (Details) is only needed for specific_hours, sick_leave, and unavailable
+  const needsStep3 = ['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType);
+  
+  if (needsStep3) {
+    baseSteps.push({ id: 3, title: "Dettagli", description: "Orari e periodi" });
+  }
+  
+  // Notes step is always last (step 3 or 4 depending on whether step 3 is needed)
+  baseSteps.push({ 
+    id: needsStep3 ? 4 : 3, 
+    title: "Note", 
+    description: "Informazioni extra" 
+  });
+  
+  return baseSteps;
+};
 
 interface User {
   id: string; 
@@ -68,6 +85,10 @@ export function MobileStepShiftForm({
   const { watch, trigger, setValue } = form;
   const watchedValues = watch();
   const shiftType = watch('shift_type');
+  
+  // Calculate required steps dynamically based on shift type
+  const requiredSteps = getRequiredSteps(shiftType);
+  const totalSteps = requiredSteps.length;
 
   // Fetch users if admin or socio
   useEffect(() => {
@@ -152,9 +173,14 @@ export function MobileStepShiftForm({
 
   const handleNext = async () => {
     const isValid = await validateCurrentStep();
-    if (isValid && currentStep < STEPS.length) {
-      setCurrentStep(currentStep + 1);
-    } else if (!isValid) {
+    if (isValid) {
+      // If at step 2 and step 3 is not needed, skip directly to notes (which becomes step 3)
+      if (currentStep === 2 && !['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType)) {
+        setCurrentStep(3); // Skip to notes
+      } else if (currentStep < totalSteps) {
+        setCurrentStep(currentStep + 1);
+      }
+    } else {
       // Show specific validation errors based on step
       switch (currentStep) {
         case 1:
@@ -189,8 +215,12 @@ export function MobileStepShiftForm({
   };
 
   const handleSubmit = async (data: ShiftFormValues) => {
-    const isValid = await validateCurrentStep();
-    if (!isValid) return;
+    // Validate entire form before submitting
+    const isValid = await form.trigger();
+    if (!isValid) {
+      toast.error('Completa tutti i campi obbligatori');
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -238,18 +268,18 @@ export function MobileStepShiftForm({
     }
   };
 
-  const progress = (currentStep / STEPS.length) * 100;
+  const progress = (currentStep / totalSteps) * 100;
 
   return (
     <div className="mobile-step-form">
       {/* Progress Header */}
       <div className="step-header">
         <div className="step-info">
-          <h3 className="step-title">{STEPS[currentStep - 1].title}</h3>
-          <p className="step-description">{STEPS[currentStep - 1].description}</p>
+          <h3 className="step-title">{requiredSteps[currentStep - 1].title}</h3>
+          <p className="step-description">{requiredSteps[currentStep - 1].description}</p>
         </div>
         <div className="step-progress">
-          <span className="step-counter">{currentStep} di {STEPS.length}</span>
+          <span className="step-counter">{currentStep} di {totalSteps}</span>
           <Progress value={progress} className="w-full mt-2" />
         </div>
       </div>
@@ -269,11 +299,14 @@ export function MobileStepShiftForm({
             watchShiftType={shiftType} 
           />
         )}
-        {currentStep === 3 && (
+        {currentStep === 3 && ['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType) && (
           <Step3Times 
             control={form.control} 
             watchShiftType={shiftType} 
           />
+        )}
+        {currentStep === 3 && !['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType) && (
+          <Step4Notes control={form.control} />
         )}
         {currentStep === 4 && (
           <Step4Notes control={form.control} />
@@ -300,14 +333,14 @@ export function MobileStepShiftForm({
         </Button>
 
         <Button
-          type={currentStep === STEPS.length ? "submit" : "button"}
-          onClick={currentStep === STEPS.length ? undefined : handleNext}
+          type={currentStep === totalSteps ? "submit" : "button"}
+          onClick={currentStep === totalSteps ? undefined : handleNext}
           className="nav-button"
           disabled={isLoading}
         >
           {isLoading ? (
             "Salvataggio..."
-          ) : currentStep === STEPS.length ? (
+          ) : currentStep === totalSteps ? (
             isEditing ? "Aggiorna Turno" : "Salva Turno"
           ) : (
             <>
