@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { 
-  Pencil, Trash2, UserPlus, Building2, User, Car
+  Pencil, Trash2, UserPlus, Building2, User, Car, ArrowLeft, CheckCircle2, FileText
 } from "lucide-react";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
@@ -9,6 +9,8 @@ import { Profile } from "@/lib/types";
 interface ServizioSidebarProps {
   servizio: Servizio;
   canBeEdited: boolean;
+  canBeCompleted: boolean;
+  canBeConsuntivato: boolean;
   isAdmin: boolean;
   users: Profile[];
   getAziendaName: (id?: string) => string;
@@ -16,12 +18,17 @@ interface ServizioSidebarProps {
   onEdit: () => void;
   onAssegna: () => void;
   onDelete: () => void;
+  onCompleta: () => void;
+  onConsuntiva: () => void;
+  onBack: () => void;
   veicoloModello?: string;
 }
 
 export function ServizioSidebar({
   servizio,
   canBeEdited,
+  canBeCompleted,
+  canBeConsuntivato,
   isAdmin,
   users,
   getAziendaName,
@@ -30,10 +37,24 @@ export function ServizioSidebar({
   onEdit,
   onAssegna,
   onDelete,
+  onCompleta,
+  onConsuntiva,
+  onBack,
 }: ServizioSidebarProps) {
   return (
     <aside className="w-64 border-r bg-muted/30 sticky top-0 h-screen overflow-y-auto">
       <div className="p-4 space-y-4">
+        {/* Pulsante Indietro */}
+        <Button 
+          onClick={onBack} 
+          variant="ghost" 
+          size="sm"
+          className="w-full justify-start"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Torna ai Servizi
+        </Button>
+
         {/* ID Progressivo */}
         <div className="space-y-1">
           <div className="text-2xl font-bold text-foreground">
@@ -93,10 +114,24 @@ export function ServizioSidebar({
           )}
         </div>
 
-        {/* Azioni */}
+        {/* Azioni Primarie */}
         <div className="border-t pt-4 space-y-2">
+          {canBeCompleted && (
+            <Button onClick={onCompleta} className="w-full" size="sm">
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Completa Servizio
+            </Button>
+          )}
+
+          {canBeConsuntivato && (
+            <Button onClick={onConsuntiva} className="w-full" size="sm">
+              <FileText className="mr-2 h-4 w-4" />
+              Consuntiva Servizio
+            </Button>
+          )}
+
           {canBeEdited && (
-            <Button onClick={onEdit} className="w-full" size="sm">
+            <Button onClick={onEdit} className="w-full" size="sm" variant="outline">
               <Pencil className="mr-2 h-4 w-4" />
               Modifica
             </Button>

@@ -192,6 +192,8 @@ export default function ServizioDetailPage() {
           passeggeri={passeggeri}
           users={users}
           canBeEdited={canBeEdited}
+          canBeCompleted={canBeCompleted}
+          canBeConsuntivato={canBeConsuntivato}
           isAdmin={isAdmin}
           getAziendaName={getAziendaName}
           getUserName={getUserName}
@@ -204,6 +206,9 @@ export default function ServizioDetailPage() {
             // Add delete logic here
             navigate('/servizi');
           }}
+          onCompleta={() => setCompletaDialogOpen(true)}
+          onConsuntiva={() => setConsuntivaDialogOpen(true)}
+          onBack={() => navigate('/servizi')}
         />
       </div>
 

@@ -9,6 +9,8 @@ interface ServizioDetailDesktopProps {
   passeggeri: PasseggeroConDettagli[];
   users: Profile[];
   canBeEdited: boolean;
+  canBeCompleted: boolean;
+  canBeConsuntivato: boolean;
   isAdmin: boolean;
   getAziendaName: (id?: string) => string;
   getUserName: (users: Profile[], id?: string) => string | null;
@@ -18,6 +20,9 @@ interface ServizioDetailDesktopProps {
   onEdit: () => void;
   onAssegna: () => void;
   onDelete: () => void;
+  onCompleta: () => void;
+  onConsuntiva: () => void;
+  onBack: () => void;
 }
 
 export function ServizioDetailDesktop({
@@ -25,6 +30,8 @@ export function ServizioDetailDesktop({
   passeggeri,
   users,
   canBeEdited,
+  canBeCompleted,
+  canBeConsuntivato,
   isAdmin,
   getAziendaName,
   getUserName,
@@ -34,6 +41,9 @@ export function ServizioDetailDesktop({
   onEdit,
   onAssegna,
   onDelete,
+  onCompleta,
+  onConsuntiva,
+  onBack,
 }: ServizioDetailDesktopProps) {
   return (
     <div className="flex min-h-screen w-full">
@@ -41,6 +51,8 @@ export function ServizioDetailDesktop({
       <ServizioSidebar
         servizio={servizio}
         canBeEdited={canBeEdited}
+        canBeCompleted={canBeCompleted}
+        canBeConsuntivato={canBeConsuntivato}
         isAdmin={isAdmin}
         users={users}
         getAziendaName={getAziendaName}
@@ -49,6 +61,9 @@ export function ServizioDetailDesktop({
         onEdit={onEdit}
         onAssegna={onAssegna}
         onDelete={onDelete}
+        onCompleta={onCompleta}
+        onConsuntiva={onConsuntiva}
+        onBack={onBack}
       />
 
       {/* Main Content */}
