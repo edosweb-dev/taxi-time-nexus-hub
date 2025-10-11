@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,7 +76,21 @@ const servizioSchema = z.object({
 
 type ServizioFormData = z.infer<typeof servizioSchema>;
 
-export const ServizioCreaPage = () => {
+interface ServizioCreaPageProps {
+  mode?: 'create' | 'edit';
+  servizioId?: string;
+  initialData?: any;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
+export const ServizioCreaPage = ({
+  mode = 'create',
+  servizioId,
+  initialData,
+  onSuccess,
+  onCancel
+}: ServizioCreaPageProps = {}) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasseggeriOpen, setIsPasseggeriOpen] = useState(false);
@@ -96,6 +110,45 @@ export const ServizioCreaPage = () => {
   });
 
   const { formState: { errors } } = form;
+
+  // Pre-popola form in edit mode
+  useEffect(() => {
+    if (mode === 'edit' && initialData && servizioId) {
+      const loadData = async () => {
+        const [passResult, emailResult] = await Promise.all([
+          supabase.from('servizi_passeggeri').select('passeggero_id').eq('servizio_id', servizioId),
+          supabase.from('servizi_email_notifiche').select('email_notifica_id').eq('servizio_id', servizioId)
+        ]);
+
+        form.reset({
+          azienda_id: initialData.azienda_id || '',
+          referente_id: initialData.referente_id || null,
+          data_servizio: initialData.data_servizio || new Date().toISOString().split('T')[0],
+          orario_servizio: initialData.orario_servizio || "12:00",
+          numero_commessa: initialData.numero_commessa || null,
+          citta_presa: initialData.citta_presa || null,
+          indirizzo_presa: initialData.indirizzo_presa || '',
+          citta_destinazione: initialData.citta_destinazione || null,
+          indirizzo_destinazione: initialData.indirizzo_destinazione || '',
+          metodo_pagamento: initialData.metodo_pagamento || '',
+          conducente_esterno: initialData.conducente_esterno || false,
+          assegnato_a: initialData.assegnato_a || null,
+          conducente_esterno_id: initialData.conducente_esterno_id || null,
+          veicolo_id: initialData.veicolo_id || null,
+          ore_effettive: initialData.ore_effettive?.toString() || null,
+          ore_fatturate: initialData.ore_fatturate?.toString() || null,
+          incasso_previsto: initialData.incasso_previsto?.toString() || null,
+          iva: initialData.iva?.toString() || "22",
+          applica_provvigione: initialData.applica_provvigione || false,
+          consegna_contanti_a: initialData.consegna_contanti_a || null,
+          passeggeri_ids: passResult.data?.map(r => r.passeggero_id) || [],
+          email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
+          note: initialData.note || null,
+        });
+      };
+      loadData();
+    }
+  }, [mode, initialData, servizioId, form]);
 
   const watchAziendaId = form.watch("azienda_id");
   const watchConducenteEsterno = form.watch("conducente_esterno");
@@ -359,7 +412,6 @@ export const ServizioCreaPage = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utente non autenticato");
 
-      // Prepare servizio data
       const servizioData = {
         azienda_id: data.azienda_id,
         referente_id: data.referente_id || null,
@@ -372,7 +424,7 @@ export const ServizioCreaPage = () => {
         indirizzo_destinazione: data.indirizzo_destinazione,
         citta_destinazione: data.citta_destinazione || null,
         metodo_pagamento: data.metodo_pagamento,
-        stato: "da_assegnare",
+        stato: mode === 'create' ? "da_assegnare" : initialData?.stato || "da_assegnare",
         assegnato_a: data.assegnato_a || null,
         conducente_esterno: data.conducente_esterno,
         conducente_esterno_id: data.conducente_esterno ? data.conducente_esterno_id : null,
@@ -386,55 +438,60 @@ export const ServizioCreaPage = () => {
         note: data.note || null,
       };
 
-      // Insert servizio
-      const { data: servizio, error: servizioError } = await supabase
-        .from("servizi")
-        .insert(servizioData)
-        .select()
-        .single();
+      if (mode === 'edit' && servizioId) {
+        const { error: servizioError } = await supabase.from("servizi").update(servizioData).eq('id', servizioId);
+        if (servizioError) throw servizioError;
 
-      if (servizioError) throw servizioError;
+        await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
+        if (data.passeggeri_ids.length > 0) {
+          const { error: passErr } = await supabase.from("servizi_passeggeri")
+            .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizioId, passeggero_id: pid })));
+          if (passErr) throw passErr;
+        }
 
-      // Insert passeggeri relations
-      if (data.passeggeri_ids.length > 0) {
-        const passeggeriRelations = data.passeggeri_ids.map(passeggero_id => ({
-          servizio_id: servizio.id,
-          passeggero_id,
-        }));
-        
-        const { error: passeggeriError } = await supabase
-          .from("servizi_passeggeri")
-          .insert(passeggeriRelations);
-        
-        if (passeggeriError) throw passeggeriError;
+        await supabase.from("servizi_email_notifiche").delete().eq('servizio_id', servizioId);
+        if (data.email_notifiche_ids.length > 0) {
+          const { error: emailErr } = await supabase.from("servizi_email_notifiche")
+            .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizioId, email_notifica_id: eid })));
+          if (emailErr) throw emailErr;
+        }
+
+        toast.success("Servizio aggiornato con successo!");
+      } else {
+        const { data: servizio, error: servizioError } = await supabase.from("servizi").insert(servizioData).select().single();
+        if (servizioError) throw servizioError;
+
+        if (data.passeggeri_ids.length > 0) {
+          const { error: passErr } = await supabase.from("servizi_passeggeri")
+            .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizio.id, passeggero_id: pid })));
+          if (passErr) throw passErr;
+        }
+
+        if (data.email_notifiche_ids.length > 0) {
+          const { error: emailErr } = await supabase.from("servizi_email_notifiche")
+            .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizio.id, email_notifica_id: eid })));
+          if (emailErr) throw emailErr;
+        }
+
+        toast.success("Servizio creato con successo!");
       }
 
-      // Insert email notifiche relations
-      if (data.email_notifiche_ids.length > 0) {
-        const emailRelations = data.email_notifiche_ids.map(email_notifica_id => ({
-          servizio_id: servizio.id,
-          email_notifica_id,
-        }));
-        
-        const { error: emailError } = await supabase
-          .from("servizi_email_notifiche")
-          .insert(emailRelations);
-        
-        if (emailError) throw emailError;
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate("/servizi");
       }
-
-      toast.success("Servizio creato con successo!");
-      navigate("/servizi");
     } catch (error) {
-      console.error("Errore creazione servizio:", error);
-      toast.error(
-        error instanceof Error 
-          ? error.message 
-          : "Errore nella creazione del servizio"
-      );
+      console.error("Errore:", error);
+      toast.error(mode === 'edit' ? "Errore nell'aggiornamento" : "Errore nella creazione");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    if (onCancel) onCancel();
+    else navigate("/servizi");
   };
 
   return (
@@ -453,9 +510,11 @@ export const ServizioCreaPage = () => {
           <span className="sm:hidden">Indietro</span>
         </Button>
         
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Nuovo Servizio</h1>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+          {mode === 'edit' ? 'Modifica Servizio' : 'Nuovo Servizio'}
+        </h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-1">
-          Compila i campi per creare un nuovo servizio
+          {mode === 'edit' ? 'Modifica le informazioni del servizio' : 'Compila i campi per creare un nuovo servizio'}
         </p>
       </div>
 
@@ -1227,13 +1286,13 @@ export const ServizioCreaPage = () => {
               className="w-full sm:w-auto min-w-[200px] order-1 sm:order-2"
               size="lg"
             >
-              {isSubmitting ? "Creazione..." : "Crea Servizio"}
+              {isSubmitting ? (mode === 'edit' ? "Salvataggio..." : "Creazione...") : (mode === 'edit' ? "Salva Modifiche" : "Crea Servizio")}
             </Button>
 
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/servizi")}
+              onClick={handleCancel}
               className="w-full sm:w-auto order-2 sm:order-1"
               size="lg"
             >

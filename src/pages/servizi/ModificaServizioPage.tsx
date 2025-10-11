@@ -1,15 +1,33 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from "@/components/layouts/MainLayout";
-import { NuovoServizioForm } from "@/components/servizi/NuovoServizioForm";
-import { useServizioDetail } from "@/hooks/useServizioDetail";
+import { ServizioCreaForm } from "@/components/servizi/ServizioCreaForm";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ModificaServizioPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { servizio, passeggeri, isLoading, error } = useServizioDetail(id);
+
+  // Fetch servizio completo con tutte le relazioni
+  const { data: servizio, isLoading, error } = useQuery({
+    queryKey: ['servizio-edit', id],
+    queryFn: async () => {
+      if (!id) return null;
+      
+      const { data, error } = await supabase
+        .from('servizi')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
 
   if (isLoading) {
     return (
@@ -42,36 +60,15 @@ export default function ModificaServizioPage() {
     );
   }
 
-  // Prepara initial data con passeggeri
-  const initialData = {
-    ...servizio,
-    passeggeri: passeggeri.map(p => ({
-      id: p.id,
-      passeggero_id: p.id, // Usa l'id del passeggero
-      nome_cognome: p.nome_cognome,
-      nome: p.nome ?? "",
-      cognome: p.cognome ?? "",
-      localita: p.localita ?? "",
-      indirizzo: p.indirizzo ?? "",
-      email: p.email ?? "",
-      telefono: p.telefono ?? "",
-      orario_presa_personalizzato: p.orario_presa_personalizzato ?? "",
-      luogo_presa_personalizzato: p.luogo_presa_personalizzato ?? "",
-      destinazione_personalizzato: p.destinazione_personalizzato ?? "",
-      usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato ?? false,
-    })),
-  };
-
   return (
     <MainLayout>
-      <div className="wizard-fullwidth -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-8 xl:-mx-8">
-        <NuovoServizioForm
-          mode="edit"
-          servizioId={id}
-          initialData={initialData}
-          onSuccess={() => navigate(`/servizi/${id}`)}
-        />
-      </div>
+      <ServizioCreaForm
+        mode="edit"
+        servizioId={id}
+        initialData={servizio}
+        onSuccess={() => navigate(`/servizi/${id}`)}
+        onCancel={() => navigate(`/servizi/${id}`)}
+      />
     </MainLayout>
   );
 }
