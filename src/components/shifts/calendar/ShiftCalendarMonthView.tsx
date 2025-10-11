@@ -74,7 +74,7 @@ export const ShiftCalendarMonthView = ({
                     variant={
                       shift.shift_type === 'full_day' ? 'success' : 
                       shift.shift_type === 'half_day' ? 'secondary' :
-                      shift.shift_type === 'sick_leave' ? 'destructive' :
+                      shift.shift_type === 'extra' ? 'default' :
                       shift.shift_type === 'unavailable' ? 'outline' : 'default'
                     }
                     className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${userColor} p-2 min-h-[2.5rem] flex flex-col justify-center`}
@@ -93,12 +93,10 @@ export const ShiftCalendarMonthView = ({
                       
                       {/* Shift type info */}
                       <div className="text-xs leading-tight">
-                        {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time
-                          ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
-                          : shift.shift_type === 'half_day'
+                        {shift.shift_type === 'half_day'
                           ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
                           : shift.shift_type === 'full_day' ? 'Giornata intera'
-                          : shift.shift_type === 'sick_leave' ? 'Malattia'
+                          : shift.shift_type === 'extra' ? 'Extra'
                           : 'Non disponibile'}
                       </div>
                     </div>

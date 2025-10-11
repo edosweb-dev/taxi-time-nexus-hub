@@ -56,9 +56,9 @@ export function AddShiftDialog({
     defaultValues: {
       user_id: defaultUserId || user?.id || '',
       shift_date: defaultDate || new Date(),
-      shift_type: 'specific_hours',
-      start_time: '09:00',
-      end_time: '17:00',
+      shift_type: 'full_day',
+      start_time: null,
+      end_time: null,
       half_day_type: null,
       start_date: null,
       end_date: null,
@@ -87,9 +87,9 @@ export function AddShiftDialog({
       form.reset({
         user_id: defaultUserId || user?.id || '',
         shift_date: defaultDate || new Date(),
-        shift_type: 'specific_hours',
-        start_time: '09:00',
-        end_time: '17:00',
+        shift_type: 'full_day',
+        start_time: null,
+        end_time: null,
         half_day_type: null,
         start_date: null,
         end_date: null,
@@ -110,25 +110,9 @@ export function AddShiftDialog({
     try {
       setIsLoading(true);
       
-      // Validate time fields if specific hours type
-      if (data.shift_type === 'specific_hours') {
-        if (!data.start_time || !data.end_time) {
-          toast.error('Inserisci gli orari di inizio e fine');
-          setIsLoading(false);
-          return;
-        }
-      }
-      
       // Validate half day type if half day selected
       if (data.shift_type === 'half_day' && !data.half_day_type) {
         toast.error('Seleziona mattina o pomeriggio');
-        setIsLoading(false);
-        return;
-      }
-
-      // Validate start/end date for sick leave and unavailable
-      if ((data.shift_type === 'sick_leave' || data.shift_type === 'unavailable') && !data.start_date) {
-        toast.error('Seleziona una data di inizio');
         setIsLoading(false);
         return;
       }
@@ -144,11 +128,11 @@ export function AddShiftDialog({
         user_id: data.user_id,
         shift_date: data.shift_date,
         shift_type: data.shift_type,
-        start_time: data.shift_type === 'specific_hours' ? data.start_time || null : null,
-        end_time: data.shift_type === 'specific_hours' ? data.end_time || null : null,
+        start_time: null,
+        end_time: null,
         half_day_type: data.shift_type === 'half_day' ? data.half_day_type : null,
-        start_date: ['sick_leave', 'unavailable'].includes(data.shift_type) ? data.start_date : null,
-        end_date: ['sick_leave', 'unavailable'].includes(data.shift_type) ? data.end_date : null,
+        start_date: null,
+        end_date: null,
         notes: data.notes
       };
 
@@ -218,20 +202,6 @@ export function AddShiftDialog({
               setValue={form.setValue} 
             />
 
-            {shiftType === 'specific_hours' && (
-              <div className="space-y-3 sm:space-y-4">
-                {!isMobile && (
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>
-                      Specifica gli orari di inizio e fine del turno di lavoro.
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <ShiftTimeFields control={form.control} />
-              </div>
-            )}
-
             {shiftType === 'half_day' && (
               <div className="space-y-3 sm:space-y-4">
                 {!isMobile && (
@@ -248,29 +218,6 @@ export function AddShiftDialog({
           </CardContent>
         </Card>
 
-        {/* Card Periodi Speciali - Mobile ottimizzato */}
-        {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
-          <Card className={`border-l-4 border-l-amber-500 ${isMobile ? 'shadow-sm' : ''}`}>
-            <CardHeader className={`pb-3 ${isMobile ? 'px-4 py-3' : 'pb-4'}`}>
-              <CardTitle className={`card-title flex items-center gap-2 ${isMobile ? 'text-base' : ''}`}>
-                <MapPin className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-amber-500`} />
-                Periodo di {shiftType === 'sick_leave' ? 'Malattia' : 'Indisponibilità'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={`space-y-3 sm:space-y-4 ${isMobile ? 'px-4 pb-4' : ''}`}>
-              {!isMobile && (
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Specifica il periodo di {shiftType === 'sick_leave' ? 'malattia' : 'indisponibilità'}. 
-                    Se non specifichi una data di fine, verrà considerato solo il giorno selezionato.
-                  </AlertDescription>
-                </Alert>
-              )}
-              <DateRangeFields control={form.control} />
-            </CardContent>
-          </Card>
-        )}
 
         {/* Card Note - Mobile ottimizzato */}
         <Card className={`border-l-4 border-l-green-500 ${isMobile ? 'shadow-sm' : ''}`}>

@@ -53,14 +53,12 @@ export function ShiftGridCell({ date, shifts, userId, onClick }: ShiftGridCellPr
             
             // Testo compatto
             let displayText = '';
-            if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-              displayText = `${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
-            } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
+            if (shift.shift_type === 'half_day' && shift.half_day_type) {
               displayText = shift.half_day_type === 'morning' ? 'M' : 'P';
             } else if (shift.shift_type === 'full_day') {
               displayText = 'FD';
-            } else if (shift.shift_type === 'sick_leave') {
-              displayText = 'ML';
+            } else if (shift.shift_type === 'extra') {
+              displayText = 'EX';
             } else if (shift.shift_type === 'unavailable') {
               displayText = 'ND';
             } else {

@@ -61,14 +61,12 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
 
   const getShiftTypeLabel = (shift: Shift) => {
     switch (shift.shift_type) {
-      case 'specific_hours':
-        return shift.start_time && shift.end_time ? `${shift.start_time}-${shift.end_time}` : 'Orario specifico';
       case 'full_day':
         return 'Giornata intera';
       case 'half_day':
         return `Mezza giornata (${shift.half_day_type === 'morning' ? 'mattina' : 'pomeriggio'})`;
-      case 'sick_leave':
-        return 'Malattia';
+      case 'extra':
+        return 'Extra';
       case 'unavailable':
         return 'Non disponibile';
       default:

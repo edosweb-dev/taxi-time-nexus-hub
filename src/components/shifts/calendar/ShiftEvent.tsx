@@ -40,12 +40,10 @@ export const ShiftEvent = ({
         return "success";
       case "half_day":
         return "secondary";
-      case "sick_leave":
-        return "destructive";
+      case "extra":
+        return "default";
       case "unavailable":
         return "outline";
-      case "specific_hours":
-        return "default";
       default:
         return "default";
     }
@@ -62,7 +60,6 @@ export const ShiftEvent = ({
         {
           "bg-green-400/90 text-green-950 border-green-400": getVariant() === "success",
           "bg-secondary text-secondary-foreground border-secondary": getVariant() === "secondary",
-          "bg-destructive text-destructive-foreground border-destructive": getVariant() === "destructive",
           "bg-background border-muted-foreground/50 text-muted-foreground": getVariant() === "outline",
           "bg-primary text-primary-foreground border-primary": getVariant() === "default",
           "z-15": spanRows,
@@ -81,12 +78,10 @@ export const ShiftEvent = ({
         <div className="flex items-center gap-1">
           {getShiftTypeIcon(shift.shift_type)}
           <span className="font-medium text-xs leading-tight">
-            {shift.start_time && shift.end_time
-              ? `${shift.start_time.substring(0, 5)}-${shift.end_time.substring(0, 5)}`
-              : shift.shift_type === 'half_day'
+            {shift.shift_type === 'half_day'
               ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
               : shift.shift_type === 'full_day' ? 'Giornata intera'
-              : shift.shift_type === 'sick_leave' ? 'Malattia'
+              : shift.shift_type === 'extra' ? 'Extra'
               : 'Non disponibile'
             }
           </span>

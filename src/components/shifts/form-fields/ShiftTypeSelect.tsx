@@ -22,16 +22,8 @@ export function ShiftTypeSelect({ control, setValue }: ShiftTypeSelectProps) {
             onValueChange={(value) => {
               field.onChange(value);
               // Reset conditional fields
-              if (value !== 'specific_hours') {
-                setValue('start_time', null);
-                setValue('end_time', null);
-              }
               if (value !== 'half_day') {
                 setValue('half_day_type', null);
-              }
-              if (!['sick_leave', 'unavailable'].includes(value)) {
-                setValue('start_date', null);
-                setValue('end_date', null);
               }
             }}
           >
@@ -41,12 +33,10 @@ export function ShiftTypeSelect({ control, setValue }: ShiftTypeSelectProps) {
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="specific_hours">Orario specifico</SelectItem>
               <SelectItem value="full_day">Giornata intera</SelectItem>
               <SelectItem value="half_day">Mezza giornata</SelectItem>
-              <SelectItem value="sick_leave">Malattia</SelectItem>
-              <SelectItem value="unavailable">Non disponibile</SelectItem>
               <SelectItem value="extra">Extra</SelectItem>
+              <SelectItem value="unavailable">Non disponibile</SelectItem>
             </SelectContent>
           </Select>
           <FormMessage />

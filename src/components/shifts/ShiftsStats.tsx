@@ -24,8 +24,8 @@ export function ShiftsStats() {
     isAfter(parseISO(s.shift_date), today)
   ).length;
   
-  const sickLeaves = shifts.filter(s => 
-    s.shift_type === 'sick_leave' && 
+  const extraShifts = shifts.filter(s => 
+    s.shift_type === 'extra' && 
     isAfter(parseISO(s.shift_date), weekAgo)
   ).length;
 
@@ -52,11 +52,11 @@ export function ShiftsStats() {
       variant: 'outline' as const,
     },
     {
-      title: 'Malattie (7gg)',
-      value: sickLeaves,
+      title: 'Turni Extra (7gg)',
+      value: extraShifts,
       icon: AlertCircle,
-      description: 'Malattie negli ultimi 7 giorni',
-      variant: 'destructive' as const,
+      description: 'Turni extra negli ultimi 7 giorni',
+      variant: 'default' as const,
     },
   ];
 
@@ -74,8 +74,7 @@ export function ShiftsStats() {
             <div className="flex items-center space-x-2">
               <div className="text-2xl font-bold">{stat.value}</div>
               <Badge variant={stat.variant} className="text-xs">
-                {stat.variant === 'destructive' && stat.value > 0 ? 'Alto' : 
-                 stat.variant === 'default' && stat.value > 0 ? 'Attivo' : 'Normale'}
+                {stat.value > 0 ? 'Attivo' : 'Normale'}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-1">

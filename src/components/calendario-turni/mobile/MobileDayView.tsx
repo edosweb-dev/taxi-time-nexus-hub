@@ -38,14 +38,12 @@ export function MobileDayView({
 
   const getShiftTypeLabel = (shift: Shift) => {
     switch (shift.shift_type) {
-      case 'specific_hours':
-        return shift.start_time && shift.end_time ? `${shift.start_time}-${shift.end_time}` : 'Orario specifico';
       case 'full_day':
         return 'Giornata intera';
       case 'half_day':
         return `Mezza giornata (${shift.half_day_type === 'morning' ? 'mattina' : 'pomeriggio'})`;
-      case 'sick_leave':
-        return 'Malattia';
+      case 'extra':
+        return 'Extra';
       case 'unavailable':
         return 'Non disponibile';
       default:
@@ -55,14 +53,12 @@ export function MobileDayView({
 
   const getShiftTypeBadgeVariant = (shiftType: string) => {
     switch (shiftType) {
-      case 'specific_hours':
-        return 'default';
       case 'full_day':
         return 'secondary';
       case 'half_day':
         return 'outline';
-      case 'sick_leave':
-        return 'destructive';
+      case 'extra':
+        return 'default';
       case 'unavailable':
         return 'secondary';
       default:
@@ -157,10 +153,9 @@ export function MobileDayView({
                       
                       <div className="shift-badge-compact">
                         <span className={`badge-${shift.shift_type}`}>
-                          {shift.shift_type === 'specific_hours' ? 'Orario' : 
-                           shift.shift_type === 'full_day' ? 'Giornata' :
+                          {shift.shift_type === 'full_day' ? 'Giornata' :
                            shift.shift_type === 'half_day' ? 'Mezza' :
-                           shift.shift_type === 'sick_leave' ? 'Malattia' : 'N/A'}
+                           shift.shift_type === 'extra' ? 'Extra' : 'N/A'}
                         </span>
                       </div>
                     </div>

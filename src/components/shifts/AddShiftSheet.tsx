@@ -51,9 +51,9 @@ export function AddShiftSheet({
     defaultValues: {
       user_id: defaultUserId || (isAdminOrSocio ? '' : user?.id || ''),
       shift_date: defaultDate || new Date(),
-      shift_type: 'specific_hours',
-      start_time: '09:00',
-      end_time: '17:00',
+      shift_type: 'full_day',
+      start_time: null,
+      end_time: null,
       half_day_type: null,
       start_date: null,
       end_date: null,
@@ -81,9 +81,9 @@ export function AddShiftSheet({
       form.reset({
         user_id: defaultUserId || (isAdminOrSocio ? '' : user?.id || ''),
         shift_date: defaultDate || new Date(),
-        shift_type: 'specific_hours',
-        start_time: '09:00',
-        end_time: '17:00',
+        shift_type: 'full_day',
+        start_time: null,
+        end_time: null,
         half_day_type: null,
         start_date: null,
         end_date: null,
@@ -96,25 +96,9 @@ export function AddShiftSheet({
     try {
       setIsLoading(true);
       
-      // Validate time fields if specific hours type
-      if (data.shift_type === 'specific_hours') {
-        if (!data.start_time || !data.end_time) {
-          toast.error('Inserisci gli orari di inizio e fine');
-          setIsLoading(false);
-          return;
-        }
-      }
-      
       // Validate half day type if half day selected
       if (data.shift_type === 'half_day' && !data.half_day_type) {
         toast.error('Seleziona mattina o pomeriggio');
-        setIsLoading(false);
-        return;
-      }
-
-      // Validate start/end date for sick leave and unavailable
-      if ((data.shift_type === 'sick_leave' || data.shift_type === 'unavailable') && !data.start_date) {
-        toast.error('Seleziona una data di inizio');
         setIsLoading(false);
         return;
       }
@@ -130,11 +114,11 @@ export function AddShiftSheet({
         user_id: data.user_id,
         shift_date: data.shift_date,
         shift_type: data.shift_type,
-        start_time: data.shift_type === 'specific_hours' ? data.start_time || null : null,
-        end_time: data.shift_type === 'specific_hours' ? data.end_time || null : null,
+        start_time: null,
+        end_time: null,
         half_day_type: data.shift_type === 'half_day' ? data.half_day_type : null,
-        start_date: ['sick_leave', 'unavailable'].includes(data.shift_type) ? data.start_date : null,
-        end_date: ['sick_leave', 'unavailable'].includes(data.shift_type) ? data.end_date : null,
+        start_date: null,
+        end_date: null,
         notes: data.notes
       };
 
@@ -195,29 +179,11 @@ export function AddShiftSheet({
           />
         </div>
         
-        {/* Orari specifici */}
-        {shiftType === 'specific_hours' && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Orari</label>
-            <ShiftTimeFields control={form.control} />
-          </div>
-        )}
-        
         {/* Mezza giornata */}
         {shiftType === 'half_day' && (
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Periodo</label>
             <HalfDayTypeField control={form.control} />
-          </div>
-        )}
-        
-        {/* Periodi per malattia/indisponibilità */}
-        {(shiftType === 'sick_leave' || shiftType === 'unavailable') && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Periodo di {shiftType === 'sick_leave' ? 'malattia' : 'indisponibilità'}
-            </label>
-            <DateRangeFields control={form.control} />
           </div>
         )}
         

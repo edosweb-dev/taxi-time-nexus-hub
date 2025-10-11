@@ -107,14 +107,12 @@ export function WeekRow({ week, getShiftsForDate, onCellClick, onShiftClick, cur
                       
                       // Testo del turno più compatto
                       let shiftInfo = '';
-                      if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-                        shiftInfo = `${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`;
-                      } else if (shift.shift_type === 'half_day' && shift.half_day_type) {
+                      if (shift.shift_type === 'half_day' && shift.half_day_type) {
                         shiftInfo = shift.half_day_type === 'morning' ? 'M' : 'P';
                       } else if (shift.shift_type === 'full_day') {
                         shiftInfo = 'FD';
-                      } else if (shift.shift_type === 'sick_leave') {
-                        shiftInfo = 'ML';
+                      } else if (shift.shift_type === 'extra') {
+                        shiftInfo = 'EX';
                       } else if (shift.shift_type === 'unavailable') {
                         shiftInfo = 'ND';
                       } else {

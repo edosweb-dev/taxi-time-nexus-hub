@@ -25,26 +25,13 @@ interface MobileStepShiftFormProps {
 
 // Helper function to determine which steps are required based on shift type
 const getRequiredSteps = (shiftType: string) => {
-  const baseSteps = [
+  const steps = [
     { id: 1, title: "Utente e Data", description: "Chi e quando" },
-    { id: 2, title: "Tipo Turno", description: "Modalità di lavoro" }
+    { id: 2, title: "Tipo Turno", description: "Modalità di lavoro" },
+    { id: 3, title: "Note", description: "Informazioni extra" }
   ];
   
-  // Step 3 (Details) is only needed for specific_hours, sick_leave, and unavailable
-  const needsStep3 = ['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType);
-  
-  if (needsStep3) {
-    baseSteps.push({ id: 3, title: "Dettagli", description: "Orari e periodi" });
-  }
-  
-  // Notes step is always last (step 3 or 4 depending on whether step 3 is needed)
-  baseSteps.push({ 
-    id: needsStep3 ? 4 : 3, 
-    title: "Note", 
-    description: "Informazioni extra" 
-  });
-  
-  return baseSteps;
+  return steps;
 };
 
 interface User {
@@ -72,9 +59,9 @@ export function MobileStepShiftForm({
     defaultValues: {
       user_id: defaultUserId || user?.id || '',
       shift_date: defaultDate || new Date(),
-      shift_type: 'specific_hours',
-      start_time: '09:00',
-      end_time: '17:00',
+      shift_type: 'full_day',
+      start_time: null,
+      end_time: null,
       half_day_type: null,
       start_date: null,
       end_date: null,
@@ -132,16 +119,8 @@ export function MobileStepShiftForm({
 
   // Handle shift type change
   useEffect(() => {
-    if (shiftType !== 'specific_hours') {
-      setValue('start_time', null);
-      setValue('end_time', null);
-    }
     if (shiftType !== 'half_day') {
       setValue('half_day_type', null);
-    }
-    if (!['sick_leave', 'unavailable'].includes(shiftType)) {
-      setValue('start_date', null);
-      setValue('end_date', null);
     }
   }, [shiftType, setValue]);
 
@@ -159,14 +138,6 @@ export function MobileStepShiftForm({
         }
         return await trigger(step2Fields as any);
       case 3:
-        if (watchedValues.shift_type === 'specific_hours') {
-          return await trigger(['start_time', 'end_time']);
-        }
-        if (['sick_leave', 'unavailable'].includes(watchedValues.shift_type)) {
-          return await trigger(['start_date'] as any);
-        }
-        return true;
-      case 4:
         return true;
       default:
         return false;
@@ -195,13 +166,7 @@ export function MobileStepShiftForm({
           }
           break;
         case 3:
-          if (watchedValues.shift_type === 'specific_hours') {
-            if (!watchedValues.start_time || !watchedValues.end_time) {
-              toast.error('Inserisci gli orari di inizio e fine');
-            }
-          } else if (['sick_leave', 'unavailable'].includes(watchedValues.shift_type) && !watchedValues.start_date) {
-            toast.error('Seleziona una data di inizio');
-          }
+          // Note step - no specific validation
           break;
       }
     }
@@ -225,27 +190,9 @@ export function MobileStepShiftForm({
     }
 
     // Additional validation
-    if (data.shift_type === 'specific_hours' && (!data.start_time || !data.end_time)) {
-      console.log('❌ [MobileStepShiftForm] Time validation failed');
-      toast.error('Inserisci gli orari di inizio e fine');
-      return;
-    }
-    
     if (data.shift_type === 'half_day' && !data.half_day_type) {
       console.log('❌ [MobileStepShiftForm] Half day type validation failed');
       toast.error('Seleziona mattina o pomeriggio');
-      return;
-    }
-
-    if (['sick_leave', 'unavailable'].includes(data.shift_type) && !data.start_date) {
-      console.log('❌ [MobileStepShiftForm] Start date validation failed');
-      toast.error('Seleziona una data di inizio');
-      return;
-    }
-
-    if (data.start_date && data.end_date && data.end_date < data.start_date) {
-      console.log('❌ [MobileStepShiftForm] Date range validation failed');
-      toast.error('La data di fine deve essere successiva alla data di inizio');
       return;
     }
 
@@ -256,11 +203,11 @@ export function MobileStepShiftForm({
         user_id: data.user_id,
         shift_date: data.shift_date,
         shift_type: data.shift_type,
-        start_time: data.shift_type === 'specific_hours' ? data.start_time || null : null,
-        end_time: data.shift_type === 'specific_hours' ? data.end_time || null : null,
+        start_time: null,
+        end_time: null,
         half_day_type: data.shift_type === 'half_day' ? data.half_day_type : null,
-        start_date: ['sick_leave', 'unavailable'].includes(data.shift_type) ? data.start_date : null,
-        end_date: ['sick_leave', 'unavailable'].includes(data.shift_type) ? data.end_date : null,
+        start_date: null,
+        end_date: null,
         notes: data.notes
       };
 

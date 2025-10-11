@@ -238,8 +238,8 @@ export function ShiftCalendar({ currentDate, onDateChange, isAdminOrSocio }: Shi
                                   {user?.first_name} {user?.last_name}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time
-                                    ? `${shift.start_time}-${shift.end_time}`
+                                  {shift.shift_type === 'half_day'
+                                    ? (shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio')
                                     : shift.shift_type === 'full_day' ? 'Giornata intera'
                                     : shift.shift_type === 'half_day' ? `Mezza giornata (${shift.half_day_type})`
                                     : shift.shift_type
