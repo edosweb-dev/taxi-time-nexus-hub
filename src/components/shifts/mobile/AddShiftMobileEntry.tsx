@@ -38,7 +38,7 @@ export function AddShiftMobileEntry() {
       {/* Floating Action Button */}
       <Button
         size="lg"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg md:hidden z-50"
+        className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg md:hidden z-50"
         onClick={() => setTypeModalOpen(true)}
       >
         <Plus className="h-6 w-6" />
