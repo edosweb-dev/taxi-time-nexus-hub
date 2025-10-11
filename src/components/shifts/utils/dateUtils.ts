@@ -116,6 +116,8 @@ export function getMonthWeeks(date: Date) {
       if (daysInMonth.length > 0) {
         weeks.push({
           number: currentWeek,
+          start: weekStart,
+          end: weekEnd,
           label: `Settimana ${currentWeek} (${format(weekStart, 'd MMM', { locale: it })} - ${format(weekEnd, 'd MMM', { locale: it })})`
         });
       }
@@ -125,7 +127,7 @@ export function getMonthWeeks(date: Date) {
     
     return weeks;
   } catch (error) {
-    console.error('Error calculating weeks:', error);
+    console.error('Error in getMonthWeeks:', error);
     return [];
   }
 }
