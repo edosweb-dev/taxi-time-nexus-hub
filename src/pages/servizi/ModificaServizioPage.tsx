@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { MainLayout } from "@/components/layouts/MainLayout";
 import { ServizioCreaForm } from "@/components/servizi/ServizioCreaForm";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuery } from '@tanstack/react-query';
@@ -31,37 +30,51 @@ export default function ModificaServizioPage() {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Caricamento servizio...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground">Caricamento servizio...</p>
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
   if (error || !servizio) {
     return (
-      <MainLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 px-4">
-          <Alert variant="destructive" className="max-w-md">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {error ? "Errore nel caricamento del servizio" : "Servizio non trovato"}
-            </AlertDescription>
-          </Alert>
-          <Button onClick={() => navigate('/servizi')} variant="outline">
-            Torna ai servizi
-          </Button>
-        </div>
-      </MainLayout>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error ? "Errore nel caricamento del servizio" : "Servizio non trovato"}
+          </AlertDescription>
+        </Alert>
+        <Button onClick={() => navigate('/servizi')} variant="outline">
+          Torna ai servizi
+        </Button>
+      </div>
     );
   }
 
   return (
-    <MainLayout>
+    <div className="container max-w-7xl mx-auto py-6 px-4">
+      {/* Header */}
+      <div className="mb-6">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/servizi')}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Torna ai Servizi
+        </Button>
+        
+        <h1 className="text-3xl font-bold">Modifica Servizio</h1>
+        <p className="text-muted-foreground mt-2">
+          Modifica le informazioni del servizio #{servizio.numero_commessa || servizio.id}
+        </p>
+      </div>
+
+      {/* Form */}
       <ServizioCreaForm
         mode="edit"
         servizioId={id}
@@ -69,6 +82,6 @@ export default function ModificaServizioPage() {
         onSuccess={() => navigate(`/servizi/${id}`)}
         onCancel={() => navigate(`/servizi/${id}`)}
       />
-    </MainLayout>
+    </div>
   );
 }
