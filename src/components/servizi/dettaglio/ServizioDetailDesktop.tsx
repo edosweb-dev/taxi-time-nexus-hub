@@ -2,7 +2,7 @@ import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile, Azienda } from "@/lib/types";
 import { ServizioSidebar } from "./ServizioSidebar";
-import { ServizioMainTabs } from "./ServizioMainTabs";
+import { ServizioMainContent } from "./ServizioMainContent";
 
 interface ServizioDetailDesktopProps {
   servizio: Servizio;
@@ -53,7 +53,7 @@ export function ServizioDetailDesktop({
     <div className="container mx-auto px-4 py-6">
       <div className="flex gap-6">
         {/* Sidebar - Sticky */}
-        <aside className="w-80 shrink-0">
+        <aside className="w-72 shrink-0">
           <div className="sticky top-6">
             <ServizioSidebar
               servizio={servizio}
@@ -78,7 +78,7 @@ export function ServizioDetailDesktop({
 
         {/* Main Content - Scrollable */}
         <main className="flex-1 min-w-0">
-          <ServizioMainTabs
+          <ServizioMainContent
             servizio={servizio}
             passeggeri={passeggeri}
             users={users}

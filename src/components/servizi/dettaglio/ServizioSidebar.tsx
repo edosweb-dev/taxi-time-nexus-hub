@@ -10,13 +10,12 @@ import {
 import { 
   Pencil, Check, Calculator, MoreVertical, 
   Trash2, FileSignature, UserPlus,
-  Building2, Calendar, Navigation, User, Car, CreditCard
+  Calendar, Navigation
 } from "lucide-react";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
-import { format } from "date-fns";
-import { it } from "date-fns/locale";
 import { getStatusBadgeStyle, getStatusLabel } from "./utils/statusStyles";
+import { cn } from "@/lib/utils";
 
 interface ServizioSidebarProps {
   servizio: Servizio;
@@ -47,108 +46,78 @@ export function ServizioSidebar({
   users,
   getAziendaName,
   getUserName,
+  veicoloModello,
   onEdit,
   onCompleta,
   onConsuntiva,
   onRichiestiFirma,
   onAssegna,
   onDelete,
-  veicoloModello,
 }: ServizioSidebarProps) {
-  const statusStyle = getStatusBadgeStyle(servizio.stato);
+  const badgeStyle = getStatusBadgeStyle(servizio.stato);
+  const statusLabel = getStatusLabel(servizio.stato);
   
+  const formatTime = (time?: string) => {
+    if (!time) return "—";
+    return time.substring(0, 5); // HH:MM
+  };
+
+  const formatDate = (date?: string) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleDateString("it-IT", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
   return (
-    <div className="bg-muted/30 rounded-lg p-6 space-y-6 border">
-      {/* Service Number */}
-      <div className="space-y-3">
-        <h2 className="text-2xl font-bold tracking-tight">
-          SERVIZIO #{servizio.numero_commessa || servizio.id.slice(0, 8).toUpperCase()}
+    <div className="w-72 bg-muted/30 rounded-lg p-6 space-y-6">
+      {/* Header: Numero servizio */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">
+          Servizio #{servizio.id.substring(0, 8).toUpperCase()}
         </h2>
-        
-        {/* Large Status Badge */}
-        <Badge 
-          className={`
-            ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}
-            text-lg font-semibold py-3 px-4 w-full justify-center
-            border-2 rounded-lg
-          `}
-        >
-          {statusStyle.icon} {getStatusLabel(servizio.stato)}
-        </Badge>
       </div>
 
-      <div className="border-t pt-4 space-y-4">
-        {/* Critical Info */}
-        <div className="space-y-3 text-sm">
-          {/* Azienda */}
-          <div className="flex items-start gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="min-w-0">
-              <div className="text-xs text-muted-foreground">Azienda</div>
-              <div className="font-medium truncate">
-                {getAziendaName(servizio.azienda_id)}
-              </div>
-            </div>
-          </div>
+      {/* Badge Stato - LARGE */}
+      <div>
+        <div className={cn(
+          "inline-flex items-center gap-2 rounded-md px-4 py-3 text-lg font-semibold border-2",
+          badgeStyle.bg,
+          badgeStyle.text,
+          badgeStyle.border
+        )}>
+          <span>{badgeStyle.icon}</span>
+          <span>{statusLabel}</span>
+        </div>
+      </div>
 
-          {/* Data/Orario */}
-          <div className="flex items-start gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="min-w-0">
-              <div className="text-xs text-muted-foreground">Data e Ora</div>
-              <div className="font-medium">
-                {format(new Date(servizio.data_servizio), 'dd MMM yyyy', { locale: it })}
-              </div>
-              <div className="text-muted-foreground">
-                {servizio.orario_servizio}
-              </div>
+      {/* Info critiche sempre visibili */}
+      <div className="space-y-4 pb-4 border-b border-border">
+        {/* Data/Orario compatto */}
+        <div className="flex items-start gap-3">
+          <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+          <div>
+            <div className="text-sm font-medium">
+              {formatDate(servizio.data_servizio)}
             </div>
-          </div>
-
-          {/* Percorso One-liner */}
-          <div className="flex items-start gap-2">
-            <Navigation className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="min-w-0">
-              <div className="text-xs text-muted-foreground">Percorso</div>
-              <div className="font-medium truncate">
-                {servizio.citta_presa || 'Partenza'} → {servizio.citta_destinazione || 'Arrivo'}
-              </div>
+            <div className="text-xs text-muted-foreground">
+              ore {formatTime(servizio.orario_servizio)}
             </div>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="border-t pt-4 space-y-2 text-sm">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Info Rapide
-          </div>
-          
-          {servizio.assegnato_a && (
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-muted-foreground shrink-0">Conducente:</span>
-              <span className="font-medium truncate">
-                {getUserName(users, servizio.assegnato_a) || 'N/A'}
-              </span>
+        {/* Percorso one-liner */}
+        <div className="flex items-start gap-3">
+          <Navigation className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+          <div className="min-w-0">
+            <div className="text-sm font-medium truncate" title={`${servizio.citta_presa || servizio.indirizzo_presa} → ${servizio.citta_destinazione || servizio.indirizzo_destinazione}`}>
+              {servizio.citta_presa || servizio.indirizzo_presa.split(',')[0]} → {servizio.citta_destinazione || servizio.indirizzo_destinazione.split(',')[0]}
             </div>
-          )}
-
-          {veicoloModello && (
-            <div className="flex items-center gap-2">
-              <Car className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-muted-foreground shrink-0">Veicolo:</span>
-              <span className="font-medium truncate">
-                {veicoloModello}
-              </span>
+            <div className="text-xs text-muted-foreground">
+              Percorso servizio
             </div>
-          )}
-
-          <div className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground shrink-0">Pagamento:</span>
-            <span className="font-medium truncate">
-              {servizio.metodo_pagamento}
-            </span>
           </div>
         </div>
       </div>
