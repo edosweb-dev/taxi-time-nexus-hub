@@ -125,14 +125,24 @@ export default function ServiziPage() {
       className="w-full p-3 sm:p-4 cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => navigate(`/servizi/${servizio.id}`)}
     >
-      {/* Card Header: Azienda + Status */}
+      {/* Card Header: Azienda/Privato + Status */}
       <div className="flex justify-between items-start gap-3 mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-base truncate">
-            {servizio.tipo_cliente === 'privato' 
-              ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente Privato'
-              : servizio.aziende?.nome || 'N/A'}
-          </h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-semibold text-base truncate">
+              {servizio.tipo_cliente === 'privato' 
+                ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente Privato'
+                : servizio.aziende?.nome || 'N/A'}
+            </h3>
+            <Badge 
+              variant="outline" 
+              className={servizio.tipo_cliente === 'privato' 
+                ? 'bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-700' 
+                : 'bg-blue-500/10 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-700'}
+            >
+              {servizio.tipo_cliente === 'privato' ? 'Privato' : 'Azienda'}
+            </Badge>
+          </div>
           {servizio.numero_commessa && (
             <p className="text-xs text-muted-foreground mt-0.5">
               Commessa: {servizio.numero_commessa}
