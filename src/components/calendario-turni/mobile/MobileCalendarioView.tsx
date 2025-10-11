@@ -142,17 +142,15 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
           {/* Date Picker - Solo Mobile */}
           <Popover>
             <PopoverTrigger asChild>
-              <TouchOptimizer minSize="md">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn("today-button-compact")}
-                >
-                  <CalendarIcon className="h-4 w-4" />
-                </Button>
-              </TouchOptimizer>
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn("today-button-compact h-9 w-9 p-0")}
+              >
+                <CalendarIcon className="h-4 w-4" />
+              </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="center">
+            <PopoverContent className="w-auto p-0 z-50" align="center">
               <Calendar
                 mode="single"
                 selected={currentDate}
