@@ -214,37 +214,37 @@ export function MobileStepShiftForm({
   };
 
   const handleSubmit = async (data: ShiftFormValues) => {
-    console.log('[MobileStepShiftForm] Submit triggered', { currentStep, totalSteps, data });
+    console.log('🚀 [MobileStepShiftForm] Submit triggered!', { currentStep, totalSteps, data });
     
     // Validate entire form before submitting
     const isValid = await form.trigger();
     if (!isValid) {
-      console.log('[MobileStepShiftForm] Form validation failed');
+      console.log('❌ [MobileStepShiftForm] Form validation failed');
       toast.error('Completa tutti i campi obbligatori');
       return;
     }
 
     // Additional validation
     if (data.shift_type === 'specific_hours' && (!data.start_time || !data.end_time)) {
-      console.log('[MobileStepShiftForm] Time validation failed');
+      console.log('❌ [MobileStepShiftForm] Time validation failed');
       toast.error('Inserisci gli orari di inizio e fine');
       return;
     }
     
     if (data.shift_type === 'half_day' && !data.half_day_type) {
-      console.log('[MobileStepShiftForm] Half day type validation failed');
+      console.log('❌ [MobileStepShiftForm] Half day type validation failed');
       toast.error('Seleziona mattina o pomeriggio');
       return;
     }
 
     if (['sick_leave', 'unavailable'].includes(data.shift_type) && !data.start_date) {
-      console.log('[MobileStepShiftForm] Start date validation failed');
+      console.log('❌ [MobileStepShiftForm] Start date validation failed');
       toast.error('Seleziona una data di inizio');
       return;
     }
 
     if (data.start_date && data.end_date && data.end_date < data.start_date) {
-      console.log('[MobileStepShiftForm] Date range validation failed');
+      console.log('❌ [MobileStepShiftForm] Date range validation failed');
       toast.error('La data di fine deve essere successiva alla data di inizio');
       return;
     }
@@ -264,12 +264,13 @@ export function MobileStepShiftForm({
         notes: data.notes
       };
 
-      console.log('[MobileStepShiftForm] Calling onSubmit with formData:', formData);
+      console.log('📝 [MobileStepShiftForm] Form data:', formData);
+      console.log('🔄 [MobileStepShiftForm] Calling onSubmit API...');
       await onSubmit(formData);
-      console.log('[MobileStepShiftForm] Submit successful');
+      console.log('✅ [MobileStepShiftForm] Submit successful!');
       
     } catch (error) {
-      console.error('[MobileStepShiftForm] Error submitting shift:', error);
+      console.error('❌ [MobileStepShiftForm] Error submitting shift:', error);
       toast.error('Errore nel salvataggio del turno');
     } finally {
       setIsLoading(false);
@@ -292,7 +293,7 @@ export function MobileStepShiftForm({
         </div>
       </div>
 
-      {/* Form Content */}
+      {/* Form Content + Navigation */}
       <form onSubmit={form.handleSubmit(handleSubmit)} className="step-content">
         {requiredSteps[currentStep - 1].id === 1 && (
           <Step1UserAndDate 
@@ -316,45 +317,45 @@ export function MobileStepShiftForm({
         {requiredSteps[currentStep - 1].id === 4 && (
           <Step4Notes control={form.control} />
         )}
+
+        {/* Navigation - NOW INSIDE FORM */}
+        <div className="step-navigation">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={currentStep === 1 ? onCancel : handlePrev}
+            className="nav-button"
+            disabled={isLoading}
+          >
+            {currentStep === 1 ? (
+              "Annulla"
+            ) : (
+              <>
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Indietro
+              </>
+            )}
+          </Button>
+
+          <Button
+            type={currentStep === totalSteps ? "submit" : "button"}
+            onClick={currentStep === totalSteps ? undefined : handleNext}
+            className="nav-button"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              "Salvataggio..."
+            ) : currentStep === totalSteps ? (
+              isEditing ? "Aggiorna Turno" : "Salva Turno"
+            ) : (
+              <>
+                Avanti
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </>
+            )}
+          </Button>
+        </div>
       </form>
-
-      {/* Navigation */}
-      <div className="step-navigation">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={currentStep === 1 ? onCancel : handlePrev}
-          className="nav-button"
-          disabled={isLoading}
-        >
-          {currentStep === 1 ? (
-            "Annulla"
-          ) : (
-            <>
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Indietro
-            </>
-          )}
-        </Button>
-
-        <Button
-          type={currentStep === totalSteps ? "submit" : "button"}
-          onClick={currentStep === totalSteps ? undefined : handleNext}
-          className="nav-button"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            "Salvataggio..."
-          ) : currentStep === totalSteps ? (
-            isEditing ? "Aggiorna Turno" : "Salva Turno"
-          ) : (
-            <>
-              Avanti
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </>
-          )}
-        </Button>
-      </div>
     </div>
   );
 }
