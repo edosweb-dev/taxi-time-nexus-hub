@@ -146,7 +146,7 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
               <Button
                 variant="outline"
                 size="sm"
-                className={cn("today-button-compact h-9 w-9 p-0")}
+                className={cn("h-9 w-9 p-0 flex items-center justify-center")}
               >
                 <CalendarIcon className="h-4 w-4" />
               </Button>
