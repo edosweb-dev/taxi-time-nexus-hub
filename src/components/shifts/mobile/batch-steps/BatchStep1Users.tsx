@@ -1,120 +1,121 @@
 import React from 'react';
-import { Control } from 'react-hook-form';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Users } from 'lucide-react';
+import { useUsers } from '@/hooks/useUsers';
+import { type BatchShiftFormData } from '@/lib/schemas/shifts';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, User } from 'lucide-react';
-
-interface User {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  role: string;
-}
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface BatchStep1UsersProps {
-  control: Control<any>;
-  users: User[];
-  isAdminOrSocio: boolean;
+  formData: Partial<BatchShiftFormData>;
+  onChange: (data: Partial<BatchShiftFormData>) => void;
 }
 
-export function BatchStep1Users({ control, users, isAdminOrSocio }: BatchStep1UsersProps) {
-  if (!isAdminOrSocio) {
-    // If not admin/socio, automatically set current user
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center space-y-2">
-            <User className="w-8 h-8 mx-auto text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              I turni verranno creati per il tuo utente
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+export function BatchStep1Users({ formData, onChange }: BatchStep1UsersProps) {
+  const { users } = useUsers();
 
-  const employees = users.filter(user => ['dipendente', 'admin', 'socio'].includes(user.role));
+  // Filtra solo dipendenti (admin, socio, dipendente)
+  const employeeUsers = users?.filter(u => 
+    ['admin', 'socio', 'dipendente'].includes(u.role)
+  ) || [];
 
-  const getUserDisplayName = (user: User) => {
-    const name = [user.first_name, user.last_name].filter(Boolean).join(' ');
-    return name || user.id;
+  const selectedUserIds = formData.user_ids || [];
+  const allSelected = selectedUserIds.length === employeeUsers.length && employeeUsers.length > 0;
+
+  const handleToggleAll = (checked: boolean) => {
+    if (checked) {
+      onChange({ user_ids: employeeUsers.map(u => u.id) });
+    } else {
+      onChange({ user_ids: [] });
+    }
+  };
+
+  const handleToggleUser = (userId: string, checked: boolean) => {
+    const current = formData.user_ids || [];
+    if (checked) {
+      onChange({ user_ids: [...current, userId] });
+    } else {
+      onChange({ user_ids: current.filter(id => id !== userId) });
+    }
   };
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Seleziona Dipendenti
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <FormField
-            control={control}
-            name="selectedUsers"
-            render={() => (
-              <FormItem>
-                <div className="space-y-1">
-                  {employees.map((user) => (
-                    <FormField
-                      key={user.id}
-                      control={control}
-                      name="selectedUsers"
-                      render={({ field }) => (
-                        <FormItem
-                          key={user.id}
-                          className="flex flex-row items-center space-x-2 space-y-0 py-1"
-                        >
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(user.id)}
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, user.id])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value: string) => value !== user.id
-                                      )
-                                    );
-                              }}
-                              className="h-4 w-4"
-                            />
-                          </FormControl>
-                          <FormLabel className="text-xs font-normal cursor-pointer">
-                            <div>
-                              <div className="font-medium text-sm">{getUserDisplayName(user)}</div>
-                              <div className="text-xs text-muted-foreground capitalize opacity-70">
-                                {user.role}
-                              </div>
-                            </div>
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  ))}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Users className="w-5 h-5" />
+        <h3 className="font-medium text-foreground">Seleziona Dipendenti</h3>
+      </div>
+
+      {/* Checkbox "Tutti" */}
+      <Card className="p-4 bg-muted/50">
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            id="all-users"
+            checked={allSelected}
+            onCheckedChange={handleToggleAll}
           />
-        </CardContent>
+          <Label
+            htmlFor="all-users"
+            className="text-base font-medium cursor-pointer"
+          >
+            Tutti i dipendenti ({employeeUsers.length})
+          </Label>
+        </div>
       </Card>
 
-      {employees.length === 0 && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <Users className="w-8 h-8 mx-auto text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                Nessun dipendente disponibile
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            oppure seleziona manualmente
+          </span>
+        </div>
+      </div>
+
+      {/* Lista dipendenti */}
+      <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+        <div className="space-y-3">
+          {employeeUsers.map((user) => {
+            const isSelected = selectedUserIds.includes(user.id);
+            
+            return (
+              <div
+                key={user.id}
+                className="flex items-center space-x-3 py-2"
+              >
+                <Checkbox
+                  id={`user-${user.id}`}
+                  checked={isSelected}
+                  onCheckedChange={(checked) => 
+                    handleToggleUser(user.id, checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor={`user-${user.id}`}
+                  className="flex-1 cursor-pointer flex items-center gap-2"
+                >
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white"
+                    style={{ backgroundColor: user.color || '#6b7280' }}
+                  >
+                    {user.first_name?.[0]}{user.last_name?.[0]}
+                  </div>
+                  <span>{user.first_name} {user.last_name}</span>
+                </Label>
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
+
+      {/* Counter */}
+      <div className="text-sm text-muted-foreground text-center">
+        {selectedUserIds.length} {selectedUserIds.length === 1 ? 'selezionato' : 'selezionati'}
+      </div>
     </div>
   );
 }
