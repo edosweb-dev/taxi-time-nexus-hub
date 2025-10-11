@@ -18,6 +18,8 @@ import { ServizioHeader } from "@/components/servizi/dettaglio/ServizioHeader";
 import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/ServizioLoadingError";
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
 import { ServizioDialogs } from "@/components/servizi/dettaglio/ServizioDialogs";
+import { ServizioDetailDesktop } from "@/components/servizi/dettaglio/ServizioDetailDesktop";
+import { useVeicoli } from "@/hooks/useVeicoli";
 import { MobileServizioHero } from "@/components/servizio/mobile/MobileServizioHero";
 import { MobileServizioSections } from "@/components/servizio/mobile/MobileServizioSections";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
@@ -30,6 +32,7 @@ export default function ServizioDetailPage() {
   const { users } = useUsers();
   const { profile } = useAuth();
   const isMobile = useIsMobile();
+  const { veicoli = [] } = useVeicoli();
   const {
     servizio,
     passeggeri,
@@ -229,98 +232,135 @@ export default function ServizioDetailPage() {
     );
   }
 
-  // Desktop layout (original)
+  // Get veicolo model for sidebar
+  const veicolo = veicoli.find(v => v.id === servizio.veicolo_id);
+  const veicoloModello = veicolo ? veicolo.modello : undefined;
+
+  // Desktop layout - NEW Sidebar + Main
   return (
     <MainLayout>
-      <div className="space-y-4 md:space-y-6 px-2 md:px-0">
-        {/* Header Section - Optimized for mobile */}
-        <div className="mb-4 md:mb-8">
-          <ServizioHeader
-            servizio={servizio}
-            canBeEdited={canBeEdited}
-            canBeCompleted={canBeCompleted}
-            canBeConsuntivato={canBeConsuntivato}
-            allServizi={allServizi || []}
-            onCompleta={() => setCompletaDialogOpen(true)}
-            onConsuntiva={() => setConsuntivaDialogOpen(true)}
-          />
-          
-          {/* Button Assegna Servizio - Desktop */}
-          {servizio.stato === 'da_assegnare' && isAdmin && (
-            <div className="mt-4">
-              <Button 
-                onClick={() => setAssegnazioneSheetOpen(true)}
-                variant="default"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Assegna Servizio
-              </Button>
-            </div>
-          )}
-          
-          {/* Button Richiedi Firma Cliente - Desktop */}
-          {canRequestSignature && (
-            <div className="mt-4">
-              <Button 
-                onClick={() => setShowFirmaClienteDialog(true)}
-                variant="outline"
-                className="gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                Richiedi Firma Cliente
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Main Content - Desktop */}
-        <div className="space-y-4 md:space-y-6">
-          <ServizioTabs
-            servizio={servizio}
-            passeggeri={passeggeri}
-            users={users}
-            activeTab=""
-            onTabChange={() => {}}
-            getAziendaName={getAziendaName}
-            getAzienda={getAzienda}
-            getUserName={getUserName}
-            formatCurrency={formatCurrency}
-            firmaDigitaleAttiva={firmaDigitaleAttiva}
-          />
-        </div>
-
-        <ServizioDialogs
+      {/* Desktop (≥1024px) - NEW Layout */}
+      <div className="hidden lg:block">
+        <ServizioDetailDesktop
           servizio={servizio}
-          completaDialogOpen={completaDialogOpen}
-          consuntivaDialogOpen={consuntivaDialogOpen}
-          onCompletaOpenChange={setCompletaDialogOpen}
-          onConsuntivaOpenChange={setConsuntivaDialogOpen}
-          onComplete={refetch}
+          passeggeri={passeggeri}
           users={users}
-        />
-
-        {/* Dialog Firma Cliente */}
-        <FirmaCliente
-          open={showFirmaClienteDialog}
-          onOpenChange={setShowFirmaClienteDialog}
-          servizioId={servizio.id}
-          onSuccess={() => {
-            setShowFirmaClienteDialog(false);
-            refetch();
+          canBeEdited={canBeEdited}
+          canBeCompleted={canBeCompleted}
+          canBeConsuntivato={canBeConsuntivato}
+          canRequestSignature={canRequestSignature}
+          isAdmin={isAdmin}
+          getAziendaName={getAziendaName}
+          getAzienda={getAzienda}
+          getUserName={getUserName}
+          formatCurrency={formatCurrency}
+          firmaDigitaleAttiva={firmaDigitaleAttiva}
+          veicoloModello={veicoloModello}
+          onEdit={() => navigate(`/servizi/${servizio.id}/modifica`)}
+          onCompleta={() => setCompletaDialogOpen(true)}
+          onConsuntiva={() => setConsuntivaDialogOpen(true)}
+          onRichiestiFirma={() => setShowFirmaClienteDialog(true)}
+          onAssegna={() => setAssegnazioneSheetOpen(true)}
+          onDelete={() => {
+            // Add delete logic here
+            navigate('/servizi');
           }}
-        />
-
-        {/* Assignment Popup - Desktop */}
-        <AssignmentPopup
-          open={assegnazioneSheetOpen}
-          onOpenChange={setAssegnazioneSheetOpen}
-          onClose={() => {
-            setAssegnazioneSheetOpen(false);
-            refetch();
-          }}
-          servizio={servizio}
         />
       </div>
+
+      {/* Tablet/Small Desktop (768px-1023px) - EXISTING Layout */}
+      <div className="hidden md:block lg:hidden">
+        <div className="space-y-4 md:space-y-6 px-2 md:px-0">
+          {/* Header Section */}
+          <div className="mb-4 md:mb-8">
+            <ServizioHeader
+              servizio={servizio}
+              canBeEdited={canBeEdited}
+              canBeCompleted={canBeCompleted}
+              canBeConsuntivato={canBeConsuntivato}
+              allServizi={allServizi || []}
+              onCompleta={() => setCompletaDialogOpen(true)}
+              onConsuntiva={() => setConsuntivaDialogOpen(true)}
+            />
+            
+            {/* Button Assegna Servizio */}
+            {servizio.stato === 'da_assegnare' && isAdmin && (
+              <div className="mt-4">
+                <Button 
+                  onClick={() => setAssegnazioneSheetOpen(true)}
+                  variant="default"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Assegna Servizio
+                </Button>
+              </div>
+            )}
+            
+            {/* Button Richiedi Firma Cliente */}
+            {canRequestSignature && (
+              <div className="mt-4">
+                <Button 
+                  onClick={() => setShowFirmaClienteDialog(true)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Edit3 className="h-4 w-4" />
+                  Richiedi Firma Cliente
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Main Content */}
+          <div className="space-y-4 md:space-y-6">
+            <ServizioTabs
+              servizio={servizio}
+              passeggeri={passeggeri}
+              users={users}
+              activeTab=""
+              onTabChange={() => {}}
+              getAziendaName={getAziendaName}
+              getAzienda={getAzienda}
+              getUserName={getUserName}
+              formatCurrency={formatCurrency}
+              firmaDigitaleAttiva={firmaDigitaleAttiva}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Dialogs (always present) */}
+      <ServizioDialogs
+        servizio={servizio}
+        completaDialogOpen={completaDialogOpen}
+        consuntivaDialogOpen={consuntivaDialogOpen}
+        onCompletaOpenChange={setCompletaDialogOpen}
+        onConsuntivaOpenChange={setConsuntivaDialogOpen}
+        onComplete={refetch}
+        users={users}
+      />
+
+      {/* Dialog Firma Cliente */}
+      <FirmaCliente
+        open={showFirmaClienteDialog}
+        onOpenChange={setShowFirmaClienteDialog}
+        servizioId={servizio.id}
+        onSuccess={() => {
+          setShowFirmaClienteDialog(false);
+          refetch();
+        }}
+      />
+
+      {/* Assignment Popup */}
+      <AssignmentPopup
+        open={assegnazioneSheetOpen}
+        onOpenChange={setAssegnazioneSheetOpen}
+        onClose={() => {
+          setAssegnazioneSheetOpen(false);
+          refetch();
+        }}
+        servizio={servizio}
+      />
     </MainLayout>
   );
 }
