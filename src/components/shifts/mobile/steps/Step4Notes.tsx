@@ -21,7 +21,7 @@ export function Step4Notes({ control }: Step4NotesProps) {
               value={field.value || ''}
               placeholder="Aggiungi note o istruzioni speciali..."
               className="mobile-textarea"
-              rows={4}
+              rows={3}
             />
           )}
         />

@@ -23,8 +23,8 @@ export function MobileShiftFormWrapper({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[95vh] overflow-hidden shift-form">
-          <DrawerHeader className="text-left px-4 py-3 border-b">
+        <DrawerContent className="h-[95vh] overflow-hidden shift-form flex flex-col">
+          <DrawerHeader className="text-left px-4 py-2.5 border-b flex-shrink-0">
             <DrawerTitle className="flex items-center gap-2 text-lg">
               {title}
             </DrawerTitle>
@@ -34,9 +34,7 @@ export function MobileShiftFormWrapper({
               </DrawerDescription>
             )}
           </DrawerHeader>
-          <div className="flex-1 overflow-y-auto">
-            {children}
-          </div>
+          {children}
         </DrawerContent>
       </Drawer>
     );
@@ -44,8 +42,8 @@ export function MobileShiftFormWrapper({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-3 pb-6">
+      <DialogContent className="sm:max-w-[700px] flex flex-col max-h-[90vh]">
+        <DialogHeader className="space-y-2 pb-4 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             {title}
           </DialogTitle>
@@ -55,7 +53,9 @@ export function MobileShiftFormWrapper({
             </DialogDescription>
           )}
         </DialogHeader>
-        {children}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );
