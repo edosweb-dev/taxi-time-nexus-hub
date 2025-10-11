@@ -57,24 +57,6 @@ export default function ModificaServizioPage() {
 
   return (
     <div className="container max-w-7xl mx-auto py-6 px-4">
-      {/* Header */}
-      <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/servizi')}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Torna ai Servizi
-        </Button>
-        
-        <h1 className="text-3xl font-bold">Modifica Servizio</h1>
-        <p className="text-muted-foreground mt-2">
-          Modifica le informazioni del servizio #{servizio.numero_commessa || servizio.id}
-        </p>
-      </div>
-
-      {/* Form */}
       <ServizioCreaForm
         mode="edit"
         servizioId={id}
