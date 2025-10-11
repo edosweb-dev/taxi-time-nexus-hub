@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
@@ -18,6 +19,8 @@ interface ShiftDateFieldProps {
 }
 
 export function ShiftDateField({ control, name, label, placeholder = "Seleziona una data" }: ShiftDateFieldProps) {
+  const [open, setOpen] = useState(false);
+
   return (
     <FormField
       control={control}
@@ -25,7 +28,7 @@ export function ShiftDateField({ control, name, label, placeholder = "Seleziona 
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <FormLabel>{label}</FormLabel>
-          <Popover>
+          <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
@@ -48,7 +51,10 @@ export function ShiftDateField({ control, name, label, placeholder = "Seleziona 
               <Calendar
                 mode="single"
                 selected={field.value || undefined}
-                onSelect={field.onChange}
+                onSelect={(date) => {
+                  field.onChange(date);
+                  setOpen(false);
+                }}
                 initialFocus
                 locale={it}
                 className={cn("p-3 pointer-events-auto")}
