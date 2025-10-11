@@ -26,7 +26,6 @@ import {
   DateRangeFields
 } from './form-fields';
 import { ShiftFormData } from './types';
-import { MobileShiftFormWrapper, MobileShiftSelector } from './mobile';
 
 interface AddShiftDialogProps {
   open: boolean;
@@ -272,47 +271,55 @@ export function AddShiftDialog({
     </Form>
   );
 
-  const handleMobileSubmit = async (data: ShiftFormData) => {
-    if (isEditing && selectedShift) {
-      await updateShift(selectedShift.id, data);
-    } else {
-      await createShift(data);
-    }
-    onOpenChange(false);
-  };
-
-  const handleMobileCancel = () => {
-    onOpenChange(false);
-  };
-
   return (
     <>
-      <MobileShiftFormWrapper
-        open={open}
-        onOpenChange={(value) => {
-          if (!value) {
-            form.reset();
-          }
-          onOpenChange(value);
-        }}
-        title={isEditing ? 'Modifica Turno' : 'Nuovo Turno'}
-        description={isEditing 
-          ? 'Modifica i dettagli del turno esistente.' 
-          : 'Inserisci i dettagli del nuovo turno.'}
-      >
-        {isMobile ? (
-          <MobileShiftSelector
-            onSubmit={handleMobileSubmit}
-            onCancel={handleMobileCancel}
-            isAdminOrSocio={isAdminOrSocio}
-            defaultDate={defaultDate}
-            defaultUserId={defaultUserId}
-            selectedShift={selectedShift}
-          />
-        ) : (
-          <FormContent />
-        )}
-      </MobileShiftFormWrapper>
+      {isMobile ? (
+        <Drawer
+          open={open}
+          onOpenChange={(value) => {
+            if (!value) {
+              form.reset();
+            }
+            onOpenChange(value);
+          }}
+        >
+          <DrawerContent className="max-h-[95vh]">
+            <DrawerHeader>
+              <DrawerTitle>{isEditing ? 'Modifica Turno' : 'Nuovo Turno'}</DrawerTitle>
+              <DrawerDescription>
+                {isEditing 
+                  ? 'Modifica i dettagli del turno esistente.' 
+                  : 'Inserisci i dettagli del nuovo turno.'}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="overflow-y-auto px-4 pb-4">
+              <FormContent />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog
+          open={open}
+          onOpenChange={(value) => {
+            if (!value) {
+              form.reset();
+            }
+            onOpenChange(value);
+          }}
+        >
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{isEditing ? 'Modifica Turno' : 'Nuovo Turno'}</DialogTitle>
+              <DialogDescription>
+                {isEditing 
+                  ? 'Modifica i dettagli del turno esistente.' 
+                  : 'Inserisci i dettagli del nuovo turno.'}
+              </DialogDescription>
+            </DialogHeader>
+            <FormContent />
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Confirm delete dialog */}
       <DeleteConfirmDialog 
