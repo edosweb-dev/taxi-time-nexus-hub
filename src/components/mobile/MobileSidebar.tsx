@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   X, Home, Calendar, Users, Settings, Building, Car, DollarSign, Clock, 
-  FileText, MessageCircle, UserCheck, LogOut, ChevronRight, User
+  FileText, MessageCircle, UserCheck, LogOut, ChevronRight, User, UserCircle
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -50,6 +50,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
       title: 'Gestione',
       items: [
         { icon: Building, label: 'Aziende', path: '/aziende', roles: ['admin', 'socio'] },
+        { icon: UserCircle, label: 'Privati', path: '/clienti-privati', roles: ['admin', 'socio'] },
         { icon: Users, label: 'Utenti', path: '/users', roles: ['admin', 'socio'] },
         { icon: Car, label: 'Veicoli', path: '/veicoli', roles: ['admin', 'socio'] },
         { icon: UserCheck, label: 'Conducenti Esterni', path: '/conducenti-esterni', roles: ['admin', 'socio'] },

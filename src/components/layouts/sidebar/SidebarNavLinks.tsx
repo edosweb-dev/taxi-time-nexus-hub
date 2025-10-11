@@ -13,7 +13,8 @@ import {
   FileText,
   UserCheck,
   MessageCircle,
-  Clock
+  Clock,
+  UserCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +42,12 @@ const navItems: NavItem[] = [
     title: 'Aziende',
     href: '/aziende',
     icon: Building2,
+    roles: ['admin', 'socio'],
+  },
+  {
+    title: 'Privati',
+    href: '/clienti-privati',
+    icon: UserCircle,
     roles: ['admin', 'socio'],
   },
   {
@@ -106,7 +113,7 @@ export function SidebarNavLinks() {
   // Group items for better organization (optimized for no scroll)
   const groupedItems = {
     main: filteredNavItems.filter(item => ['Dashboard', 'Servizi', 'Turni'].includes(item.title)),
-    management: filteredNavItems.filter(item => ['Aziende', 'Utenti', 'Veicoli', 'Conducenti Esterni', 'Feedback'].includes(item.title)),
+    management: filteredNavItems.filter(item => ['Aziende', 'Privati', 'Utenti', 'Veicoli', 'Conducenti Esterni', 'Feedback'].includes(item.title)),
     finance: filteredNavItems.filter(item => ['Stipendi', 'Spese Aziendali', 'Impostazioni'].includes(item.title))
   };
 
