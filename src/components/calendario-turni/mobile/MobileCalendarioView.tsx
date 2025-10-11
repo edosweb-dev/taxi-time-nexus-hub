@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format, addDays, subDays, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Plus, CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TouchOptimizer } from '@/components/ui/touch-optimizer';
 import { Calendar } from '@/components/ui/calendar';
@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { MobileDayView } from './MobileDayView';
 import { useShifts } from '@/components/shifts/ShiftContext';
 import { Shift } from '@/components/shifts/types';
-import { AddShiftDialog } from '@/components/shifts/AddShiftDialog';
 import { EditShiftDialog } from '@/components/shifts/dialogs/EditShiftDialog';
 import { ShiftQuickViewDialog } from '@/components/shifts/dialogs/ShiftQuickViewDialog';
 
@@ -22,11 +21,9 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
   const [currentDate, setCurrentDate] = useState(new Date());
   const [startX, setStartX] = useState(0);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [addShiftDialogOpen, setAddShiftDialogOpen] = useState(false);
   const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
   const [quickViewDialogOpen, setQuickViewDialogOpen] = useState(false);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { shifts, isLoading, loadShifts } = useShifts();
 
@@ -67,12 +64,6 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
     }
   };
 
-  const handleCreateShift = (date: Date) => {
-    setSelectedDate(date);
-    setSelectedShift(null);
-    setAddShiftDialogOpen(true);
-  };
-
   const handleEditShift = (shift: Shift) => {
     setSelectedShift(shift);
     setQuickViewDialogOpen(true);
@@ -80,7 +71,6 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
 
   const handleEditFromQuickView = (shift: Shift) => {
     setQuickViewDialogOpen(false);
-    setSelectedDate(new Date(shift.shift_date));
     setEditShiftDialogOpen(true);
   };
 
@@ -180,34 +170,11 @@ export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewPro
           currentDate={currentDate} 
           shifts={shifts}
           isLoading={isLoading}
-          onCreateShift={handleCreateShift}
           onEditShift={handleEditShift}
         />
       </div>
 
-      {/* Floating Action Button */}
-      {isAdminOrSocio && (
-        <div className="floating-action-button">
-          <TouchOptimizer minSize="lg">
-            <Button 
-              size="lg"
-              onClick={() => handleCreateShift(currentDate)} 
-              className="fab-button"
-            >
-              <Plus className="w-6 h-6" />
-            </Button>
-          </TouchOptimizer>
-        </div>
-      )}
-
       {/* Dialogs */}
-      <AddShiftDialog
-        open={addShiftDialogOpen}
-        onOpenChange={setAddShiftDialogOpen}
-        isAdminOrSocio={isAdminOrSocio}
-        defaultDate={selectedDate}
-      />
-
       <ShiftQuickViewDialog
         open={quickViewDialogOpen}
         onOpenChange={setQuickViewDialogOpen}

@@ -14,7 +14,6 @@ interface MobileDayViewProps {
   currentDate: Date;
   shifts: Shift[];
   isLoading: boolean;
-  onCreateShift: (date: Date) => void;
   onEditShift: (shift: Shift) => void;
 }
 
@@ -22,7 +21,6 @@ export function MobileDayView({
   currentDate, 
   shifts, 
   isLoading, 
-  onCreateShift, 
   onEditShift 
 }: MobileDayViewProps) {
   const { users } = useUsers();
