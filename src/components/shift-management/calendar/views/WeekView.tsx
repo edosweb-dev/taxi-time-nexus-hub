@@ -45,10 +45,6 @@ export function WeekView({
     const user = userMap.get(shift.user_id);
     const userName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'Utente';
     
-    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-      return `${userName} (${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)})`;
-    }
-    
     return `${userName} - ${getShiftTypeLabel(shift.shift_type)}`;
   };
 
@@ -56,9 +52,8 @@ export function WeekView({
     switch (type) {
       case 'full_day': return 'Giornata intera';
       case 'half_day': return 'Mezza giornata';
-      case 'sick_leave': return 'Malattia';
+      case 'extra': return 'Extra';
       case 'unavailable': return 'Non disponibile';
-      case 'specific_hours': return 'Orario specifico';
       default: return 'Turno';
     }
   };

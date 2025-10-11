@@ -31,22 +31,11 @@ export const useShiftMutations = (userId?: string) => {
       return { isValid: true };
     }
 
-    // Verifica la regola: è consentito più di un turno solo se tutti sono di tipo "specific_hours"
-    if (newShift.shift_type === 'specific_hours') {
-      // Verifica che tutti i turni esistenti siano di tipo "specific_hours"
-      const allSpecificHours = userShiftsOnSameDate.every(shift => shift.shift_type === 'specific_hours');
-      console.log(`[VALIDATION] New shift is specific_hours, all existing are specific_hours: ${allSpecificHours}`);
-      if (allSpecificHours) {
-        console.log(`[VALIDATION] ✅ All shifts are specific_hours type, allowing multiple shifts`);
-        return { isValid: true };
-      }
-    }
-
-    // In tutti gli altri casi, non è permesso inserire un altro turno
-    console.log(`[VALIDATION] ❌ Blocking shift - multiple shifts not allowed unless all are specific_hours`);
+    // Per ora, con solo 4 tipi di turno, non permettiamo multipli turni nella stessa data
+    console.log(`[VALIDATION] ❌ Blocking shift - multiple shifts not allowed`);
     return { 
       isValid: false, 
-      errorMessage: "È possibile inserire un solo turno per giornata, a meno che entrambi i turni abbiano un orario specifico."
+      errorMessage: "È possibile inserire un solo turno per giornata."
     };
   };
 

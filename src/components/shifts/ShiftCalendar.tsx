@@ -241,7 +241,8 @@ export function ShiftCalendar({ currentDate, onDateChange, isAdminOrSocio }: Shi
                                   {shift.shift_type === 'half_day'
                                     ? (shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio')
                                     : shift.shift_type === 'full_day' ? 'Giornata intera'
-                                    : shift.shift_type === 'half_day' ? `Mezza giornata (${shift.half_day_type})`
+                                    : shift.shift_type === 'extra' ? 'Extra'
+                                    : shift.shift_type === 'unavailable' ? 'Non disponibile'
                                     : shift.shift_type
                                   }
                                 </div>

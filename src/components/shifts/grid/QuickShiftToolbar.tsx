@@ -136,29 +136,6 @@ export function QuickShiftToolbar({
               </div>
             )}
 
-            {/* Time Inputs (if applicable) */}
-            {selectedShiftType === 'specific_hours' && (
-              <div className="space-y-1">
-                <Label className="text-xs flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  Orario
-                </Label>
-                <div className="flex gap-1">
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => onStartTimeChange(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                  <Input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => onEndTimeChange(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Instructions */}
@@ -174,7 +151,6 @@ export function QuickShiftToolbar({
                 <Badge variant="secondary" className="text-xs">
                   {shiftTypeLabels[selectedShiftType]}
                   {selectedShiftType === 'half_day' && ` (${halfDayType === 'morning' ? 'M' : 'P'})`}
-                  {selectedShiftType === 'specific_hours' && startTime && endTime && ` (${startTime}-${endTime})`}
                 </Badge>
               </div>
             )}

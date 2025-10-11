@@ -47,13 +47,6 @@ export function DayView({
         } else {
           groups.afternoon.push(shift);
         }
-      } else if (shift.shift_type === 'specific_hours' && shift.start_time) {
-        const hour = parseInt(shift.start_time.split(':')[0]);
-        if (hour < 14) {
-          groups.morning.push(shift);
-        } else {
-          groups.afternoon.push(shift);
-        }
       } else {
         groups.other.push(shift);
       }
@@ -88,16 +81,10 @@ export function DayView({
           icon: shift.half_day_type === 'morning' ? Coffee : Briefcase, 
           variant: 'secondary' as const 
         };
-      case 'sick_leave': 
-        return { label: 'Malattia', icon: Heart, variant: 'destructive' as const };
       case 'unavailable': 
         return { label: 'Non disponibile', icon: UserX, variant: 'outline' as const };
-      case 'specific_hours': 
-        return { 
-          label: `${shift.start_time?.slice(0, 5)} - ${shift.end_time?.slice(0, 5)}`, 
-          icon: Clock, 
-          variant: 'default' as const 
-        };
+      case 'extra':
+        return { label: 'Extra', icon: Briefcase, variant: 'default' as const };
       default: 
         return { label: 'Turno', icon: Briefcase, variant: 'default' as const };
     }

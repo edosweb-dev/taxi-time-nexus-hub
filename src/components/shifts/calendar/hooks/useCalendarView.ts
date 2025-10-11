@@ -171,20 +171,7 @@ export function useCalendarView(
       }
     }
     
-    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-      const startParts = shift.start_time.split(':').map(Number);
-      const endParts = shift.end_time.split(':').map(Number);
-      
-      const startHour = startParts[0] + (startParts[1] / 60);
-      const endHour = endParts[0] + (endParts[1] / 60);
-      
-      const top = (startHour - 6) * 60; // 6 is the first hour in our view
-      const height = (endHour - startHour) * 60;
-      
-      return { top, height, spanRows: false };
-    }
-    
-    // Default for unavailable and sick leave
+    // Default for extra and unavailable
     return { top: 20, height: 40, spanRows: true };
   };
 

@@ -29,12 +29,7 @@ export interface AllUsersShiftStats {
 
 // Calcola le ore lavorate per un turno
 const calculateShiftHours = (shift: Shift): number => {
-  if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-    const start = new Date(`2000-01-01T${shift.start_time}`);
-    const end = new Date(`2000-01-01T${shift.end_time}`);
-    const diffMs = end.getTime() - start.getTime();
-    return diffMs / (1000 * 60 * 60); // Converti in ore
-  } else if (shift.shift_type === 'full_day') {
+  if (shift.shift_type === 'full_day') {
     return 8; // Assumiamo 8 ore per giornata intera
   } else if (shift.shift_type === 'half_day') {
     return 4; // Assumiamo 4 ore per mezza giornata
@@ -100,11 +95,6 @@ export const fetchUserShiftStats = async (
       const shiftHours = calculateShiftHours(shift as Shift);
       
       switch (shift.shift_type) {
-        case 'specific_hours':
-          specificHoursShifts++;
-          totalHours += shiftHours;
-          workingDays++;
-          break;
         case 'full_day':
           fullDays++;
           totalHours += shiftHours;
@@ -115,8 +105,10 @@ export const fetchUserShiftStats = async (
           totalHours += shiftHours;
           workingDays++;
           break;
-        case 'sick_leave':
-          sickDays++;
+        case 'extra':
+          specificHoursShifts++;
+          totalHours += shiftHours;
+          workingDays++;
           break;
         case 'unavailable':
           unavailableDays++;

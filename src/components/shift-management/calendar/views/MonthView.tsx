@@ -51,10 +51,6 @@ export function MonthView({
     const user = userMap.get(shift.user_id);
     const initials = user ? `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}` : 'U';
     
-    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-      return `${initials} ${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}`;
-    }
-    
     return `${initials} ${getShiftTypeAbbr(shift.shift_type)}`;
   };
 
@@ -62,7 +58,7 @@ export function MonthView({
     switch (type) {
       case 'full_day': return 'FD';
       case 'half_day': return 'HD';
-      case 'sick_leave': return 'ML';
+      case 'extra': return 'EX';
       case 'unavailable': return 'ND';
       default: return 'T';
     }

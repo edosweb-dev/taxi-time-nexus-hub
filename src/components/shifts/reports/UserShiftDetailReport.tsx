@@ -62,14 +62,7 @@ export function UserShiftDetailReport({
   };
 
   const getShiftDuration = (shift: Shift): string => {
-    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-      const start = new Date(`2000-01-01T${shift.start_time}`);
-      const end = new Date(`2000-01-01T${shift.end_time}`);
-      const diffMs = end.getTime() - start.getTime();
-      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`;
-    } else if (shift.shift_type === 'full_day') {
+    if (shift.shift_type === 'full_day') {
       return '8h';
     } else if (shift.shift_type === 'half_day') {
       return '4h';
@@ -221,10 +214,7 @@ export function UserShiftDetailReport({
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {shift.shift_type === 'specific_hours' 
-                          ? `${formatTime(shift.start_time)} - ${formatTime(shift.end_time)}`
-                          : '-'
-                        }
+                        -
                       </TableCell>
                       <TableCell>
                         {getShiftDuration(shift)}

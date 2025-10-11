@@ -132,20 +132,14 @@ function validateShiftsForDateAndUser(
   console.log(`🔍 [USER VALIDATION] User ${userId} on ${shiftDate}: ${newShifts.length} new, ${existingShifts.length} existing`);
   
   for (const shift of newShifts) {
-    // Se ci sono già turni per questa data
+    // Se ci sono già turni per questa data, non permettiamo altri turni
     if (existingShifts.length > 0) {
-      // Verifica la regola: è consentito più di un turno solo se tutti sono "specific_hours"
-      const allExistingAreSpecific = existingShifts.every(s => s.shift_type === 'specific_hours');
-      const newIsSpecific = shift.shift_type === 'specific_hours';
-      
-      if (!(allExistingAreSpecific && newIsSpecific)) {
-        invalid.push({
-          shift,
-          reason: "È possibile inserire un solo turno per giornata, a meno che entrambi i turni abbiano un orario specifico."
-        });
-        conflicts.push(shiftDate);
-        continue;
-      }
+      invalid.push({
+        shift,
+        reason: "È possibile inserire un solo turno per giornata."
+      });
+      conflicts.push(shiftDate);
+      continue;
     }
     
     // Se arriviamo qui, il turno è valido

@@ -57,8 +57,6 @@ export function QuickShiftDialog({
         user_id: selectedCell.userId,
         shift_date: new Date(selectedCell.date),
         shift_type: newShiftType as ShiftType,
-        start_time: newShiftType === 'specific_hours' ? newStartTime : undefined,
-        end_time: newShiftType === 'specific_hours' ? newEndTime : undefined,
         half_day_type: newShiftType === 'half_day' ? newHalfDayType : undefined,
         notes: newNotes || undefined
       };
@@ -93,9 +91,7 @@ export function QuickShiftDialog({
     return format(new Date(selectedCell.date), "EEEE d MMMM yyyy", { locale: it });
   };
 
-  const canAddShift = newShiftType && (
-    newShiftType !== 'specific_hours' || (newStartTime && newEndTime)
-  );
+  const canAddShift = newShiftType;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -185,29 +181,6 @@ export function QuickShiftDialog({
                       <SelectItem value="afternoon">Pomeriggio</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-              )}
-
-              {newShiftType === 'specific_hours' && (
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label htmlFor="startTime" className="text-xs">Ora Inizio</Label>
-                    <Input
-                      id="startTime"
-                      type="time"
-                      value={newStartTime}
-                      onChange={(e) => setNewStartTime(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="endTime" className="text-xs">Ora Fine</Label>
-                    <Input
-                      id="endTime"
-                      type="time"
-                      value={newEndTime}
-                      onChange={(e) => setNewEndTime(e.target.value)}
-                    />
-                  </div>
                 </div>
               )}
 

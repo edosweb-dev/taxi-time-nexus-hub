@@ -91,14 +91,6 @@ export function ShiftDetailsDialog({
                           </Badge>
                         </div>
 
-                        {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">
-                              {shift.start_time.substring(0, 5)} - {shift.end_time.substring(0, 5)}
-                            </span>
-                          </div>
-                        )}
 
                         {shift.notes && (
                           <div className="flex items-start gap-2 text-sm p-2 bg-amber-50 rounded">

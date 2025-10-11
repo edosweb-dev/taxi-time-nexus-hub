@@ -18,7 +18,7 @@ import { Shift } from '@/components/shifts/types';
 
 const shiftEditSchema = z.object({
   user_id: z.string().min(1, 'Seleziona un dipendente'),
-  shift_type: z.enum(['specific_hours', 'full_day', 'half_day', 'sick_leave', 'unavailable']),
+  shift_type: z.enum(['full_day', 'half_day', 'extra', 'unavailable']),
   start_time: z.string().optional(),
   end_time: z.string().optional(),
   half_day_type: z.enum(['morning', 'afternoon']).optional(),
@@ -35,10 +35,9 @@ interface ShiftEditDialogProps {
 }
 
 const shiftTypeLabels = {
-  specific_hours: 'Orario specifico',
   full_day: 'Giornata intera',
   half_day: 'Mezza giornata',
-  sick_leave: 'Malattia',
+  extra: 'Extra',
   unavailable: 'Non disponibile'
 };
 
@@ -176,39 +175,6 @@ export function ShiftEditDialog({
                 </FormItem>
               )}
             />
-
-            {/* Time fields for specific hours */}
-            {watchShiftType === 'specific_hours' && (
-              <div className="grid grid-cols-2 gap-3">
-                <FormField
-                  control={form.control}
-                  name="start_time"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ora inizio</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} value={field.value || ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="end_time"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ora fine</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} value={field.value || ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
 
             {/* Half day type */}
             {watchShiftType === 'half_day' && (

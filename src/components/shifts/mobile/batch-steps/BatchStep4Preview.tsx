@@ -23,10 +23,8 @@ interface BatchStep4PreviewProps {
 const SHIFT_TYPE_LABELS = {
   'full_day': 'Giornata intera',
   'half_day': 'Mezza giornata',
-  'specific_hours': 'Orario specifico',
-  'sick_leave': 'Malattia',
-  'unavailable': 'Non disponibile',
-  'extra': 'Extra'
+  'extra': 'Extra',
+  'unavailable': 'Non disponibile'
 };
 
 const HALF_DAY_LABELS = {
@@ -46,10 +44,6 @@ export function BatchStep4Preview({ shifts, users, onRegenerate }: BatchStep4Pre
     
     if (shift.shift_type === 'half_day' && shift.half_day_type) {
       label += ` (${HALF_DAY_LABELS[shift.half_day_type]})`;
-    }
-    
-    if (shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time) {
-      label += ` (${shift.start_time} - ${shift.end_time})`;
     }
     
     return label;

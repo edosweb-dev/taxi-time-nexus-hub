@@ -69,11 +69,6 @@ export function ShiftQuickViewDialog({
             <Clock className="h-5 w-5 text-primary flex-shrink-0" />
             <div className="flex-1">
               <div className="font-medium">{getShiftTypeDisplay(shift)}</div>
-              {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time && (
-                <div className="text-sm text-muted-foreground">
-                  {shift.start_time.substring(0, 5)} - {shift.end_time.substring(0, 5)}
-                </div>
-              )}
             </div>
           </div>
 
