@@ -20,11 +20,17 @@ interface MobileServizioHeroProps {
     durata?: string;
     distanza?: string;
   };
+  passeggeri?: Array<{
+    nome_cognome: string;
+    usa_indirizzo_personalizzato?: boolean;
+    luogo_presa_personalizzato?: string;
+    orario_presa_personalizzato?: string;
+  }>;
   isAdmin?: boolean;
   onAssegnaServizio?: () => void;
 }
 
-export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizio }: MobileServizioHeroProps) {
+export function MobileServizioHero({ servizio, passeggeri = [], isAdmin = false, onAssegnaServizio }: MobileServizioHeroProps) {
   
   // Get the badge properties for styling
   const getBadgeConfig = () => {
@@ -114,6 +120,33 @@ export function MobileServizioHero({ servizio, isAdmin = false, onAssegnaServizi
               <div className="text-xs text-muted-foreground mt-0.5">{servizio.pickup.citta}</div>
             </div>
           </div>
+
+          {/* Fermate intermedie - se presenti */}
+          {passeggeri.filter(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato).map((passeggero, idx) => (
+            <div key={idx} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground border-2 border-background shadow-sm" />
+                <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
+              </div>
+              <div className="flex-1 pb-2">
+                <div className="text-xs text-muted-foreground font-medium mb-1">
+                  Fermata - {passeggero.nome_cognome}
+                </div>
+                <div 
+                  className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => handleNavigate(passeggero.luogo_presa_personalizzato!)}
+                >
+                  {passeggero.luogo_presa_personalizzato}
+                </div>
+                {passeggero.orario_presa_personalizzato && (
+                  <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {passeggero.orario_presa_personalizzato.substring(0, 5)}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
 
           {/* Destinazione */}
           <div className="flex gap-3">

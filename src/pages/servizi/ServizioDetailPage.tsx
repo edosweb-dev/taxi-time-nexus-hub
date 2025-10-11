@@ -152,7 +152,8 @@ export default function ServizioDetailPage() {
       >
         <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
           <MobileServizioHero
-            servizio={mobileServizioData} 
+            servizio={mobileServizioData}
+            passeggeri={passeggeri}
             isAdmin={isAdmin}
             onAssegnaServizio={() => setAssegnazioneSheetOpen(true)}
           />
