@@ -2,30 +2,79 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { MobileInput } from "@/components/ui/mobile-input";
-import { Building2, Calendar, MapPin } from "lucide-react";
-import { AziendaSelectField } from "../AziendaSelectField";
-import { ReferenteSelectField } from "../ReferenteSelectField";
+import { Building2, Calendar, MapPin, User } from "lucide-react";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ServizioFormData } from "@/lib/types/servizi";
+import { ClienteAziendaFields } from "../form-fields/ClienteAziendaFields";
+import { ClientePrivatoFields } from "../form-fields/ClientePrivatoFields";
 
 export const Step1AziendaPercorso = () => {
   const { register, control } = useFormContext<ServizioFormData>();
-  const aziendaId = useWatch({ control, name: "azienda_id" });
+  const tipoCliente = useWatch({ control, name: "tipo_cliente" });
 
   return (
     <Card className="w-full p-4 md:p-6 space-y-6">
-      {/* SEZIONE 1: Azienda e Contatto */}
+      {/* SEZIONE 1: Tipo Cliente */}
       <div className="space-y-4">
         <h3 className="text-base font-semibold flex items-center gap-2">
-          <Building2 className="h-4 w-4" />
-          Azienda e Contatto
+          <User className="h-4 w-4" />
+          Tipo Cliente
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AziendaSelectField />
-          {aziendaId && <ReferenteSelectField aziendaId={aziendaId} />}
-        </div>
+        <FormField
+          control={control}
+          name="tipo_cliente"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  className="flex gap-6"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="azienda" id="tipo-azienda" />
+                    <Label htmlFor="tipo-azienda" className="cursor-pointer font-normal">
+                      🏢 Azienda
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="privato" id="tipo-privato" />
+                    <Label htmlFor="tipo-privato" className="cursor-pointer font-normal">
+                      👤 Cliente Privato
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
-      {/* SEZIONE 2: Data e Orario */}
+      {/* SEZIONE 2: Dati Cliente */}
+      <div className="space-y-4">
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          {tipoCliente === 'azienda' ? (
+            <>
+              <Building2 className="h-4 w-4" />
+              Azienda e Contatto
+            </>
+          ) : (
+            <>
+              <User className="h-4 w-4" />
+              Dati Cliente
+            </>
+          )}
+        </h3>
+        {tipoCliente === 'azienda' ? (
+          <ClienteAziendaFields />
+        ) : (
+          <ClientePrivatoFields />
+        )}
+      </div>
+
+      {/* SEZIONE 3: Data e Orario */}
       <div className="space-y-4">
         <h3 className="text-base font-semibold flex items-center gap-2">
           <Calendar className="h-4 w-4" />
@@ -56,7 +105,7 @@ export const Step1AziendaPercorso = () => {
         </div>
       </div>
 
-      {/* SEZIONE 3: Percorso */}
+      {/* SEZIONE 4: Percorso */}
       <div className="space-y-4">
         <h3 className="text-base font-semibold flex items-center gap-2">
           <MapPin className="h-4 w-4" />

@@ -104,6 +104,48 @@ export type Database = {
         }
         Relationships: []
       }
+      clienti_privati: {
+        Row: {
+          citta: string | null
+          cognome: string
+          created_at: string | null
+          created_by: string
+          email: string | null
+          id: string
+          indirizzo: string | null
+          nome: string
+          note: string | null
+          telefono: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          citta?: string | null
+          cognome: string
+          created_at?: string | null
+          created_by: string
+          email?: string | null
+          id?: string
+          indirizzo?: string | null
+          nome: string
+          note?: string | null
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          citta?: string | null
+          cognome?: string
+          created_at?: string | null
+          created_by?: string
+          email?: string | null
+          id?: string
+          indirizzo?: string | null
+          nome?: string
+          note?: string | null
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       conducenti_esterni: {
         Row: {
           attivo: boolean
@@ -615,9 +657,12 @@ export type Database = {
         Row: {
           applica_provvigione: boolean | null
           assegnato_a: string | null
-          azienda_id: string
+          azienda_id: string | null
           citta_destinazione: string | null
           citta_presa: string | null
+          cliente_privato_cognome: string | null
+          cliente_privato_id: string | null
+          cliente_privato_nome: string | null
           conducente_esterno: boolean | null
           conducente_esterno_email: string | null
           conducente_esterno_id: string | null
@@ -645,14 +690,18 @@ export type Database = {
           ore_lavorate: number | null
           referente_id: string | null
           stato: string
+          tipo_cliente: string | null
           veicolo_id: string | null
         }
         Insert: {
           applica_provvigione?: boolean | null
           assegnato_a?: string | null
-          azienda_id: string
+          azienda_id?: string | null
           citta_destinazione?: string | null
           citta_presa?: string | null
+          cliente_privato_cognome?: string | null
+          cliente_privato_id?: string | null
+          cliente_privato_nome?: string | null
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
           conducente_esterno_id?: string | null
@@ -680,14 +729,18 @@ export type Database = {
           ore_lavorate?: number | null
           referente_id?: string | null
           stato?: string
+          tipo_cliente?: string | null
           veicolo_id?: string | null
         }
         Update: {
           applica_provvigione?: boolean | null
           assegnato_a?: string | null
-          azienda_id?: string
+          azienda_id?: string | null
           citta_destinazione?: string | null
           citta_presa?: string | null
+          cliente_privato_cognome?: string | null
+          cliente_privato_id?: string | null
+          cliente_privato_nome?: string | null
           conducente_esterno?: boolean | null
           conducente_esterno_email?: string | null
           conducente_esterno_id?: string | null
@@ -715,6 +768,7 @@ export type Database = {
           ore_lavorate?: number | null
           referente_id?: string | null
           stato?: string
+          tipo_cliente?: string | null
           veicolo_id?: string | null
         }
         Relationships: [
@@ -730,6 +784,13 @@ export type Database = {
             columns: ["azienda_id"]
             isOneToOne: false
             referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servizi_cliente_privato_id_fkey"
+            columns: ["cliente_privato_id"]
+            isOneToOne: false
+            referencedRelation: "clienti_privati"
             referencedColumns: ["id"]
           },
           {

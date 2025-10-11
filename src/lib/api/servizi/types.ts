@@ -1,9 +1,13 @@
 
-import { MetodoPagamento, PasseggeroFormData, StatoServizio } from "@/lib/types/servizi";
+import { MetodoPagamento, PasseggeroFormData, StatoServizio, TipoCliente } from "@/lib/types/servizi";
 
 export interface ServizioInput {
-  azienda_id: string;
-  referente_id: string;
+  tipo_cliente?: TipoCliente;
+  azienda_id?: string;
+  referente_id?: string;
+  cliente_privato_id?: string | null;
+  cliente_privato_nome?: string;
+  cliente_privato_cognome?: string;
   numero_commessa?: string;
   data_servizio: string;
   orario_servizio: string;
@@ -29,6 +33,14 @@ export interface CreateServizioRequest {
   servizio: ServizioInput;
   passeggeri: PasseggeroFormData[];
   email_notifiche?: string[];
+  cliente_privato_data?: {
+    email?: string;
+    telefono?: string;
+    indirizzo?: string;
+    citta?: string;
+    note?: string;
+    salva_anagrafica: boolean;
+  };
 }
 
 export interface UpdateServizioRequest {

@@ -7,8 +7,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
 export const servizioFormSchema = z.object({
-  azienda_id: z.string().min(1, "Azienda obbligatoria"),
-  referente_id: z.string().optional(), // Referente opzionale - può essere null
+  tipo_cliente: z.enum(['azienda', 'privato'], {
+    required_error: "Seleziona il tipo di cliente"
+  }).default('azienda'),
+  azienda_id: z.string().optional(),
+  referente_id: z.string().optional(),
+  // Cliente privato
+  cliente_privato_id: z.string().optional().nullable(),
+  cliente_privato_nome: z.string().optional(),
+  cliente_privato_cognome: z.string().optional(),
+  cliente_privato_email: z.string().email("Email non valida").optional().or(z.literal('')),
+  cliente_privato_telefono: z.string().optional(),
+  cliente_privato_indirizzo: z.string().optional(),
+  cliente_privato_citta: z.string().optional(),
+  cliente_privato_note: z.string().optional(),
+  salva_cliente_anagrafica: z.boolean().default(false),
   numero_commessa: z.string().optional(),
   data_servizio: z.string().min(1, "Data servizio obbligatoria"),
   orario_servizio: z.string().min(1, "Orario servizio obbligatorio"),
@@ -36,6 +49,22 @@ export const servizioFormSchema = z.object({
       destinazione_personalizzato: z.string().optional(),
     })
   ).min(1, "Aggiungi almeno un passeggero"),
+}).refine((data) => {
+  // Validation: se azienda → azienda_id required
+  if (data.tipo_cliente === 'azienda') {
+    return !!data.azienda_id;
+  }
+  // Validation: se privato → (cliente_privato_id OR nome+cognome) required
+  if (data.tipo_cliente === 'privato') {
+    return (
+      !!data.cliente_privato_id || 
+      (!!data.cliente_privato_nome && !!data.cliente_privato_cognome)
+    );
+  }
+  return true;
+}, {
+  message: "Seleziona un'azienda o inserisci i dati del cliente privato",
+  path: ["azienda_id"]
 });
 
 export function useServizioForm() {
@@ -44,8 +73,18 @@ export function useServizioForm() {
   const form = useForm<ServizioFormData>({
     resolver: zodResolver(servizioFormSchema),
     defaultValues: {
+      tipo_cliente: "azienda",
       azienda_id: "",
       referente_id: profile?.id || "",
+      cliente_privato_id: null,
+      cliente_privato_nome: "",
+      cliente_privato_cognome: "",
+      cliente_privato_email: "",
+      cliente_privato_telefono: "",
+      cliente_privato_indirizzo: "",
+      cliente_privato_citta: "",
+      cliente_privato_note: "",
+      salva_cliente_anagrafica: false,
       numero_commessa: "",
       data_servizio: new Date().toISOString().split("T")[0],
       orario_servizio: "12:00",
@@ -64,9 +103,10 @@ export function useServizioForm() {
     },
   });
 
-  // Se l'utente è un cliente, imposta l'azienda_id e referente_id di default
+  // Se l'utente è un cliente, imposta tipo_cliente = azienda e i dati di default
   useEffect(() => {
     if (profile?.role === "cliente") {
+      form.setValue("tipo_cliente", "azienda");
       if (profile?.azienda_id) {
         form.setValue("azienda_id", profile.azienda_id);
       }

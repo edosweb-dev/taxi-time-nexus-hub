@@ -66,6 +66,7 @@ export function ConsuntivaServizioSheet({
   // Create a mock servizio object with the necessary fields for the form
   const servizio = {
     id: servizioId,
+    tipo_cliente: 'azienda' as const,
     incasso_previsto: incassoRicevuto,
     ore_finali: oreLavorate,
     metodo_pagamento: isContanti ? 'Contanti' : '',

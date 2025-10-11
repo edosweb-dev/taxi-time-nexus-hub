@@ -37,6 +37,7 @@ const NuovaAziendaPage = lazy(() => import('./pages/aziende/NuovaAziendaPage'));
 const ModificaAziendaPage = lazy(() => import('./pages/aziende/ModificaAziendaPage'));
 const AziendaDetailPage = lazy(() => import('./pages/aziende/AziendaDetailPage'));
 const ReferenteDetailPage = lazy(() => import('./pages/referenti/ReferenteDetailPage'));
+const ClientiPrivatiPage = lazy(() => import('./pages/clienti/ClientiPrivatiPage'));
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AssistenzaPage = lazy(() => import('./pages/AssistenzaPage'));
@@ -162,6 +163,13 @@ function App() {
                 <Route path="/referenti/:id" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ReferenteDetailPage />
+                  </AuthGuard>
+                } />
+
+                {/* Clienti Privati Routes */}
+                <Route path="/clienti-privati" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <ClientiPrivatiPage />
                   </AuthGuard>
                 } />
 

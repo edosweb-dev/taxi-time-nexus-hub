@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { Servizio } from '@/lib/types/servizi';
 import { CreateServizioRequest } from './types';
 import { toast } from '@/components/ui/sonner';
+import { createClientePrivato } from '@/lib/api/clientiPrivati';
 
 export async function createServizio(data: CreateServizioRequest): Promise<{ servizio: Servizio | null; error: Error | null }> {
   try {
@@ -23,13 +24,49 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     const userId = sessionData.session.user.id;
     console.log('[createServizio] Current user ID:', userId);
 
-    // 1. Insert servizio
+    let clientePrivatoId = data.servizio.cliente_privato_id;
+
+    // 1. Gestione Cliente Privato (se necessario)
+    if (
+      data.servizio.tipo_cliente === 'privato' && 
+      data.cliente_privato_data?.salva_anagrafica &&
+      !clientePrivatoId &&
+      data.servizio.cliente_privato_nome &&
+      data.servizio.cliente_privato_cognome
+    ) {
+      console.log('[createServizio] Creating new cliente privato in anagrafica');
+      try {
+        const nuovoCliente = await createClientePrivato({
+          nome: data.servizio.cliente_privato_nome,
+          cognome: data.servizio.cliente_privato_cognome,
+          email: data.cliente_privato_data.email,
+          telefono: data.cliente_privato_data.telefono,
+          indirizzo: data.cliente_privato_data.indirizzo,
+          citta: data.cliente_privato_data.citta,
+          note: data.cliente_privato_data.note,
+        });
+        clientePrivatoId = nuovoCliente.id;
+        console.log('[createServizio] Cliente privato created with ID:', clientePrivatoId);
+      } catch (clienteError) {
+        console.error('[createServizio] Error creating cliente privato:', clienteError);
+        toast.error('Errore nella creazione del cliente privato');
+        // Continua comunque con il servizio usando i dati inline
+      }
+    }
+
+    // 2. Insert servizio
     console.log('[createServizio] Inserting servizio into database');
     const { data: servizioData, error: servizioError } = await supabase
       .from('servizi')
       .insert({
-        azienda_id: data.servizio.azienda_id,
-        referente_id: data.servizio.referente_id,
+        tipo_cliente: data.servizio.tipo_cliente || 'azienda',
+        // Campi azienda (se tipo = azienda)
+        azienda_id: data.servizio.tipo_cliente === 'azienda' ? data.servizio.azienda_id : null,
+        referente_id: data.servizio.tipo_cliente === 'azienda' ? data.servizio.referente_id : null,
+        // Campi cliente privato (se tipo = privato)
+        cliente_privato_id: data.servizio.tipo_cliente === 'privato' ? clientePrivatoId : null,
+        cliente_privato_nome: data.servizio.tipo_cliente === 'privato' && !clientePrivatoId ? data.servizio.cliente_privato_nome : null,
+        cliente_privato_cognome: data.servizio.tipo_cliente === 'privato' && !clientePrivatoId ? data.servizio.cliente_privato_cognome : null,
         numero_commessa: data.servizio.numero_commessa,
         data_servizio: data.servizio.data_servizio,
         orario_servizio: data.servizio.orario_servizio,
@@ -81,8 +118,8 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
               indirizzo: passeggeroData.indirizzo,
               email: passeggeroData.email,
               telefono: passeggeroData.telefono,
-              azienda_id: data.servizio.azienda_id,
-              referente_id: data.servizio.referente_id || null, // Può essere null ora
+              azienda_id: data.servizio.tipo_cliente === 'azienda' ? data.servizio.azienda_id : null,
+              referente_id: data.servizio.tipo_cliente === 'azienda' ? (data.servizio.referente_id || null) : null,
             })
             .select()
             .single();

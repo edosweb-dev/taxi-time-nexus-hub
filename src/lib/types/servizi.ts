@@ -5,11 +5,33 @@ import { Azienda, UserRole } from "@/lib/types";
 export type MetodoPagamento = string;
 export type StatoServizio = 'bozza' | 'da_assegnare' | 'assegnato' | 'completato' | 'annullato' | 'non_accettato' | 'consuntivato';
 
+// Tipo Cliente
+export type TipoCliente = 'azienda' | 'privato';
+
+// Cliente Privato
+export interface ClientePrivato {
+  id: string;
+  nome: string;
+  cognome: string;
+  email?: string;
+  telefono?: string;
+  indirizzo?: string;
+  citta?: string;
+  note?: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Servizio {
   id: string;
   id_progressivo?: string;
-  azienda_id: string;
-  referente_id: string;
+  tipo_cliente: TipoCliente;
+  azienda_id?: string;
+  referente_id?: string;
+  cliente_privato_id?: string | null;
+  cliente_privato_nome?: string | null;
+  cliente_privato_cognome?: string | null;
   numero_commessa?: string;
   data_servizio: string;
   orario_servizio: string;
@@ -44,6 +66,7 @@ export interface Servizio {
     nome: string;
     firma_digitale_attiva?: boolean;
   };
+  clienti_privati?: ClientePrivato;
 }
 
 // Passeggero ora collegato ad azienda e referente (senza più i dettagli specifici del servizio)
@@ -82,8 +105,18 @@ export interface PasseggeroConDettagli extends Passeggero {
 }
 
 export interface ServizioFormData {
-  azienda_id: string;
-  referente_id: string;
+  tipo_cliente: TipoCliente;
+  azienda_id?: string;
+  referente_id?: string;
+  cliente_privato_id?: string | null;
+  cliente_privato_nome?: string;
+  cliente_privato_cognome?: string;
+  cliente_privato_email?: string;
+  cliente_privato_telefono?: string;
+  cliente_privato_indirizzo?: string;
+  cliente_privato_citta?: string;
+  cliente_privato_note?: string;
+  salva_cliente_anagrafica?: boolean;
   numero_commessa?: string;
   data_servizio: string;
   orario_servizio: string;
