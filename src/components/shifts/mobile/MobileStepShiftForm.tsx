@@ -146,7 +146,9 @@ export function MobileStepShiftForm({
   }, [shiftType, setValue]);
 
   const validateCurrentStep = async () => {
-    switch (currentStep) {
+    const currentStepConfig = requiredSteps[currentStep - 1];
+    
+    switch (currentStepConfig.id) {
       case 1:
         const step1Fields = isAdminOrSocio ? ['user_id', 'shift_date'] : ['shift_date'];
         return await trigger(step1Fields as any);
@@ -173,16 +175,13 @@ export function MobileStepShiftForm({
 
   const handleNext = async () => {
     const isValid = await validateCurrentStep();
-    if (isValid) {
-      // If at step 2 and step 3 is not needed, skip directly to notes (which becomes step 3)
-      if (currentStep === 2 && !['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType)) {
-        setCurrentStep(3); // Skip to notes
-      } else if (currentStep < totalSteps) {
-        setCurrentStep(currentStep + 1);
-      }
-    } else {
-      // Show specific validation errors based on step
-      switch (currentStep) {
+    if (isValid && currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else if (!isValid) {
+      const currentStepConfig = requiredSteps[currentStep - 1];
+      
+      // Show specific validation errors based on step ID
+      switch (currentStepConfig.id) {
         case 1:
           if (isAdminOrSocio && !watchedValues.user_id) {
             toast.error('Seleziona un utente');
@@ -215,6 +214,8 @@ export function MobileStepShiftForm({
   };
 
   const handleSubmit = async (data: ShiftFormValues) => {
+    console.log('[MobileStepShiftForm] handleSubmit called', { currentStep, totalSteps, data });
+    
     // Validate entire form before submitting
     const isValid = await form.trigger();
     if (!isValid) {
@@ -286,29 +287,26 @@ export function MobileStepShiftForm({
 
       {/* Form Content */}
       <form onSubmit={form.handleSubmit(handleSubmit)} className="step-content">
-        {currentStep === 1 && (
+        {requiredSteps[currentStep - 1].id === 1 && (
           <Step1UserAndDate 
             control={form.control} 
             users={users} 
             isAdminOrSocio={isAdminOrSocio} 
           />
         )}
-        {currentStep === 2 && (
+        {requiredSteps[currentStep - 1].id === 2 && (
           <Step2ShiftType 
             control={form.control} 
             watchShiftType={shiftType} 
           />
         )}
-        {currentStep === 3 && ['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType) && (
+        {requiredSteps[currentStep - 1].id === 3 && (
           <Step3Times 
             control={form.control} 
             watchShiftType={shiftType} 
           />
         )}
-        {currentStep === 3 && !['specific_hours', 'sick_leave', 'unavailable'].includes(shiftType) && (
-          <Step4Notes control={form.control} />
-        )}
-        {currentStep === 4 && (
+        {requiredSteps[currentStep - 1].id === 4 && (
           <Step4Notes control={form.control} />
         )}
       </form>
