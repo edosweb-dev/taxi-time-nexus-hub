@@ -638,27 +638,17 @@ export const ServizioCreaPage = ({
               name="tipo_cliente"
               control={form.control}
               render={({ field }) => (
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="azienda"
-                      checked={field.value === 'azienda'}
-                      onChange={() => field.onChange('azienda')}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-base font-medium">🏢 Azienda</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="privato"
-                      checked={field.value === 'privato'}
-                      onChange={() => field.onChange('privato')}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-base font-medium">👤 Cliente Privato</span>
-                  </label>
+                <div className="space-y-2">
+                  <Label className="font-medium">Seleziona Tipo Cliente</Label>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full sm:w-[300px]">
+                      <SelectValue placeholder="Seleziona tipo cliente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="azienda">🏢 Azienda</SelectItem>
+                      <SelectItem value="privato">👤 Cliente Privato</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
             />
