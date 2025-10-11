@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { UpdateServizioRequest } from './types';
 
-export async function updateServizio({ servizio, passeggeri }: UpdateServizioRequest) {
+export async function updateServizio({ servizio, passeggeri, email_notifiche }: UpdateServizioRequest) {
   try {
     // 1. Aggiorna il servizio
     const { data: servizioData, error: servizioError } = await supabase
@@ -115,6 +115,31 @@ export async function updateServizio({ servizio, passeggeri }: UpdateServizioReq
         if (collegiamentoError) {
           console.error('Error creating servizio-passeggero link:', collegiamentoError);
         }
+      }
+    }
+
+    // 4. Gestisci email notifiche (DELETE + RE-INSERT)
+    const { error: deleteEmailError } = await supabase
+      .from('servizi_email_notifiche')
+      .delete()
+      .eq('servizio_id', servizio.id);
+
+    if (deleteEmailError) {
+      console.error('Error deleting existing email notifications:', deleteEmailError);
+    }
+
+    if (email_notifiche && email_notifiche.length > 0) {
+      const emailNotificheData = email_notifiche.map(emailId => ({
+        servizio_id: servizio.id,
+        email_notifica_id: emailId
+      }));
+
+      const { error: emailError } = await supabase
+        .from('servizi_email_notifiche')
+        .insert(emailNotificheData);
+
+      if (emailError) {
+        console.error('Error creating email notifications:', emailError);
       }
     }
 

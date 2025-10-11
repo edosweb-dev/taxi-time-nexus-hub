@@ -177,7 +177,11 @@ export function NuovoServizioForm({
       };
 
       if (mode === 'edit' && servizioId) {
-        await updateServizio({ servizio: { ...payload.servizio, id: servizioId }, passeggeri: payload.passeggeri });
+        await updateServizio({ 
+          servizio: { ...payload.servizio, id: servizioId }, 
+          passeggeri: payload.passeggeri,
+          email_notifiche: payload.email_notifiche
+        });
         toast.success("Servizio aggiornato con successo!");
       } else {
         await createServizio(payload);

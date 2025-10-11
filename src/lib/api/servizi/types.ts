@@ -34,4 +34,5 @@ export interface CreateServizioRequest {
 export interface UpdateServizioRequest {
   servizio: ServizioInput & { id: string };
   passeggeri: PasseggeroFormData[];
+  email_notifiche?: string[];
 }
