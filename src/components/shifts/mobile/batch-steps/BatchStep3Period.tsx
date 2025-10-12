@@ -39,7 +39,6 @@ export function BatchStep3Period({ formData, onChange }: BatchStep3PeriodProps) 
     }
   };
 
-  // Calcola settimane del mese
   const getWeeksInMonth = () => {
     const month = formData.month || new Date().getMonth() + 1;
     const year = formData.year || new Date().getFullYear();
@@ -64,7 +63,6 @@ export function BatchStep3Period({ formData, onChange }: BatchStep3PeriodProps) 
       </div>
 
       <RadioGroup value={periodType} onValueChange={handlePeriodTypeChange}>
-        {/* Tutto il mese */}
         <div className="flex items-start space-x-3 rounded-lg border p-4">
           <RadioGroupItem value="full_month" id="full_month" className="mt-1" />
           <Label htmlFor="full_month" className="flex-1 cursor-pointer">
@@ -75,7 +73,6 @@ export function BatchStep3Period({ formData, onChange }: BatchStep3PeriodProps) 
           </Label>
         </div>
 
-        {/* Settimana singola */}
         <div className="flex items-start space-x-3 rounded-lg border p-4">
           <RadioGroupItem value="single_week" id="single_week" className="mt-1" />
           <div className="flex-1 space-y-3">
@@ -106,7 +103,6 @@ export function BatchStep3Period({ formData, onChange }: BatchStep3PeriodProps) 
           </div>
         </div>
 
-        {/* Settimane multiple */}
         <div className="flex items-start space-x-3 rounded-lg border p-4">
           <RadioGroupItem value="multiple_weeks" id="multiple_weeks" className="mt-1" />
           <div className="flex-1 space-y-3">
@@ -142,7 +138,6 @@ export function BatchStep3Period({ formData, onChange }: BatchStep3PeriodProps) 
         </div>
       </RadioGroup>
 
-      {/* Info */}
       {periodType === 'multiple_weeks' && selectedWeeks.length > 0 && (
         <div className="text-sm text-muted-foreground text-center">
           {selectedWeeks.length} {selectedWeeks.length === 1 ? 'settimana selezionata' : 'settimane selezionate'}
