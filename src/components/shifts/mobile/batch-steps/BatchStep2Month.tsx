@@ -29,13 +29,11 @@ export function BatchStep2Month({ formData, onChange }: BatchStep2MonthProps) {
   const month = formData.month || new Date().getMonth() + 1;
   const year = formData.year || new Date().getFullYear();
 
-  // Genera mini calendario per preview
   const previewDate = new Date(year, month - 1, 1);
   const monthStart = startOfMonth(previewDate);
   const monthEnd = endOfMonth(previewDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
   
-  // Padding per allineare al giorno della settimana
   const startDayOfWeek = getDay(monthStart);
   const paddingDays = Array(startDayOfWeek === 0 ? 6 : startDayOfWeek - 1).fill(null);
 
@@ -46,7 +44,6 @@ export function BatchStep2Month({ formData, onChange }: BatchStep2MonthProps) {
         <h3 className="font-medium text-foreground">Seleziona Mese</h3>
       </div>
 
-      {/* Selettori Mese/Anno */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Mese</Label>
@@ -87,26 +84,22 @@ export function BatchStep2Month({ formData, onChange }: BatchStep2MonthProps) {
         </div>
       </div>
 
-      {/* Calendar Preview */}
       <Card className="p-4">
         <div className="text-center font-semibold mb-3">
           {format(previewDate, 'MMMM yyyy', { locale: it })}
         </div>
         
         <div className="grid grid-cols-7 gap-1">
-          {/* Header giorni settimana */}
           {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((day, i) => (
             <div key={i} className="text-center text-xs font-medium text-muted-foreground p-1">
               {day}
             </div>
           ))}
           
-          {/* Padding iniziale */}
           {paddingDays.map((_, i) => (
             <div key={`pad-${i}`} className="p-1" />
           ))}
           
-          {/* Giorni del mese */}
           {daysInMonth.map((day) => {
             const dayNum = day.getDate();
             const isWeekend = getDay(day) === 0 || getDay(day) === 6;
@@ -126,7 +119,6 @@ export function BatchStep2Month({ formData, onChange }: BatchStep2MonthProps) {
         </div>
       </Card>
 
-      {/* Info */}
       <div className="text-sm text-muted-foreground text-center">
         Seleziona il mese per cui vuoi creare i turni
       </div>
