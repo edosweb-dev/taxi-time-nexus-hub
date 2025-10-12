@@ -48,14 +48,13 @@ export function BatchStep5TypeConfirm({
   const { users } = useUsers();
   const shiftType = formData.shift_type || 'full_day';
 
-  // Calcola stima turni
   const estimateShiftsCount = (): number => {
     const userCount = formData.user_ids?.length || 0;
     const weekdayCount = formData.weekdays?.length || 0;
     
     let weeksCount = 0;
     if (formData.period_type === 'full_month') {
-      weeksCount = 4; // Approssimazione
+      weeksCount = 4;
     } else if (formData.period_type === 'single_week') {
       weeksCount = 1;
     } else if (formData.period_type === 'multiple_weeks') {
@@ -69,7 +68,6 @@ export function BatchStep5TypeConfirm({
 
   return (
     <div className="space-y-6">
-      {/* Tipo Turno */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Clock className="w-5 h-5" />
@@ -93,7 +91,6 @@ export function BatchStep5TypeConfirm({
           ))}
         </RadioGroup>
 
-        {/* Mezza Giornata - Conditional */}
         {shiftType === 'half_day' && (
           <div className="pl-6">
             <Label className="mb-2 block">Quando? *</Label>
@@ -119,7 +116,6 @@ export function BatchStep5TypeConfirm({
 
       <Separator />
 
-      {/* Riepilogo */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-muted-foreground">
           <CheckCircle2 className="w-5 h-5" />
@@ -178,7 +174,6 @@ export function BatchStep5TypeConfirm({
           </div>
         </Card>
 
-        {/* Stima turni */}
         <div className="text-center p-4 bg-primary/10 rounded-lg">
           <div className="text-sm text-muted-foreground">Verranno creati circa</div>
           <div className="text-2xl font-bold text-primary">
@@ -187,7 +182,6 @@ export function BatchStep5TypeConfirm({
         </div>
       </div>
 
-      {/* Note opzionali */}
       <div className="space-y-2">
         <Label>Note (opzionale)</Label>
         <Textarea
@@ -199,14 +193,13 @@ export function BatchStep5TypeConfirm({
         />
       </div>
 
-      {/* Submit Button */}
       <div className="flex gap-3 pt-4">
         <Button
           type="button"
           variant="outline"
           className="flex-1"
           disabled={isSubmitting}
-          onClick={() => onChange({ shift_type: 'full_day' })} // Placeholder per back
+          onClick={() => {}}
         >
           Annulla
         </Button>
