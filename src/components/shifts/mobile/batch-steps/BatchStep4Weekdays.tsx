@@ -35,16 +35,16 @@ export function BatchStep4Weekdays({ formData, onChange }: BatchStep4WeekdaysPro
   const handleQuickSelect = (preset: 'weekdays' | 'weekend' | 'all' | 'reset') => {
     switch (preset) {
       case 'weekdays':
-        onChange({ weekdays: [1, 2, 3, 4, 5] }); // Lun-Ven
+        onChange({ weekdays: [1, 2, 3, 4, 5] });
         break;
       case 'weekend':
-        onChange({ weekdays: [6, 0] }); // Sab-Dom
+        onChange({ weekdays: [6, 0] });
         break;
       case 'all':
-        onChange({ weekdays: [0, 1, 2, 3, 4, 5, 6] }); // Tutti
+        onChange({ weekdays: [0, 1, 2, 3, 4, 5, 6] });
         break;
       case 'reset':
-        onChange({ weekdays: [] }); // Nessuno
+        onChange({ weekdays: [] });
         break;
     }
   };
@@ -60,7 +60,6 @@ export function BatchStep4Weekdays({ formData, onChange }: BatchStep4WeekdaysPro
         Seleziona i giorni da includere nei turni
       </div>
 
-      {/* Lista giorni */}
       <div className="space-y-3">
         {WEEKDAYS.map((day) => {
           const isSelected = selectedWeekdays.includes(day.value);
@@ -88,12 +87,10 @@ export function BatchStep4Weekdays({ formData, onChange }: BatchStep4WeekdaysPro
         })}
       </div>
 
-      {/* Counter */}
       <div className="text-sm text-muted-foreground text-center">
         {selectedWeekdays.length} {selectedWeekdays.length === 1 ? 'giorno selezionato' : 'giorni selezionati'}
       </div>
 
-      {/* Quick Actions */}
       <div className="space-y-2">
         <div className="text-sm font-medium">Azioni Rapide:</div>
         <div className="grid grid-cols-2 gap-2">
