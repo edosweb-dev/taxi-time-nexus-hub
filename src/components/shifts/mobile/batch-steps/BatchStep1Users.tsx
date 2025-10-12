@@ -15,7 +15,6 @@ interface BatchStep1UsersProps {
 export function BatchStep1Users({ formData, onChange }: BatchStep1UsersProps) {
   const { users } = useUsers();
 
-  // Filtra solo dipendenti (admin, socio, dipendente)
   const employeeUsers = users?.filter(u => 
     ['admin', 'socio', 'dipendente'].includes(u.role)
   ) || [];
@@ -47,7 +46,6 @@ export function BatchStep1Users({ formData, onChange }: BatchStep1UsersProps) {
         <h3 className="font-medium text-foreground">Seleziona Dipendenti</h3>
       </div>
 
-      {/* Checkbox "Tutti" */}
       <Card className="p-4 bg-muted/50">
         <div className="flex items-center space-x-3">
           <Checkbox
@@ -64,7 +62,6 @@ export function BatchStep1Users({ formData, onChange }: BatchStep1UsersProps) {
         </div>
       </Card>
 
-      {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
@@ -76,7 +73,6 @@ export function BatchStep1Users({ formData, onChange }: BatchStep1UsersProps) {
         </div>
       </div>
 
-      {/* Lista dipendenti */}
       <ScrollArea className="h-[300px] w-full rounded-md border p-4">
         <div className="space-y-3">
           {employeeUsers.map((user) => {
@@ -112,7 +108,6 @@ export function BatchStep1Users({ formData, onChange }: BatchStep1UsersProps) {
         </div>
       </ScrollArea>
 
-      {/* Counter */}
       <div className="text-sm text-muted-foreground text-center">
         {selectedUserIds.length} {selectedUserIds.length === 1 ? 'selezionato' : 'selezionati'}
       </div>
