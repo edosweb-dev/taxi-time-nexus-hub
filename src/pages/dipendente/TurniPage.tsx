@@ -6,7 +6,11 @@ import { MonthNavigation } from '@/components/dipendente/turni/MonthNavigation';
 import { TurniCalendar } from '@/components/dipendente/turni/TurniCalendar';
 import { CalendarLegenda } from '@/components/dipendente/turni/CalendarLegenda';
 import { TurnoDetailSheet } from '@/components/dipendente/turni/TurnoDetailSheet';
+import { NuovoTurnoSheet } from '@/components/dipendente/turni/NuovoTurnoSheet';
+import { ModificaTurnoSheet } from '@/components/dipendente/turni/ModificaTurnoSheet';
+import { EliminaTurnoDialog } from '@/components/dipendente/turni/EliminaTurnoDialog';
 import { useTurniMese } from '@/hooks/dipendente/useTurniMese';
+import { useTurnoCRUD } from '@/hooks/dipendente/useTurnoCRUD';
 import { CalendarDay, Shift } from '@/lib/utils/turniHelpers';
 import { addMonths, subMonths } from 'date-fns';
 
@@ -14,11 +18,16 @@ export default function TurniPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedTurno, setSelectedTurno] = useState<Shift | null>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [nuovoTurnoOpen, setNuovoTurnoOpen] = useState(false);
+  const [modificaTurnoOpen, setModificaTurnoOpen] = useState(false);
+  const [eliminaTurnoOpen, setEliminaTurnoOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
 
   const { data: turni = [], isLoading } = useTurniMese(year, month);
+  const { createTurno, updateTurno, deleteTurno, isCreating, isUpdating, isDeleting } = useTurnoCRUD();
 
   // Keyboard navigation
   useEffect(() => {
@@ -53,9 +62,14 @@ export default function TurniPage() {
       setSelectedTurno(day.turno);
       setDetailSheetOpen(true);
     } else {
-      // TODO: Open new turno dialog with preselected date
-      console.log('Create new turno for', day.date);
+      setSelectedDate(day.date);
+      setNuovoTurnoOpen(true);
     }
+  };
+
+  const handleNewTurnoClick = () => {
+    setSelectedDate(null);
+    setNuovoTurnoOpen(true);
   };
 
   const handleCloseDetail = () => {
@@ -64,15 +78,23 @@ export default function TurniPage() {
   };
 
   const handleEdit = (turno: Shift) => {
-    // TODO: Open edit turno dialog
-    console.log('Edit turno', turno);
+    setSelectedTurno(turno);
     setDetailSheetOpen(false);
+    setModificaTurnoOpen(true);
   };
 
   const handleDelete = (turno: Shift) => {
-    // TODO: Open delete confirmation dialog
-    console.log('Delete turno', turno);
+    setSelectedTurno(turno);
     setDetailSheetOpen(false);
+    setEliminaTurnoOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedTurno) {
+      await deleteTurno(selectedTurno.id);
+      setEliminaTurnoOpen(false);
+      setSelectedTurno(null);
+    }
   };
 
   return (
@@ -83,7 +105,7 @@ export default function TurniPage() {
           <h1 className="text-3xl font-bold flex items-center gap-2">
             🕐 I Miei Turni
           </h1>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={handleNewTurnoClick}>
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Nuovo Turno</span>
           </Button>
@@ -116,6 +138,39 @@ export default function TurniPage() {
           onClose={handleCloseDetail}
           onEdit={handleEdit}
           onDelete={handleDelete}
+        />
+
+        {/* Nuovo Turno Sheet */}
+        <NuovoTurnoSheet
+          isOpen={nuovoTurnoOpen}
+          onClose={() => setNuovoTurnoOpen(false)}
+          onSubmit={async (data) => {
+            await createTurno(data);
+          }}
+          defaultDate={selectedDate || undefined}
+          isLoading={isCreating}
+        />
+
+        {/* Modifica Turno Sheet */}
+        <ModificaTurnoSheet
+          turno={selectedTurno}
+          isOpen={modificaTurnoOpen}
+          onClose={() => setModificaTurnoOpen(false)}
+          onSubmit={async (data) => {
+            if (selectedTurno) {
+              await updateTurno({ turnoId: selectedTurno.id, data });
+            }
+          }}
+          isLoading={isUpdating}
+        />
+
+        {/* Elimina Turno Dialog */}
+        <EliminaTurnoDialog
+          turno={selectedTurno}
+          isOpen={eliminaTurnoOpen}
+          onClose={() => setEliminaTurnoOpen(false)}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
         />
       </div>
     </DipendenteLayout>
