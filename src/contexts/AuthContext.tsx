@@ -223,14 +223,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const startImpersonation = async (targetUserId: string) => {
-    console.log('[Impersonation] Starting for user:', targetUserId);
+    console.log('🎭 [Impersonation] START - Target user ID:', targetUserId);
     
     try {
+      console.log('🎭 [Impersonation] Calling edge function impersonate-user...');
+      
       const { data, error } = await supabase.functions.invoke('impersonate-user', {
         body: { targetUserId }
       });
 
-      console.log('[Impersonation] Edge function response:', { data, error });
+      console.log('🎭 [Impersonation] Response received:', { 
+        hasData: !!data, 
+        hasError: !!error,
+        errorMessage: error?.message 
+      });
+      if (data) console.log('🎭 [Impersonation] Data:', data);
+      if (error) console.error('🎭 [Impersonation] Error full:', error);
 
       if (error) {
         console.error('[Impersonation] Error:', error);
@@ -241,6 +249,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data?.success && data?.impersonationData) {
         const { targetUser, originalAdminId: adminId } = data.impersonationData;
         
+        console.log('🎭 [Impersonation] Setting state with impersonationData');
+        
         // Store original admin data
         setOriginalAdminId(adminId);
         setIsImpersonating(true);
@@ -248,6 +258,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Set the impersonated user as current user/profile
         setUser({ id: targetUser.id, email: targetUser.email });
         setProfile(targetUser);
+        
+        console.log('🎭 [Impersonation] Saving to sessionStorage');
         
         // Store impersonation state securely in sessionStorage with expiry
         const impersonationDataWithExpiry = {
@@ -263,7 +275,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           : targetUser.role === 'dipendente' ? '/turni' 
           : '/servizi';
         
-        console.log('[Impersonation] Success! Navigating to:', targetRoute);
+        console.log('🎭 [Impersonation] Success! Navigating to:', targetRoute);
         
         navigate(targetRoute);
       }
