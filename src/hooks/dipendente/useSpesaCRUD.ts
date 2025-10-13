@@ -39,8 +39,8 @@ export function useSpesaCRUD() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spese-dipendente'] });
       toast({
-        title: 'Spesa creata',
-        description: 'La spesa è stata registrata con successo'
+        title: 'Spesa inviata! 💳',
+        description: 'La tua spesa è stata inviata per approvazione'
       });
     },
     onError: (error: Error) => {
