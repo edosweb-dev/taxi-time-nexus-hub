@@ -26,7 +26,11 @@ export function ImpersonationBanner() {
       <Button
         variant="outline"
         size="sm"
-        onClick={stopImpersonation}
+        onClick={() => {
+          if (confirm('Vuoi davvero uscire dall\'impersonation e tornare al tuo account admin?')) {
+            stopImpersonation();
+          }
+        }}
         className="bg-background/10 border-current hover:bg-background/20 text-current"
       >
         <UserX className="h-4 w-4 mr-2" />
