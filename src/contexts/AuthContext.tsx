@@ -223,15 +223,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const startImpersonation = async (targetUserId: string) => {
-    console.log('[AuthContext] Starting impersonation for user:', targetUserId);
+    console.log('[Impersonation] Starting for user:', targetUserId);
     
     try {
       const { data, error } = await supabase.functions.invoke('impersonate-user', {
         body: { targetUserId }
       });
 
+      console.log('[Impersonation] Edge function response:', { data, error });
+
       if (error) {
-        console.error('[AuthContext] Impersonation error:', error);
+        console.error('[Impersonation] Error:', error);
+        toast.error(`Impossibile impersonare l'utente: ${error.message}`);
         throw new Error(error.message || 'Failed to start impersonation');
       }
 
@@ -256,11 +259,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('[AuthContext] Impersonation started successfully');
         
         // Navigate based on target user's role
-        if (targetUser.role === 'cliente') {
-          navigate('/dashboard-cliente');
-        } else {
-          navigate('/dashboard');
-        }
+        const targetRoute = targetUser.role === 'admin' ? '/dashboard' 
+          : targetUser.role === 'dipendente' ? '/turni' 
+          : '/servizi';
+        
+        console.log('[Impersonation] Success! Navigating to:', targetRoute);
+        
+        navigate(targetRoute);
       }
     } catch (error) {
       console.error('[AuthContext] Failed to start impersonation:', error);
