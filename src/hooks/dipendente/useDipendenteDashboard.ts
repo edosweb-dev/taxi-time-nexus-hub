@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { format, startOfWeek, endOfWeek } from "date-fns";
 import {
   getServiziOggi,
   getStatisticheMese,
@@ -25,10 +26,13 @@ export function useServiziOggi() {
 
 export function useStatisticheMese() {
   const { user } = useAuth();
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
   
   return useQuery<StatsMese>({
-    queryKey: ['statistiche-mese', user?.id],
-    queryFn: () => getStatisticheMese(user!.id),
+    queryKey: ['stats-mese', user?.id, month, year],
+    queryFn: () => getStatisticheMese(user!.id, month, year),
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -41,16 +45,19 @@ export function useUltimoStipendio() {
     queryKey: ['ultimo-stipendio', user?.id],
     queryFn: () => getUltimoStipendio(user!.id),
     enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 30 * 60 * 1000, // 30 minutes
   });
 }
 
 export function useTurniSettimana() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const now = new Date();
+  const startWeek = format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+  const endWeek = format(endOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
   
   return useQuery<TurnoSettimana[]>({
-    queryKey: ['turni-settimana', user?.id],
-    queryFn: () => getTurniSettimana(user!.id),
+    queryKey: ['turni-settimana', user?.id, startWeek, endWeek],
+    queryFn: () => getTurniSettimana(user!.id, startWeek, endWeek),
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true

@@ -74,12 +74,17 @@ export async function getServiziOggi(userId: string): Promise<ServizioOggi[]> {
 }
 
 /**
- * Fetches statistics for current month (completed services and total km)
+ * Fetches statistics for specified month (completed services and total km)
  */
-export async function getStatisticheMese(userId: string): Promise<StatsMese> {
+export async function getStatisticheMese(
+  userId: string, 
+  month?: number, 
+  year?: number
+): Promise<StatsMese> {
   const now = new Date();
-  const startMonth = format(startOfMonth(now), 'yyyy-MM-dd');
-  const endMonth = format(endOfMonth(now), 'yyyy-MM-dd');
+  const targetDate = month && year ? new Date(year, month - 1) : now;
+  const startMonth = format(startOfMonth(targetDate), 'yyyy-MM-dd');
+  const endMonth = format(endOfMonth(targetDate), 'yyyy-MM-dd');
 
   // Count completed services
   const { count, error: countError } = await supabase
@@ -144,12 +149,16 @@ export async function getUltimoStipendio(userId: string): Promise<UltimoStipendi
 }
 
 /**
- * Fetches shifts for current week (Monday to Sunday)
+ * Fetches shifts for specified week (Monday to Sunday)
  */
-export async function getTurniSettimana(userId: string): Promise<TurnoSettimana[]> {
+export async function getTurniSettimana(
+  userId: string,
+  startWeek?: string,
+  endWeek?: string
+): Promise<TurnoSettimana[]> {
   const now = new Date();
-  const weekStart = format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd'); // Monday
-  const weekEnd = format(endOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd'); // Sunday
+  const weekStart = startWeek || format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+  const weekEnd = endWeek || format(endOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
   const { data, error } = await supabase
     .from('shifts')
