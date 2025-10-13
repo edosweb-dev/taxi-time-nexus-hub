@@ -8,9 +8,11 @@ import { PasseggeroCard } from "./PasseggeroCard";
 import { PasseggeroSelector } from "./PasseggeroSelector";
 import { PasseggeriList } from "./PasseggeriList";
 import { PassengerListItem } from "./PassengerListItem";
+import { useToast } from "@/hooks/use-toast";
 
 export function PasseggeroForm({ userRole }: { userRole?: string }) {
-  const { control, setValue } = useFormContext<ServizioFormData>();
+  const { control, setValue, getValues } = useFormContext<ServizioFormData>();
+  const { toast } = useToast();
   
   // Watch per azienda_id e referente_id
   const azienda_id = useWatch({ control, name: "azienda_id" });
@@ -26,6 +28,21 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
   const handlePasseggeroSelect = (passeggero: any) => {
     console.log('[PasseggeroForm] handlePasseggeroSelect called with:', passeggero);
     console.log('[PasseggeroForm] Current fields count:', fields.length);
+    
+    // ✅ Controlla se passeggero già presente
+    const currentPasseggeri = getValues('passeggeri') || [];
+    const isDuplicate = currentPasseggeri.some(p => 
+      p.passeggero_id === passeggero.passeggero_id
+    );
+
+    if (isDuplicate) {
+      toast({
+        title: "Passeggero già presente",
+        description: "Questo passeggero è già stato aggiunto a questo servizio",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const currentIndex = fields.length;
     append(passeggero);
