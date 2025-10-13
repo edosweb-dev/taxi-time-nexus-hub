@@ -5,16 +5,7 @@ import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
 
-interface ServiziFilters {
-  stato?: StatoServizio;
-  azienda_id?: string;
-  assegnato_a?: string;
-  data_inizio?: string;
-  data_fine?: string;
-}
-
-export function useServizi(filters?: ServiziFilters) {
-  console.log('🔵 [useServizi] Hook called with filters:', filters);
+export function useServizi() {
   const queryClient = useQueryClient();
 
   const {
@@ -24,15 +15,8 @@ export function useServizi(filters?: ServiziFilters) {
     error,
     refetch
   } = useQuery({
-    queryKey: ['servizi', filters],
-    queryFn: async () => {
-      console.log('🟢 [useServizi] Executing queryFn with filters:', filters);
-      const result = await getServizi(filters);
-      console.log('🟢 [useServizi] Query result:', result?.length, 'servizi');
-      return result;
-    },
-    staleTime: 5 * 60 * 1000,
-    retry: 1
+    queryKey: ['servizi'],
+    queryFn: getServizi,
   });
 
   const createServizioMutation = useMutation({

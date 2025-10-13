@@ -38,69 +38,19 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
     }
 
     // 2. Rimuovi tutti i collegamenti passeggeri esistenti
-    const { data: deletedData, error: deleteCollegamentiError } = await supabase
+    const { error: deleteCollegamentiError } = await supabase
       .from('servizi_passeggeri')
       .delete()
-      .eq('servizio_id', servizio.id)
-      .select();
-
-    if (deleteCollegamentiError) {
-      console.error('[updateServizio] DELETE ERROR:', {
-        error: deleteCollegamentiError,
-        code: deleteCollegamentiError.code,
-        message: deleteCollegamentiError.message,
-        details: deleteCollegamentiError.details
-      });
-      
-      // Se l'errore è di permessi, segnalalo chiaramente
-      if (deleteCollegamentiError.code === '42501') {
-        return { 
-          servizio: null, 
-          error: { 
-            message: 'Permessi insufficienti per modificare i passeggeri del servizio' 
-          } 
-        };
-      }
-      
-      return { servizio: null, error: deleteCollegamentiError };
-    }
-
-    console.log(`[updateServizio] Deleted ${deletedData?.length || 0} existing passenger links`);
-
-    // ✅ Verifica esplicita che non esistano più collegamenti
-    const { data: existingLinks } = await supabase
-      .from('servizi_passeggeri')
-      .select('id')
       .eq('servizio_id', servizio.id);
 
-    if (existingLinks && existingLinks.length > 0) {
-      console.warn(`[updateServizio] Still ${existingLinks.length} links after delete!`);
+    if (deleteCollegamentiError) {
+      console.error('Error deleting existing passenger links:', deleteCollegamentiError);
+      return { servizio: null, error: deleteCollegamentiError };
     }
 
     // 3. Gestisci i passeggeri
     if (passeggeri.length > 0) {
-      // ✅ DEDUPLICA passeggeri per passeggero_id
-      const uniquePasseggeri = passeggeri.reduce((acc, current) => {
-        const duplicate = acc.find(p => 
-          p.passeggero_id && current.passeggero_id && 
-          p.passeggero_id === current.passeggero_id
-        );
-        if (!duplicate) {
-          acc.push(current);
-        } else {
-          console.warn(`[updateServizio] Duplicate passenger found: ${current.passeggero_id} - ${current.nome_cognome}`);
-        }
-        return acc;
-      }, [] as typeof passeggeri);
-
-      console.log(`[updateServizio] Processing servizio ${servizio.id}: ${passeggeri.length} passengers total, ${uniquePasseggeri.length} unique`);
-      
-      if (passeggeri.length !== uniquePasseggeri.length) {
-        console.warn(`[updateServizio] Removed ${passeggeri.length - uniquePasseggeri.length} duplicate passengers`);
-      }
-
-      for (const passeggeroData of uniquePasseggeri) {
-        console.log(`[updateServizio] Processing passenger: ${passeggeroData.passeggero_id || 'NEW'} - ${passeggeroData.nome_cognome}`);
+      for (const passeggeroData of passeggeri) {
         let passeggeroId = passeggeroData.passeggero_id;
 
         // Se è un nuovo passeggero, crealo prima
