@@ -58,11 +58,11 @@ export const Step2DettagliOperativi = () => {
             <FormItem>
               <FormControl>
                 <MobileSelect
-                  value={field.value}
-                  onValueChange={field.onChange}
+                  value={field.value || "none"}
+                  onValueChange={(value) => field.onChange(value === "none" ? null : value)}
                   placeholder="Seleziona veicolo (opzionale)"
                 >
-                  <SelectItem value="">Nessun veicolo</SelectItem>
+                  <SelectItem value="none">Nessun veicolo</SelectItem>
                 </MobileSelect>
               </FormControl>
             </FormItem>

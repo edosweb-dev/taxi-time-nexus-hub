@@ -23,7 +23,7 @@ export function ClientePrivatoFields() {
   });
 
   const handleSelectCliente = (clienteId: string) => {
-    if (!clienteId) {
+    if (!clienteId || clienteId === "__new__") {
       // Reset fields
       form.setValue('cliente_privato_id', null);
       form.setValue('cliente_privato_nome', '');
@@ -55,7 +55,7 @@ export function ClientePrivatoFields() {
               <FormLabel>Cliente Esistente</FormLabel>
               <Select 
                 onValueChange={handleSelectCliente}
-                value={(field.value as string) || ""}
+                value={(field.value as string) || "__new__"}
                 disabled={isLoading}
               >
                 <FormControl>
@@ -64,7 +64,7 @@ export function ClientePrivatoFields() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">➕ Nuovo cliente</SelectItem>
+                  <SelectItem value="__new__">➕ Nuovo cliente</SelectItem>
                   {clientiPrivati.map((cliente) => (
                     <SelectItem key={cliente.id} value={cliente.id}>
                       {cliente.nome} {cliente.cognome}

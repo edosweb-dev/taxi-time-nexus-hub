@@ -169,12 +169,12 @@ export const ServiziFilters = ({ filters, onFiltersChange, aziende = [] }: Servi
           </div>
 
           {/* Azienda Select */}
-          <Select value={filters.aziendaId || ""} onValueChange={(value) => onFiltersChange({ ...filters, aziendaId: value || undefined })}>
+          <Select value={filters.aziendaId || "all"} onValueChange={(value) => onFiltersChange({ ...filters, aziendaId: value === "all" ? undefined : value })}>
             <SelectTrigger>
               <SelectValue placeholder="Seleziona azienda" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tutte le aziende</SelectItem>
+              <SelectItem value="all">Tutte le aziende</SelectItem>
               {aziende.map((azienda) => (
                 <SelectItem key={azienda.id} value={azienda.id}>
                   {azienda.nome}
