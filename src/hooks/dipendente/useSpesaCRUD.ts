@@ -90,7 +90,7 @@ export function useSpesaCRUD() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spese-dipendente'] });
       toast({
-        title: 'Spesa aggiornata',
+        title: 'Spesa modificata! ✅',
         description: 'Le modifiche sono state salvate con successo'
       });
     },
