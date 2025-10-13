@@ -22,12 +22,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
-// Step components (creerai dopo)
-// import { BatchStep1Users } from './batch-steps/BatchStep1Users';
-// import { BatchStep2Month } from './batch-steps/BatchStep2Month';
-// import { BatchStep3Period } from './batch-steps/BatchStep3Period';
-// import { BatchStep4Weekdays } from './batch-steps/BatchStep4Weekdays';
-// import { BatchStep5TypeConfirm } from './batch-steps/BatchStep5TypeConfirm';
+// Step components
+import { BatchStep1Users } from './batch-steps/BatchStep1Users';
+import { BatchStep2Month } from './batch-steps/BatchStep2Month';
+import { BatchStep3Period } from './batch-steps/BatchStep3Period';
+import { BatchStep4Weekdays } from './batch-steps/BatchStep4Weekdays';
+import { BatchStep5TypeConfirm } from './batch-steps/BatchStep5TypeConfirm';
 
 interface BatchShiftWizardProps {
   open: boolean;
@@ -243,29 +243,25 @@ export function BatchShiftWizard({ open, onOpenChange }: BatchShiftWizardProps) 
   };
 
   const renderStep = () => {
-    // Placeholder finché non creiamo i step components
-    return (
-      <div className="p-8 text-center text-muted-foreground">
-        <p className="text-lg font-medium">Step {currentStep}</p>
-        <p className="text-sm mt-2">Component in via di sviluppo</p>
-      </div>
-    );
-    
-    // Quando crei i components, decommentare:
-    // switch (currentStep) {
-    //   case 1:
-    //     return <BatchStep1Users formData={formData} onChange={updateFormData} />;
-    //   case 2:
-    //     return <BatchStep2Month formData={formData} onChange={updateFormData} />;
-    //   case 3:
-    //     return <BatchStep3Period formData={formData} onChange={updateFormData} />;
-    //   case 4:
-    //     return <BatchStep4Weekdays formData={formData} onChange={updateFormData} />;
-    //   case 5:
-    //     return <BatchStep5TypeConfirm formData={formData} onChange={updateFormData} onSubmit={handleSubmit} isSubmitting={isSubmitting} />;
-    //   default:
-    //     return null;
-    // }
+    switch (currentStep) {
+      case 1:
+        return <BatchStep1Users formData={formData} onChange={updateFormData} />;
+      case 2:
+        return <BatchStep2Month formData={formData} onChange={updateFormData} />;
+      case 3:
+        return <BatchStep3Period formData={formData} onChange={updateFormData} />;
+      case 4:
+        return <BatchStep4Weekdays formData={formData} onChange={updateFormData} />;
+      case 5:
+        return <BatchStep5TypeConfirm 
+          formData={formData} 
+          onChange={updateFormData} 
+          onSubmit={handleSubmit} 
+          isSubmitting={isSubmitting} 
+        />;
+      default:
+        return null;
+    }
   };
 
   const content = (
