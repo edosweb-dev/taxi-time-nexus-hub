@@ -19,13 +19,6 @@ export function AgendaDay({ date, servizi, onClose, onServizioClick, onCompleta,
 
   const content = (
     <div className="space-y-4">
-      <SheetHeader>
-        <SheetTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          {format(date, 'EEEE d MMMM yyyy', { locale: it })}
-        </SheetTitle>
-      </SheetHeader>
-      
       {servizi.length === 0 ? (
         <div className="text-center py-12">
           <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -55,15 +48,27 @@ export function AgendaDay({ date, servizi, onClose, onServizioClick, onCompleta,
     return (
       <Sheet open={!!date} onOpenChange={() => onClose()}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              {format(date, 'EEEE d MMMM yyyy', { locale: it })}
+            </SheetTitle>
+          </SheetHeader>
           {content}
         </SheetContent>
       </Sheet>
     );
   }
 
-  // Desktop: render inline
+  // Desktop: render inline with regular header
   return (
     <div className="bg-card border rounded-lg p-6">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
+          {format(date, 'EEEE d MMMM yyyy', { locale: it })}
+        </h3>
+      </div>
       {content}
     </div>
   );
