@@ -11,6 +11,14 @@ import Index from './pages/Index';
 // Lazy load components for better performance
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ClientDashboardPage = lazy(() => import('./pages/cliente/ClientDashboardPage'));
+
+// Dipendente Pages
+const DipendenteDashboard = lazy(() => import('./pages/dipendente/DipendenteDashboard'));
+const ServiziAssegnatiPage = lazy(() => import('./pages/dipendente/ServiziAssegnatiPage'));
+const DipendenteTurniPage = lazy(() => import('./pages/dipendente/TurniPage'));
+const DipendenteSpesePage = lazy(() => import('./pages/dipendente/SpesePage'));
+const DipendenteStipendiPage = lazy(() => import('./pages/dipendente/StipendiPage'));
+const DipendenteNotFound = lazy(() => import('./pages/dipendente/DipendenteNotFound'));
 const MobileUIShowcase = lazy(() => import('./components/mobile-first/MobileUIShowcase').then(module => ({ default: module.MobileUIShowcase })));
 const ImpostazioniPage = lazy(() => import('./pages/ImpostazioniPage'));
 const ServiziPage = lazy(() => import('./pages/servizi/ServiziPage'));
@@ -268,6 +276,62 @@ function App() {
                 <Route path="/profile" element={
                   <AuthGuard allowedRoles={['admin', 'socio', 'dipendente', 'cliente']}>
                     <ProfilePage />
+                  </AuthGuard>
+                } />
+
+                {/* Dipendente Routes - Sezione Dedicata */}
+                <Route path="/dipendente" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <Navigate to="/dipendente/dashboard" replace />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/dashboard" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <DipendenteDashboard />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/servizi-assegnati" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <ServiziAssegnatiPage />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/servizi-assegnati/:id" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <ServizioDetailPage />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/servizi-assegnati/:id/completa" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <ServizioDetailPage />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/turni" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <DipendenteTurniPage />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/spese" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <DipendenteSpesePage />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/stipendi" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <DipendenteStipendiPage />
+                  </AuthGuard>
+                } />
+
+                {/* 404 per route dipendente non trovate */}
+                <Route path="/dipendente/*" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <DipendenteNotFound />
                   </AuthGuard>
                 } />
                 

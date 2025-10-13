@@ -16,6 +16,8 @@ const Index = () => {
       // Redirect based on role if already logged in
       if (profile.role === 'cliente') {
         navigate('/dashboard-cliente');
+      } else if (profile.role === 'dipendente') {
+        navigate('/dipendente/dashboard');
       } else if (profile.role === 'admin' || profile.role === 'socio') {
         navigate('/dashboard');
       } else {
