@@ -1,13 +1,15 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { List, Calendar } from "lucide-react";
+import { ReactNode } from "react";
 
 interface ServiziTabsProps {
   activeTab: string;
   onTabChange: (value: string) => void;
-  children: React.ReactNode;
+  children: ReactNode;
+  agendaView?: ReactNode;
 }
 
-export const ServiziTabs = ({ activeTab, onTabChange, children }: ServiziTabsProps) => {
+export const ServiziTabs = ({ activeTab, onTabChange, children, agendaView }: ServiziTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <div className="sticky top-0 z-10 bg-background border-b">
@@ -33,16 +35,18 @@ export const ServiziTabs = ({ activeTab, onTabChange, children }: ServiziTabsPro
         {children}
       </TabsContent>
       
-      <TabsContent value="agenda" className="mt-6 p-6 text-center">
-        <div className="space-y-4">
-          <Calendar className="h-16 w-16 mx-auto text-muted-foreground" />
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Vista Agenda</h2>
-            <p className="text-muted-foreground">
-              La vista calendario sarà disponibile a breve
-            </p>
+      <TabsContent value="agenda" className="mt-6">
+        {agendaView || (
+          <div className="p-6 text-center space-y-4">
+            <Calendar className="h-16 w-16 mx-auto text-muted-foreground" />
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Vista Agenda</h2>
+              <p className="text-muted-foreground">
+                La vista calendario sarà disponibile a breve
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </TabsContent>
     </Tabs>
   );

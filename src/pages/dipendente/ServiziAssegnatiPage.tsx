@@ -4,6 +4,7 @@ import { DipendenteLayout } from "@/components/layouts/DipendenteLayout";
 import { ServiziTabs } from "@/components/dipendente/servizi/ServiziTabs";
 import { ServiziFilters, FilterValues } from "@/components/dipendente/servizi/ServiziFilters";
 import { ServiziElencoView } from "@/components/dipendente/servizi/ServiziElencoView";
+import { ServiziAgendaView } from "@/components/dipendente/servizi/ServiziAgendaView";
 import { ServizioDetailSheet } from "@/components/dipendente/servizi/ServizioDetailSheet";
 import { Badge } from "@/components/ui/badge";
 import { useServiziAssegnati, useAziendeForDipendente } from "@/hooks/dipendente/useServiziAssegnati";
@@ -137,7 +138,20 @@ export default function ServiziAssegnatiPage() {
         </div>
 
         {/* Tabs */}
-        <ServiziTabs activeTab={activeTab} onTabChange={handleTabChange}>
+        <ServiziTabs 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+          agendaView={
+            <ServiziAgendaView
+              filtri={{
+                stati: filters.stati,
+                aziendaId: filters.aziendaId
+              }}
+              onServizioClick={handleCardClick}
+              onCompleta={handleCompleta}
+            />
+          }
+        >
           {/* Filters */}
           <ServiziFilters
             filters={filters}
