@@ -1,7 +1,15 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocation, Link } from "react-router-dom";
-import { Home, Calendar, Clock, DollarSign, Euro, User, MessageCircle } from "lucide-react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { Home, Calendar, Clock, DollarSign, Euro, User, MessageCircle, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { 
   Sidebar, 
   SidebarHeader, 
@@ -15,7 +23,13 @@ import { Badge } from "@/components/ui/badge";
 export function DipendenteSidebar() {
   const { profile } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const { state } = useSidebar();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
 
   const navItems = [
     { title: 'Dashboard', href: '/dipendente/dashboard', icon: Home },
@@ -48,33 +62,118 @@ export function DipendenteSidebar() {
         
         {/* Navigation */}
         <SidebarContent className="flex-1 overflow-y-auto py-4">
-          <div className="space-y-1 px-3">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
-              
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
-                    isActive
-                      ? "bg-white text-primary shadow-md"
-                      : "text-white/80 hover:text-white hover:bg-white/15"
-                  )}
+          <TooltipProvider delayDuration={0}>
+            <div className="space-y-1 px-3">
+              {navItems.slice(0, 5).map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+                
+                const linkContent = (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
+                      isActive
+                        ? "bg-white text-primary shadow-md"
+                        : "text-white/80 hover:text-white hover:bg-white/15"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "h-5 w-5 flex-shrink-0",
+                      isActive ? "text-primary" : "text-white/80"
+                    )} />
+                    {state !== "collapsed" && (
+                      <span className="font-medium">{item.title}</span>
+                    )}
+                  </Link>
+                );
+
+                return state === "collapsed" ? (
+                  <Tooltip key={item.href}>
+                    <TooltipTrigger asChild>
+                      {linkContent}
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{item.title}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  linkContent
+                );
+              })}
+
+              {/* Separatore */}
+              <div className="border-t border-white/10 my-2" />
+
+              {navItems.slice(5).map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+                
+                const linkContent = (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
+                      isActive
+                        ? "bg-white text-primary shadow-md"
+                        : "text-white/80 hover:text-white hover:bg-white/15"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "h-5 w-5 flex-shrink-0",
+                      isActive ? "text-primary" : "text-white/80"
+                    )} />
+                    {state !== "collapsed" && (
+                      <span className="font-medium">{item.title}</span>
+                    )}
+                  </Link>
+                );
+
+                return state === "collapsed" ? (
+                  <Tooltip key={item.href}>
+                    <TooltipTrigger asChild>
+                      {linkContent}
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{item.title}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  linkContent
+                );
+              })}
+
+              {/* Logout Button */}
+              {state === "collapsed" ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleLogout}
+                      className="w-full text-white/80 hover:text-white hover:bg-white/15 mt-2"
+                    >
+                      <LogOut className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Esci</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className="w-full justify-start gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/15 mt-2"
                 >
-                  <Icon className={cn(
-                    "h-5 w-5 flex-shrink-0",
-                    isActive ? "text-primary" : "text-white/80"
-                  )} />
-                  {state !== "collapsed" && (
-                    <span className="font-medium">{item.title}</span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-medium">Esci</span>
+                </Button>
+              )}
+            </div>
+          </TooltipProvider>
         </SidebarContent>
         
         {/* Footer with Profile */}

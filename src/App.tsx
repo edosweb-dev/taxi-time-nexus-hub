@@ -196,7 +196,7 @@ function App() {
 
                 {/* Feedback Routes */}
                 <Route path="/feedback" element={
-                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                     <FeedbackPage />
                   </AuthGuard>
                 } />
