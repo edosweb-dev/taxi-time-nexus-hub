@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Servizio } from '@/lib/types/servizi';
+import { Servizio, StatoServizio } from '@/lib/types/servizi';
 
 interface PasseggeroInfo {
   id: string;
@@ -12,12 +12,24 @@ export interface ServizioWithPasseggeri extends Servizio {
   passeggeriCount?: number;
 }
 
-export const useServiziWithPasseggeri = () => {
+interface ServiziFilters {
+  stato?: StatoServizio;
+  azienda_id?: string;
+  assegnato_a?: string;
+  data_inizio?: string;
+  data_fine?: string;
+}
+
+export const useServiziWithPasseggeri = (filters?: ServiziFilters) => {
+  console.log('🔵 [useServiziWithPasseggeri] Hook called with filters:', filters);
+
   return useQuery({
-    queryKey: ['servizi-with-passeggeri'],
+    queryKey: ['servizi-with-passeggeri', filters],
     queryFn: async () => {
-      // Get all servizi
-      const { data: servizi, error: serviziError } = await supabase
+      console.log('🟢 [useServiziWithPasseggeri] Executing queryFn with filters:', filters);
+
+      // Build query with filters
+      let query = supabase
         .from('servizi')
         .select(`
           *,
@@ -26,9 +38,39 @@ export const useServiziWithPasseggeri = () => {
             nome
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('data_servizio', { ascending: false })
+        .order('orario_servizio', { ascending: false });
 
-      if (serviziError) throw serviziError;
+      // Apply filters
+      if (filters?.stato) {
+        console.log('✅ [useServiziWithPasseggeri] Applying stato filter:', filters.stato);
+        query = query.eq('stato', filters.stato);
+      } else {
+        console.log('⚠️ [useServiziWithPasseggeri] NO stato filter (fetching all)');
+      }
+
+      if (filters?.azienda_id) {
+        query = query.eq('azienda_id', filters.azienda_id);
+      }
+
+      if (filters?.assegnato_a) {
+        query = query.eq('assegnato_a', filters.assegnato_a);
+      }
+
+      if (filters?.data_inizio && filters?.data_fine) {
+        query = query
+          .gte('data_servizio', filters.data_inizio)
+          .lte('data_servizio', filters.data_fine);
+      }
+
+      const { data: servizi, error: serviziError } = await query;
+
+      if (serviziError) {
+        console.error('❌ [useServiziWithPasseggeri] Query error:', serviziError);
+        throw serviziError;
+      }
+
+      console.log('✅ [useServiziWithPasseggeri] Fetched servizi:', servizi?.length || 0);
 
       if (!servizi || servizi.length === 0) {
         return [];

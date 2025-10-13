@@ -1,10 +1,19 @@
-
 import { supabase } from '@/lib/supabase';
-import { PasseggeroConDettagli, Servizio } from '@/lib/types/servizi';
+import { PasseggeroConDettagli, Servizio, StatoServizio } from '@/lib/types/servizi';
 
-export async function getServizi(): Promise<Servizio[]> {
+interface ServiziFilters {
+  stato?: StatoServizio;
+  azienda_id?: string;
+  assegnato_a?: string;
+  data_inizio?: string;
+  data_fine?: string;
+}
+
+export async function getServizi(filters?: ServiziFilters): Promise<Servizio[]> {
+  console.log('🟤 [getServizi] Called with filters:', filters);
+  
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('servizi')
       .select(`
         *,
@@ -13,16 +22,43 @@ export async function getServizi(): Promise<Servizio[]> {
           nome
         )
       `)
-      .order('created_at', { ascending: false });
+      .order('data_servizio', { ascending: false })
+      .order('orario_servizio', { ascending: false });
+
+    // Applica filtro stato
+    if (filters?.stato) {
+      console.log('✅ [getServizi] Applying stato filter:', filters.stato);
+      query = query.eq('stato', filters.stato);
+    } else {
+      console.log('⚠️ [getServizi] NO stato filter (fetching all)');
+    }
+
+    // Altri filtri
+    if (filters?.azienda_id) {
+      query = query.eq('azienda_id', filters.azienda_id);
+    }
+
+    if (filters?.assegnato_a) {
+      query = query.eq('assegnato_a', filters.assegnato_a);
+    }
+
+    if (filters?.data_inizio && filters?.data_fine) {
+      query = query
+        .gte('data_servizio', filters.data_inizio)
+        .lte('data_servizio', filters.data_fine);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
-      console.error('[getServizi] Error fetching servizi:', error);
+      console.error('❌ [getServizi] Query error:', error);
       throw error;
     }
 
+    console.log('✅ [getServizi] Success - Results:', data?.length || 0);
     return data as Servizio[];
   } catch (error) {
-    console.error('[getServizi] Unexpected error:', error);
+    console.error('❌ [getServizi] Catch error:', error);
     throw error;
   }
 }

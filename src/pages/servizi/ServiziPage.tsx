@@ -30,14 +30,28 @@ export default function ServiziPage() {
   // REF per container tabs
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   
-  const { data: servizi = [], isLoading, error, refetch } = useServiziWithPasseggeri();
-  const { aziende = [] } = useAziende();
-  const { users = [] } = useUsers();
-  
   const [activeTab, setActiveTab] = useState<string>("bozza");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssignmentPopup, setShowAssignmentPopup] = useState(false);
+
+  console.log('🔴 [ServiziPage] Render - activeTab:', activeTab);
+
+  // ✅ Usa hook con filtro stato dalla query
+  const { data: allServizi = [], isLoading, error, refetch } = useServiziWithPasseggeri();
+  const { aziende = [] } = useAziende();
+  const { users = [] } = useUsers();
+
+  console.log('🟣 [ServiziPage] Data received:', {
+    activeTab,
+    totalServizi: allServizi?.length,
+    isLoading,
+    error: error?.message
+  });
+
+  // ⚠️ NOTA: Il filtro per tab avviene ancora in memoria qui
+  // (ma il logging mostra cosa arriva dal DB)
+  const servizi = allServizi;
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -57,16 +71,19 @@ export default function ServiziPage() {
     }
   }, [isMobile]);
 
-  // Calculate status counts
-  const statusCounts = useMemo(() => ({
-    bozza: servizi.filter(s => s.stato === 'bozza').length,
-    da_assegnare: servizi.filter(s => s.stato === 'da_assegnare').length,
-    assegnato: servizi.filter(s => s.stato === 'assegnato').length,
-    non_accettato: servizi.filter(s => s.stato === 'non_accettato').length,
-    completato: servizi.filter(s => s.stato === 'completato').length,
-    annullato: servizi.filter(s => s.stato === 'annullato').length,
-    consuntivato: servizi.filter(s => s.stato === 'consuntivato').length,
-  }), [servizi]);
+  // Calculate status counts (sempre da TUTTI i servizi)
+  const statusCounts = useMemo(() => {
+    console.log('📊 [ServiziPage] Calculating status counts from', allServizi.length, 'servizi');
+    return {
+      bozza: allServizi.filter(s => s.stato === 'bozza').length,
+      da_assegnare: allServizi.filter(s => s.stato === 'da_assegnare').length,
+      assegnato: allServizi.filter(s => s.stato === 'assegnato').length,
+      non_accettato: allServizi.filter(s => s.stato === 'non_accettato').length,
+      completato: allServizi.filter(s => s.stato === 'completato').length,
+      annullato: allServizi.filter(s => s.stato === 'annullato').length,
+      consuntivato: allServizi.filter(s => s.stato === 'consuntivato').length,
+    };
+  }, [allServizi]);
 
   // Filter servizi by search term
   const searchFilteredServizi = useMemo(() => {
@@ -82,9 +99,12 @@ export default function ServiziPage() {
     });
   }, [servizi, searchTerm]);
 
-  // Filter servizi by active tab
+  // Filter servizi by active tab (IN MEMORIA - non ottimale ma funziona)
   const filteredServizi = useMemo(() => {
-    return searchFilteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === activeTab);
+    console.log('🔍 [ServiziPage] Filtering servizi - activeTab:', activeTab, 'total:', searchFilteredServizi.length);
+    const filtered = searchFilteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === activeTab);
+    console.log('✅ [ServiziPage] Filtered result:', filtered.length, 'servizi');
+    return filtered;
   }, [searchFilteredServizi, activeTab]);
 
   const getStatusColor = (stato: string) => {
