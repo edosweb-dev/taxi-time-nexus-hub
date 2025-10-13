@@ -38,15 +38,34 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
     }
 
     // 2. Rimuovi tutti i collegamenti passeggeri esistenti
-    const { error: deleteCollegamentiError } = await supabase
+    const { data: deletedData, error: deleteCollegamentiError } = await supabase
       .from('servizi_passeggeri')
       .delete()
-      .eq('servizio_id', servizio.id);
+      .eq('servizio_id', servizio.id)
+      .select();
 
     if (deleteCollegamentiError) {
-      console.error('Error deleting existing passenger links:', deleteCollegamentiError);
+      console.error('[updateServizio] DELETE ERROR:', {
+        error: deleteCollegamentiError,
+        code: deleteCollegamentiError.code,
+        message: deleteCollegamentiError.message,
+        details: deleteCollegamentiError.details
+      });
+      
+      // Se l'errore è di permessi, segnalalo chiaramente
+      if (deleteCollegamentiError.code === '42501') {
+        return { 
+          servizio: null, 
+          error: { 
+            message: 'Permessi insufficienti per modificare i passeggeri del servizio' 
+          } 
+        };
+      }
+      
       return { servizio: null, error: deleteCollegamentiError };
     }
+
+    console.log(`[updateServizio] Deleted ${deletedData?.length || 0} existing passenger links`);
 
     // ✅ Verifica esplicita che non esistano più collegamenti
     const { data: existingLinks } = await supabase
