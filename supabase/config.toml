@@ -40,3 +40,6 @@ enabled = false
 # Update this if you want to have your functions called from the Edge Function
 [functions.generate-report]
 verify_jwt = true
+
+[functions.impersonate-user]
+verify_jwt = true
