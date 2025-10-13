@@ -11,9 +11,10 @@ interface ServizioCardProps {
   servizio: ServizioWithRelations;
   onViewDetails: (id: string) => void;
   onCompleta?: (id: string) => void;
+  onClick?: () => void;
 }
 
-export const ServizioCard = ({ servizio, onViewDetails, onCompleta }: ServizioCardProps) => {
+export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: ServizioCardProps) => {
   const getStatoBadge = (stato: string) => {
     const configs: Record<string, { label: string; className: string; emoji: string }> = {
       assegnato: { 
@@ -56,7 +57,7 @@ export const ServizioCard = ({ servizio, onViewDetails, onCompleta }: ServizioCa
         "p-4 hover:shadow-md transition-all cursor-pointer min-h-[120px]",
         getCardBorderColor(servizio.stato)
       )}
-      onClick={() => onViewDetails(servizio.id)}
+      onClick={onClick || (() => onViewDetails(servizio.id))}
     >
       <div className="space-y-3">
         {/* Header: Badge + Orario */}

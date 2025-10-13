@@ -18,6 +18,7 @@ interface ServiziElencoViewProps {
   onViewDetails: (id: string) => void;
   onCompleta?: (id: string) => void;
   onResetFilters: () => void;
+  onCardClick?: (id: string) => void;
 }
 
 export const ServiziElencoView = ({
@@ -28,7 +29,8 @@ export const ServiziElencoView = ({
   onLoadMore,
   onViewDetails,
   onCompleta,
-  onResetFilters
+  onResetFilters,
+  onCardClick
 }: ServiziElencoViewProps) => {
   const observerTarget = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -117,6 +119,7 @@ export const ServiziElencoView = ({
                   servizio={servizio}
                   onViewDetails={onViewDetails}
                   onCompleta={onCompleta}
+                  onClick={onCardClick ? () => onCardClick(servizio.id) : undefined}
                 />
               ))}
             </div>
