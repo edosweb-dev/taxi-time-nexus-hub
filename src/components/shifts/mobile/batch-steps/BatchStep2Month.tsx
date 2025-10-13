@@ -1,7 +1,5 @@
 import React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
-import { it } from 'date-fns/locale';
 import { type BatchShiftFormData } from '@/lib/schemas/shifts';
 import {
   Select,
@@ -11,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
+
 
 interface BatchStep2MonthProps {
   formData: Partial<BatchShiftFormData>;
@@ -28,14 +26,6 @@ const YEARS = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
 export function BatchStep2Month({ formData, onChange }: BatchStep2MonthProps) {
   const month = formData.month || new Date().getMonth() + 1;
   const year = formData.year || new Date().getFullYear();
-
-  const previewDate = new Date(year, month - 1, 1);
-  const monthStart = startOfMonth(previewDate);
-  const monthEnd = endOfMonth(previewDate);
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  
-  const startDayOfWeek = getDay(monthStart);
-  const paddingDays = Array(startDayOfWeek === 0 ? 6 : startDayOfWeek - 1).fill(null);
 
   return (
     <div className="space-y-6">
@@ -83,41 +73,6 @@ export function BatchStep2Month({ formData, onChange }: BatchStep2MonthProps) {
           </Select>
         </div>
       </div>
-
-      <Card className="p-4">
-        <div className="text-center font-semibold mb-3">
-          {format(previewDate, 'MMMM yyyy', { locale: it })}
-        </div>
-        
-        <div className="grid grid-cols-7 gap-1">
-          {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((day, i) => (
-            <div key={i} className="text-center text-xs font-medium text-muted-foreground p-1">
-              {day}
-            </div>
-          ))}
-          
-          {paddingDays.map((_, i) => (
-            <div key={`pad-${i}`} className="p-1" />
-          ))}
-          
-          {daysInMonth.map((day) => {
-            const dayNum = day.getDate();
-            const isWeekend = getDay(day) === 0 || getDay(day) === 6;
-            
-            return (
-              <div
-                key={dayNum}
-                className={`
-                  text-center text-sm p-1 rounded
-                  ${isWeekend ? 'text-muted-foreground' : ''}
-                `}
-              >
-                {dayNum}
-              </div>
-            );
-          })}
-        </div>
-      </Card>
 
       <div className="text-sm text-muted-foreground text-center">
         Seleziona il mese per cui vuoi creare i turni
