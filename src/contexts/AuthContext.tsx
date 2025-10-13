@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { Session as SupabaseSession } from '@supabase/supabase-js';
 import { Profile, UserRole } from '@/lib/types';
 
@@ -249,6 +249,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setOriginalAdminId(adminId);
         setIsImpersonating(true);
         
+        toast.success(
+          `Ora stai visualizzando come: ${targetUser.first_name} ${targetUser.last_name}`,
+          { duration: 3000 }
+        );
+        
         // Set the impersonated user as current user/profile
         setUser({ id: targetUser.id, email: targetUser.email });
         setProfile(targetUser);
@@ -282,6 +287,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsImpersonating(false);
     setOriginalAdminId(null);
     sessionStorage.removeItem('impersonation_data');
+    
+    toast.info('Sei tornato al tuo account admin', { duration: 2000 });
     
     // Restore original admin session
     const { data: { session: currentSession } } = await supabase.auth.getSession();
