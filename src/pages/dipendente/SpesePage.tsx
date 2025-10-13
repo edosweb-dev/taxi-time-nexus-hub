@@ -7,6 +7,8 @@ import { SpeseStats } from '@/components/dipendente/spese/SpeseStats';
 import { SpeseFilters } from '@/components/dipendente/spese/SpeseFilters';
 import { SpeseList } from '@/components/dipendente/spese/SpeseList';
 import { SpeseEmptyState } from '@/components/dipendente/spese/SpeseEmptyState';
+import { NuovaSpesaSheet } from '@/components/dipendente/spese/NuovaSpesaSheet';
+import { SpesaDetailSheet } from '@/components/dipendente/spese/SpesaDetailSheet';
 import { useSpesePersonali } from '@/hooks/dipendente/useSpesePersonali';
 import { useDebounce } from '@/hooks/use-debounce';
 
@@ -26,6 +28,10 @@ export default function SpesePage() {
   const [importoMin, setImportoMin] = useState<number | undefined>();
   const [importoMax, setImportoMax] = useState<number | undefined>();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Sheet states
+  const [nuovaSpesaOpen, setNuovaSpesaOpen] = useState(false);
+  const [selectedSpesaId, setSelectedSpesaId] = useState<string | null>(null);
 
   // Debounce search query
   const debouncedSearch = useDebounce(searchQuery, 300);
@@ -83,14 +89,17 @@ export default function SpesePage() {
   };
 
   const handleNuovaSpesa = () => {
-    // TODO: Open new expense sheet
-    console.log('Nuova spesa');
+    setNuovaSpesaOpen(true);
   };
 
   const handleSpesaClick = (spesaId: string) => {
-    // TODO: Open expense detail sheet
-    console.log('Clicked spesa:', spesaId);
+    setSelectedSpesaId(spesaId);
   };
+  
+  // Find selected spesa
+  const selectedSpesa = selectedSpesaId 
+    ? spese.find(s => s.id === selectedSpesaId) || null
+    : null;
 
   // Determine empty state type
   const hasAnySpese = spese.length > 0;
@@ -142,6 +151,19 @@ export default function SpesePage() {
           />
         )}
       </div>
+
+      {/* Nuova Spesa Sheet */}
+      <NuovaSpesaSheet 
+        open={nuovaSpesaOpen} 
+        onOpenChange={setNuovaSpesaOpen}
+      />
+
+      {/* Spesa Detail Sheet */}
+      <SpesaDetailSheet
+        spesa={selectedSpesa}
+        open={!!selectedSpesaId}
+        onClose={() => setSelectedSpesaId(null)}
+      />
     </DipendenteLayout>
   );
 }
