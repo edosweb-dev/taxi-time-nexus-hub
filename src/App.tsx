@@ -15,6 +15,7 @@ const ClientDashboardPage = lazy(() => import('./pages/cliente/ClientDashboardPa
 // Dipendente Pages
 const DipendenteDashboard = lazy(() => import('./pages/dipendente/DipendenteDashboard'));
 const ServiziAssegnatiPage = lazy(() => import('./pages/dipendente/ServiziAssegnatiPage'));
+const CompletaServizioPage = lazy(() => import('./pages/dipendente/CompletaServizioPage'));
 const DipendenteTurniPage = lazy(() => import('./pages/dipendente/TurniPage'));
 const DipendenteSpesePage = lazy(() => import('./pages/dipendente/SpesePage'));
 const DipendenteStipendiPage = lazy(() => import('./pages/dipendente/StipendiPage'));
@@ -306,7 +307,7 @@ function App() {
 
                 <Route path="/dipendente/servizi-assegnati/:id/completa" element={
                   <AuthGuard allowedRoles={['dipendente']}>
-                    <ServizioDetailPage />
+                    <CompletaServizioPage />
                   </AuthGuard>
                 } />
 
