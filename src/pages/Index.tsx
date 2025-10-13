@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { getDashboardRoute } from '@/lib/utils/navigation';
 
 const Index = () => {
   const { user, profile } = useAuth();
@@ -12,17 +13,9 @@ const Index = () => {
     
     if (user && profile) {
       console.log('[Index] User is logged in, redirecting based on role:', profile.role);
-      
-      // Redirect based on role if already logged in
-      if (profile.role === 'cliente') {
-        navigate('/dashboard-cliente');
-      } else if (profile.role === 'dipendente') {
-        navigate('/dipendente/dashboard');
-      } else if (profile.role === 'admin' || profile.role === 'socio') {
-        navigate('/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      const dashboardRoute = getDashboardRoute(profile.role);
+      console.log(`[Index] Redirecting to ${dashboardRoute}`);
+      navigate(dashboardRoute, { replace: true });
     } else {
       console.log('[Index] No user logged in, redirecting to login');
       navigate('/login');

@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Session as SupabaseSession } from '@supabase/supabase-js';
 import { Profile, UserRole } from '@/lib/types';
+import { getDashboardRoute } from '@/lib/utils/navigation';
 
 interface AuthContextType {
   session: SupabaseSession | null;
@@ -188,31 +189,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (profileData) {
-          console.log('[AuthContext] Profilo trovato:', profileData);
-          
-          // Cast the role to UserRole type explicitly
-          setProfile({
-            id: profileData.id,
-            first_name: profileData.first_name,
-            last_name: profileData.last_name,
-            role: profileData.role as UserRole, // Explicit cast to UserRole
-            azienda_id: profileData.azienda_id || null
-          });
-          
-          // Reindirizza in base al ruolo
-          if (profileData.role === 'cliente') {
-            console.log('[AuthContext] Reindirizzamento a dashboard cliente');
-            navigate('/dashboard-cliente');
-          } else {
-            console.log('[AuthContext] Reindirizzamento a dashboard principale');
-            navigate('/dashboard');
-          }
-          toast.success('Accesso effettuato con successo');
-        } else {
+        if (!profileData) {
           console.error('[AuthContext] Profilo non trovato per utente:', data.user.id);
-          toast.error('Profilo utente non trovato');
+          toast.error('Profilo utente non trovato. Contatta l\'amministratore.');
+          await supabase.auth.signOut();
+          navigate('/login');
+          return;
         }
+
+        if (!profileData.role) {
+          console.error('[AuthContext] User has no role assigned:', data.user.id);
+          toast.error('Account non configurato. Contatta l\'amministratore.');
+          await supabase.auth.signOut();
+          navigate('/login');
+          return;
+        }
+
+        console.log('[AuthContext] Profilo trovato:', profileData);
+        
+        // Cast the role to UserRole type explicitly
+        setProfile({
+          id: profileData.id,
+          first_name: profileData.first_name,
+          last_name: profileData.last_name,
+          role: profileData.role as UserRole,
+          azienda_id: profileData.azienda_id || null
+        });
+        
+        // Redirect basato su ruolo usando utility centralizzata
+        const dashboardRoute = getDashboardRoute(profileData.role as UserRole);
+        console.log(`[AuthContext] Redirecting ${profileData.role} to ${dashboardRoute}`);
+        navigate(dashboardRoute, { replace: true });
+        toast.success('Accesso effettuato con successo');
       }
     } catch (error: any) {
       console.error('[AuthContext] Errore imprevisto durante signIn:', error);
