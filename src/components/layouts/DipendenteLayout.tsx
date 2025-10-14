@@ -34,9 +34,9 @@ export function DipendenteLayout({ children, title }: DipendenteLayoutProps) {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full flex-col">
-        <ImpersonationBanner />
+    <div className="flex min-h-screen w-full flex-col">
+      <ImpersonationBanner />
+      <SidebarProvider>
         <div className="flex flex-1">
           <DipendenteSidebar />
           <main className="flex-1 overflow-y-auto">
@@ -45,7 +45,7 @@ export function DipendenteLayout({ children, title }: DipendenteLayoutProps) {
             </div>
           </main>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </div>
   );
 }
