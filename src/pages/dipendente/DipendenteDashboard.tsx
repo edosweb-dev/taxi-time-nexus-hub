@@ -310,7 +310,7 @@ export default function DipendenteDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:mb-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12 md:mb-6">
           <Button 
             onClick={() => navigate('/dipendente/servizi-assegnati')}
             className="h-auto py-4 flex-col gap-2 min-h-[44px]"
@@ -346,6 +346,9 @@ export default function DipendenteDashboard() {
             <span className="text-sm">Invia Feedback</span>
           </Button>
         </div>
+
+        {/* Safety spacer - invisible buffer above footer on mobile */}
+        <div className="h-24 md:h-0" aria-hidden="true" />
       </div>
     </DipendenteLayout>
   );
