@@ -13,11 +13,7 @@ export function useTurniMese(year: number, month: number) {
 
       const { data, error } = await supabase
         .from('shifts')
-        .select(`
-          *,
-          created_by_profile:profiles!shifts_created_by_fkey(first_name, last_name),
-          updated_by_profile:profiles!shifts_updated_by_fkey(first_name, last_name)
-        `)
+        .select('*')
         .eq('user_id', profile.id)
         .gte('shift_date', `${year}-${String(month).padStart(2, '0')}-01`)
         .lte('shift_date', `${year}-${String(month).padStart(2, '0')}-31`)

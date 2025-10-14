@@ -32,8 +32,13 @@ export default function TurniPage() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
 
-  const { data: turni = [], isLoading } = useTurniMese(year, month);
+  const { data: turni = [], isLoading, error } = useTurniMese(year, month);
   const { createTurno, updateTurno, deleteTurno, isCreating, isUpdating, isDeleting } = useTurnoCRUD();
+
+  // Debug logging
+  console.log('[TurniPage] Turni caricati:', turni?.length || 0, turni);
+  console.log('[TurniPage] Error:', error);
+  console.log('[TurniPage] Loading:', isLoading);
 
   // Layout setup - same as CalendarioTurniPage
   useEffect(() => {
