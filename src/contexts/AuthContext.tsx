@@ -275,10 +275,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         console.log('[AuthContext] Impersonation started successfully');
         
-        // Navigate based on target user's role
-        const targetRoute = targetUser.role === 'admin' ? '/dashboard' 
-          : targetUser.role === 'dipendente' ? '/turni' 
-          : '/servizi';
+        // Navigate to the correct dashboard based on target user's role
+        const { getDashboardRoute } = await import('@/lib/utils/navigation');
+        const targetRoute = getDashboardRoute(targetUser.role);
         
         navigate(targetRoute);
       }
