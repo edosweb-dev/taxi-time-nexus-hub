@@ -13,8 +13,13 @@ import { useTurniMese } from '@/hooks/dipendente/useTurniMese';
 import { useTurnoCRUD } from '@/hooks/dipendente/useTurnoCRUD';
 import { CalendarDay, Shift } from '@/lib/utils/turniHelpers';
 import { addMonths, subMonths } from 'date-fns';
+import { useLayout } from '@/contexts/LayoutContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 
 export default function TurniPage() {
+  const { setPaddingMode } = useLayout();
+  const isMobile = useIsMobile();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedTurno, setSelectedTurno] = useState<Shift | null>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
@@ -28,6 +33,14 @@ export default function TurniPage() {
 
   const { data: turni = [], isLoading } = useTurniMese(year, month);
   const { createTurno, updateTurno, deleteTurno, isCreating, isUpdating, isDeleting } = useTurnoCRUD();
+
+  // Layout setup - same as CalendarioTurniPage
+  useEffect(() => {
+    if (isMobile) {
+      setPaddingMode('full-width');
+    }
+    return () => setPaddingMode('default');
+  }, [isMobile, setPaddingMode]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -99,37 +112,45 @@ export default function TurniPage() {
 
   return (
     <DipendenteLayout>
-      <div className="space-y-6 p-4 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">
-            I Miei Turni
-          </h1>
-          <Button size="sm" className="gap-2" onClick={handleNewTurnoClick}>
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Nuovo Turno</span>
-          </Button>
+      <div className="w-full px-0 md:px-4">
+        <div className="flex flex-col items-start w-full">
+          {/* Header Section */}
+          <div className="w-full px-4 md:px-0 py-6">
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-2xl font-bold">I Miei Turni</h1>
+              <Button size="sm" className="gap-2" onClick={handleNewTurnoClick}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Nuovo Turno</span>
+              </Button>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Gestisci i tuoi turni di lavoro
+            </p>
+          </div>
+
+          {/* Content Section */}
+          <div className="w-full px-4 md:px-0 pb-32 md:pb-8 space-y-6">
+            {/* Month Navigation */}
+            <MonthNavigation
+              currentDate={currentDate}
+              onPreviousMonth={handlePreviousMonth}
+              onNextMonth={handleNextMonth}
+              onToday={handleToday}
+            />
+
+            {/* Calendar */}
+            <TurniCalendar
+              year={year}
+              month={month}
+              turni={turni}
+              isLoading={isLoading}
+              onDayClick={handleDayClick}
+            />
+
+            {/* Legenda */}
+            <CalendarLegenda />
+          </div>
         </div>
-
-        {/* Month Navigation */}
-        <MonthNavigation
-          currentDate={currentDate}
-          onPreviousMonth={handlePreviousMonth}
-          onNextMonth={handleNextMonth}
-          onToday={handleToday}
-        />
-
-        {/* Calendar */}
-        <TurniCalendar
-          year={year}
-          month={month}
-          turni={turni}
-          isLoading={isLoading}
-          onDayClick={handleDayClick}
-        />
-
-        {/* Legenda */}
-        <CalendarLegenda />
 
         {/* Detail Sheet */}
         <TurnoDetailSheet
