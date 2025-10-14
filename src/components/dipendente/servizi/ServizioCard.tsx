@@ -81,9 +81,21 @@ export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: S
           <div className="flex items-start gap-2">
             <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <div className="truncate">{servizio.indirizzo_presa}</div>
+              <div className="truncate">
+                {servizio.citta_presa && (
+                  <span className="font-medium">{servizio.citta_presa}</span>
+                )}
+                {servizio.citta_presa && servizio.indirizzo_presa && <span> - </span>}
+                {servizio.indirizzo_presa}
+              </div>
               <div className="text-muted-foreground">→</div>
-              <div className="truncate">{servizio.indirizzo_destinazione}</div>
+              <div className="truncate">
+                {servizio.citta_destinazione && (
+                  <span className="font-medium">{servizio.citta_destinazione}</span>
+                )}
+                {servizio.citta_destinazione && servizio.indirizzo_destinazione && <span> - </span>}
+                {servizio.indirizzo_destinazione}
+              </div>
             </div>
           </div>
         </div>
