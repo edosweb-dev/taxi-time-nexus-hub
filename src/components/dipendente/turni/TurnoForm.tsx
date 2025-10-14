@@ -124,7 +124,7 @@ export function TurnoForm({ defaultValues, onSubmit, onCancel, isLoading, submit
           name="data"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>📅 Data *</FormLabel>
+              <FormLabel>Data *</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -375,7 +375,7 @@ export function TurnoForm({ defaultValues, onSubmit, onCancel, isLoading, submit
           name="note"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>📝 Note (opzionali)</FormLabel>
+              <FormLabel>Note (opzionali)</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}

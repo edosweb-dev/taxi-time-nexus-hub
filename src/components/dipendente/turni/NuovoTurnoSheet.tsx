@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { TurnoForm } from './TurnoForm';
 import { TurnoFormData } from '@/hooks/dipendente/useTurnoCRUD';
 import { useState, useEffect } from 'react';
@@ -38,14 +38,7 @@ export function NuovoTurnoSheet({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {isMobile && (
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          )}
-          <h2 className="text-lg font-semibold">Nuovo Turno</h2>
-        </div>
+        <h2 className="text-lg font-semibold">Nuovo Turno</h2>
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="h-5 w-5" />
         </Button>
