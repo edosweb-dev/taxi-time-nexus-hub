@@ -49,11 +49,24 @@ export default function ServiziAssegnatiPage() {
 
   // Flatten paginated data
   const servizi = useMemo(() => {
-    return data?.pages.flatMap(page => page.data) || [];
-  }, [data]);
+    const result = data?.pages.flatMap(page => page.data) || [];
+    console.log('🔍 Servizi flattened:', { 
+      count: result.length, 
+      filters,
+      isLoading 
+    });
+    return result;
+  }, [data, filters, isLoading]);
 
   const totalCount = data?.pages[0]?.count || 0;
   const activeCount = servizi.filter(s => s.stato === 'assegnato').length;
+  
+  console.log('🔍 ServiziAssegnatiPage state:', { 
+    totalCount, 
+    activeCount, 
+    serviziLength: servizi.length,
+    currentFilters: filters
+  });
 
   // Handle filter changes and update URL
   const handleFiltersChange = (newFilters: FilterValues) => {

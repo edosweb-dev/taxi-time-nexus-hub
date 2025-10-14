@@ -27,13 +27,14 @@ export async function getServiziAssegnati(
   offset: number = 0,
   limit: number = 20
 ): Promise<{ data: ServizioWithRelations[]; count: number }> {
+  console.log('🔍 Fetching servizi for userId:', userId);
+  
   let query = supabase
     .from('servizi')
     .select(`
       *,
       aziende!left(nome),
-      veicoli!left(modello, targa),
-      profiles!referente_id(first_name, last_name)
+      veicoli!left(modello, targa)
     `, { count: 'exact' })
     .eq('assegnato_a', userId);
 
@@ -69,6 +70,13 @@ export async function getServiziAssegnati(
 
   const { data, error, count } = await query;
 
+  console.log('🔍 Query result:', { 
+    dataCount: data?.length, 
+    totalCount: count, 
+    error: error?.message,
+    filters 
+  });
+
   if (error) {
     console.error('Error fetching servizi assegnati:', error);
     throw error;
@@ -76,17 +84,13 @@ export async function getServiziAssegnati(
 
   // Transform data to include flat fields
   const transformedData: ServizioWithRelations[] = (data || []).map(servizio => {
-    const profile = Array.isArray(servizio.profiles) ? servizio.profiles[0] : servizio.profiles;
-    const { aziende, veicoli, profiles: _, ...rest } = servizio;
+    const { aziende, veicoli, ...rest } = servizio;
     
     return {
       ...rest,
       azienda_nome: aziende?.nome,
       veicolo_modello: veicoli?.modello,
-      veicolo_targa: veicoli?.targa,
-      referente_nome: profile ? 
-        `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 
-        undefined
+      veicolo_targa: veicoli?.targa
     } as ServizioWithRelations;
   });
 
