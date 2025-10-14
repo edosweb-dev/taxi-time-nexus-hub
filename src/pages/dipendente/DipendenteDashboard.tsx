@@ -264,7 +264,7 @@ export default function DipendenteDashboard() {
                         shift && "shadow-sm"
                       )}
                       style={{
-                        backgroundColor: shift && profile?.color ? `${profile.color}15` : undefined
+                        backgroundColor: shift && profile?.color ? profile.color : undefined
                       }}
                       onClick={() => handleDayClick(day)}
                     >
