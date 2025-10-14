@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { Home, Calendar, Clock, DollarSign, Euro, User, MessageCircle, LogOut } from "lucide-react";
+import { Home, Calendar, Clock, DollarSign, Euro, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -19,14 +19,10 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function DipendenteSidebar() {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = useSidebar();
-
-  const handleLogout = async () => {
-    await signOut();
-  };
 
   const navItems = [
     { title: 'Dashboard', href: '/dipendente/dashboard', icon: Home },
@@ -34,8 +30,7 @@ export function DipendenteSidebar() {
     { title: 'Turni', href: '/dipendente/turni', icon: Clock },
     { title: 'Spese', href: '/dipendente/spese', icon: DollarSign },
     { title: 'Stipendi', href: '/dipendente/stipendi', icon: Euro },
-    { title: 'Profilo', href: '/profile', icon: User },
-    { title: 'Feedback', href: '/feedback', icon: MessageCircle }
+    { title: 'Profilo', href: '/profile', icon: User }
   ];
 
   return (
@@ -141,34 +136,6 @@ export function DipendenteSidebar() {
                   linkContent
                 );
               })}
-
-              {/* Logout Button */}
-              {state === "collapsed" ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleLogout}
-                      className="w-full text-white/80 hover:text-white hover:bg-white/15 mt-2"
-                    >
-                      <LogOut className="h-5 w-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <p>Esci</p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <Button
-                  variant="ghost"
-                  onClick={handleLogout}
-                  className="w-full justify-start gap-3 px-3 py-2.5 text-white/80 hover:text-white hover:bg-white/15 mt-2"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span className="font-medium">Esci</span>
-                </Button>
-              )}
             </div>
           </TooltipProvider>
         </SidebarContent>
@@ -198,24 +165,15 @@ export function DipendenteSidebar() {
                 </div>
               </div>
               
-              <div className="flex items-center justify-between pt-2 border-t border-white/20">
+              <div className="flex items-center pt-2 border-t border-white/20">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-sm"></div>
                   <span className="text-xs text-white/70 font-medium">Online</span>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="text-white/80 hover:text-white hover:bg-white/20 w-8 h-8 rounded-lg transition-all duration-200"
-                  onClick={handleLogout}
-                  title="Esci"
-                >
-                  <LogOut size={14} />
-                </Button>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center space-y-2">
+            <div className="flex flex-col items-center">
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-white backdrop-blur-sm border-2 border-white shadow-lg flex items-center justify-center">
                   <span className="text-primary font-bold text-lg">
@@ -224,15 +182,6 @@ export function DipendenteSidebar() {
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-primary rounded-full shadow-md"></div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-white/80 hover:text-white hover:bg-white/20 w-8 h-8 rounded-lg transition-all duration-200"
-                onClick={handleLogout}
-                title="Esci"
-              >
-                <LogOut size={16} />
-              </Button>
             </div>
           )}
         </SidebarFooter>

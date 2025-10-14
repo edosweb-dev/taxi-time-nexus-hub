@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Home, Calendar, Clock, DollarSign, Euro, User, MessageCircle, LogOut, X } from "lucide-react";
+import { Home, Calendar, Clock, DollarSign, Euro, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DipendenteMobileSidebarProps {
@@ -11,14 +11,9 @@ interface DipendenteMobileSidebarProps {
 }
 
 export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSidebarProps) {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleSignOut = async () => {
-    await signOut();
-    onClose();
-  };
 
   const menuSections = [
     {
@@ -39,8 +34,7 @@ export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSideb
     {
       title: 'Account',
       items: [
-        { icon: User, label: 'Profilo', path: '/profile' },
-        { icon: MessageCircle, label: 'Feedback', path: '/feedback' }
+        { icon: User, label: 'Profilo', path: '/profile' }
       ]
     }
   ];
@@ -120,18 +114,6 @@ export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSideb
             </div>
           ))}
         </nav>
-        
-        {/* Footer with Logout */}
-        <div className="p-4 border-t">
-          <Button
-            onClick={handleSignOut}
-            variant="ghost"
-            className="w-full justify-start gap-3 text-destructive hover:bg-destructive/10 min-h-[44px] touch-manipulation"
-          >
-            <LogOut className="h-5 w-5" />
-            <span>Esci</span>
-          </Button>
-        </div>
       </div>
     </>
   );
