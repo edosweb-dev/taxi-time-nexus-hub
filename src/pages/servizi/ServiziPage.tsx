@@ -652,8 +652,8 @@ export default function ServiziPage() {
                               className="font-mono text-xs cursor-pointer w-[80px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
-                              <div className="truncate" title={servizio.id}>
-                                #{servizio.id.slice(0, 8)}
+                              <div className="truncate" title={servizio.id_progressivo || servizio.id}>
+                                {servizio.id_progressivo || `#${servizio.id.slice(0, 8)}`}
                               </div>
                             </TableCell>
 
