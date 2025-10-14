@@ -33,7 +33,7 @@ export async function getServiziAssegnati(
       *,
       aziende!left(nome),
       veicoli!left(modello, targa),
-      profiles!servizi_referente_id_fkey(first_name, last_name)
+      profiles!referente_id(first_name, last_name)
     `, { count: 'exact' })
     .eq('assegnato_a', userId);
 
