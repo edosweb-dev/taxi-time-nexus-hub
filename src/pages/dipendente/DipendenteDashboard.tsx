@@ -75,7 +75,7 @@ export default function DipendenteDashboard() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* Card 1 - Servizi Oggi */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
