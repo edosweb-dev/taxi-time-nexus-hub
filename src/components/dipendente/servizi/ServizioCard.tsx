@@ -68,11 +68,14 @@ export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: S
           </span>
         </div>
 
-        {/* Azienda */}
+        {/* Azienda / Cliente Privato */}
         <div className="flex items-center gap-2">
           <Building className="h-4 w-4 text-muted-foreground flex-shrink-0" />
           <span className="font-semibold truncate">
-            {servizio.azienda_nome || servizio.aziende?.nome || "Azienda sconosciuta"}
+            {servizio.tipo_cliente === 'privato' 
+              ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || "Cliente privato"
+              : servizio.azienda_nome || servizio.aziende?.nome || "Azienda sconosciuta"
+            }
           </span>
         </div>
 
