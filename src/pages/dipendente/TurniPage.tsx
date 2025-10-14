@@ -9,6 +9,7 @@ import { TurnoDetailSheet } from '@/components/dipendente/turni/TurnoDetailSheet
 import { NuovoTurnoSheet } from '@/components/dipendente/turni/NuovoTurnoSheet';
 import { ModificaTurnoSheet } from '@/components/dipendente/turni/ModificaTurnoSheet';
 import { EliminaTurnoDialog } from '@/components/dipendente/turni/EliminaTurnoDialog';
+import { MobileTurniView } from '@/components/dipendente/turni/MobileTurniView';
 import { useTurniMese } from '@/hooks/dipendente/useTurniMese';
 import { useTurnoCRUD } from '@/hooks/dipendente/useTurnoCRUD';
 import { CalendarDay, Shift } from '@/lib/utils/turniHelpers';
@@ -85,6 +86,11 @@ export default function TurniPage() {
     setNuovoTurnoOpen(true);
   };
 
+  const handleTurnoClick = (turno: Shift) => {
+    setSelectedTurno(turno);
+    setDetailSheetOpen(true);
+  };
+
   const handleCloseDetail = () => {
     setDetailSheetOpen(false);
     setSelectedTurno(null);
@@ -114,42 +120,51 @@ export default function TurniPage() {
     <DipendenteLayout>
       <div className="w-full px-0 md:px-4">
         <div className="flex flex-col items-start w-full">
-          {/* Header Section */}
-          <div className="w-full px-4 md:px-0 py-6">
-            <div className="flex items-center justify-between mb-2">
-              <h1 className="text-2xl font-bold">I Miei Turni</h1>
-              <Button size="sm" className="gap-2" onClick={handleNewTurnoClick}>
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Nuovo Turno</span>
-              </Button>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Gestisci i tuoi turni di lavoro
-            </p>
-          </div>
-
-          {/* Content Section */}
-          <div className="w-full px-4 md:px-0 pb-32 md:pb-8 space-y-6">
-            {/* Month Navigation */}
-            <MonthNavigation
-              currentDate={currentDate}
-              onPreviousMonth={handlePreviousMonth}
-              onNextMonth={handleNextMonth}
-              onToday={handleToday}
+          {isMobile ? (
+            <MobileTurniView
+              onNewTurno={handleNewTurnoClick}
+              onTurnoClick={handleTurnoClick}
             />
+          ) : (
+            <>
+              {/* Header Section */}
+              <div className="w-full px-4 md:px-0 py-6">
+                <div className="flex items-center justify-between mb-2">
+                  <h1 className="text-2xl font-bold">I Miei Turni</h1>
+                  <Button size="sm" className="gap-2" onClick={handleNewTurnoClick}>
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Nuovo Turno</span>
+                  </Button>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Gestisci i tuoi turni di lavoro
+                </p>
+              </div>
 
-            {/* Calendar */}
-            <TurniCalendar
-              year={year}
-              month={month}
-              turni={turni}
-              isLoading={isLoading}
-              onDayClick={handleDayClick}
-            />
+              {/* Content Section */}
+              <div className="w-full px-4 md:px-0 pb-32 md:pb-8 space-y-6">
+                {/* Month Navigation */}
+                <MonthNavigation
+                  currentDate={currentDate}
+                  onPreviousMonth={handlePreviousMonth}
+                  onNextMonth={handleNextMonth}
+                  onToday={handleToday}
+                />
 
-            {/* Legenda */}
-            <CalendarLegenda />
-          </div>
+                {/* Calendar */}
+                <TurniCalendar
+                  year={year}
+                  month={month}
+                  turni={turni}
+                  isLoading={isLoading}
+                  onDayClick={handleDayClick}
+                />
+
+                {/* Legenda */}
+                <CalendarLegenda />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Detail Sheet */}
