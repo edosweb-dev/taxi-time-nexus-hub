@@ -259,7 +259,13 @@ export default function DipendenteDashboard() {
                   return (
                     <div 
                       key={day.toString()} 
-                      className="flex-shrink-0 w-20 text-center cursor-pointer group"
+                      className={cn(
+                        "flex-shrink-0 w-20 text-center cursor-pointer group rounded-lg p-2 transition-all",
+                        shift && "shadow-sm"
+                      )}
+                      style={{
+                        backgroundColor: shift && profile?.color ? `${profile.color}15` : undefined
+                      }}
                       onClick={() => handleDayClick(day)}
                     >
                       <p className={cn(
