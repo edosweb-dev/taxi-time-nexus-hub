@@ -64,7 +64,7 @@ export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: S
         <div className="flex items-center justify-between">
           {getStatoBadge(servizio.stato)}
           <span className="text-lg font-bold">
-            {servizio.orario_servizio}
+            {servizio.orario_servizio.slice(0, 5)}
           </span>
         </div>
 
