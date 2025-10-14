@@ -35,10 +35,16 @@ export function DipendenteSidebar() {
 
   return (
     <Sidebar className="border-r border-border/50" collapsible="icon">
-      <div className="flex flex-col h-full bg-gradient-to-b from-primary to-primary/90 text-white">
+      {/* Enhanced sidebar with gradient background and modern styling */}
+      <div className="flex flex-col h-full bg-gradient-to-b from-primary to-primary/90 text-white backdrop-blur-sm relative overflow-hidden">
+        {/* Decorative background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-white/20 to-transparent"></div>
+          <div className="absolute bottom-0 right-0 w-full h-32 bg-gradient-to-tl from-white/10 to-transparent"></div>
+        </div>
         
         {/* Header */}
-        <SidebarHeader className="p-4 border-b border-white/10">
+        <SidebarHeader className="p-4 border-b border-white/10 relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-xl">T</span>
@@ -53,9 +59,16 @@ export function DipendenteSidebar() {
         </SidebarHeader>
         
         {/* Navigation */}
-        <SidebarContent className="flex-1 overflow-y-auto py-4">
+        <SidebarContent className="flex-1 overflow-y-auto py-4 relative z-10">
           <TooltipProvider delayDuration={0}>
-            <div className="space-y-1 px-3">
+            <div className="space-y-0.5 px-1">
+              {/* Main section */}
+              {state !== "collapsed" && (
+                <div className="px-3 py-1">
+                  <span className="text-xs font-medium text-white/50 uppercase tracking-wide">Principale</span>
+                </div>
+              )}
+              
               {navItems.slice(0, 5).map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
@@ -65,19 +78,30 @@ export function DipendenteSidebar() {
                     key={item.href}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
+                      "flex items-center text-sm font-medium rounded-lg transition-all duration-200 mx-2 group relative overflow-hidden",
                       isActive
                         ? "bg-white text-primary shadow-md"
                         : "text-white/80 hover:text-white hover:bg-white/15"
                     )}
                   >
-                    <Icon className={cn(
-                      "h-5 w-5 flex-shrink-0",
-                      isActive ? "text-primary" : "text-white/80"
-                    )} />
-                    {state !== "collapsed" && (
-                      <span className="font-medium">{item.title}</span>
-                    )}
+                    <div className={cn(
+                      "flex items-center w-full px-3 py-2 relative z-10",
+                      state === "collapsed" ? "justify-center" : ""
+                    )}>
+                      <Icon className={cn(
+                        "h-4 w-4 transition-all duration-200 flex-shrink-0",
+                        isActive ? "text-primary" : "text-white/80 group-hover:text-white",
+                        state !== "collapsed" && "mr-3"
+                      )} />
+                      {state !== "collapsed" && (
+                        <span className="font-medium text-sm truncate">{item.title}</span>
+                      )}
+                      {state !== "collapsed" && isActive && (
+                        <div className="ml-auto flex-shrink-0">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
                   </Link>
                 );
 
@@ -95,8 +119,17 @@ export function DipendenteSidebar() {
                 );
               })}
 
-              {/* Separatore */}
-              <div className="border-t border-white/10 my-2" />
+              {/* Separator */}
+              {state !== "collapsed" && (
+                <div className="mx-4 my-2 h-px bg-white/10"></div>
+              )}
+
+              {/* Account section */}
+              {state !== "collapsed" && (
+                <div className="px-3 py-1">
+                  <span className="text-xs font-medium text-white/50 uppercase tracking-wide">Account</span>
+                </div>
+              )}
 
               {navItems.slice(5).map((item) => {
                 const Icon = item.icon;
@@ -107,19 +140,30 @@ export function DipendenteSidebar() {
                     key={item.href}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
+                      "flex items-center text-sm font-medium rounded-lg transition-all duration-200 mx-2 group relative overflow-hidden",
                       isActive
                         ? "bg-white text-primary shadow-md"
                         : "text-white/80 hover:text-white hover:bg-white/15"
                     )}
                   >
-                    <Icon className={cn(
-                      "h-5 w-5 flex-shrink-0",
-                      isActive ? "text-primary" : "text-white/80"
-                    )} />
-                    {state !== "collapsed" && (
-                      <span className="font-medium">{item.title}</span>
-                    )}
+                    <div className={cn(
+                      "flex items-center w-full px-3 py-2 relative z-10",
+                      state === "collapsed" ? "justify-center" : ""
+                    )}>
+                      <Icon className={cn(
+                        "h-4 w-4 transition-all duration-200 flex-shrink-0",
+                        isActive ? "text-primary" : "text-white/80 group-hover:text-white",
+                        state !== "collapsed" && "mr-3"
+                      )} />
+                      {state !== "collapsed" && (
+                        <span className="font-medium text-sm truncate">{item.title}</span>
+                      )}
+                      {state !== "collapsed" && isActive && (
+                        <div className="ml-auto flex-shrink-0">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
                   </Link>
                 );
 
@@ -141,7 +185,7 @@ export function DipendenteSidebar() {
         </SidebarContent>
         
         {/* Footer with Profile */}
-        <SidebarFooter className="p-4 border-t border-white/10">
+        <SidebarFooter className="p-4 border-t border-white/10 relative z-10">
           {state !== "collapsed" ? (
             <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/30 shadow-xl">
               <div className="flex items-center gap-3 mb-3">
