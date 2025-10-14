@@ -70,7 +70,7 @@ export function TurnoDetailSheet({
       <Card className="p-4">
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">📅 Data:</span>
+            <span className="text-muted-foreground">Data:</span>
             <span className="font-medium capitalize">
               {formatItalianDate(shiftDate)}
             </span>
@@ -78,7 +78,7 @@ export function TurnoDetailSheet({
 
           {turno.start_time && turno.end_time && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">🕐 Orario:</span>
+              <span className="text-muted-foreground">Orario:</span>
               <span className="font-medium">
                 {turno.start_time.slice(0, 5)} - {turno.end_time.slice(0, 5)}
               </span>
@@ -87,7 +87,7 @@ export function TurnoDetailSheet({
 
           {duration > 0 && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">⏱️ Durata:</span>
+              <span className="text-muted-foreground">Durata:</span>
               <span className="font-medium">{duration} ore</span>
             </div>
           )}
@@ -97,7 +97,7 @@ export function TurnoDetailSheet({
       {/* Note */}
       {turno.notes && (
         <Card className="p-4">
-          <h3 className="font-semibold text-sm mb-2">📝 NOTE</h3>
+          <h3 className="font-semibold text-sm mb-2">NOTE</h3>
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">
             {turno.notes}
           </p>
@@ -107,7 +107,7 @@ export function TurnoDetailSheet({
       {/* Creato da */}
       {turno.created_by && (
         <Card className="p-4">
-          <h3 className="font-semibold text-sm mb-2">👤 CREATO DA</h3>
+          <h3 className="font-semibold text-sm mb-2">CREATO DA</h3>
           <p className="text-sm text-muted-foreground">
             {canEdit ? 'Me' : 'Amministratore'}
             {turno.created_at && (

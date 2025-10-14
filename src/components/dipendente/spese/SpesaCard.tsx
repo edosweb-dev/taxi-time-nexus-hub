@@ -128,7 +128,7 @@ export function SpesaCard({ spesa, onClick }: SpesaCardProps) {
       {spesa.stato === 'approvata' && spesa.approved_by_profile && (
         <div className="text-sm space-y-1 pt-2 border-t">
           <p className="text-green-600 flex items-center gap-1">
-            <span>✅</span>
+            <span>Approvata</span>
             <span>
               Approvata da: {spesa.approved_by_profile.first_name} {spesa.approved_by_profile.last_name}
             </span>
@@ -145,7 +145,7 @@ export function SpesaCard({ spesa, onClick }: SpesaCardProps) {
       {spesa.stato === 'non_autorizzata' && spesa.note_revisione && (
         <div className="text-sm space-y-1 pt-2 border-t">
           <p className="text-red-600 font-medium flex items-center gap-1">
-            <span>❌</span>
+            <span>Rifiutata</span>
             <span>Motivo rifiuto:</span>
           </p>
           <p className="text-muted-foreground italic">

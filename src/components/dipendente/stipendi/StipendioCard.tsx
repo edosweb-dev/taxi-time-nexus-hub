@@ -45,18 +45,6 @@ export function StipendioCard({ stipendio, onClick }: StipendioCardProps) {
     }
   };
 
-  const getBadgeIcon = (stato: string) => {
-    switch (stato) {
-      case 'confermato':
-        return '💵';
-      case 'pagato':
-        return '✅';
-      case 'bozza':
-        return '📝';
-      default:
-        return '';
-    }
-  };
 
   const getStatoLabel = (stato: string) => {
     switch (stato) {
@@ -80,9 +68,8 @@ export function StipendioCard({ stipendio, onClick }: StipendioCardProps) {
       onClick={onClick}
     >
       {/* Badge Stato */}
-      <Badge className={cn("gap-1", getBadgeClasses(stipendio.stato))}>
-        <span>{getBadgeIcon(stipendio.stato)}</span>
-        <span>{getStatoLabel(stipendio.stato)}</span>
+      <Badge className={cn(getBadgeClasses(stipendio.stato))}>
+        {getStatoLabel(stipendio.stato)}
       </Badge>
 
       {/* Mese Anno */}

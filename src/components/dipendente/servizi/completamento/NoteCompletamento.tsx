@@ -14,7 +14,7 @@ export function NoteCompletamento({ value, onChange }: NoteCompletamentoProps) {
   return (
     <Card className="p-4">
       <div className="space-y-3">
-        <h3 className="font-semibold text-sm">📝 NOTE COMPLETAMENTO</h3>
+        <h3 className="font-semibold text-sm">NOTE COMPLETAMENTO</h3>
         
         <Textarea
           value={value}

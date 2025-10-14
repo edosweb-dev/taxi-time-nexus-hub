@@ -24,7 +24,7 @@ export function ConfermaCompletamento({
   return (
     <Card className="p-4">
       <div className="space-y-4">
-        <h3 className="font-semibold text-sm">✅ CONFERMA COMPLETAMENTO</h3>
+        <h3 className="font-semibold text-sm">CONFERMA COMPLETAMENTO</h3>
 
         <div className="flex items-start gap-3">
           <Checkbox

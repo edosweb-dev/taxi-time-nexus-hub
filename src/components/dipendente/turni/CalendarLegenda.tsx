@@ -3,12 +3,12 @@ import { Badge } from '@/components/ui/badge';
 
 export function CalendarLegenda() {
   const legendItems = [
-    { emoji: '🟦', label: 'Turno Completo (8h)', color: 'bg-blue-500' },
-    { emoji: '🟨', label: 'Mezza Giornata', color: 'bg-yellow-500' },
-    { emoji: '🟩', label: 'Ore Specifiche', color: 'bg-green-500' },
-    { emoji: '🤒', label: 'Malattia', color: 'bg-red-500' },
-    { emoji: '❌', label: 'Non Disponibile', color: 'bg-gray-400' },
-    { emoji: '➕', label: 'Straordinario', color: 'bg-purple-500' },
+    { label: 'Turno Completo (8h)', color: 'bg-blue-500' },
+    { label: 'Mezza Giornata', color: 'bg-yellow-500' },
+    { label: 'Ore Specifiche', color: 'bg-green-500' },
+    { label: 'Malattia', color: 'bg-red-500' },
+    { label: 'Non Disponibile', color: 'bg-gray-400' },
+    { label: 'Straordinario', color: 'bg-purple-500' },
   ];
 
   return (
@@ -18,7 +18,7 @@ export function CalendarLegenda() {
         {legendItems.map((item) => (
           <div key={item.label} className="flex items-center gap-2">
             <Badge className={`${item.color} text-white px-2 py-0.5`}>
-              {item.emoji}
+              {item.label.split(' ')[0]}
             </Badge>
             <span className="text-muted-foreground">{item.label}</span>
           </div>

@@ -32,7 +32,6 @@ export function StipendiStats({ stats, anno }: StipendiStatsProps) {
   return (
     <Card className="p-6">
       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <span className="text-2xl">📊</span>
         RIEPILOGO ANNO {anno}
       </h2>
       

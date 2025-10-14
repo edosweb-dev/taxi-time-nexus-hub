@@ -86,7 +86,7 @@ export function SpesaForm({
           name="dataSpesa"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>📅 Data Spesa *</FormLabel>
+              <FormLabel>Data Spesa *</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -128,7 +128,7 @@ export function SpesaForm({
           name="importo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>💰 Importo *</FormLabel>
+              <FormLabel>Importo *</FormLabel>
               <FormControl>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -155,7 +155,7 @@ export function SpesaForm({
           name="causale"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>📝 Causale *</FormLabel>
+              <FormLabel>Causale *</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Es: Carburante, Parcheggio, Pedaggi..."

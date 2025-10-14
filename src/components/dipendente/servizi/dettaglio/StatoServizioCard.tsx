@@ -71,7 +71,7 @@ export function StatoServizioCard({
   if (stato === 'consuntivato') {
     return (
       <Card className="p-4 bg-blue-50 border-blue-200">
-        <h3 className="font-semibold text-sm mb-3">💰 CONSUNTIVAZIONE</h3>
+        <h3 className="font-semibold text-sm mb-3">CONSUNTIVAZIONE</h3>
         <div className="space-y-2 text-sm">
           {incassoRicevuto !== undefined && (
             <div className="flex justify-between">

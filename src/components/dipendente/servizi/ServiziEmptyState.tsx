@@ -12,7 +12,7 @@ export const ServiziEmptyState = ({ type, onReset }: ServiziEmptyStateProps) => 
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
         <CalendarCheck className="h-16 w-16 text-muted-foreground mb-4" />
         <h2 className="text-xl font-semibold mb-2">
-          Nessun servizio assegnato 🎉
+          Nessun servizio assegnato
         </h2>
         <p className="text-muted-foreground">
           Goditi il riposo!

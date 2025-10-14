@@ -19,9 +19,9 @@ export function StipendiFilters({
   onStatoChange
 }: StipendiFiltersProps) {
   const stati = [
-    { value: 'tutti', label: 'Tutti', icon: '🔘' },
-    { value: 'confermato', label: 'Confermati', icon: '💵' },
-    { value: 'pagato', label: 'Pagati', icon: '✅' },
+    { value: 'tutti', label: 'Tutti' },
+    { value: 'confermato', label: 'Confermati' },
+    { value: 'pagato', label: 'Pagati' },
   ];
 
   return (
@@ -29,7 +29,7 @@ export function StipendiFilters({
       <div className="space-y-4">
         <div>
           <Label className="text-sm font-medium mb-2 block">
-            🔍 FILTRI
+            FILTRI
           </Label>
         </div>
 
@@ -63,10 +63,8 @@ export function StipendiFilters({
                 variant={selectedStato === stato.value ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => onStatoChange(stato.value)}
-                className="gap-1"
               >
-                <span>{stato.icon}</span>
-                <span>{stato.label}</span>
+                {stato.label}
               </Button>
             ))}
           </div>

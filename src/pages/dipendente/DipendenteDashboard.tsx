@@ -53,7 +53,7 @@ export default function DipendenteDashboard() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-2xl md:text-3xl font-bold">
-              Ciao, {profile?.first_name}! 👋
+              Ciao, {profile?.first_name}!
             </h1>
             {profile?.color && (
               <Badge 

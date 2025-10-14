@@ -102,7 +102,7 @@ export function SpesaDetailSheet({ spesa, open, onClose }: SpesaDetailSheetProps
         {spesa.stato === 'approvata' && spesa.approved_by_profile && spesa.approved_at && (
           <Alert>
             <AlertDescription>
-              ✅ Approvata da {spesa.approved_by_profile.first_name}{' '}
+              Approvata da {spesa.approved_by_profile.first_name}{' '}
               il {format(parseISO(spesa.approved_at), 'dd/MM/yyyy HH:mm')}
             </AlertDescription>
           </Alert>
@@ -111,7 +111,7 @@ export function SpesaDetailSheet({ spesa, open, onClose }: SpesaDetailSheetProps
         {spesa.stato === 'non_autorizzata' && (
           <Alert variant="destructive">
             <AlertDescription>
-              ❌ Rifiutata{spesa.approved_by_profile && ` da ${spesa.approved_by_profile.first_name}`}
+              Rifiutata{spesa.approved_by_profile && ` da ${spesa.approved_by_profile.first_name}`}
               {spesa.note_revisione && (
                 <>
                   <br />
