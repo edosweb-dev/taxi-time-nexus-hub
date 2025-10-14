@@ -102,8 +102,8 @@ export default function TurniPage() {
       <div className="space-y-6 p-4 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            🕐 I Miei Turni
+          <h1 className="text-3xl font-bold">
+            I Miei Turni
           </h1>
           <Button size="sm" className="gap-2" onClick={handleNewTurnoClick}>
             <Plus className="h-4 w-4" />
