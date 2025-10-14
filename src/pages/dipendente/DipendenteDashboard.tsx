@@ -75,22 +75,26 @@ export default function DipendenteDashboard() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-2 md:gap-4">
           {/* Card 1 - Servizi Oggi */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Servizi Oggi</CardTitle>
-              <Car className="h-4 w-4 text-muted-foreground" />
+          <Card className="border-primary/20 shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 pt-3 px-3 md:p-6 md:pb-2">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Car className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground mt-2">Servizi Oggi</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
               {isLoading ? (
-                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-6 md:h-8 w-16 md:w-24" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl md:text-2xl font-bold text-foreground">
                     {serviziCompletatiOggi}/{serviziTotaliOggi}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                     {serviziCompletatiOggi} completati
                   </p>
                 </>
@@ -99,20 +103,24 @@ export default function DipendenteDashboard() {
           </Card>
 
           {/* Card 2 - Statistiche Mese */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Statistiche Mese</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <Card className="border-secondary/20 shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 pt-3 px-3 md:p-6 md:pb-2">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                  <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-secondary" />
+                </div>
+              </div>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground mt-2">Statistiche Mese</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
               {isLoading ? (
-                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-6 md:h-8 w-20 md:w-32" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl md:text-2xl font-bold text-foreground">
                     {statisticheMese.data?.serviziCompletati || 0}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                     servizi | {statisticheMese.data?.kmTotali || 0} km
                   </p>
                 </>
@@ -122,27 +130,31 @@ export default function DipendenteDashboard() {
 
           {/* Card 3 - Ultimo Stipendio */}
           <Card 
-            className="cursor-pointer hover:bg-muted/50 transition-colors"
+            className="border-accent/20 shadow-sm hover:shadow-md transition-all cursor-pointer hover:border-accent/40"
             onClick={() => navigate('/dipendente/stipendi')}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ultimo Stipendio</CardTitle>
-              <Euro className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="pb-2 pt-3 px-3 md:p-6 md:pb-2">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                  <Euro className="h-4 w-4 md:h-5 md:w-5 text-accent" />
+                </div>
+              </div>
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground mt-2">Ultimo Stipendio</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
               {isLoading ? (
-                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-6 md:h-8 w-20 md:w-32" />
               ) : ultimoStipendio.data ? (
                 <>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl md:text-2xl font-bold text-foreground">
                     €{ultimoStipendio.data.totale_netto?.toFixed(2)}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                     {format(new Date(ultimoStipendio.data.anno, ultimoStipendio.data.mese - 1), 'MMMM yyyy', { locale: it })}
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground">Nessuno stipendio</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Nessuno stipendio</p>
               )}
             </CardContent>
           </Card>
