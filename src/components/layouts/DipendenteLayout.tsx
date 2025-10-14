@@ -22,7 +22,7 @@ export function DipendenteLayout({ children, title }: DipendenteLayoutProps) {
       <div className="min-h-screen flex flex-col">
         <ImpersonationBanner />
         <DipendenteHeader onMenuToggle={() => setSidebarOpen(true)} />
-        <main className="flex-1 pb-72 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 pb-20 overflow-y-auto overflow-x-hidden">
           <div className="p-4 md:p-6">
             {children}
           </div>

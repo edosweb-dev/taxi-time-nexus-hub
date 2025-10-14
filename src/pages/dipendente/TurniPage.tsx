@@ -133,7 +133,7 @@ export default function TurniPage() {
           ) : (
             <>
               {/* Header Section */}
-              <div className="w-full px-4 md:px-0 py-6">
+              <div className="w-full py-6">
                 <div className="flex items-center justify-between mb-2">
                   <h1 className="text-2xl font-bold">I Miei Turni</h1>
                   <Button size="sm" className="gap-2" onClick={handleNewTurnoClick}>
@@ -147,7 +147,7 @@ export default function TurniPage() {
               </div>
 
               {/* Content Section */}
-              <div className="w-full px-4 md:px-0 pb-32 md:pb-8 space-y-6">
+              <div className="w-full px-4 md:px-0 pb-0 md:pb-8 space-y-6">
                 {/* Month Navigation */}
                 <MonthNavigation
                   currentDate={currentDate}
