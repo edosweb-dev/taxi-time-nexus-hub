@@ -92,7 +92,8 @@ export function MobileHeader({
               <Button
                 variant="ghost"
                 className="
-                  w-9 h-9 rounded-full p-0 
+                  w-10 h-10 rounded-full p-0 
+                  flex items-center justify-center
                   text-primary-foreground hover:bg-primary-foreground/20 
                   active:scale-95 transition-all duration-200 
                   touch-manipulation
@@ -103,7 +104,7 @@ export function MobileHeader({
                   <AvatarFallback className="
                     bg-primary-foreground text-primary 
                     text-sm font-bold
-                    transition-colors duration-200
+                    flex items-center justify-center
                   ">
                     {getInitials()}
                   </AvatarFallback>
