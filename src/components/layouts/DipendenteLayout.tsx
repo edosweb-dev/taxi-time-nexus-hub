@@ -6,6 +6,7 @@ import { DipendenteHeader } from "@/components/dipendente/DipendenteHeader";
 import { DipendenteMobileNav } from "@/components/dipendente/DipendenteMobileNav";
 import { DipendenteMobileSidebar } from "@/components/dipendente/DipendenteMobileSidebar";
 import { DipendenteSidebar } from "@/components/dipendente/DipendenteSidebar";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 
 interface DipendenteLayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export function DipendenteLayout({ children, title }: DipendenteLayoutProps) {
   if (isMobile) {
     return (
       <div className="min-h-screen flex flex-col">
+        <ImpersonationBanner />
         <DipendenteHeader onMenuToggle={() => setSidebarOpen(true)} />
         <main className="flex-1 pb-20 overflow-y-auto">
           <div className="p-4 md:p-6">
@@ -33,13 +35,16 @@ export function DipendenteLayout({ children, title }: DipendenteLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <DipendenteSidebar />
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-6 md:p-8 max-w-7xl mx-auto">
-            {children}
-          </div>
-        </main>
+      <div className="flex min-h-screen w-full flex-col">
+        <ImpersonationBanner />
+        <div className="flex flex-1">
+          <DipendenteSidebar />
+          <main className="flex-1 overflow-y-auto">
+            <div className="p-6 md:p-8 max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </SidebarProvider>
   );
