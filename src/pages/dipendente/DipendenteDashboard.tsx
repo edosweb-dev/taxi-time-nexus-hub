@@ -305,7 +305,7 @@ export default function DipendenteDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           <Button 
             onClick={() => navigate('/dipendente/servizi-assegnati')}
             className="h-auto py-4 flex-col gap-2 min-h-[44px]"
