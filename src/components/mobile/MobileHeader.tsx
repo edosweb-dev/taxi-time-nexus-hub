@@ -84,54 +84,6 @@ export function MobileHeader({
             <Search className="w-4 h-4" />
           </Button>
         )}
-
-        {/* User Profile */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="
-                w-10 h-10 rounded-full p-0 
-                flex items-center justify-center
-                text-primary-foreground hover:bg-primary-foreground/20 
-                active:scale-95 transition-all duration-200 
-                touch-manipulation
-              "
-              aria-label="Menu utente"
-            >
-              <Avatar className="w-9 h-9 border-2 border-primary-foreground/20">
-                <AvatarFallback className="
-                  bg-primary-foreground text-primary 
-                  text-sm font-bold
-                  flex items-center justify-center
-                ">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="end" 
-            className="w-48 mt-2"
-            sideOffset={8}
-          >
-            <DropdownMenuItem 
-              onClick={() => navigate('/profile')}
-              className="cursor-pointer"
-            >
-              <User className="w-4 h-4 mr-2" />
-              Profilo e Impostazioni
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={signOut}
-              className="cursor-pointer text-destructive focus:text-destructive"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {/* Decorative bottom accent */}
