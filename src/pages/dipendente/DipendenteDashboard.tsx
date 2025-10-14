@@ -38,10 +38,9 @@ export default function DipendenteDashboard() {
     return '-';
   };
 
-  const handleShiftClick = (shift: any, day: Date) => {
-    toast.info(`Turno ${format(day, 'd MMMM', { locale: it })}`, {
-      description: `Orario: ${getShiftTimeDisplay(shift)}${shift.notes ? `\n${shift.notes}` : ''}`
-    });
+  const handleDayClick = (day: Date) => {
+    const dateParam = format(day, 'yyyy-MM-dd');
+    navigate(`/calendario-turni?date=${dateParam}&view=day`);
   };
 
   const serviziCompletatiOggi = (serviziOggi.data || []).filter(s => s.stato === 'completato').length;
@@ -260,11 +259,8 @@ export default function DipendenteDashboard() {
                   return (
                     <div 
                       key={day.toString()} 
-                      className={cn(
-                        "flex-shrink-0 w-20 text-center",
-                        shift && "cursor-pointer"
-                      )}
-                      onClick={() => shift && handleShiftClick(shift, day)}
+                      className="flex-shrink-0 w-20 text-center cursor-pointer group"
+                      onClick={() => handleDayClick(day)}
                     >
                       <p className={cn(
                         "text-xs font-medium mb-2",
@@ -276,8 +272,8 @@ export default function DipendenteDashboard() {
                         className={cn(
                           "w-12 h-12 rounded-full mx-auto mb-1 flex items-center justify-center transition-all",
                           shift 
-                            ? "ring-2 ring-offset-2 hover:scale-110" 
-                            : "bg-muted",
+                            ? "ring-2 ring-offset-2 group-hover:scale-110 group-hover:ring-primary" 
+                            : "bg-muted group-hover:bg-muted/80 group-hover:scale-105",
                           isToday && shift && "ring-primary"
                         )}
                         style={{ 

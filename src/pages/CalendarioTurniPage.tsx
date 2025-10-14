@@ -8,11 +8,32 @@ import { ChevronRight, Home, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLayout } from '@/contexts/LayoutContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSearchParams } from 'react-router-dom';
+import { parseISO, isValid } from 'date-fns';
 
 export default function CalendarioTurniPage() {
   const { profile } = useAuth();
   const { setPaddingMode } = useLayout();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+
+  // Parse URL parameters
+  const initialDate = React.useMemo(() => {
+    const dateParam = searchParams.get('date');
+    if (dateParam) {
+      const parsedDate = parseISO(dateParam);
+      return isValid(parsedDate) ? parsedDate : undefined;
+    }
+    return undefined;
+  }, [searchParams]);
+
+  const initialViewMode = React.useMemo(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam === 'day' || viewParam === 'week' || viewParam === 'month') {
+      return viewParam;
+    }
+    return undefined;
+  }, [searchParams]);
 
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
@@ -32,7 +53,11 @@ export default function CalendarioTurniPage() {
               <MobileCalendarioView isAdminOrSocio={isAdminOrSocio} />
             ) : (
               <>
-                <CalendarioTurniContent isAdminOrSocio={isAdminOrSocio} />
+                <CalendarioTurniContent 
+                  isAdminOrSocio={isAdminOrSocio} 
+                  initialDate={initialDate}
+                  initialViewMode={initialViewMode}
+                />
               </>
             )}
           </div>

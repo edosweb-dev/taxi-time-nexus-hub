@@ -34,19 +34,25 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CalendarioTurniContentProps {
   isAdminOrSocio: boolean;
+  initialDate?: Date;
+  initialViewMode?: 'month' | 'week' | 'day';
 }
 
 type ViewMode = 'month' | 'week' | 'day';
 
-export function CalendarioTurniContent({ isAdminOrSocio }: CalendarioTurniContentProps) {
+export function CalendarioTurniContent({ 
+  isAdminOrSocio,
+  initialDate,
+  initialViewMode
+}: CalendarioTurniContentProps) {
   const { users } = useUsers();
   const { shifts, isLoading, loadShifts, deleteShift } = useShifts();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
-  // State
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('month');
+  // State - Initialize with props if provided
+  const [currentDate, setCurrentDate] = useState(initialDate || new Date());
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode || 'month');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [addShiftDialogOpen, setAddShiftDialogOpen] = useState(false);
   const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
