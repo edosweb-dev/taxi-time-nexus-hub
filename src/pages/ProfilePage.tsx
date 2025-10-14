@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
+import { DipendenteLayout } from '@/components/layouts/DipendenteLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,167 +92,174 @@ export default function ProfilePage() {
     }
   };
 
-  return (
-    <MainLayout title="Il mio Profilo">
-      <div className="max-w-4xl mx-auto space-y-6 p-4 lg:p-6">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Il mio Profilo</h1>
-          <p className="text-muted-foreground">
-            Gestisci le informazioni del tuo account e le preferenze
-          </p>
-        </div>
+  // Determina quale layout usare in base al ruolo
+  const Layout = profile?.role === 'dipendente' ? DipendenteLayout : MainLayout;
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Informazioni Profilo */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Informazioni Profilo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Nome Completo</Label>
-                <div className="p-3 bg-muted rounded-md">
-                  <p className="text-sm">{fullName}</p>
+  const profileContent = (
+    <div className="max-w-4xl mx-auto space-y-6 p-4 lg:p-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-foreground">Il mio Profilo</h1>
+        <p className="text-muted-foreground">
+          Gestisci le informazioni del tuo account e le preferenze
+        </p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Informazioni Profilo */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Informazioni Profilo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Nome Completo</Label>
+              <div className="p-3 bg-muted rounded-md">
+                <p className="text-sm">{fullName}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Email</Label>
+              <div className="p-3 bg-muted rounded-md flex items-center gap-2">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm">{user?.email}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Ruolo</Label>
+              <div className="flex items-center gap-2">
+                <Badge variant={getRoleVariant(profile?.role || 'utente')}>
+                  {getRoleDisplayName(profile?.role || 'utente')}
+                </Badge>
+              </div>
+            </div>
+
+            <Separator />
+          </CardContent>
+        </Card>
+
+        {/* Sicurezza Account */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5" />
+              Sicurezza Account
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!isChangingPassword ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <h4 className="font-medium mb-2">Password</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Modifica la tua password per mantenere il tuo account sicuro.
+                  </p>
+                  <Button 
+                    onClick={() => setIsChangingPassword(true)}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Modifica Password
+                  </Button>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Email</Label>
-                <div className="p-3 bg-muted rounded-md flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm">{user?.email}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Ruolo</Label>
-                <div className="flex items-center gap-2">
-                  <Badge variant={getRoleVariant(profile?.role || 'utente')}>
-                    {getRoleDisplayName(profile?.role || 'utente')}
-                  </Badge>
-                </div>
-              </div>
-
-              <Separator />
-            </CardContent>
-          </Card>
-
-          {/* Sicurezza Account */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="h-5 w-5" />
-                Sicurezza Account
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!isChangingPassword ? (
-                <div className="space-y-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <h4 className="font-medium mb-2">Password</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Modifica la tua password per mantenere il tuo account sicuro.
-                    </p>
-                    <Button 
-                      onClick={() => setIsChangingPassword(true)}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <Settings className="h-4 w-4 mr-2" />
-                      Modifica Password
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handlePasswordChange} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="new-password">Nuova Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="new-password"
-                        type={showPasswords.new ? "text" : "password"}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Inserisci la nuova password"
-                        required
-                        minLength={6}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => togglePasswordVisibility('new')}
-                      >
-                        {showPasswords.new ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Conferma Nuova Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="confirm-password"
-                        type={showPasswords.confirm ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Conferma la nuova password"
-                        required
-                        minLength={6}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => togglePasswordVisibility('confirm')}
-                      >
-                        {showPasswords.confirm ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      type="submit"
-                      disabled={isLoading}
-                      className="flex-1"
-                    >
-                      {isLoading ? 'Salvando...' : 'Salva Password'}
-                    </Button>
+            ) : (
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">Nuova Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showPasswords.new ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Inserisci la nuova password"
+                      required
+                      minLength={6}
+                    />
                     <Button
                       type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setIsChangingPassword(false);
-                        setCurrentPassword('');
-                        setNewPassword('');
-                        setConfirmPassword('');
-                      }}
-                      disabled={isLoading}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => togglePasswordVisibility('new')}
                     >
-                      Annulla
+                      {showPasswords.new ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
-                </form>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Conferma Nuova Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      type={showPasswords.confirm ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Conferma la nuova password"
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => togglePasswordVisibility('confirm')}
+                    >
+                      {showPasswords.confirm ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1"
+                  >
+                    {isLoading ? 'Salvando...' : 'Salva Password'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsChangingPassword(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                    }}
+                    disabled={isLoading}
+                  >
+                    Annulla
+                  </Button>
+                </div>
+              </form>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </MainLayout>
+    </div>
+  );
+
+  return (
+    <Layout title="Il mio Profilo">
+      {profileContent}
+    </Layout>
   );
 }
