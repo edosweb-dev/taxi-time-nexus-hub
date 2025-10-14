@@ -162,7 +162,7 @@ export function TurnoForm({ defaultValues, onSubmit, onCancel, isLoading, submit
           name="tipo"
           render={({ field}) => (
             <FormItem className="space-y-3">
-              <FormLabel>🕐 Tipo Turno *</FormLabel>
+              <FormLabel>Tipo Turno *</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}

@@ -37,11 +37,8 @@ export function NuovoTurnoSheet({
   const content = (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div>
         <h2 className="text-lg font-semibold">Nuovo Turno</h2>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
       </div>
 
       {/* Form */}
