@@ -57,7 +57,7 @@ export function DipendenteMobileNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t pb-safe shadow-lg">
         <div className="flex items-center justify-around h-16">
           {navItems.map((item) => {
             const Icon = item.icon;

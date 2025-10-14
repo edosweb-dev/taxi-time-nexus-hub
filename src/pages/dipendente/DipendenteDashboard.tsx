@@ -50,23 +50,28 @@ export default function DipendenteDashboard() {
     <DipendenteLayout title="Dashboard">
       <div className="space-y-6">
         {/* Header Personalizzato */}
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl md:text-3xl font-bold">
-              Ciao, {profile?.first_name}!
-            </h1>
+        <div className="p-4 md:p-6 bg-gradient-to-r from-primary/5 via-background to-secondary/5 rounded-xl border border-border/30 shadow-sm backdrop-blur-sm -mx-4 md:-mx-6 mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="space-y-1 md:space-y-2">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
+                Ciao, {profile?.first_name}!
+              </h1>
+              <p className="text-sm md:text-base text-muted-foreground">
+                {format(new Date(), "EEEE d MMMM yyyy", { locale: it })}
+              </p>
+            </div>
+            
             {profile?.color && (
-              <Badge 
-                style={{ backgroundColor: profile.color }}
-                className="text-white hidden sm:inline-flex"
-              >
-                Dipendente
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge 
+                  style={{ backgroundColor: profile.color }}
+                  className="text-white text-xs md:text-sm px-3 py-1"
+                >
+                  Dipendente
+                </Badge>
+              </div>
             )}
           </div>
-          <p className="text-muted-foreground">
-            {format(new Date(), "EEEE d MMMM yyyy", { locale: it })}
-          </p>
         </div>
 
         {/* KPI Cards */}
@@ -305,7 +310,7 @@ export default function DipendenteDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:mb-0">
           <Button 
             onClick={() => navigate('/dipendente/servizi-assegnati')}
             className="h-auto py-4 flex-col gap-2 min-h-[44px]"
