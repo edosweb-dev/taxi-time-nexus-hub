@@ -22,7 +22,7 @@ export function SidebarFooterContent() {
     return (
       <div className="flex flex-col items-center space-y-2">
         <div className="relative">
-          <div className="w-10 h-10 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white shadow-lg flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-white backdrop-blur-sm border-2 border-white shadow-lg flex items-center justify-center">
             <span className="text-primary font-bold text-lg">
               {profile?.first_name?.[0] || 'U'}
             </span>
@@ -46,7 +46,7 @@ export function SidebarFooterContent() {
     <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/30 shadow-xl">
       <div className="flex items-center gap-3 mb-3">
         <div className="relative flex-shrink-0">
-          <div className="w-12 h-12 rounded-xl bg-white/95 backdrop-blur-sm border-2 border-white shadow-lg flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-white backdrop-blur-sm border-2 border-white shadow-lg flex items-center justify-center">
             <span className="text-primary font-bold text-xl">
               {profile?.first_name?.[0] || 'U'}{profile?.last_name?.[0] || ''}
             </span>
