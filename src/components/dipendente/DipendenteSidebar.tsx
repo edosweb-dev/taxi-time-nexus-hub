@@ -2,7 +2,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { Home, Calendar, Clock, DollarSign, Euro, User, MessageCircle, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { 
   Tooltip, 
@@ -21,14 +20,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 export function DipendenteSidebar() {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = useSidebar();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
+    await signOut();
   };
 
   const navItems = [

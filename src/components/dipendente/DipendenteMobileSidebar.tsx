@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Home, Calendar, Clock, DollarSign, Euro, User, MessageCircle, LogOut, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface DipendenteMobileSidebarProps {
   open: boolean;
@@ -13,19 +11,13 @@ interface DipendenteMobileSidebarProps {
 }
 
 export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSidebarProps) {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      navigate('/login');
-      onClose();
-    } catch (error) {
-      console.error('Error signing out:', error);
-      toast.error('Errore durante il logout');
-    }
+    await signOut();
+    onClose();
   };
 
   const menuSections = [
