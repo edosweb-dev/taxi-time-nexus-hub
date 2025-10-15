@@ -36,6 +36,8 @@ interface CalendarioTurniContentProps {
   isAdminOrSocio: boolean;
   initialDate?: Date;
   initialViewMode?: 'month' | 'week' | 'day';
+  filterUserId?: string;
+  showUserFilter?: boolean;
 }
 
 type ViewMode = 'month' | 'week' | 'day';
@@ -43,7 +45,9 @@ type ViewMode = 'month' | 'week' | 'day';
 export function CalendarioTurniContent({ 
   isAdminOrSocio,
   initialDate,
-  initialViewMode
+  initialViewMode,
+  filterUserId,
+  showUserFilter = true
 }: CalendarioTurniContentProps) {
   const { users } = useUsers();
   const { shifts, isLoading, loadShifts, deleteShift } = useShifts();
@@ -53,7 +57,9 @@ export function CalendarioTurniContent({
   // State - Initialize with props if provided
   const [currentDate, setCurrentDate] = useState(initialDate || new Date());
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode || 'month');
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>(
+    filterUserId ? [filterUserId] : []
+  );
   const [addShiftDialogOpen, setAddShiftDialogOpen] = useState(false);
   const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
   const [quickViewDialogOpen, setQuickViewDialogOpen] = useState(false);
@@ -393,37 +399,39 @@ export function CalendarioTurniContent({
 
               {/* Right side - Actions compatti */}
               <div className="flex items-center gap-2">
-                {/* User Filter compatto */}
-                <Select 
-                  value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
-                  onValueChange={(value) => {
-                    if (value === 'all') {
-                      setSelectedUsers([]);
-                    } else if (value === 'multiple') {
-                      // Keep current selection
-                    } else {
-                      setSelectedUsers([value]);
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-40 h-8 text-xs">
-                    <SelectValue placeholder="Filtra utente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutti</SelectItem>
-                    {employees.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: user.color || '#6B7280' }}
-                          />
-                          <span className="text-xs">{user.first_name} {user.last_name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {/* User Filter compatto - Solo se showUserFilter */}
+                {showUserFilter && (
+                  <Select 
+                    value={selectedUsers.length === 1 ? selectedUsers[0] : selectedUsers.length > 1 ? 'multiple' : 'all'} 
+                    onValueChange={(value) => {
+                      if (value === 'all') {
+                        setSelectedUsers([]);
+                      } else if (value === 'multiple') {
+                        // Keep current selection
+                      } else {
+                        setSelectedUsers([value]);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-40 h-8 text-xs">
+                      <SelectValue placeholder="Filtra utente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tutti</SelectItem>
+                      {employees.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-2 h-2 rounded-full"
+                              style={{ backgroundColor: user.color || '#6B7280' }}
+                            />
+                            <span className="text-xs">{user.first_name} {user.last_name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
 
                 {/* Action Buttons compatti */}
                 {isAdminOrSocio && (

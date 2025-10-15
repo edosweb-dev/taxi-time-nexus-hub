@@ -8,9 +8,10 @@ import { ShiftQuickViewDialog } from '@/components/shifts/dialogs/ShiftQuickView
 
 interface MobileCalendarioViewProps {
   isAdminOrSocio: boolean;
+  filterUserId?: string;
 }
 
-export function MobileCalendarioView({ isAdminOrSocio }: MobileCalendarioViewProps) {
+export function MobileCalendarioView({ isAdminOrSocio, filterUserId }: MobileCalendarioViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
   const [quickViewDialogOpen, setQuickViewDialogOpen] = useState(false);

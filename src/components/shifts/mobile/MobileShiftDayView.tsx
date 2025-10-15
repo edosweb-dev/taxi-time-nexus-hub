@@ -23,6 +23,7 @@ interface MobileShiftDayViewProps {
   onAddShift?: () => void;
   showAddButton?: boolean;
   showUserInfo?: boolean;
+  filterUserId?: string;
 }
 
 export function MobileShiftDayView({
@@ -33,16 +34,19 @@ export function MobileShiftDayView({
   onEditShift,
   onAddShift,
   showAddButton = true,
-  showUserInfo = false
+  showUserInfo = false,
+  filterUserId
 }: MobileShiftDayViewProps) {
   const [startX, setStartX] = useState(0);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const { users } = useUsers();
 
-  // Filter shifts for current day
+  // Filter shifts for current day and user (if filterUserId provided)
   const dayShifts = shifts.filter(shift => {
     const shiftDate = new Date(shift.shift_date);
-    return isSameDay(shiftDate, currentDate);
+    const matchesDate = isSameDay(shiftDate, currentDate);
+    const matchesUser = !filterUserId || shift.user_id === filterUserId;
+    return matchesDate && matchesUser;
   });
 
   const getUserInfo = (userId: string) => {

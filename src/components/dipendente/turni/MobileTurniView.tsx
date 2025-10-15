@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MobileShiftDayView } from '@/components/shifts/mobile/MobileShiftDayView';
 import { useTurniMese } from '@/hooks/dipendente/useTurniMese';
 import { Shift } from '@/lib/utils/turniHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileTurniViewProps {
   onNewTurno: () => void;
@@ -16,6 +17,8 @@ export function MobileTurniView({ onNewTurno, onTurnoClick }: MobileTurniViewPro
 
   const { data: turni = [], isLoading } = useTurniMese(year, month);
 
+  const { profile } = useAuth();
+  
   return (
     <MobileShiftDayView
       currentDate={currentDate}
@@ -26,6 +29,7 @@ export function MobileTurniView({ onNewTurno, onTurnoClick }: MobileTurniViewPro
       onAddShift={onNewTurno}
       showAddButton={true}
       showUserInfo={false}
+      filterUserId={profile?.id}
     />
   );
 }
