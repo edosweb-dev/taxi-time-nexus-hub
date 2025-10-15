@@ -84,9 +84,9 @@ export function MobileShiftDayView({
   };
 
   return (
-    <div className="mobile-calendario w-full px-0">
+    <div className="mobile-calendario w-full">
       {/* Header Mobile - Compatto */}
-      <div className="w-full mobile-calendario-header-compact px-0">
+      <div className="w-full mobile-calendario-header-compact px-4">
         <div className="header-controls-compact">
           <TouchOptimizer minSize="lg">
             <Button
@@ -173,7 +173,7 @@ export function MobileShiftDayView({
             ))}
           </div>
         ) : dayShifts.length > 0 ? (
-          <div className="space-y-3 p-4">
+          <div className="space-y-3 px-4 py-4">
             {dayShifts
               .sort((a, b) => {
                 if (a.start_time && b.start_time) {
@@ -190,49 +190,70 @@ export function MobileShiftDayView({
                 return (
                   <Card 
                     key={shift.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    className="w-full max-w-none cursor-pointer hover:shadow-md transition-shadow overflow-hidden"
                     onClick={() => onEditShift(shift)}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          {showUserInfo && user && (
-                            <div 
-                              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                              style={{ backgroundColor: user.color || '#6b7280' }}
-                            >
-                              {user.first_name?.[0]?.toUpperCase()}{user.last_name?.[0]?.toUpperCase()}
-                            </div>
-                          )}
-                          <Badge className={badge.className}>
-                            {badge.emoji} {badge.label}
-                          </Badge>
-                        </div>
-                        {duration > 0 && (
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {duration}h
-                          </span>
+                    <CardContent className="p-4 w-full">
+                      <div className="flex items-center gap-3 w-full">
+                        {/* Badge Colorato Iniziali */}
+                        {showUserInfo && user && (
+                          <div 
+                            className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold text-white shadow-md flex-shrink-0"
+                            style={{ backgroundColor: user.color || '#6b7280' }}
+                          >
+                            {user.first_name?.[0]?.toUpperCase()}{user.last_name?.[0]?.toUpperCase()}
+                          </div>
                         )}
+                        
+                        {/* Info Turno - Occupa Spazio Rimanente */}
+                        <div className="flex-1 min-w-0">
+                          {showUserInfo && user && (
+                            <p className="font-semibold truncate text-base">
+                              {user.first_name} {user.last_name}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
+                            {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time ? (
+                              <>
+                                <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                                <span className="truncate">{shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                                <span className="truncate">{badge.label}</span>
+                              </>
+                            )}
+                          </div>
+
+                          {shift.notes && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                              {shift.notes}
+                            </p>
+                          )}
+                        </div>
+                        
+                        {/* Badge Tipo Turno + Durata */}
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <Badge 
+                            variant="secondary"
+                            className="text-xs px-2 py-0.5"
+                          >
+                            {shift.shift_type === 'full_day' && 'TURNO'}
+                            {shift.shift_type === 'half_day' && 'MEZZA'}
+                            {shift.shift_type === 'specific_hours' && 'ORE'}
+                            {shift.shift_type === 'sick_leave' && 'MALATTIA'}
+                            {shift.shift_type === 'unavailable' && 'NON DISP'}
+                            {shift.shift_type === 'extra' && 'EXTRA'}
+                          </Badge>
+                          {duration > 0 && (
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {duration}h
+                            </span>
+                          )}
+                        </div>
                       </div>
-
-                      {showUserInfo && user && (
-                        <div className="text-sm font-medium mb-2">
-                          {user.first_name} {user.last_name}
-                        </div>
-                      )}
-
-                      {shift.shift_type === 'specific_hours' && shift.start_time && shift.end_time && (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                          <Clock className="w-3 h-3" />
-                          <span>{shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}</span>
-                        </div>
-                      )}
-
-                      {shift.notes && (
-                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                          {shift.notes}
-                        </p>
-                      )}
                     </CardContent>
                   </Card>
                 );
