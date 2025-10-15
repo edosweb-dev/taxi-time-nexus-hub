@@ -301,6 +301,24 @@ export default function ClientDashboardPage() {
               </Button>
             </div>
           </MobileCard>
+
+          <MobileCard 
+            interactive={true}
+            onClick={() => navigate('/dashboard-cliente/passeggeri')}
+          >
+            <div className={RESPONSIVE_SPACING.ELEMENT_VERTICAL}>
+              <Typography variant="h3">I Miei Passeggeri</Typography>
+              <Typography variant="caption">
+                Gestisci i contatti
+              </Typography>
+              <Typography variant="small" className="text-muted-foreground">
+                Visualizza e gestisci i passeggeri salvati per i tuoi servizi.
+              </Typography>
+              <Button variant="outline" className="w-full mt-4">
+                Gestisci Passeggeri
+              </Button>
+            </div>
+          </MobileCard>
         </ResponsiveGrid>
       </div>
     </MainLayout>

@@ -12,6 +12,7 @@ import Index from './pages/Index';
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ClientDashboardPage = lazy(() => import('./pages/cliente/ClientDashboardPage'));
 const ServiziClientePage = lazy(() => import('./pages/cliente/ServiziPage'));
+const PasseggeriCliente = lazy(() => import('./pages/cliente/PasseggeriCliente'));
 
 // Dipendente Pages
 const DipendenteDashboard = lazy(() => import('./pages/dipendente/DipendenteDashboard'));
@@ -94,6 +95,12 @@ function App() {
                   <Route path="/dashboard-cliente/servizi" element={
                     <AuthGuard allowedRoles={['cliente']}>
                       <ServiziClientePage />
+                    </AuthGuard>
+                  } />
+
+                  <Route path="/dashboard-cliente/passeggeri" element={
+                    <AuthGuard allowedRoles={['cliente']}>
+                      <PasseggeriCliente />
                     </AuthGuard>
                   } />
 
