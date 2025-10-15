@@ -24,7 +24,7 @@ export function UserMainInfoSection({ control, isEditing, userRole }: UserMainIn
   const showColorPicker = userRole && ['admin', 'socio', 'dipendente'].includes(userRole);
 
   return (
-    <Card className="border-l-4 border-l-primary">
+    <Card>
       <CardHeader className="pb-4">
         <CardTitle className="card-title flex items-center gap-2">
           <User className="h-5 w-5 text-primary" />

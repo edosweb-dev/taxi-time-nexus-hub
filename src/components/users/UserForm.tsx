@@ -11,6 +11,7 @@ import { Save, X } from 'lucide-react';
 import { UserMainInfoSection } from './form-sections/UserMainInfoSection';
 import { UserContactInfoSection } from './form-sections/UserContactInfoSection';
 import { UserAccountSection } from './form-sections/UserAccountSection';
+import { UserCompanySection } from './form-sections/UserCompanySection';
 
 interface UserFormProps {
   user?: Profile | null;
@@ -44,7 +45,8 @@ export function UserForm({
     role: z.enum(['admin', 'socio', 'dipendente', 'cliente'], {
       required_error: 'Seleziona un ruolo',
     }),
-    color: z.string().optional(), // Add color field
+    color: z.string().optional(),
+    azienda_id: z.string().optional(), // Azienda per clienti
     password: isEditing 
       ? z.string().optional().or(z.literal('')) // In modifica, password opzionale
       : z.string()
@@ -59,10 +61,11 @@ export function UserForm({
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
-      email: user?.id ? '' : '', // Per utenti esistenti, il campo email è vuoto in modifica
+      email: user?.id ? '' : '',
       telefono: user?.telefono || '',
       role: user?.role || defaultRole || 'cliente',
       color: user?.color || '',
+      azienda_id: user?.azienda_id || preselectedAzienda?.id || '',
       password: '',
     },
   });
@@ -119,9 +122,11 @@ export function UserForm({
         userData.password = values.password;
       }
       
-      // Se c'è un'azienda preselezionata, aggiungi l'ID azienda
+      // Se c'è un'azienda preselezionata o selezionata nel form, aggiungi l'ID azienda
       if (preselectedAzienda) {
         userData.azienda_id = preselectedAzienda.id;
+      } else if (values.azienda_id) {
+        userData.azienda_id = values.azienda_id;
       }
       
       console.log("User data being submitted (create mode):", userData);
@@ -153,6 +158,11 @@ export function UserForm({
           defaultRole={defaultRole}
           hiddenRoles={hiddenRoles}
         />
+
+        {/* Company Section - shown only for cliente role and when not preselected */}
+        {form.watch('role') === 'cliente' && !preselectedAzienda && (
+          <UserCompanySection control={form.control} />
+        )}
 
         {preselectedAzienda && (
           <div className="bg-muted/50 p-3 rounded-md border-l-4 border-l-primary">

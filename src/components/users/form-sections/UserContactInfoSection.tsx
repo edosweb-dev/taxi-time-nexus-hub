@@ -15,7 +15,7 @@ interface UserContactInfoSectionProps {
 
 export function UserContactInfoSection({ control, isEditing, userEmail }: UserContactInfoSectionProps) {
   return (
-    <Card className="border-l-4 border-l-blue-500">
+    <Card>
       <CardHeader className="pb-4">
         <CardTitle className="card-title flex items-center gap-2">
           <Mail className="h-5 w-5 text-blue-500" />

@@ -15,7 +15,7 @@ interface UserAccountSectionProps {
 
 export function UserAccountSection({ control, isEditing, defaultRole, hiddenRoles }: UserAccountSectionProps) {
   return (
-    <Card className="border-l-4 border-l-amber-500">
+    <Card>
       <CardHeader className="pb-4">
         <CardTitle className="card-title flex items-center gap-2">
           <Shield className="h-5 w-5 text-amber-500" />
