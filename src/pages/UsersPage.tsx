@@ -6,7 +6,7 @@ import { ChevronRight, Home, Search, Users, UserPlus } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Profile } from '@/lib/types';
+import { Profile, UserRole } from '@/lib/types';
 import { UserFormData } from '@/lib/api/users/types';
 import { toast } from '@/components/ui/use-toast';
 import { createUser, updateUser, resetUserPassword } from '@/lib/api/users';
@@ -29,8 +29,10 @@ export default function UsersPage() {
   const [activeTab, setActiveTab] = useState('tutti');
   const [resetPasswordUser, setResetPasswordUser] = useState<Profile | null>(null);
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
+  const [userContext, setUserContext] = useState<'utenti' | 'clienti'>('utenti');
   
-  const handleAddUser = () => {
+  const handleAddUser = (context: 'utenti' | 'clienti') => {
+    setUserContext(context);
     setSelectedUser(null);
     setIsSheetOpen(true);
   };
@@ -134,6 +136,22 @@ export default function UsersPage() {
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
+
+  const getSheetPropsForContext = () => {
+    if (userContext === 'clienti') {
+      return {
+        defaultRole: 'cliente' as UserRole,
+        hiddenRoles: ['admin', 'socio', 'dipendente'] as UserRole[],
+      };
+    } else {
+      return {
+        defaultRole: undefined,
+        hiddenRoles: ['cliente'] as UserRole[],
+      };
+    }
+  };
+
+  const sheetProps = getSheetPropsForContext();
 
   if (isMobile) {
     if (isLoading) {
@@ -260,7 +278,7 @@ export default function UsersPage() {
 
         {/* Floating Action Button */}
         <Button
-          onClick={handleAddUser}
+          onClick={() => handleAddUser('tutti' as any)}
           className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg touch-target z-40"
           size="icon"
         >
@@ -299,6 +317,8 @@ export default function UsersPage() {
           setIsSheetOpen={setIsSheetOpen}
           selectedUser={selectedUser}
           isSubmitting={isSubmitting}
+          sheetDefaultRole={sheetProps.defaultRole}
+          sheetHiddenRoles={sheetProps.hiddenRoles}
         />
 
         {resetPasswordUser && (

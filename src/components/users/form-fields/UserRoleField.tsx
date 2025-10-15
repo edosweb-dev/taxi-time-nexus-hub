@@ -29,10 +29,14 @@ export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRo
     { value: 'admin', label: 'Amministratore' },
     { value: 'socio', label: 'Socio' },
     { value: 'dipendente', label: 'Dipendente' },
+    { value: 'cliente', label: 'Cliente' },
   ];
 
   // Filtra i ruoli nascosti
   const visibleRoles = allRoles.filter(role => !hiddenRoles.includes(role.value));
+  
+  // Se il defaultRole è 'cliente', disabilita il campo
+  const isClienteFixed = defaultRole === 'cliente';
 
   return (
     <FormField
@@ -45,6 +49,7 @@ export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRo
             onValueChange={field.onChange} 
             defaultValue={field.value || defaultRole || 'cliente'}
             value={field.value}
+            disabled={isClienteFixed}
           >
             <FormControl>
               <SelectTrigger>
@@ -57,6 +62,11 @@ export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRo
               ))}
             </SelectContent>
           </Select>
+          {isClienteFixed && (
+            <p className="text-xs text-muted-foreground">
+              Il ruolo cliente è fisso per questo tipo di utente
+            </p>
+          )}
           <FormMessage />
         </FormItem>
       )}

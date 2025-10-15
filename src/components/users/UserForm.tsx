@@ -54,6 +54,15 @@ export function UserForm({
           .regex(/[A-Z]/, { message: 'La password deve contenere almeno una lettera maiuscola' })
           .regex(/[0-9]/, { message: 'La password deve contenere almeno un numero' })
           .optional(), // Opzionale anche in creazione - se non fornita, sarà generata
+  }).refine((data) => {
+    // Validazione condizionale: se ruolo è cliente e non c'è azienda preselezionata, azienda_id è obbligatoria
+    if (data.role === 'cliente' && !preselectedAzienda && !data.azienda_id) {
+      return false;
+    }
+    return true;
+  }, {
+    message: "Per i clienti è obbligatorio selezionare un'azienda",
+    path: ['azienda_id'],
   });
 
   const form = useForm<z.infer<typeof userFormSchema>>({
@@ -161,7 +170,7 @@ export function UserForm({
 
         {/* Company Section - shown only for cliente role and when not preselected */}
         {form.watch('role') === 'cliente' && !preselectedAzienda && (
-          <UserCompanySection control={form.control} />
+          <UserCompanySection control={form.control} required={true} />
         )}
 
         {preselectedAzienda && (

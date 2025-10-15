@@ -8,9 +8,10 @@ import { useAziende } from '@/hooks/useAziende';
 
 interface UserCompanySectionProps {
   control: Control<any>;
+  required?: boolean;
 }
 
-export function UserCompanySection({ control }: UserCompanySectionProps) {
+export function UserCompanySection({ control, required = false }: UserCompanySectionProps) {
   const { aziende, isLoading } = useAziende();
 
   return (
@@ -27,7 +28,10 @@ export function UserCompanySection({ control }: UserCompanySectionProps) {
           name="azienda_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Azienda</FormLabel>
+              <FormLabel>
+                Azienda
+                {required && <span className="text-destructive ml-1">*</span>}
+              </FormLabel>
               <Select 
                 onValueChange={field.onChange} 
                 value={field.value}

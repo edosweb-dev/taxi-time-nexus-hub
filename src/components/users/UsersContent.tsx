@@ -10,7 +10,7 @@ interface UsersContentProps {
   users: Profile[];
   onEdit: (user: Profile) => void;
   onDelete: (user: Profile) => void;
-  onAddUser: () => void;
+  onAddUser: (context: 'utenti' | 'clienti') => void;
   onResetPassword: (user: Profile) => void;
   onSubmit: (data: UserFormData) => Promise<void>;
   currentUserId: string;
@@ -19,6 +19,8 @@ interface UsersContentProps {
   setIsSheetOpen: (open: boolean) => void;
   selectedUser: Profile | null;
   isSubmitting: boolean;
+  sheetDefaultRole?: UserRole;
+  sheetHiddenRoles?: UserRole[];
 }
 
 export function UsersContent({
@@ -34,8 +36,11 @@ export function UsersContent({
   setIsSheetOpen,
   selectedUser,
   isSubmitting,
+  sheetDefaultRole,
+  sheetHiddenRoles,
 }: UsersContentProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
+  const [activeTab, setActiveTab] = useState<'utenti' | 'clienti'>('utenti');
 
   // Filter users by role
   const clienti = users.filter(user => user.role === 'cliente');
@@ -50,7 +55,12 @@ export function UsersContent({
     <div className="space-y-6">
       <UserStats users={users} />
 
-      <Tabs defaultValue="utenti" className="w-full">
+      <Tabs 
+        defaultValue="utenti" 
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as 'utenti' | 'clienti')}
+        className="w-full"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="utenti">Utenti</TabsTrigger>
           <TabsTrigger value="clienti">Clienti</TabsTrigger>
@@ -61,7 +71,7 @@ export function UsersContent({
             users={filteredUtenti}
             onEdit={onEdit}
             onDelete={onDelete}
-            onAddUser={onAddUser}
+            onAddUser={() => onAddUser('utenti')}
             onResetPassword={onResetPassword}
             currentUserId={currentUserId}
             title="Utenti"
@@ -78,7 +88,7 @@ export function UsersContent({
             users={clienti}
             onEdit={onEdit}
             onDelete={onDelete}
-            onAddUser={onAddUser}
+            onAddUser={() => onAddUser('clienti')}
             onResetPassword={onResetPassword}
             currentUserId={currentUserId}
             title="Clienti"
@@ -95,6 +105,8 @@ export function UsersContent({
         onSubmit={onSubmit}
         user={selectedUser}
         isSubmitting={isSubmitting}
+        defaultRole={sheetDefaultRole}
+        hiddenRoles={sheetHiddenRoles}
       />
     </div>
   );
