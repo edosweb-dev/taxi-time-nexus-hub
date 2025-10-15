@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
+import { ResetPasswordDialog } from '@/components/users/ResetPasswordDialog';
 
 export default function UsersPage() {
   const { users, isLoading, refetch, deleteUser, isDeleting } = useUsers();
@@ -26,6 +27,8 @@ export default function UsersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('tutti');
+  const [resetPasswordUser, setResetPasswordUser] = useState<Profile | null>(null);
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
   
   const handleAddUser = () => {
     setSelectedUser(null);
@@ -50,39 +53,8 @@ export default function UsersPage() {
   };
 
   const handleResetPassword = async (user: Profile) => {
-    if (!user.email) {
-      toast({
-        title: "Errore",
-        description: "Email non disponibile per questo utente.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (confirm(`Sei sicuro di voler inviare un'email di reset password a ${user.email}?`)) {
-      try {
-        const { success, error } = await resetUserPassword(user.email);
-        
-        if (success) {
-          toast({
-            title: "Email inviata",
-            description: `Un'email di reset password è stata inviata a ${user.email}.`,
-          });
-        } else {
-          toast({
-            title: "Errore",
-            description: error?.message || "Si è verificato un errore durante l'invio dell'email.",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        toast({
-          title: "Errore",
-          description: "Si è verificato un errore durante l'invio dell'email di reset.",
-          variant: "destructive",
-        });
-      }
-    }
+    setResetPasswordUser(user);
+    setIsResetPasswordDialogOpen(true);
   };
 
   const handleSubmit = async (data: UserFormData) => {
@@ -328,6 +300,17 @@ export default function UsersPage() {
           selectedUser={selectedUser}
           isSubmitting={isSubmitting}
         />
+
+        {resetPasswordUser && (
+          <ResetPasswordDialog
+            open={isResetPasswordDialogOpen}
+            onOpenChange={setIsResetPasswordDialogOpen}
+            user={resetPasswordUser}
+            onSuccess={() => {
+              refetch();
+            }}
+          />
+        )}
       </div>
     </MainLayout>
   );

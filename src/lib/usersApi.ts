@@ -7,6 +7,7 @@ export {
   updateUser,
   deleteUser,
   resetUserPassword,
+  updateUserPasswordDirect,
   backupAndDeleteUser,
   getUserBackups,
   getUserBackupById,

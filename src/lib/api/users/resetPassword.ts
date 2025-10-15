@@ -21,3 +21,39 @@ export async function resetUserPassword(email: string): Promise<{ success: boole
     return { success: false, error };
   }
 }
+
+// Direct password reset via edge function
+export async function updateUserPasswordDirect(
+  userId: string, 
+  newPassword: string
+): Promise<{ success: boolean; error: any }> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      return { success: false, error: { message: 'Non autenticato' } };
+    }
+
+    const response = await fetch(
+      `https://iczxhmzwjopfdvbxwzjs.supabase.co/functions/v1/update-user-password`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ userId, newPassword }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { success: false, error: { message: errorData.error } };
+    }
+
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error('[updateUserPasswordDirect] Error:', error);
+    return { success: false, error };
+  }
+}
