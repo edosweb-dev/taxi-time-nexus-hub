@@ -11,6 +11,7 @@ import Index from './pages/Index';
 // Lazy load components for better performance
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ClientDashboardPage = lazy(() => import('./pages/cliente/ClientDashboardPage'));
+const ServiziClientePage = lazy(() => import('./pages/cliente/ServiziPage'));
 
 // Dipendente Pages
 const DipendenteDashboard = lazy(() => import('./pages/dipendente/DipendenteDashboard'));
@@ -87,6 +88,12 @@ function App() {
                   <Route path="/dashboard-cliente" element={
                     <AuthGuard allowedRoles={['cliente']}>
                       <ClientDashboardPage />
+                    </AuthGuard>
+                  } />
+
+                  <Route path="/dashboard-cliente/servizi" element={
+                    <AuthGuard allowedRoles={['cliente']}>
+                      <ServiziClientePage />
                     </AuthGuard>
                   } />
 
