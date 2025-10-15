@@ -3,21 +3,33 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shift } from '@/lib/utils/turniHelpers';
 
-export function useTurniMese(year: number, month: number) {
+export function useTurniMese(year: number, month: number, filterUserId?: string) {
   const { profile } = useAuth();
+  const userId = filterUserId || profile?.id;
 
   return useQuery({
-    queryKey: ['turni-mese', profile?.id, year, month],
+    queryKey: ['turni-mese', userId, year, month],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!userId) return [];
 
-      const { data, error } = await supabase
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+      const endDate = `${year}-${String(month).padStart(2, '0')}-31`;
+
+      let query = supabase
         .from('shifts')
         .select('*')
-        .eq('user_id', profile.id)
-        .gte('shift_date', `${year}-${String(month).padStart(2, '0')}-01`)
-        .lte('shift_date', `${year}-${String(month).padStart(2, '0')}-31`)
-        .order('shift_date', { ascending: true });
+        .gte('shift_date', startDate)
+        .lte('shift_date', endDate);
+
+      // Filter by user if specified
+      if (filterUserId) {
+        query = query.eq('user_id', filterUserId);
+      } else if (profile?.id) {
+        // Default: filter by current user for dipendente
+        query = query.eq('user_id', profile.id);
+      }
+
+      const { data, error } = await query.order('shift_date', { ascending: true });
 
       if (error) {
         console.error('Error fetching turni:', error);
@@ -26,7 +38,7 @@ export function useTurniMese(year: number, month: number) {
 
       return (data || []) as Shift[];
     },
-    enabled: !!profile?.id,
+    enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
     refetchInterval: 10 * 60 * 1000, // 10 minutes
