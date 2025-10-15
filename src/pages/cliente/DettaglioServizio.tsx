@@ -102,77 +102,81 @@ const DettaglioServizio = () => {
         </div>
 
         {/* Layout a Blocchi */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {/* ROW 1 COL 1: Informazioni Servizio */}
           <Card>
-            <CardHeader>
-              <CardTitle>Informazioni Servizio</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Informazioni Servizio</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {/* Data | Ora */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div>
+                  <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">Data</p>
-                    <p className="font-medium text-sm">
-                      {new Date(servizio.data_servizio).toLocaleDateString("it-IT")}
+                    <p className="font-medium text-sm truncate">
+                      {new Date(servizio.data_servizio).toLocaleDateString("it-IT", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
+                  <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">Ora</p>
-                    <p className="font-medium text-sm">{servizio.orario_servizio}</p>
+                    <p className="font-medium text-sm truncate">{servizio.orario_servizio}</p>
                   </div>
                 </div>
               </div>
 
-              <Separator />
+              <Separator className="my-2" />
 
-              {/* Partenza | Destinazione */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground mb-1">Partenza</p>
-                    <p className="font-medium text-sm break-words">
-                      {servizio.indirizzo_presa}
-                      {servizio.citta_presa && `, ${servizio.citta_presa}`}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-red-600 mt-1 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground mb-1">Destinazione</p>
-                    <p className="font-medium text-sm break-words">
-                      {servizio.indirizzo_destinazione}
-                      {servizio.citta_destinazione && `, ${servizio.citta_destinazione}`}
-                    </p>
-                  </div>
+              {/* Partenza */}
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground mb-0.5">Partenza</p>
+                  <p className="font-medium text-sm break-words leading-tight">
+                    {servizio.indirizzo_presa}
+                    {servizio.citta_presa && <span className="text-muted-foreground">, {servizio.citta_presa}</span>}
+                  </p>
                 </div>
               </div>
 
-              <Separator />
+              {/* Destinazione */}
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-red-600 mt-1 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground mb-0.5">Destinazione</p>
+                  <p className="font-medium text-sm break-words leading-tight">
+                    {servizio.indirizzo_destinazione}
+                    {servizio.citta_destinazione && <span className="text-muted-foreground">, {servizio.citta_destinazione}</span>}
+                  </p>
+                </div>
+              </div>
+
+              <Separator className="my-2" />
 
               {/* Modalità di Pagamento | Importo */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-muted-foreground" />
-                  <div>
+                  <CreditCard className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">Pagamento</p>
-                    <p className="font-medium text-sm capitalize">{servizio.metodo_pagamento}</p>
+                    <p className="font-medium text-sm capitalize truncate">{servizio.metodo_pagamento}</p>
                   </div>
                 </div>
-                {servizio.incasso_previsto && (
+                {(servizio.incasso_previsto || servizio.incasso_ricevuto) && (
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <div>
+                    <DollarSign className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
                       <p className="text-xs text-muted-foreground">Importo</p>
-                      <p className="font-medium text-sm">
-                        € {Number(servizio.incasso_previsto).toFixed(2)}
+                      <p className="font-medium text-sm truncate">
+                        € {Number(servizio.incasso_ricevuto || servizio.incasso_previsto).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -182,12 +186,12 @@ const DettaglioServizio = () => {
               {/* Numero Commessa se presente */}
               {servizio.numero_commessa && (
                 <>
-                  <Separator />
+                  <Separator className="my-2" />
                   <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                    <div>
+                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
                       <p className="text-xs text-muted-foreground">Numero Commessa</p>
-                      <p className="font-medium text-sm font-mono">{servizio.numero_commessa}</p>
+                      <p className="font-medium text-sm font-mono truncate">{servizio.numero_commessa}</p>
                     </div>
                   </div>
                 </>
@@ -198,55 +202,71 @@ const DettaglioServizio = () => {
 
           {/* ROW 1 COL 2: Passeggeri */}
           <Card>
-            <CardHeader>
-              <CardTitle>
-                Passeggeri ({servizio.servizi_passeggeri?.length || 0})
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">
+                Passeggeri {servizio.servizi_passeggeri?.length ? `(${servizio.servizi_passeggeri.length})` : ""}
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {(() => {
+                console.log("[DettaglioServizio] Passeggeri data:", servizio.servizi_passeggeri);
+                return null;
+              })()}
+              
               {servizio.servizi_passeggeri && servizio.servizi_passeggeri.length > 0 ? (
-                <div className="space-y-3">
-                  {servizio.servizi_passeggeri.map((sp: any) => (
-                    <div
-                      key={sp.id}
-                      className="p-3 border rounded-lg hover:bg-accent/50 transition-colors"
-                    >
-                      <div className="flex items-start gap-2">
-                        <User className="h-4 w-4 text-muted-foreground mt-0.5" />
-                        <div className="flex-1 space-y-1">
-                          <p className="font-medium text-sm">{sp.passeggeri?.nome_cognome}</p>
-                          {sp.passeggeri?.email && (
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <Mail className="h-3 w-3" />
-                              <span>{sp.passeggeri.email}</span>
-                            </div>
-                          )}
-                          {sp.passeggeri?.telefono && (
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <Phone className="h-3 w-3" />
-                              <span>{sp.passeggeri.telefono}</span>
-                            </div>
-                          )}
-                          {(sp.passeggeri?.localita || sp.passeggeri?.indirizzo) && (
-                            <div className="flex items-start gap-1.5 text-xs text-muted-foreground pt-1 border-t mt-2">
-                              <MapPin className="h-3 w-3 mt-0.5" />
-                              <div>
-                                {sp.passeggeri.localita && (
-                                  <p className="font-medium">{sp.passeggeri.localita}</p>
-                                )}
-                                {sp.passeggeri.indirizzo && <p>{sp.passeggeri.indirizzo}</p>}
+                <div className="space-y-2">
+                  {servizio.servizi_passeggeri.map((sp: any, index: number) => {
+                    console.log(`[DettaglioServizio] Passeggero ${index}:`, sp);
+                    const passeggero = sp.passeggeri;
+                    
+                    return (
+                      <div
+                        key={sp.id}
+                        className="p-3 border rounded-lg hover:bg-accent/30 transition-colors"
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <User className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="flex-1 space-y-1.5 min-w-0">
+                            <p className="font-semibold text-sm">
+                              {passeggero?.nome_cognome || "Nome non disponibile"}
+                            </p>
+                            {passeggero?.email && (
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Mail className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">{passeggero.email}</span>
                               </div>
-                            </div>
-                          )}
+                            )}
+                            {passeggero?.telefono && (
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Phone className="h-3 w-3 flex-shrink-0" />
+                                <span>{passeggero.telefono}</span>
+                              </div>
+                            )}
+                            {(passeggero?.localita || passeggero?.indirizzo) && (
+                              <div className="flex items-start gap-1.5 text-xs text-muted-foreground pt-1.5 mt-1.5 border-t">
+                                <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                                <div className="min-w-0">
+                                  {passeggero.indirizzo && (
+                                    <p className="break-words">{passeggero.indirizzo}</p>
+                                  )}
+                                  {passeggero.localita && (
+                                    <p className="font-medium">{passeggero.localita}</p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <User className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                  <p className="text-sm">Nessun passeggero associato a questo servizio</p>
+                <div className="text-center py-6 text-muted-foreground">
+                  <User className="h-10 w-10 mx-auto mb-2 opacity-20" />
+                  <p className="text-sm">Nessun passeggero associato</p>
                 </div>
               )}
             </CardContent>
@@ -254,36 +274,36 @@ const DettaglioServizio = () => {
 
           {/* ROW 2 COL 1: Conducente Assegnato */}
           <Card>
-            <CardHeader>
-              <CardTitle>Conducente Assegnato</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Conducente Assegnato</CardTitle>
             </CardHeader>
             <CardContent>
               {servizio.conducente ? (
                 <div className="flex items-start gap-3">
-                  <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                    <UserCircle className="h-6 w-6" />
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <UserCircle className="h-5 w-5 text-primary" />
                   </div>
-                  <div className="flex-1 space-y-2">
-                    <p className="font-medium">
+                  <div className="flex-1 space-y-1.5 min-w-0">
+                    <p className="font-semibold">
                       {servizio.conducente.first_name} {servizio.conducente.last_name}
                     </p>
                     {servizio.conducente.email && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Mail className="h-3 w-3" />
-                        <span>{servizio.conducente.email}</span>
+                        <Mail className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{servizio.conducente.email}</span>
                       </div>
                     )}
                     {servizio.conducente.telefono && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3" />
+                        <Phone className="h-3 w-3 flex-shrink-0" />
                         <span>{servizio.conducente.telefono}</span>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <UserCircle className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                <div className="text-center py-6 text-muted-foreground">
+                  <UserCircle className="h-10 w-10 mx-auto mb-2 opacity-20" />
                   <p className="text-sm">Nessun conducente assegnato</p>
                 </div>
               )}
@@ -292,12 +312,12 @@ const DettaglioServizio = () => {
 
           {/* ROW 2 COL 2: Documenti */}
           <Card>
-            <CardHeader>
-              <CardTitle>Documenti</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Documenti</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <div className="text-center py-6 text-muted-foreground">
+                <FileText className="h-10 w-10 mx-auto mb-2 opacity-20" />
                 <p className="text-sm">Nessun documento disponibile</p>
               </div>
             </CardContent>
@@ -305,18 +325,18 @@ const DettaglioServizio = () => {
 
           {/* ROW 3: Note (full width) */}
           <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Note</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Note</CardTitle>
             </CardHeader>
             <CardContent>
               {servizio.note ? (
                 <div className="flex items-start gap-3">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <p className="text-sm whitespace-pre-wrap break-words">{servizio.note}</p>
+                  <MessageSquare className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{servizio.note}</p>
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                <div className="text-center py-6 text-muted-foreground">
+                  <MessageSquare className="h-10 w-10 mx-auto mb-2 opacity-20" />
                   <p className="text-sm">Nessuna nota disponibile</p>
                 </div>
               )}
