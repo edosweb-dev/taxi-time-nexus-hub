@@ -29,6 +29,7 @@ const ImpostazioniPage = lazy(() => import('./pages/ImpostazioniPage'));
 const ServiziPage = lazy(() => import('./pages/servizi/ServiziPage'));
 const ServizioCreaPage = lazy(() => import('./pages/servizi/ServizioCreaPage').then(module => ({ default: module.ServizioCreaPage })));
 const NuovoServizioPage = lazy(() => import('./pages/servizi/NuovoServizioPage'));
+const NuovoServizioClientePage = lazy(() => import('./pages/cliente/NuovoServizioPage'));
 const ServizioDetailPage = lazy(() => import('./pages/servizi/ServizioDetailPage'));
 const EditServizioPage = lazy(() => import('./pages/servizi/EditServizioPage'));
 const ModificaServizioPage = lazy(() => import('./pages/servizi/ModificaServizioPage'));
@@ -120,7 +121,7 @@ function App() {
 
                   <Route path="/dashboard-cliente/nuovo-servizio" element={
                     <AuthGuard allowedRoles={['cliente']}>
-                      <NuovoServizioPage />
+                      <NuovoServizioClientePage />
                     </AuthGuard>
                   } />
 
