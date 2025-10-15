@@ -79,7 +79,7 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
       {/* Header giorni della settimana - Fixed */}
       <div className="flex-shrink-0 grid grid-cols-7 border-b bg-muted/30 sticky top-0 z-10">
         {weekdays.map((day) => (
-          <div key={day} className="py-3 px-3 text-center font-semibold text-sm text-foreground/80 border-r last:border-r-0 bg-muted/30">
+          <div key={day} className="py-4 px-4 text-center font-semibold text-base text-foreground/80 border-r last:border-r-0 bg-muted/30">
             {day}
           </div>
         ))}
@@ -99,9 +99,9 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                 <div
                   key={date.toISOString()}
                   className={`
-                    group relative p-3 border-r border-b cursor-pointer 
+                    group relative p-4 border-r border-b cursor-pointer 
                     transition-all duration-200 ease-in-out hover:bg-accent/50 hover:shadow-sm
-                    h-full flex flex-col min-h-[100px]
+                    h-full flex flex-col min-h-[120px]
                     ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground hover:bg-muted/30' : 'bg-background'}
                     ${isTodayDate ? 'bg-primary/8 border-primary/30' : ''}
                     ${isWeekend && isCurrentMonth ? 'bg-muted/8' : ''}
@@ -109,24 +109,24 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                   onClick={() => onCreateShift(date)}
                 >
                   {/* Numero del giorno */}
-                  <div className="flex items-center justify-between mb-3 flex-shrink-0">
+                  <div className="flex items-center justify-between mb-4 flex-shrink-0">
                     <div className={`
-                      text-sm font-medium transition-all duration-200 w-7 h-7 flex items-center justify-center rounded-lg
-                      ${isTodayDate ? 'bg-primary text-primary-foreground font-semibold shadow-md' : 'hover:bg-accent/50'}
+                      text-base font-semibold transition-all duration-200 w-8 h-8 flex items-center justify-center rounded-lg
+                      ${isTodayDate ? 'bg-primary text-primary-foreground font-bold shadow-md' : 'hover:bg-accent/50'}
                     `}>
                       {format(date, 'd')}
                     </div>
                     
                     {isCurrentMonth && (
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Plus className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                        <Plus className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
                       </div>
                     )}
                   </div>
 
                   {/* Turni del giorno */}
                   <div className="flex-1 min-h-0">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1.5">
                       {dayShifts.slice(0, 8).map((shift) => {
                         const user = getUserInfo(shift.user_id);
                         const userColor = user?.color || '#6B7280';
@@ -141,8 +141,8 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                             }}
                           >
                             <div
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer 
-                                       transition-all duration-200 hover:scale-110 hover:shadow-md border border-white/30"
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer 
+                                       transition-all duration-200 hover:scale-110 hover:shadow-lg border-2 border-white/50"
                               style={{ 
                                 backgroundColor: userColor,
                                 color: 'white'
@@ -157,7 +157,7 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                       
                       {/* Contatore per turni extra */}
                       {dayShifts.length > 8 && (
-                        <div className="w-6 h-6 rounded-full bg-muted text-muted-foreground text-xs font-bold flex items-center justify-center border border-border">
+                        <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground text-xs font-bold flex items-center justify-center border-2 border-border">
                           +{dayShifts.length - 8}
                         </div>
                       )}

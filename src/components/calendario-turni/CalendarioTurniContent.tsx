@@ -214,7 +214,7 @@ export function CalendarioTurniContent({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       {/* Inserimento Massivo Dialog */}
       {inserimentoMassivoOpen && (
         <InserimentoMassivoDialog 
@@ -229,7 +229,7 @@ export function CalendarioTurniContent({
       <div className="flex flex-col min-h-0 flex-1">
         <div className="flex-1 flex flex-col overflow-hidden bg-background rounded-xl border border-border/50 shadow-sm min-h-0">
           {/* Header Controls compatto */}
-          <div className="border-b bg-background/95 backdrop-blur-sm px-4 py-3 flex-shrink-0">
+          <div className="border-b bg-background/95 backdrop-blur-sm px-6 py-4 flex-shrink-0">
             {/* Mobile Layout - Ottimizzato */}
             <div className="block lg:hidden space-y-3">
               {/* Top row - Navigation moderno */}
@@ -351,7 +351,7 @@ export function CalendarioTurniContent({
               </div>
             </div>
 
-            {/* Desktop Layout compatto */}
+            {/* Desktop Layout compatto - ALLINEATO A SINISTRA */}
             <div className="hidden lg:flex items-center justify-between">
               {/* Left side - Navigation e periodo */}
               <div className="flex items-center gap-4">
@@ -361,16 +361,16 @@ export function CalendarioTurniContent({
                     variant="ghost"
                     size="sm"
                     onClick={navigatePrevious}
-                    className="h-8 w-8 p-0"
+                    className="h-9 w-9 p-0"
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-5 w-5" />
                   </Button>
                   
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={goToToday}
-                    className="text-xs px-2 h-8"
+                    className="text-sm px-3 h-9 font-medium"
                   >
                     Oggi
                   </Button>
@@ -379,14 +379,14 @@ export function CalendarioTurniContent({
                     variant="ghost"
                     size="sm"
                     onClick={navigateNext}
-                    className="h-8 w-8 p-0"
+                    className="h-9 w-9 p-0"
                   >
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-5 w-5" />
                   </Button>
                 </div>
 
                 {/* Period title compatto */}
-                <h2 className="font-semibold text-lg text-foreground">
+                <h2 className="font-semibold text-xl text-foreground capitalize">
                   {formatPeriod()}
                 </h2>
 
@@ -413,7 +413,7 @@ export function CalendarioTurniContent({
                       }
                     }}
                   >
-                    <SelectTrigger className="w-40 h-8 text-xs">
+                    <SelectTrigger className="w-48 h-9">
                       <SelectValue placeholder="Filtra utente" />
                     </SelectTrigger>
                     <SelectContent>
@@ -422,10 +422,10 @@ export function CalendarioTurniContent({
                         <SelectItem key={user.id} value={user.id}>
                           <div className="flex items-center gap-2">
                             <div 
-                              className="w-2 h-2 rounded-full"
+                              className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: user.color || '#6B7280' }}
                             />
-                            <span className="text-xs">{user.first_name} {user.last_name}</span>
+                            <span>{user.first_name} {user.last_name}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -440,9 +440,9 @@ export function CalendarioTurniContent({
                       variant="outline"
                       size="sm" 
                       onClick={() => navigate('/report')} 
-                      className="h-8 px-2 text-xs"
+                      className="h-9 px-3 gap-2"
                     >
-                      <BarChart3 className="h-3 w-3 mr-1" />
+                      <BarChart3 className="h-4 w-4" />
                       Report
                     </Button>
                     
@@ -450,18 +450,18 @@ export function CalendarioTurniContent({
                       variant="outline"
                       size="sm" 
                       onClick={handleOpenInserimentoMassivo} 
-                      className="h-8 px-2 text-xs"
+                      className="h-9 px-3 gap-2"
                     >
-                      <Users className="h-3 w-3 mr-1" />
-                       Inserimento massivo
+                      <Users className="h-4 w-4" />
+                      Inserimento massivo
                     </Button>
                     
                     <Button 
                       size="sm" 
                       onClick={() => handleCreateShift(currentDate)} 
-                      className="h-8 px-3 text-xs"
+                      className="h-9 px-4 gap-2"
                     >
-                      <Plus className="h-3 w-3 mr-1" />
+                      <Plus className="h-4 w-4" />
                       Nuovo
                     </Button>
                   </>
@@ -471,8 +471,8 @@ export function CalendarioTurniContent({
 
           </div>
 
-          {/* Calendar Content - Full height */}
-          <div className="flex-1 overflow-auto min-h-[600px]">
+          {/* Calendar Content - Full height con padding laterale ottimizzato */}
+          <div className="flex-1 overflow-auto min-h-[600px] px-6 py-4">
             <CalendarioView
               viewMode={viewMode}
               currentDate={currentDate}
