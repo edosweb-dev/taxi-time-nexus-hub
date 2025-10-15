@@ -197,6 +197,33 @@ const DettaglioServizio = () => {
                 </>
               )}
 
+              {/* Conducente Assegnato */}
+              <Separator className="my-2" />
+              {servizio.conducente ? (
+                <div className="flex items-start gap-2">
+                  <UserCircle className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground mb-0.5">Conducente</p>
+                    <p className="font-medium text-sm">
+                      {servizio.conducente.first_name} {servizio.conducente.last_name}
+                    </p>
+                    {servizio.conducente.telefono && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {servizio.conducente.telefono}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start gap-2">
+                  <UserCircle className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground mb-0.5">Conducente</p>
+                    <p className="text-sm text-muted-foreground italic">Non assegnato</p>
+                  </div>
+                </div>
+              )}
+
             </CardContent>
           </Card>
 
@@ -272,46 +299,8 @@ const DettaglioServizio = () => {
             </CardContent>
           </Card>
 
-          {/* ROW 2 COL 1: Conducente Assegnato */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Conducente Assegnato</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {servizio.conducente ? (
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <UserCircle className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 space-y-1.5 min-w-0">
-                    <p className="font-semibold">
-                      {servizio.conducente.first_name} {servizio.conducente.last_name}
-                    </p>
-                    {servizio.conducente.email && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Mail className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{servizio.conducente.email}</span>
-                      </div>
-                    )}
-                    {servizio.conducente.telefono && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        <span>{servizio.conducente.telefono}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  <UserCircle className="h-10 w-10 mx-auto mb-2 opacity-20" />
-                  <p className="text-sm">Nessun conducente assegnato</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* ROW 2 COL 2: Documenti */}
-          <Card>
+          {/* ROW 2: Documenti (full width) */}
+          <Card className="lg:col-span-2">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Documenti</CardTitle>
             </CardHeader>
