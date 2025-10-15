@@ -7,6 +7,8 @@ import { DipendenteMobileNav } from "@/components/dipendente/DipendenteMobileNav
 import { DipendenteMobileSidebar } from "@/components/dipendente/DipendenteMobileSidebar";
 import { DipendenteSidebar } from "@/components/dipendente/DipendenteSidebar";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
+import { useLayout } from "@/contexts/LayoutContext";
+import { cn } from "@/lib/utils";
 
 interface DipendenteLayoutProps {
   children: React.ReactNode;
@@ -15,6 +17,7 @@ interface DipendenteLayoutProps {
 
 export function DipendenteLayout({ children, title }: DipendenteLayoutProps) {
   const isMobile = useIsMobile();
+  const { paddingMode } = useLayout();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (isMobile) {
@@ -23,7 +26,9 @@ export function DipendenteLayout({ children, title }: DipendenteLayoutProps) {
         <ImpersonationBanner />
         <DipendenteHeader onMenuToggle={() => setSidebarOpen(true)} />
         <main className="flex-1 pb-20 overflow-y-auto overflow-x-hidden">
-          <div className="p-4 md:p-6">
+          <div className={cn(
+            paddingMode === 'full-width' ? 'p-0' : 'p-4 md:p-6'
+          )}>
             {children}
           </div>
         </main>

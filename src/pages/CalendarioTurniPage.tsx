@@ -9,6 +9,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSearchParams } from 'react-router-dom';
 import { parseISO, isValid } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface CalendarioTurniPageProps {
   filterUserId?: string;
@@ -54,9 +55,12 @@ export default function CalendarioTurniPage({
   }, [isMobile, setPaddingMode]);
 
   const content = (
-    <div className="w-full px-0 md:px-4">
+    <div className="w-full">
       <ShiftProvider>
-        <div className="flex flex-col items-start w-full">
+        <div className={cn(
+          "flex flex-col w-full",
+          !isMobile && "px-4"
+        )}>
           {isMobile ? (
             <MobileCalendarioView 
               isAdminOrSocio={isAdminOrSocio} 
