@@ -46,6 +46,9 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
           ),
           servizi_passeggeri (
             id,
+            orario_presa_personalizzato,
+            luogo_presa_personalizzato,
+            destinazione_personalizzato,
             passeggeri (
               id,
               nome_cognome,
