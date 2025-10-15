@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText, ArrowLeft, MapPin, Calendar, Clock, User, CreditCard } from "lucide-react";
-import { useServiziCliente, StatoServizio } from "@/hooks/useServiziCliente";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, FileText, ArrowLeft, MapPin, Calendar, Clock, User, CreditCard, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useServiziCliente, StatoServizio, type FiltriServizi } from "@/hooks/useServiziCliente";
 import {
   Table,
   TableBody,
@@ -21,7 +24,16 @@ import { CardDescription } from "@/components/ui/card";
 const ServiziPage = () => {
   const navigate = useNavigate();
   const [statoAttivo, setStatoAttivo] = useState<StatoServizio | null>(null);
-  const { servizi, isLoading, counts } = useServiziCliente(statoAttivo);
+  const [page, setPage] = useState(1);
+  const [filtri, setFiltri] = useState<FiltriServizi>({});
+  
+  const { servizi, isLoading, counts, totalPages, currentPage, totalCount } = 
+    useServiziCliente(statoAttivo, filtri, page);
+
+  // Reset page quando cambiano filtri o tab
+  useEffect(() => {
+    setPage(1);
+  }, [statoAttivo, filtri]);
 
   const tabs: Array<{ value: StatoServizio | "tutti"; label: string }> = [
     { value: "tutti", label: "Tutti" },
@@ -89,6 +101,105 @@ const ServiziPage = () => {
             Nuovo Servizio
           </Button>
         </div>
+
+        {/* Filtri Sezione */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <CardTitle className="text-lg">Filtri Ricerca</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFiltri({});
+                  setPage(1);
+                }}
+                className="text-muted-foreground"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Reset Filtri
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Filtro Data Inizio */}
+              <div className="space-y-2">
+                <Label htmlFor="dataInizio">Data Inizio</Label>
+                <Input
+                  id="dataInizio"
+                  type="date"
+                  value={filtri.dataInizio || ""}
+                  onChange={(e) =>
+                    setFiltri({ ...filtri, dataInizio: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Filtro Data Fine */}
+              <div className="space-y-2">
+                <Label htmlFor="dataFine">Data Fine</Label>
+                <Input
+                  id="dataFine"
+                  type="date"
+                  value={filtri.dataFine || ""}
+                  onChange={(e) =>
+                    setFiltri({ ...filtri, dataFine: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Filtro Numero Commessa */}
+              <div className="space-y-2">
+                <Label htmlFor="commessa">Numero Commessa</Label>
+                <Input
+                  id="commessa"
+                  type="text"
+                  placeholder="Cerca commessa..."
+                  value={filtri.numeroCommessa || ""}
+                  onChange={(e) =>
+                    setFiltri({ ...filtri, numeroCommessa: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Filtro Metodo Pagamento */}
+              <div className="space-y-2">
+                <Label htmlFor="pagamento">Metodo Pagamento</Label>
+                <Select
+                  value={filtri.metodoPagamento || "tutti"}
+                  onValueChange={(value) =>
+                    setFiltri({ 
+                      ...filtri, 
+                      metodoPagamento: value === "tutti" ? undefined : value 
+                    })
+                  }
+                >
+                  <SelectTrigger id="pagamento">
+                    <SelectValue placeholder="Tutti" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tutti">Tutti</SelectItem>
+                    <SelectItem value="contanti">Contanti</SelectItem>
+                    <SelectItem value="carta">Carta</SelectItem>
+                    <SelectItem value="bonifico">Bonifico</SelectItem>
+                    <SelectItem value="fattura">Fattura</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Info risultati */}
+            {totalCount > 0 && (
+              <div className="mt-4 pt-4 border-t">
+                <p className="text-sm text-muted-foreground">
+                  Trovati <span className="font-semibold">{totalCount}</span> servizi
+                  {statoAttivo && ` in stato "${getStatoLabel(statoAttivo)}"`}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Tabs */}
         <Tabs
@@ -331,11 +442,40 @@ const ServiziPage = () => {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                </>
-              )}
-            </TabsContent>
+                      ))}
+                </div>
+              </>
+            )}
+
+            {/* Pagination */}
+            {!isLoading && servizi.length > 0 && totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 mt-6 border-t">
+                <p className="text-sm text-muted-foreground">
+                  Pagina {currentPage} di {totalPages}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Precedente
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Successiva
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </TabsContent>
           ))}
         </Tabs>
       </div>
