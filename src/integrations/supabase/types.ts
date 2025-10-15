@@ -230,6 +230,7 @@ export type Database = {
           id: string
           nome: string
           note: string | null
+          referente_id: string | null
         }
         Insert: {
           attivo?: boolean
@@ -240,6 +241,7 @@ export type Database = {
           id?: string
           nome: string
           note?: string | null
+          referente_id?: string | null
         }
         Update: {
           attivo?: boolean
@@ -250,6 +252,7 @@ export type Database = {
           id?: string
           nome?: string
           note?: string | null
+          referente_id?: string | null
         }
         Relationships: [
           {
@@ -257,6 +260,13 @@ export type Database = {
             columns: ["azienda_id"]
             isOneToOne: false
             referencedRelation: "aziende"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_notifiche_referente_id_fkey"
+            columns: ["referente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
