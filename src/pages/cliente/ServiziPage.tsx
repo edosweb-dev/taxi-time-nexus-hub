@@ -96,7 +96,7 @@ const ServiziPage = () => {
             </div>
           </div>
 
-          <Button onClick={() => navigate("/servizi/crea")}>
+          <Button onClick={() => navigate("/dashboard-cliente/nuovo-servizio")}>
             <Plus className="h-4 w-4 mr-2" />
             Nuovo Servizio
           </Button>
@@ -250,7 +250,7 @@ const ServiziPage = () => {
                         : "Non hai ancora creato nessun servizio"}
                     </p>
                     {!statoAttivo && (
-                      <Button onClick={() => navigate("/servizi/crea")}>
+                      <Button onClick={() => navigate("/dashboard-cliente/nuovo-servizio")}>
                         <Plus className="h-4 w-4 mr-2" />
                         Crea Primo Servizio
                       </Button>
