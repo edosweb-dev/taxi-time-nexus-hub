@@ -10,6 +10,7 @@ import { Save, X } from 'lucide-react';
 import { UserMainInfoSection } from './form-sections/UserMainInfoSection';
 import { UserContactInfoSection } from './form-sections/UserContactInfoSection';
 import { UserCompanySection } from './form-sections/UserCompanySection';
+import { UserPasswordFields } from './form-fields/UserPasswordFields';
 
 interface ClientFormProps {
   user?: Profile | null;
@@ -120,6 +121,8 @@ export function ClientForm({
         {!preselectedAzienda && (
           <UserCompanySection control={form.control} required={true} />
         )}
+
+        <UserPasswordFields control={form.control} isEditing={isEditing} />
 
         {preselectedAzienda && (
           <div className="bg-muted/50 p-3 rounded-md border-l-4 border-l-primary">
