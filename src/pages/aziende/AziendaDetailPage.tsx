@@ -85,27 +85,18 @@ export default function AziendaDetailPage() {
 
         {/* Desktop Header */}
         {!isMobile && (
-          <div className="space-y-4">
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-3">
-                <h1 className="page-title">{azienda.nome}</h1>
-                <p className="text-description">
-                  Dettagli e gestione azienda cliente
-                </p>
-              </div>
-              {!isEditMode ? (
-                <Button onClick={handleEditAzienda} size="sm">
-                  <Edit className="mr-2 h-4 w-4" /> Modifica
+          <div className="flex items-center justify-end">
+            {!isEditMode ? (
+              <Button onClick={handleEditAzienda} size="sm">
+                <Edit className="mr-2 h-4 w-4" /> Modifica
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleCancelEdit} size="sm">
+                  <X className="mr-2 h-4 w-4" /> Annulla
                 </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleCancelEdit} size="sm">
-                    <X className="mr-2 h-4 w-4" /> Annulla
-                  </Button>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
