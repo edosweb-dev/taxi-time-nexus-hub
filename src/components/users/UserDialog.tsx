@@ -7,10 +7,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { UserForm } from "./UserForm";
+import { ClientForm } from "./ClientForm";
 import { Profile } from "@/lib/types";
 import { UserFormData } from "@/lib/api/users/types";
 import { Azienda } from "@/lib/types";
-import { UserRole } from "@/lib/types";
 
 interface UserDialogProps {
   isOpen: boolean;
@@ -18,9 +18,7 @@ interface UserDialogProps {
   onSubmit: (data: UserFormData) => void;
   user: Profile | null;
   isSubmitting: boolean;
-  defaultRole?: UserRole;
-  hiddenRoles?: UserRole[];
-  isNewUser?: boolean;
+  formType: 'user' | 'client';
   preselectedAzienda?: Azienda | null;
 }
 
@@ -30,48 +28,44 @@ export function UserDialog({
   onSubmit,
   user,
   isSubmitting,
-  defaultRole,
-  hiddenRoles,
-  isNewUser,
+  formType,
   preselectedAzienda,
 }: UserDialogProps) {
-  // Log per tracciare i dati dell'utente quando il dialog si apre
-  if (isOpen) {
-    console.log("UserDialog opened with user data:", user);
-    if (defaultRole) console.log("Default role:", defaultRole);
-    if (hiddenRoles) console.log("Hidden roles:", hiddenRoles);
-    if (preselectedAzienda) console.log("Preselected azienda:", preselectedAzienda);
-  }
-
-  const handleUserFormSubmit = (data: UserFormData) => {
-    console.log("UserDialog - Form submitted with data:", data);
-    onSubmit(data);
-  };
+  const isClientForm = formType === 'client' || user?.role === 'cliente';
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {user ? "Modifica Utente" : "Crea Nuovo Utente"}
+            {user 
+              ? `Modifica ${isClientForm ? 'Cliente' : 'Utente'}` 
+              : `Crea Nuovo ${isClientForm ? 'Cliente' : 'Utente'}`
+            }
           </DialogTitle>
           <DialogDescription>
             {user 
-              ? "Modifica i dettagli dell'utente esistente. Lascia vuoto il campo password per non modificarla."
-              : isNewUser && preselectedAzienda
-                ? `Inserisci i dettagli del nuovo referente per ${preselectedAzienda.nome}`
-                : "Inserisci i dettagli del nuovo utente."}
+              ? `Modifica i dettagli ${isClientForm ? 'del cliente' : "dell'utente"}. Lascia vuoto il campo password per non modificarla.`
+              : `Inserisci i dettagli del nuovo ${isClientForm ? 'cliente' : 'utente'}.`
+            }
           </DialogDescription>
         </DialogHeader>
-        <UserForm
-          user={user}
-          onSubmit={handleUserFormSubmit}
-          onCancel={() => onOpenChange(false)}
-          isSubmitting={isSubmitting}
-          defaultRole={defaultRole}
-          hiddenRoles={hiddenRoles}
-          preselectedAzienda={preselectedAzienda}
-        />
+        {isClientForm ? (
+          <ClientForm
+            user={user}
+            onSubmit={onSubmit}
+            onCancel={() => onOpenChange(false)}
+            isSubmitting={isSubmitting}
+            preselectedAzienda={preselectedAzienda}
+          />
+        ) : (
+          <UserForm
+            user={user}
+            onSubmit={onSubmit}
+            onCancel={() => onOpenChange(false)}
+            isSubmitting={isSubmitting}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -137,22 +137,6 @@ export default function UsersPage() {
     }
   };
 
-  const getSheetPropsForContext = () => {
-    if (userContext === 'clienti') {
-      return {
-        defaultRole: 'cliente' as UserRole,
-        hiddenRoles: ['admin', 'socio', 'dipendente'] as UserRole[],
-      };
-    } else {
-      return {
-        defaultRole: undefined,
-        hiddenRoles: ['cliente'] as UserRole[],
-      };
-    }
-  };
-
-  const sheetProps = getSheetPropsForContext();
-
   if (isMobile) {
     if (isLoading) {
       return (
@@ -317,8 +301,6 @@ export default function UsersPage() {
           setIsSheetOpen={setIsSheetOpen}
           selectedUser={selectedUser}
           isSubmitting={isSubmitting}
-          sheetDefaultRole={sheetProps.defaultRole}
-          sheetHiddenRoles={sheetProps.hiddenRoles}
         />
 
         {resetPasswordUser && (

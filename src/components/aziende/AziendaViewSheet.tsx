@@ -490,9 +490,7 @@ export function AziendaViewSheet({
         onSubmit={handleSubmitUser}
         user={null}
         isSubmitting={isCreating}
-        defaultRole="cliente"
-        hiddenRoles={['admin', 'socio', 'dipendente']}
-        isNewUser={true}
+        formType="client"
         preselectedAzienda={azienda}
       />
     </Sheet>

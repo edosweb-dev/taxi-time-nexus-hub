@@ -19,24 +19,14 @@ import { UserRole } from '@/lib/types';
 
 interface UserRoleFieldProps {
   control: Control<any>;
-  hiddenRoles?: UserRole[];
-  defaultRole?: UserRole;
 }
 
-export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRoleFieldProps) {
-  // Definisci tutte le possibili opzioni di ruolo
-  const allRoles: { value: UserRole; label: string }[] = [
+export function UserRoleField({ control }: UserRoleFieldProps) {
+  const allRoles: { value: 'admin' | 'socio' | 'dipendente'; label: string }[] = [
     { value: 'admin', label: 'Amministratore' },
     { value: 'socio', label: 'Socio' },
     { value: 'dipendente', label: 'Dipendente' },
-    { value: 'cliente', label: 'Cliente' },
   ];
-
-  // Filtra i ruoli nascosti
-  const visibleRoles = allRoles.filter(role => !hiddenRoles.includes(role.value));
-  
-  // Se il defaultRole è 'cliente', disabilita il campo
-  const isClienteFixed = defaultRole === 'cliente';
 
   return (
     <FormField
@@ -47,9 +37,8 @@ export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRo
           <FormLabel>Ruolo</FormLabel>
           <Select 
             onValueChange={field.onChange} 
-            defaultValue={field.value || defaultRole || 'cliente'}
+            defaultValue={field.value || 'admin'}
             value={field.value}
-            disabled={isClienteFixed}
           >
             <FormControl>
               <SelectTrigger>
@@ -57,16 +46,11 @@ export function UserRoleField({ control, hiddenRoles = [], defaultRole }: UserRo
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {visibleRoles.map(role => (
+              {allRoles.map(role => (
                 <SelectItem key={role.value} value={role.value}>{role.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          {isClienteFixed && (
-            <p className="text-xs text-muted-foreground">
-              Il ruolo cliente è fisso per questo tipo di utente
-            </p>
-          )}
           <FormMessage />
         </FormItem>
       )}

@@ -140,9 +140,7 @@ export default function AziendaDetailPage() {
           onSubmit={handleSubmitUser}
           user={selectedUser}
           isSubmitting={isCreatingUser || isUpdatingUser}
-          defaultRole="cliente"
-          hiddenRoles={['admin', 'socio', 'dipendente']}
-          isNewUser={!selectedUser}
+          formType="client"
           preselectedAzienda={azienda}
         />
 

@@ -19,8 +19,6 @@ interface UsersContentProps {
   setIsSheetOpen: (open: boolean) => void;
   selectedUser: Profile | null;
   isSubmitting: boolean;
-  sheetDefaultRole?: UserRole;
-  sheetHiddenRoles?: UserRole[];
 }
 
 export function UsersContent({
@@ -36,8 +34,6 @@ export function UsersContent({
   setIsSheetOpen,
   selectedUser,
   isSubmitting,
-  sheetDefaultRole,
-  sheetHiddenRoles,
 }: UsersContentProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
   const [activeTab, setActiveTab] = useState<'utenti' | 'clienti'>('utenti');
@@ -105,8 +101,7 @@ export function UsersContent({
         onSubmit={onSubmit}
         user={selectedUser}
         isSubmitting={isSubmitting}
-        defaultRole={sheetDefaultRole}
-        hiddenRoles={sheetHiddenRoles}
+        formType={activeTab === 'clienti' ? 'client' : 'user'}
       />
     </div>
   );

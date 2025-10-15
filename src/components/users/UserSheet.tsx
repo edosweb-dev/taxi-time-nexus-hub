@@ -7,10 +7,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { UserForm } from "./UserForm";
+import { ClientForm } from "./ClientForm";
 import { Profile } from "@/lib/types";
 import { UserFormData } from "@/lib/api/users/types";
 import { Azienda } from "@/lib/types";
-import { UserRole } from "@/lib/types";
 
 interface UserSheetProps {
   isOpen: boolean;
@@ -18,9 +18,7 @@ interface UserSheetProps {
   onSubmit: (data: UserFormData) => void;
   user: Profile | null;
   isSubmitting: boolean;
-  defaultRole?: UserRole;
-  hiddenRoles?: UserRole[];
-  isNewUser?: boolean;
+  formType: 'user' | 'client';
   preselectedAzienda?: Azienda | null;
 }
 
@@ -30,51 +28,51 @@ export function UserSheet({
   onSubmit,
   user,
   isSubmitting,
-  defaultRole,
-  hiddenRoles,
-  isNewUser,
+  formType,
   preselectedAzienda,
 }: UserSheetProps) {
-  // Log per tracciare i dati dell'utente quando il sheet si apre
-  if (isOpen) {
-    console.log("UserSheet opened with user data:", user);
-    if (defaultRole) console.log("Default role:", defaultRole);
-    if (hiddenRoles) console.log("Hidden roles:", hiddenRoles);
-    if (preselectedAzienda) console.log("Preselected azienda:", preselectedAzienda);
-  }
-
-  const handleUserFormSubmit = (data: UserFormData) => {
-    console.log("UserSheet - Form submitted with data:", data);
+  const handleFormSubmit = (data: UserFormData) => {
     onSubmit(data);
   };
+
+  const isClientForm = formType === 'client' || user?.role === 'cliente';
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-[500px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="section-title">
-            {user ? "Modifica Utente" : "Crea Nuovo Utente"}
+            {user 
+              ? `Modifica ${isClientForm ? 'Cliente' : 'Utente'}` 
+              : `Crea Nuovo ${isClientForm ? 'Cliente' : 'Utente'}`
+            }
           </SheetTitle>
           
           <SheetDescription className="text-left">
             {user 
-              ? "Modifica i dettagli dell'utente esistente. Lascia vuoto il campo password per non modificarla."
-              : isNewUser && preselectedAzienda
-                ? `Inserisci i dettagli del nuovo referente per ${preselectedAzienda.nome}`
-                : "Inserisci i dettagli del nuovo utente."}
+              ? `Modifica i dettagli ${isClientForm ? 'del cliente' : "dell'utente"}. Lascia vuoto il campo password per non modificarla.`
+              : `Inserisci i dettagli del nuovo ${isClientForm ? 'cliente' : 'utente'}.`
+            }
           </SheetDescription>
         </SheetHeader>
         
         <div className="pt-6">
-          <UserForm
-            user={user}
-            onSubmit={handleUserFormSubmit}
-            onCancel={() => onOpenChange(false)}
-            isSubmitting={isSubmitting}
-            defaultRole={defaultRole}
-            hiddenRoles={hiddenRoles}
-            preselectedAzienda={preselectedAzienda}
-          />
+          {isClientForm ? (
+            <ClientForm
+              user={user}
+              onSubmit={handleFormSubmit}
+              onCancel={() => onOpenChange(false)}
+              isSubmitting={isSubmitting}
+              preselectedAzienda={preselectedAzienda}
+            />
+          ) : (
+            <UserForm
+              user={user}
+              onSubmit={handleFormSubmit}
+              onCancel={() => onOpenChange(false)}
+              isSubmitting={isSubmitting}
+            />
+          )}
         </div>
       </SheetContent>
     </Sheet>

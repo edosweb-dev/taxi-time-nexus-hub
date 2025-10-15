@@ -62,9 +62,7 @@ export function ReferentiTab({
         onSubmit={onSubmitUser}
         user={selectedUser}
         isSubmitting={isCreatingUser || isUpdatingUser}
-        defaultRole="cliente"
-        hiddenRoles={['admin', 'socio', 'dipendente']}
-        isNewUser={!selectedUser}
+        formType="client"
         preselectedAzienda={azienda}
       />
     </Card>

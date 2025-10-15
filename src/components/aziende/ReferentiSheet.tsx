@@ -208,9 +208,7 @@ export function ReferentiSheet({
         onSubmit={handleSubmitUser}
         user={selectedUser}
         isSubmitting={isCreating || isUpdating}
-        defaultRole="cliente"
-        hiddenRoles={['admin', 'socio', 'dipendente']}
-        isNewUser={!selectedUser}
+        formType="client"
         preselectedAzienda={azienda}
       />
     </>

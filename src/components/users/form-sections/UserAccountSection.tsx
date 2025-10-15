@@ -9,11 +9,9 @@ import { UserRoleField, UserPasswordFields } from '../form-fields';
 interface UserAccountSectionProps {
   control: Control<any>;
   isEditing: boolean;
-  defaultRole?: UserRole;
-  hiddenRoles?: UserRole[];
 }
 
-export function UserAccountSection({ control, isEditing, defaultRole, hiddenRoles }: UserAccountSectionProps) {
+export function UserAccountSection({ control, isEditing }: UserAccountSectionProps) {
   return (
     <Card>
       <CardHeader className="pb-4">
@@ -23,11 +21,7 @@ export function UserAccountSection({ control, isEditing, defaultRole, hiddenRole
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <UserRoleField 
-          control={control} 
-          defaultRole={defaultRole}
-          hiddenRoles={hiddenRoles}
-        />
+        <UserRoleField control={control} />
         <UserPasswordFields control={control} isEditing={isEditing} />
       </CardContent>
     </Card>
