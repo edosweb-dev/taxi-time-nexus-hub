@@ -180,18 +180,18 @@ export default function NuovoServizioPage() {
 
       return servizio;
     },
-    onSuccess: () => {
+    onSuccess: (servizio) => {
       queryClient.invalidateQueries({ queryKey: ["servizi-cliente"] });
       queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente"] });
       
       toast({
         title: "✅ Servizio richiesto",
-        description: "Il servizio è stato creato con successo.",
+        description: "Reindirizzamento alla conferma...",
       });
       
       setTimeout(() => {
-        navigate("/dashboard-cliente/servizi");
-      }, 1500);
+        navigate(`/dashboard-cliente/servizio-confermato?id=${servizio.id}`);
+      }, 500);
     },
     onError: (error: Error) => {
       console.error("❌ Errore creazione servizio:", error);
