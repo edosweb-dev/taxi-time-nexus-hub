@@ -14,6 +14,7 @@ const ClientDashboardPage = lazy(() => import('./pages/cliente/ClientDashboardPa
 const ServiziClientePage = lazy(() => import('./pages/cliente/ServiziPage'));
 const PasseggeriCliente = lazy(() => import('./pages/cliente/PasseggeriCliente'));
 const DettaglioServizio = lazy(() => import('./pages/cliente/DettaglioServizio'));
+const ReportCliente = lazy(() => import('./pages/cliente/ReportCliente'));
 
 // Dipendente Pages
 const DipendenteDashboard = lazy(() => import('./pages/dipendente/DipendenteDashboard'));
@@ -108,6 +109,12 @@ function App() {
                   <Route path="/dashboard-cliente/servizi/:id" element={
                     <AuthGuard allowedRoles={['cliente']}>
                       <DettaglioServizio />
+                    </AuthGuard>
+                  } />
+
+                  <Route path="/dashboard-cliente/report" element={
+                    <AuthGuard allowedRoles={['cliente']}>
+                      <ReportCliente />
                     </AuthGuard>
                   } />
 
