@@ -314,11 +314,17 @@ const ServiziPage = () => {
                                 <div className="flex flex-col gap-1 text-sm">
                                   <div className="flex items-start gap-2">
                                     <MapPin className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
-                                    <span className="truncate">{servizio.indirizzo_presa}</span>
+                                    <span className="truncate">
+                                      {servizio.indirizzo_presa}
+                                      {servizio.citta_presa && `, ${servizio.citta_presa}`}
+                                    </span>
                                   </div>
                                   <div className="flex items-start gap-2">
                                     <MapPin className="h-3 w-3 text-red-600 mt-0.5 flex-shrink-0" />
-                                    <span className="truncate">{servizio.indirizzo_destinazione}</span>
+                                    <span className="truncate">
+                                      {servizio.indirizzo_destinazione}
+                                      {servizio.citta_destinazione && `, ${servizio.citta_destinazione}`}
+                                    </span>
                                   </div>
                                 </div>
                               </TableCell>
@@ -405,6 +411,7 @@ const ServiziPage = () => {
                                 <p className="text-xs text-muted-foreground mb-0.5">Partenza</p>
                                 <p className="text-sm font-medium break-words">
                                   {servizio.indirizzo_presa}
+                                  {servizio.citta_presa && `, ${servizio.citta_presa}`}
                                 </p>
                               </div>
                             </div>
@@ -414,6 +421,7 @@ const ServiziPage = () => {
                                 <p className="text-xs text-muted-foreground mb-0.5">Destinazione</p>
                                 <p className="text-sm font-medium break-words">
                                   {servizio.indirizzo_destinazione}
+                                  {servizio.citta_destinazione && `, ${servizio.citta_destinazione}`}
                                 </p>
                               </div>
                             </div>

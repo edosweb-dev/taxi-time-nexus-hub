@@ -166,14 +166,20 @@ const DettaglioServizio = () => {
                     <MapPin className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-muted-foreground mb-1">Partenza</p>
-                      <p className="font-medium break-words">{servizio.indirizzo_presa}</p>
+                      <p className="font-medium break-words">
+                        {servizio.indirizzo_presa}
+                        {servizio.citta_presa && `, ${servizio.citta_presa}`}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <MapPin className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-muted-foreground mb-1">Destinazione</p>
-                      <p className="font-medium break-words">{servizio.indirizzo_destinazione}</p>
+                      <p className="font-medium break-words">
+                        {servizio.indirizzo_destinazione}
+                        {servizio.citta_destinazione && `, ${servizio.citta_destinazione}`}
+                      </p>
                     </div>
                   </div>
                 </div>
