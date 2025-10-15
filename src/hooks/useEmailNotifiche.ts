@@ -29,6 +29,8 @@ export function useEmailNotifiche(aziendaId?: string) {
 
   const createEmailNotifica = useMutation({
     mutationFn: async (data: EmailNotificaFormData) => {
+      const user = (await supabase.auth.getUser()).data.user;
+      
       const { data: result, error } = await supabase
         .from('email_notifiche')
         .insert({
@@ -36,7 +38,8 @@ export function useEmailNotifiche(aziendaId?: string) {
           email: data.email,
           azienda_id: data.azienda_id,
           note: data.note,
-          created_by: (await supabase.auth.getUser()).data.user?.id
+          created_by: user?.id,
+          referente_id: user?.id, // Popola referente_id per isolamento dati
         })
         .select()
         .single();

@@ -1362,6 +1362,13 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      get_user_role_and_azienda: {
+        Args: { user_id: string }
+        Returns: {
+          azienda_id: string
+          role: string
+        }[]
+      }
     }
     Enums: {
       movimento_stato: "saldato" | "pending"
