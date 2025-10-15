@@ -6,8 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText, ArrowLeft } from "lucide-react";
+import { Plus, FileText, ArrowLeft, MapPin, Calendar, Clock, User, CreditCard } from "lucide-react";
 import { useServiziCliente, StatoServizio } from "@/hooks/useServiziCliente";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { CardDescription } from "@/components/ui/card";
 
 const ServiziPage = () => {
   const navigate = useNavigate();
@@ -45,6 +54,13 @@ const ServiziPage = () => {
       default:
         return "secondary";
     }
+  };
+
+  const getStatoLabel = (stato: string): string => {
+    return stato
+      .split("_")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   return (
@@ -131,61 +147,193 @@ const ServiziPage = () => {
                   </CardContent>
                 </Card>
               ) : (
-                // Lista Servizi
-                <div className="space-y-4">
-                  {servizi.map((servizio) => (
-                    <Card 
-                      key={servizio.id} 
-                      className="hover:bg-accent/50 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/servizi/${servizio.id}`)}
-                    >
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center justify-between">
-                          <span>
-                            Servizio #{servizio.id_progressivo || servizio.id.slice(0, 8)}
-                          </span>
-                          <Badge variant={getStatoBadgeVariant(servizio.stato)}>
-                            {servizio.stato.replace('_', ' ')}
-                          </Badge>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">Data:</span>
-                            <span>
-                              {new Date(servizio.data_servizio).toLocaleDateString("it-IT")} - {servizio.orario_servizio}
-                            </span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="font-medium whitespace-nowrap">Da:</span>
-                            <span className="text-muted-foreground">{servizio.indirizzo_presa}</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="font-medium whitespace-nowrap">A:</span>
-                            <span className="text-muted-foreground">{servizio.indirizzo_destinazione}</span>
-                          </div>
-                          {servizio.numero_commessa && (
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">Commessa:</span>
-                              <span className="text-muted-foreground">{servizio.numero_commessa}</span>
+                <>
+                  {/* DESKTOP: Tabella */}
+                  <div className="hidden md:block">
+                    <Card>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Data/Ora</TableHead>
+                            <TableHead>Commessa</TableHead>
+                            <TableHead>Percorso</TableHead>
+                            <TableHead>Stato</TableHead>
+                            <TableHead>Conducente</TableHead>
+                            <TableHead className="text-right">Pagamento</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {servizi.map((servizio) => (
+                            <TableRow
+                              key={servizio.id}
+                              className="cursor-pointer hover:bg-accent/50"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {/* Data/Ora */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">
+                                    {new Date(servizio.data_servizio).toLocaleDateString("it-IT", {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    })}
+                                  </span>
+                                  {servizio.orario_servizio && (
+                                    <span className="text-sm text-muted-foreground">
+                                      {servizio.orario_servizio}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
+
+                              {/* Commessa */}
+                              <TableCell>
+                                {servizio.numero_commessa ? (
+                                  <Badge variant="outline" className="font-mono">
+                                    {servizio.numero_commessa}
+                                  </Badge>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">-</span>
+                                )}
+                              </TableCell>
+
+                              {/* Percorso */}
+                              <TableCell className="max-w-[300px]">
+                                <div className="flex flex-col gap-1 text-sm">
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
+                                    <span className="truncate">{servizio.indirizzo_presa}</span>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="h-3 w-3 text-red-600 mt-0.5 flex-shrink-0" />
+                                    <span className="truncate">{servizio.indirizzo_destinazione}</span>
+                                  </div>
+                                </div>
+                              </TableCell>
+
+                              {/* Stato */}
+                              <TableCell>
+                                <Badge variant={getStatoBadgeVariant(servizio.stato)}>
+                                  {getStatoLabel(servizio.stato)}
+                                </Badge>
+                              </TableCell>
+
+                              {/* Conducente */}
+                              <TableCell>
+                                {servizio.conducente ? (
+                                  <div className="flex items-center gap-2">
+                                    <User className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">
+                                      {servizio.conducente.first_name}{" "}
+                                      {servizio.conducente.last_name}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">
+                                    Non assegnato
+                                  </span>
+                                )}
+                              </TableCell>
+
+                              {/* Pagamento */}
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm capitalize">
+                                    {servizio.metodo_pagamento || "N/D"}
+                                  </span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Card>
+                  </div>
+
+                  {/* MOBILE: Cards */}
+                  <div className="md:hidden space-y-4">
+                    {servizi.map((servizio) => (
+                      <Card
+                        key={servizio.id}
+                        className="cursor-pointer hover:bg-accent/50 active:scale-[0.98] transition-all"
+                        onClick={() => navigate(`/servizi/${servizio.id}`)}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <CardTitle className="text-base mb-1">
+                                Servizio #{servizio.id_progressivo || servizio.id.slice(0, 8)}
+                              </CardTitle>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Calendar className="h-3 w-3" />
+                                <span>
+                                  {new Date(servizio.data_servizio).toLocaleDateString("it-IT")}
+                                </span>
+                                {servizio.orario_servizio && (
+                                  <>
+                                    <Clock className="h-3 w-3 ml-1" />
+                                    <span>{servizio.orario_servizio}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          )}
-                          <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                            <span className="text-xs text-muted-foreground">
-                              {servizio.metodo_pagamento}
-                            </span>
+                            <Badge variant={getStatoBadgeVariant(servizio.stato)}>
+                              {getStatoLabel(servizio.stato)}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+
+                        <CardContent className="space-y-3 pt-0">
+                          {/* Percorso */}
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-2">
+                              <MapPin className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-muted-foreground mb-0.5">Partenza</p>
+                                <p className="text-sm font-medium break-words">
+                                  {servizio.indirizzo_presa}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <MapPin className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-muted-foreground mb-0.5">Destinazione</p>
+                                <p className="text-sm font-medium break-words">
+                                  {servizio.indirizzo_destinazione}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Info aggiuntive */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t">
+                            {servizio.numero_commessa && (
+                              <Badge variant="outline" className="text-xs font-mono">
+                                <FileText className="h-3 w-3 mr-1" />
+                                {servizio.numero_commessa}
+                              </Badge>
+                            )}
+                            {servizio.metodo_pagamento && (
+                              <Badge variant="secondary" className="text-xs">
+                                <CreditCard className="h-3 w-3 mr-1" />
+                                {servizio.metodo_pagamento}
+                              </Badge>
+                            )}
                             {servizio.conducente && (
-                              <span className="text-xs text-muted-foreground">
-                                Conducente: {servizio.conducente.first_name} {servizio.conducente.last_name}
-                              </span>
+                              <Badge variant="secondary" className="text-xs">
+                                <User className="h-3 w-3 mr-1" />
+                                {servizio.conducente.first_name} {servizio.conducente.last_name}
+                              </Badge>
                             )}
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </>
               )}
             </TabsContent>
           ))}
