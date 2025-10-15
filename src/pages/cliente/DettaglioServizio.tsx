@@ -193,20 +193,6 @@ const DettaglioServizio = () => {
                 </>
               )}
 
-              {/* Azienda */}
-              <Separator />
-              <div className="flex items-start gap-3">
-                <Building className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground mb-1">Azienda</p>
-                  <p className="font-medium">{servizio.aziende?.nome}</p>
-                  {servizio.aziende?.partita_iva && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      P.IVA: {servizio.aziende.partita_iva}
-                    </p>
-                  )}
-                </div>
-              </div>
             </CardContent>
           </Card>
 
