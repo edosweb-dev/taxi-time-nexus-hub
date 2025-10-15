@@ -278,7 +278,7 @@ const ServiziPage = () => {
                             <TableRow
                               key={servizio.id}
                               className="cursor-pointer hover:bg-accent/50"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigate(`/dashboard-cliente/servizi/${servizio.id}`)}
                             >
                               {/* Data/Ora */}
                               <TableCell>
@@ -369,7 +369,7 @@ const ServiziPage = () => {
                       <Card
                         key={servizio.id}
                         className="cursor-pointer hover:bg-accent/50 active:scale-[0.98] transition-all"
-                        onClick={() => navigate(`/servizi/${servizio.id}`)}
+                        onClick={() => navigate(`/dashboard-cliente/servizi/${servizio.id}`)}
                       >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between gap-2">
