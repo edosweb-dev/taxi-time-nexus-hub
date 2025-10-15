@@ -22,7 +22,9 @@ const formSchema = z.object({
   // Campi servizio
   data_servizio: z.string().min(1, "Data obbligatoria"),
   orario_servizio: z.string().min(1, "Orario obbligatorio"),
+  citta_presa: z.string().optional(),
   indirizzo_presa: z.string().min(5, "Indirizzo partenza obbligatorio (min 5 caratteri)"),
+  citta_destinazione: z.string().optional(),
   indirizzo_destinazione: z.string().min(5, "Indirizzo arrivo obbligatorio (min 5 caratteri)"),
   numero_commessa: z.string().optional(),
   note: z.string().optional(),
@@ -94,7 +96,9 @@ export default function NuovoServizioPage() {
     defaultValues: {
       data_servizio: new Date().toISOString().split('T')[0],
       orario_servizio: new Date().toTimeString().slice(0, 5),
+      citta_presa: "",
       indirizzo_presa: "",
+      citta_destinazione: "",
       indirizzo_destinazione: "",
       numero_commessa: "",
       note: "",
@@ -148,7 +152,9 @@ export default function NuovoServizioPage() {
           created_by: user.id,
           data_servizio: values.data_servizio,
           orario_servizio: values.orario_servizio,
+          citta_presa: values.citta_presa || null,
           indirizzo_presa: values.indirizzo_presa,
+          citta_destinazione: values.citta_destinazione || null,
           indirizzo_destinazione: values.indirizzo_destinazione,
           numero_commessa: values.numero_commessa || null,
           note: values.note || null,
@@ -266,33 +272,73 @@ export default function NuovoServizioPage() {
                     Dove
                   </h3>
 
-                  <FormField
-                    control={form.control}
-                    name="indirizzo_presa"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Punto di Partenza *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Via Roma 123, Milano" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Partenza */}
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-muted-foreground">Partenza</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="citta_presa"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Città</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Milano" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormField
-                    control={form.control}
-                    name="indirizzo_destinazione"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Punto di Arrivo *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Aeroporto Malpensa, Milano" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="indirizzo_presa"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Indirizzo di Presa *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Via Roma 123" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Destinazione */}
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-muted-foreground">Destinazione</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="citta_destinazione"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Città</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Ferno" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="indirizzo_destinazione"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Indirizzo di Destinazione *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Aeroporto Malpensa" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <Separator />
