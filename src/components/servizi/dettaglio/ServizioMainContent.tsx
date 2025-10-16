@@ -3,6 +3,7 @@ import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, User, Clock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ServizioMainContentProps {
   servizio: Servizio;
@@ -17,6 +18,9 @@ export function ServizioMainContent({
   formatCurrency,
   firmaDigitaleAttiva,
 }: ServizioMainContentProps) {
+  const { profile } = useAuth();
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  
   const formatTime = (time?: string) => {
     if (!time) return "—";
     return time.substring(0, 5);
@@ -150,6 +154,37 @@ export function ServizioMainContent({
               <div className="text-xs text-muted-foreground mb-1">Incasso Ricevuto</div>
               <div className="font-medium text-lg">{formatCurrency(servizio.incasso_ricevuto)}</div>
             </div>
+            
+            {servizio.stato === 'consuntivato' && servizio.ore_finali != null && (
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Ore Lavorate</div>
+                <div className="font-medium">{servizio.ore_finali}h</div>
+              </div>
+            )}
+            
+            {isAdminOrSocio && servizio.stato === 'consuntivato' && (
+              <>
+                {servizio.ore_sosta != null && servizio.ore_sosta > 0 && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Ore Sosta</div>
+                    <div className="font-medium">{servizio.ore_sosta}h</div>
+                  </div>
+                )}
+                {servizio.ore_sosta_fatturate != null && servizio.ore_sosta_fatturate > 0 && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Ore Sosta Fatturate</div>
+                    <div className="font-medium">{servizio.ore_sosta_fatturate}h</div>
+                  </div>
+                )}
+                {servizio.km_totali != null && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Km Percorsi</div>
+                    <div className="font-medium">{servizio.km_totali} km</div>
+                  </div>
+                )}
+              </>
+            )}
+            
             {(servizio.ore_effettive != null || servizio.ore_fatturate != null) && (
               <>
                 {servizio.ore_effettive != null && (
