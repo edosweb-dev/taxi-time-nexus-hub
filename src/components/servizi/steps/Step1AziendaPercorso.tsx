@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { ClienteAziendaFields } from "../form-fields/ClienteAziendaFields";
 import { ClientePrivatoFields } from "../form-fields/ClientePrivatoFields";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 
 export const Step1AziendaPercorso = () => {
   const { register, control } = useFormContext<ServizioFormData>();
@@ -81,13 +82,23 @@ export const Step1AziendaPercorso = () => {
           Data e Orario
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-base md:text-sm">Data servizio *</Label>
-            <MobileInput 
-              type="date" 
-              {...register("data_servizio")} 
-            />
-          </div>
+          <FormField
+            control={control}
+            name="data_servizio"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel className="text-base md:text-sm">Data servizio *</FormLabel>
+                <FormControl>
+                  <DatePickerField
+                    value={field.value ? new Date(field.value) : undefined}
+                    onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                    placeholder="Seleziona data"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div className="space-y-2">
             <Label className="text-base md:text-sm">Orario servizio *</Label>
             <MobileInput 

@@ -1,15 +1,8 @@
 
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { CalendarIcon } from 'lucide-react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 import { Control } from 'react-hook-form';
 import { ShiftFormValues } from '../dialogs/ShiftFormSchema';
+import { DatePickerField } from '@/components/ui/date-picker-field';
 
 interface ShiftDateFieldProps {
   control: Control<ShiftFormValues>;
@@ -19,8 +12,6 @@ interface ShiftDateFieldProps {
 }
 
 export function ShiftDateField({ control, name, label, placeholder = "Seleziona una data" }: ShiftDateFieldProps) {
-  const [open, setOpen] = useState(false);
-
   return (
     <FormField
       control={control}
@@ -28,39 +19,13 @@ export function ShiftDateField({ control, name, label, placeholder = "Seleziona 
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <FormLabel>{label}</FormLabel>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full pl-3 text-left font-normal min-h-[44px]",
-                    !field.value && "text-muted-foreground"
-                  )}
-                >
-                  {field.value ? (
-                    format(field.value, "PPP", { locale: it })
-                  ) : (
-                    <span>{placeholder}</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={field.value || undefined}
-                onSelect={(date) => {
-                  field.onChange(date);
-                  setOpen(false);
-                }}
-                initialFocus
-                locale={it}
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
+          <FormControl>
+            <DatePickerField
+              value={field.value || undefined}
+              onChange={field.onChange}
+              placeholder={placeholder}
+            />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )}
