@@ -137,9 +137,14 @@ export default function AziendaDetailPage() {
                 <InfoTab 
                   azienda={azienda} 
                   referenti={referenti}
+                  passeggeri={passeggeri}
+                  isLoadingPasseggeri={isLoadingPasseggeri}
                   onAddReferente={handleAddUser}
                   onEditReferente={handleEditUser}
                   onDeleteReferente={handleDeleteUser}
+                  onAddPasseggero={handleAddPasseggero}
+                  onEditPasseggero={handleEditPasseggero}
+                  onDeletePasseggero={handleDeletePasseggero}
                 />
               </div>
             )}

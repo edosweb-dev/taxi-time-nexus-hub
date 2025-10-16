@@ -27,17 +27,37 @@ import {
 interface InfoTabProps {
   azienda: Azienda;
   referenti?: Profile[];
+  passeggeri?: Passeggero[];
+  isLoadingPasseggeri?: boolean;
   onAddReferente?: () => void;
   onEditReferente?: (referente: Profile) => void;
   onDeleteReferente?: (referente: Profile) => void;
+  onAddPasseggero?: () => void;
+  onEditPasseggero?: (passeggero: Passeggero) => void;
+  onDeletePasseggero?: (passeggero: Passeggero) => void;
 }
 
-export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferente, onDeleteReferente }: InfoTabProps) {
+export function InfoTab({ 
+  azienda, 
+  referenti = [], 
+  passeggeri: passeggeriProp,
+  isLoadingPasseggeri: isLoadingPasseggeriProp,
+  onAddReferente, 
+  onEditReferente, 
+  onDeleteReferente,
+  onAddPasseggero,
+  onEditPasseggero,
+  onDeletePasseggero
+}: InfoTabProps) {
   const navigate = useNavigate();
-  const [passeggeri, setPasseggeri] = useState<Passeggero[]>([]);
+  const [passeggeriState, setPasseggeriState] = useState<Passeggero[]>([]);
   const [filteredPasseggeri, setFilteredPasseggeri] = useState<Passeggero[]>([]);
   const [selectedReferente, setSelectedReferente] = useState<string>('all');
-  const [loadingPasseggeri, setLoadingPasseggeri] = useState(false);
+  const [loadingPasseggeriState, setLoadingPasseggeriState] = useState(false);
+
+  // Usa i passeggeri passati come prop se disponibili, altrimenti carica
+  const passeggeri = passeggeriProp || passeggeriState;
+  const loadingPasseggeri = isLoadingPasseggeriProp !== undefined ? isLoadingPasseggeriProp : loadingPasseggeriState;
 
   // Helper function to get user initials
   const getUserInitials = (firstName: string | null, lastName: string | null) => {
@@ -46,23 +66,25 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
     return first + last || 'U';
   };
 
-  // Load passengers on component mount
+  // Load passengers on component mount solo se non passati come prop
   useEffect(() => {
+    if (passeggeriProp) return; // Non caricare se già passati come prop
+
     const loadPasseggeri = async () => {
       try {
-        setLoadingPasseggeri(true);
+        setLoadingPasseggeriState(true);
         const data = await getPasseggeriByAzienda(azienda.id);
-        setPasseggeri(data);
+        setPasseggeriState(data);
         setFilteredPasseggeri(data);
       } catch (error) {
         console.error('Error loading passengers:', error);
       } finally {
-        setLoadingPasseggeri(false);
+        setLoadingPasseggeriState(false);
       }
     };
 
     loadPasseggeri();
-  }, [azienda.id]);
+  }, [azienda.id, passeggeriProp]);
 
   // Filter passengers when referente selection changes
   useEffect(() => {
@@ -401,6 +423,16 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
               Passeggeri ({filteredPasseggeri.length})
             </CardTitle>
             <div className="flex items-center gap-3">
+              {onAddPasseggero && (
+                <Button
+                  onClick={onAddPasseggero}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <UserCheck className="h-4 w-4" />
+                  Aggiungi Passeggero
+                </Button>
+              )}
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={selectedReferente} onValueChange={setSelectedReferente}>
                 <SelectTrigger className="w-48">
@@ -442,7 +474,10 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
           ) : (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {filteredPasseggeri.map((passeggero) => (
-                <div key={passeggero.id} className="flex items-center gap-3 p-4 rounded-lg border bg-card/50">
+                <div 
+                  key={passeggero.id} 
+                  className="flex items-center gap-3 p-4 rounded-lg border bg-card/50 group hover:bg-accent/50 transition-colors"
+                >
                   <Avatar className="h-10 w-10 border-2 border-purple-200">
                     <AvatarFallback className="bg-purple-100 text-purple-600 text-sm font-semibold">
                       {passeggero.nome_cognome.charAt(0).toUpperCase()}
@@ -471,7 +506,30 @@ export function InfoTab({ azienda, referenti = [], onAddReferente, onEditReferen
                         <span className="truncate">{passeggero.localita}</span>
                       </div>
                     )}
+                    {passeggero.referente_id && (() => {
+                      const ref = referenti.find(r => r.id === passeggero.referente_id);
+                      return ref ? (
+                        <Badge variant="outline" className="text-xs">
+                          Ref: {ref.first_name}
+                        </Badge>
+                      ) : null;
+                    })()}
                   </div>
+
+                  {(onEditPasseggero || onDeletePasseggero) && (
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {onEditPasseggero && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEditPasseggero(passeggero)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <User className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
