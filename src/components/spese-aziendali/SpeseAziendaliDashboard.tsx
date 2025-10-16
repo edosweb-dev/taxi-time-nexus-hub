@@ -14,6 +14,7 @@ export function SpeseAziendaliDashboard() {
   const [nuovoMovimentoOpen, setNuovoMovimentoOpen] = useState(false);
   const [incassiDipendenteOpen, setIncassiDipendenteOpen] = useState(false);
   const [pagamentiPendingOpen, setPagamentiPendingOpen] = useState(false);
+  const [tipoCausaleDefault, setTipoCausaleDefault] = useState<'generica' | 'f24' | 'stipendio' | undefined>();
   
   const { pendingCount } = useSpeseAziendali();
 
@@ -37,7 +38,10 @@ export function SpeseAziendaliDashboard() {
 
         <Card 
           className="hover:shadow-md transition-shadow cursor-pointer" 
-          onClick={() => setNuovoMovimentoOpen(true)}
+          onClick={() => {
+            setTipoCausaleDefault('stipendio');
+            setNuovoMovimentoOpen(true);
+          }}
         >
           <CardContent className="p-6">
             <div className="flex items-center justify-center space-x-4">
@@ -94,7 +98,11 @@ export function SpeseAziendaliDashboard() {
       {/* Sheets */}
       <NuovoMovimentoSheet 
         open={nuovoMovimentoOpen} 
-        onOpenChange={setNuovoMovimentoOpen} 
+        onOpenChange={(open) => {
+          setNuovoMovimentoOpen(open);
+          if (!open) setTipoCausaleDefault(undefined);
+        }}
+        defaultTipoCausale={tipoCausaleDefault}
       />
       
       <IncassiDipendenteSheet 

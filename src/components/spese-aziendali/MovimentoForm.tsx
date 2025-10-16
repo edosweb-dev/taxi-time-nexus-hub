@@ -37,9 +37,10 @@ const formSchema = z.object({
 
 interface MovimentoFormProps {
   onSuccess: () => void;
+  defaultTipoCausale?: 'generica' | 'f24' | 'stipendio';
 }
 
-export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
+export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormProps) {
   const { addMovimento } = useSpeseAziendali();
   const { modalitaAttive } = useModalitaPagamenti();
 
@@ -62,7 +63,7 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
     defaultValues: {
       data_movimento: new Date().toISOString().split('T')[0],
       importo: 0,
-      tipo_causale: 'generica',
+      tipo_causale: defaultTipoCausale || 'generica',
       causale: '',
       modalita_pagamento_id: '',
       dipendente_id: '',
