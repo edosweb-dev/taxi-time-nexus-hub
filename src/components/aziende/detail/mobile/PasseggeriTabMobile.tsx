@@ -1,15 +1,27 @@
 import { useRef, useState } from 'react';
-import { UserCircle2, Mail, Phone } from 'lucide-react';
+import { UserCircle2, Mail, Phone, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Profile } from '@/lib/types';
 import { Passeggero } from '@/lib/api/passeggeri';
 
 interface PasseggeriTabMobileProps {
   passeggeri: Passeggero[];
   referenti: Profile[];
+  aziendaId: string;
+  onAdd?: () => void;
+  onEdit?: (passeggero: Passeggero) => void;
+  onDelete?: (passeggero: Passeggero) => void;
 }
 
-export function PasseggeriTabMobile({ passeggeri, referenti }: PasseggeriTabMobileProps) {
+export function PasseggeriTabMobile({ 
+  passeggeri, 
+  referenti, 
+  aziendaId,
+  onAdd,
+  onEdit,
+  onDelete 
+}: PasseggeriTabMobileProps) {
   const [selectedReferente, setSelectedReferente] = useState<string>('all');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -21,19 +33,27 @@ export function PasseggeriTabMobile({ passeggeri, referenti }: PasseggeriTabMobi
 
   return (
     <>
-      {/* Header con count */}
-      <div className="mb-4">
-        <h3 className="font-semibold text-base">
-          {filteredPasseggeri.length} Passeggeri
-        </h3>
-        <p className="text-xs text-muted-foreground mt-1">
-          {selectedReferente === 'all' 
-            ? 'Tutti i passeggeri' 
-            : selectedReferente === 'none'
-            ? 'Senza referente'
-            : 'Filtrati per referente'
-          }
-        </p>
+      {/* Header con count e bottone aggiungi */}
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <h3 className="font-semibold text-base">
+            {filteredPasseggeri.length} Passeggeri
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            {selectedReferente === 'all' 
+              ? 'Tutti i passeggeri' 
+              : selectedReferente === 'none'
+              ? 'Senza referente'
+              : 'Filtrati per referente'
+            }
+          </p>
+        </div>
+        {onAdd && (
+          <Button onClick={onAdd} size="sm" className="flex-shrink-0">
+            <Plus className="h-4 w-4 mr-1" />
+            Nuovo
+          </Button>
+        )}
       </div>
 
       {/* Filtri chip scroll orizzontale */}

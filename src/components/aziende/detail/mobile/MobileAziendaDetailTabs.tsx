@@ -18,6 +18,9 @@ interface MobileAziendaDetailTabsProps {
   onAddReferente: () => void;
   onEditReferente: (referente: Profile) => void;
   onDeleteReferente: (referente: Profile) => void;
+  onAddPasseggero?: () => void;
+  onEditPasseggero?: (passeggero: Passeggero) => void;
+  onDeletePasseggero?: (passeggero: Passeggero) => void;
 }
 
 export function MobileAziendaDetailTabs({ 
@@ -28,7 +31,10 @@ export function MobileAziendaDetailTabs({
   isLoadingPasseggeri,
   onAddReferente,
   onEditReferente,
-  onDeleteReferente
+  onDeleteReferente,
+  onAddPasseggero,
+  onEditPasseggero,
+  onDeletePasseggero
 }: MobileAziendaDetailTabsProps) {
   const [activeTab, setActiveTab] = useState('info');
 
@@ -92,6 +98,10 @@ export function MobileAziendaDetailTabs({
             <PasseggeriTabMobile 
               passeggeri={passeggeri}
               referenti={referenti}
+              aziendaId={azienda.id}
+              onAdd={onAddPasseggero}
+              onEdit={onEditPasseggero}
+              onDelete={onDeletePasseggero}
             />
           )}
         </TabsContent>

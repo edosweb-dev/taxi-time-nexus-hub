@@ -6,7 +6,14 @@ import { Profile, Azienda, UserRole } from '@/lib/types';
 import { toast } from '@/components/ui/sonner';
 import { UserFormData } from '@/lib/api/users/types';
 import { AziendaFormData } from '@/lib/api/aziende';
-import { Passeggero, getPasseggeriByAzienda } from '@/lib/api/passeggeri';
+import { 
+  Passeggero, 
+  getPasseggeriByAzienda, 
+  createPasseggero, 
+  updatePasseggero, 
+  deletePasseggero,
+  CreatePasseggeroData 
+} from '@/lib/api/passeggeri';
 
 export function useAziendaDetail(id: string | undefined, currentUserID: string | undefined) {
   const navigate = useNavigate();
@@ -19,6 +26,9 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   const [referenteToDelete, setReferenteToDelete] = useState<Profile | null>(null);
   const [passeggeri, setPasseggeri] = useState<Passeggero[]>([]);
   const [isLoadingPasseggeri, setIsLoadingPasseggeri] = useState(false);
+  const [isPasseggeroDialogOpen, setIsPasseggeroDialogOpen] = useState(false);
+  const [selectedPasseggero, setSelectedPasseggero] = useState<Passeggero | null>(null);
+  const [isCreatingPasseggero, setIsCreatingPasseggero] = useState(false);
 
   const { 
     getCompanyDetails, 
@@ -135,6 +145,61 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     setIsUserSheetOpen(false);
   };
 
+  // Passeggeri handlers
+  const handleAddPasseggero = () => {
+    setSelectedPasseggero(null);
+    setIsPasseggeroDialogOpen(true);
+  };
+
+  const handleEditPasseggero = (passeggero: Passeggero) => {
+    setSelectedPasseggero(passeggero);
+    setIsPasseggeroDialogOpen(true);
+  };
+
+  const handleDeletePasseggero = async (passeggero: Passeggero) => {
+    if (!confirm(`Sei sicuro di voler eliminare ${passeggero.nome_cognome}?`)) {
+      return;
+    }
+
+    try {
+      await deletePasseggero(passeggero.id);
+      setPasseggeri(prev => prev.filter(p => p.id !== passeggero.id));
+      toast.success("Passeggero eliminato con successo");
+    } catch (error) {
+      console.error('Error deleting passenger:', error);
+      toast.error("Errore nell'eliminazione del passeggero");
+    }
+  };
+
+  const handleSubmitPasseggero = async (data: Omit<CreatePasseggeroData, 'azienda_id'>) => {
+    if (!id) return;
+
+    try {
+      setIsCreatingPasseggero(true);
+      
+      if (selectedPasseggero) {
+        // Update existing passenger
+        const updated = await updatePasseggero(selectedPasseggero.id, data);
+        setPasseggeri(prev => prev.map(p => p.id === updated.id ? updated : p));
+        toast.success("Passeggero aggiornato con successo");
+      } else {
+        // Create new passenger
+        const dataWithAzienda = { ...data, azienda_id: id };
+        const newPasseggero = await createPasseggero(dataWithAzienda);
+        setPasseggeri(prev => [...prev, newPasseggero]);
+        toast.success("Passeggero creato con successo");
+      }
+      
+      setIsPasseggeroDialogOpen(false);
+      setSelectedPasseggero(null);
+    } catch (error) {
+      console.error('Error saving passenger:', error);
+      toast.error("Errore nel salvataggio del passeggero");
+    } finally {
+      setIsCreatingPasseggero(false);
+    }
+  };
+
   return {
     azienda,
     isLoading,
@@ -152,6 +217,10 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     referenteToDelete,
     passeggeri,
     isLoadingPasseggeri,
+    isPasseggeroDialogOpen,
+    setIsPasseggeroDialogOpen,
+    selectedPasseggero,
+    isCreatingPasseggero,
     handleBack,
     handleEditAzienda,
     handleCancelEdit,
@@ -161,6 +230,10 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     handleDeleteUser,
     confirmDeleteUser,
     handleSubmitUser,
+    handleAddPasseggero,
+    handleEditPasseggero,
+    handleDeletePasseggero,
+    handleSubmitPasseggero,
     isUpdating,
     isCreatingUser,
     isUpdatingUser,

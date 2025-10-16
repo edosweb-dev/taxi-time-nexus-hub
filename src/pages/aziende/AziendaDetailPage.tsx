@@ -8,6 +8,7 @@ import { InfoTab } from '@/components/aziende/detail/InfoTab';
 import { MobileAziendaDetailHeader } from '@/components/aziende/detail/mobile/MobileAziendaDetailHeader';
 import { MobileAziendaDetailTabs } from '@/components/aziende/detail/mobile/MobileAziendaDetailTabs';
 import { DeleteReferenteDialog } from '@/components/aziende/DeleteReferenteDialog';
+import { PasseggeroDialog } from '@/components/aziende/PasseggeroDialog';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -33,6 +34,10 @@ export default function AziendaDetailPage() {
     referenteToDelete,
     passeggeri,
     isLoadingPasseggeri,
+    isPasseggeroDialogOpen,
+    setIsPasseggeroDialogOpen,
+    selectedPasseggero,
+    isCreatingPasseggero,
     handleBack,
     handleEditAzienda,
     handleCancelEdit,
@@ -42,6 +47,10 @@ export default function AziendaDetailPage() {
     handleDeleteUser,
     confirmDeleteUser,
     handleSubmitUser,
+    handleAddPasseggero,
+    handleEditPasseggero,
+    handleDeletePasseggero,
+    handleSubmitPasseggero,
     isUpdating,
     isCreatingUser,
     isUpdatingUser
@@ -119,6 +128,9 @@ export default function AziendaDetailPage() {
                 onAddReferente={handleAddUser}
                 onEditReferente={handleEditUser}
                 onDeleteReferente={handleDeleteUser}
+                onAddPasseggero={handleAddPasseggero}
+                onEditPasseggero={handleEditPasseggero}
+                onDeletePasseggero={handleDeletePasseggero}
               />
             ) : (
               <div className="space-y-6">
@@ -149,6 +161,15 @@ export default function AziendaDetailPage() {
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
           onConfirm={confirmDeleteUser}
+        />
+
+        <PasseggeroDialog
+          isOpen={isPasseggeroDialogOpen}
+          onOpenChange={setIsPasseggeroDialogOpen}
+          onSubmit={handleSubmitPasseggero}
+          passeggero={selectedPasseggero}
+          referenti={referenti}
+          isSubmitting={isCreatingPasseggero}
         />
       </div>
     </MainLayout>

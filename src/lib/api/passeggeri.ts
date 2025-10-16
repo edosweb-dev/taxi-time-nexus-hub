@@ -58,3 +58,80 @@ export async function getPasseggeriByReferente(aziendaId: string, referenteId: s
     throw error;
   }
 }
+
+export interface CreatePasseggeroData {
+  azienda_id: string;
+  referente_id?: string | null;
+  nome_cognome: string;
+  nome?: string;
+  cognome?: string;
+  email?: string;
+  telefono?: string;
+  localita?: string;
+  indirizzo?: string;
+}
+
+export async function createPasseggero(data: CreatePasseggeroData): Promise<Passeggero> {
+  try {
+    console.log('[createPasseggero] Creating passenger:', data);
+    const { data: passeggero, error } = await supabase
+      .from('passeggeri')
+      .insert([data])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[createPasseggero] Error creating passenger:', error);
+      throw error;
+    }
+
+    console.log('[createPasseggero] Successfully created passenger');
+    return passeggero as Passeggero;
+  } catch (error) {
+    console.error('[createPasseggero] Unexpected error:', error);
+    throw error;
+  }
+}
+
+export async function updatePasseggero(id: string, data: Partial<CreatePasseggeroData>): Promise<Passeggero> {
+  try {
+    console.log('[updatePasseggero] Updating passenger:', id, data);
+    const { data: passeggero, error } = await supabase
+      .from('passeggeri')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[updatePasseggero] Error updating passenger:', error);
+      throw error;
+    }
+
+    console.log('[updatePasseggero] Successfully updated passenger');
+    return passeggero as Passeggero;
+  } catch (error) {
+    console.error('[updatePasseggero] Unexpected error:', error);
+    throw error;
+  }
+}
+
+export async function deletePasseggero(id: string): Promise<void> {
+  try {
+    console.log('[deletePasseggero] Deleting passenger:', id);
+    const { error } = await supabase
+      .from('passeggeri')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('[deletePasseggero] Error deleting passenger:', error);
+      throw error;
+    }
+
+    console.log('[deletePasseggero] Successfully deleted passenger');
+  } catch (error) {
+    console.error('[deletePasseggero] Unexpected error:', error);
+    throw error;
+  }
+}
