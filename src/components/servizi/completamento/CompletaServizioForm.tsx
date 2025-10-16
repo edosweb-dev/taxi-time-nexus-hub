@@ -2,6 +2,7 @@
 import React from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -10,6 +11,7 @@ import { useCompletaServizioForm } from "../hooks/useCompletaServizioForm";
 import { Profile } from "@/lib/types";
 import { MetodoPagamentoOption } from "@/lib/types/impostazioni";
 import { Servizio } from "@/lib/types/servizi";
+import { formatCurrency } from "@/lib/utils";
 
 interface CompletaServizioFormProps {
   servizioId: string;
@@ -34,8 +36,6 @@ export function CompletaServizioForm({
     form,
     onSubmit,
     isSubmitting,
-    isContanti,
-    adminUsers,
     metodiPagamento,
     impostazioniLoading,
   } = useCompletaServizioForm({
@@ -86,6 +86,17 @@ export function CompletaServizioForm({
           )}
         />
 
+        <div className="space-y-2">
+          <Label htmlFor="incasso_previsto_readonly">Incasso Previsto</Label>
+          <Input
+            id="incasso_previsto_readonly"
+            type="text"
+            value={formatCurrency(servizio.incasso_previsto || 0)}
+            disabled
+            className="bg-muted"
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="incasso_ricevuto"
@@ -105,36 +116,6 @@ export function CompletaServizioForm({
             </FormItem>
           )}
         />
-
-        {isContanti && (
-          <FormField
-            control={form.control}
-            name="consegna_contanti_a"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Consegna contanti a</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona un destinatario" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {adminUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
 
         <DialogFooter>
           <Button

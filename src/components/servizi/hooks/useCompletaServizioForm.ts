@@ -15,7 +15,6 @@ export const completaServizioSchema = z.object({
     required_error: "Seleziona un metodo di pagamento",
   }),
   incasso_ricevuto: z.coerce.number().min(0, "Deve essere un numero positivo"),
-  consegna_contanti_a: z.string().optional(),
 });
 
 export type CompletaServizioFormData = z.infer<typeof completaServizioSchema>;
@@ -39,8 +38,6 @@ export function useCompletaServizioForm({
   open,
   servizio
 }: UseCompletaServizioFormProps) {
-  const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
-  const [isContanti, setIsContanti] = useState(metodoDefault === 'Contanti');
   
   // Load impostazioni for metodi pagamento
   const { data: impostazioni, isLoading: impostazioniLoading } = useQuery({
@@ -51,38 +48,14 @@ export function useCompletaServizioForm({
 
   const metodiPagamento = impostazioni?.metodi_pagamento || [];
 
-  // Filter admin users
-  useEffect(() => {
-    if (users) {
-      const filteredUsers = users
-        .filter(user => user.role === 'admin' || user.role === 'socio')
-        .map(user => ({
-          id: user.id,
-          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.id,
-        }));
-      setAdminUsers(filteredUsers);
-    }
-  }, [users]);
-
   // Initialize form
   const form = useForm<CompletaServizioFormData>({
     resolver: zodResolver(completaServizioSchema),
     defaultValues: {
       metodo_pagamento: metodoDefault,
       incasso_ricevuto: servizio.incasso_ricevuto || 0,
-      consegna_contanti_a: '',
     },
   });
-
-  // Update the isContanti state when the metodo_pagamento value changes
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === "metodo_pagamento") {
-        setIsContanti(value.metodo_pagamento === "Contanti");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form.watch]);
 
   // Submit handler
   async function onSubmit(data: CompletaServizioFormData) {
@@ -100,7 +73,6 @@ export function useCompletaServizioForm({
         id: servizioId,
         metodo_pagamento: data.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
-        consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
       });
 
       if (result.error) {
@@ -119,8 +91,6 @@ export function useCompletaServizioForm({
     form,
     onSubmit: form.handleSubmit(onSubmit),
     isSubmitting: form.formState.isSubmitting,
-    isContanti,
-    adminUsers,
     metodiPagamento,
     impostazioniLoading,
   };
