@@ -49,9 +49,6 @@ export function ConsuntivaServizioSheet({
         incasso_previsto: data.incasso_previsto,
         ore_finali: data.ore_finali,
         consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
-        ore_sosta: data.ore_sosta,
-        ore_sosta_fatturate: data.ore_sosta_fatturate,
-        km_totali: data.km_totali,
       });
 
       if (result.error) {
