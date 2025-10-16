@@ -6,6 +6,9 @@ interface ConsuntivaServizioParams {
   incasso_previsto?: number;
   ore_finali?: number;
   consegna_contanti_a?: string;
+  ore_sosta?: number;
+  ore_sosta_fatturate?: number;
+  km_totali?: number;
 }
 
 export async function consuntivaServizio({
@@ -13,6 +16,9 @@ export async function consuntivaServizio({
   incasso_previsto,
   ore_finali,
   consegna_contanti_a,
+  ore_sosta,
+  ore_sosta_fatturate,
+  km_totali,
 }: ConsuntivaServizioParams) {
   try {
     const { data, error } = await supabase
@@ -22,6 +28,9 @@ export async function consuntivaServizio({
         incasso_previsto,
         ore_finali,
         consegna_contanti_a,
+        ore_sosta,
+        ore_sosta_fatturate,
+        km_totali,
       })
       .eq('id', id)
       .select();

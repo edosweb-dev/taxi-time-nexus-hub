@@ -6,7 +6,6 @@ interface CompletaServizioParams {
   id: string;
   metodo_pagamento: MetodoPagamento;
   incasso_ricevuto?: number;
-  ore_lavorate?: number;
   consegna_contanti_a?: string;
 }
 
@@ -14,7 +13,6 @@ export async function completaServizio({
   id,
   metodo_pagamento,
   incasso_ricevuto,
-  ore_lavorate,
   consegna_contanti_a,
 }: CompletaServizioParams) {
   try {
@@ -24,7 +22,6 @@ export async function completaServizio({
         stato: 'completato',
         metodo_pagamento,
         incasso_ricevuto,
-        ore_lavorate,
         consegna_contanti_a,
       })
       .eq('id', id)

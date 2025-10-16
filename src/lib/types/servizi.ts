@@ -58,6 +58,9 @@ export interface Servizio {
   ore_effettive?: number;
   ore_fatturate?: number;
   consegna_contanti_a?: string;
+  ore_sosta?: number;
+  ore_sosta_fatturate?: number;
+  km_totali?: number;
   veicolo_id?: string;
   applica_provvigione?: boolean;
   // Company information from join

@@ -13,6 +13,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,6 +65,8 @@ export function MobileServizioOptimized({
   onElimina,
   onFirmaCliente,
 }: MobileServizioOptimizedProps) {
+  const { profile } = useAuth();
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
   // Get badge configuration
   const getBadgeConfig = () => {
@@ -286,22 +289,65 @@ export function MobileServizioOptimized({
             </span>
           </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Incasso ricevuto</span>
-            <span className="font-semibold">
-              {formatCurrency(servizio.incasso_ricevuto || 0)}
-            </span>
-          </div>
+          {servizio.stato === 'completato' || servizio.stato === 'consuntivato' ? (
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Incasso ricevuto</span>
+              <span className="font-semibold">
+                {formatCurrency(servizio.incasso_ricevuto || 0)}
+              </span>
+            </div>
+          ) : null}
 
-          <div className="flex items-center justify-between pt-2 border-t">
-            <span className="text-muted-foreground">Ore effettive</span>
-            <span className="font-medium">{servizio.ore_effettive || '--'}</span>
-          </div>
+          {servizio.consegna_contanti_a && (
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Contanti consegnati a</span>
+              <span className="font-medium">{getUserName(users, servizio.consegna_contanti_a)}</span>
+            </div>
+          )}
 
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Ore fatturate</span>
-            <span className="font-medium">{servizio.ore_fatturate || '--'}</span>
-          </div>
+          {servizio.stato === 'consuntivato' && (
+            <>
+              <div className="flex items-center justify-between pt-2 border-t">
+                <span className="text-muted-foreground">Ore lavorate</span>
+                <span className="font-medium">{servizio.ore_finali || '--'}</span>
+              </div>
+
+              {isAdminOrSocio && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Ore sosta</span>
+                    <span className="font-medium">{servizio.ore_sosta || 0}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Ore sosta fatturate</span>
+                    <span className="font-medium">{servizio.ore_sosta_fatturate || 0}</span>
+                  </div>
+
+                  {servizio.km_totali !== undefined && servizio.km_totali !== null && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Km percorsi</span>
+                      <span className="font-medium">{servizio.km_totali}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          {(servizio.ore_effettive !== undefined || servizio.ore_fatturate !== undefined) && (
+            <>
+              <div className="flex items-center justify-between pt-2 border-t">
+                <span className="text-muted-foreground">Ore effettive</span>
+                <span className="font-medium">{servizio.ore_effettive || '--'}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Ore fatturate</span>
+                <span className="font-medium">{servizio.ore_fatturate || '--'}</span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Note - if present */}

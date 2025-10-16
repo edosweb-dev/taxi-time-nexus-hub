@@ -1,12 +1,13 @@
 
 import React from "react";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Profile } from "@/lib/types";
 import { useConsuntivaServizioForm, ConsuntivaServizioFormData } from "../hooks/useConsuntivaServizioForm";
 import { Servizio } from "@/lib/types/servizi";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ConsuntivaServizioFormProps {
   servizio: Servizio;
@@ -24,6 +25,8 @@ export function ConsuntivaServizioForm({
   onCancel,
 }: ConsuntivaServizioFormProps) {
   const { form, handleSubmit, ivaPercentage, ivaAmount, isSubmitting } = useConsuntivaServizioForm(servizio, onSubmit);
+  const { profile } = useAuth();
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   return (
     <Form {...form}>
@@ -101,9 +104,85 @@ export function ConsuntivaServizioForm({
             )}
           />
         )}
+
+        {/* CAMPI EXTRA - Solo per admin/socio */}
+        {isAdminOrSocio && (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="ore_sosta"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ore di sosta</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="0"
+                        {...field}
+                        value={field.value === undefined ? '' : field.value}
+                        onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="ore_sosta_fatturate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ore sosta fatturate</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="0"
+                        {...field}
+                        value={field.value === undefined ? '' : field.value}
+                        onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Ore di sosta addebitate al cliente
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="km_totali"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Km percorsi</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="1"
+                      min="0"
+                      placeholder="Es: 120"
+                      {...field}
+                      value={field.value === undefined ? '' : field.value}
+                      onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
         
         {form.watch("incasso_previsto") !== undefined && (
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             <p>IVA ({ivaPercentage}%): €{ivaAmount.toFixed(2)}</p>
             <p className="font-medium mt-1">
               Totale: €{((form.watch("incasso_previsto") || 0) + ivaAmount).toFixed(2)}

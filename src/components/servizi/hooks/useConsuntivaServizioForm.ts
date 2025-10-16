@@ -16,6 +16,9 @@ export const consuntivaServizioSchema = z.object({
     .min(0, { message: "L'incasso deve essere maggiore di 0" })
     .optional(),
   consegna_contanti_a: z.string().optional(),
+  ore_sosta: z.number().min(0).optional(),
+  ore_sosta_fatturate: z.number().min(0).optional(),
+  km_totali: z.number().min(0).optional(),
 });
 
 export type ConsuntivaServizioFormData = z.infer<typeof consuntivaServizioSchema>;

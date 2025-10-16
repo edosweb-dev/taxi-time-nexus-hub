@@ -86,6 +86,26 @@ export function CompletaServizioForm({
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="incasso_ricevuto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Incasso ricevuto (€)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {isContanti && (
           <FormField
             control={form.control}
@@ -115,46 +135,6 @@ export function CompletaServizioForm({
             )}
           />
         )}
-
-        <FormField
-          control={form.control}
-          name="incasso_ricevuto"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Incasso ricevuto (€)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="ore_lavorate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Ore lavorate</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  placeholder="0"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <DialogFooter>
           <Button

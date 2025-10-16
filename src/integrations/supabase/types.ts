@@ -690,6 +690,7 @@ export type Database = {
           indirizzo_destinazione: string
           indirizzo_presa: string
           iva: number | null
+          km_totali: number | null
           metodo_pagamento: string
           note: string | null
           numero_commessa: string | null
@@ -698,6 +699,8 @@ export type Database = {
           ore_fatturate: number | null
           ore_finali: number | null
           ore_lavorate: number | null
+          ore_sosta: number | null
+          ore_sosta_fatturate: number | null
           referente_id: string | null
           stato: string
           tipo_cliente: string | null
@@ -729,6 +732,7 @@ export type Database = {
           indirizzo_destinazione?: string
           indirizzo_presa?: string
           iva?: number | null
+          km_totali?: number | null
           metodo_pagamento: string
           note?: string | null
           numero_commessa?: string | null
@@ -737,6 +741,8 @@ export type Database = {
           ore_fatturate?: number | null
           ore_finali?: number | null
           ore_lavorate?: number | null
+          ore_sosta?: number | null
+          ore_sosta_fatturate?: number | null
           referente_id?: string | null
           stato?: string
           tipo_cliente?: string | null
@@ -768,6 +774,7 @@ export type Database = {
           indirizzo_destinazione?: string
           indirizzo_presa?: string
           iva?: number | null
+          km_totali?: number | null
           metodo_pagamento?: string
           note?: string | null
           numero_commessa?: string | null
@@ -776,6 +783,8 @@ export type Database = {
           ore_fatturate?: number | null
           ore_finali?: number | null
           ore_lavorate?: number | null
+          ore_sosta?: number | null
+          ore_sosta_fatturate?: number | null
           referente_id?: string | null
           stato?: string
           tipo_cliente?: string | null

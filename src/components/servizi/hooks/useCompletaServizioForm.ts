@@ -14,8 +14,7 @@ export const completaServizioSchema = z.object({
   metodo_pagamento: z.string({
     required_error: "Seleziona un metodo di pagamento",
   }),
-  incasso_ricevuto: z.coerce.number().min(0, "Deve essere un numero positivo").optional(),
-  ore_lavorate: z.coerce.number().min(0, "Deve essere un numero positivo").optional(),
+  incasso_ricevuto: z.coerce.number().min(0, "Deve essere un numero positivo"),
   consegna_contanti_a: z.string().optional(),
 });
 
@@ -70,8 +69,7 @@ export function useCompletaServizioForm({
     resolver: zodResolver(completaServizioSchema),
     defaultValues: {
       metodo_pagamento: metodoDefault,
-      incasso_ricevuto: 0,
-      ore_lavorate: 0,
+      incasso_ricevuto: servizio.incasso_ricevuto || 0,
       consegna_contanti_a: '',
     },
   });
@@ -102,7 +100,6 @@ export function useCompletaServizioForm({
         id: servizioId,
         metodo_pagamento: data.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
-        ore_lavorate: data.ore_lavorate,
         consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
       });
 
