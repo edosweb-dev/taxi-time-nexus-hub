@@ -15,13 +15,69 @@ export const useSpeseAziendali = () => {
         .from('spese_aziendali')
         .select(`
           *,
-          modalita_pagamento:modalita_pagamenti(nome),
-          socio:profiles(id, first_name, last_name)
+          modalita_pagamento:modalita_pagamenti(id, nome, attivo, created_at),
+          socio:profiles!socio_id(id, first_name, last_name),
+          dipendente:profiles!dipendente_id(id, first_name, last_name)
         `)
         .order('data_movimento', { ascending: false });
 
       if (error) throw error;
       return data as SpesaAziendale[];
+    },
+  });
+
+  // Query combinata: spese_aziendali + spese_dipendenti pending
+  const fetchMovimentiCompleti = useQuery({
+    queryKey: ['movimenti-completi'],
+    queryFn: async () => {
+      // Fetch spese aziendali
+      const { data: speseAz, error: errorAz } = await supabase
+        .from('spese_aziendali')
+        .select(`
+          *,
+          modalita_pagamento:modalita_pagamenti(id, nome, attivo, created_at),
+          socio:profiles!socio_id(id, first_name, last_name),
+          dipendente:profiles!dipendente_id(id, first_name, last_name)
+        `)
+        .order('data_movimento', { ascending: false });
+
+      if (errorAz) throw errorAz;
+
+      // Fetch spese dipendenti pending (in attesa approvazione)
+      const { data: spesePending, error: errorPending } = await supabase
+        .from('spese_dipendenti')
+        .select(`
+          *,
+          user_profile:profiles!user_id(id, first_name, last_name)
+        `)
+        .eq('stato', 'in_attesa')
+        .order('data_spesa', { ascending: false });
+
+      if (errorPending) throw errorPending;
+
+      // Combina e normalizza
+      const movimentiCombinati = [
+        ...(speseAz || []).map(s => ({
+          ...s,
+          tipo: 'aziendale' as const,
+          data: s.data_movimento,
+        })),
+        ...(spesePending || []).map(s => ({
+          id: s.id,
+          data: s.data_spesa,
+          importo: s.importo,
+          causale: s.causale,
+          tipologia: 'spesa' as const,
+          tipo: 'pending' as const,
+          note: s.note,
+          user_profile: s.user_profile,
+          stato_pagamento: 'pending' as const,
+          created_at: s.created_at,
+          created_by: s.user_id,
+        })),
+      ].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
+      return movimentiCombinati;
     },
   });
 
@@ -206,7 +262,9 @@ export const useSpeseAziendali = () => {
 
   return {
     movimenti: fetchMovimenti.data || [],
+    movimentiCompleti: fetchMovimentiCompleti.data || [],
     isLoading: fetchMovimenti.isLoading,
+    isLoadingCompleti: fetchMovimentiCompleti.isLoading,
     error: fetchMovimenti.error,
     addMovimento,
     updateStatoPagamento,

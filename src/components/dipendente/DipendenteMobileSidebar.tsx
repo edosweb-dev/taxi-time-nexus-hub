@@ -28,7 +28,8 @@ export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSideb
       title: 'Gestione Personale',
       items: [
         { icon: DollarSign, label: 'Spese', path: '/dipendente/spese' },
-        { icon: Euro, label: 'Stipendi', path: '/dipendente/stipendi' }
+        { icon: Euro, label: 'Stipendi', path: '/dipendente/stipendi' },
+        { icon: Euro, label: 'Storico Stipendi', path: '/dipendente/storico-stipendi' }
       ]
     },
     {

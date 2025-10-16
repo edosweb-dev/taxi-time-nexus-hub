@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 import { Switch } from '@/components/ui/switch';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -24,24 +24,15 @@ import { MovimentoFormData } from '@/lib/types/spese-aziendali';
 const formSchema = z.object({
   data_movimento: z.string(),
   importo: z.number().positive('L\'importo deve essere positivo'),
+  tipo_causale: z.enum(['generica', 'f24', 'stipendio']).default('generica'),
   causale: z.string().min(3, 'La causale deve avere almeno 3 caratteri').max(500, 'La causale è troppo lunga'),
-  tipologia: z.enum(['spesa', 'incasso', 'prelievo']),
   modalita_pagamento_id: z.string().min(1, 'Seleziona una modalità di pagamento'),
-  socio_id: z.string().optional(),
+  dipendente_id: z.string().uuid().optional(),
   note: z.string().optional(),
   is_pending: z.boolean().default(false),
 }).refine(
-  (data) => {
-    // Socio obbligatorio per incassi e prelievi
-    if ((data.tipologia === 'incasso' || data.tipologia === 'prelievo') && !data.socio_id) {
-      return false;
-    }
-    return true;
-  },
-  {
-    message: 'Seleziona il socio che ha effettuato il movimento',
-    path: ['socio_id'],
-  }
+  (data) => data.tipo_causale !== 'stipendio' || data.dipendente_id,
+  { message: "Seleziona un dipendente per causale Stipendio", path: ["dipendente_id"] }
 );
 
 interface MovimentoFormProps {
@@ -52,14 +43,14 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
   const { addMovimento } = useSpeseAziendali();
   const { modalitaAttive } = useModalitaPagamenti();
 
-  // Fetch soci e admin
-  const { data: soci } = useQuery({
-    queryKey: ['soci-admin'],
+  // Fetch dipendenti
+  const { data: dipendenti } = useQuery({
+    queryKey: ['dipendenti'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name')
-        .in('role', ['socio', 'admin']);
+        .select('id, first_name, last_name, role')
+        .in('role', ['dipendente', 'socio']);
 
       if (error) throw error;
       return data;
@@ -71,27 +62,28 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
     defaultValues: {
       data_movimento: new Date().toISOString().split('T')[0],
       importo: 0,
+      tipo_causale: 'generica',
       causale: '',
-      tipologia: 'spesa',
       modalita_pagamento_id: '',
-      socio_id: '',
+      dipendente_id: '',
       note: '',
       is_pending: false,
     },
   });
 
-  const tipologia = form.watch('tipologia');
+  const tipoCausale = form.watch('tipo_causale');
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const formData: MovimentoFormData = {
       data_movimento: values.data_movimento,
       importo: values.importo,
       causale: values.causale,
-      tipologia: values.tipologia,
+      tipologia: 'spesa', // SEMPRE spesa per movimenti manuali
+      tipo_causale: values.tipo_causale || 'generica',
       modalita_pagamento_id: values.modalita_pagamento_id,
-      socio_id: values.socio_id || undefined,
+      dipendente_id: values.tipo_causale === 'stipendio' ? values.dipendente_id : undefined,
       note: values.note || undefined,
-      stato_pagamento: (values.tipologia === 'spesa' && values.is_pending) ? 'pending' : 'completato',
+      stato_pagamento: values.is_pending ? 'pending' : 'completato',
     };
 
     await addMovimento.mutateAsync(formData);
@@ -168,6 +160,61 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
 
         <FormField
           control={form.control}
+          name="tipo_causale"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo Causale</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value || 'generica'}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona tipo" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="generica">💳 Spesa Generica</SelectItem>
+                  <SelectItem value="f24">📄 F24 (Tasse/Contributi)</SelectItem>
+                  <SelectItem value="stipendio">💰 Stipendio Dipendente</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {tipoCausale === 'stipendio' && (
+          <FormField
+            control={form.control}
+            name="dipendente_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dipendente *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona dipendente" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {dipendenti
+                      ?.filter(d => d.role === 'dipendente' || d.role === 'socio')
+                      .map(d => (
+                        <SelectItem key={d.id} value={d.id}>
+                          {d.first_name} {d.last_name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <div className="text-sm text-muted-foreground mt-2">
+                  Questo movimento apparirà nello storico stipendi del dipendente
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <FormField
+          control={form.control}
           name="causale"
           render={({ field }) => (
             <FormItem>
@@ -182,45 +229,10 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
 
         <FormField
           control={form.control}
-          name="tipologia"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel>Tipologia</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="grid grid-cols-3 gap-4"
-                >
-                  <div className="flex items-center space-x-2 border rounded-lg p-3">
-                    <RadioGroupItem value="spesa" id="spesa" />
-                    <label htmlFor="spesa" className="font-medium text-red-600">Spesa</label>
-                  </div>
-                  <div className="flex items-center space-x-2 border rounded-lg p-3">
-                    <RadioGroupItem value="incasso" id="incasso" />
-                    <label htmlFor="incasso" className="font-medium text-green-600">Incasso</label>
-                  </div>
-                  <div className="flex items-center space-x-2 border rounded-lg p-3">
-                    <RadioGroupItem value="prelievo" id="prelievo" />
-                    <label htmlFor="prelievo" className="font-medium text-blue-600">Prelievo</label>
-                  </div>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="modalita_pagamento_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                {tipologia === 'prelievo' 
-                  ? 'Modalità di prelievo' 
-                  : 'Modalità di pagamento'}
-              </FormLabel>
+              <FormLabel>Modalità di pagamento</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -228,20 +240,11 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {modalitaAttive
-                    .filter((modalita) => {
-                      // Per prelievi, solo Carta, Carta di credito e Contanti
-                      if (tipologia === 'prelievo') {
-                        return modalita.nome === 'Carta' || modalita.nome === 'Contanti' || modalita.nome === 'Carta di credito';
-                      }
-                      // Per spese e incassi, tutte le modalità
-                      return true;
-                    })
-                    .map((modalita) => (
-                      <SelectItem key={modalita.id} value={modalita.id}>
-                        {modalita.nome}
-                      </SelectItem>
-                    ))}
+                  {modalitaAttive.map((modalita) => (
+                    <SelectItem key={modalita.id} value={modalita.id}>
+                      {modalita.nome}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -249,55 +252,26 @@ export function MovimentoForm({ onSuccess }: MovimentoFormProps) {
           )}
         />
 
-        {(tipologia === 'incasso' || tipologia === 'prelievo') && (
-          <FormField
-            control={form.control}
-            name="socio_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Movimento effettuato da</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona socio" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {soci?.map((socio) => (
-                      <SelectItem key={socio.id} value={socio.id}>
-                        {socio.first_name} {socio.last_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {tipologia === 'spesa' && (
-          <FormField
-            control={form.control}
-            name="is_pending"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">Pagamento pending</FormLabel>
-                  <div className="text-sm text-muted-foreground">
-                    Il pagamento non è ancora stato effettuato
-                  </div>
+        <FormField
+          control={form.control}
+          name="is_pending"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Pagamento pending</FormLabel>
+                <div className="text-sm text-muted-foreground">
+                  Il pagamento non è ancora stato effettuato
                 </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        )}
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

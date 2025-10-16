@@ -35,15 +35,18 @@ export function SpeseAziendaliDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-not-allowed opacity-60">
+        <Card 
+          className="hover:shadow-md transition-shadow cursor-pointer" 
+          onClick={() => setNuovoMovimentoOpen(true)}
+        >
           <CardContent className="p-6">
             <div className="flex items-center justify-center space-x-4">
-              <div className="p-3 bg-gray-100 rounded-full">
-                <Users className="h-8 w-8 text-gray-400" />
+              <div className="p-3 bg-purple-100 rounded-full">
+                <Users className="h-8 w-8 text-purple-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-500">Stipendio dipendente</h3>
-                <p className="text-sm text-muted-foreground">Coming soon...</p>
+                <h3 className="text-lg font-semibold">Registra Stipendio</h3>
+                <p className="text-sm text-muted-foreground">Pagamento dipendente</p>
               </div>
             </div>
           </CardContent>

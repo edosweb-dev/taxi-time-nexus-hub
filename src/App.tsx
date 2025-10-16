@@ -23,6 +23,7 @@ const CompletaServizioPage = lazy(() => import('./pages/dipendente/CompletaServi
 const DipendenteTurniPage = lazy(() => import('./pages/dipendente/TurniPage'));
 const DipendenteSpesePage = lazy(() => import('./pages/dipendente/SpesePage'));
 const DipendenteStipendiPage = lazy(() => import('./pages/dipendente/StipendiPage'));
+const StoricoStipendiPage = lazy(() => import('./pages/dipendente/StoricoStipendi'));
 const DipendenteNotFound = lazy(() => import('./pages/dipendente/DipendenteNotFound'));
 const MobileUIShowcase = lazy(() => import('./components/mobile-first/MobileUIShowcase').then(module => ({ default: module.MobileUIShowcase })));
 const ImpostazioniPage = lazy(() => import('./pages/ImpostazioniPage'));
@@ -368,6 +369,12 @@ function App() {
                 <Route path="/dipendente/stipendi" element={
                   <AuthGuard allowedRoles={['dipendente']}>
                     <DipendenteStipendiPage />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/storico-stipendi" element={
+                  <AuthGuard allowedRoles={['dipendente', 'socio']}>
+                    <StoricoStipendiPage />
                   </AuthGuard>
                 } />
 

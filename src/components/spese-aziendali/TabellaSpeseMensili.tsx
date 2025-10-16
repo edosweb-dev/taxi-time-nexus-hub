@@ -11,14 +11,14 @@ import { it } from 'date-fns/locale';
 
 export function TabellaSpeseMensili() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const { movimenti, isLoading } = useSpeseAziendali();
+  const { movimentiCompleti, isLoadingCompleti } = useSpeseAziendali();
 
   const startDate = startOfMonth(selectedMonth);
   const endDate = endOfMonth(selectedMonth);
 
   // Filtra movimenti per il mese selezionato
-  const movimentiMese = movimenti.filter(movimento => {
-    const dataMovimento = new Date(movimento.data_movimento);
+  const movimentiMese = movimentiCompleti.filter(movimento => {
+    const dataMovimento = new Date(movimento.data);
     return dataMovimento >= startDate && dataMovimento <= endDate;
   });
 
@@ -69,23 +69,29 @@ export function TabellaSpeseMensili() {
     );
   };
 
-  const totaliMese = movimentiMese.reduce(
-    (acc, movimento) => {
-      switch (movimento.tipologia) {
-        case 'spesa':
-          acc.spese += Number(movimento.importo);
-          break;
-        case 'incasso':
-          acc.incassi += Number(movimento.importo);
-          break;
-        case 'prelievo':
-          acc.prelievi += Number(movimento.importo);
-          break;
-      }
-      return acc;
-    },
-    { spese: 0, incassi: 0, prelievi: 0 }
-  );
+  const totaliMese = movimentiMese
+    .filter(m => m.tipo === 'aziendale') // Escludi pending dai totali
+    .reduce(
+      (acc, movimento) => {
+        switch (movimento.tipologia) {
+          case 'spesa':
+            acc.spese += Number(movimento.importo);
+            break;
+          case 'incasso':
+            acc.incassi += Number(movimento.importo);
+            break;
+          case 'prelievo':
+            acc.prelievi += Number(movimento.importo);
+            break;
+        }
+        return acc;
+      },
+      { spese: 0, incassi: 0, prelievi: 0 }
+    );
+
+  const totalePending = movimentiMese
+    .filter(m => m.tipo === 'pending')
+    .reduce((sum, m) => sum + Number(m.importo), 0);
 
   const saldo = totaliMese.incassi - totaliMese.spese - totaliMese.prelievi;
 
@@ -99,7 +105,7 @@ export function TabellaSpeseMensili() {
 
   const isCurrentMonth = format(selectedMonth, 'yyyy-MM') === format(new Date(), 'yyyy-MM');
 
-  if (isLoading) {
+  if (isLoadingCompleti) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -136,7 +142,7 @@ export function TabellaSpeseMensili() {
       </CardHeader>
       <CardContent>
         {/* Statistiche del mese */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="text-center p-3 bg-red-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Spese</p>
             <p className="text-lg font-bold text-red-600">{formatCurrency(totaliMese.spese)}</p>
@@ -148,6 +154,10 @@ export function TabellaSpeseMensili() {
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Prelievi</p>
             <p className="text-lg font-bold text-blue-600">{formatCurrency(totaliMese.prelievi)}</p>
+          </div>
+          <div className="text-center p-3 bg-yellow-50 rounded-lg">
+            <p className="text-sm text-muted-foreground">Pending Dipendenti</p>
+            <p className="text-lg font-bold text-yellow-600">{formatCurrency(totalePending)}</p>
           </div>
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Saldo</p>
@@ -181,41 +191,78 @@ export function TabellaSpeseMensili() {
               </TableHeader>
               <TableBody>
                 {movimentiMese
-                  .sort((a, b) => new Date(b.data_movimento).getTime() - new Date(a.data_movimento).getTime())
+                  .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
                   .map((movimento) => (
-                    <TableRow key={movimento.id}>
+                    <TableRow 
+                      key={movimento.id}
+                      className={movimento.tipo === 'pending' ? 'bg-yellow-50' : ''}
+                    >
                       <TableCell className="font-medium">
-                        {formatDate(movimento.data_movimento)}
+                        {movimento.tipo === 'pending' && (
+                          <Badge variant="outline" className="mb-1 bg-yellow-100 text-yellow-800 border-yellow-300">
+                            ⏳ In Attesa Approvazione
+                          </Badge>
+                        )}
+                        {formatDate(movimento.data)}
                       </TableCell>
                       <TableCell>
-                        {getTipologiaBadge(movimento.tipologia)}
+                        {movimento.tipo === 'aziendale' && getTipologiaBadge(movimento.tipologia)}
+                        {movimento.tipo === 'pending' && (
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                            📤 Spesa Dipendente
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell className="max-w-xs">
+                        {/* Emoji per tipo causale */}
+                        {movimento.tipo === 'aziendale' && movimento.tipo_causale === 'f24' && '📄 '}
+                        {movimento.tipo === 'aziendale' && movimento.tipo_causale === 'stipendio' && '💰 '}
                         <div className="truncate" title={movimento.causale}>
                           {movimento.causale}
                         </div>
+                        
+                        {/* Sotto-info dipendente per stipendi */}
+                        {movimento.tipo === 'aziendale' && movimento.dipendente && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            👤 {movimento.dipendente.first_name} {movimento.dipendente.last_name}
+                          </div>
+                        )}
+                        
+                        {/* Sotto-info per pending */}
+                        {movimento.tipo === 'pending' && movimento.user_profile && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            👤 {movimento.user_profile.first_name} {movimento.user_profile.last_name}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
-                        {movimento.modalita_pagamento?.nome || 'N/A'}
+                        {movimento.tipo === 'aziendale' 
+                          ? movimento.modalita_pagamento?.nome || 'N/A'
+                          : '-'
+                        }
                       </TableCell>
                       <TableCell className="font-semibold">
                         <span className={
+                          movimento.tipo === 'pending' ? 'text-yellow-600' :
                           movimento.tipologia === 'spesa' ? 'text-red-600' :
                           movimento.tipologia === 'incasso' ? 'text-green-600' :
                           'text-blue-600'
                         }>
-                          {movimento.tipologia === 'spesa' ? '-' : '+'}
+                          {movimento.tipo === 'pending' || movimento.tipologia === 'spesa' ? '-' : '+'}
                           {formatCurrency(Number(movimento.importo))}
                         </span>
                       </TableCell>
                       <TableCell>
-                        {movimento.socio ? 
-                          `${movimento.socio.first_name || ''} ${movimento.socio.last_name || ''}`.trim() || 'N/A'
+                        {movimento.tipo === 'aziendale' && movimento.socio 
+                          ? `${movimento.socio.first_name || ''} ${movimento.socio.last_name || ''}`.trim() || 'N/A'
                           : '-'
                         }
                       </TableCell>
                       <TableCell>
-                        {getStatoBadge(movimento.stato_pagamento)}
+                        {movimento.tipo === 'pending' 
+                          ? <Badge variant="outline" className="bg-yellow-100">In Attesa</Badge>
+                          : getStatoBadge(movimento.stato_pagamento)
+                        }
                       </TableCell>
                       <TableCell className="max-w-xs">
                         <div className="truncate" title={movimento.note || ''}>

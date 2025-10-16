@@ -969,12 +969,14 @@ export type Database = {
           created_at: string
           created_by: string
           data_movimento: string
+          dipendente_id: string | null
           id: string
           importo: number
           modalita_pagamento_id: string
           note: string | null
           socio_id: string | null
           stato_pagamento: string
+          tipo_causale: string | null
           tipologia: string
         }
         Insert: {
@@ -982,12 +984,14 @@ export type Database = {
           created_at?: string
           created_by: string
           data_movimento: string
+          dipendente_id?: string | null
           id?: string
           importo: number
           modalita_pagamento_id: string
           note?: string | null
           socio_id?: string | null
           stato_pagamento?: string
+          tipo_causale?: string | null
           tipologia: string
         }
         Update: {
@@ -995,15 +999,24 @@ export type Database = {
           created_at?: string
           created_by?: string
           data_movimento?: string
+          dipendente_id?: string | null
           id?: string
           importo?: number
           modalita_pagamento_id?: string
           note?: string | null
           socio_id?: string | null
           stato_pagamento?: string
+          tipo_causale?: string | null
           tipologia?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "spese_aziendali_dipendente_id_fkey"
+            columns: ["dipendente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "spese_aziendali_modalita_pagamento_id_fkey"
             columns: ["modalita_pagamento_id"]
