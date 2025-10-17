@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { 
   StipendiHeader,
   StipendiGuida
@@ -36,24 +36,8 @@ export default function StipendiPage() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Recupera stipendi automatici per il mese/anno selezionato
-  const { data: stipendiAutomatici, isLoading, refetch } = useStipendiAutomatici(selectedMonth, selectedYear);
-
-  // Filtra per tipo
-  const stipendiAdmin = useMemo(() => 
-    stipendiAutomatici?.filter(s => s.role === 'admin') || [], 
-    [stipendiAutomatici]
-  );
-  
-  const stipendiSoci = useMemo(() => 
-    stipendiAutomatici?.filter(s => s.role === 'socio') || [], 
-    [stipendiAutomatici]
-  );
-  
-  const stipendiDipendenti = useMemo(() => 
-    stipendiAutomatici?.filter(s => s.role === 'dipendente') || [], 
-    [stipendiAutomatici]
-  );
+  // Recupera stipendi automatici per il mese/anno selezionato (solo admin e soci)
+  const { data: stipendiSoci, isLoading, refetch } = useStipendiAutomatici(selectedMonth, selectedYear);
 
   // Gestori azioni
   const handleSalvaStipendio = async (stipendio: StipendiAutomaticoUtente) => {
@@ -100,62 +84,20 @@ export default function StipendiPage() {
           <StipendiGuida />
         </div>
 
-        {/* Tabs per admin/soci/dipendenti */}
-        <Tabs defaultValue="admin" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="admin">Admin ({stipendiAdmin.length})</TabsTrigger>
-            <TabsTrigger value="soci">Soci ({stipendiSoci.length})</TabsTrigger>
-            <TabsTrigger value="dipendenti">Dipendenti ({stipendiDipendenti.length})</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="admin" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Stipendi Admin - {getMonthName(selectedMonth)} {selectedYear}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TabellaStipendAutomatici
-                  stipendi={stipendiAdmin}
-                  isLoading={isLoading}
-                  onSalvaStipendio={handleSalvaStipendio}
-                  onViewDetails={handleViewDetails}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="soci" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Stipendi Soci - {getMonthName(selectedMonth)} {selectedYear}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TabellaStipendAutomatici
-                  stipendi={stipendiSoci}
-                  isLoading={isLoading}
-                  onSalvaStipendio={handleSalvaStipendio}
-                  onViewDetails={handleViewDetails}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="dipendenti" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Stipendi Dipendenti - {getMonthName(selectedMonth)} {selectedYear}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TabellaStipendAutomatici
-                  stipendi={stipendiDipendenti}
-                  isLoading={isLoading}
-                  onSalvaStipendio={handleSalvaStipendio}
-                  onViewDetails={handleViewDetails}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Tabella Soci (admin e soci insieme) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Stipendi Soci - {getMonthName(selectedMonth)} {selectedYear}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TabellaStipendAutomatici
+              stipendi={stipendiSoci || []}
+              isLoading={isLoading}
+              onSalvaStipendio={handleSalvaStipendio}
+              onViewDetails={handleViewDetails}
+            />
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );

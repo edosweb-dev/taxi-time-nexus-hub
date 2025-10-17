@@ -84,7 +84,8 @@ async function getNumeroServizi(userId: string, mese: number, anno: number): Pro
 }
 
 /**
- * Ottiene tutti gli utenti (admin, soci, dipendenti) con i loro stipendi calcolati automaticamente
+ * Ottiene admin e soci con i loro stipendi calcolati automaticamente dai servizi
+ * I dipendenti hanno stipendio manuale e non vengono inclusi qui
  */
 export async function getStipendiAutomaticiMese(
   mese: number, 
@@ -93,11 +94,11 @@ export async function getStipendiAutomaticiMese(
   console.log(`[getStipendiAutomaticiMese] Calcolo stipendi per ${mese}/${anno}`);
 
   try {
-    // 1. Ottieni tutti gli utenti (admin, soci, dipendenti)
+    // 1. Ottieni solo admin e soci (dipendenti hanno stipendio manuale)
     const { data: users, error: usersError } = await supabase
       .from('profiles')
       .select('id, first_name, last_name, role')
-      .in('role', ['admin', 'socio', 'dipendente'])
+      .in('role', ['admin', 'socio'])
       .order('last_name', { ascending: true });
 
     if (usersError) {
@@ -125,28 +126,11 @@ export async function getStipendiAutomaticiMese(
       (stipendiSalvati || []).map(s => [s.user_id, s])
     );
 
-    // 3. Per ogni utente, calcola lo stipendio dai servizi
+    // 3. Per ogni admin/socio, calcola lo stipendio dai servizi consuntivati
     const risultati: StipendiAutomaticoUtente[] = await Promise.all(
       users.map(async (user) => {
         const stipendioEsistente = stipendiMap.get(user.id);
 
-        // Se è un dipendente (non admin/socio), usa lo stipendio salvato se esiste
-        if (user.role === 'dipendente') {
-          return {
-            userId: user.id,
-            firstName: user.first_name || '',
-            lastName: user.last_name || '',
-            role: user.role,
-            numeroServizi: 0,
-            kmTotali: 0,
-            oreAttesa: 0,
-            calcoloCompleto: null,
-            stipendioEsistente,
-            hasStipendioSalvato: !!stipendioEsistente,
-          };
-        }
-
-        // Per admin/soci, calcola dai servizi
         try {
           const [numeroServizi, kmTotali, oreAttesa] = await Promise.all([
             getNumeroServizi(user.id, mese, anno),
