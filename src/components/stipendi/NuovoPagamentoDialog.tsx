@@ -88,8 +88,8 @@ export function NuovoPagamentoDialog({ open, onOpenChange }: NuovoPagamentoDialo
   useEffect(() => {
     if (selectedUserId) {
       const dipendente = dipendenti.find(d => d.id === selectedUserId);
-      if (dipendente?.stipendio_fisso) {
-        form.setValue('importo', Number(dipendente.stipendio_fisso));
+      if ((dipendente as any)?.stipendio_fisso) {
+        form.setValue('importo', Number((dipendente as any).stipendio_fisso));
       }
     }
   }, [selectedUserId, dipendenti, form]);

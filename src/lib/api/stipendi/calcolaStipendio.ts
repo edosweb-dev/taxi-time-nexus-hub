@@ -16,6 +16,7 @@ export interface DetrazioniStipendio {
   totaleSpesePersonali: number;
   totalePrelievi: number;
   incassiDaDipendenti: number;
+  incassiServiziContanti: number;
   riportoMesePrecedente: number;
 }
 
@@ -27,6 +28,38 @@ export interface CalcoloStipendioCompleto extends CalcoloSocioResult {
     configurazione: ConfigurazioneStipendi;
     parametriUsati: CalcoloSocioParams;
   };
+}
+
+/**
+ * Recupera incassi da servizi contanti per admin/soci
+ */
+async function getIncassiServiziContanti(
+  userId: string,
+  startDate: string,
+  endDate: string
+): Promise<number> {
+  console.log(`[getIncassiServiziContanti] Fetching per user ${userId} da ${startDate} a ${endDate}`);
+  
+  const { data: servizi, error } = await supabase
+    .from('servizi')
+    .select('incasso_ricevuto, incasso_previsto')
+    .eq('assegnato_a', userId)
+    .eq('metodo_pagamento', 'Contanti')
+    .gte('data_servizio', startDate)
+    .lte('data_servizio', endDate)
+    .in('stato', ['completato', 'consuntivato']);
+
+  if (error) {
+    console.error('[getIncassiServiziContanti] Error:', error);
+    throw error;
+  }
+
+  const totale = servizi?.reduce((sum, s) => 
+    sum + Number(s.incasso_ricevuto || s.incasso_previsto || 0), 0
+  ) || 0;
+
+  console.log(`[getIncassiServiziContanti] Totale: €${totale}`);
+  return totale;
 }
 
 /**
@@ -84,6 +117,15 @@ export async function getDetrazioniStipendio(
     throw errorIncassi;
   }
   
+  // NUOVO: Calcola incassi da servizi contanti personali
+  const incassiServiziContanti = await getIncassiServiziContanti(
+    userId,
+    startDate,
+    endDate
+  );
+  
+  console.log('[getDetrazioniStipendio] Incassi servizi contanti:', incassiServiziContanti);
+  
   // Recupera riporto dal mese precedente (stipendio del mese precedente)
   const mesePrecedente = mese === 1 ? 12 : mese - 1;
   const annoPrecedente = mese === 1 ? anno - 1 : anno;
@@ -111,6 +153,7 @@ export async function getDetrazioniStipendio(
     totaleSpesePersonali,
     totalePrelievi,
     incassiDaDipendenti,
+    incassiServiziContanti,
     riportoMesePrecedente
   };
   
@@ -176,14 +219,25 @@ export async function calcolaStipendioCompleto(
     const detrazioni = await getDetrazioniStipendio(userId, mese, anno);
     
     // 6. Calcola totale netto
-    // Formula: Lordo - Spese - Prelievi + Incassi + Riporto
+    // ✅ FORMULA CORRETTA
     const totaleNetto = Number((
-      calcoloBase.totaleLordo - 
-      detrazioni.totaleSpesePersonali - 
-      detrazioni.totalePrelievi + 
-      detrazioni.incassiDaDipendenti + 
-      detrazioni.riportoMesePrecedente
+      calcoloBase.totaleLordo +              // Base lordo (KM + ore attesa con aumento)
+      detrazioni.totaleSpesePersonali -      // ✅ AGGIUNGI rimborsi spese (FIX!)
+      detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
+      detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti (FIX!)
+      detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti (NUOVO!)
+      detrazioni.riportoMesePrecedente       // ✅ ± riporto mese precedente
     ).toFixed(2));
+
+    console.log('[calcolaStipendioCompleto] Calcolo netto:', {
+      totaleLordo: calcoloBase.totaleLordo,
+      spesePersonali: `+${detrazioni.totaleSpesePersonali}`,
+      prelievi: `-${detrazioni.totalePrelievi}`,
+      incassiDipendenti: `-${detrazioni.incassiDaDipendenti}`,
+      incassiServizi: `-${detrazioni.incassiServiziContanti}`,
+      riporto: `${detrazioni.riportoMesePrecedente >= 0 ? '+' : ''}${detrazioni.riportoMesePrecedente}`,
+      risultato: totaleNetto
+    });
     
     const risultatoCompleto: CalcoloStipendioCompleto = {
       ...calcoloBase,
