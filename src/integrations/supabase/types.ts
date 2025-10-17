@@ -1536,6 +1536,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      ricalcola_stipendio_completo: {
+        Args: { _anno: number; _mese: number; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "socio" | "dipendente" | "cliente"

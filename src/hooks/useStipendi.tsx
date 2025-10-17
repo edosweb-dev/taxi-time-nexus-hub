@@ -5,6 +5,7 @@ import { createStipendio, CreateStipendioParams } from '@/lib/api/stipendi/creat
 import { updateStipendio, UpdateStipendioParams } from '@/lib/api/stipendi/updateStipendio';
 import { updateStatoStipendio, UpdateStatoStipendioParams } from '@/lib/api/stipendi/updateStatoStipendio';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from '@/integrations/supabase/client';
 import type { Stipendio, TariffaKm, ConfigurazioneStipendi, StatoStipendio } from '@/lib/api/stipendi';
 
 export function useStipendi(filters?: {
@@ -158,6 +159,37 @@ export function useUpdateStatoStipendio() {
       
       // Mostra toast di errore
       toast.error(error.message || 'Errore durante il cambio di stato');
+    },
+  });
+}
+
+// Hook per confermare stipendio
+export function useConfermaStipendio() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (stipendioId: string) => {
+      const { data, error } = await supabase
+        .from('stipendi')
+        .update({ 
+          stato: 'confermato', 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', stipendioId)
+        .eq('stato', 'bozza')
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      toast.success('Stipendio confermato con successo!');
+    },
+    onError: (error: Error) => {
+      toast.error('Errore durante conferma: ' + error.message);
     },
   });
 }

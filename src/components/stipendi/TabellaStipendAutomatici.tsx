@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -9,9 +9,12 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Save, Eye, Check } from 'lucide-react';
+import { Save, Eye, CheckCircle, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { StipendiAutomaticoUtente } from '@/lib/api/stipendi/calcoloAutomaticoStipendi';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DialogConfermaStipendio } from './DialogConfermaStipendio';
+import { useConfermaStipendio } from '@/hooks/useStipendi';
+import { cn } from '@/lib/utils';
 
 interface TabellaStipendAutomaticiProps {
   stipendi: StipendiAutomaticoUtente[];
@@ -45,16 +48,34 @@ const getStatoBadge = (stipendio: StipendiAutomaticoUtente) => {
   }
 
   const stato = stipendio.stipendioEsistente?.stato;
-  switch (stato) {
-    case 'bozza':
-      return <Badge variant="outline">Bozza</Badge>;
-    case 'confermato':
-      return <Badge variant="default">Confermato</Badge>;
-    case 'pagato':
-      return <Badge variant="secondary">Pagato</Badge>;
-    default:
-      return <Badge variant="outline">-</Badge>;
-  }
+  const config = {
+    'bozza': {
+      icon: Clock,
+      label: 'Bozza (Auto-calcolato)',
+      className: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20'
+    },
+    'confermato': {
+      icon: CheckCircle,
+      label: 'Confermato',
+      className: 'bg-blue-500/10 text-blue-700 border-blue-500/20'
+    },
+    'pagato': {
+      icon: CheckCircle2,
+      label: 'Pagato',
+      className: 'bg-green-500/10 text-green-700 border-green-500/20'
+    }
+  };
+
+  const cfg = config[stato as keyof typeof config];
+  if (!cfg) return <Badge variant="outline">-</Badge>;
+
+  const Icon = cfg.icon;
+  return (
+    <Badge variant="outline" className={cn('gap-1', cfg.className)}>
+      <Icon className="h-3 w-3" />
+      {cfg.label}
+    </Badge>
+  );
 };
 
 export function TabellaStipendAutomatici({
@@ -63,6 +84,20 @@ export function TabellaStipendAutomatici({
   onSalvaStipendio,
   onViewDetails,
 }: TabellaStipendAutomaticiProps) {
+  const [confermaDialogStipendio, setConfermaDialogStipendio] = useState<any>(null);
+  const confermaStipendioMutation = useConfermaStipendio();
+
+  const handleConferma = (stipendio: StipendiAutomaticoUtente) => {
+    if (stipendio.stipendioEsistente) {
+      setConfermaDialogStipendio(stipendio.stipendioEsistente);
+    }
+  };
+
+  const handleConfirmDialog = (stipendioId: string) => {
+    confermaStipendioMutation.mutate(stipendioId);
+    setConfermaDialogStipendio(null);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -157,11 +192,16 @@ export function TabellaStipendAutomatici({
                         )}
                         {stipendio.hasStipendioSalvato && stipendio.stipendioEsistente?.stato === 'bozza' && (
                           <Button
-                            variant="secondary"
+                            variant="default"
                             size="sm"
-                            onClick={() => {/* Conferma */}}
+                            onClick={() => handleConferma(stipendio)}
+                            disabled={confermaStipendioMutation.isPending}
                           >
-                            <Check className="h-4 w-4 mr-1" />
+                            {confermaStipendioMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                            )}
                             Conferma
                           </Button>
                         )}
@@ -174,6 +214,13 @@ export function TabellaStipendAutomatici({
           })}
         </TableBody>
       </Table>
+
+      <DialogConfermaStipendio
+        open={!!confermaDialogStipendio}
+        onOpenChange={(open) => !open && setConfermaDialogStipendio(null)}
+        stipendio={confermaDialogStipendio}
+        onConfirm={handleConfirmDialog}
+      />
     </div>
   );
 }

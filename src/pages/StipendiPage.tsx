@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Clock } from 'lucide-react';
 
 import { 
   StipendiHeader,
@@ -82,20 +84,40 @@ export default function StipendiPage() {
     setSelectedStipendiodiPendente(dipendente);
   };
 
+  // Conta stipendi in bozza
+  const countBozza = useMemo(() => {
+    return (stipendiSoci || []).filter(
+      s => s.stipendioEsistente?.stato === 'bozza'
+    ).length;
+  }, [stipendiSoci]);
+
   return (
     <MainLayout>
       <div className="space-y-6">
         {/* Header con controlli */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <StipendiHeader
-            selectedMonth={selectedMonth}
-            selectedYear={selectedYear}
-            onMonthChange={setSelectedMonth}
-            onYearChange={setSelectedYear}
-            onNewStipendio={() => toast.info('Usa il pulsante "Salva" nella tabella per salvare gli stipendi')}
-          />
+          <div className="flex-1">
+            <StipendiHeader
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              onMonthChange={setSelectedMonth}
+              onYearChange={setSelectedYear}
+              onNewStipendio={() => toast.info('Usa il pulsante "Salva" nella tabella per salvare gli stipendi')}
+            />
+          </div>
           
-          <StipendiGuida />
+          <div className="flex gap-3 items-center">
+            {countBozza > 0 && (
+              <Alert className="max-w-md">
+                <Clock className="h-4 w-4" />
+                <AlertTitle>Stipendi in Bozza</AlertTitle>
+                <AlertDescription>
+                  {countBozza} stipend{countBozza === 1 ? 'io' : 'i'} calcolat{countBozza === 1 ? 'o' : 'i'} automaticamente in attesa di conferma.
+                </AlertDescription>
+              </Alert>
+            )}
+            <StipendiGuida />
+          </div>
         </div>
 
         {/* Tabs Soci / Dipendenti */}
