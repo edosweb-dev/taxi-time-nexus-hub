@@ -11,15 +11,19 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { 
   StipendiHeader,
   StipendiGuida
 } from '@/components/stipendi';
 import { TabellaStipendAutomatici } from '@/components/stipendi/TabellaStipendAutomatici';
+import { TabellaStipendiDipendenti } from '@/components/stipendi/TabellaStipendiDipendenti';
 import { useStipendiAutomatici } from '@/hooks/useStipendiAutomatici';
+import { useStipendiDipendenti } from '@/hooks/useStipendiDipendenti';
 import { useState, useMemo } from 'react';
 import { StipendiAutomaticoUtente } from '@/lib/api/stipendi/calcoloAutomaticoStipendi';
+import { StipendioManualeDipendente } from '@/lib/api/stipendi/getStipendiDipendenti';
 import { toast } from 'sonner';
 import { createStipendio } from '@/lib/api/stipendi/createStipendio';
 import { useQueryClient } from '@tanstack/react-query';
@@ -36,8 +40,11 @@ export default function StipendiPage() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Recupera stipendi automatici per il mese/anno selezionato (solo admin e soci)
-  const { data: stipendiSoci, isLoading, refetch } = useStipendiAutomatici(selectedMonth, selectedYear);
+  // Recupera stipendi automatici per soci (admin e soci)
+  const { data: stipendiSoci, isLoading: isLoadingSoci, refetch: refetchSoci } = useStipendiAutomatici(selectedMonth, selectedYear);
+  
+  // Recupera stipendi manuali per dipendenti
+  const { data: stipendiDipendenti, isLoading: isLoadingDipendenti, refetch: refetchDipendenti } = useStipendiDipendenti(selectedMonth, selectedYear);
 
   // Gestori azioni
   const handleSalvaStipendio = async (stipendio: StipendiAutomaticoUtente) => {
@@ -57,7 +64,7 @@ export default function StipendiPage() {
 
       toast.success('Stipendio salvato correttamente');
       queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
-      refetch();
+      refetchSoci();
     } catch (error) {
       console.error('Errore salvataggio stipendio:', error);
       toast.error('Errore durante il salvataggio dello stipendio');
@@ -66,6 +73,10 @@ export default function StipendiPage() {
 
   const handleViewDetails = (stipendio: StipendiAutomaticoUtente) => {
     toast.info('Dettaglio stipendio - Feature in sviluppo');
+  };
+
+  const handleViewDetailsDipendente = (dipendente: StipendioManualeDipendente) => {
+    toast.info('Dettaglio stipendio dipendente - Feature in sviluppo');
   };
 
   return (
@@ -84,20 +95,48 @@ export default function StipendiPage() {
           <StipendiGuida />
         </div>
 
-        {/* Tabella Soci (admin e soci insieme) */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Stipendi Soci - {getMonthName(selectedMonth)} {selectedYear}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TabellaStipendAutomatici
-              stipendi={stipendiSoci || []}
-              isLoading={isLoading}
-              onSalvaStipendio={handleSalvaStipendio}
-              onViewDetails={handleViewDetails}
-            />
-          </CardContent>
-        </Card>
+        {/* Tabs Soci / Dipendenti */}
+        <Tabs defaultValue="soci" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="soci">
+              Soci ({(stipendiSoci || []).length})
+            </TabsTrigger>
+            <TabsTrigger value="dipendenti">
+              Dipendenti ({(stipendiDipendenti || []).length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="soci" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Stipendi Soci - {getMonthName(selectedMonth)} {selectedYear}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TabellaStipendAutomatici
+                  stipendi={stipendiSoci || []}
+                  isLoading={isLoadingSoci}
+                  onSalvaStipendio={handleSalvaStipendio}
+                  onViewDetails={handleViewDetails}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="dipendenti" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Stipendi Dipendenti - {getMonthName(selectedMonth)} {selectedYear}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TabellaStipendiDipendenti
+                  dipendenti={stipendiDipendenti || []}
+                  isLoading={isLoadingDipendenti}
+                  onViewDetails={handleViewDetailsDipendente}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
