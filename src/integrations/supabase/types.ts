@@ -197,6 +197,7 @@ export type Database = {
           created_at: string
           id: string
           tariffa_km_extra: number
+          tariffa_oltre_200km: number
           tariffa_oraria_attesa: number
           updated_at: string
         }
@@ -206,6 +207,7 @@ export type Database = {
           created_at?: string
           id?: string
           tariffa_km_extra?: number
+          tariffa_oltre_200km?: number
           tariffa_oraria_attesa?: number
           updated_at?: string
         }
@@ -215,6 +217,7 @@ export type Database = {
           created_at?: string
           id?: string
           tariffa_km_extra?: number
+          tariffa_oltre_200km?: number
           tariffa_oraria_attesa?: number
           updated_at?: string
         }
@@ -1352,6 +1355,36 @@ export type Database = {
           id?: string
           km?: number
           tariffa_base?: number
+        }
+        Relationships: []
+      }
+      tariffe_km_fissi: {
+        Row: {
+          anno: number
+          attivo: boolean
+          created_at: string
+          id: string
+          importo_base: number
+          km: number
+          updated_at: string
+        }
+        Insert: {
+          anno: number
+          attivo?: boolean
+          created_at?: string
+          id?: string
+          importo_base: number
+          km: number
+          updated_at?: string
+        }
+        Update: {
+          anno?: number
+          attivo?: boolean
+          created_at?: string
+          id?: string
+          importo_base?: number
+          km?: number
+          updated_at?: string
         }
         Relationships: []
       }

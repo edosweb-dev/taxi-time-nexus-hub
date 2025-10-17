@@ -10,14 +10,39 @@ export interface TariffaKm {
   created_at: string;
 }
 
+export interface TariffaKmFissa {
+  id: string;
+  anno: number;
+  km: number;
+  importo_base: number;
+  attivo: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ConfigurazioneStipendi {
   id: string;
   anno: number;
   coefficiente_aumento: number;
   tariffa_oraria_attesa: number;
   tariffa_km_extra: number;
+  tariffa_oltre_200km?: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface SimulatoreResult {
+  baseKm: number;
+  baseConAumento: number;
+  importoOreAttesa: number;
+  totaleLordo: number;
+  coefficiente: number;
+  percentualeAumento: string;
+  tariffaOraria: number;
+  kmArrotondati?: number;
+  tariffaUnitaria?: number;
+  modalitaCalcolo: 'tabella' | 'lineare';
+  dettaglioCalcolo: string;
 }
 
 export interface Stipendio {

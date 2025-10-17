@@ -8,6 +8,7 @@ import { InfoAziendaForm } from "./InfoAziendaForm";
 import { MetodiPagamentoForm } from "./MetodiPagamentoForm";
 import { AliquoteIvaForm } from "./AliquoteIvaForm";
 import { PagamentiAziendali } from "./PagamentiAziendali";
+import { TariffeKmTab } from "./TariffeKmTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Save } from "lucide-react";
 import { ImpostazioniFormData, MetodoPagamentoOption, AliquotaIvaOption } from "@/lib/types/impostazioni";
@@ -133,10 +134,13 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Tabs defaultValue="info" className="w-full">
-          <TabsList className={`grid w-full ${profile?.role === 'admin' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+          <TabsList className={`grid w-full ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-5' : 'grid-cols-3'}`}>
             <TabsTrigger value="info">Informazioni Azienda</TabsTrigger>
             <TabsTrigger value="pagamenti">Metodi di Pagamento</TabsTrigger>
             <TabsTrigger value="iva">Aliquote IVA</TabsTrigger>
+            {(profile?.role === 'admin' || profile?.role === 'socio') && (
+              <TabsTrigger value="tariffe-km">Tariffe KM</TabsTrigger>
+            )}
             {profile?.role === 'admin' && (
               <TabsTrigger value="pagamenti-aziendali">Pagamenti Aziendali</TabsTrigger>
             )}
@@ -189,6 +193,12 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
               )}
             />
           </TabsContent>
+
+          {(profile?.role === 'admin' || profile?.role === 'socio') && (
+            <TabsContent value="tariffe-km" className="mt-4">
+              <TariffeKmTab />
+            </TabsContent>
+          )}
 
           {profile?.role === 'admin' && (
             <TabsContent value="pagamenti-aziendali" className="mt-4">
