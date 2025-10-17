@@ -44,7 +44,7 @@ export async function createStipendio(params: CreateStipendioParams): Promise<St
       totale_ore_lavorate: formData.ore_lavorate || null,
       // Dati calcolo (se disponibili)
       base_calcolo: calcolo?.baseKm || (formData.ore_lavorate && formData.tariffa_oraria ? formData.ore_lavorate * formData.tariffa_oraria : null),
-      coefficiente_applicato: calcolo?.dettaglioCalcolo.parametriUsati.coefficienteAumento || null,
+      coefficiente_applicato: calcolo?.dettaglioCalcolo.parametriInput.coefficiente || null,
       totale_lordo: calcolo?.totaleLordo || (formData.ore_lavorate && formData.tariffa_oraria ? formData.ore_lavorate * formData.tariffa_oraria : null),
       totale_spese: calcolo?.detrazioni?.totaleSpesePersonali || null,
       totale_prelievi: calcolo?.detrazioni?.totalePrelievi || null,

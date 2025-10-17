@@ -67,7 +67,7 @@ export async function updateStipendio(params: UpdateStipendioParams): Promise<St
     // Update calculation results if provided
     if (calcolo) {
       updateData.base_calcolo = calcolo.baseKm || (formData.ore_lavorate && formData.tariffa_oraria ? formData.ore_lavorate * formData.tariffa_oraria : null);
-      updateData.coefficiente_applicato = calcolo.dettaglioCalcolo.parametriUsati.coefficienteAumento || null;
+      updateData.coefficiente_applicato = calcolo.dettaglioCalcolo.parametriInput.coefficiente || null;
       updateData.totale_lordo = calcolo.totaleLordo;
       updateData.totale_spese = calcolo.detrazioni?.totaleSpesePersonali || null;
       updateData.totale_prelievi = calcolo.detrazioni?.totalePrelievi || null;

@@ -42,7 +42,7 @@ export function CalcoloPreview({
               </div>
               <div className="flex justify-between">
                 <span>+ Aumento:</span>
-                <span>{formatCurrency(calcolo.dettaglioCalcolo.parametriUsati.coefficienteAumento * calcolo.baseKm)}</span>
+                <span>{formatCurrency(calcolo.baseConAumento - calcolo.baseKm)}</span>
               </div>
               {watchedValues.ore_attesa && watchedValues.ore_attesa > 0 && (
                 <div className="flex justify-between">

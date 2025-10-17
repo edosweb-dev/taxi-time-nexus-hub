@@ -1,7 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
-import { TariffaKm, ConfigurazioneStipendi } from './types';
-import { calcolaStipendioSocio, CalcoloSocioParams, CalcoloSocioResult } from '@/lib/calcoloStipendi';
+import { ConfigurazioneStipendi } from './types';
+import { calcolaBaseKm } from './configurazione';
 
 export interface CalcoloStipendioParams {
   userId: string;
@@ -20,13 +20,23 @@ export interface DetrazioniStipendio {
   riportoMesePrecedente: number;
 }
 
-export interface CalcoloStipendioCompleto extends CalcoloSocioResult {
+export interface CalcoloStipendioCompleto {
+  baseKm: number;
+  baseConAumento: number;
+  importoOreAttesa: number;
+  totaleLordo: number;
   detrazioni: DetrazioniStipendio;
   totaleNetto: number;
   dettaglioCalcolo: {
-    tariffe: TariffaKm[];
+    modalitaCalcolo: 'tabella' | 'lineare';
+    dettaglio: string;
     configurazione: ConfigurazioneStipendi;
-    parametriUsati: CalcoloSocioParams;
+    parametriInput: {
+      km: number;
+      oreAttesa: number;
+      coefficiente: number;
+      tariffaOraria: number;
+    };
   };
 }
 
@@ -169,26 +179,10 @@ export async function calcolaStipendioCompleto(
 ): Promise<CalcoloStipendioCompleto> {
   const { userId, mese, anno, km, oreAttesa } = params;
   
-  console.log('[calcolaStipendioCompleto] Inizio calcolo per:', params);
+  console.log('[CALCOLO] 🚀 Inizio calcolo per:', params);
   
   try {
-    // 1. Recupera tariffe km per l'anno
-    const { data: tariffe, error: errorTariffe } = await supabase
-      .from('tariffe_km')
-      .select('*')
-      .eq('anno', anno)
-      .order('km', { ascending: true });
-    
-    if (errorTariffe) {
-      console.error('[calcolaStipendioCompleto] Errore recupero tariffe:', errorTariffe);
-      throw errorTariffe;
-    }
-    
-    if (!tariffe || tariffe.length === 0) {
-      throw new Error(`Nessuna tariffa trovata per l'anno ${anno}`);
-    }
-    
-    // 2. Recupera configurazione stipendi per l'anno
+    // 1. Recupera configurazione stipendi per l'anno
     const { data: configurazione, error: errorConfig } = await supabase
       .from('configurazione_stipendi')
       .select('*')
@@ -196,7 +190,7 @@ export async function calcolaStipendioCompleto(
       .single();
     
     if (errorConfig) {
-      console.error('[calcolaStipendioCompleto] Errore recupero configurazione:', errorConfig);
+      console.error('[CALCOLO] ❌ Errore recupero configurazione:', errorConfig);
       throw errorConfig;
     }
     
@@ -204,33 +198,47 @@ export async function calcolaStipendioCompleto(
       throw new Error(`Nessuna configurazione trovata per l'anno ${anno}`);
     }
     
-    // 3. Prepara parametri per il calcolo
-    const parametriCalcolo: CalcoloSocioParams = {
-      km,
-      oreAttesa,
-      coefficienteAumento: Number(configurazione.coefficiente_aumento),
-      tariffaOrariaAttesa: Number(configurazione.tariffa_oraria_attesa)
-    };
+    console.log('[CALCOLO] ⚙️ Configurazione:', {
+      coefficiente: configurazione.coefficiente_aumento,
+      percentualeAumento: `+${((configurazione.coefficiente_aumento - 1) * 100).toFixed(0)}%`,
+      tariffaOraria: configurazione.tariffa_oraria_attesa
+    });
     
-    // 4. Esegui calcolo base
-    const calcoloBase = calcolaStipendioSocio(parametriCalcolo);
+    // 2. Calcola base KM usando la nuova logica
+    const resultBaseKm = await calcolaBaseKm(km, anno);
+    console.log('[CALCOLO] 📊 Modalità calcolo:', resultBaseKm.modalita);
+    console.log('[CALCOLO] 🛣️ Dettaglio:', resultBaseKm.dettaglio);
+    console.log('[CALCOLO] 💰 Base KM:', resultBaseKm.base);
     
-    // 5. Recupera detrazioni
+    // 3. Applica coefficiente aumento
+    const baseConAumento = Number((resultBaseKm.base * configurazione.coefficiente_aumento).toFixed(2));
+    const aumentoApplicato = Number((baseConAumento - resultBaseKm.base).toFixed(2));
+    console.log('[CALCOLO] 📈 Base con aumento:', baseConAumento, `(+${aumentoApplicato})`);
+    
+    // 4. Calcola ore attesa
+    const importoOreAttesa = Number((oreAttesa * configurazione.tariffa_oraria_attesa).toFixed(2));
+    console.log('[CALCOLO] ⏱️ Ore attesa:', `${oreAttesa}h × ${configurazione.tariffa_oraria_attesa}€ = ${importoOreAttesa}€`);
+    
+    // 5. Calcola totale lordo
+    const totaleLordo = Number((baseConAumento + importoOreAttesa).toFixed(2));
+    console.log('[CALCOLO] 💵 Totale lordo:', totaleLordo);
+    
+    // 6. Recupera detrazioni
     const detrazioni = await getDetrazioniStipendio(userId, mese, anno);
+    console.log('[CALCOLO] 📋 Detrazioni:', detrazioni);
     
-    // 6. Calcola totale netto
-    // ✅ FORMULA CORRETTA
+    // 7. Calcola totale netto
     const totaleNetto = Number((
-      calcoloBase.totaleLordo +              // Base lordo (KM + ore attesa con aumento)
-      detrazioni.totaleSpesePersonali -      // ✅ AGGIUNGI rimborsi spese (FIX!)
+      totaleLordo +                          // Base lordo (KM + ore attesa con aumento)
+      detrazioni.totaleSpesePersonali -      // ✅ AGGIUNGI rimborsi spese
       detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
-      detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti (FIX!)
-      detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti (NUOVO!)
+      detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti
+      detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti
       detrazioni.riportoMesePrecedente       // ✅ ± riporto mese precedente
     ).toFixed(2));
 
-    console.log('[calcolaStipendioCompleto] Calcolo netto:', {
-      totaleLordo: calcoloBase.totaleLordo,
+    console.log('[CALCOLO] 💳 Breakdown netto:', {
+      totaleLordo,
       spesePersonali: `+${detrazioni.totaleSpesePersonali}`,
       prelievi: `-${detrazioni.totalePrelievi}`,
       incassiDipendenti: `-${detrazioni.incassiDaDipendenti}`,
@@ -240,21 +248,34 @@ export async function calcolaStipendioCompleto(
     });
     
     const risultatoCompleto: CalcoloStipendioCompleto = {
-      ...calcoloBase,
+      baseKm: resultBaseKm.base,
+      baseConAumento,
+      importoOreAttesa,
+      totaleLordo,
       detrazioni,
       totaleNetto,
       dettaglioCalcolo: {
-        tariffe,
+        modalitaCalcolo: resultBaseKm.modalita,
+        dettaglio: resultBaseKm.dettaglio,
         configurazione,
-        parametriUsati: parametriCalcolo
+        parametriInput: {
+          km,
+          oreAttesa,
+          coefficiente: configurazione.coefficiente_aumento,
+          tariffaOraria: configurazione.tariffa_oraria_attesa
+        }
       }
     };
     
-    console.log('[calcolaStipendioCompleto] Calcolo completato:', risultatoCompleto);
+    console.log('[CALCOLO] ✅ Completato:', { 
+      totaleLordo, 
+      totaleNetto,
+      modalita: resultBaseKm.modalita 
+    });
     return risultatoCompleto;
     
   } catch (error) {
-    console.error('[calcolaStipendioCompleto] Errore durante il calcolo:', error);
+    console.error('[CALCOLO] ❌ Errore:', error);
     throw error;
   }
 }
