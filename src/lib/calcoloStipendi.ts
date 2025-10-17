@@ -1,3 +1,11 @@
+/**
+ * @deprecated Questo file è deprecato. Usa invece:
+ * - `calcolaBaseKm` da `@/lib/api/stipendi/configurazione` per calcoli base KM
+ * - `calcolaStipendioCompleto` da `@/lib/api/stipendi/calcolaStipendio` per calcoli completi
+ * - `useSimulatoreCalcolo` hook per simulazioni
+ * 
+ * Questo file è mantenuto solo per retrocompatibilità e verrà rimosso in futuro.
+ */
 
 import { TariffaKm, ConfigurazioneStipendi } from '@/lib/types/stipendi';
 

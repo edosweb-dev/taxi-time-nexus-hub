@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Save } from 'lucide-react';
 import { ConfigurazioneStipendi } from '@/lib/types/stipendi';
 import { useUpdateConfigStipendi } from '@/hooks/useConfigurazioneStipendi';
+import { VerificaCalcolo } from '@/components/debug/VerificaCalcolo';
 
 interface ParametriGlobaliCardProps {
   config: ConfigurazioneStipendi | null;
@@ -56,10 +57,15 @@ export function ParametriGlobaliCard({ config, anno, isLoading }: ParametriGloba
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Parametri Globali</CardTitle>
-        <CardDescription>
-          Configurazione parametri di calcolo per l'anno {anno}
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">Parametri Globali</CardTitle>
+            <CardDescription>
+              Configurazione parametri di calcolo per l'anno {anno}
+            </CardDescription>
+          </div>
+          <VerificaCalcolo />
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
