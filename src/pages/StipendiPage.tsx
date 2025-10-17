@@ -19,6 +19,7 @@ import {
 } from '@/components/stipendi';
 import { TabellaStipendAutomatici } from '@/components/stipendi/TabellaStipendAutomatici';
 import { TabellaStipendiDipendenti } from '@/components/stipendi/TabellaStipendiDipendenti';
+import { DettaglioStipendioSheet } from '@/components/stipendi/DettaglioStipendioSheet';
 import { useStipendiAutomatici } from '@/hooks/useStipendiAutomatici';
 import { useStipendiDipendenti } from '@/hooks/useStipendiDipendenti';
 import { useState, useMemo } from 'react';
@@ -34,6 +35,8 @@ export default function StipendiPage() {
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
+  const [selectedStipendioSocio, setSelectedStipendioSocio] = useState<StipendiAutomaticoUtente | null>(null);
+  const [selectedStipendiodiPendente, setSelectedStipendiodiPendente] = useState<StipendioManualeDipendente | null>(null);
 
   // Verifica accesso solo per admin e soci
   if (profile && !['admin', 'socio'].includes(profile.role)) {
@@ -72,11 +75,11 @@ export default function StipendiPage() {
   };
 
   const handleViewDetails = (stipendio: StipendiAutomaticoUtente) => {
-    toast.info('Dettaglio stipendio - Feature in sviluppo');
+    setSelectedStipendioSocio(stipendio);
   };
 
   const handleViewDetailsDipendente = (dipendente: StipendioManualeDipendente) => {
-    toast.info('Dettaglio stipendio dipendente - Feature in sviluppo');
+    setSelectedStipendiodiPendente(dipendente);
   };
 
   return (
@@ -137,6 +140,26 @@ export default function StipendiPage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Sheet dettagli soci */}
+        <DettaglioStipendioSheet
+          open={!!selectedStipendioSocio}
+          onOpenChange={(open) => !open && setSelectedStipendioSocio(null)}
+          stipendio={selectedStipendioSocio}
+          tipo="socio"
+          mese={selectedMonth}
+          anno={selectedYear}
+        />
+
+        {/* Sheet dettagli dipendenti */}
+        <DettaglioStipendioSheet
+          open={!!selectedStipendiodiPendente}
+          onOpenChange={(open) => !open && setSelectedStipendiodiPendente(null)}
+          stipendio={selectedStipendiodiPendente}
+          tipo="dipendente"
+          mese={selectedMonth}
+          anno={selectedYear}
+        />
       </div>
     </MainLayout>
   );

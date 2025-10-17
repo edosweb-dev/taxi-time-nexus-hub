@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React from 'react';
 import {
   Sheet,
   SheetContent,
@@ -6,403 +6,303 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  CalendarDays, 
-  User, 
-  Clock, 
-  Printer,
-  Edit,
-  CheckCircle,
-  CreditCard
-} from 'lucide-react';
-import { useStipendioDetail } from '@/hooks/useStipendi';
-import { formatCurrency } from '@/lib/utils';
-import { getInitials, getRuoloBadge, getStatoBadge } from './TabellaStipendi/utils';
-import { ModificaStipendioSheet } from './modifica/ModificaStipendioSheet';
+import { Separator } from '@/components/ui/separator';
+import { CalendarDays, TrendingUp, Calculator, Banknote, Clock, Navigation } from 'lucide-react';
+import { StipendiAutomaticoUtente } from '@/lib/api/stipendi/calcoloAutomaticoStipendi';
+import { StipendioManualeDipendente } from '@/lib/api/stipendi/getStipendiDipendenti';
 
 interface DettaglioStipendioSheetProps {
-  stipendioId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onEdit?: (stipendioId: string) => void;
-  onConfirm?: (stipendioId: string) => void;
-  onMarkPaid?: (stipendioId: string) => void;
-  onPrint?: (stipendioId: string) => void;
+  stipendio: StipendiAutomaticoUtente | StipendioManualeDipendente | null;
+  tipo: 'socio' | 'dipendente';
+  mese: number;
+  anno: number;
 }
 
-export function DettaglioStipendioSheet({
-  stipendioId,
-  open,
-  onOpenChange,
-  onEdit,
-  onConfirm,
-  onMarkPaid,
-  onPrint
-}: DettaglioStipendioSheetProps) {
-  const { data: stipendio, isLoading, refetch } = useStipendioDetail(stipendioId);
-  const [modificaOpen, setModificaOpen] = useState(false);
+const formatCurrency = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return '€0,00';
+  return new Intl.NumberFormat('it-IT', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(value);
+};
 
+const formatNumber = (value: number | null | undefined, decimals = 2) => {
+  if (value === null || value === undefined) return '0';
+  return value.toFixed(decimals);
+};
+
+const getMonthName = (month: number): string => {
   const months = [
     'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
     'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
   ];
+  return months[month - 1] || '';
+};
 
-  if (isLoading) {
-    return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-[600px] sm:max-w-[600px] overflow-y-auto">
-          <SheetHeader>
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-          </SheetHeader>
-
-          <div className="space-y-6 py-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <Skeleton className="h-12 w-12 rounded-full" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-6 w-32" />
-                    <div className="flex gap-2">
-                      <Skeleton className="h-5 w-16" />
-                      <Skeleton className="h-5 w-20" />
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i}>
-                <CardHeader>
-                  <Skeleton className="h-5 w-24" />
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
-    );
+const getStatoBadge = (stato: string | undefined) => {
+  switch (stato) {
+    case 'bozza':
+      return <Badge variant="outline">Bozza</Badge>;
+    case 'confermato':
+      return <Badge variant="default">Confermato</Badge>;
+    case 'pagato':
+      return <Badge variant="secondary">Pagato</Badge>;
+    default:
+      return <Badge variant="outline">Non salvato</Badge>;
   }
+};
 
-  if (!stipendio) {
-    return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-[600px] sm:max-w-[600px]">
-          <SheetHeader>
-            <SheetTitle>Stipendio non trovato</SheetTitle>
-            <SheetDescription>
-              Lo stipendio richiesto non è stato trovato.
-            </SheetDescription>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>
-    );
+export function DettaglioStipendioSheet({
+  open,
+  onOpenChange,
+  stipendio,
+  tipo,
+  mese,
+  anno,
+}: DettaglioStipendioSheetProps) {
+  if (!stipendio) return null;
+
+  const isSocio = tipo === 'socio';
+  const isDipendente = tipo === 'dipendente';
+
+  // Type guards
+  const stipendioSocio = isSocio ? (stipendio as StipendiAutomaticoUtente) : null;
+  const stipendioDipendente = isDipendente ? (stipendio as StipendioManualeDipendente) : null;
+
+  const nomeCompleto = `${stipendio.firstName} ${stipendio.lastName}`;
+  
+  let stato = undefined;
+  if (isSocio && stipendioSocio?.hasStipendioSalvato) {
+    stato = stipendioSocio.stipendioEsistente?.stato;
+  } else if (isDipendente && stipendioDipendente?.hasStipendioSalvato) {
+    stato = stipendioDipendente.stipendioSalvato?.stato;
   }
-
-  // Calcola detrazioni e aggiunte
-  const detrazioni = (Number(stipendio.totale_spese) || 0) + (Number(stipendio.totale_prelievi) || 0);
-  const aggiunte = (Number(stipendio.incassi_da_dipendenti) || 0) + (Number(stipendio.riporto_mese_precedente) || 0);
-
-  // Calcola percentuale per soci (placeholder - dovrebbe venire dal contesto o calcolo)
-  const percentualeTotale = stipendio.percentuale_su_totale || 0;
-
-  const handleEdit = () => {
-    setModificaOpen(true);
-    onOpenChange(false); // Chiudi il dettaglio
-  };
-
-  const handleModificaComplete = () => {
-    refetch(); // Ricarica i dati aggiornati
-    setModificaOpen(false);
-    onOpenChange(true); // Riapri il dettaglio
-  };
 
   return (
-    <>
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-[600px] sm:max-w-[600px] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Dettaglio Stipendio</SheetTitle>
-            <SheetDescription>
-              Visualizza tutti i dettagli del calcolo stipendio
-            </SheetDescription>
-          </SheetHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-2xl overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Dettaglio Stipendio
+          </SheetTitle>
+          <SheetDescription>
+            {nomeCompleto} - {getMonthName(mese)} {anno}
+          </SheetDescription>
+        </SheetHeader>
 
-          <div className="space-y-6 py-6">
-            {/* Header Card */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarFallback className="text-lg">
-                      {getInitials(stipendio.user?.first_name, stipendio.user?.last_name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="font-semibold text-lg">
-                      {stipendio.user?.first_name} {stipendio.user?.last_name}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {getRuoloBadge(stipendio.tipo_calcolo)}
-                      {getStatoBadge(stipendio.stato)}
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      {months[stipendio.mese - 1]} {stipendio.anno}
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
+        <div className="space-y-6 mt-6">
+          {/* Informazioni generali */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CalendarDays className="h-4 w-4" />
+                <span>Periodo</span>
+              </div>
+              <span className="font-medium">{getMonthName(mese)} {anno}</span>
+            </div>
 
-            {/* Informazioni Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <CalendarDays className="h-4 w-4" />
-                  Informazioni
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Data creazione:</span>
-                  <span>{new Date(stipendio.created_at).toLocaleDateString('it-IT')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Ultimo aggiornamento:</span>
-                  <span>{new Date(stipendio.updated_at).toLocaleDateString('it-IT')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Creato da:</span>
-                  <span>Sistema</span>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Ruolo</span>
+              <Badge variant={isSocio ? 'default' : 'outline'}>
+                {isSocio ? (stipendioSocio?.role === 'admin' ? 'Admin' : 'Socio') : 'Dipendente'}
+              </Badge>
+            </div>
 
-            {/* Calcolo Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Calcolo Stipendio
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {stipendio.tipo_calcolo === 'socio' ? (
-                  <>
-                    <div className="flex justify-between">
-                      <span>KM percorsi:</span>
-                      <span className="font-medium">{stipendio.totale_km || 0} km</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Base chilometrica:</span>
-                      <span>{formatCurrency(Number(stipendio.base_calcolo) || 0)}</span>
-                    </div>
-                    {stipendio.coefficiente_applicato && (
-                      <div className="flex justify-between">
-                        <span>+ Aumento {(Number(stipendio.coefficiente_applicato) * 100).toFixed(0)}%:</span>
-                        <span>{formatCurrency(((Number(stipendio.base_calcolo) || 0) * Number(stipendio.coefficiente_applicato)))}</span>
-                      </div>
-                    )}
-                    {stipendio.totale_ore_attesa && Number(stipendio.totale_ore_attesa) > 0 && (
-                      <div className="flex justify-between">
-                        <span>+ Ore attesa ({stipendio.totale_ore_attesa}h × 15€):</span>
-                        <span>{formatCurrency(Number(stipendio.totale_ore_attesa) * 15)}</span>
-                      </div>
-                    )}
-                    <div className="border-t pt-3 flex justify-between font-semibold text-lg">
-                      <span>Totale Lordo:</span>
-                      <span>{formatCurrency(Number(stipendio.totale_lordo) || 0)}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between">
-                      <span>Ore lavorate:</span>
-                      <span className="font-medium">{stipendio.totale_ore_lavorate || 0} h</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>× Tariffa oraria:</span>
-                      <span>{formatCurrency((Number(stipendio.totale_lordo) || 0) / (Number(stipendio.totale_ore_lavorate) || 1))}/h</span>
-                    </div>
-                    <div className="border-t pt-3 flex justify-between font-semibold text-lg">
-                      <span>Totale Lordo:</span>
-                      <span>{formatCurrency(Number(stipendio.totale_lordo) || 0)}</span>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Detrazioni/Aggiunte Card */}
-            {(detrazioni > 0 || aggiunte > 0) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    Detrazioni e Aggiunte
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {Number(stipendio.totale_spese) > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-2">
-                        <span className="text-red-500">🔴</span>
-                        Spese:
-                      </span>
-                      <span className="text-red-600 font-medium">
-                        -{formatCurrency(Number(stipendio.totale_spese))}
-                      </span>
-                    </div>
-                  )}
-                  {Number(stipendio.totale_prelievi) > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-2">
-                        <span className="text-red-500">🔴</span>
-                        Prelievi:
-                      </span>
-                      <span className="text-red-600 font-medium">
-                        -{formatCurrency(Number(stipendio.totale_prelievi))}
-                      </span>
-                    </div>
-                  )}
-                  {Number(stipendio.incassi_da_dipendenti) > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-2">
-                        <span className="text-green-500">🟢</span>
-                        Incassi:
-                      </span>
-                      <span className="text-green-600 font-medium">
-                        +{formatCurrency(Number(stipendio.incassi_da_dipendenti))}
-                      </span>
-                    </div>
-                  )}
-                  {Number(stipendio.riporto_mese_precedente) > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-2">
-                        <span className="text-green-500">🟢</span>
-                        Riporto:
-                      </span>
-                      <span className="text-green-600 font-medium">
-                        +{formatCurrency(Number(stipendio.riporto_mese_precedente))}
-                      </span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Totale Netto Card */}
-            <Card className="border-2 border-primary">
-              <CardContent className="pt-6">
-                <div className="text-center space-y-2">
-                  <div className="text-sm text-muted-foreground">TOTALE NETTO</div>
-                  <div className="text-3xl font-bold text-primary">
-                    {formatCurrency(Number(stipendio.totale_netto) || 0)}
-                  </div>
-                  {stipendio.tipo_calcolo === 'socio' && percentualeTotale > 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      {percentualeTotale.toFixed(1)}% del totale soci
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Note Card */}
-            {stipendio.note && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Note</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {stipendio.note}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Footer Actions */}
-            <div className="flex gap-3 pt-4 border-t">
-              <Button
-                variant="outline"
-                onClick={() => onPrint?.(stipendioId)}
-                className="flex-1"
-              >
-                <Printer className="mr-2 h-4 w-4" />
-                Stampa
-              </Button>
-              
-              {stipendio.stato === 'bozza' && (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={handleEdit}
-                    className="flex-1"
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modifica
-                  </Button>
-                  <Button
-                    onClick={() => onConfirm?.(stipendioId)}
-                    className="flex-1"
-                  >
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Conferma
-                  </Button>
-                </>
-              )}
-              
-              {stipendio.stato === 'confermato' && (
-                <Button
-                  onClick={() => onMarkPaid?.(stipendioId)}
-                  className="flex-1"
-                >
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Segna pagato
-                </Button>
-              )}
-              
-              {stipendio.stato === 'pagato' && (
-                <Button
-                  onClick={() => onOpenChange(false)}
-                  className="flex-1"
-                >
-                  Chiudi
-                </Button>
-              )}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Stato</span>
+              {getStatoBadge(stato)}
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
 
-      {/* Modifica Stipendio Sheet */}
-      <ModificaStipendioSheet
-        stipendioId={stipendioId}
-        open={modificaOpen}
-        onOpenChange={setModificaOpen}
-        onStipendioUpdated={handleModificaComplete}
-      />
-    </>
+          <Separator />
+
+          {/* Dettagli calcolo SOCI */}
+          {isSocio && stipendioSocio && (
+            <>
+              {/* Dati servizi */}
+              <div className="space-y-3">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  Dati Servizi
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-sm text-muted-foreground">Servizi eseguiti</span>
+                    <p className="text-lg font-semibold">{stipendioSocio.numeroServizi || 0}</p>
+                  </div>
+
+                  <div className="space-y-1 flex flex-col items-end">
+                    <span className="text-sm text-muted-foreground">Totale KM</span>
+                    <p className="text-lg font-semibold flex items-center gap-1">
+                      <Navigation className="h-4 w-4" />
+                      {formatNumber(stipendioSocio.kmTotali, 0)} km
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-sm text-muted-foreground">Ore attesa</span>
+                    <p className="text-lg font-semibold flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {formatNumber(stipendioSocio.oreAttesa, 1)} h
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {stipendioSocio.calcoloCompleto && (
+                <>
+                  <Separator />
+
+                  {/* Dettaglio calcolo */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Calculator className="h-4 w-4" />
+                      Dettaglio Calcolo
+                    </h3>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Modalità calcolo</span>
+                        <Badge variant="outline">
+                          {stipendioSocio.calcoloCompleto.dettaglioCalcolo.modalitaCalcolo === 'tabella' ? 'Tabella KM' : 'Lineare'}
+                        </Badge>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">KM totali</span>
+                        <span className="font-medium">{formatNumber(stipendioSocio.calcoloCompleto.dettaglioCalcolo.parametriInput.km, 0)} km</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Base KM</span>
+                        <span className="font-medium">{formatCurrency(stipendioSocio.calcoloCompleto.baseKm)}</span>
+                      </div>
+
+                      {stipendioSocio.calcoloCompleto.dettaglioCalcolo.parametriInput.coefficiente > 0 && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Coefficiente aumento</span>
+                            <span className="font-medium text-green-600">+{formatNumber(stipendioSocio.calcoloCompleto.dettaglioCalcolo.parametriInput.coefficiente, 2)}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Base con aumento</span>
+                            <span className="font-medium text-green-600">{formatCurrency(stipendioSocio.calcoloCompleto.baseConAumento)}</span>
+                          </div>
+                        </>
+                      )}
+
+                      {stipendioSocio.oreAttesa > 0 && (
+                        <>
+                          <Separator className="my-2" />
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Ore attesa</span>
+                            <span className="font-medium">{formatNumber(stipendioSocio.oreAttesa, 1)} h</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Tariffa oraria attesa</span>
+                            <span className="font-medium">{formatCurrency(stipendioSocio.calcoloCompleto.dettaglioCalcolo.parametriInput.tariffaOraria)}/h</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Importo ore attesa</span>
+                            <span className="font-medium">{formatCurrency(stipendioSocio.calcoloCompleto.importoOreAttesa)}</span>
+                          </div>
+                        </>
+                      )}
+
+                      {stipendioSocio.calcoloCompleto.dettaglioCalcolo.dettaglio && (
+                        <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
+                          {stipendioSocio.calcoloCompleto.dettaglioCalcolo.dettaglio}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Totali */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Banknote className="h-4 w-4" />
+                      Riepilogo
+                    </h3>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                        <span className="font-medium">Totale Lordo</span>
+                        <span className="text-xl font-bold">{formatCurrency(stipendioSocio.calcoloCompleto.totaleLordo)}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg">
+                        <span className="font-medium">Totale Netto</span>
+                        <span className="text-2xl font-bold text-primary">{formatCurrency(stipendioSocio.calcoloCompleto.totaleNetto)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {!stipendioSocio.calcoloCompleto && stipendioSocio.numeroServizi === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Nessun servizio registrato per questo periodo</p>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Dettagli DIPENDENTE */}
+          {isDipendente && stipendioDipendente && (
+            <>
+              {stipendioDipendente.hasStipendioSalvato && stipendioDipendente.stipendioSalvato ? (
+                <>
+                  <div className="space-y-3">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Banknote className="h-4 w-4" />
+                      Stipendio Manuale
+                    </h3>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Stipendio fisso configurato</span>
+                        <span className="font-medium">{formatCurrency(stipendioDipendente.stipendioFisso)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold">Riepilogo</h3>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                        <span className="font-medium">Totale Lordo</span>
+                        <span className="text-xl font-bold">{formatCurrency(stipendioDipendente.stipendioSalvato.totale_lordo)}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg">
+                        <span className="font-medium">Totale Netto</span>
+                        <span className="text-2xl font-bold text-primary">{formatCurrency(stipendioDipendente.stipendioSalvato.totale_netto)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Stipendio non ancora creato per questo periodo</p>
+                  {stipendioDipendente.stipendioFisso > 0 && (
+                    <p className="text-sm mt-2">Stipendio fisso: {formatCurrency(stipendioDipendente.stipendioFisso)}</p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
