@@ -27,3 +27,14 @@ export {
   getKmServiziMese,
   getOreLavorateServiziMese
 } from './calcolaServiziUtente';
+
+export {
+  fetchPagamentiStipendi,
+  createPagamentoStipendio,
+  getPagamentoDetail,
+  annullaPagamento,
+  type PagamentoStipendio,
+  type PagamentoStipendioDetail,
+  type FiltriPagamenti,
+  type CreatePagamentoInput,
+} from './pagamenti';
