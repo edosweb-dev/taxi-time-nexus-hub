@@ -490,6 +490,83 @@ export type Database = {
           },
         ]
       }
+      pagamenti_stipendi: {
+        Row: {
+          anno: number
+          created_at: string
+          created_by: string
+          data_pagamento: string
+          id: string
+          importo: number
+          mese: number
+          modalita_pagamento_id: string
+          note: string | null
+          spesa_aziendale_id: string | null
+          stato: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anno: number
+          created_at?: string
+          created_by: string
+          data_pagamento?: string
+          id?: string
+          importo: number
+          mese: number
+          modalita_pagamento_id: string
+          note?: string | null
+          spesa_aziendale_id?: string | null
+          stato?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          anno?: number
+          created_at?: string
+          created_by?: string
+          data_pagamento?: string
+          id?: string
+          importo?: number
+          mese?: number
+          modalita_pagamento_id?: string
+          note?: string | null
+          spesa_aziendale_id?: string | null
+          stato?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamenti_stipendi_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamenti_stipendi_modalita_pagamento_id_fkey"
+            columns: ["modalita_pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "modalita_pagamenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamenti_stipendi_spesa_aziendale_id_fkey"
+            columns: ["spesa_aziendale_id"]
+            isOneToOne: false
+            referencedRelation: "spese_aziendali"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamenti_stipendi_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       passeggeri: {
         Row: {
           azienda_id: string
