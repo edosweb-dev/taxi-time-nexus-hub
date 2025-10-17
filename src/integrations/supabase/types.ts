@@ -556,6 +556,7 @@ export type Database = {
           id: string
           last_name: string | null
           role: string
+          stipendio_fisso: number | null
           telefono: string | null
         }
         Insert: {
@@ -566,6 +567,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           role: string
+          stipendio_fisso?: number | null
           telefono?: string | null
         }
         Update: {
@@ -576,6 +578,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           role?: string
+          stipendio_fisso?: number | null
           telefono?: string | null
         }
         Relationships: [
