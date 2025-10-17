@@ -15,7 +15,7 @@ interface ParametriGlobaliCardProps {
 }
 
 export function ParametriGlobaliCard({ config, anno, isLoading }: ParametriGlobaliCardProps) {
-  const [coefficiente, setCoefficiente] = useState<string>('1.17');
+  const [coefficiente, setCoefficiente] = useState<string>('17');
   const [tariffaOraria, setTariffaOraria] = useState<string>('15.00');
   const [tariffaOltre200, setTariffaOltre200] = useState<string>('0.25');
 
@@ -23,30 +23,35 @@ export function ParametriGlobaliCard({ config, anno, isLoading }: ParametriGloba
 
   useEffect(() => {
     if (config) {
-      setCoefficiente(config.coefficiente_aumento.toString());
+      // Converti da decimale (1.17) a percentuale (17)
+      const percentuale = ((config.coefficiente_aumento - 1) * 100).toFixed(0);
+      setCoefficiente(percentuale);
       setTariffaOraria(config.tariffa_oraria_attesa.toString());
       setTariffaOltre200((config.tariffa_oltre_200km || 0.25).toString());
     }
   }, [config]);
 
   const handleSave = async () => {
-    const coeff = parseFloat(coefficiente);
+    const percentuale = parseFloat(coefficiente);
     const oraria = parseFloat(tariffaOraria);
     const oltre = parseFloat(tariffaOltre200);
 
-    if (isNaN(coeff) || isNaN(oraria) || isNaN(oltre)) return;
+    if (isNaN(percentuale) || isNaN(oraria) || isNaN(oltre)) return;
+
+    // Converti da percentuale (17) a decimale (1.17)
+    const coeffDecimale = 1 + (percentuale / 100);
 
     await updateMutation.mutateAsync({
       anno,
       config: {
-        coefficiente_aumento: coeff,
+        coefficiente_aumento: coeffDecimale,
         tariffa_oraria_attesa: oraria,
         tariffa_oltre_200km: oltre
       }
     });
   };
 
-  const percentualeAumento = ((parseFloat(coefficiente) - 1) * 100).toFixed(0);
+  const percentualeAumento = parseFloat(coefficiente) || 0;
 
   return (
     <Card>
@@ -58,23 +63,25 @@ export function ParametriGlobaliCard({ config, anno, isLoading }: ParametriGloba
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="coefficiente">Coefficiente Aumento</Label>
+          <Label htmlFor="coefficiente">Percentuale Aumento (%)</Label>
           <div className="flex gap-2 items-center">
             <Input
               id="coefficiente"
               type="number"
-              step="0.01"
+              step="1"
+              min="0"
+              max="100"
               value={coefficiente}
               onChange={(e) => setCoefficiente(e.target.value)}
               className="max-w-32"
               disabled={isLoading}
             />
             <Badge variant="secondary">
-              {parseFloat(coefficiente) >= 1 ? '+' : ''}{percentualeAumento}%
+              +{percentualeAumento}%
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">
-            Es: 1.17 = aumento del 17%
+            Es: 17 = aumento del 17%
           </p>
         </div>
 
