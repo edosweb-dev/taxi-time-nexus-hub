@@ -1268,7 +1268,7 @@ export type Database = {
           tipo_calcolo: string
           totale_km: number | null
           totale_lordo: number | null
-          totale_netto: number | null
+          totale_netto: number
           totale_ore_attesa: number | null
           totale_ore_lavorate: number | null
           totale_prelievi: number | null
@@ -1292,7 +1292,7 @@ export type Database = {
           tipo_calcolo: string
           totale_km?: number | null
           totale_lordo?: number | null
-          totale_netto?: number | null
+          totale_netto?: number
           totale_ore_attesa?: number | null
           totale_ore_lavorate?: number | null
           totale_prelievi?: number | null
@@ -1316,7 +1316,7 @@ export type Database = {
           tipo_calcolo?: string
           totale_km?: number | null
           totale_lordo?: number | null
-          totale_netto?: number | null
+          totale_netto?: number
           totale_ore_attesa?: number | null
           totale_ore_lavorate?: number | null
           totale_prelievi?: number | null
