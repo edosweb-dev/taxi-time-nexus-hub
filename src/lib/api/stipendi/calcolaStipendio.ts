@@ -140,14 +140,17 @@ export async function getDetrazioniStipendio(
   const mesePrecedente = mese === 1 ? 12 : mese - 1;
   const annoPrecedente = mese === 1 ? anno - 1 : anno;
   
+  // Riporto include anche stipendi 'bozza' per continuità saldi (FIX BUG #3)
   const { data: stipendioPrecedente, error: errorRiporto } = await supabase
     .from('stipendi')
-    .select('totale_netto')
+    .select('totale_netto, stato')
     .eq('user_id', userId)
     .eq('mese', mesePrecedente)
     .eq('anno', annoPrecedente)
-    .eq('stato', 'confermato')
-    .single();
+    .in('stato', ['bozza', 'confermato', 'pagato'])
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
   
   if (errorRiporto && errorRiporto.code !== 'PGRST116') {
     console.error('[getDetrazioniStipendio] Errore recupero riporto:', errorRiporto);
@@ -228,12 +231,13 @@ export async function calcolaStipendioCompleto(
     console.log('[CALCOLO] 📋 Detrazioni:', detrazioni);
     
     // 7. Calcola totale netto
+    // Formula corretta: incassi servizi devono essere SOTTRATTI (socio ha già incassato denaro)
     const totaleNetto = Number((
       totaleLordo +                          // Base lordo (KM + ore attesa con aumento)
       detrazioni.totaleSpesePersonali -      // ✅ AGGIUNGI rimborsi spese
       detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
       detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti
-      detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti
+      detrazioni.incassiServiziContanti -    // ✅ SOTTRAI incassi servizi contanti (FIX BUG #1)
       detrazioni.riportoMesePrecedente       // ✅ ± riporto mese precedente
     ).toFixed(2));
 
