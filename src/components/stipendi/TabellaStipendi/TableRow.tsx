@@ -3,8 +3,9 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Stipendio } from '@/lib/api/stipendi';
 import { formatCurrency } from '@/lib/utils';
-import { getInitials, getRuoloBadge, getStatoBadge } from './utils';
+import { getInitials, getRuoloBadge } from './utils';
 import { ActionMenu } from './ActionMenu';
+import { StatoDropdown } from './StatoDropdown';
 
 interface StipendioTableRowProps {
   stipendio: Stipendio;
@@ -83,7 +84,10 @@ export function StipendioTableRow({
         </TableCell>
       )}
       <TableCell>
-        {getStatoBadge(stipendio.stato)}
+        <StatoDropdown
+          stipendio={stipendio}
+          onChangeStatus={onChangeStatus}
+        />
       </TableCell>
       <TableCell>
         <ActionMenu

@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye, Edit, Trash, CheckCircle, CreditCard } from 'lucide-react';
+import { MoreHorizontal, Eye, Edit, Trash } from 'lucide-react';
 import { Stipendio } from '@/lib/api/stipendi';
 
 interface ActionMenuProps {
@@ -44,34 +44,6 @@ export function ActionMenu({
               <Edit className="mr-2 h-4 w-4" />
               Modifica
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onChangeStatus(stipendio, 'confermato')}>
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Conferma stipendio
-            </DropdownMenuItem>
-          </>
-        )}
-        
-        {stipendio.stato === 'confermato' && (
-          <>
-            <DropdownMenuItem onClick={() => onChangeStatus(stipendio, 'pagato')}>
-              <CreditCard className="mr-2 h-4 w-4" />
-              Segna come pagato
-            </DropdownMenuItem>
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => onChangeStatus(stipendio, 'bozza')}
-              className="text-orange-600"
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Riporta a Bozza
-            </DropdownMenuItem>
-          </>
-        )}
-        
-        {stipendio.stato === 'bozza' && (
-          <>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               className="text-red-600"
