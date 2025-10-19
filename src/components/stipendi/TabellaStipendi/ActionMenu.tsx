@@ -53,10 +53,21 @@ export function ActionMenu({
         )}
         
         {stipendio.stato === 'confermato' && (
-          <DropdownMenuItem onClick={() => onChangeStatus(stipendio, 'pagato')}>
-            <CreditCard className="mr-2 h-4 w-4" />
-            Segna come pagato
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem onClick={() => onChangeStatus(stipendio, 'pagato')}>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Segna come pagato
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => onChangeStatus(stipendio, 'bozza')}
+              className="text-orange-600"
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Riporta a Bozza
+            </DropdownMenuItem>
+          </>
         )}
         
         {stipendio.stato === 'bozza' && (

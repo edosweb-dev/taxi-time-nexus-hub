@@ -44,16 +44,24 @@ export async function updateStatoStipendio({
     // Validazioni transizioni di stato
     const statoCorrente = currentStipendio.stato as StatoStipendio;
     
+    // Da bozza → solo confermato
     if (statoCorrente === 'bozza' && nuovoStato !== 'confermato') {
       throw new Error('Da bozza si può passare solo a confermato');
     }
     
-    if (statoCorrente === 'confermato' && nuovoStato !== 'pagato') {
-      throw new Error('Da confermato si può passare solo a pagato');
+    // Da confermato → pagato O bozza (ROLLBACK)
+    if (statoCorrente === 'confermato' && !['pagato', 'bozza'].includes(nuovoStato)) {
+      throw new Error('Da confermato si può passare a pagato o tornare a bozza');
     }
     
+    // Da pagato → BLOCCATO (non si torna indietro)
     if (statoCorrente === 'pagato') {
       throw new Error('Non è possibile modificare uno stipendio già pagato');
+    }
+
+    // Log warning se rollback a bozza
+    if (statoCorrente === 'confermato' && nuovoStato === 'bozza') {
+      console.warn(`[updateStatoStipendio] ROLLBACK: Stipendio ${stipendioId} da confermato → bozza`);
     }
 
     // Aggiorna lo stato dello stipendio

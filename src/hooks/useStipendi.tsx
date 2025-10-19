@@ -135,6 +135,17 @@ export function useUpdateStatoStipendio() {
       // Invalida anche il dettaglio specifico
       queryClient.invalidateQueries({ queryKey: ['stipendio', variables.stipendioId] });
       
+      // Se è un rollback a bozza, invalida anche stipendi automatici
+      // per forzare ricalcolo real-time
+      if (variables.nuovoStato === 'bozza') {
+        const stipendio = result.stipendio;
+        if (stipendio) {
+          queryClient.invalidateQueries({ 
+            queryKey: ['stipendi-automatici', stipendio.mese, stipendio.anno] 
+          });
+        }
+      }
+      
       // Se è stato creato un movimento aziendale, invalida anche quelle query
       if (result.spesaAziendaleCreata) {
         queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
@@ -147,7 +158,8 @@ export function useUpdateStatoStipendio() {
         'confermato': 'Stipendio confermato con successo',
         'pagato': result.spesaAziendaleCreata 
           ? 'Stipendio segnato come pagato e spesa aziendale creata'
-          : 'Stipendio segnato come pagato'
+          : 'Stipendio segnato come pagato',
+        'bozza': 'Stipendio riportato a bozza e ricalcolato automaticamente'
       };
       
       toast.success(messaggi[variables.nuovoStato as keyof typeof messaggi] || 'Stato aggiornato con successo');

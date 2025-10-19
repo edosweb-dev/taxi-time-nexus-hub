@@ -7,6 +7,7 @@ import { EmptyState } from './TabellaStipendi/EmptyState';
 import { TableHeaderSection } from './TabellaStipendi/TableHeader';
 import { StipendioTableRow } from './TabellaStipendi/TableRow';
 import { SortField, SortDirection } from './TabellaStipendi/utils';
+import { DialogRiportaBozza } from './DialogRiportaBozza';
 
 interface TabellaStipendi {
   stipendi: Stipendio[];
@@ -29,6 +30,7 @@ export function TabellaStipendi({
 }: TabellaStipendi) {
   const [sortField, setSortField] = useState<SortField>('nome');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [rollbackDialogStipendio, setRollbackDialogStipendio] = useState<Stipendio | null>(null);
 
   // Calcola totale per percentuali (solo per soci)
   const totaleSoci = useMemo(() => {
@@ -102,6 +104,17 @@ export function TabellaStipendi({
     }
   };
 
+  const handleChangeStatus = (stipendio: Stipendio, newStatus: string) => {
+    // Se rollback a bozza, mostra dialog conferma
+    if (stipendio.stato === 'confermato' && newStatus === 'bozza') {
+      setRollbackDialogStipendio(stipendio);
+      return;
+    }
+    
+    // Altrimenti cambio stato diretto
+    onChangeStatus(stipendio, newStatus);
+  };
+
   // Loading skeleton
   if (isLoading) {
     return <LoadingState />;
@@ -130,12 +143,25 @@ export function TabellaStipendi({
               totaleSoci={totaleSoci}
               onViewDetails={onViewDetails}
               onEdit={onEdit}
-              onChangeStatus={onChangeStatus}
+              onChangeStatus={handleChangeStatus}
               onDelete={onDelete}
             />
           ))}
         </TableBody>
       </Table>
+      
+      <DialogRiportaBozza
+        open={!!rollbackDialogStipendio}
+        onOpenChange={(open) => !open && setRollbackDialogStipendio(null)}
+        stipendio={rollbackDialogStipendio}
+        onConfirm={(stipendioId) => {
+          const stipendio = rollbackDialogStipendio;
+          if (stipendio) {
+            onChangeStatus(stipendio, 'bozza');
+          }
+          setRollbackDialogStipendio(null);
+        }}
+      />
     </div>
   );
 }
