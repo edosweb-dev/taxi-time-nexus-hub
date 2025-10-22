@@ -1514,14 +1514,8 @@ export type Database = {
         Args: { anno_servizio: number }
         Returns: string
       }
-      get_primary_role: {
-        Args: { _user_id: string }
-        Returns: string
-      }
-      get_user_role: {
-        Args: { user_id: string }
-        Returns: string
-      }
+      get_primary_role: { Args: { _user_id: string }; Returns: string }
+      get_user_role: { Args: { user_id: string }; Returns: string }
       get_user_role_and_azienda: {
         Args: { user_id: string }
         Returns: {
