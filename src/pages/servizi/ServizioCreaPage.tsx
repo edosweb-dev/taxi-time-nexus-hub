@@ -233,6 +233,7 @@ export const ServizioCreaPage = ({
     telefono: "",
     localita: "",
     indirizzo: "",
+    salva_in_database: true,
   });
   const [newEmail, setNewEmail] = useState({
     nome: "",
@@ -417,6 +418,7 @@ export const ServizioCreaPage = ({
         telefono: "",
         localita: "",
         indirizzo: "",
+        salva_in_database: true,
       });
 
       toast.success("Passeggero aggiunto!");
@@ -1354,6 +1356,27 @@ export const ServizioCreaPage = ({
                           indirizzo: e.target.value
                         })}
                       />
+                    </div>
+
+                    <div className="flex items-start space-x-2 pt-2">
+                      <Checkbox
+                        id="salva_in_database"
+                        checked={newPasseggero.salva_in_database}
+                        onCheckedChange={(checked) =>
+                          setNewPasseggero({ ...newPasseggero, salva_in_database: !!checked })
+                        }
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor="salva_in_database"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          💾 Salva in anagrafica permanente
+                        </label>
+                        <p className="text-sm text-muted-foreground">
+                          Se attivo, il passeggero sarà disponibile per servizi futuri
+                        </p>
+                      </div>
                     </div>
 
                     <Button
