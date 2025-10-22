@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ServizioCreaForm } from "@/components/servizi/ServizioCreaForm";
+import { ServizioCreaPage } from "@/pages/servizi/ServizioCreaPage";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -56,7 +56,7 @@ export default function ModificaServizioPage() {
   }
 
   return (
-    <ServizioCreaForm
+    <ServizioCreaPage
       mode="edit"
       servizioId={id}
       initialData={servizio}

@@ -19,7 +19,7 @@ export const InserimentoServizioModal = ({ open, onClose }: InserimentoServizioM
   console.log('🔍 Window width:', window.innerWidth);
 
   const handleVeloce = () => {
-    navigate("/nuovo-servizio?mode=veloce");
+    navigate("/servizi/crea?mode=veloce");
     onClose();
   };
 
@@ -42,7 +42,7 @@ export const InserimentoServizioModal = ({ open, onClose }: InserimentoServizioM
           <div className="flex-1">
             <h4 className="font-semibold mb-1">Inserimento Veloce</h4>
             <p className="text-sm text-muted-foreground">
-              Crea una bozza con i dati essenziali. Potrai completare in seguito.
+              Inserisci solo azienda, referente e note. Il resto viene salvato come bozza.
             </p>
           </div>
         </div>
@@ -62,7 +62,7 @@ export const InserimentoServizioModal = ({ open, onClose }: InserimentoServizioM
           <div className="flex-1">
             <h4 className="font-semibold mb-1">Inserimento Completo</h4>
             <p className="text-sm text-muted-foreground">
-              Compila tutti i dettagli del servizio inclusi passeggeri.
+              Compila tutti i dettagli del servizio inclusi passeggeri e indirizzi.
             </p>
           </div>
         </div>

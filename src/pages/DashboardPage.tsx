@@ -217,7 +217,7 @@ export default function DashboardPage() {
       title: 'Nuovo Servizio',
       description: 'Crea una nuova prenotazione',
       icon: Zap,
-      onClick: () => navigate('/nuovo-servizio')
+      onClick: () => navigate('/servizi/crea')
     }
   ];
 

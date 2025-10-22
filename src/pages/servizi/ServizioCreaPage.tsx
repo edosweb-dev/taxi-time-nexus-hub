@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -132,6 +132,9 @@ export const ServizioCreaPage = ({
   onCancel
 }: ServizioCreaPageProps = {}) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const formMode = searchParams.get("mode") || "completo";
+  const isVeloce = formMode === "veloce";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasseggeriOpen, setIsPasseggeriOpen] = useState(false);
   const [isEmailOpen, setIsEmailOpen] = useState(false);
@@ -152,7 +155,10 @@ export const ServizioCreaPage = ({
       cliente_privato_note: "",
       salva_cliente_anagrafica: false,
       data_servizio: new Date().toISOString().split('T')[0],
-      orario_servizio: "12:00",
+      orario_servizio: isVeloce ? "00:00" : "12:00",
+      indirizzo_presa: isVeloce ? "Da definire" : "",
+      indirizzo_destinazione: isVeloce ? "Da definire" : "",
+      metodo_pagamento: isVeloce ? "da_definire" : "",
       iva: "22",
       conducente_esterno: false,
       applica_provvigione: false,
@@ -686,10 +692,18 @@ export const ServizioCreaPage = ({
         </Button>
         
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
-          {mode === 'edit' ? 'Modifica Servizio' : 'Nuovo Servizio'}
+          {isVeloce 
+            ? 'Inserimento Veloce' 
+            : mode === 'edit' 
+              ? 'Modifica Servizio' 
+              : 'Nuovo Servizio'}
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-1">
-          {mode === 'edit' ? 'Modifica le informazioni del servizio' : 'Compila i campi per creare un nuovo servizio'}
+          {isVeloce
+            ? 'Inserisci solo azienda, referente e note. Il resto viene salvato come bozza.'
+            : mode === 'edit' 
+              ? 'Modifica le informazioni del servizio' 
+              : 'Compila i campi per creare un nuovo servizio'}
         </p>
       </div>
 
@@ -982,7 +996,8 @@ export const ServizioCreaPage = ({
             </div>
           </Card>
 
-          {/* SEZIONE 3: Assegnazione */}
+          {/* SEZIONE 3: Assegnazione - nascosto in modalità veloce */}
+          {!isVeloce && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1079,8 +1094,10 @@ export const ServizioCreaPage = ({
               </div>
             </div>
           </Card>
+          )}
 
-          {/* SEZIONE 4: Dettagli Economici */}
+          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce */}
+          {!isVeloce && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1211,9 +1228,10 @@ export const ServizioCreaPage = ({
               </div>
             </div>
           </Card>
+          )}
 
-          {/* SEZIONE 5: Passeggeri - Solo per aziende */}
-          {watchTipoCliente === 'azienda' && watchAziendaId && (
+          {/* SEZIONE 5: Passeggeri - Solo per aziende e non in modalità veloce */}
+          {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
               {/* Header con toggle collapsible */}
@@ -1384,8 +1402,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 6: Email Notifiche - Solo per aziende */}
-          {watchTipoCliente === 'azienda' && watchAziendaId && (
+          {/* SEZIONE 6: Email Notifiche - Solo per aziende e non in modalità veloce */}
+          {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
               {/* Header con toggle collapsible */}
@@ -1548,7 +1566,11 @@ export const ServizioCreaPage = ({
               className="w-full sm:w-auto min-w-[200px] order-1 sm:order-2"
               size="lg"
             >
-              {isSubmitting ? (mode === 'edit' ? "Salvataggio..." : "Creazione...") : (mode === 'edit' ? "Salva Modifiche" : "Crea Servizio")}
+              {isVeloce 
+                ? (isSubmitting ? "Salvataggio..." : "Salva bozza")
+                : isSubmitting 
+                  ? (mode === 'edit' ? "Salvataggio..." : "Creazione...") 
+                  : (mode === 'edit' ? "Salva Modifiche" : "Crea Servizio")}
             </Button>
 
             <Button

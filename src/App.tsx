@@ -29,7 +29,6 @@ const MobileUIShowcase = lazy(() => import('./components/mobile-first/MobileUISh
 const ImpostazioniPage = lazy(() => import('./pages/ImpostazioniPage'));
 const ServiziPage = lazy(() => import('./pages/servizi/ServiziPage'));
 const ServizioCreaPage = lazy(() => import('./pages/servizi/ServizioCreaPage').then(module => ({ default: module.ServizioCreaPage })));
-const NuovoServizioPage = lazy(() => import('./pages/servizi/NuovoServizioPage'));
 const NuovoServizioClientePage = lazy(() => import('./pages/cliente/NuovoServizioPage'));
 const ServizioConfermatoPage = lazy(() => import('./pages/cliente/ServizioConfermatoPage'));
 const ServizioDetailPage = lazy(() => import('./pages/servizi/ServizioDetailPage'));
@@ -151,11 +150,8 @@ function App() {
                     <MobileServiziPage />
                   </AuthGuard>
                 } />
-                <Route path="/nuovo-servizio" element={
-                  <AuthGuard allowedRoles={['admin', 'socio']}>
-                    <NuovoServizioPage />
-                  </AuthGuard>
-                } />
+                {/* Redirect per retrocompatibilità */}
+                <Route path="/nuovo-servizio" element={<Navigate to="/servizi/crea" replace />} />
                 <Route path="/servizi/crea" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ServizioCreaPage />

@@ -22,7 +22,7 @@ export function QuickActions() {
     {
       title: 'Nuovo Servizio',
       icon: FileText,
-      action: () => navigate('/nuovo-servizio'),
+      action: () => navigate('/servizi/crea'),
       variant: 'primary',
     },
     {

@@ -12,7 +12,7 @@ export function QuickActionsOptimized() {
       <div className="quick-actions-grid">
         <Button
           variant="default"
-          onClick={() => navigate('/nuovo-servizio')}
+          onClick={() => navigate('/servizi/crea')}
           className="quick-action-button"
         >
           <Plus className="quick-action-icon" />
