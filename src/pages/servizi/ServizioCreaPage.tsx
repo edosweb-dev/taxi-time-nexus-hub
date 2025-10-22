@@ -91,6 +91,8 @@ const servizioSchema = z.object({
   passeggeri_ids: z.array(z.string()).default([]),
   email_notifiche_ids: z.array(z.string()).default([]),
   note: z.string().optional().nullable(),
+  usa_indirizzo_passeggero_partenza: z.boolean().optional(),
+  usa_indirizzo_passeggero_destinazione: z.boolean().optional(),
 }).refine((data) => {
   // Validation: se azienda → azienda_id required
   if (data.tipo_cliente === 'azienda') {
@@ -164,6 +166,8 @@ export const ServizioCreaPage = ({
       applica_provvigione: false,
       passeggeri_ids: [],
       email_notifiche_ids: [],
+      usa_indirizzo_passeggero_partenza: false,
+      usa_indirizzo_passeggero_destinazione: false,
     },
   });
 
@@ -342,7 +346,7 @@ export const ServizioCreaPage = ({
       
       const { data, error } = await supabase
         .from("passeggeri")
-        .select("id, nome_cognome, email")
+        .select("id, nome_cognome, email, indirizzo, localita")
         .eq("azienda_id", watchAziendaId)
         .order("nome_cognome");
       
@@ -356,6 +360,12 @@ export const ServizioCreaPage = ({
     },
     enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
   });
+
+  // Passeggero selezionato per indirizzo
+  const passeggeriSelezionati = form.watch("passeggeri_ids") || [];
+  const passeggeroSelezionato = passeggeri?.find(p => 
+    passeggeriSelezionati.length > 0 && p.id === passeggeriSelezionati[0]
+  );
 
   // Query: Email Notifiche
   const { data: emailNotifiche } = useQuery({
@@ -933,319 +943,7 @@ export const ServizioCreaPage = ({
             )}
           </Card>
 
-          {/* SEZIONE 2: Percorso */}
-          <Card className="w-full p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
-            </div>
-            
-            <div className="space-y-6">
-              {/* Partenza */}
-              <div>
-                <h3 className="text-sm font-medium mb-3 text-muted-foreground">
-                  Punto di Partenza
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="citta_presa" className="font-medium">Città</Label>
-                    <Input
-                      id="citta_presa"
-                      placeholder="Es: Milano"
-                      className="text-base"
-                      {...form.register("citta_presa")}
-                    />
-                  </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="indirizzo_presa" className="font-medium">
-                      Indirizzo Presa <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="indirizzo_presa"
-                      placeholder="Es: Via Roma 123"
-                      className="text-base"
-                      {...form.register("indirizzo_presa")}
-                    />
-                    {errors.indirizzo_presa && (
-                      <p className="text-sm text-destructive">
-                        {errors.indirizzo_presa.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Destinazione */}
-              <div>
-                <h3 className="text-sm font-medium mb-3 text-muted-foreground">
-                  Destinazione
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="citta_destinazione" className="font-medium">Città</Label>
-                    <Input
-                      id="citta_destinazione"
-                      placeholder="Es: Roma"
-                      className="text-base"
-                      {...form.register("citta_destinazione")}
-                    />
-                  </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="indirizzo_destinazione" className="font-medium">
-                      Indirizzo Destinazione <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="indirizzo_destinazione"
-                      placeholder="Es: Aeroporto Fiumicino"
-                      className="text-base"
-                      {...form.register("indirizzo_destinazione")}
-                    />
-                    {errors.indirizzo_destinazione && (
-                      <p className="text-sm text-destructive">
-                        {errors.indirizzo_destinazione.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* SEZIONE 3: Assegnazione - nascosto in modalità veloce */}
-          {!isVeloce && (
-          <Card className="w-full p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-base sm:text-lg font-semibold">Assegnazione (Opzionale)</h2>
-            </div>
-            
-            <div className="space-y-4">
-              {/* Checkbox Conducente Esterno */}
-              <div className="flex items-center space-x-2 pl-0.5 mt-4">
-                <Controller
-                  name="conducente_esterno"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
-                    />
-                  )}
-                />
-                <Label className="text-sm sm:text-base cursor-pointer">Conducente Esterno</Label>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                {/* Conducente - conditional */}
-                {!watchConducenteEsterno ? (
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label className="font-medium">Assegna a Dipendente/Socio</Label>
-                    <Controller
-                      name="assegnato_a"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger className="text-base">
-                            <SelectValue placeholder="Seleziona conducente" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {dipendenti?.map((dip) => (
-                              <SelectItem key={dip.id} value={dip.id}>
-                                {dip.first_name} {dip.last_name} ({dip.role})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label className="font-medium">Conducente Esterno</Label>
-                    <Controller
-                      name="conducente_esterno_id"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger className="text-base">
-                            <SelectValue placeholder="Seleziona conducente esterno" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {conducentiEsterni?.map((ce) => (
-                              <SelectItem key={ce.id} value={ce.id}>
-                                {ce.nome_cognome}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {/* Veicolo */}
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label className="font-medium">Veicolo</Label>
-                  <Controller
-                    name="veicolo_id"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value || ""} onValueChange={field.onChange}>
-                        <SelectTrigger className="text-base">
-                          <SelectValue placeholder="Seleziona veicolo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {veicoli?.map((v) => (
-                            <SelectItem key={v.id} value={v.id}>
-                              {v.modello} - {v.targa}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-              </div>
-            </div>
-          </Card>
-          )}
-
-          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce */}
-          {!isVeloce && (
-          <Card className="w-full p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-base sm:text-lg font-semibold">Dettagli Economici</h2>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="metodo_pagamento" className="font-medium">
-                    Metodo Pagamento <span className="text-destructive">*</span>
-                  </Label>
-                  <Controller
-                    name="metodo_pagamento"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="text-base">
-                          <SelectValue placeholder="Seleziona metodo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {metodiPagamento?.map((metodo) => (
-                            <SelectItem key={metodo.id} value={metodo.nome}>
-                              {metodo.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.metodo_pagamento && (
-                    <p className="text-sm text-destructive">
-                      {errors.metodo_pagamento.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="ore_effettive" className="font-medium">Ore Effettive</Label>
-                  <Input
-                    id="ore_effettive"
-                    type="number"
-                    step="0.5"
-                    placeholder="Opzionale: 4.5"
-                    className="text-base"
-                    {...form.register("ore_effettive")}
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="ore_fatturate" className="font-medium">Ore Fatturate</Label>
-                  <Input
-                    id="ore_fatturate"
-                    type="number"
-                    step="0.5"
-                    placeholder="Opzionale: 4.5"
-                    className="text-base"
-                    {...form.register("ore_fatturate")}
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="incasso_previsto" className="font-medium">Incasso Previsto (€)</Label>
-                  <Input
-                    id="incasso_previsto"
-                    type="number"
-                    step="0.01"
-                    placeholder="Opzionale: 200.00"
-                    className="text-base"
-                    {...form.register("incasso_previsto")}
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="iva" className="font-medium">IVA (%)</Label>
-                  <Input
-                    id="iva"
-                    type="number"
-                    step="1"
-                    placeholder="22"
-                    className="text-base"
-                    {...form.register("iva")}
-                  />
-                </div>
-
-                {/* Consegna Contanti (conditional) */}
-                {watchMetodoPagamento === "Contanti" && (
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label className="font-medium">Consegna Contanti a</Label>
-                    <Controller
-                      name="consegna_contanti_a"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger className="text-base">
-                            <SelectValue placeholder="Seleziona socio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {dipendenti
-                              ?.filter(d => d.role === "socio")
-                              .map((socio) => (
-                                <SelectItem key={socio.id} value={socio.id}>
-                                  {socio.first_name} {socio.last_name}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Checkbox Provvigione */}
-              <div className="flex items-center space-x-2 pl-0.5 mt-4">
-                <Controller
-                  name="applica_provvigione"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
-                    />
-                  )}
-                />
-                <Label className="text-sm sm:text-base cursor-pointer">Applica Provvigione</Label>
-              </div>
-            </div>
-          </Card>
-          )}
-
-          {/* SEZIONE 5: Passeggeri - Solo per aziende e non in modalità veloce */}
+          {/* SEZIONE 2: Passeggeri - Solo per aziende e non in modalità veloce */}
           {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
@@ -1446,7 +1144,392 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 6: Email Notifiche - Solo per aziende e non in modalità veloce */}
+          {/* SEZIONE 3: Percorso */}
+          <Card className="w-full p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Partenza */}
+              <div>
+                <h3 className="text-sm font-medium mb-3 text-muted-foreground">
+                  Punto di Partenza
+                </h3>
+                
+                {/* Checkbox Usa Indirizzo Passeggero */}
+                {watchTipoCliente === 'azienda' && passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
+                  <Controller
+                    name="usa_indirizzo_passeggero_partenza"
+                    control={form.control}
+                    render={({ field }) => (
+                      <div className="flex items-center space-x-2 mb-3">
+                        <Checkbox
+                          id="usa_indirizzo_passeggero_partenza"
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked && passeggeroSelezionato) {
+                              form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
+                              form.setValue('citta_presa', passeggeroSelezionato.localita || '');
+                            }
+                          }}
+                        />
+                        <label htmlFor="usa_indirizzo_passeggero_partenza" className="text-sm cursor-pointer">
+                          🏠 Usa indirizzo passeggero ({passeggeroSelezionato.nome_cognome})
+                        </label>
+                      </div>
+                    )}
+                  />
+                )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="citta_presa" className="font-medium">Città</Label>
+                    <Input
+                      id="citta_presa"
+                      placeholder="Es: Milano"
+                      className="text-base"
+                      {...form.register("citta_presa")}
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="indirizzo_presa" className="font-medium">
+                      Indirizzo Presa <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="indirizzo_presa"
+                      placeholder="Es: Via Roma 123"
+                      className="text-base"
+                      {...form.register("indirizzo_presa")}
+                    />
+                    {errors.indirizzo_presa && (
+                      <p className="text-sm text-destructive">
+                        {errors.indirizzo_presa.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Destinazione */}
+              <div>
+                <h3 className="text-sm font-medium mb-3 text-muted-foreground">
+                  Destinazione
+                </h3>
+                
+                {/* Checkbox Usa Indirizzo Passeggero */}
+                {watchTipoCliente === 'azienda' && passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
+                  <Controller
+                    name="usa_indirizzo_passeggero_destinazione"
+                    control={form.control}
+                    render={({ field }) => (
+                      <div className="flex items-center space-x-2 mb-3">
+                        <Checkbox
+                          id="usa_indirizzo_passeggero_destinazione"
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked && passeggeroSelezionato) {
+                              form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
+                              form.setValue('citta_destinazione', passeggeroSelezionato.localita || '');
+                            }
+                          }}
+                        />
+                        <label htmlFor="usa_indirizzo_passeggero_destinazione" className="text-sm cursor-pointer">
+                          🏠 Usa indirizzo passeggero ({passeggeroSelezionato.nome_cognome})
+                        </label>
+                      </div>
+                    )}
+                  />
+                )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="citta_destinazione" className="font-medium">Città</Label>
+                    <Input
+                      id="citta_destinazione"
+                      placeholder="Es: Roma"
+                      className="text-base"
+                      {...form.register("citta_destinazione")}
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="indirizzo_destinazione" className="font-medium">
+                      Indirizzo Destinazione <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="indirizzo_destinazione"
+                      placeholder="Es: Aeroporto Fiumicino"
+                      className="text-base"
+                      {...form.register("indirizzo_destinazione")}
+                    />
+                    {errors.indirizzo_destinazione && (
+                      <p className="text-sm text-destructive">
+                        {errors.indirizzo_destinazione.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce */}
+          {!isVeloce && (
+          <Card className="w-full p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Dettagli Economici</h2>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="metodo_pagamento" className="font-medium">
+                    Metodo Pagamento <span className="text-destructive">*</span>
+                  </Label>
+                  <Controller
+                    name="metodo_pagamento"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="text-base">
+                          <SelectValue placeholder="Seleziona metodo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {metodiPagamento?.map((metodo) => (
+                            <SelectItem key={metodo.id} value={metodo.nome}>
+                              {metodo.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.metodo_pagamento && (
+                    <p className="text-sm text-destructive">
+                      {errors.metodo_pagamento.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_effettive" className="font-medium">Ore Effettive</Label>
+                  <Input
+                    id="ore_effettive"
+                    type="number"
+                    step="0.5"
+                    placeholder="Opzionale: 4.5"
+                    className="text-base"
+                    {...form.register("ore_effettive")}
+                  />
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_fatturate" className="font-medium">Ore Fatturate</Label>
+                  <Input
+                    id="ore_fatturate"
+                    type="number"
+                    step="0.5"
+                    placeholder="Opzionale: 4.5"
+                    className="text-base"
+                    {...form.register("ore_fatturate")}
+                  />
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="incasso_previsto" className="font-medium">Incasso Previsto (€)</Label>
+                  <Input
+                    id="incasso_previsto"
+                    type="number"
+                    step="0.01"
+                    placeholder="Opzionale: 200.00"
+                    className="text-base"
+                    {...form.register("incasso_previsto")}
+                  />
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="iva" className="font-medium">IVA (%)</Label>
+                  <Input
+                    id="iva"
+                    type="number"
+                    step="1"
+                    placeholder="22"
+                    className="text-base"
+                    {...form.register("iva")}
+                  />
+                </div>
+
+                {/* Consegna Contanti (conditional) */}
+                {watchMetodoPagamento === "Contanti" && (
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="font-medium">Consegna Contanti a</Label>
+                    <Controller
+                      name="consegna_contanti_a"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Select value={field.value || ""} onValueChange={field.onChange}>
+                          <SelectTrigger className="text-base">
+                            <SelectValue placeholder="Seleziona socio" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {dipendenti
+                              ?.filter(d => d.role === "socio")
+                              .map((socio) => (
+                                <SelectItem key={socio.id} value={socio.id}>
+                                  {socio.first_name} {socio.last_name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Checkbox Provvigione */}
+              <div className="flex items-center space-x-2 pl-0.5 mt-4">
+                <Controller
+                  name="applica_provvigione"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
+                    />
+                  )}
+                />
+                <Label className="text-sm sm:text-base cursor-pointer">Applica Provvigione</Label>
+              </div>
+            </div>
+          </Card>
+          )}
+
+          {/* SEZIONE 5: Assegnazione - nascosto in modalità veloce */}
+          {!isVeloce && (
+          <Card className="w-full p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Assegnazione (Opzionale)</h2>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Checkbox Conducente Esterno */}
+              <div className="flex items-center space-x-2 pl-0.5 mt-4">
+                <Controller
+                  name="conducente_esterno"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
+                    />
+                  )}
+                />
+                <Label className="text-sm sm:text-base cursor-pointer">Conducente Esterno</Label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                {/* Conducente - conditional */}
+                {!watchConducenteEsterno ? (
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="font-medium">Assegna a Dipendente/Socio</Label>
+                    <Controller
+                      name="assegnato_a"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Select value={field.value || ""} onValueChange={field.onChange}>
+                          <SelectTrigger className="text-base">
+                            <SelectValue placeholder="Seleziona conducente" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {dipendenti?.map((dip) => (
+                              <SelectItem key={dip.id} value={dip.id}>
+                                {dip.first_name} {dip.last_name} ({dip.role})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label className="font-medium">Conducente Esterno</Label>
+                    <Controller
+                      name="conducente_esterno_id"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Select value={field.value || ""} onValueChange={field.onChange}>
+                          <SelectTrigger className="text-base">
+                            <SelectValue placeholder="Seleziona conducente esterno" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {conducentiEsterni?.map((ce) => (
+                              <SelectItem key={ce.id} value={ce.id}>
+                                {ce.nome_cognome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {/* Veicolo */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="font-medium">Veicolo</Label>
+                  <Controller
+                    name="veicolo_id"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value || ""} onValueChange={field.onChange}>
+                        <SelectTrigger className="text-base">
+                          <SelectValue placeholder="Seleziona veicolo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {veicoli?.map((v) => (
+                            <SelectItem key={v.id} value={v.id}>
+                              {v.modello} - {v.targa}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
+          )}
+
+          {/* SEZIONE 6: Note */}
+          <Card className="w-full p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Note</h2>
+            </div>
+            
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="note" className="font-medium">Note Aggiuntive</Label>
+              <Textarea
+                id="note"
+                placeholder="Opzionale: Eventuali note sul servizio..."
+                rows={4}
+                className="text-base"
+                {...form.register("note")}
+              />
+            </div>
+          </Card>
+
+          {/* SEZIONE 7: Email Notifiche - Solo per aziende e non in modalità veloce */}
           {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
@@ -1578,25 +1661,6 @@ export const ServizioCreaPage = ({
             </div>
           </Card>
           )}
-
-          {/* SEZIONE 7: Note */}
-          <Card className="w-full p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <Info className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-base sm:text-lg font-semibold">Note</h2>
-            </div>
-            
-            <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="note" className="font-medium">Note Aggiuntive</Label>
-              <Textarea
-                id="note"
-                placeholder="Opzionale: Eventuali note sul servizio..."
-                rows={4}
-                className="text-base"
-                {...form.register("note")}
-              />
-            </div>
-          </Card>
 
         </div>
 
