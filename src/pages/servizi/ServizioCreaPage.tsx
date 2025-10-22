@@ -328,16 +328,29 @@ export const ServizioCreaPage = ({
   });
 
   // Query: Passeggeri
-  const { data: passeggeri } = useQuery({
+  const { 
+    data: passeggeri, 
+    isLoading: isLoadingPasseggeri,
+    error: errorPasseggeri 
+  } = useQuery({
     queryKey: ["passeggeri", watchAziendaId],
     queryFn: async () => {
+      console.log('[Passeggeri] Fetching for aziendaId:', watchAziendaId);
+      
       if (!watchAziendaId) return [];
+      
       const { data, error } = await supabase
         .from("passeggeri")
         .select("id, nome_cognome, email")
         .eq("azienda_id", watchAziendaId)
         .order("nome_cognome");
-      if (error) throw error;
+      
+      if (error) {
+        console.error('[Passeggeri] Error:', error);
+        throw error;
+      }
+      
+      console.log('[Passeggeri] Data received:', data);
       return data;
     },
     enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
@@ -1369,6 +1382,14 @@ export const ServizioCreaPage = ({
                       {!watchAziendaId ? (
                         <p className="text-sm text-muted-foreground">
                           Seleziona prima un'azienda
+                        </p>
+                      ) : isLoadingPasseggeri ? (
+                        <p className="text-sm text-muted-foreground">
+                          ⏳ Caricamento passeggeri...
+                        </p>
+                      ) : errorPasseggeri ? (
+                        <p className="text-sm text-destructive">
+                          ❌ Errore nel caricamento dei passeggeri. Riprova.
                         </p>
                       ) : passeggeri?.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
