@@ -955,6 +955,7 @@ export type Database = {
           luogo_presa_personalizzato: string | null
           orario_presa_personalizzato: string | null
           passeggero_id: string
+          salva_in_database: boolean
           servizio_id: string
           usa_indirizzo_personalizzato: boolean
         }
@@ -965,6 +966,7 @@ export type Database = {
           luogo_presa_personalizzato?: string | null
           orario_presa_personalizzato?: string | null
           passeggero_id: string
+          salva_in_database?: boolean
           servizio_id: string
           usa_indirizzo_personalizzato?: boolean
         }
@@ -975,6 +977,7 @@ export type Database = {
           luogo_presa_personalizzato?: string | null
           orario_presa_personalizzato?: string | null
           passeggero_id?: string
+          salva_in_database?: boolean
           servizio_id?: string
           usa_indirizzo_personalizzato?: boolean
         }
