@@ -152,4 +152,5 @@ export interface PasseggeroFormData {
   usa_indirizzo_personalizzato: boolean;
   destinazione_personalizzato?: string;
   is_existing?: boolean; // Flag per distinguere tra nuovo e esistente
+  salva_in_database?: boolean; // Flag per salvare in anagrafica (default: true)
 }

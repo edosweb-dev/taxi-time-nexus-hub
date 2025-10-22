@@ -103,52 +103,74 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     if (data.passeggeri && data.passeggeri.length > 0) {
       for (const passeggeroData of data.passeggeri) {
         let passeggeroId = passeggeroData.passeggero_id;
+        const salvaInDatabase = passeggeroData.salva_in_database !== false; // default true
 
-        // Se è un nuovo passeggero, crealo prima
+        // NUOVO PASSEGGERO
         if (!passeggeroData.is_existing || !passeggeroId) {
-          console.log('[createServizio] Creating new passeggero:', passeggeroData.nome_cognome);
           
-          const { data: newPasseggero, error: passeggeroError } = await supabase
-            .from('passeggeri')
-            .insert({
-              nome_cognome: passeggeroData.nome_cognome,
-              nome: passeggeroData.nome,
-              cognome: passeggeroData.cognome,
-              localita: passeggeroData.localita,
-              indirizzo: passeggeroData.indirizzo,
-              email: passeggeroData.email,
-              telefono: passeggeroData.telefono,
-              azienda_id: data.servizio.tipo_cliente === 'azienda' ? data.servizio.azienda_id : null,
-              referente_id: data.servizio.tipo_cliente === 'azienda' ? (data.servizio.referente_id || null) : null,
-            })
-            .select()
-            .single();
+          // CASO 1: salva_in_database = TRUE → Crea in anagrafica permanente
+          if (salvaInDatabase) {
+            console.log('[createServizio] Creating new passeggero in anagrafica:', passeggeroData.nome_cognome);
+            
+            const { data: newPasseggero, error: passeggeroError } = await supabase
+              .from('passeggeri')
+              .insert({
+                nome_cognome: passeggeroData.nome_cognome,
+                nome: passeggeroData.nome,
+                cognome: passeggeroData.cognome,
+                localita: passeggeroData.localita,
+                indirizzo: passeggeroData.indirizzo,
+                email: passeggeroData.email,
+                telefono: passeggeroData.telefono,
+                azienda_id: data.servizio.tipo_cliente === 'azienda' ? data.servizio.azienda_id : null,
+                referente_id: data.servizio.tipo_cliente === 'azienda' ? (data.servizio.referente_id || null) : null,
+              })
+              .select()
+              .single();
 
-          if (passeggeroError) {
-            console.error('[createServizio] Error creating passeggero:', passeggeroError);
-            toast.error(`Errore nella creazione del passeggero ${passeggeroData.nome_cognome}: ${passeggeroError.message}`);
-            continue;
+            if (passeggeroError) {
+              console.error('[createServizio] Error creating passeggero:', passeggeroError);
+              toast.error(`Errore nella creazione del passeggero ${passeggeroData.nome_cognome}: ${passeggeroError.message}`);
+              continue;
+            }
+
+            passeggeroId = newPasseggero.id;
+            console.log('[createServizio] New passeggero created with ID:', passeggeroId);
+          } 
+          // CASO 2: salva_in_database = FALSE → NON creare in anagrafica
+          else {
+            console.log('[createServizio] Passeggero one-time use (not saved in anagrafica):', passeggeroData.nome_cognome);
+            // passeggeroId rimane null, dati salvati solo in servizi_passeggeri
           }
-
-          passeggeroId = newPasseggero.id;
-          console.log('[createServizio] New passeggero created with ID:', passeggeroId);
         }
 
-        // Crea il collegamento servizio-passeggero
-        const { error: collegiamentoError } = await supabase
-          .from('servizi_passeggeri')
-          .insert({
-            servizio_id: servizio.id,
-            passeggero_id: passeggeroId,
-            orario_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.orario_presa_personalizzato : null,
-            luogo_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.luogo_presa_personalizzato : null,
-            destinazione_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.destinazione_personalizzato : null,
-            usa_indirizzo_personalizzato: passeggeroData.usa_indirizzo_personalizzato
-          });
+        // CREA COLLEGAMENTO servizio-passeggero (sempre, anche se passeggeroId è null)
+        const collegamentoData: any = {
+          servizio_id: servizio.id,
+          passeggero_id: passeggeroId, // può essere null se salva_in_database = false
+          orario_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.orario_presa_personalizzato : null,
+          luogo_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.luogo_presa_personalizzato : null,
+          destinazione_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.destinazione_personalizzato : null,
+          usa_indirizzo_personalizzato: passeggeroData.usa_indirizzo_personalizzato || false,
+          salva_in_database: salvaInDatabase,
+        };
 
-        if (collegiamentoError) {
-          console.error('[createServizio] Error creating servizio-passeggero link:', collegiamentoError);
-          toast.error(`Errore nel collegamento del passeggero ${passeggeroData.nome_cognome}: ${collegiamentoError.message}`);
+        // Se passeggero NON salvato in anagrafica, salva dati inline
+        if (!passeggeroId && !salvaInDatabase) {
+          collegamentoData.nome_cognome_inline = passeggeroData.nome_cognome;
+          collegamentoData.email_inline = passeggeroData.email || null;
+          collegamentoData.telefono_inline = passeggeroData.telefono || null;
+          collegamentoData.localita_inline = passeggeroData.localita || null;
+          collegamentoData.indirizzo_inline = passeggeroData.indirizzo || null;
+        }
+
+        const { error: collegamentoError } = await supabase
+          .from('servizi_passeggeri')
+          .insert(collegamentoData);
+
+        if (collegamentoError) {
+          console.error('[createServizio] Error creating servizio-passeggero link:', collegamentoError);
+          toast.error(`Errore nel collegamento del passeggero ${passeggeroData.nome_cognome}: ${collegamentoError.message}`);
         }
       }
     }
