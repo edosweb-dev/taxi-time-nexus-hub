@@ -48,6 +48,21 @@ export function CompletaServizioForm({
     servizio,
   });
 
+  // Calcola l'importo totale IVA compresa
+  const calculateTotaleIncasso = () => {
+    const incassoPrevisto = Number(servizio.incasso_previsto) || 0;
+    const iva = Number(servizio.iva) || 0;
+    
+    if (iva > 0) {
+      // Se c'è IVA, aggiungi l'IVA all'importo netto
+      const ivaAmount = incassoPrevisto * (iva / 100);
+      return incassoPrevisto + ivaAmount;
+    }
+    
+    // Altrimenti ritorna solo l'incasso previsto
+    return incassoPrevisto;
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-6">
@@ -87,11 +102,11 @@ export function CompletaServizioForm({
         />
 
         <div className="space-y-2">
-          <Label htmlFor="incasso_previsto_readonly">Incasso Previsto</Label>
+          <Label htmlFor="incasso_previsto_readonly">Incasso Previsto (IVA compresa)</Label>
           <Input
             id="incasso_previsto_readonly"
             type="text"
-            value={formatCurrency(servizio.incasso_previsto || 0)}
+            value={formatCurrency(calculateTotaleIncasso())}
             disabled
             className="bg-muted"
           />
