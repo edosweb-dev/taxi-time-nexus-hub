@@ -1434,33 +1434,6 @@ export const ServizioCreaPage = ({
                     {...form.register("incasso_previsto")}
                   />
                 </div>
-
-                {/* Consegna Contanti (conditional) */}
-                {watchMetodoPagamento === "Contanti" && (
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label className="font-medium">Consegna Contanti a</Label>
-                    <Controller
-                      name="consegna_contanti_a"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger className="text-base">
-                            <SelectValue placeholder="Seleziona socio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {dipendenti
-                              ?.filter(d => d.role === "socio")
-                              .map((socio) => (
-                                <SelectItem key={socio.id} value={socio.id}>
-                                  {socio.first_name} {socio.last_name}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Checkbox Provvigione */}
