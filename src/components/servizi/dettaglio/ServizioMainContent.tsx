@@ -4,6 +4,10 @@ import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, User, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { FinancialSection } from "./sections/FinancialSection";
+import { useUsers } from "@/hooks/useUsers";
+import { useAziende } from "@/hooks/useAziende";
+import { NoteCard } from "@/components/dipendente/servizi/dettaglio/NoteCard";
 
 interface ServizioMainContentProps {
   servizio: Servizio;
@@ -20,6 +24,16 @@ export function ServizioMainContent({
 }: ServizioMainContentProps) {
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  
+  const { users } = useUsers();
+  const { aziende } = useAziende();
+  const azienda = aziende?.find(a => a.id === servizio.azienda_id);
+  
+  const getUserName = (users: Profile[], userId?: string) => {
+    if (!userId) return null;
+    const user = users.find(u => u.id === userId);
+    return user ? `${user.first_name} ${user.last_name}` : null;
+  };
   
   const formatTime = (time?: string) => {
     if (!time) return "—";
@@ -136,84 +150,18 @@ export function ServizioMainContent({
       </Card>
 
       {/* Dettagli Economici */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Dettagli Economici</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <div className="text-xs text-muted-foreground mb-1">Metodo Pagamento</div>
-              <div className="font-medium">{servizio.metodo_pagamento || "—"}</div>
-            </div>
-            <div>
-              <div className="text-xs text-muted-foreground mb-1">Incasso Previsto</div>
-              <div className="font-medium">{formatCurrency(servizio.incasso_previsto)}</div>
-            </div>
-            <div className="col-span-2">
-              <div className="text-xs text-muted-foreground mb-1">Incasso Ricevuto</div>
-              <div className="font-medium text-lg">{formatCurrency(servizio.incasso_ricevuto)}</div>
-            </div>
-            
-            {servizio.stato === 'consuntivato' && servizio.ore_finali != null && (
-              <div>
-                <div className="text-xs text-muted-foreground mb-1">Ore Lavorate</div>
-                <div className="font-medium">{servizio.ore_finali}h</div>
-              </div>
-            )}
-            
-            {isAdminOrSocio && servizio.stato === 'consuntivato' && (
-              <>
-                {servizio.ore_sosta != null && servizio.ore_sosta > 0 && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">Ore Sosta</div>
-                    <div className="font-medium">{servizio.ore_sosta}h</div>
-                  </div>
-                )}
-                {servizio.ore_sosta_fatturate != null && servizio.ore_sosta_fatturate > 0 && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">Ore Sosta Fatturate</div>
-                    <div className="font-medium">{servizio.ore_sosta_fatturate}h</div>
-                  </div>
-                )}
-                {servizio.km_totali != null && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">Km Percorsi</div>
-                    <div className="font-medium">{servizio.km_totali} km</div>
-                  </div>
-                )}
-              </>
-            )}
-            
-            {(servizio.ore_effettive != null || servizio.ore_fatturate != null) && (
-              <>
-                {servizio.ore_effettive != null && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">Ore Effettive</div>
-                    <div className="font-medium">{servizio.ore_effettive}h</div>
-                  </div>
-                )}
-                {servizio.ore_fatturate != null && (
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1">Ore Fatturate</div>
-                    <div className="font-medium">{servizio.ore_fatturate}h</div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+      <FinancialSection
+        servizio={servizio}
+        users={users || []}
+        azienda={azienda}
+        getUserName={getUserName}
+        formatCurrency={formatCurrency}
+      />
 
-          {/* Note */}
-          {servizio.note && (
-            <div className="mt-4 pt-4 border-t">
-              <div className="text-xs text-muted-foreground mb-1">Note</div>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {servizio.note}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Note */}
+      {servizio.note && (
+        <NoteCard note={servizio.note} />
+      )}
 
       {/* Firma Cliente */}
       <Card>
