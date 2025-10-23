@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, TrendingUp, TrendingDown, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -188,9 +189,6 @@ export default function StipendiDettaglioPage() {
   const totaleIncasso = servizi?.reduce((sum, s) => 
     sum + (Number(s.incasso_ricevuto) || Number(s.incasso_previsto) || 0), 0
   ) || 0;
-  const incassiContanti = servizi
-    ?.filter(s => s.metodo_pagamento === 'Contanti')
-    .reduce((sum, s) => sum + (Number(s.incasso_ricevuto) || Number(s.incasso_previsto) || 0), 0) || 0;
 
   // Parametri configurazione
   const coefficienteAumento = Number(configurazione?.coefficiente_aumento) || 1.17;
@@ -232,16 +230,6 @@ export default function StipendiDettaglioPage() {
   const totaleIncassiDipendenti = incassiDipendenti?.reduce((sum, i) => sum + Number(i.importo), 0) || 0;
   const riporto = Number(riportoMesePrecedente) || 0;
 
-  // 6. Totale netto
-  const totaleNetto = Number((
-    totaleLordo +
-    totaleSpesePersonali -
-    totalePrelievi -
-    totaleIncassiDipendenti -
-    incassiContanti +
-    riporto
-  ).toFixed(2));
-
   // Funzioni helper per calcolo compenso singolo servizio
   const calcolaCompensoKmServizio = (km: number): number => {
     if (km <= 200) {
@@ -269,6 +257,39 @@ export default function StipendiDettaglioPage() {
   const calcolaCompensoOreSosta = (ore: number): number => {
     return ore * tariffaOrariaAttesa;
   };
+
+  // Calcola totali dai servizi con compensi dettagliati
+  const totaliServizi = servizi?.reduce((acc, servizio) => {
+    const km = Number(servizio.km_totali) || 0;
+    const ore = Number(servizio.ore_sosta) || 0;
+    const compensoKm = calcolaCompensoKmServizio(km);
+    const compensoOre = calcolaCompensoOreSosta(ore);
+    const incasso = Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0;
+    const contanti = servizio.metodo_pagamento === 'Contanti' ? incasso : 0;
+
+    return {
+      compensiKm: acc.compensiKm + compensoKm,
+      compensiOre: acc.compensiOre + compensoOre,
+      contanti: acc.contanti + contanti,
+      totale: acc.totale + (compensoKm + compensoOre - contanti)
+    };
+  }, { compensiKm: 0, compensiOre: 0, contanti: 0, totale: 0 }) || 
+  { compensiKm: 0, compensiOre: 0, contanti: 0, totale: 0 };
+
+  // Calcola totali entrate e uscite
+  const totaleEntrate = 
+    totaliServizi.compensiKm + 
+    totaliServizi.compensiOre + 
+    totaleSpesePersonali + 
+    (riporto > 0 ? riporto : 0);
+
+  const totaleUscite = 
+    totalePrelievi + 
+    totaleIncassiDipendenti + 
+    totaliServizi.contanti + 
+    (riporto < 0 ? Math.abs(riporto) : 0);
+
+  const totaleNetto = totaleEntrate - totaleUscite;
 
   const isLoading = isLoadingUtente || isLoadingServizi;
 
@@ -395,12 +416,12 @@ export default function StipendiDettaglioPage() {
             </div>
             <div className="flex justify-between text-sm">
               <span>Contanti</span>
-              <span className="font-semibold text-red-600">€{incassiContanti.toFixed(2)}</span>
+              <span className="font-semibold text-red-600">€{totaliServizi.contanti.toFixed(2)}</span>
             </div>
             <Separator className="my-2" />
             <div className="flex justify-between font-bold">
               <span>Totale</span>
-              <span className="text-red-600">€{(totalePrelievi + totaleIncassiDipendenti + incassiContanti).toFixed(2)}</span>
+              <span className="text-red-600">€{totaleUscite.toFixed(2)}</span>
             </div>
           </CardContent>
         </Card>
@@ -436,7 +457,7 @@ export default function StipendiDettaglioPage() {
       {/* Tabella Servizi con Compensi Dettagliati */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Dettaglio Servizi ({servizi?.length || 0})</CardTitle>
+          <CardTitle className="text-base">📋 Servizi del Mese ({servizi?.length || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {servizi && servizi.length > 0 ? (
@@ -447,29 +468,31 @@ export default function StipendiDettaglioPage() {
                     <TableHead className="w-[120px]">ID</TableHead>
                     <TableHead className="w-[80px]">Data</TableHead>
                     <TableHead>Azienda</TableHead>
-                    <TableHead className="text-right w-[100px]">Incasso</TableHead>
-                    <TableHead className="text-right w-[140px]">KM (Compenso)</TableHead>
-                    <TableHead className="text-right w-[140px]">Ore (Compenso)</TableHead>
+                    <TableHead className="text-right w-[60px]">KM</TableHead>
+                    <TableHead className="text-right w-[60px]">Ore</TableHead>
+                    <TableHead className="text-right w-[100px]">Comp. KM (+)</TableHead>
+                    <TableHead className="text-right w-[100px]">Comp. Ore (+)</TableHead>
+                    <TableHead className="text-right w-[100px]">Contanti (-)</TableHead>
+                    <TableHead className="text-right w-[100px] font-bold">Totale Servizio</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {servizi.map((servizio) => {
                     const km = Number(servizio.km_totali) || 0;
-                    const oreSosta = Number(servizio.ore_sosta) || 0;
+                    const ore = Number(servizio.ore_sosta) || 0;
                     const compensoKm = calcolaCompensoKmServizio(km);
-                    const compensoOreSosta = calcolaCompensoOreSosta(oreSosta);
+                    const compensoOre = calcolaCompensoOreSosta(ore);
+                    const incasso = Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0;
+                    const contanti = servizio.metodo_pagamento === 'Contanti' ? incasso : 0;
+                    const totaleServizio = compensoKm + compensoOre - contanti;
                     
                     return (
                       <TableRow key={servizio.id} className="hover:bg-muted/50">
-                        <TableCell>
-                          <Button
-                            variant="link"
-                            className="p-0 h-auto font-mono text-xs"
-                            onClick={() => navigate(`/servizi/${servizio.id}`)}
-                          >
-                            {servizio.id_progressivo || `TT-${servizio.id.slice(0, 3)}-${annoCorrente}`}
-                            <ExternalLink className="h-3 w-3 ml-1" />
-                          </Button>
+                        <TableCell className="font-mono text-xs">
+                          <Link to={`/servizi/${servizio.id}`} className="text-primary hover:underline inline-flex items-center gap-1">
+                            {servizio.id_progressivo || servizio.id.slice(0, 8)}
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
                         </TableCell>
                         <TableCell className="text-sm">
                           {new Date(servizio.data_servizio).toLocaleDateString('it-IT', { 
@@ -480,38 +503,36 @@ export default function StipendiDettaglioPage() {
                         <TableCell className="max-w-[200px] truncate text-sm">
                           {servizio.aziende?.nome || '-'}
                         </TableCell>
-                        <TableCell className="text-right font-medium">
-                          €{(Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0).toFixed(2)}
+                        <TableCell className="text-right text-sm">{km.toFixed(0)} km</TableCell>
+                        <TableCell className="text-right text-sm">{ore.toFixed(1)}h</TableCell>
+                        <TableCell className="text-right text-green-600 font-medium">
+                          +€{compensoKm.toFixed(2)}
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="space-y-0.5">
-                            <div className="font-medium">{km.toFixed(0)} km</div>
-                            <div className="text-xs text-muted-foreground">€{compensoKm.toFixed(2)}</div>
-                          </div>
+                        <TableCell className="text-right text-green-600 font-medium">
+                          +€{compensoOre.toFixed(2)}
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="space-y-0.5">
-                            <div className="font-medium">{oreSosta.toFixed(1)}h</div>
-                            <div className="text-xs text-muted-foreground">€{compensoOreSosta.toFixed(2)}</div>
-                          </div>
+                        <TableCell className="text-right text-red-600 font-medium">
+                          {contanti > 0 ? `-€${contanti.toFixed(2)}` : '-'}
+                        </TableCell>
+                        <TableCell className="text-right font-bold">
+                          €{totaleServizio.toFixed(2)}
                         </TableCell>
                       </TableRow>
                     );
                   })}
                   <TableRow className="font-bold bg-muted/50">
-                    <TableCell colSpan={3}>TOTALI</TableCell>
-                    <TableCell className="text-right">€{totaleIncasso.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="space-y-0.5">
-                        <div>{totaleKm.toFixed(0)} km</div>
-                        <div className="text-sm text-green-600">€{baseConAumento.toFixed(2)}</div>
-                      </div>
+                    <TableCell colSpan={5} className="text-right">TOTALI:</TableCell>
+                    <TableCell className="text-right text-green-600">
+                      +€{totaliServizi.compensiKm.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="space-y-0.5">
-                        <div>{totaleOreSosta.toFixed(1)}h</div>
-                        <div className="text-sm text-green-600">€{importoOreSosta.toFixed(2)}</div>
-                      </div>
+                    <TableCell className="text-right text-green-600">
+                      +€{totaliServizi.compensiOre.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right text-red-600">
+                      -€{totaliServizi.contanti.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right text-lg">
+                      €{totaliServizi.totale.toFixed(2)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -522,6 +543,99 @@ export default function StipendiDettaglioPage() {
               Nessun servizio consuntivato per questo mese
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Riepilogo Economico Mensile (2 Colonne) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">📊 Riepilogo Economico Mensile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-6">
+            
+            {/* COLONNA SINISTRA: ENTRATE/AGGIUNTE */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-green-600 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Entrate / Aggiunte
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                  <span className="text-sm">Compensi KM servizi</span>
+                  <span className="font-bold text-green-600">+€{totaliServizi.compensiKm.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                  <span className="text-sm">Compensi Ore servizi</span>
+                  <span className="font-bold text-green-600">+€{totaliServizi.compensiOre.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                  <span className="text-sm">Spese personali approvate</span>
+                  <span className="font-bold text-green-600">+€{totaleSpesePersonali.toFixed(2)}</span>
+                </div>
+                {riporto > 0 && (
+                  <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                    <span className="text-sm">Riporto mese precedente</span>
+                    <span className="font-bold text-green-600">+€{riporto.toFixed(2)}</span>
+                  </div>
+                )}
+                <Separator />
+                <div className="flex justify-between items-center p-3 bg-green-100 rounded-lg">
+                  <span className="font-bold">TOTALE ENTRATE</span>
+                  <span className="font-bold text-lg text-green-600">
+                    +€{totaleEntrate.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* COLONNA DESTRA: USCITE/SOTTRAZIONI */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-red-600 flex items-center gap-2">
+                <TrendingDown className="h-5 w-5" />
+                Uscite / Sottrazioni
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                  <span className="text-sm">Prelievi socio</span>
+                  <span className="font-bold text-red-600">-€{totalePrelievi.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                  <span className="text-sm">Incassi da dipendenti</span>
+                  <span className="font-bold text-red-600">-€{totaleIncassiDipendenti.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                  <span className="text-sm">Contanti servizi</span>
+                  <span className="font-bold text-red-600">-€{totaliServizi.contanti.toFixed(2)}</span>
+                </div>
+                {riporto < 0 && (
+                  <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                    <span className="text-sm">Riporto mese prec. (debito)</span>
+                    <span className="font-bold text-red-600">-€{Math.abs(riporto).toFixed(2)}</span>
+                  </div>
+                )}
+                <Separator />
+                <div className="flex justify-between items-center p-3 bg-red-100 rounded-lg">
+                  <span className="font-bold">TOTALE USCITE</span>
+                  <span className="font-bold text-lg text-red-600">
+                    -€{totaleUscite.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* TOTALE FINALE */}
+          <Separator className="my-6" />
+          <div className={`p-6 rounded-lg text-center ${totaleNetto >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+            <p className="text-sm text-muted-foreground mb-2">TOTALE NETTO DA EROGARE</p>
+            <p className={`text-5xl font-bold ${totaleNetto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {totaleNetto >= 0 ? '+' : ''}€{totaleNetto.toFixed(2)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Entrate €{totaleEntrate.toFixed(2)} - Uscite €{totaleUscite.toFixed(2)}
+            </p>
+          </div>
         </CardContent>
       </Card>
 
