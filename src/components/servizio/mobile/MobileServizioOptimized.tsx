@@ -19,6 +19,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StatoServizio } from '@/lib/types/servizi';
 import { MobileButton } from '@/components/ui/mobile-button';
+import { FinancialSection } from '@/components/servizi/dettaglio/sections/FinancialSection';
+import { useAziende } from '@/hooks/useAziende';
 
 interface MobileServizioOptimizedProps {
   servizio: any;
@@ -67,6 +69,9 @@ export function MobileServizioOptimized({
 }: MobileServizioOptimizedProps) {
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  
+  const { aziende } = useAziende();
+  const azienda = aziende?.find(a => a.id === servizio.azienda_id);
   
   // Get badge configuration
   const getBadgeConfig = () => {
@@ -270,94 +275,13 @@ export function MobileServizioOptimized({
       )}
 
       {/* Dettagli Economici Card */}
-      <Card className="p-4 space-y-3">
-        <h3 className="font-semibold text-sm flex items-center gap-2">
-          <Euro className="h-4 w-4" />
-          Dettagli Economici
-        </h3>
-
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Metodo di pagamento</span>
-            <span className="font-medium">{servizio.metodo_pagamento || 'Non specificato'}</span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Incasso previsto</span>
-            <span className="font-semibold text-primary">
-              {formatCurrency(servizio.incasso_previsto || 0)}
-            </span>
-          </div>
-
-          {servizio.stato === 'completato' || servizio.stato === 'consuntivato' ? (
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Incasso ricevuto</span>
-              <span className="font-semibold">
-                {formatCurrency(servizio.incasso_ricevuto || 0)}
-              </span>
-            </div>
-          ) : null}
-
-          {servizio.consegna_contanti_a && (
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Contanti consegnati a</span>
-              <span className="font-medium">{getUserName(users, servizio.consegna_contanti_a)}</span>
-            </div>
-          )}
-
-          {servizio.stato === 'consuntivato' && (
-            <>
-              <div className="flex items-center justify-between pt-2 border-t">
-                <span className="text-muted-foreground">Ore lavorate</span>
-                <span className="font-medium">{servizio.ore_finali || '--'}</span>
-              </div>
-
-              {isAdminOrSocio && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Ore sosta</span>
-                    <span className="font-medium">{servizio.ore_sosta || 0}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Ore sosta fatturate</span>
-                    <span className="font-medium">{servizio.ore_sosta_fatturate || 0}</span>
-                  </div>
-
-                  {servizio.km_totali !== undefined && servizio.km_totali !== null && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Km percorsi</span>
-                      <span className="font-medium">{servizio.km_totali}</span>
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          )}
-
-          {(servizio.ore_effettive !== undefined || servizio.ore_fatturate !== undefined) && (
-            <>
-              <div className="flex items-center justify-between pt-2 border-t">
-                <span className="text-muted-foreground">Ore effettive</span>
-                <span className="font-medium">{servizio.ore_effettive || '--'}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Ore fatturate</span>
-                <span className="font-medium">{servizio.ore_fatturate || '--'}</span>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Note - if present */}
-        {servizio.note && (
-          <div className="pt-3 border-t">
-            <div className="text-xs text-muted-foreground font-medium mb-1">Note</div>
-            <p className="text-sm bg-muted/30 p-2 rounded">{servizio.note}</p>
-          </div>
-        )}
-      </Card>
+      <FinancialSection
+        servizio={servizio}
+        users={users}
+        azienda={azienda}
+        getUserName={getUserName}
+        formatCurrency={formatCurrency}
+      />
 
       {/* Firma Cliente Card - only if active */}
       {firmaDigitaleAttiva && (
