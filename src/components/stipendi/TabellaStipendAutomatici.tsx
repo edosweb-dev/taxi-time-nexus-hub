@@ -164,13 +164,13 @@ export function TabellaStipendAutomatici({
     let usciteTotali = 0;
     
     if (stipendio.hasStipendioSalvato && stipendio.stipendioEsistente) {
-      // Per stipendi salvati: usa base_calcolo come compensi servizi (già comprende KM + Ore)
+      // Per stipendi salvati: usa totale_lordo come compensi servizi
       const riporto = stipendio.stipendioEsistente.riporto_mese_precedente || 0;
       const contanti = contantiServizi || 0;
       
-      // ENTRATE = base_calcolo (compensi KM+Ore con aumento) + spese personali + riporto positivo
+      // ENTRATE = compensi servizi (totale_lordo) + spese personali + riporto positivo
       entratePositive = 
-        (stipendio.stipendioEsistente.base_calcolo || 0) +
+        (stipendio.stipendioEsistente.totale_lordo || 0) +
         (stipendio.stipendioEsistente.totale_spese || 0) +
         (riporto > 0 ? riporto : 0);
       
@@ -181,15 +181,13 @@ export function TabellaStipendAutomatici({
         contanti +
         (riporto < 0 ? Math.abs(riporto) : 0);
     } else if (stipendio.calcoloCompleto) {
-      // Per calcoli automatici: usa i valori dal calcolo completo
+      // Per calcoli automatici: usa totaleLordo dal calcolo completo
       const calc = stipendio.calcoloCompleto;
       const detr = calc.detrazioni;
       
-      // ENTRATE = compensi KM + compensi Ore (già con aumento) + spese personali + riporto positivo
-      const compensiServizi = calc.baseConAumento + calc.importoOreAttesa;
-      
+      // ENTRATE = compensi servizi (totaleLordo) + spese personali + riporto positivo
       entratePositive = 
-        compensiServizi +
+        calc.totaleLordo +
         detr.totaleSpesePersonali +
         (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
       
