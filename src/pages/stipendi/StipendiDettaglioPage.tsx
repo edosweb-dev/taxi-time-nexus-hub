@@ -567,60 +567,6 @@ export default function StipendiDettaglioPage() {
         </CardContent>
       </Card>
 
-      {/* Dettagli Calcolo (Collapsabile) */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Dettagli Calcolo</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm">
-          <div>
-            <h4 className="font-semibold mb-2">Compenso KM</h4>
-            <div className="space-y-1 pl-4">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">KM totali:</span>
-                <span>{totaleKm.toFixed(0)} km</span>
-              </div>
-              {totaleKm <= 200 ? (
-                <>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">KM arrotondati:</span>
-                    <span>{kmArrotondati} km</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tariffa base:</span>
-                    <span>€{baseKm.toFixed(2)}</span>
-                  </div>
-                </>
-              ) : (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Calcolo lineare ({totaleKm.toFixed(0)} × €{tariffaOltre200}):</span>
-                  <span>€{baseKm.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-medium">
-                <span className="text-muted-foreground">Con coefficiente {coefficienteAumento}:</span>
-                <span>€{baseConAumento.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-          
-          <Separator />
-          
-          <div>
-            <h4 className="font-semibold mb-2">Compenso Ore Attesa</h4>
-            <div className="space-y-1 pl-4">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Ore totali:</span>
-                <span>{totaleOreSosta.toFixed(1)}h</span>
-              </div>
-              <div className="flex justify-between font-medium">
-                <span className="text-muted-foreground">A €{tariffaOrariaAttesa}/h:</span>
-                <span>€{importoOreSosta.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
