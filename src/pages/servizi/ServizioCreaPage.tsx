@@ -84,8 +84,9 @@ const servizioSchema = z.object({
   veicolo_id: z.string().optional().nullable(),
   ore_effettive: z.string().optional().nullable(),
   ore_fatturate: z.string().optional().nullable(),
-  incasso_previsto: z.string().optional().nullable(),
+  incasso_previsto: z.number().optional().nullable(),
   iva: z.number().optional(),
+  importo_totale_calcolato: z.number().optional().nullable(),
   applica_provvigione: z.boolean().default(false),
   consegna_contanti_a: z.string().optional().nullable(),
   passeggeri_ids: z.array(z.string()).default([]),
@@ -161,7 +162,9 @@ export const ServizioCreaPage = ({
       indirizzo_presa: isVeloce ? "Da definire" : "",
       indirizzo_destinazione: isVeloce ? "Da definire" : "",
       metodo_pagamento: isVeloce ? "da_definire" : "",
+      incasso_previsto: null,
       iva: 22,
+      importo_totale_calcolato: null,
       conducente_esterno: false,
       applica_provvigione: false,
       passeggeri_ids: [],
@@ -209,8 +212,9 @@ export const ServizioCreaPage = ({
           veicolo_id: initialData.veicolo_id || null,
           ore_effettive: initialData.ore_effettive?.toString() || null,
           ore_fatturate: initialData.ore_fatturate?.toString() || null,
-          incasso_previsto: initialData.incasso_previsto?.toString() || null,
-          iva: initialData.iva?.toString() || "22",
+          incasso_previsto: initialData.incasso_previsto || null,
+          iva: initialData.iva || 22,
+          importo_totale_calcolato: null,
           applica_provvigione: initialData.applica_provvigione || false,
           consegna_contanti_a: initialData.consegna_contanti_a || null,
           passeggeri_ids: passResult.data?.map(r => r.passeggero_id) || [],
@@ -226,6 +230,8 @@ export const ServizioCreaPage = ({
   const watchConducenteEsterno = form.watch("conducente_esterno");
   const watchMetodoPagamento = form.watch("metodo_pagamento");
   const watchTipoCliente = form.watch("tipo_cliente");
+  const watchIncassoPrevisto = form.watch("incasso_previsto");
+  const watchIva = form.watch("iva");
 
   const queryClient = useQueryClient();
 
@@ -278,6 +284,35 @@ export const ServizioCreaPage = ({
   const aliquoteIva = Array.isArray(impostazioniData?.aliquote_iva) 
     ? impostazioniData.aliquote_iva.map((a: any) => a.percentuale)
     : [22, 10, 4, 0];
+
+  // Trova metodo selezionato con useMemo per performance
+  const metodoPagamentoSelezionato = useMemo(() => {
+    return metodiPagamento?.find((m: any) => m.nome === watchMetodoPagamento);
+  }, [metodiPagamento, watchMetodoPagamento]);
+
+  const mostraIva = (metodoPagamentoSelezionato as any)?.iva_applicabile !== false;
+
+  // Calcolo automatico importo totale con IVA
+  useEffect(() => {
+    if (mostraIva && watchIncassoPrevisto !== null && watchIncassoPrevisto !== undefined && watchIva !== undefined) {
+      const netto = Number(watchIncassoPrevisto) || 0;
+      const percentualeIva = Number(watchIva) || 0;
+      const importoIva = netto * (percentualeIva / 100);
+      const totale = netto + importoIva;
+      
+      console.log('[Calcolo IVA] Netto:', netto, '| IVA%:', percentualeIva, '| Totale:', totale.toFixed(2));
+      
+      form.setValue('importo_totale_calcolato', Number(totale.toFixed(2)), { 
+        shouldValidate: false,
+        shouldDirty: false 
+      });
+    } else {
+      form.setValue('importo_totale_calcolato', watchIncassoPrevisto || null, { 
+        shouldValidate: false,
+        shouldDirty: false 
+      });
+    }
+  }, [watchIncassoPrevisto, watchIva, mostraIva, form]);
 
   // Query: Referenti
   const { data: referenti } = useQuery({
@@ -612,7 +647,7 @@ export const ServizioCreaPage = ({
         veicolo_id: data.veicolo_id || null,
         ore_effettive: data.ore_effettive ? parseFloat(data.ore_effettive) : null,
         ore_fatturate: data.ore_fatturate ? parseFloat(data.ore_fatturate) : null,
-        incasso_previsto: data.incasso_previsto ? parseFloat(data.incasso_previsto) : null,
+        incasso_previsto: data.incasso_previsto || null,
         iva: data.iva || null,
         applica_provvigione: data.applica_provvigione,
         consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
@@ -1389,51 +1424,98 @@ export const ServizioCreaPage = ({
                   )}
                 </div>
 
-                {(() => {
-                  const metodoPagamentoSelezionato = metodiPagamento?.find(
-                    (m: any) => m.nome === watchMetodoPagamento
-                  ) as any;
-                  const mostraIva = metodoPagamentoSelezionato?.iva_applicabile !== false;
-
-                  return mostraIva ? (
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="iva" className="font-medium">Aliquota IVA (%)</Label>
-                      <Controller
-                        name="iva"
-                        control={form.control}
-                        render={({ field }) => (
-                          <Select 
-                            onValueChange={(value) => field.onChange(Number(value))} 
-                            value={field.value?.toString()}
-                          >
-                            <SelectTrigger className="text-base">
-                              <SelectValue placeholder="Seleziona IVA" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {aliquoteIva.map((aliquota: number) => (
-                                <SelectItem key={aliquota} value={aliquota.toString()}>
-                                  {aliquota}%
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                    </div>
-                  ) : null;
-                })()}
+                {mostraIva && (
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="iva" className="font-medium">Aliquota IVA (%)</Label>
+                    <Controller
+                      name="iva"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Select 
+                          onValueChange={(value) => field.onChange(Number(value))} 
+                          value={field.value?.toString()}
+                        >
+                          <SelectTrigger className="text-base">
+                            <SelectValue placeholder="Seleziona IVA" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {aliquoteIva.map((aliquota: number) => (
+                              <SelectItem key={aliquota} value={aliquota.toString()}>
+                                {aliquota}%
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="incasso_previsto" className="font-medium">Incasso Previsto (€)</Label>
-                  <Input
-                    id="incasso_previsto"
-                    type="number"
-                    step="0.01"
-                    placeholder="Opzionale: 200.00"
-                    className="text-base"
-                    {...form.register("incasso_previsto")}
+                  <Label htmlFor="incasso_previsto" className="font-medium">
+                    {mostraIva ? "Incasso netto Previsto (€)" : "Incasso Previsto (€)"}
+                  </Label>
+                  <Controller
+                    name="incasso_previsto"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        id="incasso_previsto"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        className="text-base"
+                        value={field.value ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                          field.onChange(val);
+                        }}
+                      />
+                    )}
                   />
                 </div>
+
+                {/* Importo da Incassare - Solo se IVA applicabile */}
+                {mostraIva && watchIncassoPrevisto !== null && watchIncassoPrevisto !== undefined && watchIva !== undefined && (
+                  <div className="space-y-1.5 sm:space-y-2 md:col-span-2 lg:col-span-1">
+                    <Label htmlFor="importo_totale_calcolato" className="font-medium">
+                      Importo da Incassare (con IVA)
+                    </Label>
+                    <Controller
+                      name="importo_totale_calcolato"
+                      control={form.control}
+                      render={({ field }) => {
+                        const netto = Number(watchIncassoPrevisto) || 0;
+                        const percentualeIva = Number(watchIva) || 0;
+                        const importoIva = netto * (percentualeIva / 100);
+                        const totale = field.value || 0;
+                        
+                        return (
+                          <div className="space-y-1">
+                            <div className="relative">
+                              <Input
+                                id="importo_totale_calcolato"
+                                type="text"
+                                value={totale ? `€ ${totale.toFixed(2)}` : '€ 0.00'}
+                                disabled
+                                className="bg-muted/50 font-semibold text-lg border-2 border-primary/20 text-base"
+                              />
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hidden sm:block">
+                                (€{netto.toFixed(2)} + €{importoIva.toFixed(2)} IVA)
+                              </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground sm:hidden">
+                              Netto: €{netto.toFixed(2)} + IVA {percentualeIva}%: €{importoIva.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground hidden sm:block">
+                              Calcolato automaticamente: Netto + IVA {percentualeIva}%
+                            </p>
+                          </div>
+                        );
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Checkbox Provvigione */}
