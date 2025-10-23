@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, DollarSign, Calendar } from 'lucide-react';
+import { ArrowLeft, DollarSign, Calendar, FileText, CreditCard, ExternalLink } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import {
   Table,
   TableBody,
@@ -282,7 +284,7 @@ export default function StipendiDettaglioPage() {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto p-4 space-y-8">
       {/* Header con bottone indietro */}
       <div className="flex items-center gap-4">
         <Button
@@ -302,206 +304,223 @@ export default function StipendiDettaglioPage() {
           Dettaglio Stipendio
         </h1>
         <div className="flex items-center gap-2 text-muted-foreground mt-2">
-          <Calendar className="h-4 w-4" />
-          <span>{utente?.first_name} {utente?.last_name}</span>
+          <span className="font-medium">{utente?.first_name} {utente?.last_name}</span>
+          <span>•</span>
           <Badge variant="secondary">{utente?.role}</Badge>
           <span>•</span>
           <span>{nomeMeseCorrente} {annoCorrente}</span>
         </div>
       </div>
 
-      {/* Card Riepilogo Calcolo */}
-      <Card>
-        <CardHeader>
-          <CardTitle>💰 Calcolo Stipendio</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Dati Servizi */}
-          <div>
-            <h3 className="font-semibold mb-2">📊 Dati Servizi Consuntivati</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Numero servizi:</span>
-                <p className="font-bold text-lg">{servizi?.length || 0}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">KM totali:</span>
-                <p className="font-bold text-lg">{totaleKm.toFixed(0)} km</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Ore sosta:</span>
-                <p className="font-bold text-lg">{totaleOreSosta.toFixed(1)}h</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Incasso totale:</span>
-                <p className="font-bold text-lg">€{totaleIncasso.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Calcolo Base */}
-          <div>
-            <h3 className="font-semibold mb-2">💵 Calcolo Base</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  Base KM ({totaleKm <= 200 ? `${kmArrotondati} km arrotondati` : `${totaleKm.toFixed(0)} km × €${tariffaOltre200}`}):
-                </span>
-                <span className="font-medium">€{baseKm.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Coefficiente aumento (×{coefficienteAumento}):</span>
-                <span className="font-medium">€{baseConAumento.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Ore sosta ({totaleOreSosta.toFixed(1)}h × €{tariffaOrariaAttesa}):</span>
-                <span className="font-medium">€{importoOreSosta.toFixed(2)}</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between font-bold">
-                <span>Totale Lordo:</span>
-                <span className="text-lg">€{totaleLordo.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Detrazioni/Addizioni */}
-          <div>
-            <h3 className="font-semibold mb-2">📝 Detrazioni/Addizioni</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Spese personali approvate:</span>
-                <span className="font-medium text-green-600">+€{totaleSpesePersonali.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Prelievi:</span>
-                <span className="font-medium text-red-600">-€{totalePrelievi.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Incassi da dipendenti:</span>
-                <span className="font-medium text-red-600">-€{totaleIncassiDipendenti.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Incassi servizi contanti:</span>
-                <span className="font-medium text-red-600">-€{incassiContanti.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Riporto mese precedente:</span>
-                <span className={`font-medium ${riporto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {riporto >= 0 ? '+' : ''}€{riporto.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Totale Netto */}
-          <div className="bg-primary/10 p-4 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold">💎 TOTALE NETTO:</span>
-              <span className={`text-2xl font-bold ${totaleNetto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+      {/* 🎯 HERO SECTION - Stipendio da Erogare */}
+      <Alert className={`border-2 ${totaleNetto >= 0 ? 'border-green-500 bg-green-50 dark:bg-green-950/20' : 'border-red-500 bg-red-50 dark:bg-red-950/20'}`}>
+        <AlertDescription>
+          <div className="flex flex-col items-center justify-center py-6 space-y-4">
+            <div className="text-center">
+              <p className="text-sm font-medium text-muted-foreground mb-2">
+                💰 STIPENDIO DA EROGARE
+              </p>
+              <p className={`text-5xl md:text-6xl font-bold ${totaleNetto >= 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
                 €{totaleNetto.toFixed(2)}
+              </p>
+              {totaleNetto < 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Il collaboratore deve dare €{Math.abs(totaleNetto).toFixed(2)} all'azienda
+                </p>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Button size="lg" className="gap-2">
+                <CreditCard className="h-4 w-4" />
+                Paga ora
+              </Button>
+              <Button size="lg" variant="outline" className="gap-2">
+                <FileText className="h-4 w-4" />
+                Genera PDF
+              </Button>
+              <Button size="lg" variant="outline">
+                Cronologia
+              </Button>
+            </div>
+          </div>
+        </AlertDescription>
+      </Alert>
+
+      {/* 📊 Riepilogo Economico - 3 Colonne */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* 💵 COMPENSI */}
+        <Card className="border-green-200 dark:border-green-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-green-700 dark:text-green-400">
+              💵 Compensi
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">KM percorsi:</span>
+              <span className="font-semibold">€{baseConAumento.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Ore attesa:</span>
+              <span className="font-semibold">€{importoOreSosta.toFixed(2)}</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between font-bold text-green-700 dark:text-green-400">
+              <span>Totale:</span>
+              <span className="text-lg">€{totaleLordo.toFixed(2)}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ➕ AGGIUNTE */}
+        <Card className="border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-blue-700 dark:text-blue-400">
+              ➕ Aggiunte
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Spese personali:</span>
+              <span className="font-semibold text-green-600">+€{totaleSpesePersonali.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Riporto prec.:</span>
+              <span className={`font-semibold ${riporto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {riporto >= 0 ? '+' : ''}€{riporto.toFixed(2)}
               </span>
             </div>
-            {totaleNetto < 0 && (
-              <p className="text-sm text-muted-foreground mt-2">
-                Il socio deve ancora dare €{Math.abs(totaleNetto).toFixed(2)} all'azienda
-              </p>
-            )}
+            <Separator />
+            <div className="flex justify-between font-bold text-blue-700 dark:text-blue-400">
+              <span>Totale:</span>
+              <span className="text-lg">€{(totaleSpesePersonali + riporto).toFixed(2)}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ➖ DETRAZIONI */}
+        <Card className="border-red-200 dark:border-red-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-red-700 dark:text-red-400">
+              ➖ Detrazioni
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Prelievi:</span>
+              <span className="font-semibold text-red-600">€{totalePrelievi.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Incassi dipendenti:</span>
+              <span className="font-semibold text-red-600">€{totaleIncassiDipendenti.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Contanti:</span>
+              <span className="font-semibold text-red-600">€{incassiContanti.toFixed(2)}</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between font-bold text-red-700 dark:text-red-400">
+              <span>Totale:</span>
+              <span className="text-lg">€{(totalePrelievi + totaleIncassiDipendenti + incassiContanti).toFixed(2)}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 📊 Dati Statistici Mese */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">📊 Dati Statistici Mese</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">{servizi?.length || 0}</p>
+              <p className="text-muted-foreground">Servizi</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">{totaleKm.toFixed(0)} km</p>
+              <p className="text-muted-foreground">Chilometri</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">{totaleOreSosta.toFixed(1)}h</p>
+              <p className="text-muted-foreground">Ore Attesa</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">€{totaleIncasso.toFixed(2)}</p>
+              <p className="text-muted-foreground">Incasso Totale</p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tabella Servizi */}
+      {/* 📋 Tabella Servizi Semplificata */}
       <Card>
         <CardHeader>
-          <CardTitle>📋 Servizi del Mese ({servizi?.length || 0})</CardTitle>
+          <CardTitle className="text-lg">📋 Servizi del Mese ({servizi?.length || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {servizi && servizi.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID Servizio</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Azienda</TableHead>
-                  <TableHead>Metodo Pag.</TableHead>
-                  <TableHead className="text-right">Incasso</TableHead>
-                  <TableHead className="text-right">Ore Sosta (Compenso)</TableHead>
-                  <TableHead className="text-right">Km (Compenso)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {servizi.map((servizio) => {
-                  const km = Number(servizio.km_totali) || 0;
-                  const oreSosta = Number(servizio.ore_sosta) || 0;
-                  const compensoKm = calcolaCompensoKmServizio(km);
-                  const compensoOreSosta = calcolaCompensoOreSosta(oreSosta);
-                  
-                  return (
-                    <TableRow key={servizio.id}>
-                      <TableCell>
-                        <Button
-                          variant="link"
-                          className="font-mono p-0 h-auto text-primary"
-                          onClick={() => navigate(`/servizi/${servizio.id}`)}
-                        >
-                          {servizio.id_progressivo || `TT-${servizio.id.slice(0, 3).toUpperCase()}-${annoCorrente}`}
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(servizio.data_servizio).toLocaleDateString('it-IT')}
-                      </TableCell>
-                      <TableCell>{servizio.aziende?.nome || '-'}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{servizio.metodo_pagamento}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        €{(Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0).toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-col items-end">
-                          <span className="font-medium">{oreSosta.toFixed(1)}h</span>
-                          <span className="text-xs text-muted-foreground">
-                            €{compensoOreSosta.toFixed(2)}
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID Servizio</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Azienda</TableHead>
+                    <TableHead className="text-right">Incasso</TableHead>
+                    <TableHead className="text-right">Dettagli</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {servizi.map((servizio) => {
+                    const km = Number(servizio.km_totali) || 0;
+                    const oreSosta = Number(servizio.ore_sosta) || 0;
+                    
+                    return (
+                      <TableRow key={servizio.id}>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            className="font-mono p-0 h-auto text-primary flex items-center gap-1"
+                            onClick={() => navigate(`/servizi/${servizio.id}`)}
+                          >
+                            {servizio.id_progressivo || `TT-${servizio.id.slice(0, 3).toUpperCase()}-${annoCorrente}`}
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(servizio.data_servizio).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })}
+                        </TableCell>
+                        <TableCell className="max-w-[150px] truncate">
+                          {servizio.aziende?.nome || '-'}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          €{(Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className="text-sm text-muted-foreground">
+                            {km > 0 && `${km.toFixed(0)}km`}
+                            {km > 0 && oreSosta > 0 && ' · '}
+                            {oreSosta > 0 && `${oreSosta.toFixed(1)}h`}
                           </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-col items-end">
-                          <span className="font-medium">{km.toFixed(0)} km</span>
-                          <span className="text-xs text-muted-foreground">
-                            €{compensoKm.toFixed(2)}
-                          </span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {/* Riga Totali */}
-                <TableRow className="font-bold bg-muted/50">
-                  <TableCell colSpan={4} className="text-right">TOTALI:</TableCell>
-                  <TableCell className="text-right">€{totaleIncasso.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-col items-end">
-                      <span>{totaleOreSosta.toFixed(1)}h</span>
-                      <span className="text-sm">€{importoOreSosta.toFixed(2)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-col items-end">
-                      <span>{totaleKm.toFixed(0)} km</span>
-                      <span className="text-sm">€{baseConAumento.toFixed(2)}</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {/* Riga Totali */}
+                  <TableRow className="font-bold bg-muted/50">
+                    <TableCell colSpan={3} className="text-right">TOTALI:</TableCell>
+                    <TableCell className="text-right">€{totaleIncasso.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-sm">
+                        {totaleKm.toFixed(0)}km · {totaleOreSosta.toFixed(1)}h
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
           ) : (
             <div className="text-center text-muted-foreground py-8">
               Nessun servizio consuntivato per questo mese
@@ -509,6 +528,141 @@ export default function StipendiDettaglioPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* ▶ Accordion - Calcolo Dettagliato */}
+      <Accordion type="single" collapsible>
+        <AccordionItem value="breakdown">
+          <AccordionTrigger className="text-lg font-semibold">
+            ▶ Mostra calcolo dettagliato
+          </AccordionTrigger>
+          <AccordionContent>
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                {/* Calcolo Base */}
+                <div>
+                  <h3 className="font-semibold mb-3 text-base">1️⃣ Calcolo Base KM</h3>
+                  <div className="space-y-2 text-sm pl-4">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        KM totali mese:
+                      </span>
+                      <span className="font-medium">{totaleKm.toFixed(0)} km</span>
+                    </div>
+                    {totaleKm <= 200 ? (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            KM arrotondati (tabella):
+                          </span>
+                          <span className="font-medium">{kmArrotondati} km</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Tariffa base (da tabella):
+                          </span>
+                          <span className="font-medium">€{baseKm.toFixed(2)}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Calcolo lineare ({totaleKm.toFixed(0)} km × €{tariffaOltre200}):
+                        </span>
+                        <span className="font-medium">€{baseKm.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Coefficiente aumento (×{coefficienteAumento}):
+                      </span>
+                      <span className="font-medium">€{baseConAumento.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Calcolo Ore Sosta */}
+                <div>
+                  <h3 className="font-semibold mb-3 text-base">2️⃣ Calcolo Ore Attesa</h3>
+                  <div className="space-y-2 text-sm pl-4">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Ore sosta totali:
+                      </span>
+                      <span className="font-medium">{totaleOreSosta.toFixed(1)}h</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Tariffa oraria (€{tariffaOrariaAttesa}/h):
+                      </span>
+                      <span className="font-medium">€{importoOreSosta.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Totale Lordo */}
+                <div>
+                  <h3 className="font-semibold mb-3 text-base">3️⃣ Totale Lordo</h3>
+                  <div className="space-y-2 text-sm pl-4">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Compenso KM + Ore Attesa:
+                      </span>
+                      <span className="font-bold text-lg">€{totaleLordo.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Detrazioni/Addizioni */}
+                <div>
+                  <h3 className="font-semibold mb-3 text-base">4️⃣ Aggiunte/Detrazioni</h3>
+                  <div className="space-y-2 text-sm pl-4">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">➕ Spese personali approvate:</span>
+                      <span className="font-medium text-green-600">+€{totaleSpesePersonali.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">➕ Riporto mese precedente:</span>
+                      <span className={`font-medium ${riporto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {riporto >= 0 ? '+' : ''}€{riporto.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">➖ Prelievi:</span>
+                      <span className="font-medium text-red-600">-€{totalePrelievi.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">➖ Incassi da dipendenti:</span>
+                      <span className="font-medium text-red-600">-€{totaleIncassiDipendenti.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">➖ Incassi servizi contanti:</span>
+                      <span className="font-medium text-red-600">-€{incassiContanti.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Totale Netto Finale */}
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold">💎 TOTALE NETTO FINALE:</span>
+                    <span className={`text-3xl font-bold ${totaleNetto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      €{totaleNetto.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }
