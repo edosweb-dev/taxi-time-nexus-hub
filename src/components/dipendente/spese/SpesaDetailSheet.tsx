@@ -95,7 +95,7 @@ export function SpesaDetailSheet({ spesa, open, onClose }: SpesaDetailSheetProps
         {spesa.stato === 'in_attesa' && canEdit && (
           <div className="flex gap-2">
             <Button onClick={handleEdit} className="flex-1">✏️ Modifica</Button>
-            <Button variant="destructive" onClick={handleDelete} className="flex-1">🗑️ Elimina</Button>
+            <Button variant="destructive" onClick={handleDelete} className="flex-1 text-white">🗑️ Elimina</Button>
           </div>
         )}
 
