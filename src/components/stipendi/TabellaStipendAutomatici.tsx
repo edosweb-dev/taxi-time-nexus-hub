@@ -209,9 +209,8 @@ export function TabellaStipendAutomatici({
         (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
     }
 
-    const totNetto = stipendio.hasStipendioSalvato
-      ? stipendio.stipendioEsistente.totale_netto
-      : stipendio.calcoloCompleto?.totaleNetto || 0;
+    // Calcolo diretto: Netto = Entrate - Uscite
+    const totNetto = entratePositive - usciteTotali;
 
     const hasCalcoloValido = stipendio.numeroServizi > 0 || stipendio.hasStipendioSalvato;
 
