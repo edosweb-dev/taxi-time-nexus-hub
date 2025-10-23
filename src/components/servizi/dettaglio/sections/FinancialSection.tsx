@@ -35,11 +35,11 @@ export function FinancialSection({
 
   console.log('[FinancialSection] Metodo trovato:', metodoPagamento);
 
-  // VERSIONE SEMPLIFICATA: usa servizio.iva come fonte di verità
-  // Se il servizio ha un valore IVA salvato, mostra la scomposizione
+  // Verifica doppia: servizio.iva presente E metodo di pagamento ha IVA applicabile
   const metodoHaIva = servizio.iva !== null && 
                       servizio.iva !== undefined && 
-                      servizio.iva > 0;
+                      servizio.iva > 0 &&
+                      metodoPagamento?.iva_applicabile === true;
 
   console.log('[FinancialSection] metodoHaIva:', metodoHaIva);
 
