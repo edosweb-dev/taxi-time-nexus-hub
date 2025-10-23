@@ -55,6 +55,7 @@ export default function StipendiDettaglioPage() {
         .from('servizi')
         .select(`
           id,
+          id_progressivo,
           data_servizio,
           metodo_pagamento,
           incasso_ricevuto,
@@ -241,6 +242,34 @@ export default function StipendiDettaglioPage() {
     riporto
   ).toFixed(2));
 
+  // Funzioni helper per calcolo compenso singolo servizio
+  const calcolaCompensoKmServizio = (km: number): number => {
+    if (km <= 200) {
+      // Arrotondamento
+      let kmArr = km;
+      if (km > 12) {
+        kmArr = Math.round(km / 5) * 5;
+      } else if (km < 12) {
+        kmArr = 12;
+      }
+      
+      // Lookup tabella
+      const tariffa = tariffeKm?.find(t => t.km === kmArr);
+      const baseKm = Number(tariffa?.importo_base) || 0;
+      
+      // Applica coefficiente
+      return baseKm * coefficienteAumento;
+    } else {
+      // Calcolo lineare per KM > 200
+      const baseKm = km * tariffaOltre200;
+      return baseKm * coefficienteAumento;
+    }
+  };
+
+  const calcolaCompensoOreSosta = (ore: number): number => {
+    return ore * tariffaOrariaAttesa;
+  };
+
   const isLoading = isLoadingUtente || isLoadingServizi;
 
   if (isLoading) {
@@ -398,50 +427,78 @@ export default function StipendiDettaglioPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
+                  <TableHead>ID Servizio</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead>Azienda</TableHead>
                   <TableHead>Metodo Pag.</TableHead>
                   <TableHead className="text-right">Incasso</TableHead>
-                  <TableHead className="text-right">Ore Sosta</TableHead>
-                  <TableHead className="text-right">Km</TableHead>
-                  <TableHead className="text-center">Contanti</TableHead>
+                  <TableHead className="text-right">Ore Sosta (Compenso)</TableHead>
+                  <TableHead className="text-right">Km (Compenso)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {servizi.map((servizio) => (
-                  <TableRow key={servizio.id}>
-                    <TableCell className="font-mono text-xs">
-                      {servizio.id.slice(0, 8)}...
-                    </TableCell>
-                    <TableCell>
-                      {new Date(servizio.data_servizio).toLocaleDateString('it-IT')}
-                    </TableCell>
-                    <TableCell>{servizio.aziende?.nome || '-'}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{servizio.metodo_pagamento}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      €{(Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0).toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {Number(servizio.ore_sosta || 0).toFixed(1)}h
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {Number(servizio.km_totali || 0).toFixed(0)} km
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {servizio.metodo_pagamento === 'Contanti' ? '✓' : '-'}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {servizi.map((servizio) => {
+                  const km = Number(servizio.km_totali) || 0;
+                  const oreSosta = Number(servizio.ore_sosta) || 0;
+                  const compensoKm = calcolaCompensoKmServizio(km);
+                  const compensoOreSosta = calcolaCompensoOreSosta(oreSosta);
+                  
+                  return (
+                    <TableRow key={servizio.id}>
+                      <TableCell>
+                        <Button
+                          variant="link"
+                          className="font-mono p-0 h-auto text-primary"
+                          onClick={() => navigate(`/servizi/${servizio.id}`)}
+                        >
+                          {servizio.id_progressivo || `TT-${servizio.id.slice(0, 3).toUpperCase()}-${annoCorrente}`}
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(servizio.data_servizio).toLocaleDateString('it-IT')}
+                      </TableCell>
+                      <TableCell>{servizio.aziende?.nome || '-'}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{servizio.metodo_pagamento}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        €{(Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0).toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex flex-col items-end">
+                          <span className="font-medium">{oreSosta.toFixed(1)}h</span>
+                          <span className="text-xs text-muted-foreground">
+                            €{compensoOreSosta.toFixed(2)}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex flex-col items-end">
+                          <span className="font-medium">{km.toFixed(0)} km</span>
+                          <span className="text-xs text-muted-foreground">
+                            €{compensoKm.toFixed(2)}
+                          </span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {/* Riga Totali */}
                 <TableRow className="font-bold bg-muted/50">
                   <TableCell colSpan={4} className="text-right">TOTALI:</TableCell>
                   <TableCell className="text-right">€{totaleIncasso.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{totaleOreSosta.toFixed(1)}h</TableCell>
-                  <TableCell className="text-right">{totaleKm.toFixed(0)} km</TableCell>
-                  <TableCell className="text-center text-red-600">€{incassiContanti.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex flex-col items-end">
+                      <span>{totaleOreSosta.toFixed(1)}h</span>
+                      <span className="text-sm">€{importoOreSosta.toFixed(2)}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex flex-col items-end">
+                      <span>{totaleKm.toFixed(0)} km</span>
+                      <span className="text-sm">€{baseConAumento.toFixed(2)}</span>
+                    </div>
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
