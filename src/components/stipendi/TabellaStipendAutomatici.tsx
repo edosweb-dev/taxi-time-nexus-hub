@@ -18,6 +18,7 @@ import { useConfermaStipendio } from '@/hooks/useStipendi';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useCompensiServizi } from '@/hooks/useCompensiServizi';
 
 interface TabellaStipendAutomaticiProps {
   stipendi: StipendiAutomaticoUtente[];
@@ -159,18 +160,27 @@ export function TabellaStipendAutomatici({
       stipendio.hasStipendioSalvato
     );
 
+    // Hook per calcolare compensi esattamente come nella pagina dettaglio
+    const { data: compensiServizi } = useCompensiServizi(
+      stipendio.userId,
+      mese,
+      anno,
+      stipendio.hasStipendioSalvato
+    );
+
     // Calcola entrate e uscite ESATTAMENTE come nella pagina dettaglio
     let entratePositive = 0;
     let usciteTotali = 0;
     
     if (stipendio.hasStipendioSalvato && stipendio.stipendioEsistente) {
-      // Per stipendi salvati: usa totale_lordo come compensi servizi
+      // Per stipendi salvati: usa compensi ricalcolati
       const riporto = stipendio.stipendioEsistente.riporto_mese_precedente || 0;
       const contanti = contantiServizi || 0;
       
-      // ENTRATE = compensi servizi (totale_lordo) + spese personali + riporto positivo
+      // ENTRATE = compensi KM + compensi Ore + spese personali + riporto positivo
       entratePositive = 
-        (stipendio.stipendioEsistente.totale_lordo || 0) +
+        (compensiServizi?.compensiKm || 0) +
+        (compensiServizi?.compensiOre || 0) +
         (stipendio.stipendioEsistente.totale_spese || 0) +
         (riporto > 0 ? riporto : 0);
       
