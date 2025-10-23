@@ -133,35 +133,38 @@ export function TabellaStipendAutomatici({
         </TableHeader>
         <TableBody>
           {stipendi.map((stipendio) => {
-            // Calcola entrate totali (compensi KM + compensi Ore + spese personali + riporto positivo)
-            const compensiKm = stipendio.hasStipendioSalvato
-              ? (stipendio.stipendioEsistente.base_calcolo || 0) * (stipendio.stipendioEsistente.coefficiente_applicato || 1)
-              : (stipendio.calcoloCompleto?.baseConAumento || 0);
+            // Calcola entrate e uscite
+            let entratePositive = 0;
+            let usciteTotali = 0;
             
-            const compensiOre = stipendio.hasStipendioSalvato
-              ? ((stipendio.stipendioEsistente.totale_ore_attesa || 0) * 15) // tariffa oraria default
-              : (stipendio.calcoloCompleto?.importoOreAttesa || 0);
-            
-            const spesePersonali = stipendio.hasStipendioSalvato
-              ? (stipendio.stipendioEsistente.totale_spese || 0)
-              : 0;
-            
-            const riporto = stipendio.hasStipendioSalvato
-              ? (stipendio.stipendioEsistente.riporto_mese_precedente || 0)
-              : 0;
-            
-            const entratePositive = compensiKm + compensiOre + spesePersonali + (riporto > 0 ? riporto : 0);
-            
-            // Calcola uscite totali (prelievi + incassi dipendenti + contanti + riporto negativo)
-            const prelievi = stipendio.hasStipendioSalvato
-              ? (stipendio.stipendioEsistente.totale_prelievi || 0)
-              : 0;
-            
-            const incassiDipendenti = stipendio.hasStipendioSalvato
-              ? (stipendio.stipendioEsistente.incassi_da_dipendenti || 0)
-              : 0;
-            
-            const usciteTotali = prelievi + incassiDipendenti + (riporto < 0 ? Math.abs(riporto) : 0);
+            if (stipendio.hasStipendioSalvato) {
+              // Usa dati salvati nel database
+              const riporto = stipendio.stipendioEsistente.riporto_mese_precedente || 0;
+              
+              entratePositive = 
+                (stipendio.stipendioEsistente.totale_lordo || 0) +
+                (stipendio.stipendioEsistente.totale_spese || 0) +
+                (riporto > 0 ? riporto : 0);
+              
+              usciteTotali = 
+                (stipendio.stipendioEsistente.totale_prelievi || 0) +
+                (stipendio.stipendioEsistente.incassi_da_dipendenti || 0) +
+                (riporto < 0 ? Math.abs(riporto) : 0);
+            } else if (stipendio.calcoloCompleto) {
+              // Usa dati calcolati automaticamente
+              const detr = stipendio.calcoloCompleto.detrazioni;
+              
+              entratePositive = 
+                stipendio.calcoloCompleto.totaleLordo +
+                detr.totaleSpesePersonali +
+                (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
+              
+              usciteTotali = 
+                detr.totalePrelievi +
+                detr.incassiDaDipendenti +
+                detr.incassiServiziContanti +
+                (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
+            }
 
             const totNetto = stipendio.hasStipendioSalvato
               ? stipendio.stipendioEsistente.totale_netto
