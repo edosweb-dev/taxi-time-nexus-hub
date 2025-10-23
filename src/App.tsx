@@ -40,6 +40,7 @@ const VeicoliPage = lazy(() => import('./pages/veicoli/VeicoliPage'));
 const ConducentiEsterniPage = lazy(() => import('./pages/conducenti-esterni/ConducentiEsterniPage'));
 const ConducenteEsternoDetailPage = lazy(() => import('./pages/conducenti-esterni/ConducenteEsternoDetailPage'));
 const StipendiPage = lazy(() => import('./pages/StipendiPage'));
+const StipendiDettaglioPage = lazy(() => import('./pages/stipendi/StipendiDettaglioPage'));
 const MobileServiziPage = lazy(() => import('./pages/servizi/MobileServiziPage'));
 const SpeseAziendaliPage = lazy(() => import('./pages/SpeseAziendaliPage'));
 const CalendarioPage = lazy(() => import('./pages/CalendarioPage'));
@@ -268,6 +269,11 @@ function App() {
                 <Route path="/stipendi" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <StipendiPage />
+                  </AuthGuard>
+                } />
+                <Route path="/utenti/:userId/stipendio" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <StipendiDettaglioPage />
                   </AuthGuard>
                 } />
 

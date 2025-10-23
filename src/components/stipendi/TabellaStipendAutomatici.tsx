@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -150,7 +151,16 @@ export function TabellaStipendAutomatici({
                 className={!hasCalcoloValido ? 'opacity-50' : ''}
               >
                 <TableCell className="font-medium">
-                  {stipendio.firstName} {stipendio.lastName}
+                  {stipendio.role === 'admin' || stipendio.role === 'socio' ? (
+                    <Link 
+                      to={`/utenti/${stipendio.userId}/stipendio`}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {stipendio.firstName} {stipendio.lastName}
+                    </Link>
+                  ) : (
+                    <span>{stipendio.firstName} {stipendio.lastName}</span>
+                  )}
                 </TableCell>
                 <TableCell>{getRoleBadge(stipendio.role)}</TableCell>
                 <TableCell className="text-right">
