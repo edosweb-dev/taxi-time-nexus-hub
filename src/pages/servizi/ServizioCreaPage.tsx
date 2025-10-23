@@ -85,7 +85,7 @@ const servizioSchema = z.object({
   ore_effettive: z.string().optional().nullable(),
   ore_fatturate: z.string().optional().nullable(),
   incasso_previsto: z.string().optional().nullable(),
-  iva: z.string().default("22"),
+  iva: z.number().optional(),
   applica_provvigione: z.boolean().default(false),
   consegna_contanti_a: z.string().optional().nullable(),
   passeggeri_ids: z.array(z.string()).default([]),
@@ -161,7 +161,7 @@ export const ServizioCreaPage = ({
       indirizzo_presa: isVeloce ? "Da definire" : "",
       indirizzo_destinazione: isVeloce ? "Da definire" : "",
       metodo_pagamento: isVeloce ? "da_definire" : "",
-      iva: "22",
+      iva: 22,
       conducente_esterno: false,
       applica_provvigione: false,
       passeggeri_ids: [],
@@ -258,20 +258,26 @@ export const ServizioCreaPage = ({
     },
   });
 
-  // Query metodi pagamento
-  const { data: metodiPagamento } = useQuery({
-    queryKey: ["modalita-pagamenti"],
+  // Query: Impostazioni (metodi pagamento e aliquote IVA)
+  const { data: impostazioniData } = useQuery({
+    queryKey: ["impostazioni"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("modalita_pagamenti")
-        .select("id, nome")
-        .eq("attivo", true)
-        .order("nome");
+        .from("impostazioni")
+        .select("metodi_pagamento, aliquote_iva")
+        .single();
       
       if (error) throw error;
       return data;
     },
   });
+
+  const metodiPagamento = Array.isArray(impostazioniData?.metodi_pagamento) 
+    ? impostazioniData.metodi_pagamento 
+    : [];
+  const aliquoteIva = Array.isArray(impostazioniData?.aliquote_iva) 
+    ? impostazioniData.aliquote_iva 
+    : [22, 10, 4, 0];
 
   // Query: Referenti
   const { data: referenti } = useQuery({
@@ -599,7 +605,7 @@ export const ServizioCreaPage = ({
         ore_effettive: data.ore_effettive ? parseFloat(data.ore_effettive) : null,
         ore_fatturate: data.ore_fatturate ? parseFloat(data.ore_fatturate) : null,
         incasso_previsto: data.incasso_previsto ? parseFloat(data.incasso_previsto) : null,
-        iva: parseFloat(data.iva),
+        iva: data.iva || null,
         applica_provvigione: data.applica_provvigione,
         consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
         note: data.note || null,
@@ -1299,11 +1305,17 @@ export const ServizioCreaPage = ({
                           <SelectValue placeholder="Seleziona metodo" />
                         </SelectTrigger>
                         <SelectContent>
-                          {metodiPagamento?.map((metodo) => (
-                            <SelectItem key={metodo.id} value={metodo.nome}>
-                              {metodo.nome}
+                          {metodiPagamento.length === 0 ? (
+                            <SelectItem value="placeholder" disabled>
+                              Configura metodi in Impostazioni
                             </SelectItem>
-                          ))}
+                          ) : (
+                            metodiPagamento.map((metodo: any) => (
+                              <SelectItem key={metodo.id || metodo.nome} value={metodo.nome}>
+                                {metodo.nome}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                     )}
@@ -1315,29 +1327,39 @@ export const ServizioCreaPage = ({
                   )}
                 </div>
 
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="ore_effettive" className="font-medium">Ore Effettive</Label>
-                  <Input
-                    id="ore_effettive"
-                    type="number"
-                    step="0.5"
-                    placeholder="Opzionale: 4.5"
-                    className="text-base"
-                    {...form.register("ore_effettive")}
-                  />
-                </div>
+                {(() => {
+                  const metodoPagamentoSelezionato = metodiPagamento?.find(
+                    (m: any) => m.nome === watchMetodoPagamento
+                  ) as any;
+                  const mostraIva = metodoPagamentoSelezionato?.applica_iva !== false;
 
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="ore_fatturate" className="font-medium">Ore Fatturate</Label>
-                  <Input
-                    id="ore_fatturate"
-                    type="number"
-                    step="0.5"
-                    placeholder="Opzionale: 4.5"
-                    className="text-base"
-                    {...form.register("ore_fatturate")}
-                  />
-                </div>
+                  return mostraIva ? (
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="iva" className="font-medium">Aliquota IVA (%)</Label>
+                      <Controller
+                        name="iva"
+                        control={form.control}
+                        render={({ field }) => (
+                          <Select 
+                            onValueChange={(value) => field.onChange(Number(value))} 
+                            value={field.value?.toString()}
+                          >
+                            <SelectTrigger className="text-base">
+                              <SelectValue placeholder="Seleziona IVA" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {aliquoteIva.map((aliquota: number) => (
+                                <SelectItem key={aliquota} value={aliquota.toString()}>
+                                  {aliquota}%
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                  ) : null;
+                })()}
 
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="incasso_previsto" className="font-medium">Incasso Previsto (€)</Label>
@@ -1348,18 +1370,6 @@ export const ServizioCreaPage = ({
                     placeholder="Opzionale: 200.00"
                     className="text-base"
                     {...form.register("incasso_previsto")}
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="iva" className="font-medium">IVA (%)</Label>
-                  <Input
-                    id="iva"
-                    type="number"
-                    step="1"
-                    placeholder="22"
-                    className="text-base"
-                    {...form.register("iva")}
                   />
                 </div>
 
