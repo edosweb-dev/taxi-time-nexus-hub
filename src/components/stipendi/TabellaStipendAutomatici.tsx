@@ -16,6 +16,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DialogConfermaStipendio } from './DialogConfermaStipendio';
 import { useConfermaStipendio } from '@/hooks/useStipendi';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TabellaStipendAutomaticiProps {
   stipendi: StipendiAutomaticoUtente[];
@@ -88,6 +90,34 @@ export function TabellaStipendAutomatici({
   const [confermaDialogStipendio, setConfermaDialogStipendio] = useState<any>(null);
   const confermaStipendioMutation = useConfermaStipendio();
 
+  // Helper per ottenere contanti dai servizi salvati
+  const useContantiServizi = (userId: string, mese: number, anno: number, enabled: boolean) => {
+    return useQuery({
+      queryKey: ['contanti-servizi', userId, mese, anno],
+      queryFn: async () => {
+        const startDate = new Date(anno, mese - 1, 1).toISOString().split('T')[0];
+        const endDate = new Date(anno, mese, 0).toISOString().split('T')[0];
+
+        const { data: servizi, error } = await supabase
+          .from('servizi')
+          .select('incasso_ricevuto, incasso_previsto')
+          .eq('assegnato_a', userId)
+          .eq('metodo_pagamento', 'Contanti')
+          .gte('data_servizio', startDate)
+          .lte('data_servizio', endDate)
+          .in('stato', ['completato', 'consuntivato']);
+
+        if (error) throw error;
+
+        return servizi?.reduce((sum, s) => 
+          sum + (Number(s.incasso_ricevuto) || Number(s.incasso_previsto) || 0), 0
+        ) || 0;
+      },
+      enabled,
+      staleTime: 1000 * 60 * 5,
+    });
+  };
+
   const handleConferma = (stipendio: StipendiAutomaticoUtente) => {
     if (stipendio.stipendioEsistente) {
       setConfermaDialogStipendio(stipendio.stipendioEsistente);
@@ -117,6 +147,133 @@ export function TabellaStipendAutomatici({
     );
   }
 
+  // Wrapper per renderizzare ogni riga
+  const StipendioRow = ({ stipendio }: { stipendio: StipendiAutomaticoUtente }) => {
+    // Per stipendi salvati, fetch contanti dai servizi
+    const mese = stipendio.stipendioEsistente?.mese || 0;
+    const anno = stipendio.stipendioEsistente?.anno || 0;
+    const { data: contantiServizi } = useContantiServizi(
+      stipendio.userId, 
+      mese, 
+      anno, 
+      stipendio.hasStipendioSalvato
+    );
+
+    // Calcola entrate e uscite
+    let entratePositive = 0;
+    let usciteTotali = 0;
+    
+    if (stipendio.hasStipendioSalvato) {
+      // Usa dati salvati nel database
+      const riporto = stipendio.stipendioEsistente.riporto_mese_precedente || 0;
+      const contanti = contantiServizi || 0;
+      
+      entratePositive = 
+        (stipendio.stipendioEsistente.totale_lordo || 0) +
+        (stipendio.stipendioEsistente.totale_spese || 0) +
+        (riporto > 0 ? riporto : 0);
+      
+      usciteTotali = 
+        (stipendio.stipendioEsistente.totale_prelievi || 0) +
+        (stipendio.stipendioEsistente.incassi_da_dipendenti || 0) +
+        contanti +
+        (riporto < 0 ? Math.abs(riporto) : 0);
+    } else if (stipendio.calcoloCompleto) {
+      // Usa dati calcolati automaticamente
+      const detr = stipendio.calcoloCompleto.detrazioni;
+      
+      entratePositive = 
+        stipendio.calcoloCompleto.totaleLordo +
+        detr.totaleSpesePersonali +
+        (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
+      
+      usciteTotali = 
+        detr.totalePrelievi +
+        detr.incassiDaDipendenti +
+        detr.incassiServiziContanti +
+        (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
+    }
+
+    const totNetto = stipendio.hasStipendioSalvato
+      ? stipendio.stipendioEsistente.totale_netto
+      : stipendio.calcoloCompleto?.totaleNetto || 0;
+
+    const hasCalcoloValido = stipendio.numeroServizi > 0 || stipendio.hasStipendioSalvato;
+
+    return (
+      <TableRow
+        key={stipendio.userId}
+        className={!hasCalcoloValido ? 'opacity-50' : ''}
+      >
+        <TableCell className="font-medium">
+          {stipendio.role === 'admin' || stipendio.role === 'socio' ? (
+            <Link 
+              to={`/utenti/${stipendio.userId}/stipendio`}
+              className="text-primary hover:underline font-medium"
+            >
+              {stipendio.firstName} {stipendio.lastName}
+            </Link>
+          ) : (
+            <span>{stipendio.firstName} {stipendio.lastName}</span>
+          )}
+        </TableCell>
+        <TableCell className="text-right">
+          {stipendio.numeroServizi || '-'}
+        </TableCell>
+        <TableCell className="text-right font-medium text-primary">
+          {hasCalcoloValido ? formatCurrency(entratePositive) : '-'}
+        </TableCell>
+        <TableCell className="text-right font-medium text-destructive">
+          {hasCalcoloValido ? formatCurrency(usciteTotali) : '-'}
+        </TableCell>
+        <TableCell className="text-right font-semibold">
+          {hasCalcoloValido ? formatCurrency(totNetto) : '-'}
+        </TableCell>
+        <TableCell>{getStatoBadge(stipendio)}</TableCell>
+        <TableCell className="text-right">
+          <div className="flex justify-end gap-2">
+            {hasCalcoloValido && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onViewDetails(stipendio)}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                {!stipendio.hasStipendioSalvato && stipendio.calcoloCompleto && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => onSalvaStipendio(stipendio)}
+                  >
+                    <Save className="h-4 w-4 mr-1" />
+                    Salva
+                  </Button>
+                )}
+                {stipendio.hasStipendioSalvato && stipendio.stipendioEsistente?.stato === 'bozza' && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => handleConferma(stipendio)}
+                    disabled={confermaStipendioMutation.isPending}
+                  >
+                    {confermaStipendioMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    ) : (
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                    )}
+                    Conferma
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -132,119 +289,9 @@ export function TabellaStipendAutomatici({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {stipendi.map((stipendio) => {
-            // Calcola entrate e uscite
-            let entratePositive = 0;
-            let usciteTotali = 0;
-            
-            if (stipendio.hasStipendioSalvato) {
-              // Usa dati salvati nel database
-              const riporto = stipendio.stipendioEsistente.riporto_mese_precedente || 0;
-              
-              entratePositive = 
-                (stipendio.stipendioEsistente.totale_lordo || 0) +
-                (stipendio.stipendioEsistente.totale_spese || 0) +
-                (riporto > 0 ? riporto : 0);
-              
-              usciteTotali = 
-                (stipendio.stipendioEsistente.totale_prelievi || 0) +
-                (stipendio.stipendioEsistente.incassi_da_dipendenti || 0) +
-                (riporto < 0 ? Math.abs(riporto) : 0);
-            } else if (stipendio.calcoloCompleto) {
-              // Usa dati calcolati automaticamente
-              const detr = stipendio.calcoloCompleto.detrazioni;
-              
-              entratePositive = 
-                stipendio.calcoloCompleto.totaleLordo +
-                detr.totaleSpesePersonali +
-                (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
-              
-              usciteTotali = 
-                detr.totalePrelievi +
-                detr.incassiDaDipendenti +
-                detr.incassiServiziContanti +
-                (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
-            }
-
-            const totNetto = stipendio.hasStipendioSalvato
-              ? stipendio.stipendioEsistente.totale_netto
-              : stipendio.calcoloCompleto?.totaleNetto || 0;
-
-            const hasCalcoloValido = stipendio.numeroServizi > 0 || stipendio.hasStipendioSalvato;
-
-            return (
-              <TableRow
-                key={stipendio.userId}
-                className={!hasCalcoloValido ? 'opacity-50' : ''}
-              >
-                <TableCell className="font-medium">
-                  {stipendio.role === 'admin' || stipendio.role === 'socio' ? (
-                    <Link 
-                      to={`/utenti/${stipendio.userId}/stipendio`}
-                      className="text-primary hover:underline font-medium"
-                    >
-                      {stipendio.firstName} {stipendio.lastName}
-                    </Link>
-                  ) : (
-                    <span>{stipendio.firstName} {stipendio.lastName}</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-right">
-                  {stipendio.numeroServizi || '-'}
-                </TableCell>
-                <TableCell className="text-right font-medium text-primary">
-                  {hasCalcoloValido ? formatCurrency(entratePositive) : '-'}
-                </TableCell>
-                <TableCell className="text-right font-medium text-destructive">
-                  {hasCalcoloValido ? formatCurrency(usciteTotali) : '-'}
-                </TableCell>
-                <TableCell className="text-right font-semibold">
-                  {hasCalcoloValido ? formatCurrency(totNetto) : '-'}
-                </TableCell>
-                <TableCell>{getStatoBadge(stipendio)}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    {hasCalcoloValido && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onViewDetails(stipendio)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {!stipendio.hasStipendioSalvato && stipendio.calcoloCompleto && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => onSalvaStipendio(stipendio)}
-                          >
-                            <Save className="h-4 w-4 mr-1" />
-                            Salva
-                          </Button>
-                        )}
-                        {stipendio.hasStipendioSalvato && stipendio.stipendioEsistente?.stato === 'bozza' && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => handleConferma(stipendio)}
-                            disabled={confermaStipendioMutation.isPending}
-                          >
-                            {confermaStipendioMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                            ) : (
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                            )}
-                            Conferma
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
+          {stipendi.map((stipendio) => (
+            <StipendioRow key={stipendio.userId} stipendio={stipendio} />
+          ))}
         </TableBody>
       </Table>
 
