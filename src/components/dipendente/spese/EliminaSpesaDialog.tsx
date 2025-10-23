@@ -54,7 +54,7 @@ export function EliminaSpesaDialog({ spesa, open, onClose }: EliminaSpesaDialogP
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={deleteSpesa.isPending}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-white hover:bg-destructive/90"
           >
             {deleteSpesa.isPending ? 'Eliminazione...' : 'ELIMINA 🗑️'}
           </AlertDialogAction>
