@@ -276,7 +276,7 @@ export const ServizioCreaPage = ({
     ? impostazioniData.metodi_pagamento 
     : [];
   const aliquoteIva = Array.isArray(impostazioniData?.aliquote_iva) 
-    ? impostazioniData.aliquote_iva 
+    ? impostazioniData.aliquote_iva.map((a: any) => a.percentuale)
     : [22, 10, 4, 0];
 
   // Query: Referenti
@@ -1331,7 +1331,7 @@ export const ServizioCreaPage = ({
                   const metodoPagamentoSelezionato = metodiPagamento?.find(
                     (m: any) => m.nome === watchMetodoPagamento
                   ) as any;
-                  const mostraIva = metodoPagamentoSelezionato?.applica_iva !== false;
+                  const mostraIva = metodoPagamentoSelezionato?.iva_applicabile !== false;
 
                   return mostraIva ? (
                     <div className="space-y-1.5 sm:space-y-2">
