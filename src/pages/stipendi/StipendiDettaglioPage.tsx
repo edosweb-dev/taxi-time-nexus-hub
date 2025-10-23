@@ -328,8 +328,8 @@ export default function StipendiDettaglioPage() {
         </div>
       </div>
 
-      {/* Riepilogo Totale */}
-      <Card className={`${totaleNetto >= 0 ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'}`}>
+      {/* Stipendio da Erogare */}
+      <Card className={`${totaleNetto >= 0 ? 'border-l-4 border-l-primary' : 'border-l-4 border-l-destructive'}`}>
         <CardHeader>
           <CardTitle className="text-lg">Stipendio da Erogare</CardTitle>
         </CardHeader>
@@ -337,7 +337,7 @@ export default function StipendiDettaglioPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-3xl font-bold">
-                <span className={totaleNetto >= 0 ? 'text-green-600' : 'text-red-600'}>
+                <span className={totaleNetto >= 0 ? 'text-primary' : 'text-destructive'}>
                   €{totaleNetto.toFixed(2)}
                 </span>
               </p>
@@ -349,7 +349,10 @@ export default function StipendiDettaglioPage() {
             </div>
             <div className="flex gap-2">
               <Button size="sm">Paga ora</Button>
-              <Button size="sm" variant="outline">PDF</Button>
+              <Button size="sm" variant="outline">
+                <FileText className="h-4 w-4 mr-2" />
+                PDF
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -433,13 +436,13 @@ export default function StipendiDettaglioPage() {
                         </TableCell>
                         <TableCell className="text-right text-sm">{km.toFixed(0)} km</TableCell>
                         <TableCell className="text-right text-sm">{ore.toFixed(1)}h</TableCell>
-                        <TableCell className="text-right text-green-600 font-medium">
+                        <TableCell className="text-right font-medium text-primary">
                           +€{compensoKm.toFixed(2)}
                         </TableCell>
-                        <TableCell className="text-right text-green-600 font-medium">
+                        <TableCell className="text-right font-medium text-primary">
                           +€{compensoOre.toFixed(2)}
                         </TableCell>
-                        <TableCell className="text-right text-red-600 font-medium">
+                        <TableCell className="text-right font-medium text-destructive">
                           {contanti > 0 ? `-€${contanti.toFixed(2)}` : '-'}
                         </TableCell>
                         <TableCell className="text-right font-bold">
@@ -450,13 +453,13 @@ export default function StipendiDettaglioPage() {
                   })}
                   <TableRow className="font-bold bg-muted/50">
                     <TableCell colSpan={5} className="text-right">TOTALI:</TableCell>
-                    <TableCell className="text-right text-green-600">
+                    <TableCell className="text-right text-primary">
                       +€{totaliServizi.compensiKm.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right text-green-600">
+                    <TableCell className="text-right text-primary">
                       +€{totaliServizi.compensiOre.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right text-red-600">
+                    <TableCell className="text-right text-destructive">
                       -€{totaliServizi.contanti.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right text-lg">
@@ -484,33 +487,33 @@ export default function StipendiDettaglioPage() {
             
             {/* COLONNA SINISTRA: ENTRATE/AGGIUNTE */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-green-600 flex items-center gap-2">
+              <h3 className="font-semibold text-primary flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
                 Entrate / Aggiunte
               </h3>
               <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                   <span className="text-sm">Compensi KM servizi</span>
-                  <span className="font-bold text-green-600">+€{totaliServizi.compensiKm.toFixed(2)}</span>
+                  <span className="font-bold text-primary">+€{totaliServizi.compensiKm.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                   <span className="text-sm">Compensi Ore servizi</span>
-                  <span className="font-bold text-green-600">+€{totaliServizi.compensiOre.toFixed(2)}</span>
+                  <span className="font-bold text-primary">+€{totaliServizi.compensiOre.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                   <span className="text-sm">Spese personali approvate</span>
-                  <span className="font-bold text-green-600">+€{totaleSpesePersonali.toFixed(2)}</span>
+                  <span className="font-bold text-primary">+€{totaleSpesePersonali.toFixed(2)}</span>
                 </div>
                 {riporto > 0 && (
-                  <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                  <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                     <span className="text-sm">Riporto mese precedente</span>
-                    <span className="font-bold text-green-600">+€{riporto.toFixed(2)}</span>
+                    <span className="font-bold text-primary">+€{riporto.toFixed(2)}</span>
                   </div>
                 )}
                 <Separator />
-                <div className="flex justify-between items-center p-3 bg-green-100 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-primary/20 rounded-lg">
                   <span className="font-bold">TOTALE ENTRATE</span>
-                  <span className="font-bold text-lg text-green-600">
+                  <span className="font-bold text-lg text-primary">
                     +€{totaleEntrate.toFixed(2)}
                   </span>
                 </div>
@@ -519,33 +522,33 @@ export default function StipendiDettaglioPage() {
 
             {/* COLONNA DESTRA: USCITE/SOTTRAZIONI */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-red-600 flex items-center gap-2">
+              <h3 className="font-semibold text-destructive flex items-center gap-2">
                 <TrendingDown className="h-5 w-5" />
                 Uscite / Sottrazioni
               </h3>
               <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-destructive/10 rounded">
                   <span className="text-sm">Prelievi socio</span>
-                  <span className="font-bold text-red-600">-€{totalePrelievi.toFixed(2)}</span>
+                  <span className="font-bold text-destructive">-€{totalePrelievi.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-destructive/10 rounded">
                   <span className="text-sm">Incassi da dipendenti</span>
-                  <span className="font-bold text-red-600">-€{totaleIncassiDipendenti.toFixed(2)}</span>
+                  <span className="font-bold text-destructive">-€{totaleIncassiDipendenti.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-destructive/10 rounded">
                   <span className="text-sm">Contanti servizi</span>
-                  <span className="font-bold text-red-600">-€{totaliServizi.contanti.toFixed(2)}</span>
+                  <span className="font-bold text-destructive">-€{totaliServizi.contanti.toFixed(2)}</span>
                 </div>
                 {riporto < 0 && (
-                  <div className="flex justify-between items-center p-2 bg-red-50 rounded">
+                  <div className="flex justify-between items-center p-2 bg-destructive/10 rounded">
                     <span className="text-sm">Riporto mese prec. (debito)</span>
-                    <span className="font-bold text-red-600">-€{Math.abs(riporto).toFixed(2)}</span>
+                    <span className="font-bold text-destructive">-€{Math.abs(riporto).toFixed(2)}</span>
                   </div>
                 )}
                 <Separator />
-                <div className="flex justify-between items-center p-3 bg-red-100 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-destructive/20 rounded-lg">
                   <span className="font-bold">TOTALE USCITE</span>
-                  <span className="font-bold text-lg text-red-600">
+                  <span className="font-bold text-lg text-destructive">
                     -€{totaleUscite.toFixed(2)}
                   </span>
                 </div>
@@ -555,9 +558,9 @@ export default function StipendiDettaglioPage() {
 
           {/* TOTALE FINALE */}
           <Separator className="my-6" />
-          <div className={`p-6 rounded-lg text-center ${totaleNetto >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+          <div className={`p-6 rounded-lg text-center ${totaleNetto >= 0 ? 'bg-primary/10' : 'bg-destructive/10'}`}>
             <p className="text-sm text-muted-foreground mb-2">TOTALE NETTO DA EROGARE</p>
-            <p className={`text-5xl font-bold ${totaleNetto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-5xl font-bold ${totaleNetto >= 0 ? 'text-primary' : 'text-destructive'}`}>
               {totaleNetto >= 0 ? '+' : ''}€{totaleNetto.toFixed(2)}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
