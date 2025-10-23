@@ -122,22 +122,46 @@ export function TabellaStipendAutomatici({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Dipendente</TableHead>
-            <TableHead>Ruolo</TableHead>
-            <TableHead className="text-right">Servizi</TableHead>
-            <TableHead className="text-right">KM</TableHead>
-            <TableHead className="text-right">Ore Attesa</TableHead>
-            <TableHead className="text-right">Totale Lordo</TableHead>
-            <TableHead className="text-right">Totale Netto</TableHead>
+            <TableHead>Nome e Cognome</TableHead>
+            <TableHead className="text-right">Nr servizi</TableHead>
+            <TableHead className="text-right">Entrate totali</TableHead>
+            <TableHead className="text-right">Uscite totali</TableHead>
+            <TableHead className="text-right">Stipendio netto</TableHead>
             <TableHead>Stato</TableHead>
             <TableHead className="text-right">Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {stipendi.map((stipendio) => {
-            const totLordo = stipendio.hasStipendioSalvato
-              ? stipendio.stipendioEsistente.totale_lordo
-              : stipendio.calcoloCompleto?.totaleLordo || 0;
+            // Calcola entrate totali (compensi KM + compensi Ore + spese personali + riporto positivo)
+            const compensiKm = stipendio.hasStipendioSalvato
+              ? (stipendio.stipendioEsistente.base_calcolo || 0) * (stipendio.stipendioEsistente.coefficiente_applicato || 1)
+              : (stipendio.calcoloCompleto?.baseConAumento || 0);
+            
+            const compensiOre = stipendio.hasStipendioSalvato
+              ? ((stipendio.stipendioEsistente.totale_ore_attesa || 0) * 15) // tariffa oraria default
+              : (stipendio.calcoloCompleto?.importoOreAttesa || 0);
+            
+            const spesePersonali = stipendio.hasStipendioSalvato
+              ? (stipendio.stipendioEsistente.totale_spese || 0)
+              : 0;
+            
+            const riporto = stipendio.hasStipendioSalvato
+              ? (stipendio.stipendioEsistente.riporto_mese_precedente || 0)
+              : 0;
+            
+            const entratePositive = compensiKm + compensiOre + spesePersonali + (riporto > 0 ? riporto : 0);
+            
+            // Calcola uscite totali (prelievi + incassi dipendenti + contanti + riporto negativo)
+            const prelievi = stipendio.hasStipendioSalvato
+              ? (stipendio.stipendioEsistente.totale_prelievi || 0)
+              : 0;
+            
+            const incassiDipendenti = stipendio.hasStipendioSalvato
+              ? (stipendio.stipendioEsistente.incassi_da_dipendenti || 0)
+              : 0;
+            
+            const usciteTotali = prelievi + incassiDipendenti + (riporto < 0 ? Math.abs(riporto) : 0);
 
             const totNetto = stipendio.hasStipendioSalvato
               ? stipendio.stipendioEsistente.totale_netto
@@ -162,20 +186,16 @@ export function TabellaStipendAutomatici({
                     <span>{stipendio.firstName} {stipendio.lastName}</span>
                   )}
                 </TableCell>
-                <TableCell>{getRoleBadge(stipendio.role)}</TableCell>
                 <TableCell className="text-right">
                   {stipendio.numeroServizi || '-'}
                 </TableCell>
-                <TableCell className="text-right">
-                  {stipendio.kmTotali > 0 ? stipendio.kmTotali.toFixed(0) : '-'}
+                <TableCell className="text-right font-medium text-primary">
+                  {hasCalcoloValido ? formatCurrency(entratePositive) : '-'}
                 </TableCell>
-                <TableCell className="text-right">
-                  {stipendio.oreAttesa > 0 ? stipendio.oreAttesa.toFixed(1) : '-'}
+                <TableCell className="text-right font-medium text-destructive">
+                  {hasCalcoloValido ? formatCurrency(usciteTotali) : '-'}
                 </TableCell>
-                <TableCell className="text-right font-medium">
-                  {hasCalcoloValido ? formatCurrency(totLordo) : '-'}
-                </TableCell>
-                <TableCell className="text-right font-semibold text-primary">
+                <TableCell className="text-right font-semibold">
                   {hasCalcoloValido ? formatCurrency(totNetto) : '-'}
                 </TableCell>
                 <TableCell>{getStatoBadge(stipendio)}</TableCell>
