@@ -21,17 +21,48 @@ export function FinancialSection({
   getUserName,
   formatCurrency,
 }: FinancialSectionProps) {
-  const { impostazioni } = useImpostazioni();
-  
+  const { impostazioni, isLoading } = useImpostazioni();
+
+  // DEBUG: Log per capire cosa sta succedendo
+  console.log('[FinancialSection] Impostazioni:', impostazioni);
+  console.log('[FinancialSection] Servizio.iva:', servizio.iva);
+  console.log('[FinancialSection] Metodo pagamento:', servizio.metodo_pagamento);
+
   // Determina se il metodo di pagamento ha IVA applicabile
-  const metodoPagamento = impostazioni?.metodi_pagamento.find(
+  const metodoPagamento = impostazioni?.metodi_pagamento?.find(
     m => m.nome === servizio.metodo_pagamento
   );
-  const metodoHaIva = metodoPagamento?.iva_applicabile === true && 
-                      servizio.iva !== null && 
-                      servizio.iva !== undefined && 
-                      servizio.iva > 0;
-  
+
+  console.log('[FinancialSection] Metodo trovato:', metodoPagamento);
+
+  // FALLBACK: Se impostazioni non caricate, usa servizio.iva come indicatore
+  const metodoHaIva = impostazioni
+    ? (metodoPagamento?.iva_applicabile === true && 
+       servizio.iva !== null && 
+       servizio.iva !== undefined && 
+       servizio.iva > 0)
+    : (servizio.iva !== null && 
+       servizio.iva !== undefined && 
+       servizio.iva > 0);
+
+  console.log('[FinancialSection] metodoHaIva:', metodoHaIva);
+
+  // Mostra loading se impostazioni stanno caricando
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Informazioni finanziarie</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">
+            <div className="animate-pulse">Caricamento...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Calcola importi IVA per incasso PREVISTO
   let nettoPrevistoValue = 0;
   let ivaPrevistoValue = 0;
