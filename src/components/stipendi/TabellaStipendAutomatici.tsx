@@ -159,34 +159,41 @@ export function TabellaStipendAutomatici({
       stipendio.hasStipendioSalvato
     );
 
-    // Calcola entrate e uscite
+    // Calcola entrate e uscite ESATTAMENTE come nella pagina dettaglio
     let entratePositive = 0;
     let usciteTotali = 0;
     
-    if (stipendio.hasStipendioSalvato) {
-      // Usa dati salvati nel database
+    if (stipendio.hasStipendioSalvato && stipendio.stipendioEsistente) {
+      // Per stipendi salvati: usa base_calcolo come compensi servizi (già comprende KM + Ore)
       const riporto = stipendio.stipendioEsistente.riporto_mese_precedente || 0;
       const contanti = contantiServizi || 0;
       
+      // ENTRATE = base_calcolo (compensi KM+Ore con aumento) + spese personali + riporto positivo
       entratePositive = 
-        (stipendio.stipendioEsistente.totale_lordo || 0) +
+        (stipendio.stipendioEsistente.base_calcolo || 0) +
         (stipendio.stipendioEsistente.totale_spese || 0) +
         (riporto > 0 ? riporto : 0);
       
+      // USCITE = prelievi + incassi dipendenti + contanti servizi + riporto negativo
       usciteTotali = 
         (stipendio.stipendioEsistente.totale_prelievi || 0) +
         (stipendio.stipendioEsistente.incassi_da_dipendenti || 0) +
         contanti +
         (riporto < 0 ? Math.abs(riporto) : 0);
     } else if (stipendio.calcoloCompleto) {
-      // Usa dati calcolati automaticamente
-      const detr = stipendio.calcoloCompleto.detrazioni;
+      // Per calcoli automatici: usa i valori dal calcolo completo
+      const calc = stipendio.calcoloCompleto;
+      const detr = calc.detrazioni;
+      
+      // ENTRATE = compensi KM + compensi Ore (già con aumento) + spese personali + riporto positivo
+      const compensiServizi = calc.baseConAumento + calc.importoOreAttesa;
       
       entratePositive = 
-        stipendio.calcoloCompleto.totaleLordo +
+        compensiServizi +
         detr.totaleSpesePersonali +
         (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
       
+      // USCITE = prelievi + incassi dipendenti + contanti servizi + riporto negativo
       usciteTotali = 
         detr.totalePrelievi +
         detr.incassiDaDipendenti +
