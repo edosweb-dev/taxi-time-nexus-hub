@@ -53,6 +53,7 @@ export interface Servizio {
   firma_timestamp?: string;
   incasso_ricevuto?: number;
   incasso_previsto?: number;
+  iva?: number;
   ore_lavorate?: number;
   ore_finali?: number;
   ore_effettive?: number;

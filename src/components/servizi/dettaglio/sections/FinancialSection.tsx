@@ -1,8 +1,10 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Profile, Azienda } from "@/lib/types";
 import { Servizio } from "@/lib/types/servizi";
+import { useImpostazioni } from "@/hooks/useImpostazioni";
 
 interface FinancialSectionProps {
   servizio: Servizio;
@@ -19,6 +21,47 @@ export function FinancialSection({
   getUserName,
   formatCurrency,
 }: FinancialSectionProps) {
+  const { impostazioni } = useImpostazioni();
+  
+  // Determina se il metodo di pagamento ha IVA applicabile
+  const metodoPagamento = impostazioni?.metodi_pagamento.find(
+    m => m.nome === servizio.metodo_pagamento
+  );
+  const metodoHaIva = metodoPagamento?.iva_applicabile === true && 
+                      servizio.iva !== null && 
+                      servizio.iva !== undefined && 
+                      servizio.iva > 0;
+  
+  // Calcola importi IVA per incasso PREVISTO
+  let nettoPrevistoValue = 0;
+  let ivaPrevistoValue = 0;
+  let totalePrevistoValue = 0;
+  
+  if (servizio.incasso_previsto !== null) {
+    if (metodoHaIva) {
+      nettoPrevistoValue = Number(servizio.incasso_previsto) || 0;
+      ivaPrevistoValue = nettoPrevistoValue * (Number(servizio.iva) / 100);
+      totalePrevistoValue = nettoPrevistoValue + ivaPrevistoValue;
+    } else {
+      totalePrevistoValue = Number(servizio.incasso_previsto) || 0;
+    }
+  }
+  
+  // Calcola importi IVA per incasso RICEVUTO
+  let nettoRicevutoValue = 0;
+  let ivaRicevutoValue = 0;
+  let totaleRicevutoValue = 0;
+  
+  if (servizio.incasso_ricevuto !== null) {
+    if (metodoHaIva) {
+      nettoRicevutoValue = Number(servizio.incasso_ricevuto) || 0;
+      ivaRicevutoValue = nettoRicevutoValue * (Number(servizio.iva) / 100);
+      totaleRicevutoValue = nettoRicevutoValue + ivaRicevutoValue;
+    } else {
+      totaleRicevutoValue = Number(servizio.incasso_ricevuto) || 0;
+    }
+  }
+  
   const hasFinancialData = 
     servizio.incasso_ricevuto !== null || 
     servizio.incasso_previsto !== null ||
@@ -45,62 +88,143 @@ export function FinancialSection({
         <CardTitle className="text-lg">Informazioni finanziarie</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {servizio.metodo_pagamento && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Modalità di pagamento</div>
-              <Badge variant="outline">{servizio.metodo_pagamento}</Badge>
+        {/* Metodo di Pagamento */}
+        {servizio.metodo_pagamento && (
+          <div className="flex justify-between items-center pb-2">
+            <span className="text-sm font-medium text-muted-foreground">Metodo di Pagamento</span>
+            <Badge variant="outline" className="text-base">{servizio.metodo_pagamento}</Badge>
+          </div>
+        )}
+        
+        {/* INCASSO PREVISTO - Visualizzazione Condizionale */}
+        {servizio.incasso_previsto !== null && (
+          <div className="space-y-3 border-t pt-3">
+            <div className="text-sm font-semibold text-muted-foreground mb-2">
+              Incasso Previsto
             </div>
-          )}
-          
-          {servizio.incasso_ricevuto !== null && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Incasso ricevuto</div>
-              <div className="text-base font-semibold text-green-600">
-                {formatCurrency(servizio.incasso_ricevuto)}
-              </div>
-            </div>
-          )}
-          
-          {servizio.incasso_previsto !== null && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Incasso previsto</div>
-              <div className="text-base font-semibold">
-                {formatCurrency(servizio.incasso_previsto)}
-              </div>
-            </div>
-          )}
-          
-          {servizio.metodo_pagamento === 'Contanti' && servizio.consegna_contanti_a && (
-            <div className="space-y-2 md:col-span-2">
-              <div className="text-sm font-medium text-muted-foreground">Responsabile contanti</div>
-              <div className="text-base">
-                {getUserName(users, servizio.consegna_contanti_a) || "Operatore non trovato"}
-              </div>
-            </div>
-          )}
-          
-          {azienda?.provvigione && (
-            <div className="space-y-2 md:col-span-2">
-              <div className="text-sm font-medium text-muted-foreground">Provvigione</div>
-              <div className="flex items-center gap-2">
-                <Badge 
-                  variant={servizio.applica_provvigione ? "default" : "secondary"}
-                  className={servizio.applica_provvigione ? "bg-blue-100 text-blue-700" : ""}
-                >
-                  {servizio.applica_provvigione ? "Applicata" : "Non applicata"}
-                </Badge>
-                {servizio.applica_provvigione && azienda.provvigione_valore && (
+            
+            {metodoHaIva ? (
+              /* CON IVA: Mostra scomposizione */
+              <div className="space-y-2">
+                {/* Incasso Netto */}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Incasso netto</span>
+                  <span className="font-medium">{formatCurrency(nettoPrevistoValue)}</span>
+                </div>
+                
+                {/* IVA */}
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    ({azienda.provvigione_tipo === 'percentuale' 
-                      ? `${azienda.provvigione_valore}%` 
-                      : `€${azienda.provvigione_valore}`})
+                    IVA ({servizio.iva}%)
                   </span>
-                )}
+                  <span className="font-medium text-blue-600 dark:text-blue-400">
+                    {formatCurrency(ivaPrevistoValue)}
+                  </span>
+                </div>
+                
+                {/* Separatore */}
+                <Separator className="my-2" />
+                
+                {/* Totale da Incassare */}
+                <div className="flex justify-between items-center bg-primary/5 p-3 rounded-md border border-primary/10">
+                  <span className="text-sm font-semibold">Totale da incassare</span>
+                  <span className="text-lg font-bold text-primary">
+                    {formatCurrency(totalePrevistoValue)}
+                  </span>
+                </div>
               </div>
+            ) : (
+              /* SENZA IVA: Mostra importo semplice */
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Incasso previsto</span>
+                <span className="text-base font-semibold">
+                  {formatCurrency(totalePrevistoValue)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* INCASSO RICEVUTO - Visualizzazione Condizionale */}
+        {servizio.incasso_ricevuto !== null && (
+          <div className="space-y-3 border-t pt-3">
+            <div className="text-sm font-semibold text-muted-foreground mb-2">
+              Consuntivazione
             </div>
-          )}
-        </div>
+            
+            {metodoHaIva ? (
+              /* CON IVA: Mostra scomposizione */
+              <div className="space-y-2">
+                {/* Incasso Netto Ricevuto */}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Incasso netto ricevuto</span>
+                  <span className="font-medium">{formatCurrency(nettoRicevutoValue)}</span>
+                </div>
+                
+                {/* IVA */}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    IVA ({servizio.iva}%)
+                  </span>
+                  <span className="font-medium text-blue-600 dark:text-blue-400">
+                    {formatCurrency(ivaRicevutoValue)}
+                  </span>
+                </div>
+                
+                {/* Separatore */}
+                <Separator className="my-2" />
+                
+                {/* Totale Ricevuto */}
+                <div className="flex justify-between items-center bg-green-50 dark:bg-green-950 p-3 rounded-md border border-green-200 dark:border-green-800">
+                  <span className="text-sm font-semibold">Totale ricevuto</span>
+                  <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                    {formatCurrency(totaleRicevutoValue)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              /* SENZA IVA: Mostra importo semplice */
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Incasso ricevuto</span>
+                <span className="text-base font-semibold text-green-600 dark:text-green-400">
+                  {formatCurrency(totaleRicevutoValue)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Responsabile Contanti */}
+        {servizio.metodo_pagamento === 'Contanti' && servizio.consegna_contanti_a && (
+          <div className="space-y-2 border-t pt-3">
+            <div className="text-sm font-medium text-muted-foreground">Responsabile contanti</div>
+            <div className="text-base">
+              {getUserName(users, servizio.consegna_contanti_a) || "Operatore non trovato"}
+            </div>
+          </div>
+        )}
+        
+        {/* Provvigione */}
+        {azienda?.provvigione && (
+          <div className="space-y-2 border-t pt-3">
+            <div className="text-sm font-medium text-muted-foreground">Provvigione</div>
+            <div className="flex items-center gap-2">
+              <Badge 
+                variant={servizio.applica_provvigione ? "default" : "secondary"}
+                className={servizio.applica_provvigione ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100" : ""}
+              >
+                {servizio.applica_provvigione ? "Applicata" : "Non applicata"}
+              </Badge>
+              {servizio.applica_provvigione && azienda.provvigione_valore && (
+                <span className="text-sm text-muted-foreground">
+                  ({azienda.provvigione_tipo === 'percentuale' 
+                    ? `${azienda.provvigione_valore}%` 
+                    : formatCurrency(Number(azienda.provvigione_valore))})
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
