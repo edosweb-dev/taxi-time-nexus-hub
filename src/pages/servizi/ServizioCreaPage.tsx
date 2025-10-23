@@ -300,8 +300,6 @@ export const ServizioCreaPage = ({
       const importoIva = netto * (percentualeIva / 100);
       const totale = netto + importoIva;
       
-      console.log('[Calcolo IVA] Netto:', netto, '| IVA%:', percentualeIva, '| Totale:', totale.toFixed(2));
-      
       form.setValue('importo_totale_calcolato', Number(totale.toFixed(2)), { 
         shouldValidate: false,
         shouldDirty: false 
@@ -381,8 +379,6 @@ export const ServizioCreaPage = ({
   } = useQuery({
     queryKey: ["passeggeri", watchAziendaId],
     queryFn: async () => {
-      console.log('[Passeggeri] Fetching for aziendaId:', watchAziendaId);
-      
       if (!watchAziendaId) return [];
       
       const { data, error } = await supabase
@@ -391,12 +387,7 @@ export const ServizioCreaPage = ({
         .eq("azienda_id", watchAziendaId)
         .order("nome_cognome");
       
-      if (error) {
-        console.error('[Passeggeri] Error:', error);
-        throw error;
-      }
-      
-      console.log('[Passeggeri] Data received:', data);
+      if (error) throw error;
       return data;
     },
     enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
@@ -408,13 +399,6 @@ export const ServizioCreaPage = ({
     if (!watchPasseggeriIds || watchPasseggeriIds.length === 0) return null;
     return passeggeri?.find(p => p.id === watchPasseggeriIds[0]) || null;
   }, [passeggeri, watchPasseggeriIds]);
-
-  // Debug log per tracciare il passeggero selezionato
-  useEffect(() => {
-    if (passeggeroSelezionato) {
-      console.log('[Percorso] Passeggero selezionato:', passeggeroSelezionato);
-    }
-  }, [passeggeroSelezionato]);
 
   // Query: Email Notifiche
   const { data: emailNotifiche } = useQuery({
@@ -482,7 +466,6 @@ export const ServizioCreaPage = ({
 
       toast.success("Passeggero aggiunto!");
     } catch (error) {
-      console.error("Errore creazione passeggero:", error);
       toast.error("Errore nella creazione del passeggero");
     } finally {
       setIsAddingPasseggero(false);
@@ -542,7 +525,6 @@ export const ServizioCreaPage = ({
 
       toast.success("Email aggiunta!");
     } catch (error) {
-      console.error("Errore creazione email:", error);
       toast.error("Errore nella creazione dell'email");
     } finally {
       setIsAddingEmail(false);
@@ -551,15 +533,6 @@ export const ServizioCreaPage = ({
 
   const onSubmit = async (data: ServizioFormData) => {
     setIsSubmitting(true);
-    
-    console.log("=== INIZIO SUBMIT SERVIZIO ===");
-    console.log("Tipo cliente:", data.tipo_cliente);
-    console.log("Dati form:", {
-      cliente_privato_id: data.cliente_privato_id,
-      cliente_privato_nome: data.cliente_privato_nome,
-      cliente_privato_cognome: data.cliente_privato_cognome,
-      salva_cliente_anagrafica: data.salva_cliente_anagrafica,
-    });
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -578,7 +551,6 @@ export const ServizioCreaPage = ({
         data.cliente_privato_cognome
       ) {
         try {
-          console.log("Salvataggio cliente in anagrafica...");
           const nuovoCliente = await createClientePrivato({
             nome: data.cliente_privato_nome,
             cognome: data.cliente_privato_cognome,
@@ -589,19 +561,15 @@ export const ServizioCreaPage = ({
             note: data.cliente_privato_note,
           });
           clientePrivatoId = nuovoCliente.id;
-          console.log("Cliente salvato con ID:", clientePrivatoId);
           toast.success("Cliente salvato in anagrafica");
         } catch (error) {
-          console.error("Errore creazione cliente:", error);
           toast.error("Errore nel salvataggio cliente");
-          // Continua comunque con dati inline
         }
       }
       
       // 2. Se è stato selezionato un cliente esistente dall'anagrafica, recupera i dati
       if (data.tipo_cliente === 'privato' && clientePrivatoId && !clientePrivatoNome) {
         try {
-          console.log("Recupero dati cliente esistente:", clientePrivatoId);
           const { data: cliente, error } = await supabase
             .from('clienti_privati')
             .select('nome, cognome')
@@ -612,10 +580,9 @@ export const ServizioCreaPage = ({
           if (cliente) {
             clientePrivatoNome = cliente.nome;
             clientePrivatoCognome = cliente.cognome;
-            console.log("Dati cliente recuperati:", { nome: clientePrivatoNome, cognome: clientePrivatoCognome });
           }
         } catch (error) {
-          console.error("Errore recupero cliente:", error);
+          // Silently fail
         }
       }
 
@@ -653,16 +620,10 @@ export const ServizioCreaPage = ({
         consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
         note: data.note || null,
       };
-      
-      console.log("Dati servizio da salvare:", servizioData);
 
       if (mode === 'edit' && servizioId) {
-        console.log("Aggiornamento servizio ID:", servizioId);
         const { error: servizioError } = await supabase.from("servizi").update(servizioData).eq('id', servizioId);
-        if (servizioError) {
-          console.error("Errore update servizio:", servizioError);
-          throw servizioError;
-        }
+        if (servizioError) throw servizioError;
 
         // Gestisci passeggeri/email solo per aziende
         if (data.tipo_cliente === 'azienda') {
@@ -683,19 +644,8 @@ export const ServizioCreaPage = ({
 
         toast.success("Servizio aggiornato con successo!");
       } else {
-        console.log("Creazione nuovo servizio...");
         const { data: servizio, error: servizioError } = await supabase.from("servizi").insert(servizioData).select().single();
-        if (servizioError) {
-          console.error("Errore insert servizio:", servizioError);
-          console.error("Dettagli errore:", {
-            message: servizioError.message,
-            details: servizioError.details,
-            hint: servizioError.hint,
-            code: servizioError.code,
-          });
-          throw servizioError;
-        }
-        console.log("Servizio creato con successo:", servizio);
+        if (servizioError) throw servizioError;
 
         // Gestisci passeggeri/email solo per aziende
         if (data.tipo_cliente === 'azienda') {
@@ -721,26 +671,15 @@ export const ServizioCreaPage = ({
         navigate("/servizi");
       }
     } catch (error: any) {
-      console.error("=== ERRORE SUBMIT SERVIZIO ===");
-      console.error("Errore completo:", error);
-      
       let errorMessage = mode === 'edit' ? "Errore nell'aggiornamento" : "Errore nella creazione";
       
-      // Estrai messaggio specifico da Supabase se disponibile
       if (error?.message) {
         errorMessage += ": " + error.message;
-      }
-      if (error?.details) {
-        console.error("Dettagli errore:", error.details);
-      }
-      if (error?.hint) {
-        console.error("Suggerimento:", error.hint);
       }
       
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
-      console.log("=== FINE SUBMIT SERVIZIO ===");
     }
   };
 
@@ -1221,7 +1160,6 @@ export const ServizioCreaPage = ({
                             onCheckedChange={(checked) => {
                               field.onChange(checked);
                               if (checked && passeggeroSelezionato) {
-                                console.log('[Percorso] Auto-fill partenza:', passeggeroSelezionato);
                                 form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
                                 form.setValue('citta_presa', passeggeroSelezionato.localita || '');
                               } else if (!checked) {
@@ -1309,7 +1247,6 @@ export const ServizioCreaPage = ({
                             onCheckedChange={(checked) => {
                               field.onChange(checked);
                               if (checked && passeggeroSelezionato) {
-                                console.log('[Percorso] Auto-fill destinazione:', passeggeroSelezionato);
                                 form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
                                 form.setValue('citta_destinazione', passeggeroSelezionato.localita || '');
                               } else if (!checked) {
