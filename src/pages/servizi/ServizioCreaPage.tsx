@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -367,11 +367,19 @@ export const ServizioCreaPage = ({
     enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
   });
 
-  // Passeggero selezionato per indirizzo
-  const passeggeriSelezionati = form.watch("passeggeri_ids") || [];
-  const passeggeroSelezionato = passeggeri?.find(p => 
-    passeggeriSelezionati.length > 0 && p.id === passeggeriSelezionati[0]
-  );
+  // Passeggero selezionato per indirizzo (usa useMemo per performance)
+  const watchPasseggeriIds = form.watch("passeggeri_ids");
+  const passeggeroSelezionato = useMemo(() => {
+    if (!watchPasseggeriIds || watchPasseggeriIds.length === 0) return null;
+    return passeggeri?.find(p => p.id === watchPasseggeriIds[0]) || null;
+  }, [passeggeri, watchPasseggeriIds]);
+
+  // Debug log per tracciare il passeggero selezionato
+  useEffect(() => {
+    if (passeggeroSelezionato) {
+      console.log('[Percorso] Passeggero selezionato:', passeggeroSelezionato);
+    }
+  }, [passeggeroSelezionato]);
 
   // Query: Email Notifiche
   const { data: emailNotifiche } = useQuery({
@@ -1164,27 +1172,54 @@ export const ServizioCreaPage = ({
                   Punto di Partenza
                 </h3>
                 
-                {/* Checkbox Usa Indirizzo Passeggero */}
-                {watchTipoCliente === 'azienda' && passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
+                {/* Checkbox Usa Indirizzo Passeggero - Partenza */}
+                {watchTipoCliente === 'azienda' && (
                   <Controller
                     name="usa_indirizzo_passeggero_partenza"
                     control={form.control}
                     render={({ field }) => (
-                      <div className="flex items-center space-x-2 mb-3">
-                        <Checkbox
-                          id="usa_indirizzo_passeggero_partenza"
-                          checked={field.value}
-                          onCheckedChange={(checked) => {
-                            field.onChange(checked);
-                            if (checked && passeggeroSelezionato) {
-                              form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
-                              form.setValue('citta_presa', passeggeroSelezionato.localita || '');
-                            }
-                          }}
-                        />
-                        <label htmlFor="usa_indirizzo_passeggero_partenza" className="text-sm cursor-pointer">
-                          🏠 Usa indirizzo passeggero ({passeggeroSelezionato.nome_cognome})
-                        </label>
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-4 p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <Checkbox
+                            id="usa_indirizzo_passeggero_partenza"
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              if (checked && passeggeroSelezionato) {
+                                console.log('[Percorso] Auto-fill partenza:', passeggeroSelezionato);
+                                form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
+                                form.setValue('citta_presa', passeggeroSelezionato.localita || '');
+                              } else if (!checked) {
+                                form.setValue('indirizzo_presa', '');
+                                form.setValue('citta_presa', '');
+                              }
+                            }}
+                            disabled={!passeggeroSelezionato || !passeggeroSelezionato.indirizzo}
+                          />
+                          <div className="space-y-1 leading-none flex-1">
+                            <label 
+                              htmlFor="usa_indirizzo_passeggero_partenza" 
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              🏠 Usa indirizzo del passeggero come punto di partenza
+                            </label>
+                            {!passeggeroSelezionato && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Seleziona prima un passeggero nella sezione Passeggeri
+                              </p>
+                            )}
+                            {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
+                              <p className="text-xs text-orange-500 mt-1">
+                                ⚠️ Il passeggero "{passeggeroSelezionato.nome_cognome}" non ha un indirizzo salvato
+                              </p>
+                            )}
+                            {passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
+                              <p className="text-xs text-green-600 mt-1">
+                                ✓ {passeggeroSelezionato.nome_cognome}: {passeggeroSelezionato.indirizzo}, {passeggeroSelezionato.localita}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     )}
                   />
@@ -1225,27 +1260,54 @@ export const ServizioCreaPage = ({
                   Destinazione
                 </h3>
                 
-                {/* Checkbox Usa Indirizzo Passeggero */}
-                {watchTipoCliente === 'azienda' && passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
+                {/* Checkbox Usa Indirizzo Passeggero - Destinazione */}
+                {watchTipoCliente === 'azienda' && (
                   <Controller
                     name="usa_indirizzo_passeggero_destinazione"
                     control={form.control}
                     render={({ field }) => (
-                      <div className="flex items-center space-x-2 mb-3">
-                        <Checkbox
-                          id="usa_indirizzo_passeggero_destinazione"
-                          checked={field.value}
-                          onCheckedChange={(checked) => {
-                            field.onChange(checked);
-                            if (checked && passeggeroSelezionato) {
-                              form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
-                              form.setValue('citta_destinazione', passeggeroSelezionato.localita || '');
-                            }
-                          }}
-                        />
-                        <label htmlFor="usa_indirizzo_passeggero_destinazione" className="text-sm cursor-pointer">
-                          🏠 Usa indirizzo passeggero ({passeggeroSelezionato.nome_cognome})
-                        </label>
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-4 p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <Checkbox
+                            id="usa_indirizzo_passeggero_destinazione"
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              if (checked && passeggeroSelezionato) {
+                                console.log('[Percorso] Auto-fill destinazione:', passeggeroSelezionato);
+                                form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
+                                form.setValue('citta_destinazione', passeggeroSelezionato.localita || '');
+                              } else if (!checked) {
+                                form.setValue('indirizzo_destinazione', '');
+                                form.setValue('citta_destinazione', '');
+                              }
+                            }}
+                            disabled={!passeggeroSelezionato || !passeggeroSelezionato.indirizzo}
+                          />
+                          <div className="space-y-1 leading-none flex-1">
+                            <label 
+                              htmlFor="usa_indirizzo_passeggero_destinazione" 
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              🏠 Usa indirizzo del passeggero come destinazione
+                            </label>
+                            {!passeggeroSelezionato && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Seleziona prima un passeggero nella sezione Passeggeri
+                              </p>
+                            )}
+                            {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
+                              <p className="text-xs text-orange-500 mt-1">
+                                ⚠️ Il passeggero "{passeggeroSelezionato.nome_cognome}" non ha un indirizzo salvato
+                              </p>
+                            )}
+                            {passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
+                              <p className="text-xs text-green-600 mt-1">
+                                ✓ {passeggeroSelezionato.nome_cognome}: {passeggeroSelezionato.indirizzo}, {passeggeroSelezionato.localita}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     )}
                   />
