@@ -19,11 +19,7 @@ export function MobileServiziHeader({
   const [showModal, setShowModal] = useState(false);
 
   const handleClick = () => {
-    if (profile?.role === 'admin' || profile?.role === 'socio') {
-      setShowModal(true);
-    } else {
-      onNavigateToNewServizio();
-    }
+    setShowModal(true);
   };
   
   return (

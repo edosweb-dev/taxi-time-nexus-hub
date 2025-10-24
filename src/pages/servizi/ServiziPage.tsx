@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
+import { InserimentoServizioModal } from "@/components/servizi/InserimentoServizioModal";
 
 export default function ServiziPage() {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ export default function ServiziPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssignmentPopup, setShowAssignmentPopup] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -252,7 +254,7 @@ export default function ServiziPage() {
             </p>
           </div>
           <Button 
-            onClick={() => navigate("/servizi/crea")}
+            onClick={() => setShowModal(true)}
             size="default"
             className="w-full sm:w-auto"
           >
@@ -906,6 +908,12 @@ export default function ServiziPage() {
           servizio={selectedServizio}
         />
       )}
+
+      {/* Modale Scelta Inserimento */}
+      <InserimentoServizioModal 
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </MainLayout>
   );
 }
