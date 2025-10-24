@@ -61,6 +61,7 @@ export default function ServiziPage() {
 
   // Calculate status counts
   const statusCounts = useMemo(() => ({
+    richiesta_cliente: servizi.filter(s => s.stato === 'richiesta_cliente').length,
     bozza: servizi.filter(s => s.stato === 'bozza').length,
     da_assegnare: servizi.filter(s => s.stato === 'da_assegnare').length,
     assegnato: servizi.filter(s => s.stato === 'assegnato').length,
@@ -299,6 +300,46 @@ export default function ServiziPage() {
                 }}
               >
                 <TabsList className="inline-flex flex-nowrap w-max min-w-full gap-2 sm:gap-4 p-0 bg-transparent justify-start">
+                
+                {/* Tab: Richieste Clienti */}
+                <TabsTrigger 
+                  value="richiesta_cliente"
+                  className="
+                    flex-shrink-0 flex items-center gap-2
+                    px-4 py-2.5 rounded-full text-sm font-medium
+                    data-[state=inactive]:bg-muted/60
+                    data-[state=inactive]:text-foreground
+                    data-[state=active]:bg-primary
+                    data-[state=active]:text-primary-foreground
+                    sm:px-4 sm:py-2.5
+                    sm:text-sm
+                    sm:font-semibold
+                    sm:rounded-full
+                    sm:data-[state=inactive]:bg-transparent
+                    sm:data-[state=inactive]:text-muted-foreground
+                    sm:data-[state=inactive]:hover:text-foreground
+                    sm:data-[state=inactive]:hover:bg-muted/50
+                    sm:data-[state=active]:bg-primary
+                    sm:data-[state=active]:text-primary-foreground
+                    sm:data-[state=active]:font-bold
+                    sm:data-[state=active]:shadow-md
+                    sm:data-[state=active]:scale-[1.02]
+                    transition-all duration-200 ease-in-out
+                  "
+                >
+                  <span className="whitespace-nowrap">Richieste Clienti</span>
+                  {statusCounts.richiesta_cliente > 0 && (
+                    <Badge 
+                      className={
+                        activeTab === 'richiesta_cliente'
+                          ? "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-white text-primary sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:bg-orange-400 sm:text-white sm:shadow-sm"
+                          : "flex-shrink-0 h-5 min-w-[24px] px-2 text-xs font-bold rounded-full bg-orange-400 text-white sm:h-6 sm:min-w-[28px] sm:px-2.5 sm:text-sm sm:shadow-sm"
+                      }
+                    >
+                      {statusCounts.richiesta_cliente}
+                    </Badge>
+                  )}
+                </TabsTrigger>
                 
                 {/* Tab: Bozze */}
                 <TabsTrigger 
@@ -584,7 +625,79 @@ export default function ServiziPage() {
               </div>
             </div>
 
-            {/* Tab Content - All tabs show the same content */}
+            {/* Tab Content - richiesta_cliente */}
+            <TabsContent value="richiesta_cliente" className="mt-6">
+              {/* Loading State */}
+              {isLoading && (
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              )}
+
+        {/* Error State */}
+        {error && (
+          <Card className="w-full p-8 text-center">
+            <p className="text-destructive">Errore nel caricamento dei servizi</p>
+          </Card>
+        )}
+
+        {/* Content */}
+        {!isLoading && !error && (
+          <>
+            {/* MOBILE: Card List */}
+            {isMobile ? (
+              <div className="w-full space-y-3">
+                {filteredServizi.map(renderMobileCard)}
+                {filteredServizi.length === 0 && (
+                  <Card className="w-full p-8 text-center">
+                    <p className="text-muted-foreground mb-4">Nessuna richiesta cliente trovata</p>
+                  </Card>
+                )}
+              </div>
+            ) : (
+              /* DESKTOP: Table */
+              <TooltipProvider>
+                <Card className="w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[80px]">ID</TableHead>
+                        <TableHead className="w-[180px]">Azienda</TableHead>
+                        <TableHead className="min-w-[350px]">Percorso</TableHead>
+                        <TableHead className="w-[140px]">Data e Orario</TableHead>
+                        <TableHead className="w-[130px]">Stato</TableHead>
+                        <TableHead className="w-[100px]">Passeggeri</TableHead>
+                        <TableHead className="w-[80px] text-right">Azioni</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredServizi.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                            Nessuna richiesta cliente trovata
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredServizi.map((servizio: ServizioWithPasseggeri) => (
+                          <TableRow 
+                            key={servizio.id}
+                            className="hover:bg-muted/50"
+                            onClick={() => navigate(`/servizi/${servizio.id}`)}
+                          >
+                            {/* Inserire qui le celle della tabella - duplicare il codice esistente */}
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </TooltipProvider>
+            )}
+          </>
+        )}
+            </TabsContent>
+            
+            {/* Tab Content - Altri stati usano lo stesso activeTab */}
             <TabsContent value={activeTab} className="mt-6">
               {/* Loading State */}
               {isLoading && (
