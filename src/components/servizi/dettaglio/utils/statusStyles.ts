@@ -1,6 +1,12 @@
 import { StatoServizio } from "@/lib/types/servizi";
 
 export const STATUS_STYLES = {
+  richiesta_cliente: { 
+    bg: 'bg-orange-100', 
+    text: 'text-orange-800', 
+    border: 'border-orange-300',
+    icon: '🟠',
+  },
   bozza: { 
     bg: 'bg-gray-100', 
     text: 'text-gray-700', 
@@ -37,6 +43,12 @@ export const STATUS_STYLES = {
     border: 'border-red-300',
     icon: '🔴',
   },
+  non_accettato: { 
+    bg: 'bg-slate-100', 
+    text: 'text-slate-800', 
+    border: 'border-slate-300',
+    icon: '⚫',
+  },
 } as const;
 
 export function getStatusBadgeStyle(stato: StatoServizio) {
@@ -45,6 +57,7 @@ export function getStatusBadgeStyle(stato: StatoServizio) {
 
 export function getStatusLabel(stato: StatoServizio) {
   const labels: Record<StatoServizio, string> = {
+    richiesta_cliente: 'RICHIESTA CLIENTE',
     bozza: 'BOZZA',
     da_assegnare: 'DA ASSEGNARE',
     assegnato: 'ASSEGNATO',

@@ -3,7 +3,7 @@ import { Azienda, UserRole } from "@/lib/types";
 
 // Cambio da tipo aliasato a stringa semplice per maggiore flessibilità
 export type MetodoPagamento = string;
-export type StatoServizio = 'bozza' | 'da_assegnare' | 'assegnato' | 'completato' | 'annullato' | 'non_accettato' | 'consuntivato';
+export type StatoServizio = 'richiesta_cliente' | 'bozza' | 'da_assegnare' | 'assegnato' | 'completato' | 'annullato' | 'non_accettato' | 'consuntivato';
 
 // Tipo Cliente
 export type TipoCliente = 'azienda' | 'privato';

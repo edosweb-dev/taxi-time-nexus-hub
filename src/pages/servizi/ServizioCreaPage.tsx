@@ -580,6 +580,13 @@ export const ServizioCreaPage = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utente non autenticato");
 
+      // Ottieni il profilo dell'utente per determinare il ruolo
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
       let clientePrivatoId = data.cliente_privato_id;
       let clientePrivatoNome = data.cliente_privato_nome;
       let clientePrivatoCognome = data.cliente_privato_cognome;
@@ -628,6 +635,21 @@ export const ServizioCreaPage = ({
         }
       }
 
+      // Determina lo stato in base al ruolo e alla modalità
+      let statoServizio = "da_assegnare"; // Default
+      if (mode === 'create') {
+        if (userProfile?.role === 'cliente') {
+          // I clienti creano servizi con stato "richiesta_cliente"
+          statoServizio = "richiesta_cliente";
+        } else {
+          // Admin e soci creano servizi con stato "da_assegnare"
+          statoServizio = "da_assegnare";
+        }
+      } else {
+        // In modalità edit, mantieni lo stato esistente
+        statoServizio = initialData?.stato || "da_assegnare";
+      }
+
       const servizioData = {
         tipo_cliente: data.tipo_cliente,
         created_by: user.id,
@@ -649,7 +671,7 @@ export const ServizioCreaPage = ({
         indirizzo_destinazione: data.indirizzo_destinazione,
         citta_destinazione: data.citta_destinazione || null,
         metodo_pagamento: data.metodo_pagamento,
-        stato: mode === 'create' ? "da_assegnare" : initialData?.stato || "da_assegnare",
+        stato: statoServizio,
         assegnato_a: data.assegnato_a || null,
         conducente_esterno: data.conducente_esterno,
         conducente_esterno_id: data.conducente_esterno ? data.conducente_esterno_id : null,

@@ -50,7 +50,7 @@ export function MobileFirstServiziContent({
 }: MobileFirstServiziContentProps) {
   const { aziende } = useAziende();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<string>('da_assegnare');
+  const [activeTab, setActiveTab] = useState<string>('richiesta_cliente');
   const [searchText, setSearchText] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<ServiziFiltersState>({
@@ -111,6 +111,8 @@ export function MobileFirstServiziContent({
 
   // Count servizi by status for tab badges
   const statusCounts = {
+    richiesta_cliente: serviziByStatus.richiesta_cliente?.length || 0,
+    bozza: serviziByStatus.bozza?.length || 0,
     da_assegnare: serviziByStatus.da_assegnare.length,
     assegnato: serviziByStatus.assegnato.length,
     completato: serviziByStatus.completato.length,
@@ -251,6 +253,8 @@ export function MobileFirstServiziContent({
         <div className="bg-card border-b -mx-4">
           <MobileFirstTabs
             tabs={[
+              { id: 'richiesta_cliente', label: 'Richieste Clienti', count: statusCounts.richiesta_cliente },
+              { id: 'bozza', label: 'Bozze', count: statusCounts.bozza },
               { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
               { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
               { id: 'completato', label: 'Completati', count: statusCounts.completato },
