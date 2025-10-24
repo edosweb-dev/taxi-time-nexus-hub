@@ -806,7 +806,7 @@ export const ServizioCreaPage = ({
               )}
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className={isVeloce ? "grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"}>
               {watchTipoCliente === 'azienda' ? (
                 <>
               {/* Azienda */}
@@ -1586,6 +1586,7 @@ export const ServizioCreaPage = ({
           )}
 
           {/* SEZIONE 6: Note */}
+          {(isVeloce || !isVeloce) && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Info className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1603,6 +1604,7 @@ export const ServizioCreaPage = ({
               />
             </div>
           </Card>
+          )}
 
           {/* SEZIONE 7: Email Notifiche - Solo per aziende e non in modalità veloce */}
           {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && (
