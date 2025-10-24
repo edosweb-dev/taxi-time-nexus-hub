@@ -47,8 +47,49 @@ import { ClientePrivatoFields } from "@/components/servizi/form-fields/ClientePr
 import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePrivato";
 import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
+// Schema per modalità veloce - solo azienda obbligatoria
+const servizioSchemaVeloce = z.object({
+  tipo_cliente: z.literal('azienda'),
+  azienda_id: z.string().min(1, "Seleziona un'azienda"),
+  referente_id: z.string().optional().nullable(),
+  data_servizio: z.string().optional(),
+  orario_servizio: z.string().optional(),
+  note: z.string().optional().nullable(),
+  // Tutti gli altri campi opzionali
+  cliente_privato_id: z.string().optional().nullable(),
+  cliente_privato_nome: z.string().optional(),
+  cliente_privato_cognome: z.string().optional(),
+  cliente_privato_email: z.string().optional(),
+  cliente_privato_telefono: z.string().optional(),
+  cliente_privato_indirizzo: z.string().optional(),
+  cliente_privato_citta: z.string().optional(),
+  cliente_privato_note: z.string().optional(),
+  salva_cliente_anagrafica: z.boolean().default(false),
+  numero_commessa: z.string().optional().nullable(),
+  citta_presa: z.string().optional().nullable(),
+  citta_destinazione: z.string().optional().nullable(),
+  indirizzo_presa: z.string().optional(),
+  indirizzo_destinazione: z.string().optional(),
+  metodo_pagamento: z.string().optional(),
+  assegnato_a: z.string().optional().nullable(),
+  conducente_esterno: z.boolean().default(false),
+  conducente_esterno_id: z.string().optional().nullable(),
+  veicolo_id: z.string().optional().nullable(),
+  ore_effettive: z.string().optional().nullable(),
+  ore_fatturate: z.string().optional().nullable(),
+  incasso_previsto: z.number().optional().nullable(),
+  iva: z.number().optional(),
+  importo_totale_calcolato: z.number().optional().nullable(),
+  applica_provvigione: z.boolean().default(false),
+  consegna_contanti_a: z.string().optional().nullable(),
+  passeggeri_ids: z.array(z.string()).default([]),
+  email_notifiche_ids: z.array(z.string()).default([]),
+  usa_indirizzo_passeggero_partenza: z.boolean().optional(),
+  usa_indirizzo_passeggero_destinazione: z.boolean().optional(),
+});
+
 // Schema validazione completo
-const servizioSchema = z.object({
+const servizioSchemaCompleto = z.object({
   // Tipo cliente
   tipo_cliente: z.enum(['azienda', 'privato'], {
     required_error: "Seleziona il tipo di cliente"
@@ -117,7 +158,7 @@ const servizioSchema = z.object({
   path: ["cliente_privato_nome"]
 });
 
-type ServizioFormData = z.infer<typeof servizioSchema>;
+type ServizioFormData = z.infer<typeof servizioSchemaCompleto>;
 
 interface ServizioCreaPageProps {
   mode?: 'create' | 'edit';
@@ -143,7 +184,7 @@ export const ServizioCreaPage = ({
   const [isEmailOpen, setIsEmailOpen] = useState(false);
 
   const form = useForm<ServizioFormData>({
-    resolver: zodResolver(servizioSchema),
+    resolver: zodResolver(isVeloce ? servizioSchemaVeloce : servizioSchemaCompleto),
     defaultValues: {
       tipo_cliente: 'azienda',
       azienda_id: '',
@@ -725,7 +766,8 @@ export const ServizioCreaPage = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-full sm:max-w-7xl">
           <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
           
-          {/* SEZIONE 0: Tipo Cliente */}
+          {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce */}
+          {!isVeloce && (
           <Card className="w-full p-3 sm:p-4 md:p-6 bg-muted/30">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -751,6 +793,7 @@ export const ServizioCreaPage = ({
               )}
             />
           </Card>
+          )}
 
           {/* SEZIONE 1: Azienda e Contatto (o Cliente Privato) */}
           <Card className="w-full p-3 sm:p-4 md:p-6">
@@ -835,7 +878,7 @@ export const ServizioCreaPage = ({
               {/* Data Servizio */}
               <div className="space-y-1.5 sm:space-y-2">
                 <Label htmlFor="data_servizio" className="font-medium">
-                  Data Servizio <span className="text-destructive">*</span>
+                  Data Servizio {!isVeloce && <span className="text-destructive">*</span>}
                 </Label>
                 <Input
                   id="data_servizio"
@@ -853,7 +896,7 @@ export const ServizioCreaPage = ({
               {/* Orario Servizio */}
               <div className="space-y-1.5 sm:space-y-2">
                 <Label htmlFor="orario_servizio" className="font-medium">
-                  Orario <span className="text-destructive">*</span>
+                  Orario {!isVeloce && <span className="text-destructive">*</span>}
                 </Label>
                 <Input
                   id="orario_servizio"
@@ -868,7 +911,8 @@ export const ServizioCreaPage = ({
                 )}
               </div>
 
-              {/* Numero Commessa */}
+              {/* Numero Commessa - nascosto in modalità veloce */}
+              {!isVeloce && (
               <div className="space-y-1.5 sm:space-y-2">
                 <Label htmlFor="numero_commessa" className="font-medium">Numero Commessa</Label>
                 <Input
@@ -878,6 +922,7 @@ export const ServizioCreaPage = ({
                   {...form.register("numero_commessa")}
                 />
               </div>
+              )}
                 </>
               ) : null}
             </div>
@@ -1132,7 +1177,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 3: Percorso */}
+          {/* SEZIONE 3: Percorso - nascosto in modalità veloce */}
+          {!isVeloce && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1315,6 +1361,7 @@ export const ServizioCreaPage = ({
               </div>
             </div>
           </Card>
+          )}
 
           {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce */}
           {!isVeloce && (
