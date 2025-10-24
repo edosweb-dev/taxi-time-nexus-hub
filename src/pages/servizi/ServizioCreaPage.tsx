@@ -46,6 +46,7 @@ import {
 import { ClientePrivatoFields } from "@/components/servizi/form-fields/ClientePrivatoFields";
 import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePrivato";
 import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { AziendaSelectField } from "@/components/servizi/AziendaSelectField";
 
 // Schema per modalità veloce - solo azienda obbligatoria
 const servizioSchemaVeloce = z.object({
@@ -809,44 +810,7 @@ export const ServizioCreaPage = ({
               {watchTipoCliente === 'azienda' ? (
                 <>
               {/* Azienda */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="azienda_id" className="font-medium">
-                  Azienda <span className="text-destructive">*</span>
-                </Label>
-                <Controller
-                  name="azienda_id"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="text-base">
-                        <SelectValue placeholder="Seleziona azienda" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {isLoadingAziende ? (
-                          <SelectItem value="loading" disabled>
-                            Caricamento...
-                          </SelectItem>
-                        ) : aziende?.length === 0 ? (
-                          <SelectItem value="empty" disabled>
-                            Nessuna azienda trovata
-                          </SelectItem>
-                        ) : (
-                          aziende?.map((azienda) => (
-                            <SelectItem key={azienda.id} value={azienda.id}>
-                              {azienda.nome}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.azienda_id && (
-                  <p className="text-sm text-destructive">
-                    {errors.azienda_id.message}
-                  </p>
-                )}
-              </div>
+              <AziendaSelectField />
 
               {/* Referente */}
               <div className="space-y-1.5 sm:space-y-2">
