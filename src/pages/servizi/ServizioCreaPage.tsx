@@ -506,6 +506,9 @@ export const ServizioCreaPage = ({
         salva_in_database: true,
       });
 
+      // Espandi la sezione passeggeri su mobile
+      setIsPasseggeriOpen(true);
+
       toast.success("Passeggero aggiunto!");
     } catch (error) {
       toast.error("Errore nella creazione del passeggero");
