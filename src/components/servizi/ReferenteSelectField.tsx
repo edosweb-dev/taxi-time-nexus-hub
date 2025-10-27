@@ -79,6 +79,12 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
     if (aziendaChanged) {
       console.log('[ReferenteSelectField] Azienda changed - checking if referente is valid');
       
+      // ✅ FIX: Non validare se referenti non ancora caricati
+      if (isLoading || referenti.length === 0) {
+        console.log('[ReferenteSelectField] Referenti not loaded yet - skipping validation');
+        return;
+      }
+      
       if (currentReferenteId && referenti.length > 0) {
         const referenteExists = referenti.some(r => r.id === currentReferenteId);
         console.log('[ReferenteSelectField] Referente exists in new azienda:', referenteExists);
