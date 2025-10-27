@@ -24,9 +24,10 @@ export default function ModificaServizioPage() {
       
       if (error) throw error;
       
-      console.log('[ModificaServizioPage] Query result:', {
+      console.log('[ModificaServizioPage] ✅ Query result:', {
         servizio_id: data?.id,
         referente_id: data?.referente_id,
+        referente_id_type: typeof data?.referente_id,
         azienda_id: data?.azienda_id,
         has_servizio: !!data,
         all_keys: data ? Object.keys(data) : []

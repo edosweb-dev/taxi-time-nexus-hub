@@ -28,6 +28,14 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   const currentReferenteId = form.watch('referente_id');
   const previousAziendaIdRef = useRef<string | null>(null);
   const isFirstRenderRef = useRef(true);
+  
+  console.log('[ReferenteSelectField] 🟡 Component render:', {
+    currentReferenteId,
+    currentReferenteId_type: typeof currentReferenteId,
+    aziendaId,
+    aziendaId_type: typeof aziendaId,
+    isFirstRender: isFirstRenderRef.current
+  });
 
   const { data: referenti = [], isLoading } = useQuery({
     queryKey: ['referenti', aziendaId],
