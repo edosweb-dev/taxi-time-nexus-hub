@@ -435,6 +435,14 @@ export const ServizioCreaPage = ({
     enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
   });
 
+
+  // Auto-espandi sezione passeggeri su mobile se ci sono passeggeri disponibili
+  useEffect(() => {
+    if (passeggeri && passeggeri.length > 0) {
+      setIsPasseggeriOpen(true);
+    }
+  }, [passeggeri]);
+
   // Passeggero selezionato per indirizzo (usa useMemo per performance)
   const watchPasseggeriIds = form.watch("passeggeri_ids");
   const passeggeroSelezionato = useMemo(() => {
