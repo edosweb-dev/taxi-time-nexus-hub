@@ -968,24 +968,74 @@ export const ServizioCreaPage = ({
           {/* SEZIONE 2: Passeggeri - Solo per aziende e non in modalità veloce */}
           {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
-            <div className="space-y-3 mb-4">
-              {/* Header con toggle collapsible */}
-              <button
-                type="button"
-                onClick={() => setIsPasseggeriOpen(!isPasseggeriOpen)}
-                className="flex items-center justify-between w-full text-left sm:cursor-default sm:pointer-events-none"
-              >
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <h2 className="text-base sm:text-lg font-semibold">Passeggeri (Opzionale)</h2>
-                </div>
-                {isPasseggeriOpen ? (
-                  <ChevronUp className="h-4 w-4 sm:hidden" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 sm:hidden" />
-                )}
-              </button>
-              
+            {/* Header con toggle collapsible */}
+            <button
+              type="button"
+              onClick={() => setIsPasseggeriOpen(!isPasseggeriOpen)}
+              className="flex items-center justify-between w-full text-left mb-4 sm:cursor-default sm:pointer-events-none"
+            >
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <h2 className="text-base sm:text-lg font-semibold">Passeggeri (Opzionale)</h2>
+              </div>
+              {isPasseggeriOpen ? (
+                <ChevronUp className="h-4 w-4 sm:hidden" />
+              ) : (
+                <ChevronDown className="h-4 w-4 sm:hidden" />
+              )}
+            </button>
+            
+            {/* Contenuto collapsible */}
+            <div className={`space-y-4 ${isPasseggeriOpen ? 'block' : 'hidden'} sm:block`}>
+              {/* Lista Passeggeri Esistenti */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="font-medium">Seleziona Passeggeri</Label>
+                <Controller
+                  name="passeggeri_ids"
+                  control={form.control}
+                  render={({ field }) => (
+                    <div className="border rounded-md p-3 sm:p-4 space-y-2 max-h-60 overflow-y-auto">
+                      {!watchAziendaId ? (
+                        <p className="text-sm text-muted-foreground">
+                          Seleziona prima un'azienda
+                        </p>
+                      ) : isLoadingPasseggeri ? (
+                        <p className="text-sm text-muted-foreground">
+                          ⏳ Caricamento passeggeri...
+                        </p>
+                      ) : errorPasseggeri ? (
+                        <p className="text-sm text-destructive">
+                          ❌ Errore nel caricamento dei passeggeri. Riprova.
+                        </p>
+                      ) : passeggeri?.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          Nessun passeggero disponibile. Creane uno con il pulsante qui sotto.
+                        </p>
+                      ) : (
+                        passeggeri?.map((pass) => (
+                          <div key={pass.id} className="flex items-center space-x-2 pl-0.5">
+                            <Checkbox
+                              checked={field.value.includes(pass.id)}
+                              onCheckedChange={(checked) => {
+                                const newValue = checked
+                                  ? [...field.value, pass.id]
+                                  : field.value.filter(id => id !== pass.id);
+                                field.onChange(newValue);
+                              }}
+                              className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5"
+                            />
+                            <Label className="text-sm sm:text-base font-normal cursor-pointer flex-1">
+                              {pass.nome_cognome}
+                              {pass.email && <span className="text-muted-foreground ml-1">({pass.email})</span>}
+                            </Label>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
+
               {/* Button Aggiungi Passeggero */}
               <Sheet>
                 <SheetTrigger asChild>
