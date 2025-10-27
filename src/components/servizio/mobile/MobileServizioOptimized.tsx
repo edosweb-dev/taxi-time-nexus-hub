@@ -373,10 +373,10 @@ export function MobileServizioOptimized({
             {isAdmin && (
               <MobileButton
                 variant="destructive"
-                className="flex-1"
+                className="flex-1 text-white"
                 onClick={onElimina}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4 text-white" />
                 Elimina
               </MobileButton>
             )}
