@@ -52,28 +52,28 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   useEffect(() => {
     console.log('[ReferenteSelectField] Effect - aziendaId:', aziendaId, 'previousAziendaId:', previousAziendaIdRef.current, 'currentReferenteId:', currentReferenteId, 'referenti:', referenti, 'isLoading:', isLoading, 'isFirstRender:', isFirstRenderRef.current);
     
-    // Skip during loading to avoid race condition
+    // Skip during loading to avoid race condition - NON toccare i ref!
     if (isLoading) {
       console.log('[ReferenteSelectField] Skipping - query is loading');
       return;
     }
     
-    // Skip on first render if we have an initial value (edit mode)
-    if (isFirstRenderRef.current && currentReferenteId) {
-      console.log('[ReferenteSelectField] First render with initial value - skipping reset');
-      isFirstRenderRef.current = false;
-      previousAziendaIdRef.current = aziendaId;
-      return;
-    }
-    
-    // Mark first render as complete
+    // Ora che la query è completata, controlliamo se è il first render
     if (isFirstRenderRef.current) {
+      console.log('[ReferenteSelectField] First render after loading - currentReferenteId:', currentReferenteId);
       isFirstRenderRef.current = false;
       previousAziendaIdRef.current = aziendaId;
+      
+      // Se abbiamo un valore iniziale, non fare nulla (lascialo com'è)
+      if (currentReferenteId) {
+        console.log('[ReferenteSelectField] Keeping initial referente_id');
+        return;
+      }
+      // Se non abbiamo un valore iniziale, continua normalmente
       return;
     }
     
-    // Only reset if azienda actually changed
+    // Da qui in poi gestiamo i cambiamenti di azienda
     const aziendaChanged = previousAziendaIdRef.current !== null && previousAziendaIdRef.current !== aziendaId;
     
     if (aziendaChanged) {
