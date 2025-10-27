@@ -724,7 +724,7 @@ export default function ServiziPage() {
                   <Card className="w-full p-8 text-center">
                     <p className="text-muted-foreground mb-4">Nessun servizio trovato</p>
                     <Button 
-                      onClick={() => navigate("/servizi/crea")}
+                      onClick={() => setShowModal(true)}
                       variant="outline"
                     >
                       <Plus className="h-4 w-4 mr-2" />
