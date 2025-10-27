@@ -1006,7 +1006,7 @@ export const ServizioCreaPage = ({
                   name="passeggeri_ids"
                   control={form.control}
                   render={({ field }) => (
-                    <div className="border rounded-md p-3 sm:p-4 space-y-2 max-h-60 overflow-y-auto">
+                    <div className="p-3 sm:p-4 space-y-2 max-h-60 overflow-y-auto">
                       {!watchAziendaId ? (
                         <p className="text-sm text-muted-foreground">
                           Seleziona prima un'azienda
