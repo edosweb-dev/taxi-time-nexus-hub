@@ -94,7 +94,16 @@ export function ClienteAziendaFields() {
         // Admin/Socio: Dropdown selezionabili
         <>
           <AziendaSelectField />
-          {aziendaId && <ReferenteSelectField aziendaId={aziendaId} />}
+          {aziendaId ? (
+            <ReferenteSelectField aziendaId={aziendaId} />
+          ) : (
+            <div className="space-y-2">
+              <Label>Referente (opzionale)</Label>
+              <div className="h-10 px-3 py-2 bg-muted rounded-md border flex items-center text-sm text-muted-foreground">
+                Seleziona prima un'azienda
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

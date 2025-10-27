@@ -1,5 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import {
   FormControl,
   FormField,
@@ -24,12 +25,14 @@ interface ReferenteSelectFieldProps {
 
 export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSelectFieldProps) {
   const form = useFormContext();
+  const currentReferenteId = form.watch('referente_id');
 
   const { data: referenti = [], isLoading } = useQuery({
     queryKey: ['referenti', aziendaId],
     queryFn: async () => {
       if (!aziendaId) return [];
       
+      console.log('[ReferenteSelectField] Fetching referenti for azienda:', aziendaId);
       const { data, error } = await supabase
         .from('profiles')
         .select('id, first_name, last_name')
@@ -37,27 +40,51 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
         .eq('role', 'cliente');
       
       if (error) throw error;
+      console.log('[ReferenteSelectField] Fetched referenti:', data);
       return data || [];
     },
     enabled: !!aziendaId,
   });
 
+  // Reset referente_id when azienda changes, but only if current referente doesn't belong to new azienda
+  useEffect(() => {
+    console.log('[ReferenteSelectField] Effect - aziendaId:', aziendaId, 'currentReferenteId:', currentReferenteId, 'referenti:', referenti);
+    
+    if (currentReferenteId && referenti.length > 0) {
+      const referenteExists = referenti.some(r => r.id === currentReferenteId);
+      console.log('[ReferenteSelectField] Referente exists in current azienda:', referenteExists);
+      
+      if (!referenteExists) {
+        console.log('[ReferenteSelectField] Resetting referente_id - not found in current azienda');
+        form.setValue('referente_id', '');
+        onValueChange?.('');
+      }
+    }
+  }, [aziendaId, referenti, currentReferenteId, form, onValueChange]);
+
   return (
     <FormField
       control={form.control}
       name="referente_id"
-      render={({ field }) => (
-        <FormItem className="h-full flex flex-col">
-          <FormLabel>
-            Referente (opzionale)
-          </FormLabel>
-          <Select 
-            onValueChange={(value) => {
-              field.onChange(value === 'all' ? '' : value);
-              onValueChange?.(value === 'all' ? '' : value);
-            }} 
-            value={field.value || 'all'}
-          >
+      render={({ field }) => {
+        // Determine the current value for the Select component
+        const selectValue = field.value && field.value !== '' ? field.value : 'all';
+        console.log('[ReferenteSelectField] Rendering - field.value:', field.value, 'selectValue:', selectValue);
+        
+        return (
+          <FormItem className="h-full flex flex-col">
+            <FormLabel>
+              Referente (opzionale)
+            </FormLabel>
+            <Select 
+              onValueChange={(value) => {
+                const newValue = value === 'all' ? '' : value;
+                console.log('[ReferenteSelectField] Value changing from', field.value, 'to', newValue);
+                field.onChange(newValue);
+                onValueChange?.(newValue);
+              }} 
+              value={selectValue}
+            >
             <FormControl className="flex-1">
               <SelectTrigger className="h-10">
                 <SelectValue placeholder={
@@ -85,7 +112,8 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
           </Select>
           <FormMessage />
         </FormItem>
-      )}
+        );
+      }}
     />
   );
 }
