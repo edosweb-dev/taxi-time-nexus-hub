@@ -1193,46 +1193,46 @@ export const ServizioCreaPage = ({
                     name="usa_indirizzo_passeggero_partenza"
                     control={form.control}
                     render={({ field }) => (
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-4 p-3 rounded-lg bg-muted/30">
-                        <div className="flex items-start space-x-3 flex-1">
-                          <Checkbox
-                            id="usa_indirizzo_passeggero_partenza"
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              if (checked && passeggeroSelezionato) {
-                                form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
-                                form.setValue('citta_presa', passeggeroSelezionato.localita || '');
-                              } else if (!checked) {
-                                form.setValue('indirizzo_presa', '');
-                                form.setValue('citta_presa', '');
-                              }
-                            }}
-                            disabled={!passeggeroSelezionato || !passeggeroSelezionato.indirizzo}
-                          />
-                          <div className="space-y-1 leading-none flex-1">
-                            <label 
-                              htmlFor="usa_indirizzo_passeggero_partenza" 
-                              className="text-sm font-medium cursor-pointer"
-                            >
-                              Usa indirizzo del passeggero come punto di partenza
-                            </label>
-                            {!passeggeroSelezionato && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Seleziona prima un passeggero nella sezione Passeggeri
-                              </p>
-                            )}
-                            {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
-                              <p className="text-xs text-orange-500 mt-1">
-                                ⚠️ Il passeggero "{passeggeroSelezionato.nome_cognome}" non ha un indirizzo salvato
-                              </p>
-                            )}
-                            {passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
-                              <p className="text-xs text-green-600 mt-1">
-                                ✓ {passeggeroSelezionato.nome_cognome}: {passeggeroSelezionato.indirizzo}, {passeggeroSelezionato.localita}
-                              </p>
-                            )}
-                          </div>
+                      <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
+                        <Checkbox
+                          id="usa_indirizzo_passeggero_partenza"
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked && passeggeroSelezionato) {
+                              form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
+                              form.setValue('citta_presa', passeggeroSelezionato.localita || '');
+                            } else if (!checked) {
+                              form.setValue('indirizzo_presa', '');
+                              form.setValue('citta_presa', '');
+                            }
+                          }}
+                          disabled={!passeggeroSelezionato || !passeggeroSelezionato.indirizzo}
+                          className="mt-0.5"
+                        />
+                        <div className="space-y-2 flex-1">
+                          <label 
+                            htmlFor="usa_indirizzo_passeggero_partenza" 
+                            className="text-sm font-medium cursor-pointer leading-none block"
+                          >
+                            Usa indirizzo del passeggero come punto di partenza
+                          </label>
+                          {!passeggeroSelezionato && (
+                            <p className="text-xs text-muted-foreground">
+                              Seleziona prima un passeggero nella sezione Passeggeri
+                            </p>
+                          )}
+                          {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
+                            <p className="text-xs text-destructive">
+                              ⚠️ Il passeggero "{passeggeroSelezionato.nome_cognome}" non ha un indirizzo salvato
+                            </p>
+                          )}
+                          {passeggeroSelezionato && passeggeroSelezionato.indirizzo && (
+                            <div className="text-xs bg-muted/50 p-2 rounded">
+                              <p className="font-medium">{passeggeroSelezionato.nome_cognome}</p>
+                              <p className="text-muted-foreground">{passeggeroSelezionato.indirizzo}, {passeggeroSelezionato.localita}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
