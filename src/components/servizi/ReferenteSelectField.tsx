@@ -139,15 +139,16 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
               onValueChange={(value) => {
                 const newValue = value === 'all' ? '' : value;
                 
-                // ✅ FIX: Blocca onChange('') spurio in due casi:
-                // 1. Se il valore corrente esiste nei referenti caricati
-                // 2. Se i referenti sono ancora in loading (race condition)
-                if (newValue === '' && field.value) {
-                  const isValueValid = referenti.some(r => r.id === field.value);
-                  if (isValueValid || isLoading) {
+                // ✅ FIX: Blocca onChange('') spurio durante race condition
+                // Usa currentReferenteId (form.watch) invece di field.value perché è più affidabile
+                if (newValue === '' && currentReferenteId) {
+                  // Blocca se:
+                  // 1. Referenti ancora in caricamento (race condition)
+                  // 2. Valore corrente esiste nei referenti caricati
+                  if (isLoading || referenti.some(r => r.id === currentReferenteId)) {
                     console.log('[ReferenteSelectField] ⛔ Blocking spurious onChange:', {
-                      reason: isValueValid ? 'value exists in referenti' : 'referenti still loading',
-                      currentValue: field.value,
+                      reason: isLoading ? 'referenti still loading' : 'value exists in referenti',
+                      currentReferenteId,
                       isLoading,
                       referentiCount: referenti.length
                     });
