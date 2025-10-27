@@ -138,10 +138,17 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
             <Select 
               onValueChange={(value) => {
                 const newValue = value === 'all' ? '' : value;
+                
+                // ✅ FIX: Blocca onChange('') spurio se il valore corrente è valido
+                if (newValue === '' && field.value && referenti.some(r => r.id === field.value)) {
+                  console.log('[ReferenteSelectField] ⛔ Blocking spurious onChange - current value is valid:', field.value);
+                  return;
+                }
+                
                 console.log('[ReferenteSelectField] Value changing from', field.value, 'to', newValue);
                 field.onChange(newValue);
                 onValueChange?.(newValue);
-              }} 
+              }}
               value={selectValue}
             >
             <FormControl className="flex-1">
