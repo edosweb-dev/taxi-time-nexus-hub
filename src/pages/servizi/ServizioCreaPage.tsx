@@ -47,6 +47,7 @@ import { ClientePrivatoFields } from "@/components/servizi/form-fields/ClientePr
 import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePrivato";
 import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AziendaSelectField } from "@/components/servizi/AziendaSelectField";
+import { ReferenteSelectField } from '@/components/servizi/ReferenteSelectField';
 
 // Schema per modalità veloce - solo azienda obbligatoria
 const servizioSchemaVeloce = z.object({
@@ -375,22 +376,6 @@ export const ServizioCreaPage = ({
     }
   }, [watchIncassoPrevisto, watchIva, mostraIva, form]);
 
-  // Query: Referenti
-  const { data: referenti } = useQuery({
-    queryKey: ["referenti", watchAziendaId],
-    queryFn: async () => {
-      if (!watchAziendaId) return [];
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name")
-        .eq("role", "cliente")
-        .eq("azienda_id", watchAziendaId)
-        .order("first_name");
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!watchAziendaId,
-  });
 
   // Query: Dipendenti
   const { data: dipendenti } = useQuery({
@@ -867,31 +852,7 @@ export const ServizioCreaPage = ({
               <AziendaSelectField />
 
               {/* Referente */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label className="font-medium">Referente</Label>
-                <Controller
-                  name="referente_id"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select 
-                      value={field.value || ""} 
-                      onValueChange={field.onChange}
-                      disabled={!watchAziendaId}
-                    >
-                      <SelectTrigger className="text-base">
-                        <SelectValue placeholder="Seleziona referente" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {referenti?.map((ref) => (
-                          <SelectItem key={ref.id} value={ref.id}>
-                            {ref.first_name} {ref.last_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
+              <ReferenteSelectField aziendaId={watchAziendaId || ''} />
 
               {/* Data Servizio */}
               <div className="space-y-1.5 sm:space-y-2">
