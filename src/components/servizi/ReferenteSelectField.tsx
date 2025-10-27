@@ -123,10 +123,9 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       name="referente_id"
       render={({ field }) => {
         // Determine the current value for the Select component
-        // Durante loading, mantieni il valore esistente per evitare reset spurio
-        const selectValue = isLoading && field.value 
-          ? field.value  // Mantieni valore durante loading
-          : (field.value || 'all');  // Usa logica normale dopo loading
+        // ✅ FIX MOBILE: Usa currentReferenteId invece di field.value perché è più affidabile
+        // field.value può essere out-of-sync durante i render, mentre form.watch è sempre aggiornato
+        const selectValue = currentReferenteId || 'all';
         
         console.log('[ReferenteSelectField] Rendering with:', {
           field_value: field.value,
