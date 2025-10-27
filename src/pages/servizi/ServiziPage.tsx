@@ -215,7 +215,7 @@ export default function ServiziPage() {
       {/* Card Footer: Pagamento + Importo */}
       <div className="flex justify-between items-center mt-3 pt-3 border-t">
         <span className="text-xs uppercase text-muted-foreground">
-          {servizio.metodo_pagamento}
+          {servizio.metodo_pagamento === 'da_definire' ? 'servizio veloce' : servizio.metodo_pagamento}
         </span>
         {servizio.incasso_previsto && (
           <span className="font-semibold text-primary">
