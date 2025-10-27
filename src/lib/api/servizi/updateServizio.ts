@@ -3,7 +3,21 @@ import { UpdateServizioRequest } from './types';
 
 export async function updateServizio({ servizio, passeggeri, email_notifiche }: UpdateServizioRequest) {
   try {
-    // 1. Aggiorna il servizio
+    // 1. Determina stato automatico se in bozza
+    let statoServizio = servizio.stato;
+    
+    if (servizio.stato === 'bozza') {
+      // Se ha assegnato un autista → passa ad "assegnato"
+      if (servizio.assegnato_a) {
+        statoServizio = 'assegnato';
+      }
+      // Se non ha autista assegnato → passa a "da_assegnare"
+      else {
+        statoServizio = 'da_assegnare';
+      }
+    }
+
+    // 2. Aggiorna il servizio
     const { data: servizioData, error: servizioError } = await supabase
       .from('servizi')
       .update({
@@ -27,6 +41,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
         conducente_esterno_nome: servizio.conducente_esterno_nome,
         conducente_esterno_email: servizio.conducente_esterno_email,
         conducente_esterno_id: servizio.conducente_esterno_id,
+        stato: statoServizio,
       })
       .eq('id', servizio.id)
       .select()

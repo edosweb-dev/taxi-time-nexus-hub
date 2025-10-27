@@ -54,8 +54,23 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
       }
     }
 
-    // 2. Insert servizio
-    console.log('[createServizio] Inserting servizio into database');
+    // 2. Determina stato automatico
+    let statoServizio = data.servizio.stato;
+    
+    // Se in bozza e ha assegnato un autista → passa ad "assegnato"
+    if (statoServizio === 'bozza' && data.servizio.assegnato_a) {
+      statoServizio = 'assegnato';
+    }
+    // Se in bozza ma non ha autista assegnato → passa a "da_assegnare"
+    else if (statoServizio === 'bozza' && !data.servizio.assegnato_a) {
+      statoServizio = 'da_assegnare';
+    }
+    // Se non specificato, default a "da_assegnare"
+    else if (!statoServizio) {
+      statoServizio = 'da_assegnare';
+    }
+
+    console.log('[createServizio] Inserting servizio into database with stato:', statoServizio);
     const { data: servizioData, error: servizioError } = await supabase
       .from('servizi')
       .insert({
@@ -80,7 +95,12 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         ore_effettive: data.servizio.ore_effettive,
         ore_fatturate: data.servizio.ore_fatturate,
         applica_provvigione: data.servizio.applica_provvigione,
-        stato: data.servizio.stato || 'da_assegnare',
+        assegnato_a: data.servizio.assegnato_a,
+        conducente_esterno: data.servizio.conducente_esterno,
+        conducente_esterno_nome: data.servizio.conducente_esterno_nome,
+        conducente_esterno_email: data.servizio.conducente_esterno_email,
+        conducente_esterno_id: data.servizio.conducente_esterno_id,
+        stato: statoServizio,
         created_by: userId
       })
       .select()
