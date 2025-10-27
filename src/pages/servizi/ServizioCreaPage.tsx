@@ -1205,7 +1205,6 @@ export const ServizioCreaPage = ({
                             onCheckedChange={(checked) => {
                               field.onChange(checked);
                               if (checked) {
-                                // Deseleziona automaticamente il checkbox destinazione
                                 form.setValue('usa_indirizzo_passeggero_destinazione', false);
                                 if (passeggeroSelezionato) {
                                   form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
@@ -1225,11 +1224,6 @@ export const ServizioCreaPage = ({
                             Usa indirizzo del passeggero
                           </label>
                         </div>
-                        {!passeggeroSelezionato && (
-                          <p className="text-xs text-muted-foreground ml-6">
-                            Seleziona prima un passeggero
-                          </p>
-                        )}
                         {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
                           <p className="text-xs text-destructive ml-6">
                             Il passeggero non ha un indirizzo salvato
@@ -1294,7 +1288,6 @@ export const ServizioCreaPage = ({
                             onCheckedChange={(checked) => {
                               field.onChange(checked);
                               if (checked) {
-                                // Deseleziona automaticamente il checkbox partenza
                                 form.setValue('usa_indirizzo_passeggero_partenza', false);
                                 if (passeggeroSelezionato) {
                                   form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
@@ -1314,11 +1307,6 @@ export const ServizioCreaPage = ({
                             Usa indirizzo del passeggero
                           </label>
                         </div>
-                        {!passeggeroSelezionato && (
-                          <p className="text-xs text-muted-foreground ml-6">
-                            Seleziona prima un passeggero
-                          </p>
-                        )}
                         {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
                           <p className="text-xs text-destructive ml-6">
                             Il passeggero non ha un indirizzo salvato
