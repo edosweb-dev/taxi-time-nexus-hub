@@ -1239,7 +1239,7 @@ export const ServizioCreaPage = ({
                   />
                 )}
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4">
                   <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="citta_presa" className="font-medium">Città</Label>
                     <Input
@@ -1322,7 +1322,7 @@ export const ServizioCreaPage = ({
                   />
                 )}
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4">
                   <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="citta_destinazione" className="font-medium">Città</Label>
                     <Input
