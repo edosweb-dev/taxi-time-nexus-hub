@@ -1215,7 +1215,7 @@ export const ServizioCreaPage = ({
                               htmlFor="usa_indirizzo_passeggero_partenza" 
                               className="text-sm font-medium cursor-pointer"
                             >
-                              🏠 Usa indirizzo del passeggero come punto di partenza
+                              Usa indirizzo del passeggero come punto di partenza
                             </label>
                             {!passeggeroSelezionato && (
                               <p className="text-xs text-muted-foreground mt-1">
