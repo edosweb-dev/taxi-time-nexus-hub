@@ -23,6 +23,15 @@ export default function ModificaServizioPage() {
         .single();
       
       if (error) throw error;
+      
+      console.log('[ModificaServizioPage] Query result:', {
+        servizio_id: data?.id,
+        referente_id: data?.referente_id,
+        azienda_id: data?.azienda_id,
+        has_servizio: !!data,
+        all_keys: data ? Object.keys(data) : []
+      });
+      
       return data;
     },
     enabled: !!id,

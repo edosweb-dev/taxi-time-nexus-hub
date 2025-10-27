@@ -231,7 +231,15 @@ export const ServizioCreaPage = ({
           supabase.from('servizi_email_notifiche').select('email_notifica_id').eq('servizio_id', servizioId)
         ]);
 
-        console.log('[ServizioCreaPage] Loading edit mode - referente_id:', initialData.referente_id);
+        console.log('[ServizioCreaPage] Loading edit mode:', {
+          referente_id: initialData.referente_id,
+          referente_id_type: typeof initialData.referente_id,
+          referente_id_is_null: initialData.referente_id === null,
+          referente_id_is_undefined: initialData.referente_id === undefined,
+          azienda_id: initialData.azienda_id,
+          mode: mode,
+          servizioId: servizioId
+        });
         
         form.reset({
           tipo_cliente: initialData.tipo_cliente || 'azienda',
@@ -268,6 +276,13 @@ export const ServizioCreaPage = ({
           passeggeri_ids: passResult.data?.map(r => r.passeggero_id) || [],
           email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
           note: initialData.note || null,
+        });
+        
+        console.log('[ServizioCreaPage] Form reset completed:', {
+          referente_id_form_value: form.getValues('referente_id'),
+          referente_id_watch: form.watch('referente_id'),
+          azienda_id_form_value: form.getValues('azienda_id'),
+          all_form_values_keys: Object.keys(form.getValues())
         });
       };
       loadData();

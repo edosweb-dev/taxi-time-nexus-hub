@@ -110,7 +110,17 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       render={({ field }) => {
         // Determine the current value for the Select component - simplified logic
         const selectValue = field.value || 'all';
-        console.log('[ReferenteSelectField] Rendering - field.value:', field.value, 'selectValue:', selectValue);
+        
+        console.log('[ReferenteSelectField] Rendering with:', {
+          field_value: field.value,
+          field_value_type: typeof field.value,
+          selectValue: selectValue,
+          currentReferenteId: currentReferenteId,
+          aziendaId: aziendaId,
+          referentiCount: referenti?.length || 0,
+          isLoading: isLoading,
+          isFirstRender: isFirstRenderRef.current
+        });
         
         return (
           <FormItem className="h-full flex flex-col">
