@@ -1,6 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   FormControl,
   FormField,
@@ -26,6 +26,8 @@ interface ReferenteSelectFieldProps {
 export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSelectFieldProps) {
   const form = useFormContext();
   const currentReferenteId = form.watch('referente_id');
+  const previousAziendaIdRef = useRef<string | null>(null);
+  const isFirstRenderRef = useRef(true);
 
   const { data: referenti = [], isLoading } = useQuery({
     queryKey: ['referenti', aziendaId],
@@ -48,19 +50,50 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
 
   // Reset referente_id when azienda changes, but only if current referente doesn't belong to new azienda
   useEffect(() => {
-    console.log('[ReferenteSelectField] Effect - aziendaId:', aziendaId, 'currentReferenteId:', currentReferenteId, 'referenti:', referenti);
+    console.log('[ReferenteSelectField] Effect - aziendaId:', aziendaId, 'previousAziendaId:', previousAziendaIdRef.current, 'currentReferenteId:', currentReferenteId, 'referenti:', referenti, 'isLoading:', isLoading, 'isFirstRender:', isFirstRenderRef.current);
     
-    if (currentReferenteId && referenti.length > 0) {
-      const referenteExists = referenti.some(r => r.id === currentReferenteId);
-      console.log('[ReferenteSelectField] Referente exists in current azienda:', referenteExists);
+    // Skip during loading to avoid race condition
+    if (isLoading) {
+      console.log('[ReferenteSelectField] Skipping - query is loading');
+      return;
+    }
+    
+    // Skip on first render if we have an initial value (edit mode)
+    if (isFirstRenderRef.current && currentReferenteId) {
+      console.log('[ReferenteSelectField] First render with initial value - skipping reset');
+      isFirstRenderRef.current = false;
+      previousAziendaIdRef.current = aziendaId;
+      return;
+    }
+    
+    // Mark first render as complete
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      previousAziendaIdRef.current = aziendaId;
+      return;
+    }
+    
+    // Only reset if azienda actually changed
+    const aziendaChanged = previousAziendaIdRef.current !== null && previousAziendaIdRef.current !== aziendaId;
+    
+    if (aziendaChanged) {
+      console.log('[ReferenteSelectField] Azienda changed - checking if referente is valid');
       
-      if (!referenteExists) {
-        console.log('[ReferenteSelectField] Resetting referente_id - not found in current azienda');
-        form.setValue('referente_id', '');
-        onValueChange?.('');
+      if (currentReferenteId && referenti.length > 0) {
+        const referenteExists = referenti.some(r => r.id === currentReferenteId);
+        console.log('[ReferenteSelectField] Referente exists in new azienda:', referenteExists);
+        
+        if (!referenteExists) {
+          console.log('[ReferenteSelectField] Resetting referente_id - not found in new azienda');
+          form.setValue('referente_id', '');
+          onValueChange?.('');
+        }
       }
     }
-  }, [aziendaId, referenti, currentReferenteId, form, onValueChange]);
+    
+    // Update previous azienda reference
+    previousAziendaIdRef.current = aziendaId;
+  }, [aziendaId, referenti, currentReferenteId, form, onValueChange, isLoading]);
 
   return (
     <FormField
