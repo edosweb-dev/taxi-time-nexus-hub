@@ -1764,7 +1764,7 @@ export const ServizioCreaPage = ({
         </div>
 
         {/* Footer Buttons - Sticky Mobile */}
-        <div className="sticky inset-x-0 bottom-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-3 sm:pb-0 sm:relative sm:bg-transparent z-10 shadow-lg sm:shadow-none">
+        <div className="sticky inset-x-0 bottom-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-20 sm:pb-0 sm:relative sm:bg-transparent z-10 shadow-lg sm:shadow-none">
           <div className="px-3 sm:px-0">
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
             <Button
