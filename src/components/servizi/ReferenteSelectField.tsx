@@ -95,13 +95,15 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
     previousAziendaIdRef.current = aziendaId;
   }, [aziendaId, referenti, currentReferenteId, form, onValueChange, isLoading]);
 
+  console.log('[ReferenteSelectField] Render - aziendaId:', aziendaId, 'field.value:', currentReferenteId, 'referenti.length:', referenti.length);
+
   return (
     <FormField
       control={form.control}
       name="referente_id"
       render={({ field }) => {
-        // Determine the current value for the Select component
-        const selectValue = field.value && field.value !== '' ? field.value : 'all';
+        // Determine the current value for the Select component - simplified logic
+        const selectValue = field.value || 'all';
         console.log('[ReferenteSelectField] Rendering - field.value:', field.value, 'selectValue:', selectValue);
         
         return (

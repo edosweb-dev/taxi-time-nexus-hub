@@ -231,6 +231,8 @@ export const ServizioCreaPage = ({
           supabase.from('servizi_email_notifiche').select('email_notifica_id').eq('servizio_id', servizioId)
         ]);
 
+        console.log('[ServizioCreaPage] Loading edit mode - referente_id:', initialData.referente_id);
+        
         form.reset({
           tipo_cliente: initialData.tipo_cliente || 'azienda',
           azienda_id: initialData.azienda_id || '',
