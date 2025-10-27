@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Calendar, FileText, Clock, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { InserimentoServizioModal } from '@/components/servizi/InserimentoServizioModal';
 
 interface QuickAction {
   title: string;
@@ -15,6 +17,7 @@ interface QuickAction {
 export function QuickActions() {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const [showModal, setShowModal] = useState(false);
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
@@ -22,7 +25,7 @@ export function QuickActions() {
     {
       title: 'Nuovo Servizio',
       icon: FileText,
-      action: () => navigate('/servizi/crea'),
+      action: () => setShowModal(true),
       variant: 'primary',
     },
     {
@@ -59,32 +62,39 @@ export function QuickActions() {
   };
 
   return (
-    <div className="md:hidden"> {/* Solo su mobile */}
-      <Card className="border-dashed border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base text-center text-primary font-semibold">
-            Azioni Rapide
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3">
-            {quickActions.map((action, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                className={cn(
-                  "h-16 flex flex-col gap-1.5 border-dashed transition-all duration-200 active:scale-95",
-                  getVariantStyles(action.variant)
-                )}
-                onClick={action.action}
-              >
-                <action.icon className="h-5 w-5" />
-                <span className="text-xs font-medium">{action.title}</span>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <div className="md:hidden"> {/* Solo su mobile */}
+        <Card className="border-dashed border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base text-center text-primary font-semibold">
+              Azioni Rapide
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              {quickActions.map((action, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  className={cn(
+                    "h-16 flex flex-col gap-1.5 border-dashed transition-all duration-200 active:scale-95",
+                    getVariantStyles(action.variant)
+                  )}
+                  onClick={action.action}
+                >
+                  <action.icon className="h-5 w-5" />
+                  <span className="text-xs font-medium">{action.title}</span>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <InserimentoServizioModal 
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      />
+    </>
   );
 }

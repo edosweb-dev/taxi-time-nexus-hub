@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { InserimentoServizioModal } from '@/components/servizi/InserimentoServizioModal';
 import { 
   Users, 
   Building2, 
@@ -134,6 +135,7 @@ function QuickActionCard({
 export default function DashboardPage() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
 
   const fullName = profile?.first_name && profile?.last_name
     ? `${profile.first_name} ${profile.last_name}`
@@ -217,7 +219,7 @@ export default function DashboardPage() {
       title: 'Nuovo Servizio',
       description: 'Crea una nuova prenotazione',
       icon: Zap,
-      onClick: () => navigate('/servizi/crea')
+      onClick: () => setShowModal(true)
     }
   ];
 
@@ -324,6 +326,11 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      
+      <InserimentoServizioModal 
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </MainLayout>
   );
 }
