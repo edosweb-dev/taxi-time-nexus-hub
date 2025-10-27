@@ -28,6 +28,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   const currentReferenteId = form.watch('referente_id');
   const previousAziendaIdRef = useRef<string | null>(null);
   const isFirstRenderRef = useRef(true);
+  const previousReferenteIdRef = useRef<string | null>(null);
   
   console.log('[ReferenteSelectField] 🟡 Component render:', {
     currentReferenteId,
@@ -109,6 +110,11 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
     previousAziendaIdRef.current = aziendaId;
   }, [aziendaId, referenti, currentReferenteId, form, onValueChange, isLoading]);
 
+  // Salva il valore corrente per il prossimo render
+  useEffect(() => {
+    previousReferenteIdRef.current = currentReferenteId;
+  }, [currentReferenteId]);
+
   console.log('[ReferenteSelectField] Render - aziendaId:', aziendaId, 'field.value:', currentReferenteId, 'referenti.length:', referenti.length);
 
   return (
@@ -140,15 +146,17 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
                 const newValue = value === 'all' ? '' : value;
                 
                 // ✅ FIX: Blocca onChange('') spurio durante race condition
-                // Usa currentReferenteId (form.watch) invece di field.value perché è più affidabile
-                if (newValue === '' && currentReferenteId) {
+                // Usa previousReferenteIdRef (valore catturato prima del render) perché currentReferenteId potrebbe già essere cambiato
+                const previousReferenteId = previousReferenteIdRef.current;
+                
+                if (newValue === '' && previousReferenteId) {
                   // Blocca se:
                   // 1. Referenti ancora in caricamento (race condition)
-                  // 2. Valore corrente esiste nei referenti caricati
-                  if (isLoading || referenti.some(r => r.id === currentReferenteId)) {
+                  // 2. Valore precedente esiste nei referenti caricati
+                  if (isLoading || referenti.some(r => r.id === previousReferenteId)) {
                     console.log('[ReferenteSelectField] ⛔ Blocking spurious onChange:', {
                       reason: isLoading ? 'referenti still loading' : 'value exists in referenti',
-                      currentReferenteId,
+                      previousReferenteId,
                       isLoading,
                       referentiCount: referenti.length
                     });
