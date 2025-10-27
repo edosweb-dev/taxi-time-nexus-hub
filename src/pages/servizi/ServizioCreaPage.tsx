@@ -1169,58 +1169,6 @@ export const ServizioCreaPage = ({
                 </SheetContent>
               </Sheet>
             </div>
-            
-            {/* Contenuto collapsible */}
-            <div className={`${isPasseggeriOpen ? 'block' : 'hidden'} sm:block`}>
-              {/* Lista Passeggeri Esistenti */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label className="font-medium">Seleziona Passeggeri</Label>
-                <Controller
-                  name="passeggeri_ids"
-                  control={form.control}
-                  render={({ field }) => (
-                    <div className="border rounded-md p-4 space-y-2 max-h-60 overflow-y-auto">
-                      {!watchAziendaId ? (
-                        <p className="text-sm text-muted-foreground">
-                          Seleziona prima un'azienda
-                        </p>
-                      ) : isLoadingPasseggeri ? (
-                        <p className="text-sm text-muted-foreground">
-                          ⏳ Caricamento passeggeri...
-                        </p>
-                      ) : errorPasseggeri ? (
-                        <p className="text-sm text-destructive">
-                          ❌ Errore nel caricamento dei passeggeri. Riprova.
-                        </p>
-                      ) : passeggeri?.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">
-                          Nessun passeggero disponibile. Creane uno con il pulsante sopra.
-                        </p>
-                      ) : (
-                        passeggeri?.map((pass) => (
-                          <div key={pass.id} className="flex items-center space-x-2 pl-0.5">
-                            <Checkbox
-                              checked={field.value.includes(pass.id)}
-                              onCheckedChange={(checked) => {
-                                const newValue = checked
-                                  ? [...field.value, pass.id]
-                                  : field.value.filter(id => id !== pass.id);
-                                field.onChange(newValue);
-                              }}
-                              className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5"
-                            />
-                            <Label className="text-sm sm:text-base font-normal cursor-pointer">
-                              {pass.nome_cognome}
-                              {pass.email && ` (${pass.email})`}
-                            </Label>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                />
-              </div>
-            </div>
           </Card>
           )}
 
