@@ -642,8 +642,8 @@ export const ServizioCreaPage = ({
           // I clienti creano servizi con stato "richiesta_cliente"
           statoServizio = "richiesta_cliente";
         } else {
-          // Admin e soci creano servizi con stato "da_assegnare"
-          statoServizio = "da_assegnare";
+          // Admin e soci: bozza per inserimento veloce, da_assegnare per completo
+          statoServizio = isVeloce ? "bozza" : "da_assegnare";
         }
       } else {
         // In modalità edit, mantieni lo stato esistente
