@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { MobileFirstServiziContent } from '@/components/servizi/mobile-first/MobileFirstServiziContent';
 import { ServiziDialogManager } from '@/components/servizi/page/ServiziDialogManager';
+import { InserimentoServizioModal } from '@/components/servizi/InserimentoServizioModal';
 import { useServiziPage } from '@/hooks/useServiziPage';
 import { Servizio } from '@/lib/types/servizi';
 
@@ -15,8 +16,9 @@ export default function MobileFirstServiziPage() {
     isMobile,
     refetch,
     handleNavigateToDetail,
-    handleNavigateToNewServizio,
   } = useServiziPage();
+
+  const [showModal, setShowModal] = useState(false);
 
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssegnazioneDialog, setShowAssegnazioneDialog] = useState(false);
@@ -56,11 +58,16 @@ export default function MobileFirstServiziPage() {
           error={error}
           isAdminOrSocio={isAdminOrSocio}
           onNavigateToDetail={handleNavigateToDetail}
-          onNavigateToNewServizio={handleNavigateToNewServizio}
+          onNavigateToNewServizio={() => setShowModal(true)}
           onSelectServizio={handleSelectServizio}
           onCompleta={handleCompleta}
           onFirma={handleFirma}
           allServizi={servizi}
+        />
+        
+        <InserimentoServizioModal 
+          open={showModal}
+          onClose={() => setShowModal(false)}
         />
         
         <ServiziDialogManager

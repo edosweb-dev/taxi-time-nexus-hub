@@ -21,16 +21,6 @@ export function useServiziPage() {
     navigate(`/servizi/${id}`);
   };
 
-  const handleNavigateToNewServizio = () => {
-    // If user is cliente, go directly to complete form
-    if (profile?.role === 'cliente') {
-      navigate("/servizi/crea");
-    } else {
-      // For admin/socio, go to new page
-      navigate("/servizi/crea");
-    }
-  };
-
   return {
     servizi,
     isLoading,
@@ -40,7 +30,6 @@ export function useServiziPage() {
     isMobile,
     refetch,
     handleNavigateToDetail,
-    handleNavigateToNewServizio,
     profile,
   };
 }

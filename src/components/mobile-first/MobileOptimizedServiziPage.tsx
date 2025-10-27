@@ -18,7 +18,6 @@ export function MobileOptimizedServiziPage() {
     isMobile,
     refetch,
     handleNavigateToDetail,
-    handleNavigateToNewServizio,
   } = useServiziPage();
 
   const [activeTab, setActiveTab] = useState('tutti');

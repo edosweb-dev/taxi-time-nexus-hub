@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { InserimentoServizioModal } from '@/components/servizi/InserimentoServizioModal';
 import { useServiziPage } from '@/hooks/useServiziPage';
 import { useAziende } from '@/hooks/useAziende';
 import { format } from 'date-fns';
@@ -20,12 +21,12 @@ export default function MobileServiziPage() {
     users,
     isAdminOrSocio,
     handleNavigateToDetail,
-    handleNavigateToNewServizio,
   } = useServiziPage();
 
   const { aziende } = useAziende();
   const [searchText, setSearchText] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('tutti');
+  const [showModal, setShowModal] = useState(false);
 
   // Filtra i servizi per testo di ricerca
   const filteredServizi = servizi.filter(servizio => {
@@ -124,7 +125,7 @@ export default function MobileServiziPage() {
             <Button
               size="sm"
               variant="secondary"
-              onClick={handleNavigateToNewServizio}
+              onClick={() => setShowModal(true)}
               className="bg-white text-primary hover:bg-gray-100 text-xs px-2 py-1 h-7"
             >
               <Plus className="h-3 w-3 mr-1" />
@@ -133,6 +134,12 @@ export default function MobileServiziPage() {
           </div>
         )}
       </div>
+
+      {/* Inserimento Servizio Modal */}
+      <InserimentoServizioModal 
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      />
 
       {/* Ricerca e filtri */}
       <div className="sticky top-16 z-40 bg-white border-b px-3 py-2 space-y-2">
