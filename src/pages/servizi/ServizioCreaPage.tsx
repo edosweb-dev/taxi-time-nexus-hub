@@ -787,7 +787,7 @@ export const ServizioCreaPage = ({
       {/* Form */}
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-full sm:max-w-7xl">
-          <div className="w-full space-y-4 sm:space-y-6 pb-20 sm:pb-0">
+          <div className="w-full space-y-4 sm:space-y-6">
           
           {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce */}
           {!isVeloce && (
