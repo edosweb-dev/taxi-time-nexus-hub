@@ -217,6 +217,10 @@ export const ServizioCreaPage = ({
   });
 
   const { formState: { errors } } = form;
+  
+  // Watch checkbox values for exclusive logic
+  const watchUsaIndirizzoPartenza = form.watch('usa_indirizzo_passeggero_partenza');
+  const watchUsaIndirizzoDestinazione = form.watch('usa_indirizzo_passeggero_destinazione');
 
   // Pre-popola form in edit mode
   useEffect(() => {
@@ -1188,7 +1192,7 @@ export const ServizioCreaPage = ({
                 </h3>
                 
                 {/* Checkbox Usa Indirizzo Passeggero - Partenza */}
-                {watchTipoCliente === 'azienda' && (
+                {watchTipoCliente === 'azienda' && !watchUsaIndirizzoDestinazione && (
                   <Controller
                     name="usa_indirizzo_passeggero_partenza"
                     control={form.control}
@@ -1199,10 +1203,14 @@ export const ServizioCreaPage = ({
                           checked={field.value}
                           onCheckedChange={(checked) => {
                             field.onChange(checked);
-                            if (checked && passeggeroSelezionato) {
-                              form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
-                              form.setValue('citta_presa', passeggeroSelezionato.localita || '');
-                            } else if (!checked) {
+                            if (checked) {
+                              // Deseleziona automaticamente il checkbox destinazione
+                              form.setValue('usa_indirizzo_passeggero_destinazione', false);
+                              if (passeggeroSelezionato) {
+                                form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
+                                form.setValue('citta_presa', passeggeroSelezionato.localita || '');
+                              }
+                            } else {
                               form.setValue('indirizzo_presa', '');
                               form.setValue('citta_presa', '');
                             }
@@ -1275,7 +1283,7 @@ export const ServizioCreaPage = ({
                 </h3>
                 
                 {/* Checkbox Usa Indirizzo Passeggero - Destinazione */}
-                {watchTipoCliente === 'azienda' && (
+                {watchTipoCliente === 'azienda' && !watchUsaIndirizzoPartenza && (
                   <Controller
                     name="usa_indirizzo_passeggero_destinazione"
                     control={form.control}
@@ -1286,10 +1294,14 @@ export const ServizioCreaPage = ({
                           checked={field.value}
                           onCheckedChange={(checked) => {
                             field.onChange(checked);
-                            if (checked && passeggeroSelezionato) {
-                              form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
-                              form.setValue('citta_destinazione', passeggeroSelezionato.localita || '');
-                            } else if (!checked) {
+                            if (checked) {
+                              // Deseleziona automaticamente il checkbox partenza
+                              form.setValue('usa_indirizzo_passeggero_partenza', false);
+                              if (passeggeroSelezionato) {
+                                form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
+                                form.setValue('citta_destinazione', passeggeroSelezionato.localita || '');
+                              }
+                            } else {
                               form.setValue('indirizzo_destinazione', '');
                               form.setValue('citta_destinazione', '');
                             }
