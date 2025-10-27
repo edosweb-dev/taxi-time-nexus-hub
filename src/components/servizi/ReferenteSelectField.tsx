@@ -122,8 +122,11 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       control={form.control}
       name="referente_id"
       render={({ field }) => {
-        // Determine the current value for the Select component - simplified logic
-        const selectValue = field.value || 'all';
+        // Determine the current value for the Select component
+        // Durante loading, mantieni il valore esistente per evitare reset spurio
+        const selectValue = isLoading && field.value 
+          ? field.value  // Mantieni valore durante loading
+          : (field.value || 'all');  // Usa logica normale dopo loading
         
         console.log('[ReferenteSelectField] Rendering with:', {
           field_value: field.value,
@@ -169,6 +172,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
                 onValueChange?.(newValue);
               }}
               value={selectValue}
+              disabled={isLoading}
             >
             <FormControl className="flex-1">
               <SelectTrigger className="h-10">
