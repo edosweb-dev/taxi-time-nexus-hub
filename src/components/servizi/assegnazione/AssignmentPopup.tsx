@@ -16,6 +16,27 @@ import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
 
+/**
+ * Verifica se un servizio ha un percorso valido definito
+ */
+function hasValidRoute(servizio: Servizio): boolean {
+  const presa = servizio.indirizzo_presa?.trim().toLowerCase() || '';
+  const destinazione = servizio.indirizzo_destinazione?.trim().toLowerCase() || '';
+  
+  // Controlla che entrambi gli indirizzi siano definiti e non siano placeholder
+  const isPresaValid = presa && 
+    presa !== 'da definire' && 
+    presa !== 'da_definire' &&
+    presa.length > 3;
+  
+  const isDestinazioneValid = destinazione && 
+    destinazione !== 'da definire' && 
+    destinazione !== 'da_definire' &&
+    destinazione.length > 3;
+  
+  return isPresaValid && isDestinazioneValid;
+}
+
 interface AssignmentPopupProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -48,13 +69,19 @@ export function AssignmentPopup({
   
   const { veicoli: veicoliAttivi } = useVeicoliAttivi();
   
+  // Verifica se il percorso è valido
+  const hasRoute = hasValidRoute(servizio);
+  
   console.log('[AssignmentPopup] Popup opened for service:', {
     id: servizio.id,
     data_servizio: servizio.data_servizio,
     stato: servizio.stato,
     availableCount: availableUsers.length,
     unavailableCount: unavailableUsers.length,
-    hasShiftsConfigured
+    hasShiftsConfigured,
+    hasRoute,
+    indirizzo_presa: servizio.indirizzo_presa,
+    indirizzo_destinazione: servizio.indirizzo_destinazione
   });
 
   // Reset form when popup opens
@@ -147,6 +174,7 @@ export function AssignmentPopup({
 
   const isConducenteEsterno = tipoConducente === 'esterno';
   const isAssignDisabled = isSubmitting || 
+    !hasRoute ||
     (isConducenteEsterno ? !selectedConducenteEsternoId : !selectedDipendente);
 
   const content = (
@@ -164,6 +192,18 @@ export function AssignmentPopup({
             </TabsList>
           </Tabs>
         </div>
+        
+        {/* Alert se percorso non definito */}
+        {!hasRoute && (
+          <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800 animate-fade-in">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800 dark:text-red-200 text-sm">
+              <span className="font-semibold">Percorso non definito.</span>
+              <br />
+              Prima di assegnare il servizio, è necessario specificare gli indirizzi di presa e destinazione.
+            </AlertDescription>
+          </Alert>
+        )}
         
         {/* Selection Area */}
         <div className="space-y-3">
