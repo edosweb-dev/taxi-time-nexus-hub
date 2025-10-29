@@ -97,11 +97,51 @@ export function useServizi() {
 
   const deleteServizioMutation = useMutation({
     mutationFn: deleteServizio,
+    
+    // ✅ OPTIMISTIC UPDATE: Rimuovi dalla cache PRIMA della risposta server
+    onMutate: async (deletedId: string) => {
+      // 1. Cancella refetch in corso per evitare race condition
+      await queryClient.cancelQueries({ queryKey: ['servizi'] });
+      
+      // 2. Snapshot dello stato precedente (per rollback in caso di errore)
+      const previousServizi = queryClient.getQueryData(['servizi']);
+      
+      // 3. Aggiorna ottimisticamente la cache - rimuovi il servizio eliminato
+      queryClient.setQueryData(['servizi'], (old: any) => {
+        if (!old) return old;
+        return old.filter((s: any) => s.id !== deletedId);
+      });
+      
+      // 4. Invalida anche altre query che potrebbero contenere servizi
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === 'servizi' || 
+          query.queryKey[0] === 'servizio'
+      });
+      
+      console.log('[deleteServizio] Optimistic update applied - removed:', deletedId);
+      
+      // 5. Ritorna context per rollback
+      return { previousServizi };
+    },
+    
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      // ✅ Conferma eliminazione e invalida per sicurezza
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === 'servizi' || 
+          query.queryKey[0] === 'servizio'
+      });
       toast.success('Servizio eliminato definitivamente');
     },
-    onError: (error: any) => {
+    
+    onError: (error: any, deletedId: string, context: any) => {
+      // ❌ Rollback in caso di errore
+      if (context?.previousServizi) {
+        queryClient.setQueryData(['servizi'], context.previousServizi);
+        console.log('[deleteServizio] Rollback applied due to error');
+      }
+      
       console.error('Error deleting service:', error);
       toast.error(`Errore nell'eliminazione del servizio: ${error.message || 'Si è verificato un errore'}`);
     },
