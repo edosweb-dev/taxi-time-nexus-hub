@@ -14,9 +14,9 @@ export function usePasseggeri(aziendaId?: string, referenteId?: string) {
       // Se non c'è referente_id, prendi tutti i passeggeri dell'azienda
       if (referenteId) {
         query = query.eq('referente_id', referenteId);
+        console.log('[usePasseggeri] 🔍 Filtering by referente_id:', referenteId);
       } else {
-        // Recupera tutti i passeggeri dell'azienda (inclusi quelli senza referente)
-        console.log('[usePasseggeri] Fetching all passengers for company without specific referente');
+        console.log('[usePasseggeri] ⚠️ No referente_id - fetching ALL passengers for azienda:', aziendaId);
       }
 
       const { data, error } = await query;
@@ -26,7 +26,16 @@ export function usePasseggeri(aziendaId?: string, referenteId?: string) {
         throw error;
       }
 
-      console.log('[usePasseggeri] Found', data?.length || 0, 'passengers for azienda_id:', aziendaId, 'referente_id:', referenteId);
+      console.log('[usePasseggeri] 📊 Query result:', {
+        aziendaId,
+        referenteId,
+        totalPassengers: data?.length || 0,
+        passengers: data?.map(p => ({
+          id: p.id,
+          nome: p.nome_cognome,
+          referente_id: p.referente_id
+        }))
+      });
       return { passeggeri: data as Passeggero[], isLoading: false };
     },
     enabled: !!aziendaId, // Enabled only if azienda_id is provided
