@@ -67,6 +67,7 @@ export default function ModificaServizioPage() {
 
   return (
     <ServizioCreaPage
+      key={id} // ⚡ CRITICAL: Forza remount quando cambia servizio (previene stale state)
       mode="edit"
       servizioId={id}
       initialData={servizio}
