@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Users } from "lucide-react";
@@ -21,6 +21,39 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
     control,
     name: "passeggeri",
   });
+
+  // Ref per tracciare il referente precedente
+  const previousReferenteIdRef = useRef<string | undefined>(referente_id);
+
+  // Reset passeggeri quando cambia referente
+  useEffect(() => {
+    const currentReferenteId = referente_id;
+    const previousReferenteId = previousReferenteIdRef.current;
+
+    console.log('[PasseggeroForm] Referente changed check:', {
+      previous: previousReferenteId,
+      current: currentReferenteId,
+      passengersCount: fields.length
+    });
+
+    // Se il referente cambia E ci sono passeggeri già selezionati
+    if (previousReferenteId !== currentReferenteId && fields.length > 0) {
+      console.log('[PasseggeroForm] ⚠️ Referente changed - resetting passengers:', {
+        from: previousReferenteId,
+        to: currentReferenteId,
+        removingPassengers: fields.length
+      });
+
+      // Rimuovi tutti i passeggeri esistenti
+      // Li rimuoviamo in ordine inverso per evitare problemi con gli indici
+      for (let i = fields.length - 1; i >= 0; i--) {
+        remove(i);
+      }
+    }
+
+    // Aggiorna il ref con il valore corrente
+    previousReferenteIdRef.current = currentReferenteId;
+  }, [referente_id, fields.length, remove]);
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
