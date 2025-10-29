@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { SpesaFormData } from '@/hooks/dipendente/useSpesaCRUD';
+import { useEffect } from 'react';
 
 const spesaSchema = z.object({
   dataSpesa: z.date({
@@ -64,11 +65,17 @@ export function SpesaForm({
     resolver: zodResolver(spesaSchema),
     defaultValues: {
       dataSpesa: defaultValues?.dataSpesa || new Date(),
-      importo: defaultValues?.importo || 0,
-      causale: defaultValues?.causale || '',
-      note: defaultValues?.note || ''
-    }
+      importo: defaultValues?.importo ?? 0,
+      causale: defaultValues?.causale ?? '',
+      note: defaultValues?.note ?? ''
+    },
+    mode: 'onSubmit'
   });
+
+  // Debug: Verifica valore data al mount
+  useEffect(() => {
+    console.log('[SpesaForm] Valore dataSpesa al mount:', form.getValues('dataSpesa'));
+  }, []);
 
   const handleSubmit = async (data: SpesaFormData) => {
     await onSubmit(data);
@@ -110,7 +117,10 @@ export function SpesaForm({
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(date) => {
+                      console.log('[SpesaForm] Data selezionata:', date);
+                      field.onChange(date || new Date());
+                    }}
                     disabled={(date) => date > new Date()}
                     initialFocus
                     className="pointer-events-auto"

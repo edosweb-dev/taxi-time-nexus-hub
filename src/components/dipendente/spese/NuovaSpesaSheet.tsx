@@ -45,6 +45,12 @@ export function NuovaSpesaSheet({ open, onOpenChange }: NuovaSpesaSheetProps) {
 
       {/* Form */}
       <SpesaForm
+        defaultValues={{
+          dataSpesa: new Date(),
+          importo: 0,
+          causale: '',
+          note: ''
+        }}
         onSubmit={handleSubmit}
         onCancel={() => onOpenChange(false)}
         isLoading={createSpesa.isPending}
