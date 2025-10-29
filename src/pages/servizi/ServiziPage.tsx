@@ -6,6 +6,7 @@ import { useAziende } from "@/hooks/useAziende";
 import { useUsers } from "@/hooks/useUsers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useServizi } from "@/hooks/useServizi";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 import { InserimentoServizioModal } from "@/components/servizi/InserimentoServizioModal";
+import { DeleteServizioDialog } from "@/components/servizi/dialogs";
 
 export default function ServiziPage() {
   const navigate = useNavigate();
@@ -40,9 +42,14 @@ export default function ServiziPage() {
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssignmentPopup, setShowAssignmentPopup] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [servizioToDelete, setServizioToDelete] = useState<string | null>(null);
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  
+  // Get delete mutation from useServizi hook
+  const { deleteServizio, isDeleting } = useServizi();
 
   // FORCE SCROLL LEFT = 0 su mount
   useEffect(() => {
@@ -968,8 +975,8 @@ export default function ServiziPage() {
                                   </Tooltip>
                                 )}
 
-                                {/* Annulla - Se da_assegnare o assegnato */}
-                                {(servizio.stato === 'da_assegnare' || servizio.stato === 'assegnato') && (
+                                {/* Elimina - Solo Admin/Socio per stati bozza, da_assegnare, assegnato */}
+                                {isAdminOrSocio && (servizio.stato === 'bozza' || servizio.stato === 'da_assegnare' || servizio.stato === 'assegnato') && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Button 
@@ -978,14 +985,15 @@ export default function ServiziPage() {
                                         className="h-8 w-8"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          navigate(`/servizi/${servizio.id}`);
+                                          setServizioToDelete(servizio.id);
+                                          setDeleteDialogOpen(true);
                                         }}
                                       >
                                         <XCircle className="h-4 w-4 text-red-600" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>Annulla Servizio</p>
+                                      <p>Elimina Servizio</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 )}
@@ -1026,6 +1034,21 @@ export default function ServiziPage() {
       <InserimentoServizioModal 
         open={showModal}
         onClose={() => setShowModal(false)}
+      />
+
+      {/* Dialog conferma eliminazione */}
+      <DeleteServizioDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        servizioId={servizioToDelete || undefined}
+        isDeleting={isDeleting}
+        onConfirm={() => {
+          if (servizioToDelete) {
+            deleteServizio(servizioToDelete);
+            setDeleteDialogOpen(false);
+            setServizioToDelete(null);
+          }
+        }}
       />
     </MainLayout>
   );

@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
 import { useUsers } from "@/hooks/useUsers";
+import { useServizi } from "@/hooks/useServizi";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getUserName } from "@/components/servizi/utils/userUtils";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import { MobileServizioOptimized } from "@/components/servizio/mobile/MobileServ
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 import { FirmaCliente } from "@/components/servizi/FirmaCliente";
 import { useAuth } from "@/contexts/AuthContext";
+import { DeleteServizioDialog } from "@/components/servizi/dialogs";
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,8 +58,10 @@ export default function ServizioDetailPage() {
 
   const [assegnazioneSheetOpen, setAssegnazioneSheetOpen] = useState(false);
   const [showFirmaClienteDialog, setShowFirmaClienteDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
+  const { deleteServizio, isDeleting } = useServizi();
   
   const canRequestSignature = 
     servizio?.stato === 'assegnato' && 
@@ -138,7 +142,11 @@ export default function ServizioDetailPage() {
             onCompleta={() => setCompletaDialogOpen(true)}
             onConsuntiva={() => setConsuntivaDialogOpen(true)}
             onModifica={() => navigate(`/servizi/${servizio.id}/modifica`)}
-            onElimina={() => {/* TODO: implement delete */}}
+            onElimina={() => {
+              if (isAdmin) {
+                setDeleteDialogOpen(true);
+              }
+            }}
             onFirmaCliente={() => setShowFirmaClienteDialog(true)}
           />
         </div>
@@ -203,8 +211,9 @@ export default function ServizioDetailPage() {
           onEdit={() => navigate(`/servizi/${servizio.id}/modifica`)}
           onAssegna={() => setAssegnazioneSheetOpen(true)}
           onDelete={() => {
-            // Add delete logic here
-            navigate('/servizi');
+            if (isAdmin) {
+              setDeleteDialogOpen(true);
+            }
           }}
           onCompleta={() => setCompletaDialogOpen(true)}
           onConsuntiva={() => setConsuntivaDialogOpen(true)}
@@ -304,6 +313,21 @@ export default function ServizioDetailPage() {
           refetch();
         }}
         servizio={servizio}
+      />
+
+      {/* Dialog conferma eliminazione */}
+      <DeleteServizioDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        servizioId={servizio?.id}
+        isDeleting={isDeleting}
+        onConfirm={() => {
+          if (servizio?.id) {
+            deleteServizio(servizio.id);
+            setDeleteDialogOpen(false);
+            navigate('/servizi');
+          }
+        }}
       />
     </MainLayout>
   );

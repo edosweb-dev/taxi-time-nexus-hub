@@ -7,3 +7,4 @@ export * from './updateFirmaServizio';
 export * from './completaServizio';
 export * from './consuntivaServizio';
 export * from './gestioneFirmaDigitale';
+export * from './deleteServizio';

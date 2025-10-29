@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createServizio, getServizi, getServizioById, completaServizio, consuntivaServizio, updateServizio } from '@/lib/api/servizi';
+import { createServizio, getServizi, getServizioById, completaServizio, consuntivaServizio, updateServizio, deleteServizio } from '@/lib/api/servizi';
 import { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/types';
 import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
@@ -95,6 +95,18 @@ export function useServizi() {
     },
   });
 
+  const deleteServizioMutation = useMutation({
+    mutationFn: deleteServizio,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      toast.success('Servizio eliminato definitivamente');
+    },
+    onError: (error: any) => {
+      console.error('Error deleting service:', error);
+      toast.error(`Errore nell'eliminazione del servizio: ${error.message || 'Si è verificato un errore'}`);
+    },
+  });
+
   return {
     servizi,
     isLoading,
@@ -107,11 +119,13 @@ export function useServizi() {
       updateStatoServizioMutation.mutate({ id, stato }),
     completaServizio: completaServizioMutation.mutate,
     consuntivaServizio: consuntivaServizioMutation.mutate,
+    deleteServizio: (id: string) => deleteServizioMutation.mutate(id),
     isCreating: createServizioMutation.isPending,
     isUpdating: updateStatoServizioMutation.isPending,
     isUpdatingServizio: updateServizioMutation.isPending,
     isCompletando: completaServizioMutation.isPending,
-    isConsuntivando: consuntivaServizioMutation.isPending
+    isConsuntivando: consuntivaServizioMutation.isPending,
+    isDeleting: deleteServizioMutation.isPending
   };
 }
 
