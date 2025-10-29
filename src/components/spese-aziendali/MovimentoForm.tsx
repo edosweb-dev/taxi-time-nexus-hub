@@ -56,7 +56,7 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
       const { data, error } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, role')
-        .in('role', ['dipendente', 'socio']);
+        .in('role', ['dipendente', 'socio', 'admin']);
 
       if (error) throw error;
       return data;
@@ -236,11 +236,11 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {dipendenti
-                      ?.filter(d => d.role === 'dipendente' || d.role === 'socio')
+                     {dipendenti
+                      ?.filter(d => d.role === 'dipendente' || d.role === 'socio' || d.role === 'admin')
                       .map(d => (
                         <SelectItem key={d.id} value={d.id}>
-                          {d.first_name} {d.last_name}
+                          {d.first_name} {d.last_name} ({d.role === 'admin' ? 'Admin' : d.role === 'socio' ? 'Socio' : 'Dipendente'})
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -260,25 +260,25 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
             name="socio_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Socio *</FormLabel>
+                <FormLabel>Socio/Admin *</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleziona socio" />
+                      <SelectValue placeholder="Seleziona socio/admin" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {dipendenti
-                      ?.filter(d => d.role === 'socio')
+                      ?.filter(d => d.role === 'socio' || d.role === 'admin')
                       .map(d => (
                         <SelectItem key={d.id} value={d.id}>
-                          {d.first_name} {d.last_name}
+                          {d.first_name} {d.last_name} ({d.role === 'admin' ? 'Admin' : 'Socio'})
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
                 <div className="text-sm text-muted-foreground mt-2">
-                  Questo prelievo apparirà nello storico del socio
+                  Questo prelievo apparirà nello storico del socio/admin
                 </div>
                 <FormMessage />
               </FormItem>
