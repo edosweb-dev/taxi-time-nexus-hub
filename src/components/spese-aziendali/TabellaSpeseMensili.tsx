@@ -6,12 +6,20 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
+import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { ApprovaSpesaDialog } from './ApprovaSpesaDialog';
 
 export function TabellaSpeseMensili() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [approvaDialogOpen, setApprovaDialogOpen] = useState(false);
+  const [spesaToApprove, setSpesaToApprove] = useState<any>(null);
+  
   const { movimentiCompleti, isLoadingCompleti } = useSpeseAziendali();
+  const { profile } = useAuth();
+  
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   const startDate = startOfMonth(selectedMonth);
   const endDate = endOfMonth(selectedMonth);
@@ -195,7 +203,17 @@ export function TabellaSpeseMensili() {
                   .map((movimento) => (
                     <TableRow 
                       key={movimento.id}
-                      className={movimento.tipo === 'pending' ? 'bg-yellow-50' : ''}
+                      className={`
+                        ${movimento.tipo === 'pending' ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}
+                        ${movimento.tipo === 'pending' && isAdminOrSocio ? 'cursor-pointer hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors' : ''}
+                      `}
+                      onClick={() => {
+                        if (movimento.tipo === 'pending' && isAdminOrSocio) {
+                          console.log('[TabellaSpeseMensili] Opening approval dialog for:', movimento.id);
+                          setSpesaToApprove(movimento);
+                          setApprovaDialogOpen(true);
+                        }
+                      }}
                     >
                       <TableCell className="font-medium">
                         {movimento.tipo === 'pending' && (
@@ -260,7 +278,14 @@ export function TabellaSpeseMensili() {
                       </TableCell>
                       <TableCell>
                         {movimento.tipo === 'pending' 
-                          ? <Badge variant="outline" className="bg-yellow-100">In Attesa</Badge>
+                          ? (
+                            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200">
+                              ⏳ In Attesa
+                              {isAdminOrSocio && (
+                                <span className="ml-1 text-xs opacity-75">(clicca)</span>
+                              )}
+                            </Badge>
+                          )
                           : getStatoBadge(movimento.stato_pagamento)
                         }
                       </TableCell>
@@ -276,6 +301,15 @@ export function TabellaSpeseMensili() {
           </div>
         )}
       </CardContent>
+      
+      {/* Dialog approvazione spese dipendenti */}
+      {isAdminOrSocio && (
+        <ApprovaSpesaDialog
+          open={approvaDialogOpen}
+          onOpenChange={setApprovaDialogOpen}
+          spesa={spesaToApprove}
+        />
+      )}
     </Card>
   );
 }

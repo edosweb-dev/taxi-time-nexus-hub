@@ -197,9 +197,23 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
       if (error) throw error;
       return data as SpesaDipendente;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['spese-dipendenti'] });
-      toast.success('Stato spesa aggiornato con successo');
+      
+      // Invalida anche query spese aziendali per aggiornare TabellaSpeseMensili
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === 'spese-aziendali' ||
+          query.queryKey[0] === 'movimenti-completi'
+      });
+      
+      const statoLabel = 
+        data.stato === 'approvata' ? '✅ Spesa approvata' :
+        data.stato === 'non_autorizzata' ? '❌ Spesa rifiutata' :
+        data.stato === 'in_revisione' ? '🔄 Spesa messa in revisione' :
+        'Stato spesa aggiornato';
+      
+      toast.success(statoLabel);
     },
     onError: (error: any) => {
       console.error('Errore durante l\'aggiornamento dello stato:', error);
