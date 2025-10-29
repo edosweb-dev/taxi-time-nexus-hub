@@ -43,7 +43,10 @@ export function ApprovaSpesaDialog({ open, onOpenChange, spesa }: ApprovaSpesaDi
   };
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'dd/MM/yyyy', { locale: it });
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Data non valida';
+    return format(date, 'dd/MM/yyyy', { locale: it });
   };
 
   const handleAction = (stato: 'approvata' | 'non_autorizzata' | 'in_revisione') => {
