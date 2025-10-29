@@ -1,6 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import {
   FormControl,
   FormField,
@@ -152,9 +152,29 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       name="referente_id"
       render={({ field }) => {
         // Determine the current value for the Select component
-        // ✅ FIX MOBILE: Usa currentReferenteId invece di field.value perché è più affidabile
-        // field.value può essere out-of-sync durante i render, mentre form.watch è sempre aggiornato
-        const selectValue = currentReferenteId || 'all';
+        // ✅ FIX RACE CONDITION: Non impostare il valore finché i referenti non sono caricati
+        // Questo previene che Radix UI Select triggeri onChange('all') quando riceve un valore che non esiste ancora nelle options
+        const selectValue = useMemo(() => {
+          // Se non c'è referente, usa 'all'
+          if (!currentReferenteId) return 'all';
+          
+          // Se i referenti non sono ancora caricati E abbiamo un aziendaId, usa 'all' temporaneamente
+          // Questo previene che il Select riceva un valore "invalido" (non presente nelle options)
+          if (referenti.length === 0 && aziendaId) {
+            console.log('[ReferenteSelectField] Referenti not loaded yet - using "all" temporarily');
+            return 'all';
+          }
+          
+          // Se referente esiste nella lista, usalo
+          if (referenti.some(r => r.id === currentReferenteId)) {
+            console.log('[ReferenteSelectField] Referente found in list - using:', currentReferenteId);
+            return currentReferenteId;
+          }
+          
+          // Altrimenti mantieni il valore corrente (durante il caricamento o se referente non appartiene a questa azienda)
+          console.log('[ReferenteSelectField] Referente not in list - keeping value:', currentReferenteId);
+          return currentReferenteId;
+        }, [currentReferenteId, referenti, aziendaId]);
         
         console.log('[ReferenteSelectField] Rendering with:', {
           field_value: field.value,
@@ -174,6 +194,16 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
             </FormLabel>
             <Select 
               onValueChange={(value) => {
+                console.log('[ReferenteSelectField] 🔔 handleValueChange called', {
+                  newValue: value,
+                  previousValue: field.value,
+                  currentReferenteId: currentReferenteId,
+                  isLoading,
+                  referentiCount: referenti.length,
+                  referentiIds: referenti.map(r => r.id),
+                  stackTrace: !value || value === 'all' ? new Error().stack : undefined
+                });
+                
                 const newValue = value === 'all' ? '' : value;
                 
                 // ✅ FIX: Blocca onChange('') spurio durante race condition
