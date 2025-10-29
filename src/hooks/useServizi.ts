@@ -27,6 +27,8 @@ export function useServizi() {
   const createServizioMutation = useMutation({
     mutationFn: async (data: CreateServizioRequest) => {
       console.log('[useServizi] Creating servizio with data:', data);
+      console.log('[DEBUG useServizi] createServizio - data.servizio completo:', data.servizio);
+      console.log('[DEBUG useServizi] createServizio - stato iniziale:', data.servizio.stato || 'bozza');
       
       // ✨ CALCOLA STATO AUTOMATICO
       const statoCalcolato = calculateServizioStato({
@@ -35,6 +37,11 @@ export function useServizi() {
       } as any);
       
       console.log('[useServizi] Calculated stato:', statoCalcolato);
+      console.log('[DEBUG useServizi] createServizio - Stato calcolato:', statoCalcolato);
+      console.log('[DEBUG useServizi] createServizio - Servizio finale con stato:', {
+        ...data.servizio,
+        stato: statoCalcolato
+      });
       
       // Chiama API con stato calcolato
       return createServizio({
@@ -131,6 +138,8 @@ export function useServizi() {
   const updateServizioMutation = useMutation({
     mutationFn: async (data: UpdateServizioRequest) => {
       console.log('[useServizi] Updating servizio:', data.servizio.id);
+      console.log('[DEBUG useServizi] updateServizio - data.servizio ricevuto:', data.servizio);
+      console.log('[DEBUG useServizi] updateServizio - ID servizio:', data.servizio.id);
       
       // ✨ FETCH SERVIZIO CORRENTE per confrontare stato
       const { data: currentServizio, error: fetchError } = await supabase
@@ -143,11 +152,16 @@ export function useServizi() {
         throw new Error('Servizio non trovato');
       }
       
+      console.log('[DEBUG useServizi] updateServizio - Servizio CORRENTE dal DB:', currentServizio);
+      console.log('[DEBUG useServizi] updateServizio - Stato CORRENTE:', currentServizio.stato);
+      
       // Merge dati
       const mergedServizio = {
         ...currentServizio,
         ...data.servizio
       };
+      
+      console.log('[DEBUG useServizi] updateServizio - Servizio MERGED (current + update):', mergedServizio);
       
       // ✨ CALCOLA NUOVO STATO solo se corrente è 'bozza'
       const oldStato = currentServizio.stato as StatoServizio;
@@ -158,6 +172,17 @@ export function useServizi() {
       const statoChanged = oldStato !== newStato;
       
       console.log('[useServizi] State transition:', { oldStato, newStato, statoChanged });
+      console.log('[DEBUG useServizi] updateServizio - Calcolo stato:', {
+        oldStato,
+        isPrevStatoBozza: oldStato === 'bozza',
+        newStato,
+        statoChanged
+      });
+      
+      console.log('[DEBUG useServizi] updateServizio - Servizio FINALE per API:', {
+        ...data.servizio,
+        stato: newStato
+      });
       
       // Chiama API con stato calcolato
       const result = await updateServizio({
