@@ -4,6 +4,11 @@ import { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/
 import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
+import { 
+  calculateServizioStato, 
+  getMissingFields,
+  formatStatoLabel 
+} from '@/utils/servizioValidation';
 
 export function useServizi() {
   const queryClient = useQueryClient();
@@ -20,16 +25,57 @@ export function useServizi() {
   });
 
   const createServizioMutation = useMutation({
-    mutationFn: (data: CreateServizioRequest) => createServizio(data),
-    onSuccess: (data) => {
-      if (data.servizio) {
-        queryClient.invalidateQueries({ queryKey: ['servizi'] });
-        toast.success('Servizio creato con successo');
-        return data.servizio;
-      } else if (data.error) {
-        toast.error(`Errore nella creazione del servizio: ${data.error.message}`);
-        throw data.error;
+    mutationFn: async (data: CreateServizioRequest) => {
+      console.log('[useServizi] Creating servizio with data:', data);
+      
+      // ✨ CALCOLA STATO AUTOMATICO
+      const statoCalcolato = calculateServizioStato({
+        ...data.servizio,
+        stato: data.servizio.stato || 'bozza'
+      } as any);
+      
+      console.log('[useServizi] Calculated stato:', statoCalcolato);
+      
+      // Chiama API con stato calcolato
+      return createServizio({
+        ...data,
+        servizio: {
+          ...data.servizio,
+          stato: statoCalcolato
+        }
+      });
+    },
+    onSuccess: (result) => {
+      if (result.error) {
+        toast.error(`Errore nella creazione del servizio: ${result.error.message}`);
+        throw result.error;
       }
+      
+      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      
+      const servizio = result.servizio;
+      if (!servizio) {
+        toast.success('Servizio creato con successo');
+        return;
+      }
+      
+      // ✨ Toast personalizzato in base allo stato finale
+      if (servizio.stato === 'bozza') {
+        const missing = getMissingFields(servizio);
+        if (missing.length > 0) {
+          toast.warning(`Bozza servizio salvata! Compila: ${missing.join(', ')}`);
+        } else {
+          toast.success('Bozza servizio salvata');
+        }
+      } else if (servizio.stato === 'da_assegnare') {
+        toast.success('Servizio creato! Pronto per l\'assegnazione.');
+      } else if (servizio.stato === 'assegnato') {
+        toast.success('Servizio creato e assegnato!');
+      } else {
+        toast.success(`Servizio creato con stato: ${formatStatoLabel(servizio.stato)}`);
+      }
+      
+      return servizio;
     },
     onError: (error: any) => {
       console.error('Error creating servizio:', error);
@@ -83,11 +129,68 @@ export function useServizi() {
   });
 
   const updateServizioMutation = useMutation({
-    mutationFn: (data: UpdateServizioRequest) => updateServizio(data),
-    onSuccess: () => {
+    mutationFn: async (data: UpdateServizioRequest) => {
+      console.log('[useServizi] Updating servizio:', data.servizio.id);
+      
+      // ✨ FETCH SERVIZIO CORRENTE per confrontare stato
+      const { data: currentServizio, error: fetchError } = await supabase
+        .from('servizi')
+        .select('*')
+        .eq('id', data.servizio.id)
+        .single();
+      
+      if (fetchError || !currentServizio) {
+        throw new Error('Servizio non trovato');
+      }
+      
+      // Merge dati
+      const mergedServizio = {
+        ...currentServizio,
+        ...data.servizio
+      };
+      
+      // ✨ CALCOLA NUOVO STATO solo se corrente è 'bozza'
+      const oldStato = currentServizio.stato as StatoServizio;
+      const newStato = oldStato === 'bozza' 
+        ? calculateServizioStato(mergedServizio as any)
+        : oldStato;
+      
+      const statoChanged = oldStato !== newStato;
+      
+      console.log('[useServizi] State transition:', { oldStato, newStato, statoChanged });
+      
+      // Chiama API con stato calcolato
+      const result = await updateServizio({
+        ...data,
+        servizio: {
+          ...data.servizio,
+          stato: newStato
+        }
+      });
+      
+      return {
+        result,
+        statoChanged,
+        oldStato,
+        newStato
+      };
+    },
+    onSuccess: ({ result, statoChanged, oldStato, newStato }) => {
       queryClient.invalidateQueries({ queryKey: ['servizi'] });
       queryClient.invalidateQueries({ queryKey: ['servizio'] });
-      toast.success('Servizio aggiornato con successo');
+      
+      // ✨ Toast personalizzato per transizione stato
+      if (statoChanged) {
+        if (newStato === 'da_assegnare') {
+          toast.success('Servizio completato! Pronto per l\'assegnazione.');
+        } else if (newStato === 'assegnato') {
+          toast.success('Servizio assegnato automaticamente!');
+        } else {
+          toast.success(`Stato aggiornato: ${formatStatoLabel(oldStato)} → ${formatStatoLabel(newStato)}`);
+        }
+      } else {
+        toast.success('Servizio aggiornato con successo');
+      }
     },
     onError: (error: any) => {
       console.error('Error updating servizio:', error);
