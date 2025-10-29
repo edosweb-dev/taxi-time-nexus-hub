@@ -1,21 +1,13 @@
 import { supabase } from '@/lib/supabase';
 import { UpdateServizioRequest } from './types';
+import { calculateServizioStato } from '@/utils/servizioValidation';
 
 export async function updateServizio({ servizio, passeggeri, email_notifiche }: UpdateServizioRequest) {
   try {
-    // 1. Determina stato automatico se in bozza
-    let statoServizio = servizio.stato;
-    
-    if (servizio.stato === 'bozza') {
-      // Se ha assegnato un autista → passa ad "assegnato"
-      if (servizio.assegnato_a) {
-        statoServizio = 'assegnato';
-      }
-      // Se non ha autista assegnato → passa a "da_assegnare"
-      else {
-        statoServizio = 'da_assegnare';
-      }
-    }
+    // 1. Calcola stato automatico SOLO se in bozza (usa logica centralizzata)
+    const statoServizio = servizio.stato === 'bozza'
+      ? calculateServizioStato(servizio as any)
+      : servizio.stato;
 
     // 2. Aggiorna il servizio
     const { data: servizioData, error: servizioError } = await supabase

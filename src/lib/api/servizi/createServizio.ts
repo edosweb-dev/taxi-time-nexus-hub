@@ -4,6 +4,7 @@ import { Servizio } from '@/lib/types/servizi';
 import { CreateServizioRequest } from './types';
 import { toast } from '@/components/ui/sonner';
 import { createClientePrivato } from '@/lib/api/clientiPrivati';
+import { calculateServizioStato } from '@/utils/servizioValidation';
 
 export async function createServizio(data: CreateServizioRequest): Promise<{ servizio: Servizio | null; error: Error | null }> {
   try {
@@ -54,21 +55,11 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
       }
     }
 
-    // 2. Determina stato automatico
-    let statoServizio = data.servizio.stato;
-    
-    // Se in bozza e ha assegnato un autista → passa ad "assegnato"
-    if (statoServizio === 'bozza' && data.servizio.assegnato_a) {
-      statoServizio = 'assegnato';
-    }
-    // Se in bozza ma non ha autista assegnato → passa a "da_assegnare"
-    else if (statoServizio === 'bozza' && !data.servizio.assegnato_a) {
-      statoServizio = 'da_assegnare';
-    }
-    // Se non specificato, default a "da_assegnare"
-    else if (!statoServizio) {
-      statoServizio = 'da_assegnare';
-    }
+    // 2. Calcola stato automatico usando la logica centralizzata di validazione
+    const statoServizio = calculateServizioStato({
+      ...data.servizio,
+      stato: data.servizio.stato || 'bozza' // default a bozza se non specificato
+    });
 
     console.log('[createServizio] Inserting servizio into database with stato:', statoServizio);
     const { data: servizioData, error: servizioError } = await supabase
