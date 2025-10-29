@@ -24,15 +24,20 @@ import { MovimentoFormData } from '@/lib/types/spese-aziendali';
 const formSchema = z.object({
   data_movimento: z.string(),
   importo: z.number().positive('L\'importo deve essere positivo'),
+  tipologia: z.enum(['spesa', 'incasso', 'prelievo']).default('spesa'),
   tipo_causale: z.enum(['generica', 'f24', 'stipendio']).default('generica'),
   causale: z.string().min(3, 'La causale deve avere almeno 3 caratteri').max(500, 'La causale è troppo lunga'),
   modalita_pagamento_id: z.string().min(1, 'Seleziona una modalità di pagamento'),
   dipendente_id: z.string().uuid().optional(),
+  socio_id: z.string().uuid().optional(),
   note: z.string().optional(),
   is_pending: z.boolean().default(false),
 }).refine(
   (data) => data.tipo_causale !== 'stipendio' || data.dipendente_id,
   { message: "Seleziona un dipendente per causale Stipendio", path: ["dipendente_id"] }
+).refine(
+  (data) => data.tipologia !== 'prelievo' || data.socio_id,
+  { message: "Seleziona un socio per i prelievi", path: ["socio_id"] }
 );
 
 interface MovimentoFormProps {
@@ -63,32 +68,42 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
     defaultValues: {
       data_movimento: new Date().toISOString().split('T')[0],
       importo: 0,
+      tipologia: 'spesa',
       tipo_causale: defaultTipoCausale || 'generica',
       causale: '',
       modalita_pagamento_id: '',
       dipendente_id: '',
+      socio_id: '',
       note: '',
       is_pending: false,
     },
   });
 
   const tipoCausale = form.watch('tipo_causale');
+  const tipologia = form.watch('tipologia');
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const formData: MovimentoFormData = {
       data_movimento: values.data_movimento,
       importo: values.importo,
       causale: values.causale,
-      tipologia: 'spesa', // SEMPRE spesa per movimenti manuali
+      tipologia: values.tipologia,
       tipo_causale: values.tipo_causale || 'generica',
       modalita_pagamento_id: values.modalita_pagamento_id,
       dipendente_id: values.tipo_causale === 'stipendio' ? values.dipendente_id : undefined,
+      socio_id: values.tipologia === 'prelievo' ? values.socio_id : undefined,
       note: values.note || undefined,
       stato_pagamento: values.is_pending ? 'pending' : 'completato',
     };
 
-    await addMovimento.mutateAsync(formData);
-    onSuccess();
+    console.log('[MovimentoForm] Submitting data:', formData);
+    
+    try {
+      await addMovimento.mutateAsync(formData);
+      onSuccess();
+    } catch (error) {
+      console.error('[MovimentoForm] Errore salvataggio:', error);
+    }
   };
 
   return (
@@ -161,20 +176,20 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
 
         <FormField
           control={form.control}
-          name="tipo_causale"
+          name="tipologia"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tipo Causale</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value || 'generica'}>
+              <FormLabel>Tipo Movimento</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value || 'spesa'}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleziona tipo" />
+                    <SelectValue placeholder="Seleziona tipo movimento" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="generica">💳 Spesa Generica</SelectItem>
-                  <SelectItem value="f24">📄 F24 (Tasse/Contributi)</SelectItem>
-                  <SelectItem value="stipendio">💰 Stipendio Dipendente</SelectItem>
+                  <SelectItem value="spesa">💸 Spesa (uscita)</SelectItem>
+                  <SelectItem value="incasso">💰 Incasso (entrata)</SelectItem>
+                  <SelectItem value="prelievo">🏦 Prelievo Socio</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -182,7 +197,32 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
           )}
         />
 
-        {tipoCausale === 'stipendio' && (
+        {tipologia === 'spesa' && (
+          <FormField
+            control={form.control}
+            name="tipo_causale"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Categoria Spesa</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value || 'generica'}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona categoria" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="generica">💳 Spesa Generica</SelectItem>
+                    <SelectItem value="f24">📄 F24 (Tasse/Contributi)</SelectItem>
+                    <SelectItem value="stipendio">💰 Stipendio Dipendente</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {tipoCausale === 'stipendio' && tipologia === 'spesa' && (
           <FormField
             control={form.control}
             name="dipendente_id"
@@ -207,6 +247,38 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                 </Select>
                 <div className="text-sm text-muted-foreground mt-2">
                   Questo movimento apparirà nello storico stipendi del dipendente
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {tipologia === 'prelievo' && (
+          <FormField
+            control={form.control}
+            name="socio_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Socio *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona socio" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {dipendenti
+                      ?.filter(d => d.role === 'socio')
+                      .map(d => (
+                        <SelectItem key={d.id} value={d.id}>
+                          {d.first_name} {d.last_name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <div className="text-sm text-muted-foreground mt-2">
+                  Questo prelievo apparirà nello storico del socio
                 </div>
                 <FormMessage />
               </FormItem>

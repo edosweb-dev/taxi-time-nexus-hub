@@ -105,9 +105,11 @@ export const useSpeseAziendali = () => {
       });
     },
     onError: (error: any) => {
+      console.error('[useSpeseAziendali] Errore completo:', error);
+      
       toast({
-        title: "Errore",
-        description: error.message || "Errore durante la registrazione del movimento.",
+        title: "Errore salvataggio movimento",
+        description: error.message || error.hint || "Errore durante la registrazione del movimento.",
         variant: "destructive",
       });
     },
