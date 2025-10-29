@@ -88,21 +88,50 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
     if (aziendaChanged) {
       console.log('[ReferenteSelectField] Azienda changed - checking if referente is valid');
       
-      // ✅ FIX: Non validare se referenti non ancora caricati
-      if (isLoading || referenti.length === 0) {
-        console.log('[ReferenteSelectField] Referenti not loaded yet - skipping validation');
+      // ✅ FIX: Non validare se query ancora in loading
+      if (isLoading) {
+        console.log('[ReferenteSelectField] Referenti still loading - skipping validation');
         return;
       }
       
-      if (currentReferenteId && referenti.length > 0) {
-        const referenteExists = referenti.some(r => r.id === currentReferenteId);
-        console.log('[ReferenteSelectField] Referente exists in new azienda:', referenteExists);
-        
-        if (!referenteExists) {
-          console.log('[ReferenteSelectField] Resetting referente_id - not found in new azienda');
+      // ✅ NUOVO: Se non abbiamo currentReferenteId, non c'è nulla da validare
+      if (!currentReferenteId) {
+        console.log('[ReferenteSelectField] No currentReferenteId - nothing to validate');
+        previousAziendaIdRef.current = aziendaId;
+        return;
+      }
+      
+      // ✅ NUOVO: Se referenti = [], ma query completata, significa "azienda senza referenti"
+      // In questo caso, resetta il referente_id perché non è valido
+      // MA aspetta almeno un render cycle dopo il cambio azienda per dare tempo al form di caricare
+      if (referenti.length === 0) {
+        console.log('[ReferenteSelectField] ⚠️ No referenti available for this azienda');
+        // Resetta solo se non siamo in fase di "form reset" (se previousAziendaId era già impostato)
+        if (previousAziendaIdRef.current !== '') {
+          console.log('[ReferenteSelectField] Resetting referente_id - azienda has no referenti');
           form.setValue('referente_id', '');
           onValueChange?.('');
+        } else {
+          console.log('[ReferenteSelectField] Skipping reset - likely during form initialization');
         }
+        previousAziendaIdRef.current = aziendaId;
+        return;
+      }
+      
+      // ✅ VALIDAZIONE FINALE: Controlla se il referente esiste nell'azienda
+      const referenteExists = referenti.some(r => r.id === currentReferenteId);
+      console.log('[ReferenteSelectField] Referente validation:', {
+        currentReferenteId,
+        referenteExists,
+        availableReferenti: referenti.map(r => r.id)
+      });
+      
+      if (!referenteExists) {
+        console.log('[ReferenteSelectField] ❌ Resetting referente_id - not found in new azienda');
+        form.setValue('referente_id', '');
+        onValueChange?.('');
+      } else {
+        console.log('[ReferenteSelectField] ✅ Referente is valid for this azienda');
       }
     }
     
