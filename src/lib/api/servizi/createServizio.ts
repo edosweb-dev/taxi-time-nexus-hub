@@ -150,7 +150,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
           } 
           // CASO 2: salva_in_database = FALSE → NON creare in anagrafica
           else {
-            console.log('[createServizio] Passeggero one-time use (not saved in anagrafica):', passeggeroData.nome_cognome);
+        console.log('[createServizio] Passeggero one-time use (not saved in anagrafica):', passeggeroData.nome_cognome);
             // passeggeroId rimane null, dati salvati solo in servizi_passeggeri
           }
         }
@@ -174,6 +174,12 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
           collegamentoData.localita_inline = passeggeroData.localita || null;
           collegamentoData.indirizzo_inline = passeggeroData.indirizzo || null;
         }
+
+        console.log('[createServizio] Creating servizio-passeggero link:', {
+          passeggero_id: passeggeroId,
+          salva_in_database: salvaInDatabase,
+          has_inline_data: !passeggeroId && !salvaInDatabase
+        });
 
         const { error: collegamentoError } = await supabase
           .from('servizi_passeggeri')
