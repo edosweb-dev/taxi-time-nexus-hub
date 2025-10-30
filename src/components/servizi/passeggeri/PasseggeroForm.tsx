@@ -16,6 +16,8 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
   const azienda_id = useWatch({ control, name: "azienda_id" });
   const referente_id = useWatch({ control, name: "referente_id" });
   
+  console.log('[PasseggeroForm] 📥 Watched values:', { azienda_id, referente_id });
+  
   // Utilizziamo useFieldArray per gestire l'array dinamico di passeggeri
   const { fields, append, remove } = useFieldArray({
     control,
@@ -24,6 +26,11 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
 
   // Ref per tracciare il referente precedente
   const previousReferenteIdRef = useRef<string | undefined>(referente_id);
+  
+  // Track referente_id changes
+  useEffect(() => {
+    console.log('[PasseggeroForm] 🔄 referente_id changed:', referente_id);
+  }, [referente_id]);
 
   // Reset passeggeri quando cambia referente
   useEffect(() => {
