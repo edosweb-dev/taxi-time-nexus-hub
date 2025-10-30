@@ -26,6 +26,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { toast } from "sonner";
 import { 
@@ -41,7 +42,10 @@ import {
   Mail,
   Plus,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  UserCircle,
+  X,
+  Loader2
 } from "lucide-react";
 import { ClientePrivatoFields } from "@/components/servizi/form-fields/ClientePrivatoFields";
 import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePrivato";
@@ -228,7 +232,7 @@ export const ServizioCreaPage = ({
     if (mode === 'edit' && initialData && servizioId) {
       const loadData = async () => {
         const [passResult, emailResult] = await Promise.all([
-          supabase.from('servizi_passeggeri').select('passeggero_id').eq('servizio_id', servizioId),
+          supabase.from('servizi_passeggeri').select('id, passeggero_id, salva_in_database, nome_cognome_inline, email_inline, telefono_inline, localita_inline, indirizzo_inline, usa_indirizzo_personalizzato').eq('servizio_id', servizioId),
           supabase.from('servizi_email_notifiche').select('email_notifica_id').eq('servizio_id', servizioId)
         ]);
 
@@ -276,7 +280,7 @@ export const ServizioCreaPage = ({
           importo_totale_calcolato: null,
           applica_provvigione: initialData.applica_provvigione || false,
           consegna_contanti_a: initialData.consegna_contanti_a || null,
-          passeggeri_ids: passResult.data?.map(r => r.passeggero_id) || [],
+          passeggeri_ids: passResult.data?.filter(r => r.passeggero_id).map(r => r.passeggero_id!) || [],
           email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
           note: initialData.note || null,
         });
@@ -287,6 +291,27 @@ export const ServizioCreaPage = ({
           azienda_id_form_value: form.getValues('azienda_id'),
           all_form_values_keys: Object.keys(form.getValues())
         });
+        
+        // ✅ Carica passeggeri temporanei da DB (se presenti)
+        const tempPasseggeriDaDB = passResult.data
+          ?.filter(sp => !sp.salva_in_database && !sp.passeggero_id && sp.nome_cognome_inline)
+          .map(sp => ({
+            id: `temp-${sp.id}`,
+            passeggero_id: null,
+            nome_cognome: sp.nome_cognome_inline!,
+            email: sp.email_inline || "",
+            telefono: sp.telefono_inline || "",
+            localita: sp.localita_inline || "",
+            indirizzo: sp.indirizzo_inline || "",
+            salva_in_database: false,
+            is_existing: false,
+            usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
+          })) || [];
+        
+        if (tempPasseggeriDaDB.length > 0) {
+          setTempPasseggeri(tempPasseggeriDaDB);
+          console.log('[ServizioCreaPage] Loaded temporary passengers for edit:', tempPasseggeriDaDB.length);
+        }
       };
       loadData();
     }
@@ -298,6 +323,10 @@ export const ServizioCreaPage = ({
   const watchMetodoPagamento = form.watch("metodo_pagamento");
   const watchTipoCliente = form.watch("tipo_cliente");
   const watchIncassoPrevisto = form.watch("incasso_previsto");
+  
+  // State per passeggeri temporanei
+  const [tempPasseggeri, setTempPasseggeri] = useState<any[]>([]);
+  const [isNewPasseggeroFormOpen, setIsNewPasseggeroFormOpen] = useState(false);
   const watchIva = form.watch("iva");
 
   const queryClient = useQueryClient();
@@ -518,49 +547,96 @@ export const ServizioCreaPage = ({
     }
 
     setIsAddingPasseggero(true);
+    
     try {
-      const { data, error } = await supabase
-        .from("passeggeri")
-        .insert({
-          azienda_id: watchAziendaId,
-          referente_id: form.watch("referente_id") || null,
+      if (!newPasseggero.salva_in_database) {
+        // ✅ Passeggero temporaneo - NON salvare in DB
+        console.log('[ServizioCreaPage] Creating temporary passenger:', newPasseggero.nome_cognome);
+        
+        const tempId = `temp-${Date.now()}`;
+        const tempPasseggero = {
+          id: tempId,
+          passeggero_id: null,
           nome_cognome: newPasseggero.nome_cognome,
-          email: newPasseggero.email || null,
-          telefono: newPasseggero.telefono || null,
-          localita: newPasseggero.localita || null,
-          indirizzo: newPasseggero.indirizzo || null,
-        })
-        .select()
-        .single();
+          email: newPasseggero.email || "",
+          telefono: newPasseggero.telefono || "",
+          localita: newPasseggero.localita || "",
+          indirizzo: newPasseggero.indirizzo || "",
+          salva_in_database: false,
+          is_existing: false,
+          usa_indirizzo_personalizzato: false,
+        };
+        
+        setTempPasseggeri(prev => [...prev, tempPasseggero]);
+        
+        console.log('[ServizioCreaPage] Temporary passenger added. Total temp passengers:', tempPasseggeri.length + 1);
+        
+        // Reset form
+        setNewPasseggero({
+          nome_cognome: "",
+          email: "",
+          telefono: "",
+          localita: "",
+          indirizzo: "",
+          salva_in_database: true,
+        });
+        
+        setIsNewPasseggeroFormOpen(false);
+        toast.success("Passeggero temporaneo aggiunto (solo questo servizio)");
+      } else {
+        // ✅ Passeggero permanente - salva in DB
+        console.log('[ServizioCreaPage] Creating permanent passenger:', newPasseggero.nome_cognome);
+        
+        const { data, error } = await supabase
+          .from("passeggeri")
+          .insert({
+            azienda_id: watchAziendaId,
+            referente_id: form.watch("referente_id") || null,
+            nome_cognome: newPasseggero.nome_cognome,
+            email: newPasseggero.email || null,
+            telefono: newPasseggero.telefono || null,
+            localita: newPasseggero.localita || null,
+            indirizzo: newPasseggero.indirizzo || null,
+          })
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Aggiungi automaticamente ai selezionati
-      const currentIds = form.watch("passeggeri_ids");
-      form.setValue("passeggeri_ids", [...currentIds, data.id]);
+        // Aggiungi automaticamente ai selezionati
+        const currentIds = form.watch("passeggeri_ids");
+        form.setValue("passeggeri_ids", [...currentIds, data.id]);
 
-      // Invalida query per refresh
-      queryClient.invalidateQueries({ queryKey: ["passeggeri", watchAziendaId] });
+        // Invalida query per refresh
+        queryClient.invalidateQueries({ queryKey: ["passeggeri", watchAziendaId, watchReferenteId] });
 
-      // Reset form
-      setNewPasseggero({
-        nome_cognome: "",
-        email: "",
-        telefono: "",
-        localita: "",
-        indirizzo: "",
-        salva_in_database: true,
-      });
+        // Reset form
+        setNewPasseggero({
+          nome_cognome: "",
+          email: "",
+          telefono: "",
+          localita: "",
+          indirizzo: "",
+          salva_in_database: true,
+        });
 
-      // Espandi la sezione passeggeri su mobile
-      setIsPasseggeriOpen(true);
+        setIsNewPasseggeroFormOpen(false);
+        setIsPasseggeriOpen(true);
 
-      toast.success("Passeggero aggiunto!");
+        toast.success("Passeggero aggiunto alla rubrica!");
+      }
     } catch (error) {
+      console.error('[ServizioCreaPage] Error creating passenger:', error);
       toast.error("Errore nella creazione del passeggero");
     } finally {
       setIsAddingPasseggero(false);
     }
+  };
+
+  // Rimuovi passeggero temporaneo
+  const handleRemoveTempPasseggero = (tempId: string) => {
+    setTempPasseggeri(prev => prev.filter(p => p.id !== tempId));
+    toast.success("Passeggero rimosso");
   };
 
   // Create Email Notifica
@@ -741,9 +817,43 @@ export const ServizioCreaPage = ({
         // Gestisci passeggeri/email solo per aziende
         if (data.tipo_cliente === 'azienda') {
           await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
+          
+          // ✅ Combina passeggeri permanenti e temporanei
+          const passeggeriCompleti = [];
+          
+          // Passeggeri permanenti (da checkbox)
           if (data.passeggeri_ids.length > 0) {
+            const permanenti = data.passeggeri_ids.map(pid => ({ 
+              servizio_id: servizioId, 
+              passeggero_id: pid,
+              salva_in_database: true,
+            }));
+            passeggeriCompleti.push(...permanenti);
+          }
+          
+          // Passeggeri temporanei (da state)
+          const temporanei = tempPasseggeri.map(tp => ({
+            servizio_id: servizioId,
+            passeggero_id: null,
+            nome_cognome_inline: tp.nome_cognome,
+            email_inline: tp.email || null,
+            telefono_inline: tp.telefono || null,
+            localita_inline: tp.localita || null,
+            indirizzo_inline: tp.indirizzo || null,
+            salva_in_database: false,
+            usa_indirizzo_personalizzato: false,
+          }));
+          passeggeriCompleti.push(...temporanei);
+          
+          console.log('[ServizioCreaPage] Saving passengers (edit mode):', {
+            permanenti: data.passeggeri_ids.length,
+            temporanei: tempPasseggeri.length,
+            totale: passeggeriCompleti.length
+          });
+          
+          if (passeggeriCompleti.length > 0) {
             const { error: passErr } = await supabase.from("servizi_passeggeri")
-              .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizioId, passeggero_id: pid })));
+              .insert(passeggeriCompleti);
             if (passErr) throw passErr;
           }
 
@@ -762,9 +872,42 @@ export const ServizioCreaPage = ({
 
         // Gestisci passeggeri/email solo per aziende
         if (data.tipo_cliente === 'azienda') {
+          // ✅ Combina passeggeri permanenti e temporanei
+          const passeggeriCompleti = [];
+          
+          // Passeggeri permanenti (da checkbox)
           if (data.passeggeri_ids.length > 0) {
+            const permanenti = data.passeggeri_ids.map(pid => ({ 
+              servizio_id: servizio.id, 
+              passeggero_id: pid,
+              salva_in_database: true,
+            }));
+            passeggeriCompleti.push(...permanenti);
+          }
+          
+          // Passeggeri temporanei (da state)
+          const temporanei = tempPasseggeri.map(tp => ({
+            servizio_id: servizio.id,
+            passeggero_id: null,
+            nome_cognome_inline: tp.nome_cognome,
+            email_inline: tp.email || null,
+            telefono_inline: tp.telefono || null,
+            localita_inline: tp.localita || null,
+            indirizzo_inline: tp.indirizzo || null,
+            salva_in_database: false,
+            usa_indirizzo_personalizzato: false,
+          }));
+          passeggeriCompleti.push(...temporanei);
+          
+          console.log('[ServizioCreaPage] Saving passengers (create mode):', {
+            permanenti: data.passeggeri_ids.length,
+            temporanei: tempPasseggeri.length,
+            totale: passeggeriCompleti.length
+          });
+          
+          if (passeggeriCompleti.length > 0) {
             const { error: passErr } = await supabase.from("servizi_passeggeri")
-              .insert(data.passeggeri_ids.map(pid => ({ servizio_id: servizio.id, passeggero_id: pid })));
+              .insert(passeggeriCompleti);
             if (passErr) throw passErr;
           }
 
@@ -1073,9 +1216,61 @@ export const ServizioCreaPage = ({
                 />
               </div>
 
-              {/* Button Aggiungi Passeggero */}
-              <Sheet>
-                <SheetTrigger asChild>
+              {/* Passeggeri Temporanei */}
+              {tempPasseggeri.length > 0 && (
+                <div className="mt-4 pt-4 border-t space-y-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <UserCircle className="h-4 w-4 text-blue-600" />
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Passeggeri solo per questo servizio ({tempPasseggeri.length})
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {tempPasseggeri.map((tempPass) => (
+                      <div 
+                        key={tempPass.id} 
+                        className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <UserCircle className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium">{tempPass.nome_cognome}</span>
+                          </div>
+                          {(tempPass.email || tempPass.telefono) && (
+                            <div className="mt-1 text-xs text-muted-foreground flex gap-2">
+                              {tempPass.email && <span>📧 {tempPass.email}</span>}
+                              {tempPass.telefono && <span>📱 {tempPass.telefono}</span>}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleRemoveTempPasseggero(tempPass.id)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <Info className="h-3 w-3" />
+                    Questi passeggeri non saranno salvati nella rubrica aziendale
+                  </p>
+                </div>
+              )}
+
+              {/* Form Inline Nuovo Passeggero */}
+              <Collapsible 
+                open={isNewPasseggeroFormOpen} 
+                onOpenChange={setIsNewPasseggeroFormOpen}
+              >
+                <CollapsibleTrigger asChild>
                   <Button 
                     type="button" 
                     variant="outline" 
@@ -1084,119 +1279,153 @@ export const ServizioCreaPage = ({
                     className="w-full sm:w-auto"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Nuovo Passeggero
+                    {isNewPasseggeroFormOpen ? "Nascondi Form" : "Nuovo Passeggero"}
                   </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Aggiungi Passeggero</SheetTitle>
-                    <SheetDescription>
-                      Crea un nuovo passeggero per questa azienda
-                    </SheetDescription>
-                  </SheetHeader>
-                  
-                  <div className="space-y-4 mt-6">
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="new-pass-nome" className="font-medium">
-                        Nome e Cognome <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="new-pass-nome"
-                        placeholder="Mario Rossi"
-                        value={newPasseggero.nome_cognome}
-                        onChange={(e) => setNewPasseggero({
-                          ...newPasseggero,
-                          nome_cognome: e.target.value
-                        })}
-                      />
-                    </div>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="mt-4">
+                  <Card className="p-4 bg-muted/50">
+                    <div className="space-y-4">
+                      {/* Campo Nome e Cognome */}
+                      <div className="space-y-2">
+                        <Label htmlFor="new-pass-nome" className="font-medium">
+                          Nome e Cognome <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="new-pass-nome"
+                          placeholder="Mario Rossi"
+                          value={newPasseggero.nome_cognome}
+                          onChange={(e) => setNewPasseggero({
+                            ...newPasseggero,
+                            nome_cognome: e.target.value
+                          })}
+                        />
+                      </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="new-pass-email" className="font-medium">Email</Label>
-                      <Input
-                        id="new-pass-email"
-                        type="email"
-                        placeholder="mario.rossi@example.com"
-                        value={newPasseggero.email}
-                        onChange={(e) => setNewPasseggero({
-                          ...newPasseggero,
-                          email: e.target.value
-                        })}
-                      />
-                    </div>
+                      {/* Campo Email */}
+                      <div className="space-y-2">
+                        <Label htmlFor="new-pass-email">Email</Label>
+                        <Input
+                          id="new-pass-email"
+                          type="email"
+                          placeholder="mario.rossi@example.com"
+                          value={newPasseggero.email}
+                          onChange={(e) => setNewPasseggero({
+                            ...newPasseggero,
+                            email: e.target.value
+                          })}
+                        />
+                      </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="new-pass-telefono" className="font-medium">Telefono</Label>
-                      <Input
-                        id="new-pass-telefono"
-                        type="tel"
-                        placeholder="+39 333 1234567"
-                        value={newPasseggero.telefono}
-                        onChange={(e) => setNewPasseggero({
-                          ...newPasseggero,
-                          telefono: e.target.value
-                        })}
-                      />
-                    </div>
+                      {/* Campo Telefono */}
+                      <div className="space-y-2">
+                        <Label htmlFor="new-pass-telefono">Telefono</Label>
+                        <Input
+                          id="new-pass-telefono"
+                          type="tel"
+                          placeholder="+39 333 1234567"
+                          value={newPasseggero.telefono}
+                          onChange={(e) => setNewPasseggero({
+                            ...newPasseggero,
+                            telefono: e.target.value
+                          })}
+                        />
+                      </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="new-pass-localita" className="font-medium">Località</Label>
-                      <Input
-                        id="new-pass-localita"
-                        placeholder="Milano"
-                        value={newPasseggero.localita}
-                        onChange={(e) => setNewPasseggero({
-                          ...newPasseggero,
-                          localita: e.target.value
-                        })}
-                      />
-                    </div>
+                      {/* Campo Località */}
+                      <div className="space-y-2">
+                        <Label htmlFor="new-pass-localita">Località</Label>
+                        <Input
+                          id="new-pass-localita"
+                          placeholder="Milano"
+                          value={newPasseggero.localita}
+                          onChange={(e) => setNewPasseggero({
+                            ...newPasseggero,
+                            localita: e.target.value
+                          })}
+                        />
+                      </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="new-pass-indirizzo" className="font-medium">Indirizzo</Label>
-                      <Input
-                        id="new-pass-indirizzo"
-                        placeholder="Via Roma 123"
-                        value={newPasseggero.indirizzo}
-                        onChange={(e) => setNewPasseggero({
-                          ...newPasseggero,
-                          indirizzo: e.target.value
-                        })}
-                      />
-                    </div>
+                      {/* Campo Indirizzo */}
+                      <div className="space-y-2">
+                        <Label htmlFor="new-pass-indirizzo">Indirizzo</Label>
+                        <Input
+                          id="new-pass-indirizzo"
+                          placeholder="Via Roma 123"
+                          value={newPasseggero.indirizzo}
+                          onChange={(e) => setNewPasseggero({
+                            ...newPasseggero,
+                            indirizzo: e.target.value
+                          })}
+                        />
+                      </div>
 
-                    <div className="flex items-start space-x-2 pt-2">
-                      <Checkbox
-                        id="salva_in_database"
-                        checked={newPasseggero.salva_in_database}
-                        onCheckedChange={(checked) =>
-                          setNewPasseggero({ ...newPasseggero, salva_in_database: !!checked })
-                        }
-                      />
-                      <div className="grid gap-1.5 leading-none">
-                        <label
-                          htmlFor="salva_in_database"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      {/* Checkbox Salva in Rubrica */}
+                      <div className="flex items-start space-x-2 pt-2 pb-2 border-t">
+                        <Checkbox
+                          id="salva_in_database"
+                          checked={newPasseggero.salva_in_database}
+                          onCheckedChange={(checked) =>
+                            setNewPasseggero({ ...newPasseggero, salva_in_database: !!checked })
+                          }
+                        />
+                        <div className="grid gap-1 leading-none">
+                          <label
+                            htmlFor="salva_in_database"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            💾 Salva in rubrica permanente
+                          </label>
+                          <p className="text-xs text-muted-foreground">
+                            {newPasseggero.salva_in_database 
+                              ? "Il passeggero sarà salvato e disponibile per servizi futuri" 
+                              : "Il passeggero sarà aggiunto solo a questo servizio"
+                            }
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Pulsanti Azione */}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={handleCreatePasseggero}
+                          disabled={isAddingPasseggero || !newPasseggero.nome_cognome}
+                          className="flex-1"
                         >
-                          💾 Salva in anagrafica permanente
-                        </label>
-                        <p className="text-sm text-muted-foreground">
-                          Se attivo, il passeggero sarà disponibile per servizi futuri
-                        </p>
+                          {isAddingPasseggero ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Creazione...
+                            </>
+                          ) : (
+                            <>
+                              {newPasseggero.salva_in_database ? "Salva in Rubrica" : "Aggiungi Solo a Questo Servizio"}
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setIsNewPasseggeroFormOpen(false);
+                            setNewPasseggero({
+                              nome_cognome: "",
+                              email: "",
+                              telefono: "",
+                              localita: "",
+                              indirizzo: "",
+                              salva_in_database: true,
+                            });
+                          }}
+                        >
+                          Annulla
+                        </Button>
                       </div>
                     </div>
-
-                    <Button
-                      type="button"
-                      onClick={handleCreatePasseggero}
-                      disabled={isAddingPasseggero || !newPasseggero.nome_cognome}
-                      className="w-full"
-                    >
-                      {isAddingPasseggero ? "Creazione..." : "Crea Passeggero"}
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </Card>
           )}
