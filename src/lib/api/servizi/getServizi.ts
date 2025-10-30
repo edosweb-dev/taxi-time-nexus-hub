@@ -75,16 +75,45 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
       throw passeggeriError;
     }
 
-    // Trasforma i dati per creare PasseggeroConDettagli
-    const passeggeri: PasseggeroConDettagli[] = (passeggeriData || [])
-      .filter(item => item.passeggeri) // Filtra solo elementi con passeggeri validi
-      .map(item => ({
-        ...item.passeggeri,
-        orario_presa_personalizzato: item.orario_presa_personalizzato,
-        luogo_presa_personalizzato: item.luogo_presa_personalizzato,
-        destinazione_personalizzato: item.destinazione_personalizzato,
-        usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
-      }));
+    // ✅ Trasforma i dati unificando passeggeri permanenti e temporanei
+    const passeggeri: PasseggeroConDettagli[] = (passeggeriData || []).map(item => {
+      // CASO 1: Passeggero permanente (salvato in rubrica)
+      if (item.salva_in_database && item.passeggeri) {
+        return {
+          ...item.passeggeri,
+          orario_presa_personalizzato: item.orario_presa_personalizzato,
+          luogo_presa_personalizzato: item.luogo_presa_personalizzato,
+          destinazione_personalizzato: item.destinazione_personalizzato,
+          usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
+          tipo: 'permanente' as const,
+        };
+      } 
+      // CASO 2: Passeggero temporaneo (ospite, dati inline)
+      else {
+        return {
+          id: item.id, // ID del record servizi_passeggeri
+          nome_cognome: item.nome_cognome_inline || '',
+          email: item.email_inline || null,
+          telefono: item.telefono_inline || null,
+          localita: item.localita_inline || null,
+          indirizzo: item.indirizzo_inline || null,
+          orario_presa_personalizzato: item.orario_presa_personalizzato,
+          luogo_presa_personalizzato: item.luogo_presa_personalizzato,
+          destinazione_personalizzato: item.destinazione_personalizzato,
+          usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
+          tipo: 'temporaneo' as const,
+          azienda_id: null as any,
+          referente_id: null as any,
+          created_at: null,
+        };
+      }
+    });
+
+    console.log('[getServizioById] Passeggeri loaded:', {
+      total: passeggeri.length,
+      permanenti: passeggeri.filter(p => p.tipo === 'permanente').length,
+      temporanei: passeggeri.filter(p => p.tipo === 'temporaneo').length,
+    });
 
     return { 
       servizio: servizio as Servizio || null, 

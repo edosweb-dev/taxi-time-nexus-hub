@@ -115,31 +115,56 @@ export function ServizioMainContent({
         <CardContent>
           {passeggeri.length > 0 ? (
             <div className="space-y-2">
-              {passeggeri.map((passeggero, index) => (
-                <div
-                  key={passeggero.id || index}
-                  className="p-3 bg-muted/30 rounded-lg border flex items-start gap-2"
-                >
-                  <div className="p-1.5 bg-primary/10 rounded-full mt-0.5">
-                    <User className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm mb-1">
-                      {passeggero.nome_cognome}
+              {passeggeri.map((passeggero, index) => {
+                const isTemporary = (passeggero as any).tipo === 'temporaneo';
+                return (
+                  <div
+                    key={passeggero.id || index}
+                    className={`p-3 rounded-lg border flex items-start gap-2 ${
+                      isTemporary ? 'bg-blue-50/50' : 'bg-muted/30'
+                    }`}
+                  >
+                    <div className={`p-1.5 rounded-full mt-0.5 ${
+                      isTemporary ? 'bg-blue-100' : 'bg-primary/10'
+                    }`}>
+                      <User className={`h-3.5 w-3.5 ${
+                        isTemporary ? 'text-blue-700' : 'text-primary'
+                      }`} />
                     </div>
-                    {passeggero.email && (
-                      <div className="text-xs text-muted-foreground truncate">
-                        {passeggero.email}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="font-medium text-sm">
+                          {passeggero.nome_cognome}
+                        </div>
+                        {isTemporary ? (
+                          <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-800 rounded">
+                            Ospite
+                          </span>
+                        ) : (
+                          <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-800 rounded">
+                            Rubrica
+                          </span>
+                        )}
                       </div>
-                    )}
-                    {passeggero.telefono && (
-                      <div className="text-xs text-muted-foreground">
-                        {passeggero.telefono}
-                      </div>
-                    )}
+                      {passeggero.email && (
+                        <div className="text-xs text-muted-foreground truncate">
+                          📧 {passeggero.email}
+                        </div>
+                      )}
+                      {passeggero.telefono && (
+                        <div className="text-xs text-muted-foreground">
+                          📱 {passeggero.telefono}
+                        </div>
+                      )}
+                      {(passeggero.localita || passeggero.indirizzo) && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          📍 {passeggero.localita}{passeggero.localita && passeggero.indirizzo && ', '}{passeggero.indirizzo}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-sm text-muted-foreground text-center py-4">

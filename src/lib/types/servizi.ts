@@ -106,6 +106,7 @@ export interface PasseggeroConDettagli extends Passeggero {
   luogo_presa_personalizzato?: string;
   destinazione_personalizzato?: string;
   usa_indirizzo_personalizzato: boolean;
+  tipo?: 'permanente' | 'temporaneo';
 }
 
 export interface ServizioFormData {
