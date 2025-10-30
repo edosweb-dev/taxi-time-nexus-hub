@@ -827,7 +827,6 @@ export const ServizioCreaPage = ({
               servizio_id: servizioId, 
               passeggero_id: pid,
               salva_in_database: true,
-              usa_indirizzo_personalizzato: false,
             }));
             passeggeriCompleti.push(...permanenti);
           }
@@ -882,7 +881,6 @@ export const ServizioCreaPage = ({
               servizio_id: servizio.id, 
               passeggero_id: pid,
               salva_in_database: true,
-              usa_indirizzo_personalizzato: false,
             }));
             passeggeriCompleti.push(...permanenti);
           }
