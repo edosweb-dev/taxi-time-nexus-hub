@@ -33,9 +33,17 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   console.log('[ReferenteSelectField] 🟡 Component render:', {
     currentReferenteId,
     currentReferenteId_type: typeof currentReferenteId,
+    currentReferenteId_is_null: currentReferenteId === null,
+    currentReferenteId_is_undefined: currentReferenteId === undefined,
+    currentReferenteId_is_empty: currentReferenteId === '',
     aziendaId,
     aziendaId_type: typeof aziendaId,
-    isFirstRender: isFirstRenderRef.current
+    isFirstRender: isFirstRenderRef.current,
+    formState: {
+      isDirty: form.formState.isDirty,
+      isSubmitting: form.formState.isSubmitting,
+      isLoading: form.formState.isLoading
+    }
   });
 
   const { data: referenti = [], isLoading } = useQuery({
@@ -59,25 +67,38 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
 
   // Calcolo intelligente del valore del Select per gestire race conditions
   const selectValue = useMemo(() => {
+    console.log('[ReferenteSelectField] 🔍 Computing selectValue:', {
+      currentReferenteId,
+      currentReferenteId_type: typeof currentReferenteId,
+      referenti_length: referenti.length,
+      referenti_ids: referenti.map(r => r.id),
+      isLoading
+    });
+    
     // Se non c'è referente salvato, campo vuoto
-    if (!currentReferenteId) return '';
+    if (!currentReferenteId) {
+      console.log('[ReferenteSelectField] ⚪ No currentReferenteId - returning empty');
+      return '';
+    }
     
     // Se referenti non ancora caricati ma abbiamo un referente salvato,
     // mantieni il valore corrente per evitare "invalid value" error
     if (referenti.length === 0 && currentReferenteId) {
-      console.log('[ReferenteSelectField] Referenti loading - keeping saved value:', currentReferenteId);
+      console.log('[ReferenteSelectField] ⏳ Referenti loading - keeping saved value:', currentReferenteId);
       return currentReferenteId;
     }
     
     // Se referente esiste nella lista caricata, usalo
-    if (referenti.some(r => r.id === currentReferenteId)) {
+    const referenteExists = referenti.some(r => r.id === currentReferenteId);
+    if (referenteExists) {
+      console.log('[ReferenteSelectField] ✅ Referente found in list:', currentReferenteId);
       return currentReferenteId;
     }
     
     // Se referente non è nella lista (cambio azienda), resetta a vuoto
-    console.log('[ReferenteSelectField] Referente not in current company - resetting');
+    console.log('[ReferenteSelectField] ❌ Referente not in current company - resetting');
     return '';
-  }, [currentReferenteId, referenti]);
+  }, [currentReferenteId, referenti, isLoading]);
 
   // Reset referente_id when azienda changes, but only if current referente doesn't belong to new azienda
   useEffect(() => {
@@ -173,13 +194,20 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       control={form.control}
       name="referente_id"
       render={({ field }) => {
-        console.log('[ReferenteSelectField] Rendering with:', {
+        console.log('[ReferenteSelectField] 🎮 Rendering Controller:', {
           field_value: field.value,
           field_value_type: typeof field.value,
+          field_name: field.name,
           selectValue: selectValue,
+          selectValue_type: typeof selectValue,
           currentReferenteId: currentReferenteId,
           aziendaId: aziendaId,
           referentiCount: referenti?.length || 0,
+          referenti_list: referenti.map(r => ({ 
+            id: r.id, 
+            name: `${r.first_name} ${r.last_name}` 
+          })),
+          referente_in_list: currentReferenteId ? referenti.some(r => r.id === currentReferenteId) : false,
           isLoading: isLoading,
           isFirstRender: isFirstRenderRef.current
         });
