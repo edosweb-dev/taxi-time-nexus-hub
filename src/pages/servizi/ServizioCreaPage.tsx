@@ -1302,62 +1302,64 @@ export const ServizioCreaPage = ({
                         />
                       </div>
 
-                      {/* Campo Email */}
-                      <div className="space-y-2">
-                        <Label htmlFor="new-pass-email">Email</Label>
-                        <Input
-                          id="new-pass-email"
-                          type="email"
-                          placeholder="mario.rossi@example.com"
-                          value={newPasseggero.email}
-                          onChange={(e) => setNewPasseggero({
-                            ...newPasseggero,
-                            email: e.target.value
-                          })}
-                        />
+                      {/* Email e Telefono affiancati */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-pass-email">Email</Label>
+                          <Input
+                            id="new-pass-email"
+                            type="email"
+                            placeholder="mario.rossi@example.com"
+                            value={newPasseggero.email}
+                            onChange={(e) => setNewPasseggero({
+                              ...newPasseggero,
+                              email: e.target.value
+                            })}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="new-pass-telefono">Telefono</Label>
+                          <Input
+                            id="new-pass-telefono"
+                            type="tel"
+                            placeholder="+39 333 1234567"
+                            value={newPasseggero.telefono}
+                            onChange={(e) => setNewPasseggero({
+                              ...newPasseggero,
+                              telefono: e.target.value
+                            })}
+                          />
+                        </div>
                       </div>
 
-                      {/* Campo Telefono */}
-                      <div className="space-y-2">
-                        <Label htmlFor="new-pass-telefono">Telefono</Label>
-                        <Input
-                          id="new-pass-telefono"
-                          type="tel"
-                          placeholder="+39 333 1234567"
-                          value={newPasseggero.telefono}
-                          onChange={(e) => setNewPasseggero({
-                            ...newPasseggero,
-                            telefono: e.target.value
-                          })}
-                        />
-                      </div>
+                      {/* Località e Indirizzo affiancati */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-pass-localita">Località</Label>
+                          <Input
+                            id="new-pass-localita"
+                            placeholder="Milano"
+                            value={newPasseggero.localita}
+                            onChange={(e) => setNewPasseggero({
+                              ...newPasseggero,
+                              localita: e.target.value
+                            })}
+                          />
+                        </div>
 
-                      {/* Campo Località */}
-                      <div className="space-y-2">
-                        <Label htmlFor="new-pass-localita">Località</Label>
-                        <Input
-                          id="new-pass-localita"
-                          placeholder="Milano"
-                          value={newPasseggero.localita}
-                          onChange={(e) => setNewPasseggero({
-                            ...newPasseggero,
-                            localita: e.target.value
-                          })}
-                        />
-                      </div>
-
-                      {/* Campo Indirizzo */}
-                      <div className="space-y-2">
-                        <Label htmlFor="new-pass-indirizzo">Indirizzo</Label>
-                        <Input
-                          id="new-pass-indirizzo"
-                          placeholder="Via Roma 123"
-                          value={newPasseggero.indirizzo}
-                          onChange={(e) => setNewPasseggero({
-                            ...newPasseggero,
-                            indirizzo: e.target.value
-                          })}
-                        />
+                        <div className="space-y-2">
+                          <Label htmlFor="new-pass-indirizzo">Indirizzo</Label>
+                          <Input
+                            id="new-pass-indirizzo"
+                            placeholder="Via Roma 123"
+                            value={newPasseggero.indirizzo}
+                            onChange={(e) => setNewPasseggero({
+                              ...newPasseggero,
+                              indirizzo: e.target.value
+                            })}
+                          />
+                        </div>
                       </div>
 
                       {/* Checkbox Salva in Rubrica */}
@@ -1374,7 +1376,7 @@ export const ServizioCreaPage = ({
                             htmlFor="salva_in_database"
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            💾 Salva in rubrica permanente
+                            Salva passeggero in rubrica
                           </label>
                           <p className="text-xs text-muted-foreground">
                             {newPasseggero.salva_in_database 
