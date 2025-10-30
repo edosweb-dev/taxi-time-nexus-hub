@@ -221,13 +221,34 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
               onValueChange={(value) => {
                 console.log('[ReferenteSelectField] 🔄 Setting referente_id:', value);
                 
+                // ✅ FIX: Blocca onChange('') spurio durante race condition
+                const currentFormValue = form.getValues('referente_id');
+                
+                if (!value || value === '') {
+                  // Se nuovo valore è vuoto E abbiamo già un valore valido, blocca
+                  if (currentFormValue && currentFormValue !== '') {
+                    // Blocca solo se:
+                    // 1. Referenti ancora in caricamento, O
+                    // 2. Valore corrente esiste nei referenti caricati
+                    if (isLoading || referenti.some(r => r.id === currentFormValue)) {
+                      console.log('[ReferenteSelectField] ⛔ Blocking spurious empty onChange during:', {
+                        reason: isLoading ? 'referenti loading' : 'preserving valid value',
+                        currentFormValue,
+                        isLoading,
+                        referentiCount: referenti.length
+                      });
+                      return; // BLOCCA la modifica
+                    }
+                  }
+                }
+                
+                // Procedi con onChange normale
                 field.onChange(value);
                 onValueChange?.(value);
                 
-                // Log dello stato form dopo setValue
+                // Log stato finale
                 setTimeout(() => {
-                  const formValue = form.getValues('referente_id');
-                  console.log('[ReferenteSelectField] 📝 Form state after setValue:', formValue);
+                  console.log('[ReferenteSelectField] 📝 Form state:', form.getValues('referente_id'));
                 }, 0);
               }}
               value={selectValue}
