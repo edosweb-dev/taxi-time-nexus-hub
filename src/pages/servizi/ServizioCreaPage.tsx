@@ -293,6 +293,7 @@ export const ServizioCreaPage = ({
   }, [mode, initialData, servizioId, form]);
 
   const watchAziendaId = form.watch("azienda_id");
+  const watchReferenteId = form.watch("referente_id");
   const watchConducenteEsterno = form.watch("conducente_esterno");
   const watchMetodoPagamento = form.watch("metodo_pagamento");
   const watchTipoCliente = form.watch("tipo_cliente");
@@ -427,17 +428,46 @@ export const ServizioCreaPage = ({
     isLoading: isLoadingPasseggeri,
     error: errorPasseggeri 
   } = useQuery({
-    queryKey: ["passeggeri", watchAziendaId],
+    queryKey: ["passeggeri", watchAziendaId, watchReferenteId],
     queryFn: async () => {
       if (!watchAziendaId) return [];
       
-      const { data, error } = await supabase
-        .from("passeggeri")
-        .select("id, nome_cognome, email, indirizzo, localita")
-        .eq("azienda_id", watchAziendaId)
-        .order("nome_cognome");
+      console.log('[ServizioCreaPage] 🔍 Fetching passeggeri:', {
+        azienda_id: watchAziendaId,
+        referente_id: watchReferenteId
+      });
       
-      if (error) throw error;
+      let query = supabase
+        .from("passeggeri")
+        .select("id, nome_cognome, email, indirizzo, localita, referente_id")
+        .eq("azienda_id", watchAziendaId);
+      
+      // ✅ Filtra per referente se presente
+      if (watchReferenteId) {
+        query = query.eq("referente_id", watchReferenteId);
+        console.log('[ServizioCreaPage] ✅ Filtering by referente_id:', watchReferenteId);
+      } else {
+        console.log('[ServizioCreaPage] ⚠️ No referente selected - showing ALL passengers for azienda');
+      }
+      
+      query = query.order("nome_cognome");
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error('[ServizioCreaPage] ❌ Error fetching passeggeri:', error);
+        throw error;
+      }
+      
+      console.log('[ServizioCreaPage] 📊 Passeggeri fetched:', {
+        count: data?.length || 0,
+        passengers: data?.map(p => ({
+          id: p.id,
+          nome: p.nome_cognome,
+          referente_id: p.referente_id
+        }))
+      });
+      
       return data;
     },
     enabled: !!watchAziendaId && watchTipoCliente === 'azienda',
@@ -987,6 +1017,18 @@ export const ServizioCreaPage = ({
                   control={form.control}
                   render={({ field }) => (
                     <div className="p-3 sm:p-4 space-y-2 max-h-60 overflow-y-auto">
+                      {/* Indicatore filtro referente attivo */}
+                      {watchReferenteId && (
+                        <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                          <p className="text-xs text-blue-800 flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>
+                              Passeggeri filtrati per il referente selezionato.
+                              {passeggeri?.length === 0 && " Nessun passeggero trovato."}
+                            </span>
+                          </p>
+                        </div>
+                      )}
                       {!watchAziendaId ? (
                         <p className="text-sm text-muted-foreground">
                           Seleziona prima un'azienda
@@ -1001,7 +1043,10 @@ export const ServizioCreaPage = ({
                         </p>
                       ) : passeggeri?.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
-                          Nessun passeggero disponibile. Creane uno con il pulsante qui sotto.
+                          {watchReferenteId 
+                            ? "Nessun passeggero trovato per questo referente. Puoi creare un nuovo passeggero o selezionare un referente diverso." 
+                            : "Nessun passeggero disponibile per questa azienda. Creane uno con il pulsante qui sotto."
+                          }
                         </p>
                       ) : (
                         passeggeri?.map((pass) => (
