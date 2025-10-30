@@ -220,8 +220,24 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
               onValueChange={(value) => {
                 console.log('[ReferenteSelectField] 🔄 onChange called with:', value, 'current:', currentReferenteId);
                 
-                // Accetta QUALSIASI modifica dall'utente
-                // Il problema era il onChange spurio, ma ora selectValue lo previene upstream
+                // ✅ FIX CRITICO: Blocca onChange vuoti quando form ha già un valore
+                if (!value || value === '') {
+                  const currentFormValue = form.getValues('referente_id');
+                  
+                  if (currentFormValue && currentFormValue !== '') {
+                    console.log('[ReferenteSelectField] ⛔ Blocking spurious empty onChange:', {
+                      reason: 'form already has valid value',
+                      currentFormValue,
+                      attemptedValue: value,
+                      currentReferenteId
+                    });
+                    // NON applicare il cambio - mantieni valore esistente nel form
+                    return;
+                  }
+                }
+                
+                // Applica il cambio
+                console.log('[ReferenteSelectField] ✅ Applying onChange:', value);
                 field.onChange(value);
                 onValueChange?.(value);
                 
