@@ -69,9 +69,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   const selectValue = useMemo(() => {
     console.log('[ReferenteSelectField] 🔍 Computing selectValue:', {
       currentReferenteId,
-      currentReferenteId_type: typeof currentReferenteId,
       referenti_length: referenti.length,
-      referenti_ids: referenti.map(r => r.id),
       isLoading
     });
     
@@ -81,23 +79,24 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       return '';
     }
     
-    // Se referenti non ancora caricati ma abbiamo un referente salvato,
-    // mantieni il valore corrente per evitare "invalid value" error
+    // ✅ FIX PRINCIPALE: Se referenti non ancora caricati, mantieni valore corrente
+    // Questo previene che Select riceva value valido con options vuote
     if (referenti.length === 0 && currentReferenteId) {
       console.log('[ReferenteSelectField] ⏳ Referenti loading - keeping saved value:', currentReferenteId);
       return currentReferenteId;
     }
     
     // Se referente esiste nella lista caricata, usalo
-    const referenteExists = referenti.some(r => r.id === currentReferenteId);
-    if (referenteExists) {
-      console.log('[ReferenteSelectField] ✅ Referente found in list:', currentReferenteId);
+    if (referenti.some(r => r.id === currentReferenteId)) {
+      console.log('[ReferenteSelectField] ✅ Referente in list - using:', currentReferenteId);
       return currentReferenteId;
     }
     
-    // Se referente non è nella lista (cambio azienda), resetta a vuoto
-    console.log('[ReferenteSelectField] ❌ Referente not in current company - resetting');
-    return '';
+    // ⚠️ CRITICAL: Se referente NON è nella lista MA lista è caricata
+    // Significa che referente appartiene ad altra azienda o è stato cancellato
+    // In questo caso, mantieni il valore per ora (non resettare)
+    console.log('[ReferenteSelectField] ⚠️ Referente not in current list - keeping anyway:', currentReferenteId);
+    return currentReferenteId;
   }, [currentReferenteId, referenti, isLoading]);
 
   // Reset referente_id when azienda changes, but only if current referente doesn't belong to new azienda
@@ -219,37 +218,13 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
             </FormLabel>
             <Select 
               onValueChange={(value) => {
-                console.log('[ReferenteSelectField] 🔄 Setting referente_id:', value);
+                console.log('[ReferenteSelectField] 🔄 onChange called with:', value, 'current:', currentReferenteId);
                 
-                // ✅ FIX: Usa previousReferenteIdRef (valore catturato prima del render)
-                // Non usare form.getValues() perché legge il valore già modificato
-                const previousReferenteId = previousReferenteIdRef.current;
-                
-                if (!value || value === '') {
-                  // Se nuovo valore è vuoto E avevamo un valore valido prima
-                  if (previousReferenteId && previousReferenteId !== '') {
-                    // Blocca se:
-                    // 1. Referenti ancora in caricamento (race condition), O
-                    // 2. Valore precedente esiste nei referenti caricati (preserva valore valido)
-                    if (isLoading || referenti.some(r => r.id === previousReferenteId)) {
-                      console.log('[ReferenteSelectField] ⛔ Blocking spurious onChange:', {
-                        reason: isLoading ? 'referenti still loading' : 'value exists in referenti',
-                        previousReferenteId,
-                        attemptedNewValue: value,
-                        isLoading,
-                        referentiCount: referenti.length
-                      });
-                      return; // BLOCCA la modifica - non chiama field.onChange
-                    }
-                  }
-                }
-                
-                // Se non bloccato, procedi con onChange normale
-                console.log('[ReferenteSelectField] ✅ Applying onChange:', value);
+                // Accetta QUALSIASI modifica dall'utente
+                // Il problema era il onChange spurio, ma ora selectValue lo previene upstream
                 field.onChange(value);
                 onValueChange?.(value);
                 
-                // Log stato finale per debug
                 setTimeout(() => {
                   console.log('[ReferenteSelectField] 📝 Form state:', form.getValues('referente_id'));
                 }, 0);
