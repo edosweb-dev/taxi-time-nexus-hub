@@ -221,32 +221,35 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
               onValueChange={(value) => {
                 console.log('[ReferenteSelectField] 🔄 Setting referente_id:', value);
                 
-                // ✅ FIX: Blocca onChange('') spurio durante race condition
-                const currentFormValue = form.getValues('referente_id');
+                // ✅ FIX: Usa previousReferenteIdRef (valore catturato prima del render)
+                // Non usare form.getValues() perché legge il valore già modificato
+                const previousReferenteId = previousReferenteIdRef.current;
                 
                 if (!value || value === '') {
-                  // Se nuovo valore è vuoto E abbiamo già un valore valido, blocca
-                  if (currentFormValue && currentFormValue !== '') {
-                    // Blocca solo se:
-                    // 1. Referenti ancora in caricamento, O
-                    // 2. Valore corrente esiste nei referenti caricati
-                    if (isLoading || referenti.some(r => r.id === currentFormValue)) {
-                      console.log('[ReferenteSelectField] ⛔ Blocking spurious empty onChange during:', {
-                        reason: isLoading ? 'referenti loading' : 'preserving valid value',
-                        currentFormValue,
+                  // Se nuovo valore è vuoto E avevamo un valore valido prima
+                  if (previousReferenteId && previousReferenteId !== '') {
+                    // Blocca se:
+                    // 1. Referenti ancora in caricamento (race condition), O
+                    // 2. Valore precedente esiste nei referenti caricati (preserva valore valido)
+                    if (isLoading || referenti.some(r => r.id === previousReferenteId)) {
+                      console.log('[ReferenteSelectField] ⛔ Blocking spurious onChange:', {
+                        reason: isLoading ? 'referenti still loading' : 'value exists in referenti',
+                        previousReferenteId,
+                        attemptedNewValue: value,
                         isLoading,
                         referentiCount: referenti.length
                       });
-                      return; // BLOCCA la modifica
+                      return; // BLOCCA la modifica - non chiama field.onChange
                     }
                   }
                 }
                 
-                // Procedi con onChange normale
+                // Se non bloccato, procedi con onChange normale
+                console.log('[ReferenteSelectField] ✅ Applying onChange:', value);
                 field.onChange(value);
                 onValueChange?.(value);
                 
-                // Log stato finale
+                // Log stato finale per debug
                 setTimeout(() => {
                   console.log('[ReferenteSelectField] 📝 Form state:', form.getValues('referente_id'));
                 }, 0);
