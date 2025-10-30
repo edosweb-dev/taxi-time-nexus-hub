@@ -57,6 +57,28 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
     enabled: !!aziendaId,
   });
 
+  // Calcolo intelligente del valore del Select per gestire race conditions
+  const selectValue = useMemo(() => {
+    // Se non c'è referente salvato, campo vuoto
+    if (!currentReferenteId) return '';
+    
+    // Se referenti non ancora caricati ma abbiamo un referente salvato,
+    // mantieni il valore corrente per evitare "invalid value" error
+    if (referenti.length === 0 && currentReferenteId) {
+      console.log('[ReferenteSelectField] Referenti loading - keeping saved value:', currentReferenteId);
+      return currentReferenteId;
+    }
+    
+    // Se referente esiste nella lista caricata, usalo
+    if (referenti.some(r => r.id === currentReferenteId)) {
+      return currentReferenteId;
+    }
+    
+    // Se referente non è nella lista (cambio azienda), resetta a vuoto
+    console.log('[ReferenteSelectField] Referente not in current company - resetting');
+    return '';
+  }, [currentReferenteId, referenti]);
+
   // Reset referente_id when azienda changes, but only if current referente doesn't belong to new azienda
   useEffect(() => {
     console.log('[ReferenteSelectField] Effect - aziendaId:', aziendaId, 'previousAziendaId:', previousAziendaIdRef.current, 'currentReferenteId:', currentReferenteId, 'referenti:', referenti, 'isLoading:', isLoading, 'isFirstRender:', isFirstRenderRef.current);
@@ -151,8 +173,6 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       control={form.control}
       name="referente_id"
       render={({ field }) => {
-        const selectValue = currentReferenteId || '';
-        
         console.log('[ReferenteSelectField] Rendering with:', {
           field_value: field.value,
           field_value_type: typeof field.value,
