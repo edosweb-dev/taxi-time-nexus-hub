@@ -1160,18 +1160,6 @@ export const ServizioCreaPage = ({
                   control={form.control}
                   render={({ field }) => (
                     <div className="p-3 sm:p-4 space-y-2 max-h-60 overflow-y-auto">
-                      {/* Indicatore filtro referente attivo */}
-                      {watchReferenteId && (
-                        <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
-                          <p className="text-xs text-blue-800 flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            <span>
-                              Passeggeri filtrati per il referente selezionato.
-                              {passeggeri?.length === 0 && " Nessun passeggero trovato."}
-                            </span>
-                          </p>
-                        </div>
-                      )}
                       {!watchAziendaId ? (
                         <p className="text-sm text-muted-foreground">
                           Seleziona prima un'azienda
