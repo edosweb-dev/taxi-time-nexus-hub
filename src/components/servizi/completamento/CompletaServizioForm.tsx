@@ -66,40 +66,16 @@ export function CompletaServizioForm({
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="metodo_pagamento"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Modalità di pagamento</FormLabel>
-              {impostazioniLoading ? (
-                <div className="flex items-center space-x-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Caricamento metodi di pagamento...</span>
-                </div>
-              ) : (
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona metodo di pagamento" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {metodiPagamento.map((metodo: MetodoPagamentoOption) => (
-                      <SelectItem key={metodo.id} value={metodo.nome}>
-                        {metodo.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="metodo_pagamento_readonly">Modalità di pagamento</Label>
+          <Input
+            id="metodo_pagamento_readonly"
+            type="text"
+            value={servizio.metodo_pagamento || 'Non specificato'}
+            disabled
+            className="bg-muted"
+          />
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="incasso_previsto_readonly">Totale da incassare</Label>
