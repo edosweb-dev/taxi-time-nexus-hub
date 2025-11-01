@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
+import { DipendenteLayout } from "@/components/layouts/DipendenteLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
 import { useUsers } from "@/hooks/useUsers";
 import { useServizi } from "@/hooks/useServizi";
@@ -42,6 +43,9 @@ export default function ServizioDetailPage() {
 
   // 🔹 CONDITIONAL HOOK BASED ON ROLE
   const isDipendente = profile?.role === 'dipendente';
+  
+  // 🔹 CONDITIONAL LAYOUT BASED ON ROLE
+  const Layout = isDipendente ? DipendenteLayout : MainLayout;
 
   // Hook admin/socio/cliente
   const adminHookResult = useServizioDetail(isDipendente ? undefined : id);
@@ -153,12 +157,8 @@ export default function ServizioDetailPage() {
   // Mobile-first layout
   if (isMobile) {
     return (
-      <MainLayout 
+      <Layout 
         title="Dettaglio Servizio"
-        headerProps={{
-          showBackButton: true,
-          onBackClick: () => navigate('/servizi'),
-        }}
       >
         <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
           <MobileServizioOptimized
@@ -220,7 +220,7 @@ export default function ServizioDetailPage() {
           }}
           servizio={servizio}
         />
-      </MainLayout>
+      </Layout>
     );
   }
 
@@ -230,7 +230,7 @@ export default function ServizioDetailPage() {
 
   // Desktop layout - NEW Sidebar + Main
   return (
-    <MainLayout>
+    <Layout>
       {/* Desktop (≥1024px) - NEW Layout */}
       <div className="hidden lg:block">
         <ServizioDetailDesktop
@@ -367,6 +367,6 @@ export default function ServizioDetailPage() {
           }
         }}
       />
-    </MainLayout>
+    </Layout>
   );
 }
