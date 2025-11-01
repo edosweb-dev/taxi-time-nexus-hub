@@ -7,19 +7,112 @@ import { getServizioIndex } from "@/components/servizi/utils/formatUtils";
 import { useQuery } from "@tanstack/react-query";
 import { formatCurrency as formatCurrencyUtil } from "@/components/servizi/utils/formatUtils";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useServizioDetail(id?: string) {
-  const { data, isLoading, isError, error, refetch } = useServizio(id);
+  const { profile } = useAuth();
+  const isDipendente = profile?.role === 'dipendente';
+  
+  // Hook unificato: dipendenti vedono solo i loro servizi, admin vedono tutto
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['servizio-detail', id, isDipendente],
+    queryFn: async () => {
+      if (!id) return null;
+      
+      let query = supabase
+        .from('servizi')
+        .select(`
+          *,
+          aziende!left(id, nome, email, firma_digitale_attiva, partita_iva, created_at),
+          veicoli!left(id, modello, targa, numero_posti),
+          assegnato:profiles!servizi_assegnato_a_fkey(first_name, last_name),
+          servizi_passeggeri!inner(
+            id,
+            passeggero_id,
+            nome_cognome_inline,
+            orario_presa_personalizzato,
+            luogo_presa_personalizzato,
+            destinazione_personalizzato,
+            passeggeri:passeggero_id (
+              id,
+              nome_cognome,
+              email,
+              telefono,
+              localita,
+              indirizzo,
+              azienda_id,
+              referente_id
+            )
+          )
+        `)
+        .eq('id', id);
+      
+      // Se dipendente, filtra solo servizi assegnati a lui
+      if (isDipendente && profile?.id) {
+        query = query.eq('assegnato_a', profile.id);
+      }
+      
+      const { data: servizioData, error: servizioError } = await query.single();
+      
+      if (servizioError) throw servizioError;
+      if (!servizioData) return null;
+      
+      // Normalizza la struttura dati
+      const azienda = Array.isArray(servizioData.aziende) ? servizioData.aziende[0] : servizioData.aziende;
+      const veicolo = Array.isArray(servizioData.veicoli) ? servizioData.veicoli[0] : servizioData.veicoli;
+      
+      // Mappa passeggeri con tipo corretto
+      const passeggeri = (servizioData.servizi_passeggeri || []).map((sp: any) => {
+        const p = Array.isArray(sp.passeggeri) ? sp.passeggeri[0] : sp.passeggeri;
+        const nomeCognome = p?.nome_cognome || sp.nome_cognome_inline || '';
+        const [nome = '', ...cognomeParts] = nomeCognome.split(' ');
+        const cognome = cognomeParts.join(' ');
+        
+        return {
+          id: sp.id,
+          passeggero_id: sp.passeggero_id,
+          nome_cognome: nomeCognome,
+          nome,
+          cognome,
+          email: p?.email,
+          telefono: p?.telefono,
+          localita: p?.localita,
+          indirizzo: p?.indirizzo,
+          azienda_id: p?.azienda_id || '',
+          referente_id: p?.referente_id || '',
+          orario_presa_personalizzato: sp.orario_presa_personalizzato,
+          luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+          destinazione_personalizzato: sp.destinazione_personalizzato,
+          usa_indirizzo_personalizzato: !!(sp.luogo_presa_personalizzato || sp.destinazione_personalizzato),
+        };
+      });
+      
+      return {
+        servizio: {
+          ...servizioData,
+          aziende: azienda,
+          veicoli: veicolo,
+        } as any, // Cast necessario per compatibilità con Servizio type
+        passeggeri,
+      };
+    },
+    enabled: !!id,
+    staleTime: 1 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  });
+  
   const { servizi: allServizi } = useServizi(); // Get all servizi for global indexing
   const { users } = useUsers();
   const { aziende } = useAziende();
-  const { profile } = useAuth();
   
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
   const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
   
   const servizio = data?.servizio;
   const passeggeri = data?.passeggeri || [];
+  
+  // Veicolo
+  const veicoloModello = servizio?.veicoli?.modello;
   
   // Calcola firma digitale dall'azienda del servizio, non dal profilo utente
   const firmaDigitaleAttiva = servizio?.aziende?.firma_digitale_attiva || false;
@@ -75,7 +168,7 @@ export function useServizioDetail(id?: string) {
     getAzienda,
     getUserName,
     servizioIndex,
-    allServizi, // Add allServizi to return value
+    allServizi,
     refetch,
     completaDialogOpen,
     setCompletaDialogOpen,
@@ -83,5 +176,6 @@ export function useServizioDetail(id?: string) {
     setConsuntivaDialogOpen,
     firmaDigitaleAttiva,
     formatCurrency: formatCurrencyUtil,
+    veicoloModello,
   };
 }

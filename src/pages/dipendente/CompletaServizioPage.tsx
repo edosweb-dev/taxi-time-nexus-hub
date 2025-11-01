@@ -1,9 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DipendenteLayout } from '@/components/layouts/DipendenteLayout';
-import { useServizioDettaglio } from '@/hooks/dipendente/useServizioDettaglio';
+import { useServizioDetail } from '@/hooks/useServizioDetail';
 import { useCompletaServizio } from '@/hooks/dipendente/useCompletaServizio';
-import { RiepilogoServizio } from '@/components/dipendente/servizi/completamento/RiepilogoServizio';
 import { FirmaDigitaleCanvas, FirmaCanvasRef } from '@/components/dipendente/servizi/completamento/FirmaDigitaleCanvas';
 import { NoteCompletamento } from '@/components/dipendente/servizi/completamento/NoteCompletamento';
 import { ConfermaCompletamento } from '@/components/dipendente/servizi/completamento/ConfermaCompletamento';
@@ -27,7 +26,7 @@ export default function CompletaServizioPage() {
   const navigate = useNavigate();
   const firmaCanvasRef = useRef<FirmaCanvasRef>(null);
 
-  const { servizio, passeggeri, isLoading } = useServizioDettaglio(id);
+  const { servizio, passeggeri, isLoading, formatCurrency } = useServizioDetail(id);
   const { completaServizio, isCompleting } = useCompletaServizio();
 
   const [noteCompletamento, setNoteCompletamento] = useState('');
@@ -181,11 +180,6 @@ export default function CompletaServizioPage() {
 
         {/* Content */}
         <div className="space-y-4">
-          <RiepilogoServizio 
-            servizio={servizio} 
-            passeggeriCount={passeggeri.length}
-          />
-
           <FirmaDigitaleCanvas
             ref={firmaCanvasRef}
             onSignatureChange={setIsSignatureEmpty}

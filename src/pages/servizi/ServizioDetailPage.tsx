@@ -8,11 +8,6 @@ import { useUsers } from "@/hooks/useUsers";
 import { useServizi } from "@/hooks/useServizi";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getUserName } from "@/components/servizi/utils/userUtils";
-import { useServizioDettaglio } from "@/hooks/dipendente/useServizioDettaglio";
-import { 
-  adaptServizioDettaglioToServizio, 
-  adaptPasseggeroDettaglioToConDettagli 
-} from "@/components/servizi/utils/servizioAdapter";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, FileText, Edit, Users, Edit3, MoreVertical, XCircle } from "lucide-react";
 import {
@@ -41,82 +36,39 @@ export default function ServizioDetailPage() {
   const isMobile = useIsMobile();
   const { veicoli = [] } = useVeicoli();
 
-  // 🔹 CONDITIONAL HOOK BASED ON ROLE
+  // 🔹 UNIFIED HOOK - gestisce sia admin che dipendente
   const isDipendente = profile?.role === 'dipendente';
   
   // 🔹 CONDITIONAL LAYOUT BASED ON ROLE
   const Layout = isDipendente ? DipendenteLayout : MainLayout;
 
-  // Hook admin/socio/cliente
-  const adminHookResult = useServizioDetail(isDipendente ? undefined : id);
+  // 🔹 Hook unificato per tutti i ruoli
+  const hookResult = useServizioDetail(id);
+  
+  const {
+    servizio,
+    passeggeri,
+    isLoading,
+    error,
+    refetch,
+    users: detailUsers,
+    getAziendaName,
+    getAzienda,
+    formatCurrency,
+    firmaDigitaleAttiva,
+    servizioIndex,
+    allServizi,
+    canBeEdited,
+    canBeCompleted,
+    canBeConsuntivato,
+    veicoloModello: veicoloModelloFromHook,
+  } = hookResult;
 
-  // Hook dipendente
-  const dipendenteHookResult = useServizioDettaglio(isDipendente ? id : undefined);
-
-  // 🔹 NORMALIZE DATA STRUCTURE
-  const servizio = isDipendente 
-    ? (dipendenteHookResult.servizio ? adaptServizioDettaglioToServizio(dipendenteHookResult.servizio) : null)
-    : adminHookResult.servizio;
-  const passeggeri = isDipendente 
-    ? (dipendenteHookResult.passeggeri || []).map(adaptPasseggeroDettaglioToConDettagli)
-    : adminHookResult.passeggeri;
-  const isLoading = isDipendente ? dipendenteHookResult.isLoading : adminHookResult.isLoading;
-  const error = isDipendente ? dipendenteHookResult.error : adminHookResult.error;
-  const refetch = isDipendente ? (() => {}) : adminHookResult.refetch;
-
-  // 🔍 DEBUG LOGS (TEMPORARY)
-  console.log('═══════════════════════════════════');
-  console.log('🔍 [ServizioDetailPage] isDipendente:', isDipendente);
-  console.log('🔍 [ServizioDetailPage] Servizio final:', {
-    id: servizio?.id,
-    azienda_id: servizio?.azienda_id,
-    aziende: servizio?.aziende,
-    azienda_nome_flat: (servizio as any)?.azienda_nome,
-    incasso_previsto: servizio?.incasso_previsto,
-    iva: servizio?.iva,
-  });
-  console.log('🔍 [ServizioDetailPage] Passeggeri:', {
-    count: passeggeri?.length,
-    data: passeggeri,
-  });
-  console.log('🔍 [ServizioDetailPage] isLoading:', isLoading);
-  console.log('🔍 [ServizioDetailPage] error:', error);
-
-  if (isDipendente) {
-    console.log('🔍 [ServizioDetailPage] DIPENDENTE - Raw hook result:', {
-      servizio: dipendenteHookResult.servizio,
-      passeggeri: dipendenteHookResult.passeggeri,
-    });
+  // 🔒 SECURITY: Dipendente può vedere solo servizi assegnati a lui
+  if (isDipendente && servizio && servizio.assegnato_a !== profile?.id) {
+    navigate('/dipendente/servizi-assegnati');
+    return null;
   }
-  console.log('═══════════════════════════════════');
-
-  // 🔹 COMPUTE MISSING FIELDS FOR DIPENDENTE
-  const detailUsers = isDipendente ? [] : adminHookResult.users;
-  const getAziendaName = isDipendente 
-    ? (aziendaId?: string) => dipendenteHookResult.servizio?.azienda_nome || 'N/A'
-    : adminHookResult.getAziendaName;
-  const getAzienda = isDipendente
-    ? (aziendaId?: string) => undefined
-    : adminHookResult.getAzienda;
-  const formatCurrency = isDipendente
-    ? (value?: number | null) => value ? `€${value.toFixed(2)}` : '€0.00'
-    : adminHookResult.formatCurrency;
-  const firmaDigitaleAttiva = isDipendente
-    ? false
-    : adminHookResult.firmaDigitaleAttiva;
-  const servizioIndex = isDipendente
-    ? 0
-    : adminHookResult.servizioIndex;
-  const allServizi = isDipendente
-    ? []
-    : adminHookResult.allServizi;
-  const canBeEdited = isDipendente
-    ? false
-    : adminHookResult.canBeEdited;
-  const canBeCompleted = servizio?.stato === 'assegnato';
-  const canBeConsuntivato = isDipendente
-    ? false
-    : adminHookResult.canBeConsuntivato;
 
   // 🔹 DIALOG STATE (shared)
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
@@ -175,10 +127,8 @@ export default function ServizioDetailPage() {
   // Check if there are any actions available for mobile menu
   const hasMobileActions = canBeEdited || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
 
-  // Get vehicle model
-  const veicoloModello = isDipendente
-    ? dipendenteHookResult.servizio?.veicolo_modello
-    : veicoli.find(v => v.id === servizio?.veicolo_id)?.modello;
+  // Get vehicle model - priorità all'hook, fallback alla ricerca
+  const veicoloModello = veicoloModelloFromHook || veicoli.find(v => v.id === servizio?.veicolo_id)?.modello;
 
   // Mobile-first layout
   if (isMobile) {

@@ -5,7 +5,6 @@ import { ServiziTabs } from "@/components/dipendente/servizi/ServiziTabs";
 import { ServiziFilters, FilterValues } from "@/components/dipendente/servizi/ServiziFilters";
 import { ServiziElencoView } from "@/components/dipendente/servizi/ServiziElencoView";
 import { ServiziAgendaView } from "@/components/dipendente/servizi/ServiziAgendaView";
-import { ServizioDetailSheet } from "@/components/dipendente/servizi/ServizioDetailSheet";
 import { Badge } from "@/components/ui/badge";
 import { useServiziAssegnati, useAziendeForDipendente } from "@/hooks/dipendente/useServiziAssegnati";
 import { ServiziFilters as APIFilters } from "@/lib/api/dipendente/servizi";
@@ -27,7 +26,6 @@ export default function ServiziAssegnatiPage() {
 
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'elenco');
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
-  const [selectedServizioId, setSelectedServizioId] = useState<string | null>(null);
 
   // Fetch data
   const apiFilters: APIFilters = {
@@ -123,11 +121,7 @@ export default function ServiziAssegnatiPage() {
   };
 
   const handleCardClick = (id: string) => {
-    setSelectedServizioId(id);
-  };
-
-  const handleCloseDetail = () => {
-    setSelectedServizioId(null);
+    navigate(`/servizi/${id}`);
   };
 
   return (
@@ -185,15 +179,6 @@ export default function ServiziAssegnatiPage() {
             onCardClick={handleCardClick}
           />
         </ServiziTabs>
-
-        {/* Detail Sheet/Dialog */}
-        {selectedServizioId && (
-          <ServizioDetailSheet
-            servizioId={selectedServizioId}
-            isOpen={!!selectedServizioId}
-            onClose={handleCloseDetail}
-          />
-        )}
       </div>
     </DipendenteLayout>
   );

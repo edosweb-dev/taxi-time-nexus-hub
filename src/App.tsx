@@ -344,11 +344,11 @@ function App() {
                   </AuthGuard>
                 } />
 
-                <Route path="/dipendente/servizi-assegnati/:id" element={
-                  <AuthGuard allowedRoles={['dipendente']}>
-                    <ServizioDetailPage />
-                  </AuthGuard>
-                } />
+                {/* Redirect vecchia route dipendente alla route unificata */}
+                <Route 
+                  path="/dipendente/servizi-assegnati/:id" 
+                  element={<Navigate to="/servizi/:id" replace />} 
+                />
 
                 <Route path="/dipendente/servizi-assegnati/:id/completa" element={
                   <AuthGuard allowedRoles={['dipendente']}>
