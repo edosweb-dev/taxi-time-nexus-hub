@@ -140,18 +140,16 @@ export function SpesaForm({
             <FormItem>
               <FormLabel>Importo *</FormLabel>
               <FormControl>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    €
-                  </span>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    className="pl-8"
-                    {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                  />
-                </div>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...field}
+                  value={field.value === 0 ? '' : field.value}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? 0 : parseFloat(value));
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
