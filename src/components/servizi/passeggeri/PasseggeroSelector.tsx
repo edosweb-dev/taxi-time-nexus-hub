@@ -62,6 +62,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       telefono: passeggero.telefono || '',
       usa_indirizzo_personalizzato: false,
       is_existing: true,
+      salva_in_database: true,
     };
     
     console.log('[PasseggeroSelector] Calling onPasseggeroSelect with:', passeggeroData);
