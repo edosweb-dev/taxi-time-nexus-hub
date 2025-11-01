@@ -7,6 +7,11 @@ import { useUsers } from "@/hooks/useUsers";
 import { useServizi } from "@/hooks/useServizi";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getUserName } from "@/components/servizi/utils/userUtils";
+import { useServizioDettaglio } from "@/hooks/dipendente/useServizioDettaglio";
+import { 
+  adaptServizioDettaglioToServizio, 
+  adaptPasseggeroDettaglioToConDettagli 
+} from "@/components/servizi/utils/servizioAdapter";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, FileText, Edit, Users, Edit3, MoreVertical, XCircle } from "lucide-react";
 import {
@@ -34,27 +39,58 @@ export default function ServizioDetailPage() {
   const { profile } = useAuth();
   const isMobile = useIsMobile();
   const { veicoli = [] } = useVeicoli();
-  const {
-    servizio,
-    passeggeri,
-    users: detailUsers,
-    getAzienda,
-    isLoading,
-    error,
-    refetch,
-    completaDialogOpen,
-    setCompletaDialogOpen,
-    consuntivaDialogOpen,
-    setConsuntivaDialogOpen,
-    firmaDigitaleAttiva,
-    canBeEdited,
-    canBeCompleted,
-    canBeConsuntivato,
-    getAziendaName,
-    formatCurrency,
-    servizioIndex,
-    allServizi,
-  } = useServizioDetail(id);
+
+  // 🔹 CONDITIONAL HOOK BASED ON ROLE
+  const isDipendente = profile?.role === 'dipendente';
+
+  // Hook admin/socio/cliente
+  const adminHookResult = useServizioDetail(isDipendente ? undefined : id);
+
+  // Hook dipendente
+  const dipendenteHookResult = useServizioDettaglio(isDipendente ? id : undefined);
+
+  // 🔹 NORMALIZE DATA STRUCTURE
+  const servizio = isDipendente 
+    ? (dipendenteHookResult.servizio ? adaptServizioDettaglioToServizio(dipendenteHookResult.servizio) : null)
+    : adminHookResult.servizio;
+  const passeggeri = isDipendente 
+    ? (dipendenteHookResult.passeggeri || []).map(adaptPasseggeroDettaglioToConDettagli)
+    : adminHookResult.passeggeri;
+  const isLoading = isDipendente ? dipendenteHookResult.isLoading : adminHookResult.isLoading;
+  const error = isDipendente ? dipendenteHookResult.error : adminHookResult.error;
+  const refetch = isDipendente ? (() => {}) : adminHookResult.refetch;
+
+  // 🔹 COMPUTE MISSING FIELDS FOR DIPENDENTE
+  const detailUsers = isDipendente ? [] : adminHookResult.users;
+  const getAziendaName = isDipendente 
+    ? (aziendaId?: string) => dipendenteHookResult.servizio?.azienda_nome || 'N/A'
+    : adminHookResult.getAziendaName;
+  const getAzienda = isDipendente
+    ? (aziendaId?: string) => undefined
+    : adminHookResult.getAzienda;
+  const formatCurrency = isDipendente
+    ? (value?: number | null) => value ? `€${value.toFixed(2)}` : '€0.00'
+    : adminHookResult.formatCurrency;
+  const firmaDigitaleAttiva = isDipendente
+    ? false
+    : adminHookResult.firmaDigitaleAttiva;
+  const servizioIndex = isDipendente
+    ? 0
+    : adminHookResult.servizioIndex;
+  const allServizi = isDipendente
+    ? []
+    : adminHookResult.allServizi;
+  const canBeEdited = isDipendente
+    ? false
+    : adminHookResult.canBeEdited;
+  const canBeCompleted = servizio?.stato === 'assegnato';
+  const canBeConsuntivato = isDipendente
+    ? false
+    : adminHookResult.canBeConsuntivato;
+
+  // 🔹 DIALOG STATE (shared)
+  const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
+  const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
 
   const [assegnazioneSheetOpen, setAssegnazioneSheetOpen] = useState(false);
   const [showFirmaClienteDialog, setShowFirmaClienteDialog] = useState(false);
@@ -110,7 +146,9 @@ export default function ServizioDetailPage() {
   const hasMobileActions = canBeEdited || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
 
   // Get vehicle model
-  const veicoloModello = veicoli.find(v => v.id === servizio.veicolo_id)?.modello;
+  const veicoloModello = isDipendente
+    ? dipendenteHookResult.servizio?.veicolo_modello
+    : veicoli.find(v => v.id === servizio?.veicolo_id)?.modello;
 
   // Mobile-first layout
   if (isMobile) {
