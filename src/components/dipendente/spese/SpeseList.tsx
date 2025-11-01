@@ -33,10 +33,7 @@ export function SpeseList({ spese, isLoading, onSpesaClick }: SpesaListProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold flex items-center gap-2">
-        <span className="text-2xl">📋</span>
-        LISTA SPESE
-      </h2>
+      <h2 className="text-lg font-semibold">LISTA SPESE</h2>
       
       {spese.map((spesa) => (
         <SpesaCard

@@ -67,9 +67,7 @@ export function SpeseFilters({
       <div className="space-y-4">
         {/* Quick Filters */}
         <div>
-          <Label className="text-sm font-medium mb-2 block">
-            🔍 FILTRI
-          </Label>
+          <Label className="text-sm font-medium mb-2 block">FILTRI</Label>
           <div className="flex flex-wrap gap-2">
             {stati.map((stato) => (
               <Button
