@@ -64,6 +64,32 @@ export default function ServizioDetailPage() {
   const error = isDipendente ? dipendenteHookResult.error : adminHookResult.error;
   const refetch = isDipendente ? (() => {}) : adminHookResult.refetch;
 
+  // 🔍 DEBUG LOGS (TEMPORARY)
+  console.log('═══════════════════════════════════');
+  console.log('🔍 [ServizioDetailPage] isDipendente:', isDipendente);
+  console.log('🔍 [ServizioDetailPage] Servizio final:', {
+    id: servizio?.id,
+    azienda_id: servizio?.azienda_id,
+    aziende: servizio?.aziende,
+    azienda_nome_flat: (servizio as any)?.azienda_nome,
+    incasso_previsto: servizio?.incasso_previsto,
+    iva: servizio?.iva,
+  });
+  console.log('🔍 [ServizioDetailPage] Passeggeri:', {
+    count: passeggeri?.length,
+    data: passeggeri,
+  });
+  console.log('🔍 [ServizioDetailPage] isLoading:', isLoading);
+  console.log('🔍 [ServizioDetailPage] error:', error);
+
+  if (isDipendente) {
+    console.log('🔍 [ServizioDetailPage] DIPENDENTE - Raw hook result:', {
+      servizio: dipendenteHookResult.servizio,
+      passeggeri: dipendenteHookResult.passeggeri,
+    });
+  }
+  console.log('═══════════════════════════════════');
+
   // 🔹 COMPUTE MISSING FIELDS FOR DIPENDENTE
   const detailUsers = isDipendente ? [] : adminHookResult.users;
   const getAziendaName = isDipendente 
