@@ -118,47 +118,42 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
 
         // NUOVO PASSEGGERO
         if (!passeggeroData.is_existing || !passeggeroId) {
+          // ✅ SEMPRE crea passeggero, distingui con campo tipo
+          const tipo = salvaInDatabase ? 'rubrica' : 'temporaneo';
           
-          // CASO 1: salva_in_database = TRUE → Crea in anagrafica permanente
-          if (salvaInDatabase) {
-            console.log('[createServizio] Creating new passeggero in anagrafica:', passeggeroData.nome_cognome);
-            
-            const { data: newPasseggero, error: passeggeroError } = await supabase
-              .from('passeggeri')
-              .insert({
-                nome_cognome: passeggeroData.nome_cognome,
-                nome: passeggeroData.nome,
-                cognome: passeggeroData.cognome,
-                localita: passeggeroData.localita,
-                indirizzo: passeggeroData.indirizzo,
-                email: passeggeroData.email,
-                telefono: passeggeroData.telefono,
-                azienda_id: data.servizio.tipo_cliente === 'azienda' ? data.servizio.azienda_id : null,
-                referente_id: data.servizio.tipo_cliente === 'azienda' ? (data.servizio.referente_id || null) : null,
-              })
-              .select()
-              .single();
+          console.log(`[createServizio] Creating passeggero tipo "${tipo}":`, passeggeroData.nome_cognome);
+          
+          const { data: newPasseggero, error: passeggeroError } = await supabase
+            .from('passeggeri')
+            .insert({
+              nome_cognome: passeggeroData.nome_cognome,
+              nome: passeggeroData.nome,
+              cognome: passeggeroData.cognome,
+              localita: passeggeroData.localita,
+              indirizzo: passeggeroData.indirizzo,
+              email: passeggeroData.email,
+              telefono: passeggeroData.telefono,
+              azienda_id: data.servizio.tipo_cliente === 'azienda' ? data.servizio.azienda_id : null,
+              referente_id: data.servizio.tipo_cliente === 'azienda' ? (data.servizio.referente_id || null) : null,
+              tipo: tipo,
+            })
+            .select()
+            .single();
 
-            if (passeggeroError) {
-              console.error('[createServizio] Error creating passeggero:', passeggeroError);
-              toast.error(`Errore nella creazione del passeggero ${passeggeroData.nome_cognome}: ${passeggeroError.message}`);
-              continue;
-            }
-
-            passeggeroId = newPasseggero.id;
-            console.log('[createServizio] New passeggero created with ID:', passeggeroId);
-          } 
-          // CASO 2: salva_in_database = FALSE → NON creare in anagrafica
-          else {
-        console.log('[createServizio] Passeggero one-time use (not saved in anagrafica):', passeggeroData.nome_cognome);
-            // passeggeroId rimane null, dati salvati solo in servizi_passeggeri
+          if (passeggeroError) {
+            console.error('[createServizio] Error creating passeggero:', passeggeroError);
+            toast.error(`Errore nella creazione del passeggero ${passeggeroData.nome_cognome}: ${passeggeroError.message}`);
+            continue;
           }
+
+          passeggeroId = newPasseggero.id;
+          console.log(`[createServizio] Passeggero ${tipo} created with ID:`, passeggeroId);
         }
 
-        // CREA COLLEGAMENTO servizio-passeggero (sempre, anche se passeggeroId è null)
+        // CREA COLLEGAMENTO servizio-passeggero
         const collegamentoData: any = {
           servizio_id: servizio.id,
-          passeggero_id: passeggeroId, // può essere null se salva_in_database = false
+          passeggero_id: passeggeroId, // ora sempre valorizzato
           orario_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.orario_presa_personalizzato : null,
           luogo_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.luogo_presa_personalizzato : null,
           destinazione_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.destinazione_personalizzato : null,
@@ -166,19 +161,9 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
           salva_in_database: salvaInDatabase,
         };
 
-        // Se passeggero NON salvato in anagrafica, salva dati inline
-        if (!passeggeroId && !salvaInDatabase) {
-          collegamentoData.nome_cognome_inline = passeggeroData.nome_cognome;
-          collegamentoData.email_inline = passeggeroData.email || null;
-          collegamentoData.telefono_inline = passeggeroData.telefono || null;
-          collegamentoData.localita_inline = passeggeroData.localita || null;
-          collegamentoData.indirizzo_inline = passeggeroData.indirizzo || null;
-        }
-
         console.log('[createServizio] Creating servizio-passeggero link:', {
           passeggero_id: passeggeroId,
-          salva_in_database: salvaInDatabase,
-          has_inline_data: !passeggeroId && !salvaInDatabase
+          salva_in_database: salvaInDatabase
         });
 
         const { error: collegamentoError } = await supabase

@@ -583,6 +583,7 @@ export type Database = {
           nome_cognome: string
           referente_id: string | null
           telefono: string | null
+          tipo: string | null
         }
         Insert: {
           azienda_id: string
@@ -596,6 +597,7 @@ export type Database = {
           nome_cognome: string
           referente_id?: string | null
           telefono?: string | null
+          tipo?: string | null
         }
         Update: {
           azienda_id?: string
@@ -609,6 +611,7 @@ export type Database = {
           nome_cognome?: string
           referente_id?: string | null
           telefono?: string | null
+          tipo?: string | null
         }
         Relationships: [
           {

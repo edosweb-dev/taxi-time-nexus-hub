@@ -21,6 +21,7 @@ export async function getPasseggeriByAzienda(aziendaId: string): Promise<Passegg
       .from('passeggeri')
       .select('*')
       .eq('azienda_id', aziendaId)
+      .eq('tipo', 'rubrica')  // ✅ Solo passeggeri permanenti in rubrica
       .order('nome_cognome');
 
     if (error) {
@@ -44,6 +45,7 @@ export async function getPasseggeriByReferente(aziendaId: string, referenteId: s
       .select('*')
       .eq('azienda_id', aziendaId)
       .eq('referente_id', referenteId)
+      .eq('tipo', 'rubrica')  // ✅ Solo passeggeri permanenti in rubrica
       .order('nome_cognome');
 
     if (error) {
