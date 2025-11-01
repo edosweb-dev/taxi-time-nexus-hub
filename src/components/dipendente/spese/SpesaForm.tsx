@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,8 @@ export function SpesaForm({
   isLoading = false,
   submitLabel = 'Salva'
 }: SpesaFormProps) {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  
   const form = useForm<SpesaFormData>({
     resolver: zodResolver(spesaSchema),
     defaultValues: {
@@ -94,7 +97,7 @@ export function SpesaForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Data Spesa *</FormLabel>
-              <Popover>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -120,6 +123,7 @@ export function SpesaForm({
                     onSelect={(date) => {
                       console.log('[SpesaForm] Data selezionata:', date);
                       field.onChange(date || new Date());
+                      setIsCalendarOpen(false);
                     }}
                     disabled={(date) => date > new Date()}
                     initialFocus
