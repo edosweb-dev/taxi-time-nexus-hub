@@ -21,11 +21,14 @@ export interface ServizioDettaglio {
   ore_effettive?: number;
   ore_fatturate?: number;
   iva?: number;
+  azienda_id?: string;
   azienda_nome?: string;
   azienda_email?: string;
+  veicolo_id?: string;
   veicolo_modello?: string;
   veicolo_targa?: string;
   veicolo_numero_posti?: number;
+  assegnato_a?: string;
   assegnato_a_nome?: string;
   assegnato_a_cognome?: string;
 }

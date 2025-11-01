@@ -23,13 +23,48 @@ export function adaptServizioDettaglioToServizio(dettaglio: ServizioDettaglio): 
     ore_effettive: dettaglio.ore_effettive,
     incasso_ricevuto: dettaglio.incasso_ricevuto,
     firma_url: dettaglio.firma_url,
+    firma_timestamp: dettaglio.firma_timestamp,
+    
+    // Financial fields
+    ore_fatturate: dettaglio.ore_fatturate,
+    iva: dettaglio.iva,
+    
     // Required fields for Servizio type
     tipo_cliente: 'azienda' as const,
     created_at: new Date().toISOString(),
     created_by: '',
-    azienda_id: '',
-    veicolo_id: '',
-    assegnato_a: '',
+    azienda_id: dettaglio.azienda_id || '',
+    veicolo_id: dettaglio.veicolo_id || '',
+    assegnato_a: dettaglio.assegnato_a || '',
+    
+    // Nested object: aziende
+    aziende: dettaglio.azienda_nome ? {
+      id: dettaglio.azienda_id || '',
+      nome: dettaglio.azienda_nome,
+      email: dettaglio.azienda_email || '',
+      firma_digitale_attiva: false,
+      partita_iva: '',
+      created_at: new Date().toISOString(),
+    } : undefined,
+    
+    // Nested object: veicoli
+    veicoli: dettaglio.veicolo_modello ? {
+      id: dettaglio.veicolo_id || '',
+      modello: dettaglio.veicolo_modello,
+      targa: dettaglio.veicolo_targa || '',
+      numero_posti: dettaglio.veicolo_numero_posti,
+      created_at: new Date().toISOString(),
+      created_by: '',
+    } : undefined,
+    
+    // Nested object: profiles (assegnato)
+    profiles: dettaglio.assegnato_a_nome ? {
+      id: dettaglio.assegnato_a || '',
+      first_name: dettaglio.assegnato_a_nome,
+      last_name: dettaglio.assegnato_a_cognome || '',
+      email: '',
+      role: 'dipendente',
+    } : undefined,
   } as Servizio;
 
   return result;
