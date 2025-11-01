@@ -17,6 +17,13 @@ export function useServizioDetail(id?: string) {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['servizio-detail', id, isDipendente],
     queryFn: async () => {
+      console.log('═══════════════════════════════════');
+      console.log('🔍 [useServizioDetail] ID received:', id);
+      console.log('🔍 [useServizioDetail] ID type:', typeof id);
+      console.log('🔍 [useServizioDetail] isDipendente:', isDipendente);
+      console.log('🔍 [useServizioDetail] profile.id:', profile?.id);
+      console.log('═══════════════════════════════════');
+      
       if (!id) return null;
       
       let query = supabase
