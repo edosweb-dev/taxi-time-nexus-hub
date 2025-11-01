@@ -54,7 +54,7 @@ export function NuovaSpesaSheet({ open, onOpenChange }: NuovaSpesaSheetProps) {
         onSubmit={handleSubmit}
         onCancel={() => onOpenChange(false)}
         isLoading={createSpesa.isPending}
-        submitLabel="INVIA SPESA 💳"
+        submitLabel="Invia spesa"
       />
     </div>
   );
