@@ -754,12 +754,12 @@ export default function ServiziPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[80px]">ID</TableHead>
-                        <TableHead className="w-[180px]">Azienda</TableHead>
-                        <TableHead className="min-w-[350px]">Percorso</TableHead>
-                        <TableHead className="w-[140px]">Data e Orario</TableHead>
+                        <TableHead className="w-[70px]">ID</TableHead>
+                        <TableHead className="w-[140px]">Azienda</TableHead>
+                        <TableHead className="min-w-[280px]">Percorso</TableHead>
+                        <TableHead className="w-[120px]">Data e Orario</TableHead>
                         <TableHead className="w-[100px]">Passeggeri</TableHead>
-                        <TableHead className="w-[140px]">Assegnato a</TableHead>
+                        <TableHead className="w-[120px]">Assegnato a</TableHead>
                         <TableHead className="w-[80px] text-right">Azioni</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -778,7 +778,7 @@ export default function ServiziPage() {
                           >
                             {/* ID */}
                             <TableCell 
-                              className="font-mono text-xs cursor-pointer w-[80px]"
+                              className="font-mono text-xs cursor-pointer w-[70px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               <div className="truncate" title={servizio.id_progressivo || servizio.id}>
@@ -788,11 +788,11 @@ export default function ServiziPage() {
 
                             {/* Azienda */}
                             <TableCell 
-                              className="cursor-pointer w-[180px]"
+                              className="cursor-pointer w-[140px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               <div className="space-y-0.5">
-                                <div className="font-medium truncate" title={servizio.aziende?.nome || 'N/A'}>
+                                <div className="font-medium text-sm break-words leading-tight">
                                   {servizio.aziende?.nome || 'N/A'}
                                 </div>
                                 {servizio.numero_commessa && (
@@ -805,7 +805,7 @@ export default function ServiziPage() {
 
                             {/* Percorso con Città */}
                             <TableCell 
-                              className="min-w-[350px] cursor-pointer"
+                              className="min-w-[280px] cursor-pointer"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               <div className="text-xs space-y-1">
@@ -842,7 +842,7 @@ export default function ServiziPage() {
 
                             {/* Data e Orario */}
                             <TableCell 
-                              className="cursor-pointer w-[140px]"
+                              className="cursor-pointer w-[120px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               <div className="whitespace-nowrap font-medium">
@@ -884,21 +884,21 @@ export default function ServiziPage() {
 
                             {/* Assegnato a */}
                             <TableCell 
-                              className="cursor-pointer w-[140px]"
+                              className="cursor-pointer w-[120px]"
                               onClick={() => navigate(`/servizi/${servizio.id}`)}
                             >
                               {servizio.conducente_esterno ? (
-                                <span className="text-sm">
+                                <div className="text-xs break-words leading-tight">
                                   {servizio.conducente_esterno_nome || "Conducente esterno"}
-                                </span>
+                                </div>
                               ) : servizio.assegnato_a && servizio.assegnato ? (
-                                <span className="text-sm">
+                                <div className="text-xs break-words leading-tight">
                                   {servizio.assegnato.first_name} {servizio.assegnato.last_name}
-                                </span>
+                                </div>
                               ) : servizio.assegnato_a ? (
-                                <span className="text-sm text-muted-foreground">Dipendente</span>
+                                <div className="text-xs text-muted-foreground">Dipendente</div>
                               ) : (
-                                <span className="text-sm text-muted-foreground italic">Non assegnato</span>
+                                <div className="text-xs text-muted-foreground italic">Non assegnato</div>
                               )}
                             </TableCell>
 
