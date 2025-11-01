@@ -52,6 +52,8 @@ export const useServiziWithPasseggeri = () => {
         .from('servizi_passeggeri')
         .select(`
           servizio_id,
+          passeggero_id,
+          nome_cognome_inline,
           passeggeri:passeggero_id (
             id,
             nome_cognome
@@ -67,14 +69,30 @@ export const useServiziWithPasseggeri = () => {
           p => p.servizio_id === servizio.id
         ) || [];
 
-        const passeggeri = servizioPasseggeri
-          .map(p => p.passeggeri)
-          .filter((p): p is PasseggeroInfo => p !== null);
+        // ✅ Conta TUTTI i passeggeri (permanenti + temporanei)
+        const passeggeriCount = servizioPasseggeri.length;
+
+        // Crea array passeggeri includendo entrambi i tipi
+        const passeggeri = servizioPasseggeri.map(p => {
+          if (p.passeggeri) {
+            // Passeggero permanente (da rubrica)
+            return {
+              id: p.passeggeri.id,
+              nome_cognome: p.passeggeri.nome_cognome
+            };
+          } else {
+            // Passeggero temporaneo (inline)
+            return {
+              id: p.passeggero_id || `temp-${p.servizio_id}`,
+              nome_cognome: p.nome_cognome_inline || 'N/A'
+            };
+          }
+        });
 
         return {
           ...(servizio as Servizio),
           passeggeri,
-          passeggeriCount: passeggeri.length
+          passeggeriCount
         };
       });
 
