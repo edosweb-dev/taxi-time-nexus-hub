@@ -48,17 +48,13 @@ export function CompletaServizioForm({
     servizio,
   });
 
-  // Calcola l'importo totale IVA compresa (se applicabile)
+  // Calcola l'importo totale IVA compresa
   const calculateTotaleIncasso = () => {
     const incassoPrevisto = Number(servizio.incasso_previsto) || 0;
     const iva = Number(servizio.iva) || 0;
     
-    // Verifica che il metodo di pagamento abbia IVA applicabile
-    const metodoCorrente = metodiPagamento.find(m => m.nome === servizio.metodo_pagamento);
-    const ivaApplicabile = metodoCorrente?.iva_applicabile === true;
-    
-    if (iva > 0 && ivaApplicabile) {
-      // Se c'è IVA E il metodo la prevede, aggiungi l'IVA all'importo netto
+    // Se il servizio ha IVA, calcolala sempre
+    if (iva > 0) {
       const ivaAmount = incassoPrevisto * (iva / 100);
       return incassoPrevisto + ivaAmount;
     }
