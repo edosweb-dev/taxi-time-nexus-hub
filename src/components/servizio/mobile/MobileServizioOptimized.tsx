@@ -103,8 +103,11 @@ export function MobileServizioOptimized({
     return time?.substring(0, 5) || '--:--';
   };
 
-  // Determine progressive ID format
-  const progressiveId = servizioIndex > 0 ? `TT-${String(servizioIndex).padStart(3, '0')}-${format(new Date(servizio.data_servizio), 'yyyy')}` : servizio.id_progressivo || servizio.id.substring(0, 8);
+  // Determine progressive ID format - prioritize DB value
+  const progressiveId = servizio.id_progressivo || 
+    (servizioIndex > 0 
+      ? `TT-${String(servizioIndex).padStart(3, '0')}-${format(new Date(servizio.data_servizio), 'yyyy')}` 
+      : servizio.id.substring(0, 8));
 
   const referenteName = getUserName(users, servizio.referente_id);
   const assignedToName = getUserName(users, servizio.assegnato_a);

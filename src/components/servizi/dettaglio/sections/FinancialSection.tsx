@@ -30,21 +30,25 @@ export function FinancialSection({
   const metodoPagamento = servizio.metodo_pagamento || '';
   const configMetodo = metodiPagamento.find(m => m.nome === metodoPagamento);
   
-  // Calcola IVA usando configurazione da impostazioni
-  const ivaPercentage = getIvaPercentageForPaymentMethod(
-    metodoPagamento,
-    metodiPagamento,
-    aliquoteIva
-  );
+  // Calcola IVA usando configurazione da impostazioni con fallback
+  const ivaPercentage = metodiPagamento.length > 0 && aliquoteIva.length > 0
+    ? getIvaPercentageForPaymentMethod(metodoPagamento, metodiPagamento, aliquoteIva)
+    : (servizio.iva || 0);
   
   const metodoHaIva = ivaPercentage > 0;
+  const usingFallback = metodiPagamento.length === 0 || aliquoteIva.length === 0;
   
-  // Log per debug
-  console.log('🔍 [FinancialSection] Calcolo IVA con impostazioni:', {
+  // Log per debug mobile
+  console.log('🔍 [FinancialSection] Stato caricamento:', {
+    loadingImpostazioni,
+    metodiPagamento: metodiPagamento?.length || 0,
+    aliquoteIva: aliquoteIva?.length || 0,
     metodo_pagamento: metodoPagamento,
     configMetodo,
     metodoHaIva,
     ivaPercentage,
+    usingFallback,
+    servizioIva: servizio.iva,
     incasso_previsto: servizio.incasso_previsto,
     incasso_ricevuto: servizio.incasso_ricevuto,
   });
@@ -123,6 +127,14 @@ export function FinancialSection({
         <CardTitle className="text-lg">Informazioni finanziarie</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Warning se configurazione IVA non disponibile */}
+        {usingFallback && servizio.iva && (
+          <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950 p-2 rounded border border-amber-200 dark:border-amber-800">
+            <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+            <span>Configurazione IVA non disponibile, usando valore salvato ({servizio.iva}%)</span>
+          </div>
+        )}
+        
         {/* Metodo di Pagamento */}
         {servizio.metodo_pagamento && (
           <div className="flex justify-between items-center pb-2">
