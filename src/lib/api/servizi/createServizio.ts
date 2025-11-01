@@ -111,6 +111,21 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     const servizio = servizioData as Servizio;
 
     // 2. Handle passengers
+    console.log('═══════════════════════════════════');
+    console.log('🔍 [createServizio] STARTING PASSENGER PROCESSING');
+    console.log('🔍 Total passengers:', data.passeggeri?.length);
+    console.log('🔍 All passengers data:');
+    data.passeggeri?.forEach((p, i) => {
+      console.log(`  Passenger ${i + 1}:`, {
+        nome_cognome: p.nome_cognome,
+        is_existing: p.is_existing,
+        salva_in_database: p.salva_in_database,
+        usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato,
+        typeof_usa_indirizzo: typeof p.usa_indirizzo_personalizzato,
+      });
+    });
+    console.log('═══════════════════════════════════');
+    
     if (data.passeggeri && data.passeggeri.length > 0) {
       for (const passeggeroData of data.passeggeri) {
         let passeggeroId = passeggeroData.passeggero_id;
@@ -151,20 +166,41 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         }
 
         // CREA COLLEGAMENTO servizio-passeggero
+        console.log('───────────────────────────────────');
+        console.log(`🔍 [createServizio] Processing passenger ${data.passeggeri.indexOf(passeggeroData) + 1}/${data.passeggeri.length}`);
+        console.log('passeggeroData received:', {
+          nome_cognome: passeggeroData.nome_cognome,
+          is_existing: passeggeroData.is_existing,
+          salva_in_database: passeggeroData.salva_in_database,
+          usa_indirizzo_personalizzato: passeggeroData.usa_indirizzo_personalizzato,
+          typeof_usa_indirizzo: typeof passeggeroData.usa_indirizzo_personalizzato,
+          has_field: 'usa_indirizzo_personalizzato' in passeggeroData,
+        });
+        console.log('passeggeroId:', passeggeroId);
+        console.log('salvaInDatabase:', salvaInDatabase);
+        
+        // ✅ FORZA campo a boolean ESPLICITO
+        const usaIndirizzoPersonalizzato = Boolean(passeggeroData.usa_indirizzo_personalizzato ?? false);
+        
+        console.log('🔍 [createServizio] Forced usaIndirizzoPersonalizzato:', usaIndirizzoPersonalizzato);
+        
         const collegamentoData: any = {
           servizio_id: servizio.id,
           passeggero_id: passeggeroId, // ora sempre valorizzato
-          orario_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.orario_presa_personalizzato : null,
-          luogo_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.luogo_presa_personalizzato : null,
-          destinazione_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.destinazione_personalizzato : null,
-          usa_indirizzo_personalizzato: passeggeroData.usa_indirizzo_personalizzato || false,
-          salva_in_database: salvaInDatabase,
+          orario_presa_personalizzato: usaIndirizzoPersonalizzato
+            ? passeggeroData.orario_presa_personalizzato 
+            : null,
+          luogo_presa_personalizzato: usaIndirizzoPersonalizzato
+            ? passeggeroData.luogo_presa_personalizzato 
+            : null,
+          destinazione_personalizzato: usaIndirizzoPersonalizzato
+            ? passeggeroData.destinazione_personalizzato 
+            : null,
+          usa_indirizzo_personalizzato: usaIndirizzoPersonalizzato,  // ✅ Forzato a boolean
+          salva_in_database: Boolean(salvaInDatabase ?? true),  // ✅ Forzato a boolean
         };
 
-        console.log('[createServizio] Creating servizio-passeggero link:', {
-          passeggero_id: passeggeroId,
-          salva_in_database: salvaInDatabase
-        });
+        console.log('🔍 [createServizio] collegamentoData BEFORE INSERT:', JSON.stringify(collegamentoData, null, 2));
 
         const { error: collegamentoError } = await supabase
           .from('servizi_passeggeri')
@@ -173,7 +209,10 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         if (collegamentoError) {
           console.error('[createServizio] Error creating servizio-passeggero link:', collegamentoError);
           toast.error(`Errore nel collegamento del passeggero ${passeggeroData.nome_cognome}: ${collegamentoError.message}`);
+        } else {
+          console.log('✅ [createServizio] Passenger link created successfully');
         }
+        console.log('───────────────────────────────────');
       }
     }
 

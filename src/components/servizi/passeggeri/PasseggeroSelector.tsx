@@ -65,7 +65,15 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       salva_in_database: true,
     };
     
-    console.log('[PasseggeroSelector] Calling onPasseggeroSelect with:', passeggeroData);
+    // ✅ DEBUG LOG
+    console.log('═══════════════════════════════════');
+    console.log('🔍 [PasseggeroSelector] handleSelectExisting FINAL DATA:');
+    console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
+    console.log('typeof usa_indirizzo_personalizzato:', typeof passeggeroData.usa_indirizzo_personalizzato);
+    console.log('salva_in_database:', passeggeroData.salva_in_database);
+    console.log('Full object:', JSON.stringify(passeggeroData, null, 2));
+    console.log('═══════════════════════════════════');
+    
     onPasseggeroSelect(passeggeroData);
   };
 
@@ -92,7 +100,15 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       salva_in_database: salvaInRubrica,
     };
     
-    console.log('[PasseggeroSelector] Calling onPasseggeroSelect with new passenger:', passeggeroData);
+    // ✅ DEBUG LOG
+    console.log('═══════════════════════════════════');
+    console.log('🔍 [PasseggeroSelector] handleCreateNew FINAL DATA:');
+    console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
+    console.log('typeof usa_indirizzo_personalizzato:', typeof passeggeroData.usa_indirizzo_personalizzato);
+    console.log('salva_in_database:', passeggeroData.salva_in_database);
+    console.log('Full object:', JSON.stringify(passeggeroData, null, 2));
+    console.log('═══════════════════════════════════');
+    
     onPasseggeroSelect(passeggeroData);
 
     setNewPasseggero({ nome: '', cognome: '', localita: '', indirizzo: '', email: '', telefono: '' });
