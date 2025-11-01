@@ -92,6 +92,24 @@ export default function ServizioDetailPage() {
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
   const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
 
+  // 🔍 DEBUG LOGS (TEMPORARY)
+  console.log('🔍 [ServizioDetailPage] Debug Info:', {
+    id,
+    isDipendente,
+    profileRole: profile?.role,
+    profileId: profile?.id,
+    servizioId: servizio?.id,
+    servizioStato: servizio?.stato,
+    isLoading,
+    hasError: !!error,
+    errorMessage: error?.message,
+    dipendenteHookServizio: isDipendente ? dipendenteHookResult.servizio?.id : 'N/A',
+    dipendenteHookLoading: isDipendente ? dipendenteHookResult.isLoading : 'N/A',
+    dipendenteHookError: isDipendente ? dipendenteHookResult.error : 'N/A',
+    adminHookServizio: !isDipendente ? adminHookResult.servizio?.id : 'N/A',
+    adminHookLoading: !isDipendente ? adminHookResult.isLoading : 'N/A',
+  });
+
   const [assegnazioneSheetOpen, setAssegnazioneSheetOpen] = useState(false);
   const [showFirmaClienteDialog, setShowFirmaClienteDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
