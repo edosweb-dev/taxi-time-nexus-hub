@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, Search, Calendar as CalendarIcon, X } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -36,12 +36,12 @@ export function SpeseFilters({
   const [importoMax, setImportoMax] = useState<string>('');
   const [search, setSearch] = useState('');
 
-  const stati = [
-    { value: 'tutte', label: 'Tutte', icon: '🔘' },
-    { value: 'in_attesa', label: 'In Attesa', icon: '🟡' },
-    { value: 'approvata', label: 'Approvate', icon: '🟢' },
-    { value: 'non_autorizzata', label: 'Rifiutate', icon: '🔴' },
-  ];
+  const activeFiltersCount = 
+    (dateStart ? 1 : 0) +
+    (dateEnd ? 1 : 0) +
+    (importoMin ? 1 : 0) +
+    (importoMax ? 1 : 0) +
+    (search ? 1 : 0);
 
   const handleApplyAdvanced = () => {
     onAdvancedFiltersChange({
@@ -63,140 +63,144 @@ export function SpeseFilters({
   };
 
   return (
-    <Card className="p-4">
-      <div className="space-y-4">
-        {/* Quick Filters */}
-        <div>
-          <Label className="text-sm font-medium mb-2 block">FILTRI</Label>
-          <div className="flex flex-wrap gap-2">
-            {stati.map((stato) => (
-              <Button
-                key={stato.value}
-                variant={selectedStato === stato.value ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => onStatoChange(stato.value)}
-                className="gap-1"
-              >
-                <span>{stato.icon}</span>
-                <span>{stato.label}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Advanced Filters Toggle */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="w-full justify-between"
+    <div className="space-y-4 p-4 border-b bg-muted/30">
+      {/* Quick Filter Badges */}
+      <div className="flex flex-wrap gap-2">
+        <Badge
+          variant={selectedStato === 'tutte' ? "default" : "outline"}
+          className="cursor-pointer px-3 py-1.5"
+          onClick={() => onStatoChange('tutte')}
         >
-          <span>Filtri Avanzati</span>
-          {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </Button>
-
-        {/* Advanced Filters */}
-        {showAdvanced && (
-          <div className="space-y-4 pt-4 border-t">
-            {/* Date Range */}
-            <div className="space-y-2">
-              <Label>Periodo</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Dal</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                        {dateStart ? format(dateStart, 'dd/MM/yyyy', { locale: it }) : 'Seleziona'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={dateStart}
-                        onSelect={setDateStart}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Al</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full justify-start text-left">
-                        {dateEnd ? format(dateEnd, 'dd/MM/yyyy', { locale: it }) : 'Seleziona'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={dateEnd}
-                        onSelect={setDateEnd}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-            </div>
-
-            {/* Amount Range */}
-            <div className="space-y-2">
-              <Label>Importo</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Min €</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={importoMin}
-                    onChange={(e) => setImportoMin(e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Max €</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={importoMax}
-                    onChange={(e) => setImportoMax(e.target.value)}
-                    placeholder="500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Search */}
-            <div className="space-y-2">
-              <Label>Cerca</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cerca per causale..."
-                  className="pl-9"
-                />
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <Button onClick={handleApplyAdvanced} className="flex-1">
-                Applica
-              </Button>
-              <Button onClick={handleResetAdvanced} variant="outline" className="flex-1">
-                Reset
-              </Button>
-            </div>
-          </div>
-        )}
+          🔘 Tutte
+        </Badge>
+        <Badge
+          variant={selectedStato === 'in_attesa' ? "default" : "outline"}
+          className={cn(
+            "cursor-pointer px-3 py-1.5",
+            selectedStato === 'in_attesa' 
+              ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-300" 
+              : "hover:bg-yellow-50"
+          )}
+          onClick={() => onStatoChange('in_attesa')}
+        >
+          🟡 In Attesa
+        </Badge>
+        <Badge
+          variant={selectedStato === 'approvata' ? "default" : "outline"}
+          className={cn(
+            "cursor-pointer px-3 py-1.5",
+            selectedStato === 'approvata' 
+              ? "bg-green-100 text-green-800 hover:bg-green-200 border-green-300" 
+              : "hover:bg-green-50"
+          )}
+          onClick={() => onStatoChange('approvata')}
+        >
+          🟢 Approvate
+        </Badge>
+        <Badge
+          variant={selectedStato === 'non_autorizzata' ? "default" : "outline"}
+          className={cn(
+            "cursor-pointer px-3 py-1.5",
+            selectedStato === 'non_autorizzata' 
+              ? "bg-red-100 text-red-800 hover:bg-red-200 border-red-300" 
+              : "hover:bg-red-50"
+          )}
+          onClick={() => onStatoChange('non_autorizzata')}
+        >
+          🔴 Rifiutate
+        </Badge>
       </div>
-    </Card>
+
+      {/* Advanced Filters Collapsible */}
+      <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full justify-between">
+            <span>
+              Filtri Avanzati {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+            </span>
+            <ChevronDown className={cn("h-4 w-4 transition-transform", showAdvanced && "rotate-180")} />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-4 mt-4">
+          {/* Date Range */}
+          <div className="grid grid-cols-2 gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateStart ? format(dateStart, "dd/MM/yyyy", { locale: it }) : "Data inizio"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateStart}
+                  onSelect={setDateStart}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateEnd ? format(dateEnd, "dd/MM/yyyy", { locale: it }) : "Data fine"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateEnd}
+                  onSelect={setDateEnd}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Amount Range */}
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="number"
+              step="0.01"
+              value={importoMin}
+              onChange={(e) => setImportoMin(e.target.value)}
+              placeholder="Min €"
+            />
+            <Input
+              type="number"
+              step="0.01"
+              value={importoMax}
+              onChange={(e) => setImportoMax(e.target.value)}
+              placeholder="Max €"
+            />
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cerca per causale..."
+              className="pl-9"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button onClick={handleApplyAdvanced} className="flex-1">
+              Applica Filtri
+            </Button>
+            <Button variant="outline" onClick={handleResetAdvanced}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 }
