@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from './contexts/AuthContext';
@@ -66,6 +66,12 @@ const LoadingSpinner = () => (
 );
 
 const queryClient = new QueryClient();
+
+// Componente redirect dinamico per vecchia route dipendente
+const RedirectToServizioDetail = () => {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/servizi/${id}`} replace />;
+};
 
 function App() {
   return (
@@ -347,7 +353,7 @@ function App() {
                 {/* Redirect vecchia route dipendente alla route unificata */}
                 <Route 
                   path="/dipendente/servizi-assegnati/:id" 
-                  element={<Navigate to="/servizi/:id" replace />} 
+                  element={<RedirectToServizioDetail />} 
                 />
 
                 <Route path="/dipendente/servizi-assegnati/:id/completa" element={
