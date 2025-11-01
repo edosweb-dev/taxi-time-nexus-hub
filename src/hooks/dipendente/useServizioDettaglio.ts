@@ -23,8 +23,6 @@ export interface ServizioDettaglio {
   iva?: number;
   azienda_nome?: string;
   azienda_email?: string;
-  referente_nome?: string;
-  referente_cognome?: string;
   veicolo_modello?: string;
   veicolo_targa?: string;
   veicolo_numero_posti?: number;

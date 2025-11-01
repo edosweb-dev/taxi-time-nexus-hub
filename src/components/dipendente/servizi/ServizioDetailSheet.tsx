@@ -66,8 +66,6 @@ export function ServizioDetailSheet({ servizioId, isOpen, onClose }: ServizioDet
           <div className="space-y-4">
             <DettagliGenerali
               aziendaNome={servizio.azienda_nome}
-              referenteNome={servizio.referente_nome}
-              referenteCognome={servizio.referente_cognome}
               dataServizio={servizio.data_servizio}
               orarioServizio={servizio.orario_servizio}
               numeroCommessa={servizio.numero_commessa}

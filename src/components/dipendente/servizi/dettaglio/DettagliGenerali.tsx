@@ -4,8 +4,6 @@ import { it } from "date-fns/locale";
 
 interface DettagliGeneraliProps {
   aziendaNome?: string;
-  referenteNome?: string;
-  referenteCognome?: string;
   dataServizio: string;
   orarioServizio: string;
   numeroCommessa?: string;
@@ -16,8 +14,6 @@ interface DettagliGeneraliProps {
 
 export function DettagliGenerali({
   aziendaNome,
-  referenteNome,
-  referenteCognome,
   dataServizio,
   orarioServizio,
   numeroCommessa,
@@ -26,9 +22,6 @@ export function DettagliGenerali({
   assegnatoACognome
 }: DettagliGeneraliProps) {
   const dataFormatted = format(new Date(dataServizio), "EEEE d MMMM yyyy", { locale: it });
-  const referente = referenteNome && referenteCognome 
-    ? `${referenteNome} ${referenteCognome}`.trim()
-    : '-';
   const assegnatoA = assegnatoANome || assegnatoACognome
     ? `${assegnatoANome || ''} ${assegnatoACognome || ''}`.trim()
     : '-';
@@ -40,10 +33,6 @@ export function DettagliGenerali({
         <div className="flex justify-between">
           <span className="text-muted-foreground">Azienda:</span>
           <span className="font-medium text-right">{aziendaNome || '-'}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Referente:</span>
-          <span className="font-medium text-right">{referente}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Assegnato a:</span>
