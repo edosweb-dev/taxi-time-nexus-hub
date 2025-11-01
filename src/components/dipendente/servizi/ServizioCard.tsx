@@ -60,9 +60,16 @@ export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: S
       onClick={onClick || (() => onViewDetails(servizio.id))}
     >
       <div className="space-y-3">
-        {/* Header: Badge + Orario */}
-        <div className="flex items-center justify-between">
-          {getStatoBadge(servizio.stato)}
+        {/* Header: ID + Badge + Orario */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {servizio.id_progressivo && (
+              <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
+                {servizio.id_progressivo}
+              </span>
+            )}
+            {getStatoBadge(servizio.stato)}
+          </div>
           <span className="text-lg font-bold">
             {servizio.orario_servizio.slice(0, 5)}
           </span>
