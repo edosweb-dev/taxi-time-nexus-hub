@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { Home, Calendar, Clock, DollarSign, Euro, User } from "lucide-react";
+import { Home, Calendar, Clock, DollarSign, Euro, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -19,7 +19,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function DipendenteSidebar() {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = useSidebar();
@@ -209,15 +209,24 @@ export function DipendenteSidebar() {
                 </div>
               </div>
               
-              <div className="flex items-center pt-2 border-t border-white/20">
+              <div className="flex items-center justify-between pt-2 border-t border-white/20">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-sm"></div>
                   <span className="text-xs text-white/70 font-medium">Online</span>
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-white/80 hover:text-white hover:bg-white/20 w-8 h-8 rounded-lg transition-all duration-200"
+                  onClick={() => signOut()}
+                  title="Esci"
+                >
+                  <LogOut size={14} />
+                </Button>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center gap-2">
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-white backdrop-blur-sm border-2 border-white shadow-lg flex items-center justify-center">
                   <span className="text-primary font-bold text-lg">
@@ -226,6 +235,15 @@ export function DipendenteSidebar() {
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-primary rounded-full shadow-md"></div>
               </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white/80 hover:text-white hover:bg-white/20 w-8 h-8 rounded-lg transition-all duration-200"
+                onClick={() => signOut()}
+                title="Esci"
+              >
+                <LogOut size={16} />
+              </Button>
             </div>
           )}
         </SidebarFooter>

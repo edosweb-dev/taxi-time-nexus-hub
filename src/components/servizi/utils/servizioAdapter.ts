@@ -7,14 +7,6 @@ import { PasseggeroConDettagli } from "@/lib/types/servizi";
  * per compatibilità con i componenti esistenti
  */
 export function adaptServizioDettaglioToServizio(dettaglio: ServizioDettaglio): Servizio {
-  // 🔍 DEBUG LOGS (TEMPORARY)
-  console.log('🔍 [Adapter] adaptServizioDettaglioToServizio input:', {
-    id: dettaglio.id,
-    stato: dettaglio.stato,
-    azienda_nome: dettaglio.azienda_nome,
-    veicolo_modello: dettaglio.veicolo_modello,
-  });
-
   const result = {
     id: dettaglio.id,
     id_progressivo: dettaglio.id_progressivo,
@@ -40,13 +32,6 @@ export function adaptServizioDettaglioToServizio(dettaglio: ServizioDettaglio): 
     assegnato_a: '',
   } as Servizio;
 
-  // 🔍 DEBUG LOGS (TEMPORARY)
-  console.log('🔍 [Adapter] adaptServizioDettaglioToServizio output:', {
-    id: result.id,
-    tipo_cliente: result.tipo_cliente,
-    hasAllFields: !!(result.id && result.data_servizio && result.stato),
-  });
-
   return result;
 }
 
@@ -54,12 +39,6 @@ export function adaptServizioDettaglioToServizio(dettaglio: ServizioDettaglio): 
  * Adapter per normalizzare PasseggeroDettaglio a PasseggeroConDettagli
  */
 export function adaptPasseggeroDettaglioToConDettagli(dettaglio: PasseggeroDettaglio): PasseggeroConDettagli {
-  // 🔍 DEBUG LOGS (TEMPORARY)
-  console.log('🔍 [Adapter] adaptPasseggeroDettaglioToConDettagli input:', {
-    id: dettaglio.id,
-    nome_cognome: dettaglio.nome_cognome,
-  });
-
   // Split nome_cognome in nome e cognome
   const [nome = '', ...cognomeParts] = (dettaglio.nome_cognome || '').split(' ');
   const cognome = cognomeParts.join(' ');

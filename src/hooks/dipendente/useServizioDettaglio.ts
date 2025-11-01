@@ -47,20 +47,9 @@ export interface PasseggeroDettaglio {
 export function useServizioDettaglio(servizioId?: string) {
   const { profile } = useAuth();
 
-  // 🔍 DEBUG LOGS (TEMPORARY)
-  console.log('🔍 [useServizioDettaglio] Called with:', {
-    servizioId,
-    profileId: profile?.id,
-    profileRole: profile?.role,
-  });
-
   const { data: servizio, isLoading: isLoadingServizio, error: errorServizio } = useQuery({
     queryKey: ['servizio-dettaglio', servizioId],
     queryFn: async () => {
-      console.log('🔍 [useServizioDettaglio] Query executing...', {
-        servizioId,
-        profileId: profile?.id,
-      });
       if (!servizioId || !profile?.id) return null;
 
       const { data, error } = await supabase
@@ -76,21 +65,8 @@ export function useServizioDettaglio(servizioId?: string) {
         .eq('assegnato_a', profile.id)
         .single();
 
-      if (error) {
-        console.log('🔍 [useServizioDettaglio] Query error:', error);
-        throw error;
-      }
-      if (!data) {
-        console.log('🔍 [useServizioDettaglio] No data returned');
-        return null;
-      }
-
-      console.log('🔍 [useServizioDettaglio] Query success:', {
-        servizioId: data.id,
-        stato: data.stato,
-        hasAziende: !!data.aziende,
-        hasVeicoli: !!data.veicoli,
-      });
+      if (error) throw error;
+      if (!data) return null;
 
       const azienda = Array.isArray(data.aziende) ? data.aziende[0] : data.aziende;
       const referente = Array.isArray(data.profiles) ? data.profiles[0] : data.profiles;
@@ -157,16 +133,6 @@ export function useServizioDettaglio(servizioId?: string) {
     },
     enabled: !!servizioId,
     staleTime: 5 * 60 * 1000, // 5 min
-  });
-
-  // 🔍 DEBUG LOGS (TEMPORARY)
-  console.log('🔍 [useServizioDettaglio] Hook returning:', {
-    hasServizio: !!servizio,
-    servizioId: servizio?.id,
-    isLoading: isLoadingServizio || isLoadingPasseggeri,
-    hasError: !!errorServizio,
-    errorMessage: errorServizio?.message,
-    passeggieriCount: passeggeri.length,
   });
 
   return {

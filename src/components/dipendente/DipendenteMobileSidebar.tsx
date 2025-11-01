@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Home, Calendar, Clock, DollarSign, Euro, User, X } from "lucide-react";
+import { Home, Calendar, Clock, DollarSign, Euro, User, X, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DipendenteMobileSidebarProps {
@@ -11,7 +11,7 @@ interface DipendenteMobileSidebarProps {
 }
 
 export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSidebarProps) {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -115,6 +115,21 @@ export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSideb
             </div>
           ))}
         </nav>
+        
+        {/* Logout Button */}
+        <div className="p-4 border-t">
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3 h-12 text-base"
+            onClick={() => {
+              signOut();
+              onClose();
+            }}
+          >
+            <LogOut className="h-5 w-5" />
+            Esci
+          </Button>
+        </div>
       </div>
     </>
   );
