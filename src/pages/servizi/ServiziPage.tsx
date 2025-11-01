@@ -159,9 +159,6 @@ export default function ServiziPage() {
             </p>
           )}
         </div>
-        <Badge className={getStatusColor(servizio.stato)}>
-          {getStatusLabel(servizio.stato)}
-        </Badge>
       </div>
 
       {/* Card Body: Info Servizio */}
@@ -761,7 +758,6 @@ export default function ServiziPage() {
                         <TableHead className="w-[180px]">Azienda</TableHead>
                         <TableHead className="min-w-[350px]">Percorso</TableHead>
                         <TableHead className="w-[140px]">Data e Orario</TableHead>
-                        <TableHead className="w-[130px]">Stato</TableHead>
                         <TableHead className="w-[100px]">Passeggeri</TableHead>
                         <TableHead className="w-[140px]">Assegnato a</TableHead>
                         <TableHead className="w-[80px] text-right">Azioni</TableHead>
@@ -770,7 +766,7 @@ export default function ServiziPage() {
                     <TableBody>
                       {filteredServizi.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                             Nessun servizio trovato
                           </TableCell>
                         </TableRow>
@@ -855,16 +851,6 @@ export default function ServiziPage() {
                               <div className="text-xs text-muted-foreground whitespace-nowrap">
                                 {servizio.orario_servizio}
                               </div>
-                            </TableCell>
-                            
-                            {/* Stato */}
-                            <TableCell 
-                              className="cursor-pointer w-[130px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
-                            >
-                              <Badge className={getStatusColor(servizio.stato)}>
-                                {getStatusLabel(servizio.stato)}
-                              </Badge>
                             </TableCell>
 
                             {/* Passeggeri con Tooltip */}
