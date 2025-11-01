@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, User, UserPlus, Search, MapPin, Mail, Phone } from 'lucide-react';
 import { usePasseggeri } from '@/hooks/usePasseggeri';
 import { Passeggero, PasseggeroFormData } from '@/lib/types/servizi';
@@ -21,6 +22,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
   const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id, referente_id);
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [salvaInRubrica, setSalvaInRubrica] = useState(true);
   const [newPasseggero, setNewPasseggero] = useState({
     nome: '',
     cognome: '',
@@ -69,6 +71,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
   const handleCreateNew = () => {
     console.log('[PasseggeroSelector] handleCreateNew called');
     console.log('[PasseggeroSelector] newPasseggero:', newPasseggero);
+    console.log('[PasseggeroSelector] salvaInRubrica:', salvaInRubrica);
     
     if (!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()) {
       console.log('[PasseggeroSelector] Nome or cognome is empty, aborting');
@@ -85,12 +88,14 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       telefono: newPasseggero.telefono,
       usa_indirizzo_personalizzato: false,
       is_existing: false,
+      salva_in_database: salvaInRubrica,
     };
     
     console.log('[PasseggeroSelector] Calling onPasseggeroSelect with new passenger:', passeggeroData);
     onPasseggeroSelect(passeggeroData);
 
     setNewPasseggero({ nome: '', cognome: '', localita: '', indirizzo: '', email: '', telefono: '' });
+    setSalvaInRubrica(true);
     setShowNewForm(false);
   };
 
@@ -296,6 +301,19 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                     onChange={(e) => setNewPasseggero(prev => ({ ...prev, telefono: e.target.value }))}
                   />
                 </div>
+              </div>
+              <div className="flex items-center space-x-2 pt-2 pb-2">
+                <Checkbox 
+                  id="salva-rubrica" 
+                  checked={salvaInRubrica}
+                  onCheckedChange={(checked) => setSalvaInRubrica(checked === true)}
+                />
+                <Label 
+                  htmlFor="salva-rubrica" 
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  Salva passeggero in rubrica
+                </Label>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <MobileButton

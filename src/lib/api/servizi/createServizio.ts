@@ -114,7 +114,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
     if (data.passeggeri && data.passeggeri.length > 0) {
       for (const passeggeroData of data.passeggeri) {
         let passeggeroId = passeggeroData.passeggero_id;
-        const salvaInDatabase = passeggeroData.salva_in_database !== false; // default true
+        const salvaInDatabase = passeggeroData.salva_in_database === true; // explicit true check
 
         // NUOVO PASSEGGERO
         if (!passeggeroData.is_existing || !passeggeroId) {
