@@ -763,13 +763,14 @@ export default function ServiziPage() {
                         <TableHead className="w-[140px]">Data e Orario</TableHead>
                         <TableHead className="w-[130px]">Stato</TableHead>
                         <TableHead className="w-[100px]">Passeggeri</TableHead>
+                        <TableHead className="w-[140px]">Assegnato a</TableHead>
                         <TableHead className="w-[80px] text-right">Azioni</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredServizi.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                             Nessun servizio trovato
                           </TableCell>
                         </TableRow>
@@ -892,6 +893,26 @@ export default function ServiziPage() {
                                 </Tooltip>
                               ) : (
                                 <span className="text-muted-foreground text-xs">-</span>
+                              )}
+                            </TableCell>
+
+                            {/* Assegnato a */}
+                            <TableCell 
+                              className="cursor-pointer w-[140px]"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              {servizio.conducente_esterno ? (
+                                <span className="text-sm">
+                                  {servizio.conducente_esterno_nome || "Conducente esterno"}
+                                </span>
+                              ) : servizio.assegnato_a && servizio.assegnato ? (
+                                <span className="text-sm">
+                                  {servizio.assegnato.first_name} {servizio.assegnato.last_name}
+                                </span>
+                              ) : servizio.assegnato_a ? (
+                                <span className="text-sm text-muted-foreground">Dipendente</span>
+                              ) : (
+                                <span className="text-sm text-muted-foreground italic">Non assegnato</span>
                               )}
                             </TableCell>
 
