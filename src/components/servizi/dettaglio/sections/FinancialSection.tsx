@@ -125,19 +125,9 @@ export function FinancialSection({
       <CardContent className="space-y-4">
         {/* Metodo di Pagamento */}
         {servizio.metodo_pagamento && (
-          <div className="space-y-2">
-            <div className="flex justify-between items-center pb-2">
-              <span className="text-sm font-medium text-muted-foreground">Metodo di Pagamento</span>
-              <Badge variant="outline" className="text-base">{servizio.metodo_pagamento}</Badge>
-            </div>
-            
-            {/* Warning se metodo non configurato nelle impostazioni */}
-            {!configMetodo && (
-              <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-200">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                <span>Metodo non configurato nelle impostazioni. IVA: {ivaPercentage}%</span>
-              </div>
-            )}
+          <div className="flex justify-between items-center pb-2">
+            <span className="text-sm font-medium text-muted-foreground">Metodo di Pagamento</span>
+            <Badge variant="outline" className="text-base">{servizio.metodo_pagamento}</Badge>
           </div>
         )}
         
