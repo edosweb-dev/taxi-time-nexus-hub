@@ -281,7 +281,7 @@ export default function ServizioDetailPage() {
           }}
           onCompleta={() => setCompletaDialogOpen(true)}
           onConsuntiva={() => setConsuntivaDialogOpen(true)}
-          onBack={() => navigate('/servizi')}
+          onBack={() => navigate(isDipendente ? '/dipendente/servizi-assegnati' : '/servizi')}
         />
       </div>
 
