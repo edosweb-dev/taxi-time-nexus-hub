@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 // DropdownMenu rimosso - sostituito con icone dirette con tooltip
-import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, CheckCircle, XCircle, FileText, Eye, UserPlus } from "lucide-react";
+import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, CheckCircle, XCircle, FileText, Eye, UserPlus, UserRound } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
@@ -214,6 +214,16 @@ export default function ServiziPage() {
             <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-xs">
               {servizio.passeggeriCount} {servizio.passeggeriCount === 1 ? 'passeggero' : 'passeggeri'}
+            </span>
+          </div>
+        )}
+
+        {/* Assegnato a */}
+        {servizio.assegnato_a && servizio.assegnato && (
+          <div className="flex items-center gap-2">
+            <UserRound className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-xs truncate">
+              Assegnato: {servizio.assegnato.first_name || ''} {servizio.assegnato.last_name || 'Dipendente'}
             </span>
           </div>
         )}

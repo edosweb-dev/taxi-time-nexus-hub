@@ -73,15 +73,23 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
             {passengerCount}
           </div>
         </TableCell>
-        <TableCell>
-          {servizio.conducente_esterno ? (
-            <span>{servizio.conducente_esterno_nome || "Conducente esterno"}</span>
-          ) : servizio.assegnato_a ? (
-            <span>{getUserName(users, servizio.assegnato_a) || "Utente sconosciuto"}</span>
-          ) : (
-            <span className="text-muted-foreground">Non assegnato</span>
-          )}
-        </TableCell>
+      <TableCell>
+        {servizio.conducente_esterno ? (
+          <span className="text-sm">
+            {servizio.conducente_esterno_nome || "Conducente esterno"}
+          </span>
+        ) : servizio.assegnato_a && (servizio as any).assegnato ? (
+          <span className="text-sm">
+            {(servizio as any).assegnato.first_name} {(servizio as any).assegnato.last_name}
+          </span>
+        ) : servizio.assegnato_a ? (
+          <span className="text-sm text-muted-foreground">
+            {getUserName(users, servizio.assegnato_a) || "Dipendente"}
+          </span>
+        ) : (
+          <span className="text-sm text-muted-foreground italic">Non assegnato</span>
+        )}
+      </TableCell>
         <TableCell className="w-32">
           <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             {/* Se da assegnare: mostra solo pulsante Assegna */}

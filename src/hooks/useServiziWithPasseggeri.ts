@@ -10,6 +10,12 @@ interface PasseggeroInfo {
 export interface ServizioWithPasseggeri extends Servizio {
   passeggeri?: PasseggeroInfo[];
   passeggeriCount?: number;
+  assegnato?: {
+    id: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  } | null;
 }
 
 export const useServiziWithPasseggeri = () => {
@@ -24,6 +30,12 @@ export const useServiziWithPasseggeri = () => {
           aziende:azienda_id (
             id,
             nome
+          ),
+          assegnato:profiles!servizi_assegnato_a_fkey (
+            id,
+            first_name,
+            last_name,
+            email
           )
         `)
         .order('created_at', { ascending: false });
