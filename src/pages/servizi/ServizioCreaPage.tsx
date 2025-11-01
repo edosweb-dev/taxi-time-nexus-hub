@@ -826,32 +826,49 @@ export const ServizioCreaPage = ({
             const permanenti = data.passeggeri_ids.map(pid => ({ 
               servizio_id: servizioId, 
               passeggero_id: pid,
-              salva_in_database: true,
+              salva_in_database: Boolean(true),
+              usa_indirizzo_personalizzato: Boolean(false),
             }));
             passeggeriCompleti.push(...permanenti);
           }
           
           // Passeggeri temporanei (da state)
-          const temporanei = tempPasseggeri.map(tp => ({
-            servizio_id: servizioId,
-            passeggero_id: null,
-            nome_cognome_inline: tp.nome_cognome,
-            email_inline: tp.email || null,
-            telefono_inline: tp.telefono || null,
-            localita_inline: tp.localita || null,
-            indirizzo_inline: tp.indirizzo || null,
-            salva_in_database: false,
-            usa_indirizzo_personalizzato: false,
-          }));
+          const temporanei = tempPasseggeri.map(tp => {
+            const passeggeroData = {
+              servizio_id: servizioId,
+              passeggero_id: null,
+              nome_cognome_inline: tp.nome_cognome,
+              email_inline: tp.email || null,
+              telefono_inline: tp.telefono || null,
+              localita_inline: tp.localita || null,
+              indirizzo_inline: tp.indirizzo || null,
+              salva_in_database: Boolean(false),
+              usa_indirizzo_personalizzato: Boolean(tp.usa_indirizzo_personalizzato ?? false),
+              orario_presa_personalizzato: tp.orario_presa_personalizzato || null,
+              luogo_presa_personalizzato: tp.luogo_presa_personalizzato || null,
+              destinazione_personalizzato: tp.destinazione_personalizzato || null,
+            };
+            
+            console.log('═══════════════════════════════════');
+            console.log('🔍 [ServizioCreaPage EDIT] Temp passenger data:');
+            console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
+            console.log('typeof:', typeof passeggeroData.usa_indirizzo_personalizzato);
+            console.log('Full data:', JSON.stringify(passeggeroData, null, 2));
+            console.log('═══════════════════════════════════');
+            
+            return passeggeroData;
+          });
           passeggeriCompleti.push(...temporanei);
           
           console.log('[ServizioCreaPage] Saving passengers (edit mode):', {
             permanenti: data.passeggeri_ids.length,
             temporanei: tempPasseggeri.length,
-            totale: passeggeriCompleti.length
+            totale: passeggeriCompleti.length,
+            passeggeriCompleti: passeggeriCompleti
           });
           
           if (passeggeriCompleti.length > 0) {
+            console.log('🔍 [ServizioCreaPage EDIT] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
             const { error: passErr } = await supabase.from("servizi_passeggeri")
               .insert(passeggeriCompleti);
             if (passErr) throw passErr;
@@ -880,32 +897,49 @@ export const ServizioCreaPage = ({
             const permanenti = data.passeggeri_ids.map(pid => ({ 
               servizio_id: servizio.id, 
               passeggero_id: pid,
-              salva_in_database: true,
+              salva_in_database: Boolean(true),
+              usa_indirizzo_personalizzato: Boolean(false),
             }));
             passeggeriCompleti.push(...permanenti);
           }
           
           // Passeggeri temporanei (da state)
-          const temporanei = tempPasseggeri.map(tp => ({
-            servizio_id: servizio.id,
-            passeggero_id: null,
-            nome_cognome_inline: tp.nome_cognome,
-            email_inline: tp.email || null,
-            telefono_inline: tp.telefono || null,
-            localita_inline: tp.localita || null,
-            indirizzo_inline: tp.indirizzo || null,
-            salva_in_database: false,
-            usa_indirizzo_personalizzato: false,
-          }));
+          const temporanei = tempPasseggeri.map(tp => {
+            const passeggeroData = {
+              servizio_id: servizio.id,
+              passeggero_id: null,
+              nome_cognome_inline: tp.nome_cognome,
+              email_inline: tp.email || null,
+              telefono_inline: tp.telefono || null,
+              localita_inline: tp.localita || null,
+              indirizzo_inline: tp.indirizzo || null,
+              salva_in_database: Boolean(false),
+              usa_indirizzo_personalizzato: Boolean(tp.usa_indirizzo_personalizzato ?? false),
+              orario_presa_personalizzato: tp.orario_presa_personalizzato || null,
+              luogo_presa_personalizzato: tp.luogo_presa_personalizzato || null,
+              destinazione_personalizzato: tp.destinazione_personalizzato || null,
+            };
+            
+            console.log('═══════════════════════════════════');
+            console.log('🔍 [ServizioCreaPage CREATE] Temp passenger data:');
+            console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
+            console.log('typeof:', typeof passeggeroData.usa_indirizzo_personalizzato);
+            console.log('Full data:', JSON.stringify(passeggeroData, null, 2));
+            console.log('═══════════════════════════════════');
+            
+            return passeggeroData;
+          });
           passeggeriCompleti.push(...temporanei);
           
           console.log('[ServizioCreaPage] Saving passengers (create mode):', {
             permanenti: data.passeggeri_ids.length,
             temporanei: tempPasseggeri.length,
-            totale: passeggeriCompleti.length
+            totale: passeggeriCompleti.length,
+            passeggeriCompleti: passeggeriCompleti
           });
           
           if (passeggeriCompleti.length > 0) {
+            console.log('🔍 [ServizioCreaPage CREATE] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
             const { error: passErr } = await supabase.from("servizi_passeggeri")
               .insert(passeggeriCompleti);
             if (passErr) throw passErr;
