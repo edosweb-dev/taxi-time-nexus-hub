@@ -21,43 +21,19 @@ export function FinancialSection({
   getUserName,
   formatCurrency,
 }: FinancialSectionProps) {
-  const { impostazioni, isLoading } = useImpostazioni();
-
-  // DEBUG: Log per capire cosa sta succedendo
-  console.log('[FinancialSection] Impostazioni:', impostazioni);
-  console.log('[FinancialSection] Servizio.iva:', servizio.iva);
-  console.log('[FinancialSection] Metodo pagamento:', servizio.metodo_pagamento);
+  const { impostazioni } = useImpostazioni();
 
   // Determina se il metodo di pagamento ha IVA applicabile
   const metodoPagamento = impostazioni?.metodi_pagamento?.find(
     m => m.nome === servizio.metodo_pagamento
   );
 
-  console.log('[FinancialSection] Metodo trovato:', metodoPagamento);
-
   // Verifica doppia: servizio.iva presente E metodo di pagamento ha IVA applicabile
+  // Fallback: se impostazioni undefined, usa solo servizio.iva
   const metodoHaIva = servizio.iva !== null && 
                       servizio.iva !== undefined && 
                       servizio.iva > 0 &&
-                      metodoPagamento?.iva_applicabile === true;
-
-  console.log('[FinancialSection] metodoHaIva:', metodoHaIva);
-
-  // Mostra loading se impostazioni stanno caricando
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Informazioni finanziarie</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-4">
-            <div className="animate-pulse">Caricamento...</div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+                      (metodoPagamento?.iva_applicabile === true || !impostazioni);
 
   // Calcola importi IVA per incasso PREVISTO
   let nettoPrevistoValue = 0;
