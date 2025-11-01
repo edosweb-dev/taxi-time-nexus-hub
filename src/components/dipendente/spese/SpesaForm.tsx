@@ -147,7 +147,6 @@ export function SpesaForm({
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="0.00"
                     className="pl-8"
                     {...field}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
