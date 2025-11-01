@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Profile, Azienda } from "@/lib/types";
 import { Servizio } from "@/lib/types/servizi";
-import { useImpostazioni } from "@/hooks/useImpostazioni";
+import { useImpostazioniOptimized } from "@/hooks/useImpostazioniOptimized";
+import { getIvaPercentageForPaymentMethod } from "@/lib/utils/ivaUtils";
+import { AlertTriangle } from "lucide-react";
 
 interface FinancialSectionProps {
   servizio: Servizio;
@@ -21,19 +23,31 @@ export function FinancialSection({
   getUserName,
   formatCurrency,
 }: FinancialSectionProps) {
-  const { impostazioni } = useImpostazioni();
-
-  // Determina se il metodo di pagamento ha IVA applicabile
-  const metodoPagamento = impostazioni?.metodi_pagamento?.find(
-    m => m.nome === servizio.metodo_pagamento
+  // Carica impostazioni metodi pagamento con cache ottimizzata
+  const { metodiPagamento, aliquoteIva, isLoading: loadingImpostazioni } = useImpostazioniOptimized();
+  
+  // Trova configurazione del metodo di pagamento
+  const metodoPagamento = servizio.metodo_pagamento || '';
+  const configMetodo = metodiPagamento.find(m => m.nome === metodoPagamento);
+  
+  // Calcola IVA usando configurazione da impostazioni
+  const ivaPercentage = getIvaPercentageForPaymentMethod(
+    metodoPagamento,
+    metodiPagamento,
+    aliquoteIva
   );
-
-  // Verifica doppia: servizio.iva presente E metodo di pagamento ha IVA applicabile
-  // Fallback: se impostazioni undefined, usa solo servizio.iva
-  const metodoHaIva = servizio.iva !== null && 
-                      servizio.iva !== undefined && 
-                      servizio.iva > 0 &&
-                      (metodoPagamento?.iva_applicabile === true || !impostazioni);
+  
+  const metodoHaIva = ivaPercentage > 0;
+  
+  // Log per debug
+  console.log('🔍 [FinancialSection] Calcolo IVA con impostazioni:', {
+    metodo_pagamento: metodoPagamento,
+    configMetodo,
+    metodoHaIva,
+    ivaPercentage,
+    incasso_previsto: servizio.incasso_previsto,
+    incasso_ricevuto: servizio.incasso_ricevuto,
+  });
 
   // Calcola importi IVA per incasso PREVISTO
   let nettoPrevistoValue = 0;
@@ -41,12 +55,12 @@ export function FinancialSection({
   let totalePrevistoValue = 0;
   
   if (servizio.incasso_previsto !== null) {
+    nettoPrevistoValue = Number(servizio.incasso_previsto) || 0;
     if (metodoHaIva) {
-      nettoPrevistoValue = Number(servizio.incasso_previsto) || 0;
-      ivaPrevistoValue = nettoPrevistoValue * (Number(servizio.iva) / 100);
+      ivaPrevistoValue = nettoPrevistoValue * (ivaPercentage / 100);
       totalePrevistoValue = nettoPrevistoValue + ivaPrevistoValue;
     } else {
-      totalePrevistoValue = Number(servizio.incasso_previsto) || 0;
+      totalePrevistoValue = nettoPrevistoValue;
     }
   }
   
@@ -56,12 +70,12 @@ export function FinancialSection({
   let totaleRicevutoValue = 0;
   
   if (servizio.incasso_ricevuto !== null) {
+    nettoRicevutoValue = Number(servizio.incasso_ricevuto) || 0;
     if (metodoHaIva) {
-      nettoRicevutoValue = Number(servizio.incasso_ricevuto) || 0;
-      ivaRicevutoValue = nettoRicevutoValue * (Number(servizio.iva) / 100);
+      ivaRicevutoValue = nettoRicevutoValue * (ivaPercentage / 100);
       totaleRicevutoValue = nettoRicevutoValue + ivaRicevutoValue;
     } else {
-      totaleRicevutoValue = Number(servizio.incasso_ricevuto) || 0;
+      totaleRicevutoValue = nettoRicevutoValue;
     }
   }
   
@@ -69,6 +83,24 @@ export function FinancialSection({
     servizio.incasso_ricevuto !== null || 
     servizio.incasso_previsto !== null ||
     servizio.metodo_pagamento;
+
+  // Loading state per impostazioni
+  if (loadingImpostazioni) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Informazioni finanziarie</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-3">
+            <div className="h-4 bg-muted rounded w-3/4"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
+            <div className="h-4 bg-muted rounded w-2/3"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!hasFinancialData) {
     return (
@@ -93,9 +125,19 @@ export function FinancialSection({
       <CardContent className="space-y-4">
         {/* Metodo di Pagamento */}
         {servizio.metodo_pagamento && (
-          <div className="flex justify-between items-center pb-2">
-            <span className="text-sm font-medium text-muted-foreground">Metodo di Pagamento</span>
-            <Badge variant="outline" className="text-base">{servizio.metodo_pagamento}</Badge>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center pb-2">
+              <span className="text-sm font-medium text-muted-foreground">Metodo di Pagamento</span>
+              <Badge variant="outline" className="text-base">{servizio.metodo_pagamento}</Badge>
+            </div>
+            
+            {/* Warning se metodo non configurato nelle impostazioni */}
+            {!configMetodo && (
+              <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-200">
+                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                <span>Metodo non configurato nelle impostazioni. IVA: {ivaPercentage}%</span>
+              </div>
+            )}
           </div>
         )}
         
@@ -118,7 +160,7 @@ export function FinancialSection({
                 {/* IVA */}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    IVA ({servizio.iva}%)
+                    IVA ({ivaPercentage}%)
                   </span>
                   <span className="font-medium text-blue-600 dark:text-blue-400">
                     {formatCurrency(ivaPrevistoValue)}
@@ -167,7 +209,7 @@ export function FinancialSection({
                 {/* IVA */}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    IVA ({servizio.iva}%)
+                    IVA ({ivaPercentage}%)
                   </span>
                   <span className="font-medium text-blue-600 dark:text-blue-400">
                     {formatCurrency(ivaRicevutoValue)}
