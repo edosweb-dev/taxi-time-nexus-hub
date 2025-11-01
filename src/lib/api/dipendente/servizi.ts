@@ -6,6 +6,8 @@ export interface ServizioWithRelations extends Servizio {
   veicolo_modello?: string;
   veicolo_targa?: string;
   referente_nome?: string;
+  assegnato_a_nome?: string;
+  assegnato_a_cognome?: string;
 }
 
 export interface ServiziFilters {
@@ -34,7 +36,8 @@ export async function getServiziAssegnati(
     .select(`
       *,
       aziende!left(nome),
-      veicoli!left(modello, targa)
+      veicoli!left(modello, targa),
+      profiles!servizi_assegnato_a_fkey(first_name, last_name)
     `, { count: 'exact' })
     .eq('assegnato_a', userId);
 
@@ -84,13 +87,15 @@ export async function getServiziAssegnati(
 
   // Transform data to include flat fields
   const transformedData: ServizioWithRelations[] = (data || []).map(servizio => {
-    const { aziende, veicoli, ...rest } = servizio;
+    const { aziende, veicoli, profiles, ...rest } = servizio;
     
     return {
       ...rest,
       azienda_nome: aziende?.nome,
       veicolo_modello: veicoli?.modello,
-      veicolo_targa: veicoli?.targa
+      veicolo_targa: veicoli?.targa,
+      assegnato_a_nome: profiles?.first_name,
+      assegnato_a_cognome: profiles?.last_name
     } as ServizioWithRelations;
   });
 

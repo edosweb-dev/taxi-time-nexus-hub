@@ -72,6 +72,8 @@ export function ServizioDetailSheet({ servizioId, isOpen, onClose }: ServizioDet
               orarioServizio={servizio.orario_servizio}
               numeroCommessa={servizio.numero_commessa}
               metodoPagamento={servizio.metodo_pagamento}
+              assegnatoANome={servizio.assegnato_a_nome}
+              assegnatoACognome={servizio.assegnato_a_cognome}
             />
 
             <PercorsoCard

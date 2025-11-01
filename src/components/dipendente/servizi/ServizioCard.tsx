@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, MapPin, Car, FileText, Eye, CheckCircle } from "lucide-react";
+import { Building, MapPin, Car, FileText, Eye, CheckCircle, UserRound } from "lucide-react";
 import { ServizioWithRelations } from "@/lib/api/dipendente/servizi";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
@@ -110,6 +110,16 @@ export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: S
             <span className="truncate">
               {servizio.veicolo_modello}
               {servizio.veicolo_targa && ` - ${servizio.veicolo_targa}`}
+            </span>
+          </div>
+        )}
+
+        {/* Assegnato a */}
+        {(servizio.assegnato_a_nome || servizio.assegnato_a_cognome) && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <UserRound className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">
+              Assegnato a: {servizio.assegnato_a_nome} {servizio.assegnato_a_cognome}
             </span>
           </div>
         )}

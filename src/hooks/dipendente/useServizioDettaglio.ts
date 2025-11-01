@@ -28,6 +28,8 @@ export interface ServizioDettaglio {
   veicolo_modello?: string;
   veicolo_targa?: string;
   veicolo_numero_posti?: number;
+  assegnato_a_nome?: string;
+  assegnato_a_cognome?: string;
 }
 
 export interface PasseggeroDettaglio {
@@ -56,7 +58,8 @@ export function useServizioDettaglio(servizioId?: string) {
           *,
           aziende!left(nome, email),
           profiles!servizi_referente_id_fkey(first_name, last_name),
-          veicoli!left(modello, targa, numero_posti)
+          veicoli!left(modello, targa, numero_posti),
+          assegnato:profiles!servizi_assegnato_a_fkey(first_name, last_name)
         `)
         .eq('id', servizioId)
         .eq('assegnato_a', profile.id)
@@ -68,6 +71,7 @@ export function useServizioDettaglio(servizioId?: string) {
       const azienda = Array.isArray(data.aziende) ? data.aziende[0] : data.aziende;
       const referente = Array.isArray(data.profiles) ? data.profiles[0] : data.profiles;
       const veicolo = Array.isArray(data.veicoli) ? data.veicoli[0] : data.veicoli;
+      const assegnato = Array.isArray(data.assegnato) ? data.assegnato[0] : data.assegnato;
 
       return {
         ...data,
@@ -78,6 +82,8 @@ export function useServizioDettaglio(servizioId?: string) {
         veicolo_modello: veicolo?.modello,
         veicolo_targa: veicolo?.targa,
         veicolo_numero_posti: veicolo?.numero_posti,
+        assegnato_a_nome: assegnato?.first_name,
+        assegnato_a_cognome: assegnato?.last_name,
       } as ServizioDettaglio;
     },
     enabled: !!servizioId && !!profile?.id,

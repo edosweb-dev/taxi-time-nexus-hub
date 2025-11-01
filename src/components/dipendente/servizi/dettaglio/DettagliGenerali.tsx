@@ -10,6 +10,8 @@ interface DettagliGeneraliProps {
   orarioServizio: string;
   numeroCommessa?: string;
   metodoPagamento: string;
+  assegnatoANome?: string;
+  assegnatoACognome?: string;
 }
 
 export function DettagliGenerali({
@@ -19,11 +21,16 @@ export function DettagliGenerali({
   dataServizio,
   orarioServizio,
   numeroCommessa,
-  metodoPagamento
+  metodoPagamento,
+  assegnatoANome,
+  assegnatoACognome
 }: DettagliGeneraliProps) {
   const dataFormatted = format(new Date(dataServizio), "EEEE d MMMM yyyy", { locale: it });
   const referente = referenteNome && referenteCognome 
     ? `${referenteNome} ${referenteCognome}`.trim()
+    : '-';
+  const assegnatoA = assegnatoANome || assegnatoACognome
+    ? `${assegnatoANome || ''} ${assegnatoACognome || ''}`.trim()
     : '-';
 
   return (
@@ -37,6 +44,10 @@ export function DettagliGenerali({
         <div className="flex justify-between">
           <span className="text-muted-foreground">Referente:</span>
           <span className="font-medium text-right">{referente}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Assegnato a:</span>
+          <span className="font-medium text-right">{assegnatoA}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Data:</span>
