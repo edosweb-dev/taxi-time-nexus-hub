@@ -77,9 +77,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log("[AuthContext] Auth state changed:", event);
+        console.log("[AuthContext] Auth state changed:", event, "isImpersonating:", isImpersonating);
         
-        // Don't update auth state if we're impersonating
+        // Allow SIGNED_OUT event even during impersonation
+        if (event === 'SIGNED_OUT') {
+          console.log('[AuthContext] SIGNED_OUT event detected, clearing all state');
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+          setIsImpersonating(false);
+          setOriginalAdminId(null);
+          sessionStorage.removeItem('impersonation_data');
+          setLoading(false);
+          return;
+        }
+        
+        // Don't update auth state for other events if we're impersonating
         if (isImpersonating) {
           return;
         }
@@ -309,21 +322,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      console.log('[AuthContext] Starting signOut...');
       setLoading(true);
       
-      // If impersonating, clear impersonation state
+      // 1. Clear impersonation state FIRST
       if (isImpersonating) {
         setIsImpersonating(false);
         setOriginalAdminId(null);
         sessionStorage.removeItem('impersonation_data');
       }
       
-      await supabase.auth.signOut();
-      navigate('/login');
+      // 2. Clear local state BEFORE calling Supabase
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      
+      // 3. Clear storage
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+      
+      // 4. Call Supabase signOut (might fail if session already expired)
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.warn('[AuthContext] SignOut error (continuing anyway):', error);
+        // Continue anyway - we've already cleared local state
+      }
+      
+      // 5. Navigate to login
+      navigate('/login', { replace: true });
       toast.success('Disconnessione effettuata');
+      
     } catch (error: any) {
-      console.error('Error signing out:', error);
-      toast.error(error.message || 'Errore durante la disconnessione');
+      console.error('[AuthContext] Error signing out:', error);
+      
+      // Even if error, clear everything and go to login
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      setIsImpersonating(false);
+      setOriginalAdminId(null);
+      sessionStorage.removeItem('impersonation_data');
+      localStorage.removeItem('supabase.auth.token');
+      
+      navigate('/login', { replace: true });
+      toast.info('Disconnesso localmente');
+      
     } finally {
       setLoading(false);
     }
