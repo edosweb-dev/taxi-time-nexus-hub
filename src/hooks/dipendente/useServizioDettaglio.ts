@@ -57,7 +57,6 @@ export function useServizioDettaglio(servizioId?: string) {
         .select(`
           *,
           aziende!left(nome, email),
-          profiles!servizi_referente_id_fkey(first_name, last_name),
           veicoli!left(modello, targa, numero_posti),
           assegnato:profiles!servizi_assegnato_a_fkey(first_name, last_name)
         `)
@@ -69,7 +68,6 @@ export function useServizioDettaglio(servizioId?: string) {
       if (!data) return null;
 
       const azienda = Array.isArray(data.aziende) ? data.aziende[0] : data.aziende;
-      const referente = Array.isArray(data.profiles) ? data.profiles[0] : data.profiles;
       const veicolo = Array.isArray(data.veicoli) ? data.veicoli[0] : data.veicoli;
       const assegnato = Array.isArray(data.assegnato) ? data.assegnato[0] : data.assegnato;
 
@@ -77,8 +75,6 @@ export function useServizioDettaglio(servizioId?: string) {
         ...data,
         azienda_nome: azienda?.nome,
         azienda_email: azienda?.email,
-        referente_nome: referente?.first_name,
-        referente_cognome: referente?.last_name,
         veicolo_modello: veicolo?.modello,
         veicolo_targa: veicolo?.targa,
         veicolo_numero_posti: veicolo?.numero_posti,
