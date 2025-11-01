@@ -20,19 +20,31 @@ export function adaptServizioDettaglioToServizio(dettaglio: ServizioDettaglio): 
     indirizzo_destinazione: dettaglio.indirizzo_destinazione,
     citta_destinazione: dettaglio.citta_destinazione,
     note: dettaglio.note,
-    ore_effettive: dettaglio.ore_effettive,
-    incasso_ricevuto: dettaglio.incasso_ricevuto,
-    firma_url: dettaglio.firma_url,
-    firma_timestamp: dettaglio.firma_timestamp,
     
     // Financial fields
+    ore_effettive: dettaglio.ore_effettive,
     ore_fatturate: dettaglio.ore_fatturate,
+    incasso_previsto: dettaglio.incasso_previsto,
+    incasso_ricevuto: dettaglio.incasso_ricevuto,
     iva: dettaglio.iva,
+    applica_provvigione: dettaglio.applica_provvigione,
+    
+    // Conducente esterno
+    conducente_esterno: dettaglio.conducente_esterno,
+    conducente_esterno_id: dettaglio.conducente_esterno_id,
+    conducente_esterno_nome: dettaglio.conducente_esterno_nome,
+    conducente_esterno_email: dettaglio.conducente_esterno_email,
+    
+    // Altri campi
+    consegna_contanti_a: dettaglio.consegna_contanti_a,
+    firma_url: dettaglio.firma_url,
+    firma_timestamp: dettaglio.firma_timestamp,
+    referente_id: dettaglio.referente_id,
+    created_by: dettaglio.created_by || '',
+    created_at: dettaglio.created_at || new Date().toISOString(),
     
     // Required fields for Servizio type
     tipo_cliente: 'azienda' as const,
-    created_at: new Date().toISOString(),
-    created_by: '',
     azienda_id: dettaglio.azienda_id || '',
     veicolo_id: dettaglio.veicolo_id || '',
     assegnato_a: dettaglio.assegnato_a || '',
