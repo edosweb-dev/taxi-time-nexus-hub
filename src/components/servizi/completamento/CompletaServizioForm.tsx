@@ -106,7 +106,7 @@ export function CompletaServizioForm({
         />
 
         <div className="space-y-2">
-          <Label htmlFor="incasso_previsto_readonly">Incasso Previsto (IVA compresa)</Label>
+          <Label htmlFor="incasso_previsto_readonly">Totale da incassare</Label>
           <Input
             id="incasso_previsto_readonly"
             type="text"
