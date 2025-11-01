@@ -127,14 +127,6 @@ export function FinancialSection({
         <CardTitle className="text-lg">Informazioni finanziarie</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Warning se configurazione IVA non disponibile */}
-        {usingFallback && servizio.iva && (
-          <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950 p-2 rounded border border-amber-200 dark:border-amber-800">
-            <AlertTriangle className="h-3 w-3 flex-shrink-0" />
-            <span>Configurazione IVA non disponibile, usando valore salvato ({servizio.iva}%)</span>
-          </div>
-        )}
-        
         {/* Metodo di Pagamento */}
         {servizio.metodo_pagamento && (
           <div className="flex justify-between items-center pb-2">
