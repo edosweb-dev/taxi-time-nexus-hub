@@ -127,7 +127,9 @@ export function FinancialSection({
         {servizio.metodo_pagamento && (
           <div className="flex justify-between items-center pb-2">
             <span className="text-sm font-medium text-muted-foreground">Metodo di Pagamento</span>
-            <Badge variant="outline" className="text-base">{servizio.metodo_pagamento}</Badge>
+            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 font-medium px-3 py-1">
+              {servizio.metodo_pagamento}
+            </Badge>
           </div>
         )}
         
