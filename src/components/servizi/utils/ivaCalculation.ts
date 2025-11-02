@@ -9,7 +9,7 @@ import { getImpostazioni } from "@/lib/api/impostazioni/getImpostazioni";
 export async function getIvaPercentageForServizio(servizio: Servizio): Promise<number> {
   try {
     const impostazioni = await getImpostazioni();
-    if (!impostazioni) return 22; // default VAT if no settings found
+    if (!impostazioni) return 0; // ✅ Default a 0 se impostazioni non trovate
     
     const { metodi_pagamento, aliquote_iva } = impostazioni;
     
@@ -29,10 +29,10 @@ export async function getIvaPercentageForServizio(servizio: Servizio): Promise<n
       }
     }
     
-    return 22; // default VAT if no matching rate found
+    return 0; // ✅ Default a 0 se aliquota non trovata
   } catch (error) {
     console.error("Error getting IVA percentage:", error);
-    return 22; // default VAT in case of error
+    return 0; // ✅ Default a 0 in caso di errore
   }
 }
 

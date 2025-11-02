@@ -30,10 +30,12 @@ export function FinancialSection({
   const metodoPagamento = servizio.metodo_pagamento || '';
   const configMetodo = metodiPagamento.find(m => m.nome === metodoPagamento);
   
-  // Calcola IVA usando configurazione da impostazioni con fallback
-  const ivaPercentage = metodiPagamento.length > 0 && aliquoteIva.length > 0
-    ? getIvaPercentageForPaymentMethod(metodoPagamento, metodiPagamento, aliquoteIva)
-    : (servizio.iva || 0);
+  // ✅ PRIORITÀ ASSOLUTA: Usa sempre configurazione, mai servizio.iva (può essere sporco)
+  const ivaPercentage = getIvaPercentageForPaymentMethod(
+    metodoPagamento, 
+    metodiPagamento, 
+    aliquoteIva
+  );
   
   const metodoHaIva = ivaPercentage > 0;
   const usingFallback = metodiPagamento.length === 0 || aliquoteIva.length === 0;
