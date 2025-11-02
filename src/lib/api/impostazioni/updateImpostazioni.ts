@@ -1,8 +1,37 @@
-
 import { supabase } from "@/lib/supabase";
 import { Impostazioni, ImpostazioniFormData, MetodoPagamentoOption, AliquotaIvaOption } from "@/lib/types/impostazioni";
 import { Json } from "@/integrations/supabase/types";
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
+
+// Security: Input validation schemas to prevent injection and data corruption
+const metodoPagamentoSchema = z.object({
+  id: z.string().uuid("ID must be a valid UUID"),
+  nome: z.string().min(1, "Nome is required").max(100, "Nome must be less than 100 characters"),
+  iva_applicabile: z.boolean(),
+  aliquota_iva: z.string().max(50, "Aliquota IVA must be less than 50 characters").optional(),
+  report_attivo: z.boolean(),
+});
+
+const aliquotaIvaSchema = z.object({
+  id: z.string().uuid("ID must be a valid UUID"),
+  nome: z.string().min(1, "Nome is required").max(100, "Nome must be less than 100 characters"),
+  percentuale: z.number()
+    .min(0, "Percentage cannot be negative")
+    .max(100, "Percentage cannot exceed 100"),
+  descrizione: z.string().max(500, "Descrizione must be less than 500 characters").optional(),
+});
+
+const impostazioniUpdateSchema = z.object({
+  id: z.string().uuid("ID must be a valid UUID").optional(),
+  nome_azienda: z.string().min(1).max(200).optional(),
+  partita_iva: z.string().max(50).optional(),
+  indirizzo_sede: z.string().max(500).optional(),
+  telefono: z.string().max(50).optional(),
+  email: z.string().email().max(255).optional(),
+  metodi_pagamento: z.array(metodoPagamentoSchema).max(50, "Cannot have more than 50 payment methods"),
+  aliquote_iva: z.array(aliquotaIvaSchema).max(20, "Cannot have more than 20 VAT rates"),
+});
 
 export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): Promise<Impostazioni | null> {
   try {
@@ -10,6 +39,15 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
     if (!data.id) {
       throw new Error("Missing ID for settings update");
     }
+
+    // Security: Validate all input data before processing
+    const validationResult = impostazioniUpdateSchema.safeParse(data);
+    if (!validationResult.success) {
+      console.error("Input validation failed:", validationResult.error.format());
+      throw new Error(`Invalid input data: ${validationResult.error.errors.map(e => e.message).join(", ")}`);
+    }
+
+    const validatedData = validationResult.data;
 
     // Ensure we have valid data with required fields
     const ensureMetodiPagamentoIds = (metodi: any[] = []): MetodoPagamentoOption[] => {
@@ -31,13 +69,13 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
       }));
     };
 
-    // Process and normalize the data
-    const processedMetodi = data.metodi_pagamento ? ensureMetodiPagamentoIds(data.metodi_pagamento) : [];
-    const processedAliquote = data.aliquote_iva ? ensureAliquoteIvaIds(data.aliquote_iva) : [];
+    // Process and normalize the data (already validated)
+    const processedMetodi = validatedData.metodi_pagamento ? ensureMetodiPagamentoIds(validatedData.metodi_pagamento) : [];
+    const processedAliquote = validatedData.aliquote_iva ? ensureAliquoteIvaIds(validatedData.aliquote_iva) : [];
 
     // Convert to format suitable for the database
     const dataToUpdate: Record<string, any> = {
-      ...data,
+      ...validatedData,
       metodi_pagamento: processedMetodi as unknown as Json,
       aliquote_iva: processedAliquote as unknown as Json,
     };
