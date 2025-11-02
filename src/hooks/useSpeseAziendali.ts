@@ -223,6 +223,29 @@ export const useSpeseAziendali = () => {
     },
   });
 
+  const getPendingByMonth = (anno: number, mese: number) => {
+    return useQuery({
+      queryKey: ['pending-by-month', anno, mese],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from('spese_aziendali')
+          .select(`
+            *,
+            modalita_pagamento:modalita_pagamenti(id, nome, attivo, created_at),
+            socio:profiles!socio_id(id, first_name, last_name),
+            dipendente:profiles!dipendente_id(id, first_name, last_name)
+          `)
+          .eq('stato_pagamento', 'pending')
+          .gte('data_movimento', `${anno}-${String(mese).padStart(2, '0')}-01`)
+          .lte('data_movimento', `${anno}-${String(mese).padStart(2, '0')}-31`)
+          .order('data_movimento', { ascending: true });
+
+        if (error) throw error;
+        return data as SpesaAziendale[];
+      },
+    });
+  };
+
   const getTotaliMese = useQuery({
     queryKey: ['totali-mese', new Date().getMonth(), new Date().getFullYear()],
     queryFn: async () => {
@@ -273,5 +296,6 @@ export const useSpeseAziendali = () => {
     convertiSpeseDipendenti,
     pendingCount: getPendingCount.data || 0,
     totaliMese: getTotaliMese.data,
+    getPendingByMonth,
   };
 };

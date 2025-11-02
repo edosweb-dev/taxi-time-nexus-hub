@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Users, ArrowUpDown, AlertCircle, Coins } from 'lucide-react';
 import { NuovoMovimentoSheet } from './NuovoMovimentoSheet';
 import { IncassiDipendenteSheet } from './IncassiDipendenteSheet';
-import { PagamentiPendingSheet } from './PagamentiPendingSheet';
+import { PagamentiPendingDialog } from './PagamentiPendingDialog';
 import { TabellaSpeseMensili } from './TabellaSpeseMensili';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 
@@ -126,9 +126,9 @@ export function SpeseAziendaliDashboard() {
         onOpenChange={setIncassiDipendenteOpen} 
       />
       
-      <PagamentiPendingSheet 
+      <PagamentiPendingDialog 
         open={pagamentiPendingOpen} 
-        onOpenChange={setPagamentiPendingOpen} 
+        onOpenChange={setPagamentiPendingOpen}
       />
     </div>
   );
