@@ -17,6 +17,8 @@ export interface ReportPasseggeroRow {
   azienda_nome?: string;
   referente_nome?: string;
   stato: string;
+  consegnato_a_id: string | null;
+  consegnato_a_nome: string | null;
 }
 
 interface ReportFilters {
@@ -49,6 +51,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           stato,
           azienda_id,
           referente_id,
+          consegna_contanti_a,
           aziende:azienda_id (
             id,
             nome
@@ -84,20 +87,34 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
 
       if (error) throw error;
 
-      // Fetch referenti profiles in batch
+      // Fetch referenti and consegnatari profiles in batch
       const referenteIds = [...new Set(
         data?.map(s => s.referente_id).filter(Boolean) || []
       )];
+      
+      const consegnatariIds = [...new Set(
+        data?.map(s => s.consegna_contanti_a).filter(Boolean) || []
+      )];
 
       let referentiMap = new Map<string, string>();
-      if (referenteIds.length > 0) {
-        const { data: referentiData } = await supabase
+      let consegnatariMap = new Map<string, string>();
+      
+      const allProfileIds = [...new Set([...referenteIds, ...consegnatariIds])];
+      
+      if (allProfileIds.length > 0) {
+        const { data: profilesData } = await supabase
           .from('profiles')
           .select('id, first_name, last_name')
-          .in('id', referenteIds);
+          .in('id', allProfileIds);
         
-        referentiData?.forEach(r => {
-          referentiMap.set(r.id, `${r.first_name} ${r.last_name}`);
+        profilesData?.forEach(p => {
+          const fullName = `${p.first_name} ${p.last_name}`;
+          if (referenteIds.includes(p.id)) {
+            referentiMap.set(p.id, fullName);
+          }
+          if (consegnatariIds.includes(p.id)) {
+            consegnatariMap.set(p.id, fullName);
+          }
         });
       }
 
@@ -134,6 +151,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
               azienda_nome: servizio.aziende?.nome,
               referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
               stato: servizio.stato,
+              consegnato_a_id: servizio.consegna_contanti_a,
+              consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
             });
           });
         } else if (!filters.passeggeroId) {
@@ -154,6 +173,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             azienda_nome: servizio.aziende?.nome,
             referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
             stato: servizio.stato,
+            consegnato_a_id: servizio.consegna_contanti_a,
+            consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
           });
         }
       });

@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { AlertCircle } from 'lucide-react';
 
 interface ReportPasseggeriTableProps {
   data: ReportPasseggeroRow[];
@@ -79,12 +80,11 @@ export function ReportPasseggeriTable({ data, isLoading }: ReportPasseggeriTable
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[100px]">ID</TableHead>
-                    <TableHead className="w-[150px]">Data</TableHead>
+                    <TableHead className="w-[120px]">Data</TableHead>
                     <TableHead>Passeggero</TableHead>
                     <TableHead>Percorso</TableHead>
-                    <TableHead className="w-[100px] text-center">Nr Pass.</TableHead>
-                    <TableHead className="w-[150px]">Pagamento</TableHead>
                     <TableHead className="w-[120px] text-right">Importo</TableHead>
+                    <TableHead className="w-[150px]">Consegna</TableHead>
                     <TableHead className="w-[100px]">Stato</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -98,9 +98,6 @@ export function ReportPasseggeriTable({ data, isLoading }: ReportPasseggeriTable
                         <div className="flex flex-col">
                           <span className="text-sm font-medium">
                             {formatDate(row.data_servizio)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatTime(row.orario_servizio)}
                           </span>
                         </div>
                       </TableCell>
@@ -121,14 +118,24 @@ export function ReportPasseggeriTable({ data, isLoading }: ReportPasseggeriTable
                           {row.percorso}
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{row.nr_passeggeri_totale}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{row.metodo_pagamento}</span>
-                      </TableCell>
                       <TableCell className="text-right font-semibold">
                         €{row.importo.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        {row.metodo_pagamento === 'Contanti' ? (
+                          row.consegnato_a_nome ? (
+                            <Badge variant="default" className="bg-primary">
+                              {row.consegnato_a_nome}
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive">
+                              <AlertCircle className="h-3 w-3 mr-1" />
+                              Non consegnato
+                            </Badge>
+                          )
+                        ) : (
+                          <span className="text-sm text-muted-foreground">-</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {getStatoBadge(row.stato)}
@@ -174,16 +181,27 @@ export function ReportPasseggeriTable({ data, isLoading }: ReportPasseggeriTable
 
               <div className="flex items-center justify-between pt-2 border-t">
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Pagamento</p>
-                  <p className="text-sm">{row.metodo_pagamento}</p>
-                </div>
-                <div className="text-right space-y-1">
-                  <p className="text-xs text-muted-foreground">
-                    {row.nr_passeggeri_totale} pass.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Importo</p>
                   <p className="text-lg font-bold text-primary">
                     €{row.importo.toFixed(2)}
                   </p>
+                </div>
+                <div className="text-right space-y-1">
+                  <p className="text-xs text-muted-foreground">Consegna</p>
+                  {row.metodo_pagamento === 'Contanti' ? (
+                    row.consegnato_a_nome ? (
+                      <Badge variant="default" className="bg-primary">
+                        {row.consegnato_a_nome}
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive">
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Non consegnato
+                      </Badge>
+                    )
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
                 </div>
               </div>
             </CardContent>

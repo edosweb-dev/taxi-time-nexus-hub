@@ -10,30 +10,26 @@ export const exportReportPasseggeri = (
   const header = [
     'ID',
     'Data',
-    'Orario',
     'Passeggero',
-    'Azienda',
-    'Indirizzo Presa',
-    'Indirizzo Destinazione',
-    'Nr Passeggeri',
-    'Metodo Pagamento',
+    'Percorso',
     'Importo',
+    'Consegna',
     'Stato',
   ].join(';');
 
   // Create CSV rows
   const rows = data.map((row) => {
+    const consegna = row.metodo_pagamento === 'Contanti' 
+      ? (row.consegnato_a_nome || 'NON CONSEGNATO')
+      : '-';
+    
     return [
       row.id_progressivo,
       format(new Date(row.data_servizio), 'dd/MM/yyyy'),
-      row.orario_servizio.substring(0, 5),
       row.passeggero_nome,
-      row.azienda_nome || '',
-      row.indirizzo_presa,
-      row.indirizzo_destinazione,
-      row.nr_passeggeri_totale,
-      row.metodo_pagamento,
+      row.percorso,
       row.importo.toFixed(2),
+      consegna,
       row.stato,
     ]
       .map((cell) => `"${cell}"`)
