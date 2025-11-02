@@ -52,11 +52,6 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             id,
             nome
           ),
-          profiles!referente_id (
-            id,
-            first_name,
-            last_name
-          ),
           servizi_passeggeri (
             id,
             passeggero_id,
@@ -88,6 +83,23 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
 
       if (error) throw error;
 
+      // Fetch referenti profiles in batch
+      const referenteIds = [...new Set(
+        data?.map(s => s.referente_id).filter(Boolean) || []
+      )];
+
+      let referentiMap = new Map<string, string>();
+      if (referenteIds.length > 0) {
+        const { data: referentiData } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name')
+          .in('id', referenteIds);
+        
+        referentiData?.forEach(r => {
+          referentiMap.set(r.id, `${r.first_name} ${r.last_name}`);
+        });
+      }
+
       // Transform data to flat structure
       const rows: ReportPasseggeroRow[] = [];
 
@@ -114,7 +126,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
               metodo_pagamento: servizio.metodo_pagamento,
               importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
               azienda_nome: servizio.aziende?.nome,
-              referente_nome: servizio.profiles ? `${servizio.profiles.first_name} ${servizio.profiles.last_name}` : undefined,
+              referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
               stato: servizio.stato,
             });
           });
@@ -134,7 +146,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             metodo_pagamento: servizio.metodo_pagamento,
             importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
             azienda_nome: servizio.aziende?.nome,
-            referente_nome: servizio.profiles ? `${servizio.profiles.first_name} ${servizio.profiles.last_name}` : undefined,
+            referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
             stato: servizio.stato,
           });
         }
