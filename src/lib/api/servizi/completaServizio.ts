@@ -1,6 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
-import { MetodoPagamento } from '@/lib/types/servizi';
+import { MetodoPagamento, richiedeGestioneIncasso } from '@/lib/types/servizi';
 
 interface CompletaServizioParams {
   id: string;
@@ -14,13 +14,28 @@ export async function completaServizio({
   incasso_ricevuto,
 }: CompletaServizioParams) {
   try {
+    // Validazione condizionale: incasso richiesto SOLO per Contanti/Carta
+    const richiedeIncasso = richiedeGestioneIncasso(metodo_pagamento);
+    
+    if (richiedeIncasso && (!incasso_ricevuto || incasso_ricevuto <= 0)) {
+      throw new Error(
+        `Incasso ricevuto obbligatorio per pagamenti con ${metodo_pagamento}`
+      );
+    }
+
+    const updateData: any = {
+      stato: 'completato',
+      metodo_pagamento,
+    };
+
+    // Aggiungi incasso SOLO se metodo lo richiede
+    if (richiedeIncasso && incasso_ricevuto) {
+      updateData.incasso_ricevuto = incasso_ricevuto;
+    }
+
     const { data, error } = await supabase
       .from('servizi')
-      .update({
-        stato: 'completato',
-        metodo_pagamento,
-        incasso_ricevuto,
-      })
+      .update(updateData)
       .eq('id', id)
       .select();
 

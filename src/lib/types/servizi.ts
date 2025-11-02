@@ -160,3 +160,22 @@ export interface PasseggeroFormData {
   is_existing?: boolean; // Flag per distinguere tra nuovo e esistente
   salva_in_database?: boolean; // Flag per salvare in anagrafica (default: true)
 }
+
+/**
+ * Metodi di pagamento che NON richiedono gestione incasso da parte del dipendente
+ * (il pagamento va direttamente all'azienda)
+ */
+const METODI_PAGAMENTO_DIRETTO_AZIENDA = [
+  'Bonifico bancario',
+  'Assegno',
+] as const;
+
+/**
+ * Determina se un metodo di pagamento richiede gestione incasso dal dipendente/socio
+ * @param metodoPagamento - Il metodo di pagamento del servizio
+ * @returns true se richiede gestione incasso (Contanti/Carta), false altrimenti (Bonifico/Assegno)
+ */
+export function richiedeGestioneIncasso(metodoPagamento?: string | null): boolean {
+  if (!metodoPagamento) return false;
+  return !METODI_PAGAMENTO_DIRETTO_AZIENDA.includes(metodoPagamento as any);
+}

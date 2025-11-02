@@ -7,9 +7,29 @@ import { useQuery } from "@tanstack/react-query";
 import { getImpostazioni } from "@/lib/api/impostazioni/getImpostazioni";
 import { completaServizio } from "@/lib/api/servizi";
 import { toast } from "@/components/ui/sonner";
-import { Servizio } from "@/lib/types/servizi";
+import { Servizio, richiedeGestioneIncasso } from "@/lib/types/servizi";
 
-// Form schema
+/**
+ * Genera schema validazione dinamico per completamento servizio
+ * Campi incasso sono obbligatori SOLO per Contanti/Carta
+ */
+export function getCompletaServizioSchema(metodoPagamento?: string | null) {
+  const richiedeIncasso = richiedeGestioneIncasso(metodoPagamento);
+
+  return z.object({
+    metodo_pagamento: z.string({
+      required_error: "Seleziona un metodo di pagamento",
+    }),
+    // Incasso richiesto SOLO per metodi che richiedono gestione
+    incasso_ricevuto: richiedeIncasso
+      ? z.coerce.number()
+          .min(0.01, "Importo deve essere maggiore di 0")
+          .positive("Importo deve essere un numero positivo")
+      : z.coerce.number().optional(),
+  });
+}
+
+// Schema statico per backward compatibility (deprecato)
 export const completaServizioSchema = z.object({
   metodo_pagamento: z.string({
     required_error: "Seleziona un metodo di pagamento",
@@ -39,6 +59,8 @@ export function useCompletaServizioForm({
   servizio
 }: UseCompletaServizioFormProps) {
   
+  const richiedeIncasso = richiedeGestioneIncasso(servizio.metodo_pagamento);
+  
   // Load impostazioni for metodi pagamento
   const { data: impostazioni, isLoading: impostazioniLoading } = useQuery({
     queryKey: ['impostazioni'],
@@ -48,12 +70,14 @@ export function useCompletaServizioForm({
 
   const metodiPagamento = impostazioni?.metodi_pagamento || [];
 
-  // Initialize form
+  // Initialize form con schema condizionale
+  const schema = getCompletaServizioSchema(servizio.metodo_pagamento);
+  
   const form = useForm<CompletaServizioFormData>({
-    resolver: zodResolver(completaServizioSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       metodo_pagamento: metodoDefault,
-      incasso_ricevuto: servizio.incasso_ricevuto || 0,
+      incasso_ricevuto: richiedeIncasso ? (servizio.incasso_ricevuto || 0) : undefined,
     },
   });
 
@@ -93,5 +117,6 @@ export function useCompletaServizioForm({
     isSubmitting: form.formState.isSubmitting,
     metodiPagamento,
     impostazioniLoading,
+    richiedeIncasso,
   };
 }
