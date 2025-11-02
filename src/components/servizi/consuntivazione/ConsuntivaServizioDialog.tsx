@@ -1,11 +1,13 @@
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/sonner";
 import { ConsuntivaServizioForm } from "./ConsuntivaServizioForm";
 import { consuntivaServizio } from "@/lib/api/servizi";
 import { Profile } from "@/lib/types";
 import { ConsuntivaServizioFormData } from "../hooks/useConsuntivaServizioForm";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ConsuntivaServizioDialogProps {
   open: boolean;
@@ -30,6 +32,26 @@ export function ConsuntivaServizioDialog({
 }: ConsuntivaServizioDialogProps) {
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
 
+  // Fetch servizio REALE dal database
+  const { data: servizio, isLoading } = useQuery({
+    queryKey: ['servizio-consuntiva', servizioId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('servizi')
+        .select(`
+          *,
+          azienda:aziende(id, nome, iva),
+          assegnato:profiles!assegnato_a(id, first_name, last_name, role)
+        `)
+        .eq('id', servizioId)
+        .single();
+      
+      if (error) throw error;
+      return data as any;
+    },
+    enabled: open,
+  });
+
   useEffect(() => {
     if (users) {
       const filteredUsers = users
@@ -49,6 +71,7 @@ export function ConsuntivaServizioDialog({
         incasso_previsto: data.incasso_previsto,
         ore_sosta: data.ore_sosta,
         consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
+        km_totali: data.km_totali,
       });
 
       if (result.error) {
@@ -63,24 +86,24 @@ export function ConsuntivaServizioDialog({
     }
   }
 
-  // Create a mock servizio object with the necessary fields for the form
-  const servizio = {
-    id: servizioId,
-    tipo_cliente: 'azienda' as const,
-    incasso_previsto: incassoRicevuto,
-    ore_sosta: oreLavorate,
-    metodo_pagamento: isContanti ? 'Contanti' : '',
-    // Add other required fields with placeholder values
-    azienda_id: '',
-    referente_id: '',
-    data_servizio: '',
-    orario_servizio: '',
-    indirizzo_presa: '',
-    indirizzo_destinazione: '',
-    stato: 'completato' as const,
-    created_at: '',
-    created_by: '',
-  };
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Consuntiva servizio</DialogTitle>
+          </DialogHeader>
+          <div className="py-8 text-center text-muted-foreground">
+            Caricamento...
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!servizio) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

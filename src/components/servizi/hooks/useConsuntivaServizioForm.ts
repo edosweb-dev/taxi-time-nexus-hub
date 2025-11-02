@@ -23,10 +23,11 @@ export const consuntivaServizioSchema = z.object({
 export type ConsuntivaServizioFormData = z.infer<typeof consuntivaServizioSchema>;
 
 export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: ConsuntivaServizioFormData) => void) {
-  const [ivaPercentage, setIvaPercentage] = useState<number>(22); // Default value
-  const [totalePrevisto, setTotalePrevisto] = useState<number | undefined>(undefined);
+  // Calcola IVA sincrona usando dati del servizio
+  const ivaServizio = servizio.iva || (servizio as any).azienda?.iva || 22;
+  const [ivaPercentage, setIvaPercentage] = useState<number>(ivaServizio);
   
-  // Calcola totale previsto (incasso netto + IVA) per pre-fill
+  // Calcola totale previsto (incasso netto + IVA) SINCRONO per pre-fill
   const calcolaTotalePrevisto = (incassoNetto: number | undefined, iva: number) => {
     if (!incassoNetto) return undefined;
     
@@ -43,12 +44,14 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     return totale;
   };
   
+  const totalePrevisto = calcolaTotalePrevisto(servizio.incasso_previsto, ivaServizio);
+  
   const form = useForm<ConsuntivaServizioFormData>({
     resolver: zodResolver(consuntivaServizioSchema),
     defaultValues: {
       ore_sosta: servizio.ore_sosta || undefined,
-      // Pre-popola con totale previsto se disponibile
-      incasso_previsto: servizio.incasso_previsto || undefined,
+      // Pre-popola con totale previsto (netto + IVA)
+      incasso_previsto: totalePrevisto,
       km_totali: servizio.km_totali || undefined,
     },
   });
@@ -56,21 +59,12 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
   // Watch the current form values
   const incassoPrevisto = form.watch("incasso_previsto");
   
-  // Load the IVA percentage from the settings and calculate total previsto
+  // Load the IVA percentage from the settings (async override)
   useEffect(() => {
     async function loadIvaRate() {
       try {
         const percentage = await getIvaPercentageForServizio(servizio);
         setIvaPercentage(percentage);
-        
-        // Calcola e imposta totale previsto per pre-fill
-        const totale = calcolaTotalePrevisto(servizio.incasso_previsto, percentage);
-        setTotalePrevisto(totale);
-        
-        // Pre-popola il campo con totale previsto se non c'è già un valore
-        if (totale !== undefined && !form.getValues('incasso_previsto')) {
-          form.setValue('incasso_previsto', totale);
-        }
       } catch (error) {
         console.error("Error loading IVA rate:", error);
       }

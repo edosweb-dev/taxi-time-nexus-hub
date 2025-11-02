@@ -131,31 +131,35 @@ export function ConsuntivaServizioForm({
                   </FormItem>
                 )}
               />
-
-              {/* Campo ore_sosta_fatturate RIMOSSO: usa solo ore_sosta */}
             </div>
 
-            <FormField
-              control={form.control}
-              name="km_totali"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Km percorsi</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="1"
-                      min="0"
-                      placeholder="Es: 120"
-                      {...field}
-                      value={field.value === undefined ? '' : field.value}
-                      onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Campo KM - Solo se esecutore è admin/socio */}
+            {(servizio as any).assegnato?.role === 'admin' || (servizio as any).assegnato?.role === 'socio' ? (
+              <FormField
+                control={form.control}
+                name="km_totali"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Km percorsi</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="1"
+                        min="0"
+                        placeholder="Es: 120"
+                        {...field}
+                        value={field.value === undefined ? '' : field.value}
+                        onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Chilometri effettivamente percorsi (per calcolo stipendio)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
           </>
         )}
         
