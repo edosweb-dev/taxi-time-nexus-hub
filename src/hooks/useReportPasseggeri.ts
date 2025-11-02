@@ -26,8 +26,8 @@ interface ReportFilters {
   dataFine: string;
   aziendaId?: string;
   referenteId?: string;
-  metodoPagamento?: string;
-  passeggeroId?: string;
+  dipendenteId?: string;
+  socioId?: string;
 }
 
 export const useReportPasseggeri = (filters: ReportFilters) => {
@@ -79,8 +79,12 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
         query = query.eq('referente_id', filters.referenteId);
       }
 
-      if (filters.metodoPagamento) {
-        query = query.eq('metodo_pagamento', filters.metodoPagamento);
+      if (filters.dipendenteId) {
+        query = query.eq('assegnato_a', filters.dipendenteId);
+      }
+
+      if (filters.socioId) {
+        query = query.eq('consegna_contanti_a', filters.socioId);
       }
 
       const { data, error } = await query;
@@ -130,11 +134,6 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           passeggeri.forEach((sp: any) => {
             const passeggeroNome = sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || 'N/D';
             
-            // Apply passenger filter if set
-            if (filters.passeggeroId && sp.passeggero_id !== filters.passeggeroId) {
-              return; // Skip this passenger if doesn't match filter
-            }
-            
             rows.push({
               servizio_id: servizio.id,
               id_progressivo: servizio.id_progressivo || 'N/D',
@@ -155,8 +154,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
               consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
             });
           });
-        } else if (!filters.passeggeroId) {
-          // Only show services without passengers if no passenger filter is set
+        } else {
+          // Show services without passengers
           rows.push({
             servizio_id: servizio.id,
             id_progressivo: servizio.id_progressivo || 'N/D',

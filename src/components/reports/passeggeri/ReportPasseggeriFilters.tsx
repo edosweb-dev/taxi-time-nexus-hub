@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
 import { useUsers } from '@/hooks/useUsers';
-import { usePasseggeri } from '@/hooks/usePasseggeri';
 
 interface ReportPasseggeriFiltersProps {
   filters: {
@@ -20,8 +19,8 @@ interface ReportPasseggeriFiltersProps {
     dataFine: string;
     aziendaId: string;
     referenteId: string;
-    metodoPagamento: string;
-    passeggeroId: string;
+    dipendenteId: string;
+    socioId: string;
   };
   onFiltersChange: (filters: any) => void;
 }
@@ -32,15 +31,10 @@ export function ReportPasseggeriFilters({
 }: ReportPasseggeriFiltersProps) {
   const { aziende } = useAziende();
   const { users } = useUsers();
-  const { data: passeggeriData } = usePasseggeri(filters.aziendaId, filters.referenteId);
 
   const referenti = users.filter((u) => u.role === 'cliente');
-
-  // Get passengers from the query result
-  const passeggeri = passeggeriData?.passeggeri || [];
-
-  // Filter passengers based on selected company and referent (already filtered in the query)
-  const filteredPasseggeri = passeggeri;
+  const dipendenti = users.filter((u) => u.role === 'dipendente');
+  const soci = users.filter((u) => u.role === 'socio' || u.role === 'admin');
 
   const handleReset = () => {
     onFiltersChange({
@@ -50,19 +44,10 @@ export function ReportPasseggeriFilters({
       dataFine: new Date().toISOString().split('T')[0],
       aziendaId: '',
       referenteId: '',
-      metodoPagamento: '',
-      passeggeroId: '',
+      dipendenteId: '',
+      socioId: '',
     });
   };
-
-  const metodiPagamento = [
-    'Bonifico',
-    'Contanti',
-    'Assegno',
-    'Carta di credito',
-    'PayPal',
-    'Altro',
-  ];
 
   return (
     <Card>
@@ -144,21 +129,21 @@ export function ReportPasseggeriFilters({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="metodoPagamento">Metodo Pagamento</Label>
+            <Label htmlFor="dipendente">Dipendente</Label>
             <Select
-              value={filters.metodoPagamento || 'all'}
+              value={filters.dipendenteId || 'all'}
               onValueChange={(value) =>
-                onFiltersChange({ ...filters, metodoPagamento: value === 'all' ? '' : value })
+                onFiltersChange({ ...filters, dipendenteId: value === 'all' ? '' : value })
               }
             >
-              <SelectTrigger id="metodoPagamento">
-                <SelectValue placeholder="Tutti i metodi" />
+              <SelectTrigger id="dipendente">
+                <SelectValue placeholder="Tutti i dipendenti" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutti i metodi</SelectItem>
-                {metodiPagamento.map((metodo) => (
-                  <SelectItem key={metodo} value={metodo}>
-                    {metodo}
+                <SelectItem value="all">Tutti i dipendenti</SelectItem>
+                {dipendenti.map((dipendente) => (
+                  <SelectItem key={dipendente.id} value={dipendente.id}>
+                    {dipendente.first_name} {dipendente.last_name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -166,22 +151,21 @@ export function ReportPasseggeriFilters({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="passeggero">Passeggero</Label>
+            <Label htmlFor="socio">Socio/Admin</Label>
             <Select
-              value={filters.passeggeroId || 'all'}
+              value={filters.socioId || 'all'}
               onValueChange={(value) =>
-                onFiltersChange({ ...filters, passeggeroId: value === 'all' ? '' : value })
+                onFiltersChange({ ...filters, socioId: value === 'all' ? '' : value })
               }
-              disabled={!filters.aziendaId}
             >
-              <SelectTrigger id="passeggero">
-                <SelectValue placeholder="Tutti i passeggeri" />
+              <SelectTrigger id="socio">
+                <SelectValue placeholder="Tutti i soci" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutti i passeggeri</SelectItem>
-                {filteredPasseggeri.map((passeggero) => (
-                  <SelectItem key={passeggero.id} value={passeggero.id}>
-                    {passeggero.nome_cognome}
+                <SelectItem value="all">Tutti i soci</SelectItem>
+                {soci.map((socio) => (
+                  <SelectItem key={socio.id} value={socio.id}>
+                    {socio.first_name} {socio.last_name}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -15,8 +15,8 @@ export default function ReportPasseggeriPage() {
     dataFine: new Date().toISOString().split('T')[0],
     aziendaId: '',
     referenteId: '',
-    metodoPagamento: '',
-    passeggeroId: '',
+    dipendenteId: '',
+    socioId: '',
   });
 
   const { data: reportData, isLoading } = useReportPasseggeri(filters);
