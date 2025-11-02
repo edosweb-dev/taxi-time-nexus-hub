@@ -504,12 +504,12 @@ export default function StipendiDettaglioPage() {
                   <span className="text-sm">Spese personali approvate</span>
                   <span className="font-bold text-primary">+€{totaleSpesePersonali.toFixed(2)}</span>
                 </div>
-                {riporto > 0 && (
-                  <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
-                    <span className="text-sm">Riporto mese precedente</span>
-                    <span className="font-bold text-primary">+€{riporto.toFixed(2)}</span>
-                  </div>
-                )}
+                <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
+                  <span className="text-sm">Riporto mese precedente</span>
+                  <span className={`font-bold ${riporto >= 0 ? 'text-primary' : 'text-muted-foreground'}`}>
+                    {riporto >= 0 ? '+' : ''}€{riporto.toFixed(2)}
+                  </span>
+                </div>
                 <Separator />
                 <div className="flex justify-between items-center p-3 bg-primary/20 rounded-lg">
                   <span className="font-bold">TOTALE ENTRATE</span>
