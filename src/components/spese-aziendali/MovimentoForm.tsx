@@ -184,9 +184,9 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="spesa">💸 Spesa (uscita)</SelectItem>
-                  <SelectItem value="incasso">💰 Incasso (entrata)</SelectItem>
-                  <SelectItem value="prelievo">🏦 Prelievo Socio</SelectItem>
+                  <SelectItem value="spesa">Spesa (uscita)</SelectItem>
+                  <SelectItem value="incasso">Incasso (entrata)</SelectItem>
+                  <SelectItem value="prelievo">Prelievo Socio</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -208,12 +208,12 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="generica">💳 Spesa Generica</SelectItem>
-                    <SelectItem value="f24">📄 F24 (Tasse/Contributi)</SelectItem>
-                    <SelectItem value="pagamento_fornitori">🏢 Pagamento Fornitori</SelectItem>
-                    <SelectItem value="spese_gestione">⚙️ Spese di Gestione</SelectItem>
-                    <SelectItem value="multe">🚨 Multe</SelectItem>
-                    <SelectItem value="fattura_conducenti_esterni">🚗 Fattura Conducenti Esterni</SelectItem>
+                    <SelectItem value="generica">Spesa Generica</SelectItem>
+                    <SelectItem value="f24">F24 (Tasse/Contributi)</SelectItem>
+                    <SelectItem value="pagamento_fornitori">Pagamento Fornitori</SelectItem>
+                    <SelectItem value="spese_gestione">Spese di Gestione</SelectItem>
+                    <SelectItem value="multe">Multe</SelectItem>
+                    <SelectItem value="fattura_conducenti_esterni">Fattura Conducenti Esterni</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
