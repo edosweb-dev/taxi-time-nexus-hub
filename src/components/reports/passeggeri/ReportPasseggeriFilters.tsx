@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
 import { useUsers } from '@/hooks/useUsers';
+import { usePasseggeri } from '@/hooks/usePasseggeri';
 
 interface ReportPasseggeriFiltersProps {
   filters: {
@@ -20,6 +21,7 @@ interface ReportPasseggeriFiltersProps {
     aziendaId: string;
     referenteId: string;
     metodoPagamento: string;
+    passeggeroId: string;
   };
   onFiltersChange: (filters: any) => void;
 }
@@ -30,8 +32,15 @@ export function ReportPasseggeriFilters({
 }: ReportPasseggeriFiltersProps) {
   const { aziende } = useAziende();
   const { users } = useUsers();
+  const { data: passeggeriData } = usePasseggeri(filters.aziendaId, filters.referenteId);
 
   const referenti = users.filter((u) => u.role === 'cliente');
+
+  // Get passengers from the query result
+  const passeggeri = passeggeriData?.passeggeri || [];
+
+  // Filter passengers based on selected company and referent (already filtered in the query)
+  const filteredPasseggeri = passeggeri;
 
   const handleReset = () => {
     onFiltersChange({
@@ -42,6 +51,7 @@ export function ReportPasseggeriFilters({
       aziendaId: '',
       referenteId: '',
       metodoPagamento: '',
+      passeggeroId: '',
     });
   };
 
@@ -149,6 +159,29 @@ export function ReportPasseggeriFilters({
                 {metodiPagamento.map((metodo) => (
                   <SelectItem key={metodo} value={metodo}>
                     {metodo}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="passeggero">Passeggero</Label>
+            <Select
+              value={filters.passeggeroId || 'all'}
+              onValueChange={(value) =>
+                onFiltersChange({ ...filters, passeggeroId: value === 'all' ? '' : value })
+              }
+              disabled={!filters.aziendaId}
+            >
+              <SelectTrigger id="passeggero">
+                <SelectValue placeholder="Tutti i passeggeri" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tutti i passeggeri</SelectItem>
+                {filteredPasseggeri.map((passeggero) => (
+                  <SelectItem key={passeggero.id} value={passeggero.id}>
+                    {passeggero.nome_cognome}
                   </SelectItem>
                 ))}
               </SelectContent>

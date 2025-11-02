@@ -16,6 +16,7 @@ export default function ReportPasseggeriPage() {
     aziendaId: '',
     referenteId: '',
     metodoPagamento: '',
+    passeggeroId: '',
   });
 
   const { data: reportData, isLoading } = useReportPasseggeri(filters);

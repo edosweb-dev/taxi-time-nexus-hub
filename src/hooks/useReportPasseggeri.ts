@@ -25,6 +25,7 @@ interface ReportFilters {
   aziendaId?: string;
   referenteId?: string;
   metodoPagamento?: string;
+  passeggeroId?: string;
 }
 
 export const useReportPasseggeri = (filters: ReportFilters) => {
@@ -112,6 +113,11 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           passeggeri.forEach((sp: any) => {
             const passeggeroNome = sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || 'N/D';
             
+            // Apply passenger filter if set
+            if (filters.passeggeroId && sp.passeggero_id !== filters.passeggeroId) {
+              return; // Skip this passenger if doesn't match filter
+            }
+            
             rows.push({
               servizio_id: servizio.id,
               id_progressivo: servizio.id_progressivo || 'N/D',
@@ -130,8 +136,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
               stato: servizio.stato,
             });
           });
-        } else {
-          // If no passengers, create one row for the service
+        } else if (!filters.passeggeroId) {
+          // Only show services without passengers if no passenger filter is set
           rows.push({
             servizio_id: servizio.id,
             id_progressivo: servizio.id_progressivo || 'N/D',
