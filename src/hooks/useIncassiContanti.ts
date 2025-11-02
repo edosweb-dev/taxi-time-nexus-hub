@@ -56,7 +56,6 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
           )
         `)
         .eq('metodo_pagamento', 'Contanti')
-        .in('stato', ['completato', 'consuntivato'])
         .gte('data_servizio', dataInizio)
         .lte('data_servizio', dataFine)
         .order('data_servizio', { ascending: false });
