@@ -121,6 +121,17 @@ export function MobileServizioOptimized({
           <Badge variant={badgeConfig.variant}>{badgeConfig.label}</Badge>
         </div>
         
+        {/* Data e Orario Servizio */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-2">
+          <Clock className="h-4 w-4" />
+          <span className="font-medium">
+            {formatDate(servizio.data_servizio)}
+            {servizio.orario_servizio && (
+              <> • ore {formatTime(servizio.orario_servizio)}</>
+            )}
+          </span>
+        </div>
+        
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground w-20">
