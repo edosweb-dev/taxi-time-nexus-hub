@@ -12,10 +12,7 @@ export function OperationalSection({
   passeggeriCount,
 }: OperationalSectionProps) {
   const hasOperationalData = 
-    servizio.ore_lavorate !== null || 
-    servizio.ore_finali !== null ||
-    servizio.ore_effettive !== null ||
-    servizio.ore_fatturate !== null ||
+    servizio.ore_sosta !== null ||
     passeggeriCount > 0;
 
   if (!hasOperationalData) {
@@ -47,31 +44,10 @@ export function OperationalSection({
             </div>
           </div>
           
-          {servizio.ore_lavorate !== null && (
+          {servizio.ore_sosta !== null && servizio.ore_sosta > 0 && (
             <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Ore lavorate</div>
-              <div className="text-base">{servizio.ore_lavorate} ore</div>
-            </div>
-          )}
-          
-          {servizio.ore_finali !== null && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Ore finali</div>
-              <div className="text-base">{servizio.ore_finali} ore</div>
-            </div>
-          )}
-          
-          {servizio.ore_effettive !== null && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Ore effettive</div>
-              <div className="text-base">{servizio.ore_effettive} ore</div>
-            </div>
-          )}
-          
-          {servizio.ore_fatturate !== null && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Ore fatturate</div>
-              <div className="text-base">{servizio.ore_fatturate} ore</div>
+              <div className="text-sm font-medium text-muted-foreground">Ore di sosta</div>
+              <div className="text-base">{servizio.ore_sosta}h</div>
             </div>
           )}
         </div>

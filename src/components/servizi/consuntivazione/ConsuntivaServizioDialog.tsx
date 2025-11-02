@@ -47,7 +47,7 @@ export function ConsuntivaServizioDialog({
       const result = await consuntivaServizio({
         id: servizioId,
         incasso_previsto: data.incasso_previsto,
-        ore_finali: data.ore_finali,
+        ore_sosta: data.ore_sosta,
         consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
       });
 
@@ -68,7 +68,7 @@ export function ConsuntivaServizioDialog({
     id: servizioId,
     tipo_cliente: 'azienda' as const,
     incasso_previsto: incassoRicevuto,
-    ore_finali: oreLavorate,
+    ore_sosta: oreLavorate,
     metodo_pagamento: isContanti ? 'Contanti' : '',
     // Add other required fields with placeholder values
     azienda_id: '',

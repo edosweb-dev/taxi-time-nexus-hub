@@ -51,8 +51,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         metodo_pagamento: servizio.metodo_pagamento ?? "",
         note: servizio.note ?? "",
         veicolo_id: servizio.veicolo_id ?? "",
-        ore_effettive: servizio.ore_effettive ?? 0,
-        ore_fatturate: servizio.ore_fatturate ?? 0,
+        // NON includere campi ore
         applica_provvigione: servizio.applica_provvigione ?? false,
         email_notifiche: [],
         passeggeri: passeggeri.map(p => ({
@@ -104,8 +103,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
           metodo_pagamento: values.metodo_pagamento,
           note: values.note,
           veicolo_id: values.veicolo_id,
-          ore_effettive: values.ore_effettive,
-          ore_fatturate: values.ore_fatturate,
+          // NON inviare campi ore
           applica_provvigione: values.applica_provvigione,
         },
         passeggeri: values.passeggeri.map((p: any) => ({

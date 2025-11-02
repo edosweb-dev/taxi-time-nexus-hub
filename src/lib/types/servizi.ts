@@ -54,13 +54,17 @@ export interface Servizio {
   incasso_ricevuto?: number;
   incasso_previsto?: number;
   iva?: number;
-  ore_lavorate?: number;
-  ore_finali?: number;
-  ore_effettive?: number;
-  ore_fatturate?: number;
+  // UNICO campo ore attivo
+  ore_sosta?: number; // Ore di attesa (stipendio + fattura)
+  
+  // Campi deprecati per backward compatibility (NON USARE)
+  /** @deprecated Usa ore_sosta */ ore_lavorate?: number;
+  /** @deprecated Usa ore_sosta */ ore_finali?: number;
+  /** @deprecated Usa ore_sosta */ ore_effettive?: number;
+  /** @deprecated Usa ore_sosta */ ore_fatturate?: number;
+  /** @deprecated Usa ore_sosta */ ore_sosta_fatturate?: number;
+  
   consegna_contanti_a?: string;
-  ore_sosta?: number;
-  ore_sosta_fatturate?: number;
   km_totali?: number;
   veicolo_id?: string;
   applica_provvigione?: boolean;
@@ -132,8 +136,8 @@ export interface ServizioFormData {
   metodo_pagamento: MetodoPagamento;
   note?: string;
   veicolo_id?: string;
-  ore_effettive?: number;
-  ore_fatturate?: number;
+  // NON includere campi ore in creazione servizio
+  // ore_sosta viene inserito solo in consuntivazione
   applica_provvigione?: boolean;
   email_notifiche?: string[];
   passeggeri: PasseggeroFormData[];

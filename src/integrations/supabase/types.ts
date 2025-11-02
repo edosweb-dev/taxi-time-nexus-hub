@@ -950,6 +950,42 @@ export type Database = {
           },
         ]
       }
+      servizi_ore_backup_final: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          ore_effettive: number | null
+          ore_fatturate: number | null
+          ore_finali: number | null
+          ore_lavorate: number | null
+          ore_sosta: number | null
+          ore_sosta_fatturate: number | null
+          stato: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          ore_effettive?: number | null
+          ore_fatturate?: number | null
+          ore_finali?: number | null
+          ore_lavorate?: number | null
+          ore_sosta?: number | null
+          ore_sosta_fatturate?: number | null
+          stato?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          ore_effettive?: number | null
+          ore_fatturate?: number | null
+          ore_finali?: number | null
+          ore_lavorate?: number | null
+          ore_sosta?: number | null
+          ore_sosta_fatturate?: number | null
+          stato?: string | null
+        }
+        Relationships: []
+      }
       servizi_passeggeri: {
         Row: {
           created_at: string

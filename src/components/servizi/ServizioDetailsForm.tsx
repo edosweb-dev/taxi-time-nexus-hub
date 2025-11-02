@@ -205,56 +205,8 @@ export function ServizioDetailsForm() {
               )}
             />
 
-            {/* Ore effettive - solo per admin e soci */}
-            {canEditOreFields ? (
-              <FormField
-                control={control}
-                name="ore_effettive"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ore effettive</FormLabel>
-                    <FormControl>
-                      <MobileInput 
-                        type="number"
-                        step="0.5"
-                        placeholder="0"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              <div></div>
-            )}
-
-            {/* Ore fatturate - solo per admin e soci */}
-            {canEditOreFields ? (
-              <FormField
-                control={control}
-                name="ore_fatturate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ore fatturate</FormLabel>
-                    <FormControl>
-                      <MobileInput 
-                        type="number"
-                        step="0.5"
-                        placeholder="0"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              <div></div>
-            )}
-
+            {/* Campi ore RIMOSSI: ore vengono inserite solo in consuntivazione */}
+            
             <VeicoloSelectField />
           </div>
         </div>

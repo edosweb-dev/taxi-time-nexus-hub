@@ -21,7 +21,7 @@ interface ServizioData {
   indirizzo_presa: string
   indirizzo_destinazione: string
   numero_commessa?: string
-  ore_effettive?: number
+  ore_sosta?: number  // UNICO campo ore
   firma_url?: string
   incasso_previsto?: number
   incasso_ricevuto?: number
@@ -376,7 +376,7 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     { label: 'Partenza', x: 105, width: 30 },
     { label: 'Destinazione', x: 135, width: 30 },
     { label: 'Commessa', x: 165, width: 20 },
-    { label: 'Ore Extra', x: 185, width: 15 },
+    { label: 'Ore Sosta', x: 185, width: 15 },
     { label: 'Veicolo', x: 200, width: 25 },
     { label: 'Note', x: 225, width: 25 }
   ]
@@ -422,7 +422,7 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     const passeggeriText = (servizio.passeggeri_nomi || []).join(', ')
     const veicoloText = servizio.veicolo_targa ? `${servizio.veicolo_targa} ${servizio.veicolo_modello || ''}`.trim() : ''
     const commessaText = servizio.numero_commessa || ''
-    const oreExtraText = servizio.ore_effettive ? servizio.ore_effettive.toString() : ''
+    const oreSostaText = servizio.ore_sosta ? `${servizio.ore_sosta}h` : '-'
     const noteText = servizio.note || ''
     
     // Truncate text to fit columns
@@ -439,7 +439,7 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
       truncateText(servizio.indirizzo_presa, 20),
       truncateText(servizio.indirizzo_destinazione, 20),
       truncateText(commessaText, 15),
-      oreExtraText,
+      oreSostaText,
       truncateText(veicoloText, 18),
       truncateText(noteText, 18)
     ]

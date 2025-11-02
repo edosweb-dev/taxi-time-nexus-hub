@@ -73,10 +73,10 @@ export async function getOreLavorateServiziMese(userId: string, mese: number, an
     let oreTotali = 0;
     
     data.forEach(servizio => {
-      // Usa ore_effettive se disponibili, altrimenti usa ore_lavorate o un valore di default
-      const oreDaAggiungere = 
-        servizio.ore_effettive ? Number(servizio.ore_effettive) :
-        servizio.ore_lavorate ? Number(servizio.ore_lavorate) : 2; // Default 2 ore
+      // SEMPLIFICAZIONE: Usa SOLO ore_sosta (unico campo valido)
+      // Se mancante, default 2 ore (servizi vecchi non consuntivati)
+      const oreDaAggiungere = servizio.ore_sosta ? 
+        Number(servizio.ore_sosta) : 2;
       
       oreTotali += oreDaAggiungere;
     });

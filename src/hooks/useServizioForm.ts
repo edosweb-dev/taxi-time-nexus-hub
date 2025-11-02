@@ -34,8 +34,7 @@ export const servizioFormSchema = z.object({
   }),
   note: z.string().optional(),
   veicolo_id: z.string().optional(),
-  ore_effettive: z.number().min(0).optional(),
-  ore_fatturate: z.number().min(0).optional(),
+  // NON includere campi ore: vengono inseriti solo in consuntivazione
   applica_provvigione: z.boolean().default(false),
   email_notifiche: z.array(z.string()).default([]),
   passeggeri: z.array(
@@ -95,8 +94,7 @@ export function useServizioForm() {
       metodo_pagamento: "", // Verrà impostato dopo aver caricato le impostazioni
       note: "",
       veicolo_id: "",
-      ore_effettive: undefined,
-      ore_fatturate: undefined,
+      // NON includere campi ore: vengono inseriti solo in consuntivazione
       applica_provvigione: false,
       email_notifiche: [],
       passeggeri: [],

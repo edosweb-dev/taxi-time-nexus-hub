@@ -47,10 +47,8 @@ export function ConsuntivaServizioSheet({
       const result = await consuntivaServizio({
         id: servizioId,
         incasso_previsto: data.incasso_previsto,
-        ore_finali: data.ore_finali,
-        consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
         ore_sosta: data.ore_sosta,
-        ore_sosta_fatturate: data.ore_sosta_fatturate,
+        consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
         km_totali: data.km_totali,
       });
 
@@ -71,7 +69,7 @@ export function ConsuntivaServizioSheet({
     id: servizioId,
     tipo_cliente: 'azienda' as const,
     incasso_previsto: incassoRicevuto,
-    ore_finali: oreLavorate,
+    ore_sosta: oreLavorate,
     metodo_pagamento: isContanti ? 'Contanti' : '',
     // Add other required fields with placeholder values
     azienda_id: '',

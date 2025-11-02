@@ -53,27 +53,7 @@ export function ConsuntivaServizioForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="ore_finali"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Ore lavorate (finali)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  placeholder="0"
-                  {...field}
-                  value={field.value === undefined ? '' : field.value}
-                  onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Campo ore_finali RIMOSSO: usa solo ore_sosta */}
 
         {isContanti && (
           <FormField
@@ -113,7 +93,7 @@ export function ConsuntivaServizioForm({
                 control={form.control}
                 name="ore_sosta"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-2">
                     <FormLabel>Ore di sosta</FormLabel>
                     <FormControl>
                       <Input
@@ -126,35 +106,15 @@ export function ConsuntivaServizioForm({
                         onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="ore_sosta_fatturate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ore sosta fatturate</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        placeholder="0"
-                        {...field}
-                        value={field.value === undefined ? '' : field.value}
-                        onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                      />
-                    </FormControl>
                     <FormDescription className="text-xs">
-                      Ore di sosta addebitate al cliente
+                      Ore di attesa durante il servizio (usate per stipendio e fattura)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {/* Campo ore_sosta_fatturate RIMOSSO: usa solo ore_sosta */}
             </div>
 
             <FormField
