@@ -53,6 +53,12 @@ export function CompletaServizioForm({
     servizio,
   });
 
+  // DEBUG LOG
+  console.log('🔍 CompletaServizioForm DEBUG:', {
+    metodoPagamento: servizio.metodo_pagamento,
+    richiedeIncasso,
+  });
+
   // Fetch soci/admin per campo consegna contanti
   const { data: soci } = useQuery({
     queryKey: ['soci-admin'],

@@ -166,16 +166,39 @@ export interface PasseggeroFormData {
  * (il pagamento va direttamente all'azienda)
  */
 const METODI_PAGAMENTO_DIRETTO_AZIENDA = [
-  'Bonifico bancario',
-  'Assegno',
+  'bonifico bancario',
+  'bonifico',
+  'assegno',
 ] as const;
 
 /**
  * Determina se un metodo di pagamento richiede gestione incasso dal dipendente/socio
+ * Versione ROBUSTA con matching case-insensitive e trim
  * @param metodoPagamento - Il metodo di pagamento del servizio
  * @returns true se richiede gestione incasso (Contanti/Carta), false altrimenti (Bonifico/Assegno)
  */
 export function richiedeGestioneIncasso(metodoPagamento?: string | null): boolean {
-  if (!metodoPagamento) return false;
-  return !METODI_PAGAMENTO_DIRETTO_AZIENDA.includes(metodoPagamento as any);
+  if (!metodoPagamento) {
+    console.warn('⚠️ metodoPagamento mancante, assume bonifico (safe default)');
+    return false; // Safe default: assume bonifico
+  }
+  
+  // Normalizza: lowercase + trim spazi
+  const metodo = metodoPagamento.trim().toLowerCase();
+  
+  // Check se metodo è nella lista (exact match o contains dopo normalizzazione)
+  const isDirettoAzienda = METODI_PAGAMENTO_DIRETTO_AZIENDA.some(
+    m => metodo === m || metodo.includes(m)
+  );
+  
+  const richiedeIncasso = !isDirettoAzienda;
+  
+  console.log('✅ richiedeGestioneIncasso:', {
+    input: metodoPagamento,
+    normalizzato: metodo,
+    isDirettoAzienda,
+    richiedeIncasso,
+  });
+  
+  return richiedeIncasso;
 }

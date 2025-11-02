@@ -66,6 +66,13 @@ export function useCompletaServizioForm({
   
   const richiedeIncasso = richiedeGestioneIncasso(servizio.metodo_pagamento);
   
+  // DEBUG LOG
+  console.log('🔍 useCompletaServizioForm:', {
+    servizioId: servizio.id,
+    metodoPagamento: servizio.metodo_pagamento,
+    richiedeIncasso,
+  });
+  
   // Load impostazioni for metodi pagamento
   const { data: impostazioni, isLoading: impostazioniLoading } = useQuery({
     queryKey: ['impostazioni'],
