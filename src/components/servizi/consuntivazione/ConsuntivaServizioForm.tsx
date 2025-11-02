@@ -24,7 +24,7 @@ export function ConsuntivaServizioForm({
   onSubmit,
   onCancel,
 }: ConsuntivaServizioFormProps) {
-  const { form, handleSubmit, ivaPercentage, ivaAmount, isSubmitting } = useConsuntivaServizioForm(servizio, onSubmit);
+  const { form, handleSubmit, ivaPercentage, ivaAmount, totalePrevisto, isSubmitting } = useConsuntivaServizioForm(servizio, onSubmit);
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
@@ -38,16 +38,34 @@ export function ConsuntivaServizioForm({
             <FormItem>
               <FormLabel>Incasso previsto (€)</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  {...field}
-                  value={field.value === undefined ? '' : field.value}
-                  onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    €
+                  </span>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    className="pl-8"
+                    {...field}
+                    value={field.value === undefined ? '' : field.value}
+                    onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                  />
+                </div>
               </FormControl>
+              <FormDescription>
+                {totalePrevisto && (
+                  <span className="text-sm">
+                    💡 Totale previsto (netto + IVA {ivaPercentage}%): <strong>€{totalePrevisto.toFixed(2)}</strong>
+                  </span>
+                )}
+                {!totalePrevisto && (
+                  <span className="text-sm text-muted-foreground">
+                    Importo effettivamente ricevuto dal cliente
+                  </span>
+                )}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
