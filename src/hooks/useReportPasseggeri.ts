@@ -52,7 +52,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             id,
             nome
           ),
-          referente:referente_id (
+          profiles!referente_id (
             id,
             first_name,
             last_name
@@ -114,7 +114,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
               metodo_pagamento: servizio.metodo_pagamento,
               importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
               azienda_nome: servizio.aziende?.nome,
-              referente_nome: servizio.referente ? `${servizio.referente.first_name} ${servizio.referente.last_name}` : undefined,
+              referente_nome: servizio.profiles ? `${servizio.profiles.first_name} ${servizio.profiles.last_name}` : undefined,
               stato: servizio.stato,
             });
           });
@@ -134,7 +134,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             metodo_pagamento: servizio.metodo_pagamento,
             importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
             azienda_nome: servizio.aziende?.nome,
-            referente_nome: servizio.referente ? `${servizio.referente.first_name} ${servizio.referente.last_name}` : undefined,
+            referente_nome: servizio.profiles ? `${servizio.profiles.first_name} ${servizio.profiles.last_name}` : undefined,
             stato: servizio.stato,
           });
         }
