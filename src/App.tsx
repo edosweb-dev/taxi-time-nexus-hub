@@ -43,6 +43,7 @@ const StipendiPage = lazy(() => import('./pages/StipendiPage'));
 const StipendiDettaglioPage = lazy(() => import('./pages/stipendi/StipendiDettaglioPage'));
 const MobileServiziPage = lazy(() => import('./pages/servizi/MobileServiziPage'));
 const SpeseAziendaliPage = lazy(() => import('./pages/SpeseAziendaliPage'));
+const IncassiContantiPage = lazy(() => import('./pages/IncassiContantiPage'));
 const CalendarioPage = lazy(() => import('./pages/CalendarioPage'));
 const ReportPage = lazy(() => import('./pages/ReportPage'));
 const CalendarioTurniPage = lazy(() => import('./pages/CalendarioTurniPage'));
@@ -293,6 +294,11 @@ function App() {
                 <Route path="/spese-aziendali" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <SpeseAziendaliPage />
+                  </AuthGuard>
+                } />
+                <Route path="/spese-aziendali/incassi-contanti" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <IncassiContantiPage />
                   </AuthGuard>
                 } />
                 

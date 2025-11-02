@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Users, ArrowUpDown, AlertCircle } from 'lucide-react';
+import { Plus, Users, ArrowUpDown, AlertCircle, Coins } from 'lucide-react';
 import { NuovoMovimentoSheet } from './NuovoMovimentoSheet';
 import { IncassiDipendenteSheet } from './IncassiDipendenteSheet';
 import { PagamentiPendingSheet } from './PagamentiPendingSheet';
@@ -11,6 +12,7 @@ import { TabellaSpeseMensili } from './TabellaSpeseMensili';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 
 export function SpeseAziendaliDashboard() {
+  const navigate = useNavigate();
   const [nuovoMovimentoOpen, setNuovoMovimentoOpen] = useState(false);
   const [incassiDipendenteOpen, setIncassiDipendenteOpen] = useState(false);
   const [pagamentiPendingOpen, setPagamentiPendingOpen] = useState(false);
@@ -20,8 +22,8 @@ export function SpeseAziendaliDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Card principali - Griglia 2x2 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Card principali */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setNuovoMovimentoOpen(true)}>
           <CardContent className="p-6">
             <div className="flex items-center justify-center space-x-4">
@@ -63,8 +65,22 @@ export function SpeseAziendaliDashboard() {
                 <ArrowUpDown className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Incassi da dipendente</h3>
-                <p className="text-sm text-muted-foreground">Converti spese dipendenti</p>
+                <h3 className="text-lg font-semibold">Converti Spese Dipendenti</h3>
+                <p className="text-sm text-muted-foreground">Converti spese personali</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/spese-aziendali/incassi-contanti')}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Coins className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Incassi Contanti</h3>
+                <p className="text-sm text-muted-foreground">Servizi in contanti</p>
               </div>
             </div>
           </CardContent>
