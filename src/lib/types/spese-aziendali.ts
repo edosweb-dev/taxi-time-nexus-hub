@@ -12,7 +12,7 @@ export interface SpesaAziendale {
   importo: number;
   causale: string;
   tipologia: 'spesa' | 'incasso' | 'prelievo';
-  tipo_causale?: 'generica' | 'f24' | 'stipendio';
+  tipo_causale?: 'generica' | 'f24' | 'pagamento_fornitori' | 'spese_gestione' | 'multe' | 'fattura_conducenti_esterni';
   modalita_pagamento_id: string;
   socio_id?: string;
   dipendente_id?: string;
@@ -38,7 +38,7 @@ export interface MovimentoFormData {
   importo: number;
   causale: string;
   tipologia: 'spesa' | 'incasso' | 'prelievo';
-  tipo_causale?: 'generica' | 'f24' | 'stipendio';
+  tipo_causale?: 'generica' | 'f24' | 'pagamento_fornitori' | 'spese_gestione' | 'multe' | 'fattura_conducenti_esterni';
   modalita_pagamento_id: string;
   socio_id?: string;
   dipendente_id?: string;

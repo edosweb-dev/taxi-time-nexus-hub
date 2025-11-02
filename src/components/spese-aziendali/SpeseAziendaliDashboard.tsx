@@ -14,7 +14,7 @@ export function SpeseAziendaliDashboard() {
   const [nuovoMovimentoOpen, setNuovoMovimentoOpen] = useState(false);
   const [incassiDipendenteOpen, setIncassiDipendenteOpen] = useState(false);
   const [pagamentiPendingOpen, setPagamentiPendingOpen] = useState(false);
-  const [tipoCausaleDefault, setTipoCausaleDefault] = useState<'generica' | 'f24' | 'stipendio' | undefined>();
+  const [tipoCausaleDefault, setTipoCausaleDefault] = useState<'generica' | 'f24' | 'pagamento_fornitori' | 'spese_gestione' | 'multe' | 'fattura_conducenti_esterni' | undefined>();
   
   const { pendingCount } = useSpeseAziendali();
 
@@ -39,7 +39,7 @@ export function SpeseAziendaliDashboard() {
         <Card 
           className="hover:shadow-md transition-shadow cursor-pointer" 
           onClick={() => {
-            setTipoCausaleDefault('stipendio');
+            setTipoCausaleDefault('pagamento_fornitori');
             setNuovoMovimentoOpen(true);
           }}
         >
@@ -49,8 +49,8 @@ export function SpeseAziendaliDashboard() {
                 <Users className="h-8 w-8 text-purple-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Registra Stipendio</h3>
-                <p className="text-sm text-muted-foreground">Pagamento dipendente</p>
+                <h3 className="text-lg font-semibold">Pagamento Fornitori</h3>
+                <p className="text-sm text-muted-foreground">Registra pagamento a fornitori</p>
               </div>
             </div>
           </CardContent>

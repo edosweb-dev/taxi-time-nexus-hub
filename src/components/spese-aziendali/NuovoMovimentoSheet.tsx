@@ -6,7 +6,7 @@ import { MovimentoForm } from './MovimentoForm';
 interface NuovoMovimentoSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  defaultTipoCausale?: 'generica' | 'f24' | 'stipendio';
+  defaultTipoCausale?: 'generica' | 'f24' | 'pagamento_fornitori' | 'spese_gestione' | 'multe' | 'fattura_conducenti_esterni';
 }
 
 export function NuovoMovimentoSheet({ open, onOpenChange, defaultTipoCausale }: NuovoMovimentoSheetProps) {
@@ -15,8 +15,11 @@ export function NuovoMovimentoSheet({ open, onOpenChange, defaultTipoCausale }: 
   };
 
   const getTitle = () => {
-    if (defaultTipoCausale === 'stipendio') return '💰 Registra Stipendio';
     if (defaultTipoCausale === 'f24') return '📄 Registra F24';
+    if (defaultTipoCausale === 'pagamento_fornitori') return '🏢 Pagamento Fornitori';
+    if (defaultTipoCausale === 'spese_gestione') return '⚙️ Spese di Gestione';
+    if (defaultTipoCausale === 'multe') return '🚨 Registra Multa';
+    if (defaultTipoCausale === 'fattura_conducenti_esterni') return '🚗 Fattura Conducenti Esterni';
     return 'Nuovo Movimento';
   };
 

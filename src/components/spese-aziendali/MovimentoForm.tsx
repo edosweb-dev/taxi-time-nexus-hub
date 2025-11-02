@@ -25,7 +25,7 @@ const formSchema = z.object({
   data_movimento: z.string(),
   importo: z.number().positive('L\'importo deve essere positivo'),
   tipologia: z.enum(['spesa', 'incasso', 'prelievo']).default('spesa'),
-  tipo_causale: z.enum(['generica', 'f24', 'stipendio']).default('generica'),
+  tipo_causale: z.enum(['generica', 'f24', 'pagamento_fornitori', 'spese_gestione', 'multe', 'fattura_conducenti_esterni']).default('generica'),
   causale: z.string().min(3, 'La causale deve avere almeno 3 caratteri').max(500, 'La causale è troppo lunga'),
   modalita_pagamento_id: z.string().min(1, 'Seleziona una modalità di pagamento'),
   dipendente_id: z.string().uuid().optional(),
@@ -33,16 +33,13 @@ const formSchema = z.object({
   note: z.string().optional(),
   is_pending: z.boolean().default(false),
 }).refine(
-  (data) => data.tipo_causale !== 'stipendio' || data.dipendente_id,
-  { message: "Seleziona un dipendente per causale Stipendio", path: ["dipendente_id"] }
-).refine(
   (data) => data.tipologia !== 'prelievo' || data.socio_id,
   { message: "Seleziona un socio per i prelievi", path: ["socio_id"] }
 );
 
 interface MovimentoFormProps {
   onSuccess: () => void;
-  defaultTipoCausale?: 'generica' | 'f24' | 'stipendio';
+  defaultTipoCausale?: 'generica' | 'f24' | 'pagamento_fornitori' | 'spese_gestione' | 'multe' | 'fattura_conducenti_esterni';
 }
 
 export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormProps) {
@@ -90,7 +87,7 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
       tipologia: values.tipologia,
       tipo_causale: values.tipo_causale || 'generica',
       modalita_pagamento_id: values.modalita_pagamento_id,
-      dipendente_id: values.tipo_causale === 'stipendio' ? values.dipendente_id : undefined,
+      dipendente_id: undefined,
       socio_id: values.tipologia === 'prelievo' ? values.socio_id : undefined,
       note: values.note || undefined,
       stato_pagamento: values.is_pending ? 'pending' : 'completato',
@@ -213,41 +210,12 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                   <SelectContent>
                     <SelectItem value="generica">💳 Spesa Generica</SelectItem>
                     <SelectItem value="f24">📄 F24 (Tasse/Contributi)</SelectItem>
-                    <SelectItem value="stipendio">💰 Stipendio Dipendente</SelectItem>
+                    <SelectItem value="pagamento_fornitori">🏢 Pagamento Fornitori</SelectItem>
+                    <SelectItem value="spese_gestione">⚙️ Spese di Gestione</SelectItem>
+                    <SelectItem value="multe">🚨 Multe</SelectItem>
+                    <SelectItem value="fattura_conducenti_esterni">🚗 Fattura Conducenti Esterni</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {tipoCausale === 'stipendio' && tipologia === 'spesa' && (
-          <FormField
-            control={form.control}
-            name="dipendente_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dipendente *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona dipendente" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                     {dipendenti
-                      ?.filter(d => d.role === 'dipendente' || d.role === 'socio' || d.role === 'admin')
-                      .map(d => (
-                        <SelectItem key={d.id} value={d.id}>
-                          {d.first_name} {d.last_name} ({d.role === 'admin' ? 'Admin' : d.role === 'socio' ? 'Socio' : 'Dipendente'})
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <div className="text-sm text-muted-foreground mt-2">
-                  Questo movimento apparirà nello storico stipendi del dipendente
-                </div>
                 <FormMessage />
               </FormItem>
             )}
