@@ -1,10 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { 
-  Pencil, Trash2, UserPlus, Building2, User, Car, ArrowLeft, CheckCircle2, FileText
+  Pencil, Trash2, UserPlus, Building2, User, Car, ArrowLeft, CheckCircle2, FileText, Calendar
 } from "lucide-react";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
+import { format } from "date-fns";
+import { it } from "date-fns/locale";
 
 interface ServizioSidebarProps {
   servizio: Servizio;
@@ -59,6 +61,16 @@ export function ServizioSidebar({
         <div className="space-y-1">
           <div className="text-2xl font-bold text-foreground">
             {servizio.id_progressivo || `#${servizio.id.slice(0, 8)}`}
+          </div>
+          {/* Data e Orario Servizio */}
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            <span>
+              {format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}
+              {servizio.orario_servizio && (
+                <> • ore {servizio.orario_servizio.substring(0, 5)}</>
+              )}
+            </span>
           </div>
         </div>
 
