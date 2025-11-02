@@ -85,16 +85,20 @@ export function ReportPasseggeriFilters({
           <div className="space-y-2">
             <Label htmlFor="azienda">Azienda</Label>
             <Select
-              value={filters.aziendaId}
+              value={filters.aziendaId || 'all'}
               onValueChange={(value) =>
-                onFiltersChange({ ...filters, aziendaId: value, referenteId: '' })
+                onFiltersChange({ 
+                  ...filters, 
+                  aziendaId: value === 'all' ? '' : value, 
+                  referenteId: '' 
+                })
               }
             >
               <SelectTrigger id="azienda">
                 <SelectValue placeholder="Tutte le aziende" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutte le aziende</SelectItem>
+                <SelectItem value="all">Tutte le aziende</SelectItem>
                 {aziende.map((azienda) => (
                   <SelectItem key={azienda.id} value={azienda.id}>
                     {azienda.nome}
@@ -107,9 +111,9 @@ export function ReportPasseggeriFilters({
           <div className="space-y-2">
             <Label htmlFor="referente">Referente</Label>
             <Select
-              value={filters.referenteId}
+              value={filters.referenteId || 'all'}
               onValueChange={(value) =>
-                onFiltersChange({ ...filters, referenteId: value })
+                onFiltersChange({ ...filters, referenteId: value === 'all' ? '' : value })
               }
               disabled={!filters.aziendaId}
             >
@@ -117,7 +121,7 @@ export function ReportPasseggeriFilters({
                 <SelectValue placeholder="Tutti i referenti" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i referenti</SelectItem>
+                <SelectItem value="all">Tutti i referenti</SelectItem>
                 {referenti
                   .filter((r) => !filters.aziendaId || r.azienda_id === filters.aziendaId)
                   .map((referente) => (
@@ -132,16 +136,16 @@ export function ReportPasseggeriFilters({
           <div className="space-y-2">
             <Label htmlFor="metodoPagamento">Metodo Pagamento</Label>
             <Select
-              value={filters.metodoPagamento}
+              value={filters.metodoPagamento || 'all'}
               onValueChange={(value) =>
-                onFiltersChange({ ...filters, metodoPagamento: value })
+                onFiltersChange({ ...filters, metodoPagamento: value === 'all' ? '' : value })
               }
             >
               <SelectTrigger id="metodoPagamento">
                 <SelectValue placeholder="Tutti i metodi" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti i metodi</SelectItem>
+                <SelectItem value="all">Tutti i metodi</SelectItem>
                 {metodiPagamento.map((metodo) => (
                   <SelectItem key={metodo} value={metodo}>
                     {metodo}
