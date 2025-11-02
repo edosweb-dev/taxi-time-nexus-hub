@@ -123,7 +123,6 @@ export function TabellaIncassiContanti() {
       'ID Servizio',
       'Cliente',
       'Assegnato a',
-      'Importo',
       'Consegnato a',
       'Stato'
     ];
@@ -133,7 +132,6 @@ export function TabellaIncassiContanti() {
       incasso.id_progressivo || '-',
       incasso.azienda_nome || incasso.cliente_privato_nome || '-',
       incasso.assegnato_a_nome || '-',
-      (incasso.incasso_ricevuto || incasso.incasso_previsto || 0).toFixed(2),
       incasso.consegnato_a_nome || 'NON CONSEGNATO',
       incasso.stato
     ]);
@@ -353,18 +351,7 @@ export function TabellaIncassiContanti() {
                       <TableHead>ID Servizio</TableHead>
                       <TableHead>Cliente</TableHead>
                       <TableHead>Assegnato a</TableHead>
-                      <TableHead>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleSort('importo')}
-                          className="h-8 px-2"
-                        >
-                          Importo
-                          <ArrowUpDown className="ml-2 h-3 w-3" />
-                        </Button>
-                      </TableHead>
-                      <TableHead className="font-semibold">Consegnato a</TableHead>
+                      <TableHead className="font-semibold">Consegna</TableHead>
                       <TableHead>Stato</TableHead>
                       <TableHead className="text-right">Azioni</TableHead>
                     </TableRow>
@@ -384,9 +371,6 @@ export function TabellaIncassiContanti() {
                           {incasso.azienda_nome || incasso.cliente_privato_nome || '-'}
                         </TableCell>
                         <TableCell>{incasso.assegnato_a_nome || '-'}</TableCell>
-                        <TableCell className="font-semibold">
-                          €{(incasso.incasso_ricevuto || incasso.incasso_previsto || 0).toFixed(2)}
-                        </TableCell>
                         <TableCell>
                           {incasso.consegnato_a_nome ? (
                             <Badge variant="default" className="bg-primary">
