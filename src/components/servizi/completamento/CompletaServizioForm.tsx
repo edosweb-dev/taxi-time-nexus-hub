@@ -14,6 +14,8 @@ import { Profile } from "@/lib/types";
 import { MetodoPagamentoOption } from "@/lib/types/impostazioni";
 import { Servizio } from "@/lib/types/servizi";
 import { formatCurrency } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 
 interface CompletaServizioFormProps {
   servizioId: string;
@@ -51,6 +53,23 @@ export function CompletaServizioForm({
     servizio,
   });
 
+  // Fetch soci/admin per campo consegna contanti
+  const { data: soci } = useQuery({
+    queryKey: ['soci-admin'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, role')
+        .in('role', ['admin', 'socio'])
+        .order('first_name');
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: richiedeIncasso && open,
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Calcola l'importo totale IVA compresa
   const calculateTotaleIncasso = () => {
     const incassoPrevisto = Number(servizio.incasso_previsto) || 0;
@@ -86,14 +105,26 @@ export function CompletaServizioForm({
           </div>
         </div>
 
-        {/* Alert informativo per bonifico/assegno */}
-        {!richiedeIncasso && (
+        {/* Alert informativo differenziato */}
+        {!richiedeIncasso ? (
           <Alert>
             <Info className="h-4 w-4" />
             <AlertTitle>Pagamento Diretto all'Azienda</AlertTitle>
             <AlertDescription>
-              Il cliente effettuerà il pagamento con {servizio.metodo_pagamento?.toLowerCase()} direttamente all'azienda. 
-              Non è necessario gestire l'incasso.
+              Il cliente effettuerà il pagamento con <strong>{servizio.metodo_pagamento?.toLowerCase()}</strong> direttamente all'azienda.
+              <br />
+              <span className="text-muted-foreground text-xs">
+                L'importo sarà registrato in fase di consuntivazione.
+              </span>
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert variant="default" className="border-primary/20 bg-primary/5">
+            <DollarSign className="h-4 w-4" />
+            <AlertTitle>Gestione Incasso Richiesta</AlertTitle>
+            <AlertDescription>
+              Hai ricevuto il pagamento in <strong>{servizio.metodo_pagamento?.toLowerCase()}</strong>. 
+              Inserisci l'importo effettivamente ricevuto dal cliente.
             </AlertDescription>
           </Alert>
         )}
@@ -112,18 +143,9 @@ export function CompletaServizioForm({
           </div>
         )}
 
-        {/* Incasso ricevuto - SOLO per Contanti/Carta */}
+        {/* Gestione incasso - SOLO per Contanti/Carta */}
         {richiedeIncasso && (
-          <>
-            <Alert variant="default" className="border-primary/20 bg-primary/5">
-              <DollarSign className="h-4 w-4" />
-              <AlertTitle>Gestione Incasso Richiesta</AlertTitle>
-              <AlertDescription>
-                Hai ricevuto il pagamento in {servizio.metodo_pagamento?.toLowerCase()}. 
-                Inserisci l'importo effettivamente ricevuto dal cliente.
-              </AlertDescription>
-            </Alert>
-
+          <div className="space-y-4">
             <FormField
               control={form.control}
               name="incasso_ricevuto"
@@ -152,7 +174,40 @@ export function CompletaServizioForm({
                 </FormItem>
               )}
             />
-          </>
+
+            <FormField
+              control={form.control}
+              name="consegna_contanti_a"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Consegna Contanti A *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona socio/admin..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {soci?.map((socio) => (
+                        <SelectItem key={socio.id} value={socio.id}>
+                          {socio.first_name} {socio.last_name}
+                          {socio.role && (
+                            <Badge variant="outline" className="ml-2 text-xs">
+                              {socio.role}
+                            </Badge>
+                          )}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Indica il socio/admin a cui consegnare i contanti
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         )}
 
         <DialogFooter>

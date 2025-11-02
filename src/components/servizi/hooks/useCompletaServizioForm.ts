@@ -26,6 +26,10 @@ export function getCompletaServizioSchema(metodoPagamento?: string | null) {
           .min(0.01, "Importo deve essere maggiore di 0")
           .positive("Importo deve essere un numero positivo")
       : z.coerce.number().optional(),
+    // Consegna contanti richiesta SOLO per metodi che richiedono gestione
+    consegna_contanti_a: richiedeIncasso
+      ? z.string().min(1, "Seleziona a chi consegnare i contanti")
+      : z.string().optional(),
   });
 }
 
@@ -35,6 +39,7 @@ export const completaServizioSchema = z.object({
     required_error: "Seleziona un metodo di pagamento",
   }),
   incasso_ricevuto: z.coerce.number().min(0, "Deve essere un numero positivo"),
+  consegna_contanti_a: z.string().optional(),
 });
 
 export type CompletaServizioFormData = z.infer<typeof completaServizioSchema>;
@@ -97,6 +102,7 @@ export function useCompletaServizioForm({
         id: servizioId,
         metodo_pagamento: data.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
+        consegna_contanti_a: data.consegna_contanti_a,
       });
 
       if (result.error) {
