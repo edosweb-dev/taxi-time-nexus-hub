@@ -1,6 +1,6 @@
 
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import {
   FormControl,
   FormField,
@@ -17,6 +17,18 @@ import {
 } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useFormContext } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { ClientForm } from '@/components/users/ClientForm';
+import { createReferente } from './utils/referentiUtils';
+import { toast } from '@/components/ui/use-toast';
+import { UserFormData } from '@/lib/api/users/types';
 
 interface ReferenteSelectFieldProps {
   aziendaId: string;
@@ -25,10 +37,13 @@ interface ReferenteSelectFieldProps {
 
 export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSelectFieldProps) {
   const form = useFormContext();
+  const queryClient = useQueryClient();
   const currentReferenteId = form.watch('referente_id');
   const previousAziendaIdRef = useRef<string | null>(null);
   const isFirstRenderRef = useRef(true);
   const previousReferenteIdRef = useRef<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   console.log('[ReferenteSelectField] 🟡 Component render:', {
     currentReferenteId,
@@ -64,6 +79,67 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
     },
     enabled: !!aziendaId,
   });
+
+  // Get azienda data for preselection in form
+  const { data: azienda } = useQuery({
+    queryKey: ['azienda', aziendaId],
+    queryFn: async () => {
+      if (!aziendaId) return null;
+      const { data, error } = await supabase
+        .from('aziende')
+        .select('*')
+        .eq('id', aziendaId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!aziendaId,
+  });
+
+  const handleCreateReferente = async (userData: UserFormData) => {
+    setIsSubmitting(true);
+    try {
+      const { user, error } = await createReferente({
+        ...userData,
+        role: 'cliente',
+        azienda_id: aziendaId,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Errore",
+          description: error.message || "Errore durante la creazione del referente",
+        });
+        return;
+      }
+
+      toast({
+        title: "Successo",
+        description: "Referente creato con successo",
+      });
+
+      // Invalida la cache dei referenti per ricaricare la lista
+      await queryClient.invalidateQueries({ queryKey: ['referenti', aziendaId] });
+
+      // Seleziona automaticamente il nuovo referente
+      if (user?.id) {
+        form.setValue('referente_id', user.id);
+        onValueChange?.(user.id);
+      }
+
+      setIsDialogOpen(false);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: error.message || "Errore imprevisto durante la creazione del referente",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Calcolo intelligente del valore del Select per gestire race conditions
   const selectValue = useMemo(() => {
@@ -189,88 +265,117 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   console.log('[ReferenteSelectField] Render - aziendaId:', aziendaId, 'field.value:', currentReferenteId, 'referenti.length:', referenti.length);
 
   return (
-    <FormField
-      control={form.control}
-      name="referente_id"
-      render={({ field }) => {
-        console.log('[ReferenteSelectField] 🎮 Rendering Controller:', {
-          field_value: field.value,
-          field_value_type: typeof field.value,
-          field_name: field.name,
-          selectValue: selectValue,
-          selectValue_type: typeof selectValue,
-          currentReferenteId: currentReferenteId,
-          aziendaId: aziendaId,
-          referentiCount: referenti?.length || 0,
-          referenti_list: referenti.map(r => ({ 
-            id: r.id, 
-            name: `${r.first_name} ${r.last_name}` 
-          })),
-          referente_in_list: currentReferenteId ? referenti.some(r => r.id === currentReferenteId) : false,
-          isLoading: isLoading,
-          isFirstRender: isFirstRenderRef.current
-        });
-        
-        return (
-          <FormItem className="h-full flex flex-col">
-            <FormLabel>
-              Referente (opzionale)
-            </FormLabel>
-            <Select 
-              onValueChange={(value) => {
-                console.log('[ReferenteSelectField] 🔄 onChange called with:', value, 'current:', currentReferenteId);
-                
-                // ✅ FIX CRITICO: Blocca onChange vuoti quando form ha già un valore
-                if (!value || value === '') {
-                  const currentFormValue = form.getValues('referente_id');
+    <>
+      <FormField
+        control={form.control}
+        name="referente_id"
+        render={({ field }) => {
+          console.log('[ReferenteSelectField] 🎮 Rendering Controller:', {
+            field_value: field.value,
+            field_value_type: typeof field.value,
+            field_name: field.name,
+            selectValue: selectValue,
+            selectValue_type: typeof selectValue,
+            currentReferenteId: currentReferenteId,
+            aziendaId: aziendaId,
+            referentiCount: referenti?.length || 0,
+            referenti_list: referenti.map(r => ({ 
+              id: r.id, 
+              name: `${r.first_name} ${r.last_name}` 
+            })),
+            referente_in_list: currentReferenteId ? referenti.some(r => r.id === currentReferenteId) : false,
+            isLoading: isLoading,
+            isFirstRender: isFirstRenderRef.current
+          });
+          
+          return (
+            <FormItem className="h-full flex flex-col">
+              <div className="flex items-center justify-between">
+                <FormLabel>
+                  Referente (opzionale)
+                </FormLabel>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsDialogOpen(true)}
+                  className="h-8 text-xs"
+                  disabled={!aziendaId}
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Nuovo
+                </Button>
+              </div>
+              <Select 
+                onValueChange={(value) => {
+                  console.log('[ReferenteSelectField] 🔄 onChange called with:', value, 'current:', currentReferenteId);
                   
-                  if (currentFormValue && currentFormValue !== '') {
-                    console.log('[ReferenteSelectField] ⛔ Blocking spurious empty onChange:', {
-                      reason: 'form already has valid value',
-                      currentFormValue,
-                      attemptedValue: value,
-                      currentReferenteId
-                    });
-                    // NON applicare il cambio - mantieni valore esistente nel form
-                    return;
+                  // ✅ FIX CRITICO: Blocca onChange vuoti quando form ha già un valore
+                  if (!value || value === '') {
+                    const currentFormValue = form.getValues('referente_id');
+                    
+                    if (currentFormValue && currentFormValue !== '') {
+                      console.log('[ReferenteSelectField] ⛔ Blocking spurious empty onChange:', {
+                        reason: 'form already has valid value',
+                        currentFormValue,
+                        attemptedValue: value,
+                        currentReferenteId
+                      });
+                      // NON applicare il cambio - mantieni valore esistente nel form
+                      return;
+                    }
                   }
-                }
-                
-                // Applica il cambio
-                console.log('[ReferenteSelectField] ✅ Applying onChange:', value);
-                field.onChange(value);
-                onValueChange?.(value);
-                
-                setTimeout(() => {
-                  console.log('[ReferenteSelectField] 📝 Form state:', form.getValues('referente_id'));
-                }, 0);
-              }}
-              value={selectValue}
-              disabled={isLoading}
-            >
-            <FormControl className="flex-1">
-              <SelectTrigger className="h-10">
-                <SelectValue placeholder={
-                  isLoading 
-                    ? "Caricamento..." 
-                    : referenti.length === 0 
-                      ? "Nessun referente disponibile"
-                      : "Seleziona un referente (opzionale)"
-                } />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent className="bg-background border shadow-lg z-50">
-              {referenti.map((referente) => (
-                <SelectItem key={referente.id} value={referente.id}>
-                  {referente.first_name} {referente.last_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-        );
-      }}
-    />
+                  
+                  // Applica il cambio
+                  console.log('[ReferenteSelectField] ✅ Applying onChange:', value);
+                  field.onChange(value);
+                  onValueChange?.(value);
+                  
+                  setTimeout(() => {
+                    console.log('[ReferenteSelectField] 📝 Form state:', form.getValues('referente_id'));
+                  }, 0);
+                }}
+                value={selectValue}
+                disabled={isLoading}
+              >
+              <FormControl className="flex-1">
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder={
+                    isLoading 
+                      ? "Caricamento..." 
+                      : referenti.length === 0 
+                        ? "Nessun referente disponibile"
+                        : "Seleziona un referente (opzionale)"
+                  } />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent className="bg-background border shadow-lg z-50">
+                {referenti.map((referente) => (
+                  <SelectItem key={referente.id} value={referente.id}>
+                    {referente.first_name} {referente.last_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+          );
+        }}
+      />
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nuovo Referente</DialogTitle>
+          </DialogHeader>
+          <ClientForm
+            onSubmit={handleCreateReferente}
+            onCancel={() => setIsDialogOpen(false)}
+            isSubmitting={isSubmitting}
+            preselectedAzienda={azienda}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
