@@ -36,6 +36,7 @@ export function AziendaFormManager({
   onSubmit,
   isSubmitting,
 }: AziendaFormManagerProps) {
+  const navigate = useNavigate();
   const isEditing = !!azienda;
 
   // Helper function to get company initials
@@ -53,7 +54,9 @@ export function AziendaFormManager({
   };
 
   const handleCancel = () => {
-    if (onOpenChange) {
+    if (mode === 'page') {
+      navigate('/aziende');
+    } else if (onOpenChange) {
       onOpenChange(false);
     }
   };
@@ -150,7 +153,6 @@ export function AziendaFormManager({
       );
 
     case 'page':
-      const navigate = useNavigate();
       return (
         <div className="w-full min-h-screen">
           {/* Container with wizard-style padding */}
