@@ -15,10 +15,11 @@ import { MobileButton } from '@/components/ui/mobile-button';
 interface PasseggeroSelectorProps {
   azienda_id?: string;
   referente_id?: string;
+  tipo_cliente?: 'azienda' | 'privato';
   onPasseggeroSelect: (passeggero: PasseggeroFormData) => void;
 }
 
-export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelect }: PasseggeroSelectorProps) {
+export function PasseggeroSelector({ azienda_id, referente_id, tipo_cliente = 'azienda', onPasseggeroSelect }: PasseggeroSelectorProps) {
   const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id, referente_id);
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,7 +98,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       telefono: newPasseggero.telefono,
       usa_indirizzo_personalizzato: false,
       is_existing: false,
-      salva_in_database: salvaInRubrica,
+      salva_in_database: tipo_cliente === 'azienda' ? salvaInRubrica : false,
     };
     
     // ✅ DEBUG LOG
@@ -127,7 +128,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
            (passeggero.indirizzo && passeggero.indirizzo.toLowerCase().includes(searchLower));
   });
 
-  if (!azienda_id) {
+  if (!azienda_id && tipo_cliente === 'azienda') {
     return (
       <Card>
         <CardContent className="pt-6 text-center text-muted-foreground">
@@ -139,6 +140,8 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
       </Card>
     );
   }
+
+  // Per privati, non serve azienda_id
 
   return (
     <Card>
@@ -154,7 +157,8 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Ricerca passeggeri esistenti */}
+        {/* Ricerca passeggeri esistenti - Solo per aziende */}
+        {tipo_cliente === 'azienda' && (
         <div>
           <Label className="text-sm font-medium mb-2 block flex items-center gap-2">
             Passeggeri esistenti
@@ -238,6 +242,14 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
             </div>
           )}
         </div>
+        )}
+        
+        {/* Per privati: messaggio informativo */}
+        {tipo_cliente === 'privato' && (
+          <div className="text-center py-3 text-muted-foreground text-sm bg-blue-50 border border-blue-200 rounded-lg">
+            Per clienti privati, crea passeggeri manualmente usando il form sottostante
+          </div>
+        )}
 
         {/* Crea nuovo passeggero */}
         <div className="border-t pt-4">
@@ -319,6 +331,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                   />
                 </div>
               </div>
+              {tipo_cliente === 'azienda' && (
               <div className="flex items-center space-x-2 pt-2 pb-2">
                 <Checkbox 
                   id="salva-rubrica" 
@@ -332,6 +345,7 @@ export function PasseggeroSelector({ azienda_id, referente_id, onPasseggeroSelec
                   Salva passeggero in rubrica
                 </Label>
               </div>
+              )}
               <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <MobileButton
                   type="button"

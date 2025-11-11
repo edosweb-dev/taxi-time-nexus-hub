@@ -9,7 +9,7 @@ import { PasseggeroSelector } from "./PasseggeroSelector";
 import { PasseggeriList } from "./PasseggeriList";
 import { PassengerListItem } from "./PassengerListItem";
 
-export function PasseggeroForm({ userRole }: { userRole?: string }) {
+export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; tipo_cliente?: 'azienda' | 'privato' }) {
   const { control, setValue } = useFormContext<ServizioFormData>();
   
   // Watch per azienda_id e referente_id
@@ -32,8 +32,10 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
     console.log('[PasseggeroForm] 🔄 referente_id changed:', referente_id);
   }, [referente_id]);
 
-  // Reset passeggeri quando cambia referente
+  // Reset passeggeri quando cambia referente SOLO per aziende
   useEffect(() => {
+    if (tipo_cliente !== 'azienda') return; // Skip per privati
+    
     const currentReferenteId = referente_id;
     const previousReferenteId = previousReferenteIdRef.current;
 
@@ -60,7 +62,7 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
 
     // Aggiorna il ref con il valore corrente
     previousReferenteIdRef.current = currentReferenteId;
-  }, [referente_id, fields.length, remove]);
+  }, [referente_id, fields.length, remove, tipo_cliente]);
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
@@ -88,7 +90,14 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
     <div className="space-y-6">
       {/* Header compatto */}
       <div className="flex flex-col gap-3">
-        {azienda_id && !referente_id && (
+        {tipo_cliente === 'privato' && (
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-800">
+              <strong>ℹ️ Cliente privato:</strong> Puoi aggiungere passeggeri creandoli manualmente. Non sono collegati a un'azienda.
+            </p>
+          </div>
+        )}
+        {azienda_id && !referente_id && tipo_cliente === 'azienda' && (
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-xs text-amber-800">
               <strong>ℹ️ Modalità senza referente:</strong> I passeggeri verranno collegati direttamente all'azienda.
@@ -127,6 +136,7 @@ export function PasseggeroForm({ userRole }: { userRole?: string }) {
         <PasseggeroSelector
           azienda_id={azienda_id}
           referente_id={referente_id}
+          tipo_cliente={tipo_cliente}
           onPasseggeroSelect={handlePasseggeroSelect}
         />
       </div>
