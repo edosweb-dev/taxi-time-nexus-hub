@@ -151,16 +151,17 @@ const servizioSchemaCompleto = z.object({
   message: "Seleziona un'azienda",
   path: ["azienda_id"]
 }).refine((data) => {
-  // Validation: se privato → (cliente_privato_id OR nome+cognome) required
+  // Validation: se privato → (cliente_privato_id OR almeno nome O cognome) required
   if (data.tipo_cliente === 'privato') {
     return (
       !!data.cliente_privato_id || 
-      (!!data.cliente_privato_nome && !!data.cliente_privato_cognome)
+      !!data.cliente_privato_nome || 
+      !!data.cliente_privato_cognome
     );
   }
   return true;
 }, {
-  message: "Seleziona un cliente dall'anagrafica oppure inserisci nome e cognome",
+  message: "Seleziona un cliente dall'anagrafica oppure inserisci almeno nome o cognome",
   path: ["cliente_privato_nome"]
 });
 

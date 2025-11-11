@@ -88,7 +88,7 @@ export function ClientePrivatoFields() {
           name="cliente_privato_nome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base md:text-sm">Nome *</FormLabel>
+              <FormLabel className="text-base md:text-sm">Nome</FormLabel>
               <FormControl>
                 <MobileInput 
                   placeholder="Mario" 
@@ -107,7 +107,7 @@ export function ClientePrivatoFields() {
           name="cliente_privato_cognome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base md:text-sm">Cognome *</FormLabel>
+              <FormLabel className="text-base md:text-sm">Cognome</FormLabel>
               <FormControl>
                 <MobileInput 
                   placeholder="Rossi" 
