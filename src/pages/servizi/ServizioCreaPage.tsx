@@ -53,15 +53,12 @@ import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AziendaSelectField } from "@/components/servizi/AziendaSelectField";
 import { ReferenteSelectField } from '@/components/servizi/ReferenteSelectField';
 
-// Schema per modalità veloce - solo azienda obbligatoria
+// Schema per modalità veloce - tipo cliente selezionabile
 const servizioSchemaVeloce = z.object({
-  tipo_cliente: z.literal('azienda'),
-  azienda_id: z.string().min(1, "Seleziona un'azienda"),
+  tipo_cliente: z.enum(['azienda', 'privato']),
+  azienda_id: z.string().optional(),
   referente_id: z.string().optional().nullable(),
-  data_servizio: z.string().optional(),
-  orario_servizio: z.string().optional(),
-  note: z.string().optional().nullable(),
-  // Tutti gli altri campi opzionali
+  // Campi privato opzionali
   cliente_privato_id: z.string().optional().nullable(),
   cliente_privato_nome: z.string().optional(),
   cliente_privato_cognome: z.string().optional(),
@@ -70,6 +67,9 @@ const servizioSchemaVeloce = z.object({
   cliente_privato_indirizzo: z.string().optional(),
   cliente_privato_citta: z.string().optional(),
   cliente_privato_note: z.string().optional(),
+  data_servizio: z.string().optional(),
+  orario_servizio: z.string().optional(),
+  note: z.string().optional().nullable(),
   salva_cliente_anagrafica: z.boolean().default(false),
   numero_commessa: z.string().optional().nullable(),
   citta_presa: z.string().optional().nullable(),
@@ -1047,6 +1047,33 @@ export const ServizioCreaPage = ({
 
           {/* SEZIONE 1: Azienda e Contatto (o Cliente Privato) */}
           <Card className="w-full p-3 sm:p-4 md:p-6">
+            {/* Tipo Cliente Selector - Solo in modalità veloce */}
+            {isVeloce && (
+              <div className="mb-4">
+                <Label className="font-medium mb-2 block">Tipo Cliente</Label>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant={watchTipoCliente === 'azienda' ? 'default' : 'outline'}
+                    className="flex-1"
+                    onClick={() => form.setValue('tipo_cliente', 'azienda')}
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Azienda
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={watchTipoCliente === 'privato' ? 'default' : 'outline'}
+                    className="flex-1"
+                    onClick={() => form.setValue('tipo_cliente', 'privato')}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Privato
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               {watchTipoCliente === 'azienda' ? (
                 <><Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /><h2 className="text-base sm:text-lg font-semibold">Azienda e Contatto</h2></>
