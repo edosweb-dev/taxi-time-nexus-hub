@@ -75,14 +75,21 @@ export function ServizioSidebar({
         </div>
 
         <div className="border-t pt-4 space-y-3">
-          {/* Nome Azienda */}
+          {/* Cliente: Azienda o Privato */}
           <div className="space-y-1">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Building2 className="h-3.5 w-3.5" />
-              <span>Azienda</span>
+              {servizio.tipo_cliente === 'privato' ? (
+                <User className="h-3.5 w-3.5" />
+              ) : (
+                <Building2 className="h-3.5 w-3.5" />
+              )}
+              <span>{servizio.tipo_cliente === 'privato' ? 'Cliente privato' : 'Azienda'}</span>
             </div>
             <div className="text-sm font-medium truncate">
-              {getAziendaName(servizio.azienda_id)}
+              {servizio.tipo_cliente === 'privato' 
+                ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || '—'
+                : getAziendaName(servizio.azienda_id)
+              }
             </div>
           </div>
 
