@@ -22,10 +22,12 @@ import { Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ClientForm } from '@/components/users/ClientForm';
+import { ReferenteQuickForm } from './ReferenteQuickForm';
 import { createReferente } from './utils/referentiUtils';
 import { toast } from '@/components/ui/use-toast';
 import { UserFormData } from '@/lib/api/users/types';
@@ -44,6 +46,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   const previousReferenteIdRef = useRef<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modeReferente, setModeReferente] = useState<'rapido' | 'completo'>('rapido');
   
   console.log('[ReferenteSelectField] 🟡 Component render:', {
     currentReferenteId,
@@ -298,7 +301,10 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => setIsDialogOpen(true)}
+                  onClick={() => {
+                    setModeReferente('rapido');
+                    setIsDialogOpen(true);
+                  }}
                   className="h-8 text-xs"
                   disabled={!aziendaId}
                 >
@@ -364,16 +370,32 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className={modeReferente === 'completo' ? 'sm:max-w-2xl max-h-[80vh]' : 'sm:max-w-md'}>
           <DialogHeader>
             <DialogTitle>Nuovo Referente</DialogTitle>
+            <DialogDescription>
+              Aggiungi un referente per {azienda?.nome || 'questa azienda'}
+            </DialogDescription>
           </DialogHeader>
-          <ClientForm
-            onSubmit={handleCreateReferente}
-            onCancel={() => setIsDialogOpen(false)}
-            isSubmitting={isSubmitting}
-            preselectedAzienda={azienda}
-          />
+
+          {modeReferente === 'rapido' ? (
+            <ReferenteQuickForm
+              aziendaId={aziendaId}
+              onSubmit={handleCreateReferente}
+              onCancel={() => setIsDialogOpen(false)}
+              onSwitchToComplete={() => setModeReferente('completo')}
+              isSubmitting={isSubmitting}
+            />
+          ) : (
+            <div className="max-h-[60vh] overflow-y-auto pr-2">
+              <ClientForm
+                onSubmit={handleCreateReferente}
+                onCancel={() => setModeReferente('rapido')}
+                isSubmitting={isSubmitting}
+                preselectedAzienda={azienda}
+              />
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
