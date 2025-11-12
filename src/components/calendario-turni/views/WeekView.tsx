@@ -69,16 +69,22 @@ export function WeekView({ currentDate, shifts, employees, onCreateShift, onEdit
                     return (
                       <div
                         key={shift.id}
-                        className="min-h-[50px] rounded-lg flex flex-col items-center justify-center text-xs font-medium cursor-pointer hover:scale-105 transition-all duration-200 border border-white/20 shadow-sm p-2"
+                        className="min-h-[50px] rounded-lg flex flex-col items-center justify-center text-xs font-medium cursor-pointer hover:scale-105 transition-all duration-200 shadow-sm p-2"
                         style={{ 
                           backgroundColor: userColor,
-                          color: 'white'
+                          color: 'white',
+                          border: shift.shift_type === 'extra' ? '2px solid #a855f7' : '2px solid rgba(255, 255, 255, 0.2)'
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
                           onEditShift(shift);
                         }}
                       >
+                        {shift.shift_type === 'extra' && (
+                          <div className="text-[8px] font-bold bg-purple-500 px-1 rounded mb-1">
+                            EXTRA
+                          </div>
+                        )}
                         <div className="font-semibold text-center leading-tight">
                           {user?.first_name}
                         </div>

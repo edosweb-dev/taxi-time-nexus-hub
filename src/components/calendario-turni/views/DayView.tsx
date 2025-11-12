@@ -48,7 +48,7 @@ export function DayView({ currentDate, shifts, employees, onCreateShift, onEditS
                   className="flex items-center gap-4 p-4 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all"
                   style={{ 
                     backgroundColor: `${userColor}15`,
-                    borderLeft: `4px solid ${userColor}`
+                    borderLeft: `4px solid ${shift.shift_type === 'extra' ? '#a855f7' : userColor}`
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -57,19 +57,29 @@ export function DayView({ currentDate, shifts, employees, onCreateShift, onEditS
                 >
                   {/* Cerchio con iniziali */}
                   <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold"
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold relative"
                     style={{ 
                       backgroundColor: userColor,
                       color: 'white'
                     }}
                   >
                     {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
+                    {shift.shift_type === 'extra' && (
+                      <span className="absolute -top-1 -right-1 bg-purple-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-2 border-white">
+                        E
+                      </span>
+                    )}
                   </div>
                   
                   {/* Informazioni dipendente */}
                   <div className="flex-1">
-                    <div className="font-semibold text-lg" style={{ color: userColor }}>
+                    <div className="font-semibold text-lg flex items-center gap-2" style={{ color: userColor }}>
                       {user?.first_name} {user?.last_name}
+                      {shift.shift_type === 'extra' && (
+                        <span className="text-xs bg-purple-500 text-white px-2 py-1 rounded font-bold">
+                          EXTRA
+                        </span>
+                      )}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {user?.role}

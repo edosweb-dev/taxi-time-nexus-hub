@@ -142,14 +142,20 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                           >
                             <div
                               className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer 
-                                       transition-all duration-200 hover:scale-110 hover:shadow-lg border-2 border-white/50"
+                                       transition-all duration-200 hover:scale-110 hover:shadow-lg border-2 relative"
                               style={{ 
                                 backgroundColor: userColor,
-                                color: 'white'
+                                color: 'white',
+                                borderColor: shift.shift_type === 'extra' ? '#a855f7' : 'rgba(255, 255, 255, 0.5)'
                               }}
-                              title={`${user?.first_name} ${user?.last_name} - ${getShiftTypeLabel(shift)}`}
+                              title={`${user?.first_name} ${user?.last_name} - ${getShiftTypeLabel(shift)}${shift.shift_type === 'extra' ? ' ⭐' : ''}`}
                             >
                               {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
+                              {shift.shift_type === 'extra' && (
+                                <span className="absolute -top-1 -right-1 bg-purple-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] font-bold border border-white">
+                                  E
+                                </span>
+                              )}
                             </div>
                           </div>
                         );
