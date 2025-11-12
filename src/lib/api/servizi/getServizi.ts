@@ -13,7 +13,8 @@ export async function getServizi(): Promise<Servizio[]> {
           nome
         )
       `)
-      .order('created_at', { ascending: false });
+      .order('data_servizio', { ascending: false })
+      .order('orario_servizio', { ascending: false });
 
     if (error) {
       console.error('[getServizi] Error fetching servizi:', error);
