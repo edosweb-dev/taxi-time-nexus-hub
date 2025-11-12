@@ -46,31 +46,50 @@ export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; 
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header compatto */}
-      <div className="flex flex-col gap-3">
-        {tipo_cliente === 'privato' && (
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-800">
-              <strong>ℹ️ Cliente privato:</strong> Puoi aggiungere passeggeri creandoli manualmente. Non sono collegati a un'azienda.
+    <div className="space-y-4">
+      {/* Info banner per cliente privato */}
+      {tipo_cliente === 'privato' && (
+        <div className="flex items-start gap-3 p-3 bg-blue-50/50 border border-blue-200/50 rounded-lg">
+          <div className="p-1.5 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+            <Users className="h-4 w-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-blue-900 mb-0.5">Cliente privato</p>
+            <p className="text-xs text-blue-700">
+              Aggiungi passeggeri manualmente. Non sono collegati a un'azienda.
             </p>
           </div>
-        )}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <p className="text-sm text-muted-foreground">
-            {fields.length} passeggero{fields.length !== 1 ? 'i' : ''} aggiunto{fields.length !== 1 ? 'i' : ''}
-          </p>
-          <PasseggeriList userRole={userRole} />
         </div>
+      )}
+
+      {/* Header section con counter e link gestione */}
+      <div className="flex items-center justify-between gap-4 pb-3 border-b">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+            <Users className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Passeggeri
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {fields.length} {fields.length === 1 ? 'passeggero' : 'passeggeri'}
+            </p>
+          </div>
+        </div>
+        <PasseggeriList userRole={userRole} />
       </div>
 
-      {/* Lista passeggeri già aggiunti - Nuovo feedback contestuale */}
+      {/* Passeggeri già aggiunti - Cards compatte */}
       {fields.length > 0 && (
-        <div className="bg-muted/30 rounded-lg p-4 border-2 border-dashed">
-          <h4 className="font-medium mb-3 text-sm flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
-            Passeggeri nel servizio ({fields.length})
-          </h4>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Nel servizio
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {fields.map((field, idx) => (
               <PassengerListItem 
@@ -83,30 +102,36 @@ export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; 
         </div>
       )}
 
-      {/* Passenger Selector */}
-      <div className="bg-muted/30 border-2 border-dashed rounded-lg p-4">
-        <PasseggeroSelector
-          azienda_id={azienda_id}
-          tipo_cliente={tipo_cliente}
-          onPasseggeroSelect={handlePasseggeroSelect}
-        />
+      {/* Selettore passeggeri - Area principale */}
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Aggiungi passeggeri
+          </span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        
+        <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4">
+          <PasseggeroSelector
+            azienda_id={azienda_id}
+            tipo_cliente={tipo_cliente}
+            onPasseggeroSelect={handlePasseggeroSelect}
+          />
+        </div>
       </div>
 
-      {/* Selected Passengers List */}
-      {fields.length === 0 ? (
-        <div className="text-center py-8 bg-muted/20 border rounded-lg">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-3">
-            <PlusCircle className="h-6 w-6 text-muted-foreground" />
+      {/* Form dettagli passeggeri */}
+      {fields.length > 0 && (
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Dettagli passeggeri
+            </span>
+            <div className="h-px flex-1 bg-border" />
           </div>
-          <h3 className="text-base font-medium mb-1">Nessun passeggero aggiunto</h3>
-          <p className="text-sm text-muted-foreground">
-            Usa il selettore sopra per aggiungere passeggeri
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold">Compila le informazioni dei passeggeri</h3>
-          <div className="grid gap-4">
+          <div className="space-y-3">
             {fields.map((field, index) => (
               <PasseggeroCard 
                 key={field.id}
@@ -115,6 +140,21 @@ export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; 
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Empty state - solo se non ci sono passeggeri */}
+      {fields.length === 0 && (
+        <div className="text-center py-8 rounded-lg border-2 border-dashed bg-muted/5">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-3">
+            <PlusCircle className="h-5 w-5 text-muted-foreground/70" />
+          </div>
+          <p className="text-sm font-medium text-foreground mb-1">
+            Nessun passeggero aggiunto
+          </p>
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+            Seleziona dall'elenco sopra o crea un nuovo passeggero
+          </p>
         </div>
       )}
     </div>
