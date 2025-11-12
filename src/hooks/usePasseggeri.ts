@@ -2,22 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Passeggero } from '@/lib/types/servizi';
 
-export function usePasseggeri(aziendaId?: string, referenteId?: string) {
+export function usePasseggeri(aziendaId?: string) {
   return useQuery({
-    queryKey: ['passeggeri', aziendaId, referenteId],
+    queryKey: ['passeggeri', aziendaId],
     queryFn: async () => {
       if (!aziendaId) return { passeggeri: [], isLoading: false };
       
-      let query = supabase.from('passeggeri').select('*').eq('azienda_id', aziendaId);
-      
-      // Se c'è un referente_id, filtra per esso
-      // Se non c'è referente_id, prendi tutti i passeggeri dell'azienda
-      if (referenteId) {
-        query = query.eq('referente_id', referenteId);
-        console.log('[usePasseggeri] 🔍 Filtering by referente_id:', referenteId);
-      } else {
-        console.log('[usePasseggeri] ⚠️ No referente_id - fetching ALL passengers for azienda:', aziendaId);
-      }
+      let query = supabase
+        .from('passeggeri')
+        .select('*')
+        .eq('azienda_id', aziendaId)
+        .eq('tipo', 'rubrica');
+
+      console.log('[usePasseggeri] 📊 Fetching ALL passengers for azienda:', aziendaId);
 
       const { data, error } = await query;
 
@@ -28,12 +25,10 @@ export function usePasseggeri(aziendaId?: string, referenteId?: string) {
 
       console.log('[usePasseggeri] 📊 Query result:', {
         aziendaId,
-        referenteId,
         totalPassengers: data?.length || 0,
         passengers: data?.map(p => ({
           id: p.id,
-          nome: p.nome_cognome,
-          referente_id: p.referente_id
+          nome: p.nome_cognome
         }))
       });
       return { passeggeri: data as Passeggero[], isLoading: false };

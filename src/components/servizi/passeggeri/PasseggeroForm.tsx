@@ -12,57 +12,16 @@ import { PassengerListItem } from "./PassengerListItem";
 export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; tipo_cliente?: 'azienda' | 'privato' }) {
   const { control, setValue } = useFormContext<ServizioFormData>();
   
-  // Watch per azienda_id e referente_id
+  // Watch per azienda_id
   const azienda_id = useWatch({ control, name: "azienda_id" });
-  const referente_id = useWatch({ control, name: "referente_id" });
   
-  console.log('[PasseggeroForm] 📥 Watched values:', { azienda_id, referente_id });
+  console.log('[PasseggeroForm] 📥 Watched azienda_id:', azienda_id);
   
   // Utilizziamo useFieldArray per gestire l'array dinamico di passeggeri
   const { fields, append, remove } = useFieldArray({
     control,
     name: "passeggeri",
   });
-
-  // Ref per tracciare il referente precedente
-  const previousReferenteIdRef = useRef<string | undefined>(referente_id);
-  
-  // Track referente_id changes
-  useEffect(() => {
-    console.log('[PasseggeroForm] 🔄 referente_id changed:', referente_id);
-  }, [referente_id]);
-
-  // Reset passeggeri quando cambia referente SOLO per aziende
-  useEffect(() => {
-    if (tipo_cliente !== 'azienda') return; // Skip per privati
-    
-    const currentReferenteId = referente_id;
-    const previousReferenteId = previousReferenteIdRef.current;
-
-    console.log('[PasseggeroForm] Referente changed check:', {
-      previous: previousReferenteId,
-      current: currentReferenteId,
-      passengersCount: fields.length
-    });
-
-    // Se il referente cambia E ci sono passeggeri già selezionati
-    if (previousReferenteId !== currentReferenteId && fields.length > 0) {
-      console.log('[PasseggeroForm] ⚠️ Referente changed - resetting passengers:', {
-        from: previousReferenteId,
-        to: currentReferenteId,
-        removingPassengers: fields.length
-      });
-
-      // Rimuovi tutti i passeggeri esistenti
-      // Li rimuoviamo in ordine inverso per evitare problemi con gli indici
-      for (let i = fields.length - 1; i >= 0; i--) {
-        remove(i);
-      }
-    }
-
-    // Aggiorna il ref con il valore corrente
-    previousReferenteIdRef.current = currentReferenteId;
-  }, [referente_id, fields.length, remove, tipo_cliente]);
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
@@ -97,13 +56,6 @@ export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; 
             </p>
           </div>
         )}
-        {azienda_id && !referente_id && tipo_cliente === 'azienda' && (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-xs text-amber-800">
-              <strong>ℹ️ Modalità senza referente:</strong> I passeggeri verranno collegati direttamente all'azienda.
-            </p>
-          </div>
-        )}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <p className="text-sm text-muted-foreground">
             {fields.length} passeggero{fields.length !== 1 ? 'i' : ''} aggiunto{fields.length !== 1 ? 'i' : ''}
@@ -135,7 +87,6 @@ export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; 
       <div className="bg-muted/30 border-2 border-dashed rounded-lg p-4">
         <PasseggeroSelector
           azienda_id={azienda_id}
-          referente_id={referente_id}
           tipo_cliente={tipo_cliente}
           onPasseggeroSelect={handlePasseggeroSelect}
         />

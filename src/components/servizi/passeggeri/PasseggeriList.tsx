@@ -17,19 +17,18 @@ export function PasseggeriList({ userRole }: PasseggeriListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { control } = useFormContext<ServizioFormData>();
   
-  // Watch per azienda_id e referente_id
+  // Watch per azienda_id
   const azienda_id = useWatch({ control, name: "azienda_id" });
-  const referente_id = useWatch({ control, name: "referente_id" });
 
-  const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id, referente_id);
+  const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id);
 
   // Mostra solo ad admin e soci
   if (!userRole || (userRole !== 'admin' && userRole !== 'socio')) {
     return null;
   }
 
-  // Non mostrare se non ci sono azienda_id e referente_id
-  if (!azienda_id || !referente_id) {
+  // Non mostrare se non c'è azienda_id
+  if (!azienda_id) {
     return null;
   }
 
@@ -77,7 +76,7 @@ export function PasseggeriList({ userRole }: PasseggeriListProps) {
                 <Users className="h-12 w-12 opacity-40" />
               </div>
               <p className="text-lg font-semibold text-foreground mb-2">Nessun passeggero trovato</p>
-              <p className="text-sm">Non ci sono passeggeri registrati per questa azienda e referente.</p>
+              <p className="text-sm">Non ci sono passeggeri registrati per questa azienda.</p>
             </div>
           ) : (
             <div className="space-y-4 pb-4">

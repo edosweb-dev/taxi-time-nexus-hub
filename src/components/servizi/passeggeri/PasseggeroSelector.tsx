@@ -14,13 +14,12 @@ import { MobileButton } from '@/components/ui/mobile-button';
 
 interface PasseggeroSelectorProps {
   azienda_id?: string;
-  referente_id?: string;
   tipo_cliente?: 'azienda' | 'privato';
   onPasseggeroSelect: (passeggero: PasseggeroFormData) => void;
 }
 
-export function PasseggeroSelector({ azienda_id, referente_id, tipo_cliente = 'azienda', onPasseggeroSelect }: PasseggeroSelectorProps) {
-  const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id, referente_id);
+export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPasseggeroSelect }: PasseggeroSelectorProps) {
+  const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id);
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [salvaInRubrica, setSalvaInRubrica] = useState(true);
@@ -149,24 +148,14 @@ export function PasseggeroSelector({ azienda_id, referente_id, tipo_cliente = 'a
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
           Aggiungi Passeggero
-          {!referente_id && (
-            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
-              Senza referente
-            </span>
-          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Ricerca passeggeri esistenti - Solo per aziende */}
         {tipo_cliente === 'azienda' && (
         <div>
-          <Label className="text-sm font-medium mb-2 block flex items-center gap-2">
+          <Label className="text-sm font-medium mb-2 block">
             Passeggeri esistenti
-            {!referente_id && (
-              <span className="text-xs text-amber-600">
-                (dell'azienda)
-              </span>
-            )}
           </Label>
           {passeggeri.length > 0 && (
             <div className="relative mb-3">
@@ -182,13 +171,10 @@ export function PasseggeroSelector({ azienda_id, referente_id, tipo_cliente = 'a
           
           {!searchTerm ? (
             <div className="text-center py-4 text-muted-foreground text-sm">
-              {passeggeri.length === 0 ? (
-                referente_id ? 
-                  "Nessun passeggero trovato per questo referente" :
-                  "Nessun passeggero trovato per questa azienda"
-              ) : (
+              {passeggeri.length === 0 ? 
+                "Nessun passeggero trovato per questa azienda" :
                 "Inizia a digitare per cercare un passeggero esistente"
-              )}
+              }
             </div>
           ) : isLoading ? (
             <div className="space-y-2">
@@ -265,13 +251,8 @@ export function PasseggeroSelector({ azienda_id, referente_id, tipo_cliente = 'a
             </MobileButton>
           ) : (
             <div className="space-y-3">
-              <Label className="text-sm font-medium flex items-center gap-2">
+              <Label className="text-sm font-medium">
                 Nuovo passeggero
-                {!referente_id && (
-                  <span className="text-xs text-amber-600">
-                    (sarà collegato all'azienda)
-                  </span>
-                )}
               </Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
