@@ -82,7 +82,8 @@ export default function NuovoServizioPage() {
       const { data, error } = await supabase
         .from("passeggeri")
         .select("id, nome_cognome, email, telefono")
-        .eq("referente_id", currentProfile.id)
+        .eq("created_by_referente_id", currentProfile.id)
+        .eq("tipo", "rubrica")
         .order("nome_cognome", { ascending: true });
 
       if (error) throw error;

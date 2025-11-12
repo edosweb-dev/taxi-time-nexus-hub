@@ -575,13 +575,13 @@ export type Database = {
           azienda_id: string
           cognome: string | null
           created_at: string
+          created_by_referente_id: string | null
           email: string | null
           id: string
           indirizzo: string | null
           localita: string | null
           nome: string | null
           nome_cognome: string
-          referente_id: string | null
           telefono: string | null
           tipo: string | null
         }
@@ -589,13 +589,13 @@ export type Database = {
           azienda_id: string
           cognome?: string | null
           created_at?: string
+          created_by_referente_id?: string | null
           email?: string | null
           id?: string
           indirizzo?: string | null
           localita?: string | null
           nome?: string | null
           nome_cognome: string
-          referente_id?: string | null
           telefono?: string | null
           tipo?: string | null
         }
@@ -603,13 +603,13 @@ export type Database = {
           azienda_id?: string
           cognome?: string | null
           created_at?: string
+          created_by_referente_id?: string | null
           email?: string | null
           id?: string
           indirizzo?: string | null
           localita?: string | null
           nome?: string | null
           nome_cognome?: string
-          referente_id?: string | null
           telefono?: string | null
           tipo?: string | null
         }
@@ -623,7 +623,7 @@ export type Database = {
           },
           {
             foreignKeyName: "passeggeri_referente_id_fkey"
-            columns: ["referente_id"]
+            columns: ["created_by_referente_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

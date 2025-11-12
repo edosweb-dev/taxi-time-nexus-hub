@@ -91,9 +91,9 @@ export function InfoTab({
     if (selectedReferente === 'all') {
       setFilteredPasseggeri(passeggeri);
     } else if (selectedReferente === 'none') {
-      setFilteredPasseggeri(passeggeri.filter(p => !p.referente_id));
+      setFilteredPasseggeri(passeggeri.filter(p => !p.created_by_referente_id));
     } else {
-      setFilteredPasseggeri(passeggeri.filter(p => p.referente_id === selectedReferente));
+      setFilteredPasseggeri(passeggeri.filter(p => p.created_by_referente_id === selectedReferente));
     }
   }, [selectedReferente, passeggeri]);
 
@@ -506,8 +506,8 @@ export function InfoTab({
                         <span className="truncate">{passeggero.localita}</span>
                       </div>
                     )}
-                    {passeggero.referente_id && (() => {
-                      const ref = referenti.find(r => r.id === passeggero.referente_id);
+                    {passeggero.created_by_referente_id && (() => {
+                      const ref = referenti.find(r => r.id === passeggero.created_by_referente_id);
                       return ref ? (
                         <Badge variant="outline" className="text-xs">
                           Ref: {ref.first_name}

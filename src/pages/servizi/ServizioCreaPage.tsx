@@ -541,29 +541,20 @@ export const ServizioCreaPage = ({
     isLoading: isLoadingPasseggeri,
     error: errorPasseggeri 
   } = useQuery({
-    queryKey: ["passeggeri", watchAziendaId, watchReferenteId],
+    queryKey: ["passeggeri", watchAziendaId],
     queryFn: async () => {
       if (!watchAziendaId) return [];
       
       console.log('[ServizioCreaPage] 🔍 Fetching passeggeri:', {
-        azienda_id: watchAziendaId,
-        referente_id: watchReferenteId
+        azienda_id: watchAziendaId
       });
       
-      let query = supabase
+      const query = supabase
         .from("passeggeri")
-        .select("id, nome_cognome, email, indirizzo, localita, referente_id")
-        .eq("azienda_id", watchAziendaId);
-      
-      // ✅ Filtra per referente se presente
-      if (watchReferenteId) {
-        query = query.eq("referente_id", watchReferenteId);
-        console.log('[ServizioCreaPage] ✅ Filtering by referente_id:', watchReferenteId);
-      } else {
-        console.log('[ServizioCreaPage] ⚠️ No referente selected - showing ALL passengers for azienda');
-      }
-      
-      query = query.order("nome_cognome");
+        .select("id, nome_cognome, email, indirizzo, localita, created_by_referente_id")
+        .eq("azienda_id", watchAziendaId)
+        .eq("tipo", "rubrica")
+        .order("nome_cognome");
       
       const { data, error } = await query;
       
@@ -577,7 +568,7 @@ export const ServizioCreaPage = ({
         passengers: data?.map(p => ({
           id: p.id,
           nome: p.nome_cognome,
-          referente_id: p.referente_id
+          created_by_referente_id: p.created_by_referente_id
         }))
       });
       

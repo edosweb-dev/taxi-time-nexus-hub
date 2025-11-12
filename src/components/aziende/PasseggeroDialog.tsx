@@ -24,7 +24,7 @@ export interface PasseggeroFormData {
   telefono?: string;
   localita?: string;
   indirizzo?: string;
-  referente_id?: string | null;
+  created_by_referente_id?: string | null;
 }
 
 export function PasseggeroDialog({
@@ -43,7 +43,7 @@ export function PasseggeroDialog({
     telefono: '',
     localita: '',
     indirizzo: '',
-    referente_id: null
+    created_by_referente_id: null
   });
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export function PasseggeroDialog({
         telefono: passeggero.telefono || '',
         localita: passeggero.localita || '',
         indirizzo: passeggero.indirizzo || '',
-        referente_id: passeggero.referente_id || null
+        created_by_referente_id: passeggero.created_by_referente_id || null
       });
     } else {
       setFormData({
@@ -67,7 +67,7 @@ export function PasseggeroDialog({
         telefono: '',
         localita: '',
         indirizzo: '',
-        referente_id: null
+        created_by_referente_id: null
       });
     }
   }, [passeggero, isOpen]);
@@ -122,18 +122,18 @@ export function PasseggeroDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="referente">Referente</Label>
+            <Label htmlFor="referente">Creato da (Referente)</Label>
             <Select
-              value={formData.referente_id || 'none'}
+              value={formData.created_by_referente_id || 'none'}
               onValueChange={(value) => 
-                setFormData({ ...formData, referente_id: value === 'none' ? null : value })
+                setFormData({ ...formData, created_by_referente_id: value === 'none' ? null : value })
               }
             >
               <SelectTrigger id="referente">
-                <SelectValue placeholder="Seleziona un referente" />
+                <SelectValue placeholder="Seleziona referente" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Nessun referente</SelectItem>
+                <SelectItem value="none">Non specificato</SelectItem>
                 {referenti.map((ref) => (
                   <SelectItem key={ref.id} value={ref.id}>
                     {ref.first_name} {ref.last_name}

@@ -77,7 +77,7 @@ export interface Servizio {
   clienti_privati?: ClientePrivato;
 }
 
-// Passeggero ora collegato ad azienda e referente (senza più i dettagli specifici del servizio)
+// Passeggero ora collegato ad azienda e creato da un referente (campo solo per tracking)
 export interface Passeggero {
   id?: string;
   nome_cognome: string; // Mantenuto per compatibilità
@@ -88,7 +88,7 @@ export interface Passeggero {
   email?: string;
   telefono?: string;
   azienda_id: string;
-  referente_id: string;
+  created_by_referente_id?: string | null; // Solo per tracking storico, non per filtri
   created_at?: string;
 }
 

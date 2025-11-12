@@ -29,7 +29,7 @@ export const usePasseggeriCliente = (searchTerm?: string) => {
             nome
           )
         `)
-        .eq("referente_id", user.id)
+        .eq("created_by_referente_id", user.id)
         .order("nome_cognome", { ascending: true });
 
       // Search filter

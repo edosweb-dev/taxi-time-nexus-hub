@@ -28,8 +28,8 @@ export function PasseggeriTabMobile({
   const filteredPasseggeri = selectedReferente === 'all'
     ? passeggeri
     : selectedReferente === 'none'
-    ? passeggeri.filter(p => !p.referente_id)
-    : passeggeri.filter(p => p.referente_id === selectedReferente);
+    ? passeggeri.filter(p => !p.created_by_referente_id)
+    : passeggeri.filter(p => p.created_by_referente_id === selectedReferente);
 
   return (
     <>
@@ -103,12 +103,12 @@ export function PasseggeriTabMobile({
               variant={selectedReferente === 'none' ? 'secondary' : 'outline'} 
               className="ml-1"
             >
-              {passeggeri.filter(p => !p.referente_id).length}
+              {passeggeri.filter(p => !p.created_by_referente_id).length}
             </Badge>
           </button>
 
           {referenti.map((ref) => {
-            const count = passeggeri.filter(p => p.referente_id === ref.id).length;
+            const count = passeggeri.filter(p => p.created_by_referente_id === ref.id).length;
             if (count === 0) return null;
 
             return (
@@ -173,8 +173,8 @@ export function PasseggeriTabMobile({
                       <span>{passeggero.telefono}</span>
                     </div>
                   )}
-                  {passeggero.referente_id && (() => {
-                    const ref = referenti.find(r => r.id === passeggero.referente_id);
+                  {passeggero.created_by_referente_id && (() => {
+                    const ref = referenti.find(r => r.id === passeggero.created_by_referente_id);
                     return ref ? (
                       <Badge variant="outline" className="mt-2 text-xs">
                         Ref: {ref.first_name} {ref.last_name}

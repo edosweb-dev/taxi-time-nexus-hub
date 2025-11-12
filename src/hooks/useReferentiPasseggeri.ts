@@ -11,7 +11,7 @@ export interface Passeggero {
   indirizzo?: string;
   localita?: string;
   azienda_id: string;
-  referente_id?: string;
+  created_by_referente_id?: string;
   created_at: string;
 }
 
@@ -24,7 +24,7 @@ export function usePasseggeriByReferente(referenteId?: string) {
       const { data, error } = await supabase
         .from('passeggeri')
         .select('*')
-        .eq('referente_id', referenteId);
+        .eq('created_by_referente_id', referenteId);
 
       if (error) {
         console.error('Error fetching passeggeri:', error);
@@ -50,13 +50,13 @@ export function useAllPasseggeriByReferente() {
         throw error;
       }
 
-      // Group by referente_id
+      // Group by created_by_referente_id
       const passeggeriByReferente = data.reduce((acc, passeggero) => {
-        if (passeggero.referente_id) {
-          if (!acc[passeggero.referente_id]) {
-            acc[passeggero.referente_id] = [];
+        if (passeggero.created_by_referente_id) {
+          if (!acc[passeggero.created_by_referente_id]) {
+            acc[passeggero.created_by_referente_id] = [];
           }
-          acc[passeggero.referente_id].push(passeggero);
+          acc[passeggero.created_by_referente_id].push(passeggero);
         }
         return acc;
       }, {} as Record<string, Passeggero[]>);

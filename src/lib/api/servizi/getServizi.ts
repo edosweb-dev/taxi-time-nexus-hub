@@ -64,7 +64,7 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
           email,
           telefono,
           azienda_id,
-          referente_id,
+          created_by_referente_id,
           created_at
         )
       `)
@@ -104,7 +104,7 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
           usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
           tipo: 'temporaneo' as const,
           azienda_id: null as any,
-          referente_id: null as any,
+          created_by_referente_id: null as any,
           created_at: null,
         };
       }

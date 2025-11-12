@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 export interface Passeggero {
   id: string;
   azienda_id: string;
-  referente_id: string | null;
+  created_by_referente_id: string | null;
   nome_cognome: string;
   nome: string | null;
   cognome: string | null;
@@ -44,7 +44,7 @@ export async function getPasseggeriByReferente(aziendaId: string, referenteId: s
       .from('passeggeri')
       .select('*')
       .eq('azienda_id', aziendaId)
-      .eq('referente_id', referenteId)
+      .eq('created_by_referente_id', referenteId)
       .eq('tipo', 'rubrica')  // ✅ Solo passeggeri permanenti in rubrica
       .order('nome_cognome');
 
@@ -63,7 +63,7 @@ export async function getPasseggeriByReferente(aziendaId: string, referenteId: s
 
 export interface CreatePasseggeroData {
   azienda_id: string;
-  referente_id?: string | null;
+  created_by_referente_id?: string | null;
   nome_cognome: string;
   nome?: string;
   cognome?: string;
