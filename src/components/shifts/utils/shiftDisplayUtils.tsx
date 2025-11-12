@@ -1,5 +1,4 @@
-
-import { Clock, Calendar, AlertTriangle } from 'lucide-react';
+import { Clock, Calendar, AlertTriangle, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { Shift } from '../types';
@@ -9,8 +8,9 @@ export const getShiftTypeIcon = (shiftType: string) => {
   switch (shiftType) {
     case 'full_day':
     case 'half_day':
-    case 'extra':
       return <Calendar className="h-4 w-4 text-primary" />;
+    case 'extra':
+      return <Sparkles className="h-4 w-4 text-purple-500" />;
     case 'unavailable':
       return <AlertTriangle className="h-4 w-4 text-destructive" />;
     default:

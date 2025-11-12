@@ -92,12 +92,17 @@ export const ShiftCalendarMonthView = ({
                       )}
                       
                       {/* Shift type info */}
-                      <div className="text-xs leading-tight">
-                        {shift.shift_type === 'half_day'
-                          ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
-                          : shift.shift_type === 'full_day' ? 'Giornata intera'
-                          : shift.shift_type === 'extra' ? 'Extra'
-                          : 'Non disponibile'}
+                      <div className="flex items-center gap-1">
+                        <div className="text-xs leading-tight">
+                          {shift.shift_type === 'half_day'
+                            ? shift.half_day_type === 'morning' ? 'Mattina' : 'Pomeriggio'
+                            : shift.shift_type === 'full_day' ? 'Giornata intera'
+                            : shift.shift_type === 'extra' ? 'Extra'
+                            : 'Non disponibile'}
+                        </div>
+                        {shift.shift_type === 'extra' && (
+                          <span className="text-[10px] font-bold bg-purple-500 text-white px-1 py-0.5 rounded">E</span>
+                        )}
                       </div>
                     </div>
                   </Badge>

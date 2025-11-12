@@ -85,6 +85,11 @@ export const ShiftEvent = ({
               : 'Non disponibile'
             }
           </span>
+          {shift.shift_type === 'extra' && (
+            <span className="ml-auto text-[10px] font-bold bg-purple-500 text-white px-1.5 py-0.5 rounded">
+              E
+            </span>
+          )}
         </div>
         
         {/* Always show user name with better styling */}
