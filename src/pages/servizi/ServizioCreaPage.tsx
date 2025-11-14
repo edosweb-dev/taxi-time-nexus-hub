@@ -191,7 +191,6 @@ export const ServizioCreaPage = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasseggeriOpen, setIsPasseggeriOpen] = useState(false);
   const [isEmailOpen, setIsEmailOpen] = useState(false);
-  const [importaClientePrivato, setImportaClientePrivato] = useState(false);
 
   const form = useForm<ServizioFormData>({
     resolver: zodResolver(isVeloce ? servizioSchemaVeloce : servizioSchemaCompleto),
@@ -415,83 +414,8 @@ export const ServizioCreaPage = ({
     }
   }, [watchIncassoPrevisto, watchIva, mostraIva, form]);
 
-  // Sincronizzazione passeggero importato da cliente privato
-  useEffect(() => {
-    if (importaClientePrivato && watchTipoCliente === 'privato') {
-      const currentPasseggeri = form.getValues('passeggeri') || [];
-      if (currentPasseggeri.length > 0) {
-        const updatedPasseggeri = currentPasseggeri.map((p, idx) => {
-          // Aggiorna solo il primo passeggero (quello importato)
-          if (idx === 0 && p.salva_in_database === false && p.is_cliente_import === true) {
-            return {
-              ...p,
-              nome: watchClientePrivatoNome || '',
-              cognome: watchClientePrivatoCognome || '',
-              nome_cognome: `${watchClientePrivatoNome || ''} ${watchClientePrivatoCognome || ''}`.trim(),
-            };
-          }
-          return p;
-        });
-        form.setValue('passeggeri', updatedPasseggeri);
-      }
-    }
-  }, [watchClientePrivatoNome, watchClientePrivatoCognome, importaClientePrivato, watchTipoCliente, form]);
 
-  // Handler per importazione anagrafica cliente privato
-  const handleImportaClientePrivato = (checked: boolean) => {
-    setImportaClientePrivato(checked);
-    
-    if (checked) {
-      const nome = form.getValues('cliente_privato_nome') || '';
-      const cognome = form.getValues('cliente_privato_cognome') || '';
-      const email = form.getValues('cliente_privato_email') || '';
-      const telefono = form.getValues('cliente_privato_telefono') || '';
-      const indirizzo = form.getValues('cliente_privato_indirizzo') || '';
-      const citta = form.getValues('cliente_privato_citta') || '';
-      
-      // Validazione minima
-      if (!nome && !cognome) {
-        toast.error('Inserisci almeno nome o cognome del cliente prima di importarlo');
-        setImportaClientePrivato(false);
-        return;
-      }
-      
-      // Crea passeggero da cliente
-      const passeggeroCliente = {
-        nome_cognome: `${nome} ${cognome}`.trim(),
-        nome: nome,
-        cognome: cognome,
-        email: email,
-        telefono: telefono,
-        indirizzo: indirizzo,
-        localita: citta,
-        usa_indirizzo_personalizzato: false,
-        is_existing: false,
-        salva_in_database: false,
-        is_cliente_import: true, // Flag per identificare il passeggero importato
-      };
-      
-      // Aggiungi come primo passeggero
-      const currentPasseggeri = form.getValues('passeggeri') || [];
-      
-      // Verifica se già esiste un passeggero identico
-      const alreadyExists = currentPasseggeri.some((p: any) => 
-        p.nome === nome && p.cognome === cognome && p.is_cliente_import === true
-      );
-      
-      if (!alreadyExists) {
-        form.setValue('passeggeri', [passeggeroCliente, ...currentPasseggeri]);
-        toast.success('Cliente importato come passeggero');
-      } else {
-        toast.info('Il cliente è già presente tra i passeggeri');
-      }
-    } else {
-      // Unchecked: rimuovi il passeggero importato
-      const currentPasseggeri = form.getValues('passeggeri') || [];
-      const nuoviPasseggeri = currentPasseggeri.filter((p: any) => p.is_cliente_import !== true);
-      form.setValue('passeggeri', nuoviPasseggeri);
-    }
-  };
+
 
   // Query: Dipendenti
   const { data: dipendenti } = useQuery({
@@ -1274,25 +1198,6 @@ export const ServizioCreaPage = ({
             watchTipoCliente === 'privato'
           ) && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
-            {/* Checkbox "Importa anagrafica cliente" solo per privati */}
-            {watchTipoCliente === 'privato' && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="importa-cliente-privato"
-                    checked={importaClientePrivato}
-                    onCheckedChange={handleImportaClientePrivato}
-                    disabled={!watchClientePrivatoNome && !watchClientePrivatoCognome}
-                  />
-                  <Label htmlFor="importa-cliente-privato" className="cursor-pointer">
-                    ✨ Importa anagrafica cliente come passeggero
-                  </Label>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 ml-6">
-                  Aggiunge automaticamente il cliente come primo passeggero del servizio
-                </p>
-              </div>
-            )}
             
             {/* Header con toggle collapsible */}
             <button

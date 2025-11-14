@@ -16,9 +16,17 @@ interface PasseggeroSelectorProps {
   azienda_id?: string;
   tipo_cliente?: 'azienda' | 'privato';
   onPasseggeroSelect: (passeggero: PasseggeroFormData) => void;
+  clientePrivatoData?: {
+    nome: string;
+    cognome: string;
+    email?: string;
+    telefono?: string;
+    indirizzo?: string;
+    citta?: string;
+  };
 }
 
-export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPasseggeroSelect }: PasseggeroSelectorProps) {
+export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPasseggeroSelect, clientePrivatoData }: PasseggeroSelectorProps) {
   const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id);
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -116,6 +124,26 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
     setShowNewForm(false);
   };
 
+  const handleSelectCliente = () => {
+    if (!clientePrivatoData) return;
+    
+    const passeggeroData = {
+      nome_cognome: `${clientePrivatoData.nome} ${clientePrivatoData.cognome}`.trim(),
+      nome: clientePrivatoData.nome,
+      cognome: clientePrivatoData.cognome,
+      email: clientePrivatoData.email || '',
+      telefono: clientePrivatoData.telefono || '',
+      indirizzo: clientePrivatoData.indirizzo || '',
+      localita: clientePrivatoData.citta || '',
+      usa_indirizzo_personalizzato: false,
+      is_existing: false,
+      salva_in_database: false,
+      is_cliente_import: true,
+    };
+    
+    onPasseggeroSelect(passeggeroData);
+  };
+
   // Filtra i passeggeri in base al termine di ricerca
   const filteredPasseggeri = passeggeri.filter(passeggero => {
     if (!searchTerm) return true;
@@ -145,12 +173,65 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          Aggiungi Passeggero
+        <CardTitle className="flex items-center gap-2 text-base">
+          <UserPlus className="h-5 w-5" />
+          Aggiungi passeggeri
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Card Cliente del Servizio - Solo per privati */}
+        {tipo_cliente === 'privato' && clientePrivatoData && clientePrivatoData.nome && clientePrivatoData.cognome && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-1.5 rounded-full bg-primary/10">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <h4 className="text-sm font-semibold">Cliente del servizio</h4>
+            </div>
+            <Card className="border-primary/30 bg-primary/5 hover:border-primary/50 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-base mb-2">
+                      {clientePrivatoData.nome} {clientePrivatoData.cognome}
+                    </p>
+                    <div className="space-y-1.5">
+                      {clientePrivatoData.email && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">{clientePrivatoData.email}</span>
+                        </div>
+                      )}
+                      {clientePrivatoData.telefono && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span>{clientePrivatoData.telefono}</span>
+                        </div>
+                      )}
+                      {(clientePrivatoData.indirizzo || clientePrivatoData.citta) && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">
+                            {clientePrivatoData.indirizzo}{clientePrivatoData.indirizzo && clientePrivatoData.citta && ', '}{clientePrivatoData.citta}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    onClick={handleSelectCliente}
+                    className="flex-shrink-0"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Ricerca passeggeri esistenti - Solo per aziende */}
         {tipo_cliente === 'azienda' && (
         <div>
