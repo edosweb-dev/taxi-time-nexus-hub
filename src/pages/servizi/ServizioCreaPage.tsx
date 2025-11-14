@@ -52,6 +52,7 @@ import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePriv
 import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AziendaSelectField } from "@/components/servizi/AziendaSelectField";
 import { ReferenteSelectField } from '@/components/servizi/ReferenteSelectField';
+import { PasseggeroForm } from "@/components/servizi/passeggeri/PasseggeroForm";
 
 // Schema per modalità veloce - tipo cliente selezionabile
 const servizioSchemaVeloce = z.object({
@@ -329,6 +330,10 @@ export const ServizioCreaPage = ({
   const watchIncassoPrevisto = form.watch("incasso_previsto");
   const watchClientePrivatoNome = form.watch("cliente_privato_nome");
   const watchClientePrivatoCognome = form.watch("cliente_privato_cognome");
+  const watchClientePrivatoEmail = form.watch("cliente_privato_email");
+  const watchClientePrivatoTelefono = form.watch("cliente_privato_telefono");
+  const watchClientePrivatoIndirizzo = form.watch("cliente_privato_indirizzo");
+  const watchClientePrivatoCitta = form.watch("cliente_privato_citta");
   
   // State per passeggeri temporanei
   const [tempPasseggeri, setTempPasseggeri] = useState<any[]>([]);
@@ -1193,297 +1198,20 @@ export const ServizioCreaPage = ({
 
           {/* SEZIONE 2: Passeggeri */}
           {!isVeloce && (
-            // Mostra per azienda con azienda_id OR per privato
             (watchTipoCliente === 'azienda' && watchAziendaId) ||
             watchTipoCliente === 'privato'
           ) && (
-          <Card className="w-full p-3 sm:p-4 md:p-6">
-            
-            {/* Header con toggle collapsible */}
-            <button
-              type="button"
-              onClick={() => setIsPasseggeriOpen(!isPasseggeriOpen)}
-              className="flex items-center justify-between w-full text-left mb-4 sm:cursor-default sm:pointer-events-none"
-            >
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <h2 className="text-base sm:text-lg font-semibold">Passeggeri (Opzionale)</h2>
-              </div>
-              {isPasseggeriOpen ? (
-                <ChevronUp className="h-4 w-4 sm:hidden" />
-              ) : (
-                <ChevronDown className="h-4 w-4 sm:hidden" />
-              )}
-            </button>
-            
-            {/* Contenuto collapsible */}
-            <div className={`space-y-4 ${isPasseggeriOpen ? 'block' : 'hidden'} sm:block`}>
-              {/* Lista Passeggeri Esistenti */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label className="font-medium">Seleziona Passeggeri</Label>
-                <Controller
-                  name="passeggeri_ids"
-                  control={form.control}
-                  render={({ field }) => (
-                    <div className="p-3 sm:p-4 space-y-2 max-h-60 overflow-y-auto">
-                      {!watchAziendaId ? (
-                        <p className="text-sm text-muted-foreground">
-                          Seleziona prima un'azienda
-                        </p>
-                      ) : isLoadingPasseggeri ? (
-                        <p className="text-sm text-muted-foreground">
-                          ⏳ Caricamento passeggeri...
-                        </p>
-                      ) : errorPasseggeri ? (
-                        <p className="text-sm text-destructive">
-                          ❌ Errore nel caricamento dei passeggeri. Riprova.
-                        </p>
-                      ) : passeggeri?.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">
-                          {watchReferenteId 
-                            ? "Nessun passeggero trovato per questo referente. Puoi creare un nuovo passeggero o selezionare un referente diverso." 
-                            : "Nessun passeggero disponibile per questa azienda. Creane uno con il pulsante qui sotto."
-                          }
-                        </p>
-                      ) : (
-                        passeggeri?.map((pass) => (
-                          <div key={pass.id} className="flex items-center space-x-2 pl-0.5">
-                            <Checkbox
-                              checked={field.value.includes(pass.id)}
-                              onCheckedChange={(checked) => {
-                                const newValue = checked
-                                  ? [...field.value, pass.id]
-                                  : field.value.filter(id => id !== pass.id);
-                                field.onChange(newValue);
-                              }}
-                              className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5"
-                            />
-                            <Label className="text-sm sm:text-base font-normal cursor-pointer flex-1">
-                              {pass.nome_cognome}
-                              {pass.email && <span className="text-muted-foreground ml-1">({pass.email})</span>}
-                            </Label>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                />
-              </div>
-
-              {/* Passeggeri Temporanei */}
-              {tempPasseggeri.length > 0 && (
-                <div className="mt-4 pt-4 border-t space-y-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <UserCircle className="h-4 w-4 text-blue-600" />
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Passeggeri solo per questo servizio ({tempPasseggeri.length})
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {tempPasseggeri.map((tempPass) => (
-                      <div 
-                        key={tempPass.id} 
-                        className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <UserCircle className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium">{tempPass.nome_cognome}</span>
-                          </div>
-                          {(tempPass.email || tempPass.telefono) && (
-                            <div className="mt-1 text-xs text-muted-foreground flex gap-2">
-                              {tempPass.email && <span>📧 {tempPass.email}</span>}
-                              {tempPass.telefono && <span>📱 {tempPass.telefono}</span>}
-                            </div>
-                          )}
-                        </div>
-                        
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleRemoveTempPasseggero(tempPass.id)}
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                    <Info className="h-3 w-3" />
-                    Questi passeggeri non saranno salvati nella rubrica aziendale
-                  </p>
-                </div>
-              )}
-
-              {/* Form Inline Nuovo Passeggero */}
-              <Collapsible 
-                open={isNewPasseggeroFormOpen} 
-                onOpenChange={setIsNewPasseggeroFormOpen}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="default"
-                    disabled={!watchAziendaId}
-                    className="w-full sm:w-auto"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    {isNewPasseggeroFormOpen ? "Nascondi Form" : "Nuovo Passeggero"}
-                  </Button>
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent className="mt-4">
-                  <Card className="p-4 bg-muted/50">
-                    <div className="space-y-4">
-                      {/* Campo Nome e Cognome */}
-                      <div className="space-y-2">
-                        <Label htmlFor="new-pass-nome" className="font-medium">
-                          Nome e Cognome <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="new-pass-nome"
-                          placeholder="Mario Rossi"
-                          value={newPasseggero.nome_cognome}
-                          onChange={(e) => setNewPasseggero({
-                            ...newPasseggero,
-                            nome_cognome: e.target.value
-                          })}
-                        />
-                      </div>
-
-                      {/* Email e Telefono affiancati */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-pass-email">Email</Label>
-                          <Input
-                            id="new-pass-email"
-                            type="email"
-                            placeholder="mario.rossi@example.com"
-                            value={newPasseggero.email}
-                            onChange={(e) => setNewPasseggero({
-                              ...newPasseggero,
-                              email: e.target.value
-                            })}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="new-pass-telefono">Telefono</Label>
-                          <Input
-                            id="new-pass-telefono"
-                            type="tel"
-                            placeholder="+39 333 1234567"
-                            value={newPasseggero.telefono}
-                            onChange={(e) => setNewPasseggero({
-                              ...newPasseggero,
-                              telefono: e.target.value
-                            })}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Località e Indirizzo affiancati */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-pass-localita">Località</Label>
-                          <Input
-                            id="new-pass-localita"
-                            placeholder="Milano"
-                            value={newPasseggero.localita}
-                            onChange={(e) => setNewPasseggero({
-                              ...newPasseggero,
-                              localita: e.target.value
-                            })}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="new-pass-indirizzo">Indirizzo</Label>
-                          <Input
-                            id="new-pass-indirizzo"
-                            placeholder="Via Roma 123"
-                            value={newPasseggero.indirizzo}
-                            onChange={(e) => setNewPasseggero({
-                              ...newPasseggero,
-                              indirizzo: e.target.value
-                            })}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Checkbox Salva in Rubrica */}
-                      <div className="flex items-start space-x-2 pt-2 pb-2 border-t">
-                        <Checkbox
-                          id="salva_in_database"
-                          checked={newPasseggero.salva_in_database}
-                          onCheckedChange={(checked) =>
-                            setNewPasseggero({ ...newPasseggero, salva_in_database: !!checked })
-                          }
-                        />
-                        <div className="grid gap-1 leading-none">
-                          <label
-                            htmlFor="salva_in_database"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            Salva passeggero in rubrica
-                          </label>
-                          <p className="text-xs text-muted-foreground">
-                            {newPasseggero.salva_in_database 
-                              ? "Il passeggero sarà salvato e disponibile per servizi futuri" 
-                              : "Il passeggero sarà aggiunto solo a questo servizio"
-                            }
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Pulsanti Azione */}
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          onClick={handleCreatePasseggero}
-                          disabled={isAddingPasseggero || !newPasseggero.nome_cognome}
-                          className="flex-1"
-                        >
-                          {isAddingPasseggero ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Creazione...
-                            </>
-                          ) : (
-                            <>
-                              {newPasseggero.salva_in_database ? "Salva in Rubrica" : "Aggiungi Solo a Questo Servizio"}
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setIsNewPasseggeroFormOpen(false);
-                            setNewPasseggero({
-                              nome_cognome: "",
-                              email: "",
-                              telefono: "",
-                              localita: "",
-                              indirizzo: "",
-                              salva_in_database: true,
-                            });
-                          }}
-                        >
-                          Annulla
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          </Card>
+            <PasseggeroForm 
+              tipo_cliente={watchTipoCliente}
+              clientePrivatoData={watchTipoCliente === 'privato' ? {
+                nome: watchClientePrivatoNome || '',
+                cognome: watchClientePrivatoCognome || '',
+                email: watchClientePrivatoEmail || '',
+                telefono: watchClientePrivatoTelefono || '',
+                indirizzo: watchClientePrivatoIndirizzo || '',
+                citta: watchClientePrivatoCitta || ''
+              } : undefined}
+            />
           )}
 
           {/* SEZIONE 3: Percorso - nascosto in modalità veloce */}
