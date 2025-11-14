@@ -1203,14 +1203,20 @@ export const ServizioCreaPage = ({
           ) && (
             <PasseggeroForm 
               tipo_cliente={watchTipoCliente}
-              clientePrivatoData={watchTipoCliente === 'privato' ? {
-                nome: watchClientePrivatoNome || '',
-                cognome: watchClientePrivatoCognome || '',
-                email: watchClientePrivatoEmail || '',
-                telefono: watchClientePrivatoTelefono || '',
-                indirizzo: watchClientePrivatoIndirizzo || '',
-                citta: watchClientePrivatoCitta || ''
-              } : undefined}
+              clientePrivatoData={
+                watchTipoCliente === 'privato' && 
+                watchClientePrivatoNome && 
+                watchClientePrivatoCognome 
+                  ? {
+                      nome: watchClientePrivatoNome,
+                      cognome: watchClientePrivatoCognome,
+                      email: watchClientePrivatoEmail || '',
+                      telefono: watchClientePrivatoTelefono || '',
+                      indirizzo: watchClientePrivatoIndirizzo || '',
+                      citta: watchClientePrivatoCitta || ''
+                    }
+                  : undefined
+              }
             />
           )}
 
