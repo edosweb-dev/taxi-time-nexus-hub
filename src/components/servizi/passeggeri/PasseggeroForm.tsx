@@ -41,21 +41,9 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
     console.log('[PasseggeroForm] handlePasseggeroSelect called with:', passeggero);
     console.log('[PasseggeroForm] Current fields count:', fields.length);
     
-    const currentIndex = fields.length;
     append(passeggero);
     
-    console.log('[PasseggeroForm] Passenger appended at index:', currentIndex);
-    
-    // Assicuriamoci che tutti i campi siano popolati correttamente
-    setTimeout(() => {
-      console.log('[PasseggeroForm] Setting values for passenger at index:', currentIndex);
-      setValue(`passeggeri.${currentIndex}.nome`, passeggero.nome || '');
-      setValue(`passeggeri.${currentIndex}.cognome`, passeggero.cognome || '');
-      setValue(`passeggeri.${currentIndex}.localita`, passeggero.localita || '');
-      setValue(`passeggeri.${currentIndex}.indirizzo`, passeggero.indirizzo || '');
-      setValue(`passeggeri.${currentIndex}.telefono`, passeggero.telefono || '');
-      setValue(`passeggeri.${currentIndex}.email`, passeggero.email || '');
-    }, 0);
+    console.log('[PasseggeroForm] Passenger appended');
   };
 
   return (
