@@ -144,7 +144,10 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
               <h2 className="text-xl font-semibold">Gestione passeggeri</h2>
             </div>
             <div className="bg-card border rounded-lg p-6">
-              <PasseggeroForm userRole={profile?.role} />
+              <PasseggeroForm 
+                userRole={profile?.role} 
+                tipo_cliente={servizio.tipo_cliente || 'azienda'}
+              />
             </div>
           </div>
 

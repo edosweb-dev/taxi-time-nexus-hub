@@ -9,7 +9,20 @@ import { PasseggeroSelector } from "./PasseggeroSelector";
 import { PasseggeriList } from "./PasseggeriList";
 import { PassengerListItem } from "./PassengerListItem";
 
-export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; tipo_cliente?: 'azienda' | 'privato' }) {
+interface PasseggeroFormProps {
+  userRole?: string;
+  tipo_cliente?: 'azienda' | 'privato';
+  clientePrivatoData?: {
+    nome: string;
+    cognome: string;
+    email?: string;
+    telefono?: string;
+    indirizzo?: string;
+    citta?: string;
+  };
+}
+
+export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: PasseggeroFormProps) {
   const { control, setValue } = useFormContext<ServizioFormData>();
   
   // Watch per azienda_id
@@ -113,11 +126,12 @@ export function PasseggeroForm({ userRole, tipo_cliente }: { userRole?: string; 
         </div>
         
         <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4">
-          <PasseggeroSelector
-            azienda_id={azienda_id}
-            tipo_cliente={tipo_cliente}
-            onPasseggeroSelect={handlePasseggeroSelect}
-          />
+        <PasseggeroSelector
+          azienda_id={azienda_id}
+          tipo_cliente={tipo_cliente}
+          clientePrivatoData={clientePrivatoData}
+          onPasseggeroSelect={handlePasseggeroSelect}
+        />
         </div>
       </div>
 
