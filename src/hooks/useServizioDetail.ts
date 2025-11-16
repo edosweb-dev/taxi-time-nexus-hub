@@ -48,7 +48,7 @@ export function useServizioDetail(id?: string) {
               localita,
               indirizzo,
               azienda_id,
-              referente_id
+              created_by_referente_id
             )
           )
         `)
@@ -86,7 +86,7 @@ export function useServizioDetail(id?: string) {
           localita: p?.localita,
           indirizzo: p?.indirizzo,
           azienda_id: p?.azienda_id || '',
-          referente_id: p?.referente_id || '',
+          referente_id: p?.created_by_referente_id || '',
           orario_presa_personalizzato: sp.orario_presa_personalizzato,
           luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
           destinazione_personalizzato: sp.destinazione_personalizzato,
