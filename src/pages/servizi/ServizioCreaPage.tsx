@@ -765,18 +765,13 @@ export const ServizioCreaPage = ({
       }
 
       // Determina lo stato in base al ruolo e alla modalità
-      let statoServizio = "da_assegnare"; // Default
-      if (mode === 'create') {
-        if (userProfile?.role === 'cliente') {
-          // I clienti creano servizi con stato "richiesta_cliente"
-          statoServizio = "richiesta_cliente";
-        } else {
-          // Admin e soci: bozza per inserimento veloce, da_assegnare per completo
-          statoServizio = isVeloce ? "bozza" : "da_assegnare";
-        }
-      } else {
-        // In modalità edit, mantieni lo stato esistente
-        statoServizio = initialData?.stato || "da_assegnare";
+      // NOTA: Per i nuovi servizi, lo stato verrà calcolato automaticamente da calculateServizioStato()
+      // in base alla completezza dei campi e all'assegnazione del conducente
+      let statoServizio = mode === 'edit' ? (initialData?.stato || "da_assegnare") : "bozza"; // Start with bozza for new services
+      
+      if (mode === 'create' && userProfile?.role === 'cliente') {
+        // I clienti creano servizi con stato "richiesta_cliente" (non passa da state machine)
+        statoServizio = "richiesta_cliente";
       }
 
       const servizioData = {
