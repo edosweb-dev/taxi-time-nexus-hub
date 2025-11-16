@@ -14,6 +14,14 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
   const { register, watch, setValue, control } = useFormContext<ServizioFormData>();
   const usaIndirizzoPersonalizzato = watch(`passeggeri.${index}.usa_indirizzo_personalizzato`);
   
+  // Watch individual passenger fields for defaultValue
+  const passeggeroNome = useWatch({ control, name: `passeggeri.${index}.nome` });
+  const passeggeroCognome = useWatch({ control, name: `passeggeri.${index}.cognome` });
+  const passeggeroLocalita = useWatch({ control, name: `passeggeri.${index}.localita` });
+  const passeggeroIndirizzo = useWatch({ control, name: `passeggeri.${index}.indirizzo` });
+  const passeggeroTelefono = useWatch({ control, name: `passeggeri.${index}.telefono` });
+  const passeggeroEmail = useWatch({ control, name: `passeggeri.${index}.email` });
+  
   // Watch the entire passeggeri array to determine if we should show the intermediate address option
   const passeggeri = useWatch({ control, name: "passeggeri" }) || [];
   // Only show the checkbox if there are 2 or more passengers
@@ -28,6 +36,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           </label>
           <MobileInput
             {...register(`passeggeri.${index}.nome`)}
+            defaultValue={passeggeroNome}
             placeholder="Nome"
           />
         </div>
@@ -37,6 +46,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           </label>
           <MobileInput
             {...register(`passeggeri.${index}.cognome`)}
+            defaultValue={passeggeroCognome}
             placeholder="Cognome"
           />
         </div>
@@ -49,6 +59,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           </label>
           <MobileInput
             {...register(`passeggeri.${index}.localita`)}
+            defaultValue={passeggeroLocalita}
             placeholder="Città/Località"
           />
         </div>
@@ -58,6 +69,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           </label>
           <MobileInput
             {...register(`passeggeri.${index}.indirizzo`)}
+            defaultValue={passeggeroIndirizzo}
             placeholder="Via, numero civico"
           />
         </div>
@@ -71,6 +83,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <MobileInput
             type="tel"
             {...register(`passeggeri.${index}.telefono`)}
+            defaultValue={passeggeroTelefono}
             placeholder="Numero telefono"
           />
         </div>
@@ -81,6 +94,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <MobileInput
             type="email"
             {...register(`passeggeri.${index}.email`)}
+            defaultValue={passeggeroEmail}
             placeholder="email@azienda.com"
           />
         </div>
