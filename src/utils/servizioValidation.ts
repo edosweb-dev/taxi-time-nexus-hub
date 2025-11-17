@@ -124,6 +124,16 @@ export function hasDriverAssigned(servizio: Partial<Servizio>): boolean {
  * @returns Stato calcolato
  */
 export function calculateServizioStato(servizio: Partial<Servizio>): StatoServizio {
+  console.log('[STATO CALC] Input data:', {
+    data_servizio: servizio.data_servizio,
+    indirizzo_presa: servizio.indirizzo_presa,
+    indirizzo_destinazione: servizio.indirizzo_destinazione,
+    azienda_id: servizio.azienda_id,
+    tipo_cliente: servizio.tipo_cliente,
+    assegnato_a: servizio.assegnato_a,
+    stato_corrente: servizio.stato
+  });
+  
   console.log('[DEBUG servizioValidation] calculateServizioStato - INPUT servizio:', servizio);
   console.log('[DEBUG servizioValidation] calculateServizioStato - stato corrente:', servizio.stato);
   
@@ -144,6 +154,9 @@ export function calculateServizioStato(servizio: Partial<Servizio>): StatoServiz
   const hasRequired = hasAllRequiredFields(servizio);
   const hasDriver = hasDriverAssigned(servizio);
 
+  console.log('[STATO CALC] hasAllRequiredFields:', hasRequired);
+  console.log('[STATO CALC] hasDriverAssigned:', hasDriver);
+  
   console.log('[DEBUG servizioValidation] calculateServizioStato - Validazione campi:', {
     hasRequired,
     hasDriver
@@ -151,6 +164,7 @@ export function calculateServizioStato(servizio: Partial<Servizio>): StatoServiz
 
   // REGOLA 3: Campi incompleti → rimane bozza
   if (!hasRequired) {
+    console.log('[STATO CALC] Returning BOZZA - missing required fields');
     console.log('[DEBUG servizioValidation] calculateServizioStato - Campi INCOMPLETI, stato: bozza');
     console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT: bozza');
     return 'bozza';
@@ -158,6 +172,7 @@ export function calculateServizioStato(servizio: Partial<Servizio>): StatoServiz
   
   // REGOLA 4: Campi completi + conducente → assegnato
   if (hasRequired && hasDriver) {
+    console.log('[STATO CALC] Returning ASSEGNATO - driver assigned');
     console.log('[DEBUG servizioValidation] calculateServizioStato - Campi completi + conducente, stato: assegnato');
     console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT: assegnato');
     return 'assegnato';
@@ -165,6 +180,7 @@ export function calculateServizioStato(servizio: Partial<Servizio>): StatoServiz
   
   // REGOLA 5: Campi completi senza conducente → da assegnare
   if (hasRequired && !hasDriver) {
+    console.log('[STATO CALC] Returning DA_ASSEGNARE - all fields complete, no driver');
     console.log('[DEBUG servizioValidation] calculateServizioStato - Campi completi SENZA conducente, stato: da_assegnare');
     console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT: da_assegnare');
     return 'da_assegnare';
