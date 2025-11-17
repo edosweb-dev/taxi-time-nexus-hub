@@ -887,23 +887,28 @@ export const ServizioCreaPage = ({
         const { data: servizio, error: servizioError } = await supabase.from("servizi").insert(servizioData).select().single();
         if (servizioError) throw servizioError;
 
-        // Gestisci passeggeri/email solo per aziende
-        if (data.tipo_cliente === 'azienda') {
-          // ✅ Combina passeggeri permanenti e temporanei
-          const passeggeriCompleti = [];
-          
-          // Passeggeri permanenti (da checkbox)
-          if (data.passeggeri_ids.length > 0) {
-            const permanenti = data.passeggeri_ids.map(pid => ({ 
-              servizio_id: servizio.id, 
-              passeggero_id: pid,
-              salva_in_database: Boolean(true),
-              usa_indirizzo_personalizzato: Boolean(false),
-            }));
-            passeggeriCompleti.push(...permanenti);
-          }
-          
-          // Passeggeri temporanei (da state)
+        // ✅ Combina passeggeri permanenti e temporanei (AZIENDE E PRIVATI)
+        console.log('[DEBUG BUG#14] Starting passenger save process');
+        console.log('[DEBUG BUG#14] Tipo cliente:', data.tipo_cliente);
+        console.log('[DEBUG BUG#14] Passeggeri permanenti IDs:', data.passeggeri_ids);
+        console.log('[DEBUG BUG#14] Passeggeri temporanei count:', tempPasseggeri.length);
+        
+        const passeggeriCompleti = [];
+        
+        // Passeggeri permanenti (da checkbox - solo per aziende)
+        if (data.tipo_cliente === 'azienda' && data.passeggeri_ids.length > 0) {
+          const permanenti = data.passeggeri_ids.map(pid => ({ 
+            servizio_id: servizio.id, 
+            passeggero_id: pid,
+            salva_in_database: Boolean(true),
+            usa_indirizzo_personalizzato: Boolean(false),
+          }));
+          passeggeriCompleti.push(...permanenti);
+          console.log('[DEBUG BUG#14] Added permanent passengers:', permanenti.length);
+        }
+        
+        // Passeggeri temporanei (da state - per TUTTI i tipi di servizio)
+        if (tempPasseggeri.length > 0) {
           const temporanei = tempPasseggeri.map(tp => {
             const passeggeroData = {
               servizio_id: servizio.id,
@@ -930,26 +935,30 @@ export const ServizioCreaPage = ({
             return passeggeroData;
           });
           passeggeriCompleti.push(...temporanei);
+          console.log('[DEBUG BUG#14] Added temporary passengers:', temporanei.length);
+        }
+        
+        console.log('[DEBUG BUG#14] Total passengers to insert:', passeggeriCompleti.length);
+        console.log('[DEBUG BUG#14] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
+        
+        // Insert passeggeri se ci sono
+        if (passeggeriCompleti.length > 0) {
+          const { error: passErr } = await supabase.from("servizi_passeggeri")
+            .insert(passeggeriCompleti);
           
-          console.log('[ServizioCreaPage] Saving passengers (create mode):', {
-            permanenti: data.passeggeri_ids.length,
-            temporanei: tempPasseggeri.length,
-            totale: passeggeriCompleti.length,
-            passeggeriCompleti: passeggeriCompleti
-          });
-          
-          if (passeggeriCompleti.length > 0) {
-            console.log('🔍 [ServizioCreaPage CREATE] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
-            const { error: passErr } = await supabase.from("servizi_passeggeri")
-              .insert(passeggeriCompleti);
-            if (passErr) throw passErr;
+          if (passErr) {
+            console.error('[DEBUG BUG#14] Error inserting passengers:', passErr);
+            toast.warning('Servizio creato ma errore nel salvare passeggeri');
+          } else {
+            console.log('[DEBUG BUG#14] Passengers saved successfully');
           }
+        }
 
-          if (data.email_notifiche_ids.length > 0) {
-            const { error: emailErr } = await supabase.from("servizi_email_notifiche")
-              .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizio.id, email_notifica_id: eid })));
-            if (emailErr) throw emailErr;
-          }
+        // Email notifiche solo per aziende
+        if (data.tipo_cliente === 'azienda' && data.email_notifiche_ids.length > 0) {
+          const { error: emailErr } = await supabase.from("servizi_email_notifiche")
+            .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizio.id, email_notifica_id: eid })));
+          if (emailErr) throw emailErr;
         }
 
         toast.success("Servizio creato con successo!");
