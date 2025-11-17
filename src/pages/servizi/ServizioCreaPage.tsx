@@ -705,6 +705,14 @@ export const ServizioCreaPage = ({
   const onSubmit = async (data: ServizioFormData) => {
     setIsSubmitting(true);
     
+    console.log('=== PRE-SUBMIT DEBUG ===');
+    console.log('Form data completa:', data);
+    console.log('Form data.passeggeri_ids:', data.passeggeri_ids);
+    console.log('TempPasseggeri state:', tempPasseggeri);
+    console.log('TempPasseggeri state type:', typeof tempPasseggeri);
+    console.log('TempPasseggeri state is Array?:', Array.isArray(tempPasseggeri));
+    console.log('========================');
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utente non autenticato");
