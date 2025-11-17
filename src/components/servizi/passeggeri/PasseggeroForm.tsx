@@ -38,12 +38,14 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
-    console.log('[PasseggeroForm] handlePasseggeroSelect called with:', passeggero);
-    console.log('[PasseggeroForm] Current fields count:', fields.length);
+    console.log('[ADD PASSENGER] handlePasseggeroSelect called with:', passeggero);
+    console.log('[ADD PASSENGER] Current fields before add:', fields.length);
+    console.log('[ADD PASSENGER] Current fields:', fields);
     
     append(passeggero);
     
-    console.log('[PasseggeroForm] Passenger appended');
+    console.log('[ADD PASSENGER] Passenger appended via useFieldArray');
+    console.log('[ADD PASSENGER] New fields count should be:', fields.length + 1);
   };
 
   return (
