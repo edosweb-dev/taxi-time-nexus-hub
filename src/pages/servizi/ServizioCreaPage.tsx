@@ -896,59 +896,44 @@ export const ServizioCreaPage = ({
         const { data: servizio, error: servizioError } = await supabase.from("servizi").insert(servizioData).select().single();
         if (servizioError) throw servizioError;
 
-        // ✅ Combina passeggeri permanenti e temporanei (AZIENDE E PRIVATI)
-        console.log('[DEBUG BUG#14] Starting passenger save process');
-        console.log('[DEBUG BUG#14] Tipo cliente:', data.tipo_cliente);
-        console.log('[DEBUG BUG#14] Passeggeri permanenti IDs:', data.passeggeri_ids);
-        console.log('[DEBUG BUG#14] Passeggeri temporanei count:', tempPasseggeri.length);
+        // ✅ Passeggeri dal form (useFieldArray) - TUTTI i tipi di servizio
+        console.log('[FIX BUG#14] Starting passenger save process');
+        console.log('[FIX BUG#14] Tipo cliente:', data.tipo_cliente);
+        
+        // Leggi passeggeri dal campo corretto del form
+        const passeggeriForm = data.passeggeri || [];
+        console.log('[FIX BUG#14] Passeggeri from form.passeggeri:', passeggeriForm);
+        console.log('[FIX BUG#14] Passeggeri count:', passeggeriForm.length);
         
         const passeggeriCompleti = [];
         
-        // Passeggeri permanenti (da checkbox - solo per aziende)
-        if (data.tipo_cliente === 'azienda' && data.passeggeri_ids.length > 0) {
-          const permanenti = data.passeggeri_ids.map(pid => ({ 
-            servizio_id: servizio.id, 
-            passeggero_id: pid,
-            salva_in_database: Boolean(true),
-            usa_indirizzo_personalizzato: Boolean(false),
-          }));
-          passeggeriCompleti.push(...permanenti);
-          console.log('[DEBUG BUG#14] Added permanent passengers:', permanenti.length);
-        }
-        
-        // Passeggeri temporanei (da state - per TUTTI i tipi di servizio)
-        if (tempPasseggeri.length > 0) {
-          const temporanei = tempPasseggeri.map(tp => {
+        // Mappa passeggeri dal form a formato insert
+        if (passeggeriForm.length > 0) {
+          const passeggeriToInsert = passeggeriForm.map(p => {
             const passeggeroData = {
               servizio_id: servizio.id,
-              passeggero_id: null,
-              nome_cognome_inline: tp.nome_cognome,
-              email_inline: tp.email || null,
-              telefono_inline: tp.telefono || null,
-              localita_inline: tp.localita || null,
-              indirizzo_inline: tp.indirizzo || null,
-              salva_in_database: Boolean(false),
-              usa_indirizzo_personalizzato: Boolean(tp.usa_indirizzo_personalizzato ?? false),
-              orario_presa_personalizzato: tp.orario_presa_personalizzato || null,
-              luogo_presa_personalizzato: tp.luogo_presa_personalizzato || null,
-              destinazione_personalizzato: tp.destinazione_personalizzato || null,
+              passeggero_id: p.id || null,
+              nome_cognome_inline: p.nome_cognome || null,
+              email_inline: p.email || null,
+              telefono_inline: p.telefono || null,
+              localita_inline: p.localita || null,
+              indirizzo_inline: p.indirizzo || null,
+              salva_in_database: Boolean(p.salva_in_database ?? false),
+              usa_indirizzo_personalizzato: Boolean(p.usa_indirizzo_personalizzato ?? false),
+              orario_presa_personalizzato: p.orario_presa_personalizzato || null,
+              luogo_presa_personalizzato: p.luogo_presa_personalizzato || null,
+              destinazione_personalizzato: p.destinazione_personalizzato || null,
             };
             
-            console.log('═══════════════════════════════════');
-            console.log('🔍 [ServizioCreaPage CREATE] Temp passenger data:');
-            console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
-            console.log('typeof:', typeof passeggeroData.usa_indirizzo_personalizzato);
-            console.log('Full data:', JSON.stringify(passeggeroData, null, 2));
-            console.log('═══════════════════════════════════');
-            
+            console.log('[FIX BUG#14] Mapped passenger:', passeggeroData);
             return passeggeroData;
           });
-          passeggeriCompleti.push(...temporanei);
-          console.log('[DEBUG BUG#14] Added temporary passengers:', temporanei.length);
+          
+          passeggeriCompleti.push(...passeggeriToInsert);
+          console.log('[FIX BUG#14] Total passengers to insert:', passeggeriCompleti.length);
         }
         
-        console.log('[DEBUG BUG#14] Total passengers to insert:', passeggeriCompleti.length);
-        console.log('[DEBUG BUG#14] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
+        console.log('[FIX BUG#14] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
         
         // Insert passeggeri se ci sono
         if (passeggeriCompleti.length > 0) {
@@ -956,15 +941,15 @@ export const ServizioCreaPage = ({
             .insert(passeggeriCompleti);
           
           if (passErr) {
-            console.error('[DEBUG BUG#14] Error inserting passengers:', passErr);
+            console.error('[FIX BUG#14] Error inserting passengers:', passErr);
             toast.warning('Servizio creato ma errore nel salvare passeggeri');
           } else {
-            console.log('[DEBUG BUG#14] Passengers saved successfully');
+            console.log('[FIX BUG#14] Passengers saved successfully');
           }
         }
 
         // Email notifiche solo per aziende
-        if (data.tipo_cliente === 'azienda' && data.email_notifiche_ids.length > 0) {
+        if (data.tipo_cliente === 'azienda' && data.email_notifiche_ids?.length > 0) {
           const { error: emailErr } = await supabase.from("servizi_email_notifiche")
             .insert(data.email_notifiche_ids.map(eid => ({ servizio_id: servizio.id, email_notifica_id: eid })));
           if (emailErr) throw emailErr;
