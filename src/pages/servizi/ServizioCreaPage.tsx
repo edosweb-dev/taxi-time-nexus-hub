@@ -708,6 +708,7 @@ export const ServizioCreaPage = ({
     console.log('=== PRE-SUBMIT DEBUG ===');
     console.log('Form data completa:', data);
     console.log('Form data.passeggeri_ids:', data.passeggeri_ids);
+    console.log('Form data.passeggeri:', data.passeggeri);  // ← AGGIUNTO
     console.log('TempPasseggeri state:', tempPasseggeri);
     console.log('TempPasseggeri state type:', typeof tempPasseggeri);
     console.log('TempPasseggeri state is Array?:', Array.isArray(tempPasseggeri));
