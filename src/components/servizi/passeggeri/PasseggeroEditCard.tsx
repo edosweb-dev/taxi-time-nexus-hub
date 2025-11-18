@@ -9,9 +9,11 @@ import { ServizioFormData } from "@/lib/types/servizi";
 interface PasseggeroEditCardProps {
   index: number;
   onRemove: () => void;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
-export const PasseggeroEditCard = ({ index, onRemove }: PasseggeroEditCardProps) => {
+export const PasseggeroEditCard = ({ index, onRemove, onSave, onCancel }: PasseggeroEditCardProps) => {
   const { control } = useFormContext<ServizioFormData>();
   const passeggeroNome = useWatch({ control, name: `passeggeri.${index}.nome` });
   const passeggeroCognome = useWatch({ control, name: `passeggeri.${index}.cognome` });
@@ -51,15 +53,35 @@ export const PasseggeroEditCard = ({ index, onRemove }: PasseggeroEditCardProps)
               </p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={handleRemove}
-            className="h-9 w-9 flex-shrink-0"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Rimuovi {displayName}</span>
-          </Button>
+          <div className="flex gap-2 flex-shrink-0">
+            {onSave && (
+              <Button 
+                variant="default" 
+                size="sm"
+                onClick={onSave}
+              >
+                Salva
+              </Button>
+            )}
+            {onCancel && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={onCancel}
+              >
+                Annulla
+              </Button>
+            )}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleRemove}
+              className="h-9 w-9"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Rimuovi {displayName}</span>
+            </Button>
+          </div>
         </div>
         
         {/* Form fields */}

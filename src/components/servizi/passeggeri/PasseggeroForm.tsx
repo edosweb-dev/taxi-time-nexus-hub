@@ -45,6 +45,14 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
     setEditingIndex(index);
   };
   
+  const handleSaveEdit = () => {
+    setEditingIndex(null);
+  };
+  
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+  };
+  
   const handleRemove = (index: number) => {
     remove(index);
     if (editingIndex === index) {
@@ -135,6 +143,8 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
                   <PasseggeroEditCard 
                     index={index} 
                     onRemove={() => handleRemove(index)}
+                    onSave={handleSaveEdit}
+                    onCancel={handleCancelEdit}
                   />
                 ) : (
                   <PasseggeroCompactCard
