@@ -2,7 +2,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Mail, Phone, MapPin, MapPinned, Pencil, Trash2 } from "lucide-react";
+import { User, Mail, Phone, MapPin, MapPinned, Pencil, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +17,21 @@ import {
 
 interface PasseggeroCompactCardProps {
   index: number;
+  totalCount: number;
   onEdit: () => void;
   onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
 }
 
-export const PasseggeroCompactCard = ({ index, onEdit, onRemove }: PasseggeroCompactCardProps) => {
+export const PasseggeroCompactCard = ({ 
+  index, 
+  totalCount,
+  onEdit, 
+  onRemove,
+  onMoveUp,
+  onMoveDown
+}: PasseggeroCompactCardProps) => {
   const { control } = useFormContext<ServizioFormData>();
   const passeggero = useWatch({ control, name: `passeggeri.${index}` });
   
@@ -30,15 +40,50 @@ export const PasseggeroCompactCard = ({ index, onEdit, onRemove }: PasseggeroCom
   const nome = passeggero.nome || '';
   const cognome = passeggero.cognome || '';
   const nomeCompleto = `${nome} ${cognome}`.trim() || `Passeggero ${index + 1}`;
+  const isFirst = index === 0;
+  const isLast = index === totalCount - 1;
   
   return (
     <Card className="p-4 space-y-2 hover:bg-accent/50 transition-colors">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-          <span className="font-medium truncate">{nomeCompleto}</span>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex-shrink-0">
+            {index + 1}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-medium truncate">{nomeCompleto}</div>
+            <div className="text-xs text-muted-foreground">
+              Ordine pick-up: #{index + 1}
+            </div>
+          </div>
         </div>
         <div className="flex gap-1 flex-shrink-0">
+          {totalCount > 1 && (
+            <div className="flex flex-col gap-0.5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={onMoveUp}
+                disabled={isFirst}
+                title="Sposta su"
+              >
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={onMoveDown}
+                disabled={isLast}
+                title="Sposta giù"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
           <Button
             type="button"
             variant="ghost"
