@@ -29,6 +29,11 @@ export const servizioFormSchema = z.object({
   indirizzo_destinazione: z.string().min(1, "Indirizzo di destinazione obbligatorio"),
   citta_presa: z.string().optional(),
   citta_destinazione: z.string().optional(),
+  // Campi per selezione percorso da passeggeri
+  partenza_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
+  partenza_passeggero_index: z.number().optional(),
+  destinazione_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
+  destinazione_passeggero_index: z.number().optional(),
   metodo_pagamento: z.string({
     required_error: "Metodo di pagamento obbligatorio",
   }),
