@@ -17,6 +17,12 @@ export const PercorsoSection = () => {
   const partenzaPasseggeroIndex = useWatch({ control, name: "partenza_passeggero_index" });
   const destinazionePasseggeroIndex = useWatch({ control, name: "destinazione_passeggero_index" });
   
+  // Debug logging
+  console.log("🔍 [PercorsoSection] Passeggeri count:", passeggeri?.length || 0);
+  console.log("🔍 [PercorsoSection] Passeggeri data:", passeggeri);
+  console.log("🔍 [PercorsoSection] partenzaTipo:", partenzaTipo);
+  console.log("🔍 [PercorsoSection] destinazioneTipo:", destinazioneTipo);
+  
   // Quando seleziono un passeggero per partenza, auto-popolo campi
   const handlePartenzaPasseggeroChange = (index: string) => {
     const idx = parseInt(index);
@@ -24,8 +30,13 @@ export const PercorsoSection = () => {
     
     const passeggero = passeggeri[idx];
     if (passeggero) {
-      setValue("citta_presa", passeggero.localita || "");
-      setValue("indirizzo_presa", passeggero.indirizzo || "");
+      const localita = passeggero.localita || "";
+      const indirizzo = passeggero.indirizzo || "";
+      
+      setValue("citta_presa", localita);
+      setValue("indirizzo_presa", indirizzo);
+      
+      console.log("🔍 Partenza set:", { localita, indirizzo, passeggero });
     }
   };
   
@@ -36,8 +47,13 @@ export const PercorsoSection = () => {
     
     const passeggero = passeggeri[idx];
     if (passeggero) {
-      setValue("citta_destinazione", passeggero.localita || "");
-      setValue("indirizzo_destinazione", passeggero.indirizzo || "");
+      const localita = passeggero.localita || "";
+      const indirizzo = passeggero.indirizzo || "";
+      
+      setValue("citta_destinazione", localita);
+      setValue("indirizzo_destinazione", indirizzo);
+      
+      console.log("🔍 Destinazione set:", { localita, indirizzo, passeggero });
     }
   };
   
@@ -107,14 +123,14 @@ export const PercorsoSection = () => {
                   <RadioGroupItem 
                     value="passeggero" 
                     id="partenza-passeggero"
-                    disabled={passeggeri.length === 0}
+                    disabled={!passeggeri || passeggeri.length === 0}
                   />
                   <Label 
                     htmlFor="partenza-passeggero" 
                     className="font-normal cursor-pointer"
                   >
                     Usa indirizzo passeggero
-                    {passeggeri.length === 0 && (
+                    {(!passeggeri || passeggeri.length === 0) && (
                       <span className="text-xs text-muted-foreground ml-2">
                         (Aggiungi prima un passeggero)
                       </span>
@@ -232,14 +248,14 @@ export const PercorsoSection = () => {
                   <RadioGroupItem 
                     value="passeggero" 
                     id="dest-passeggero"
-                    disabled={passeggeri.length === 0}
+                    disabled={!passeggeri || passeggeri.length === 0}
                   />
                   <Label 
                     htmlFor="dest-passeggero" 
                     className="font-normal cursor-pointer"
                   >
                     Usa indirizzo passeggero
-                    {passeggeri.length === 0 && (
+                    {(!passeggeri || passeggeri.length === 0) && (
                       <span className="text-xs text-muted-foreground ml-2">
                         (Aggiungi prima un passeggero)
                       </span>
