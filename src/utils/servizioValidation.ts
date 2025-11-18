@@ -22,30 +22,59 @@ export type BadgeVariant = 'default' | 'secondary' | 'success' | 'destructive' |
  * @returns true se tutti i campi obbligatori sono compilati
  */
 export function hasAllRequiredFields(servizio: Partial<Servizio>): boolean {
+  console.log('🔍 [hasAllRequiredFields] INPUT:', {
+    data_servizio: servizio.data_servizio,
+    orario_servizio: servizio.orario_servizio,
+    indirizzo_presa: servizio.indirizzo_presa,
+    indirizzo_destinazione: servizio.indirizzo_destinazione,
+    data_servizio_type: typeof servizio.data_servizio,
+    orario_servizio_type: typeof servizio.orario_servizio,
+    indirizzo_presa_type: typeof servizio.indirizzo_presa,
+    indirizzo_destinazione_type: typeof servizio.indirizzo_destinazione,
+    data_servizio_length: servizio.data_servizio?.length,
+    orario_servizio_length: servizio.orario_servizio?.length,
+    indirizzo_presa_length: servizio.indirizzo_presa?.length,
+    indirizzo_destinazione_length: servizio.indirizzo_destinazione?.length
+  });
+
   const tipoCliente = servizio.tipo_cliente || 'azienda';
   
-  // Campi comuni sempre obbligatori
-  const hasCommonFields = !!(
-    servizio.data_servizio &&
-    servizio.orario_servizio &&
-    servizio.indirizzo_presa &&
-    servizio.indirizzo_destinazione
-    // metodo_pagamento è opzionale - può essere compilato dopo
-  );
-
-  if (!hasCommonFields) {
+  // Campi comuni - IMPORTANTE: controllo anche stringhe vuote!
+  const campiComuni = {
+    data_servizio: Boolean(servizio.data_servizio && servizio.data_servizio.trim()),
+    orario_servizio: Boolean(servizio.orario_servizio && servizio.orario_servizio.trim()),
+    indirizzo_presa: Boolean(servizio.indirizzo_presa && servizio.indirizzo_presa.trim()),
+    indirizzo_destinazione: Boolean(servizio.indirizzo_destinazione && servizio.indirizzo_destinazione.trim())
+  };
+  
+  console.log('🔍 [hasAllRequiredFields] Campi validati:', campiComuni);
+  
+  // TUTTI i campi comuni devono essere presenti e non vuoti
+  const hasComuni = campiComuni.data_servizio && 
+                    campiComuni.orario_servizio &&
+                    campiComuni.indirizzo_presa && 
+                    campiComuni.indirizzo_destinazione;
+  
+  console.log('🔍 [hasAllRequiredFields] hasComuni:', hasComuni);
+  
+  if (!hasComuni) {
+    console.log('❌ [hasAllRequiredFields] Mancano campi comuni → INCOMPLETO');
     return false;
   }
-
+  
   // Campi specifici per tipo cliente
   if (tipoCliente === 'azienda') {
-    return !!(servizio.azienda_id);
+    const hasAzienda = Boolean(servizio.azienda_id);
+    console.log('🔍 [hasAllRequiredFields] Azienda check:', hasAzienda);
+    return hasAzienda;
   } else {
     // Cliente privato: O ha cliente_privato_id O ha nome+cognome inline
-    return !!(
+    const hasPrivato = Boolean(
       servizio.cliente_privato_id || 
       (servizio.cliente_privato_nome && servizio.cliente_privato_cognome)
     );
+    console.log('🔍 [hasAllRequiredFields] Cliente privato check:', hasPrivato);
+    return hasPrivato;
   }
 }
 
