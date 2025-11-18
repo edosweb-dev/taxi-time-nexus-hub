@@ -24,13 +24,24 @@ export type BadgeVariant = 'default' | 'secondary' | 'success' | 'destructive' |
 export function hasAllRequiredFields(servizio: Partial<Servizio>): boolean {
   const tipoCliente = servizio.tipo_cliente || 'azienda';
   
-  // CRITICAL: Controllo stringhe vuote con trim()
+  // Lista di valori considerati "vuoti" (placeholder e stringhe vuote)
+  const PLACEHOLDER_VALUES = ['Da definire', 'da definire', '', ' ', 'undefined', 'null'];
+  
+  // Helper per verificare se un campo è effettivamente compilato
+  const isFieldValid = (value: any): boolean => {
+    if (!value) return false;  // null, undefined, false, 0
+    const trimmed = String(value).trim();
+    if (!trimmed) return false;  // stringa vuota o solo spazi
+    if (PLACEHOLDER_VALUES.includes(trimmed)) return false;  // placeholder
+    return true;
+  };
+  
   // Campi comuni obbligatori a TUTTI i servizi
-  const hasDataServizio = Boolean(servizio.data_servizio?.trim?.());
-  const hasOrarioServizio = Boolean(servizio.orario_servizio?.trim?.());
-  const hasIndirizzoPresa = Boolean(servizio.indirizzo_presa?.trim?.());
-  const hasIndirizzoDest = Boolean(servizio.indirizzo_destinazione?.trim?.());
-  const hasMetodoPagamento = Boolean(servizio.metodo_pagamento?.trim?.());
+  const hasDataServizio = isFieldValid(servizio.data_servizio);
+  const hasOrarioServizio = isFieldValid(servizio.orario_servizio);
+  const hasIndirizzoPresa = isFieldValid(servizio.indirizzo_presa);
+  const hasIndirizzoDest = isFieldValid(servizio.indirizzo_destinazione);
+  const hasMetodoPagamento = isFieldValid(servizio.metodo_pagamento);
   
   // Se manca QUALSIASI campo comune → servizio INCOMPLETO
   if (!hasDataServizio || !hasOrarioServizio || !hasIndirizzoPresa || !hasIndirizzoDest || !hasMetodoPagamento) {
