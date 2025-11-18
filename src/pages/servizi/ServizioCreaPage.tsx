@@ -706,15 +706,6 @@ export const ServizioCreaPage = ({
   const onSubmit = async (data: ServizioFormData) => {
     setIsSubmitting(true);
     
-    console.log('=== PRE-SUBMIT DEBUG ===');
-    console.log('Form data completa:', data);
-    console.log('Form data.passeggeri_ids:', data.passeggeri_ids);
-    console.log('Form data.passeggeri:', data.passeggeri);  // ← AGGIUNTO
-    console.log('TempPasseggeri state:', tempPasseggeri);
-    console.log('TempPasseggeri state type:', typeof tempPasseggeri);
-    console.log('TempPasseggeri state is Array?:', Array.isArray(tempPasseggeri));
-    console.log('========================');
-    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utente non autenticato");
@@ -784,18 +775,8 @@ export const ServizioCreaPage = ({
         // I clienti creano servizi con stato "richiesta_cliente"
         statoServizio = "richiesta_cliente";
       } else {
-        // ✅ FIX: Usa calculateServizioStato per calcolare stato corretto
-        console.log('🎯 Calculating initial service state');
-        console.log('Input data:', {
-          data_servizio: data.data_servizio,
-          indirizzo_presa: data.indirizzo_presa,
-          indirizzo_destinazione: data.indirizzo_destinazione,
-          assegnato_a: data.assegnato_a
-        });
-        
+        // Calcola stato corretto in base ai campi compilati
         statoServizio = calculateServizioStato(data as any);
-        
-        console.log('✅ Stato calcolato:', statoServizio);
       }
 
       const servizioData = {
@@ -911,14 +892,8 @@ export const ServizioCreaPage = ({
         const { data: servizio, error: servizioError } = await supabase.from("servizi").insert(servizioData).select().single();
         if (servizioError) throw servizioError;
 
-        // ✅ Passeggeri dal form (useFieldArray) - TUTTI i tipi di servizio
-        console.log('[FIX BUG#14] Starting passenger save process');
-        console.log('[FIX BUG#14] Tipo cliente:', data.tipo_cliente);
-        
-        // Leggi passeggeri dal campo corretto del form
+        // Passeggeri dal form (useFieldArray)
         const passeggeriForm = data.passeggeri || [];
-        console.log('[FIX BUG#14] Passeggeri from form.passeggeri:', passeggeriForm);
-        console.log('[FIX BUG#14] Passeggeri count:', passeggeriForm.length);
         
         const passeggeriCompleti = [];
         
@@ -943,15 +918,11 @@ export const ServizioCreaPage = ({
         destinazione_personalizzato: p.destinazione_personalizzato || null,
       };
             
-            console.log('[FIX BUG#14] Mapped passenger:', passeggeroData);
             return passeggeroData;
           });
           
           passeggeriCompleti.push(...passeggeriToInsert);
-          console.log('[FIX BUG#14] Total passengers to insert:', passeggeriCompleti.length);
         }
-        
-        console.log('[FIX BUG#14] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
         
         // Insert passeggeri se ci sono
         if (passeggeriCompleti.length > 0) {
@@ -959,10 +930,8 @@ export const ServizioCreaPage = ({
             .insert(passeggeriCompleti);
           
           if (passErr) {
-            console.error('[FIX BUG#14] Error inserting passengers:', passErr);
+            console.error('Error inserting passengers:', passErr);
             toast.warning('Servizio creato ma errore nel salvare passeggeri');
-          } else {
-            console.log('[FIX BUG#14] Passengers saved successfully');
           }
         }
 

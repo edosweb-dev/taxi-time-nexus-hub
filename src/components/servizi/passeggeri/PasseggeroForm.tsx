@@ -28,8 +28,6 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
   // Watch per azienda_id
   const azienda_id = useWatch({ control, name: "azienda_id" });
   
-  console.log('[PasseggeroForm] 📥 Watched azienda_id:', azienda_id);
-  
   // Utilizziamo useFieldArray per gestire l'array dinamico di passeggeri
   const { fields, append, remove } = useFieldArray({
     control,
@@ -38,14 +36,7 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
-    console.log('[ADD PASSENGER] handlePasseggeroSelect called with:', passeggero);
-    console.log('[ADD PASSENGER] Current fields before add:', fields.length);
-    console.log('[ADD PASSENGER] Current fields:', fields);
-    
     append(passeggero);
-    
-    console.log('[ADD PASSENGER] Passenger appended via useFieldArray');
-    console.log('[ADD PASSENGER] New fields count should be:', fields.length + 1);
   };
 
   return (
