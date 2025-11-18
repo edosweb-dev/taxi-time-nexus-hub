@@ -97,84 +97,10 @@ export function ServizioDetailsForm() {
           </div>
         </div>
 
-        {/* Section: Pickup Location */}
+        {/* Section: Route with Passenger Address Selection */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Punto di partenza</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <FormField
-              control={control}
-              name="citta_presa"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Città (Presa)</FormLabel>
-                  <FormControl>
-                    <MobileInput 
-                      placeholder="Milano"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={control}
-              name="indirizzo_presa"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Indirizzo di presa *</FormLabel>
-                  <FormControl>
-                    <MobileInput 
-                      placeholder="Via Roma 123"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-
-        {/* Section: Destination */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Destinazione</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <FormField
-              control={control}
-              name="citta_destinazione"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Città (Destinazione)</FormLabel>
-                  <FormControl>
-                    <MobileInput 
-                      placeholder="Ferno"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={control}
-              name="indirizzo_destinazione"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Indirizzo di destinazione *</FormLabel>
-                  <FormControl>
-                    <MobileInput 
-                      placeholder="Aeroporto di Malpensa"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Percorso</h3>
+          <PercorsoSection />
         </div>
 
         {/* Section: Service Details */}
