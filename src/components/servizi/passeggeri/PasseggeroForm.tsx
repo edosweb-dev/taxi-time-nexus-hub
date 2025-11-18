@@ -30,7 +30,7 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
   const azienda_id = useWatch({ control, name: "azienda_id" });
   
   // Utilizziamo useFieldArray per gestire l'array dinamico di passeggeri
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: "passeggeri",
   });
@@ -51,6 +51,30 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
       setEditingIndex(null);
     } else if (editingIndex !== null && editingIndex > index) {
       setEditingIndex(editingIndex - 1);
+    }
+  };
+
+  const handleMoveUp = (index: number) => {
+    if (index > 0) {
+      move(index, index - 1);
+      
+      if (editingIndex === index) {
+        setEditingIndex(index - 1);
+      } else if (editingIndex === index - 1) {
+        setEditingIndex(index);
+      }
+    }
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index < fields.length - 1) {
+      move(index, index + 1);
+      
+      if (editingIndex === index) {
+        setEditingIndex(index + 1);
+      } else if (editingIndex === index + 1) {
+        setEditingIndex(index);
+      }
     }
   };
 
@@ -99,6 +123,11 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
             </span>
             <div className="h-px flex-1 bg-border" />
           </div>
+          {fields.length > 1 && (
+            <div className="text-xs text-muted-foreground text-center pb-1">
+              💡 Usa le frecce per ordinare la sequenza di pick-up
+            </div>
+          )}
           <div className="space-y-3">
             {fields.map((field, index) => (
               <div key={field.id}>
@@ -110,8 +139,11 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
                 ) : (
                   <PasseggeroCompactCard
                     index={index}
+                    totalCount={fields.length}
                     onEdit={() => handleEdit(index)}
                     onRemove={() => handleRemove(index)}
+                    onMoveUp={() => handleMoveUp(index)}
+                    onMoveDown={() => handleMoveDown(index)}
                   />
                 )}
               </div>
