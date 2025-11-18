@@ -1,13 +1,13 @@
 
-import React, { useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Users } from "lucide-react";
 import { ServizioFormData } from "@/lib/types/servizi";
-import { PasseggeroCard } from "./PasseggeroCard";
+import { PasseggeroCompactCard } from "./PasseggeroCompactCard";
+import { PasseggeroEditCard } from "./PasseggeroEditCard";
 import { PasseggeroSelector } from "./PasseggeroSelector";
 import { PasseggeriList } from "./PasseggeriList";
-import { PassengerListItem } from "./PassengerListItem";
 
 interface PasseggeroFormProps {
   userRole?: string;
@@ -23,7 +23,8 @@ interface PasseggeroFormProps {
 }
 
 export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: PasseggeroFormProps) {
-  const { control, setValue } = useFormContext<ServizioFormData>();
+  const { control } = useFormContext<ServizioFormData>();
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   
   // Watch per azienda_id
   const azienda_id = useWatch({ control, name: "azienda_id" });
@@ -37,6 +38,20 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {
     append(passeggero);
+    setEditingIndex(null);
+  };
+  
+  const handleEdit = (index: number) => {
+    setEditingIndex(index);
+  };
+  
+  const handleRemove = (index: number) => {
+    remove(index);
+    if (editingIndex === index) {
+      setEditingIndex(null);
+    } else if (editingIndex !== null && editingIndex > index) {
+      setEditingIndex(editingIndex - 1);
+    }
   };
 
   return (
@@ -74,23 +89,32 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
         <PasseggeriList userRole={userRole} />
       </div>
 
-      {/* Passeggeri già aggiunti - Cards compatte */}
+      {/* Passeggeri già aggiunti - Cards compatte o form edit */}
       {fields.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Nel servizio
+              Passeggeri del servizio ({fields.length})
             </span>
             <div className="h-px flex-1 bg-border" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {fields.map((field, idx) => (
-              <PassengerListItem 
-                key={field.id}
-                index={idx}
-                fieldId={field.id}
-              />
+          <div className="space-y-3">
+            {fields.map((field, index) => (
+              <div key={field.id}>
+                {editingIndex === index ? (
+                  <PasseggeroEditCard 
+                    index={index} 
+                    onRemove={() => handleRemove(index)}
+                  />
+                ) : (
+                  <PasseggeroCompactCard
+                    index={index}
+                    onEdit={() => handleEdit(index)}
+                    onRemove={() => handleRemove(index)}
+                  />
+                )}
+              </div>
             ))}
           </div>
         </div>
@@ -116,27 +140,6 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
         </div>
       </div>
 
-      {/* Form dettagli passeggeri */}
-      {fields.length > 0 && (
-        <div className="space-y-3 pt-2">
-          <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Dettagli passeggeri
-            </span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <PasseggeroCard 
-                key={field.id}
-                index={index} 
-                onRemove={() => remove(index)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Empty state - solo se non ci sono passeggeri */}
       {fields.length === 0 && (
