@@ -129,9 +129,15 @@ export interface ServizioFormData {
   numero_commessa?: string;
   data_servizio: string;
   orario_servizio: string;
+  // Percorso - Partenza
+  partenza_tipo?: 'personalizzato' | 'passeggero';
+  partenza_passeggero_index?: number;
   indirizzo_presa: string;
-  indirizzo_destinazione: string;
   citta_presa?: string;
+  // Percorso - Destinazione
+  destinazione_tipo?: 'personalizzato' | 'passeggero';
+  destinazione_passeggero_index?: number;
+  indirizzo_destinazione: string;
   citta_destinazione?: string;
   metodo_pagamento: MetodoPagamento;
   note?: string;

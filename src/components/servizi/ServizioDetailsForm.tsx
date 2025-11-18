@@ -14,6 +14,7 @@ import { useImpostazioni } from "@/hooks/useImpostazioni";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProvvigioneServizioField } from "./ProvvigioneServizioField";
 import { NotificheEmailField } from "./NotificheEmailField";
+import { PercorsoSection } from "./PercorsoSection";
 
 export function ServizioDetailsForm() {
   const { control } = useFormContext<ServizioFormData>();
