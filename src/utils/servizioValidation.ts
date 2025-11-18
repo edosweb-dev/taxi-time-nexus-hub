@@ -124,72 +124,63 @@ export function hasDriverAssigned(servizio: Partial<Servizio>): boolean {
  * @returns Stato calcolato
  */
 export function calculateServizioStato(servizio: Partial<Servizio>): StatoServizio {
-  console.log('[STATO CALC] Input data:', {
-    data_servizio: servizio.data_servizio,
-    indirizzo_presa: servizio.indirizzo_presa,
-    indirizzo_destinazione: servizio.indirizzo_destinazione,
-    azienda_id: servizio.azienda_id,
-    tipo_cliente: servizio.tipo_cliente,
-    assegnato_a: servizio.assegnato_a,
-    stato_corrente: servizio.stato
-  });
+  console.log('╔═══════════════════════════════════════╗');
+  console.log('║   CALCOLO STATO SERVIZIO - DEBUG      ║');
+  console.log('╚═══════════════════════════════════════╝');
   
-  console.log('[DEBUG servizioValidation] calculateServizioStato - INPUT servizio:', servizio);
-  console.log('[DEBUG servizioValidation] calculateServizioStato - stato corrente:', servizio.stato);
+  console.log('📥 INPUT DATA ricevuto:');
+  console.log('  - data_servizio:', servizio.data_servizio, typeof servizio.data_servizio);
+  console.log('  - orario_servizio:', servizio.orario_servizio, typeof servizio.orario_servizio);
+  console.log('  - indirizzo_presa:', servizio.indirizzo_presa, typeof servizio.indirizzo_presa);
+  console.log('  - indirizzo_destinazione:', servizio.indirizzo_destinazione, typeof servizio.indirizzo_destinazione);
+  console.log('  - assegnato_a:', servizio.assegnato_a, typeof servizio.assegnato_a);
+  console.log('  - tipo_cliente:', servizio.tipo_cliente);
+  console.log('  - azienda_id:', servizio.azienda_id);
+  console.log('  - referente_id:', servizio.referente_id);
+  console.log('  - stato_corrente:', servizio.stato);
   
   // REGOLA 1: Non modificare stati avanzati (post-assegnazione)
-  // Stati che NON devono retrocedere: completato, consuntivato, annullato, non_accettato
   const statiBloccati: StatoServizio[] = ['completato', 'consuntivato', 'annullato', 'non_accettato'];
   
   if (servizio.stato && statiBloccati.includes(servizio.stato)) {
-    console.log('[DEBUG servizioValidation] calculateServizioStato - Stato bloccato, mantengo:', servizio.stato);
-    console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT:', servizio.stato);
+    console.log('🔒 STATO BLOCCATO - Mantengo stato corrente:', servizio.stato);
+    console.log('═══════════════════════════════════════');
     return servizio.stato;
   }
   
-  // REGOLA 2: Stati che possono transitare: bozza, da_assegnare, assegnato
-  // Questi possono passare avanti/indietro in base ai campi compilati
-  console.log('[DEBUG servizioValidation] calculateServizioStato - Stato può transitare, procedo con calcolo');
-
+  console.log('✅ Stato può transitare, procedo con calcolo');
+  
+  // Validazione campi
   const hasRequired = hasAllRequiredFields(servizio);
   const hasDriver = hasDriverAssigned(servizio);
-
-  console.log('[STATO CALC] hasAllRequiredFields:', hasRequired);
-  console.log('[STATO CALC] hasDriverAssigned:', hasDriver);
   
-  console.log('[DEBUG servizioValidation] calculateServizioStato - Validazione campi:', {
-    hasRequired,
-    hasDriver
-  });
+  console.log('🔍 VALIDAZIONE:');
+  console.log('  - hasAllRequiredFields:', hasRequired);
+  console.log('  - hasDriverAssigned:', hasDriver);
 
   // REGOLA 3: Campi incompleti → rimane bozza
   if (!hasRequired) {
-    console.log('[STATO CALC] Returning BOZZA - missing required fields');
-    console.log('[DEBUG servizioValidation] calculateServizioStato - Campi INCOMPLETI, stato: bozza');
-    console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT: bozza');
+    console.log('❌ MANCANO CAMPI ESSENZIALI');
+    console.log('🎯 STATO CALCOLATO: "bozza"');
+    console.log('═══════════════════════════════════════');
     return 'bozza';
   }
   
+  console.log('✅ SERVIZIO COMPLETO (ha tutti i campi base)');
+  
   // REGOLA 4: Campi completi + conducente → assegnato
-  if (hasRequired && hasDriver) {
-    console.log('[STATO CALC] Returning ASSEGNATO - driver assigned');
-    console.log('[DEBUG servizioValidation] calculateServizioStato - Campi completi + conducente, stato: assegnato');
-    console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT: assegnato');
+  if (hasDriver) {
+    console.log('🚗 Ha autista assegnato: SÌ');
+    console.log('🎯 STATO CALCOLATO: "assegnato"');
+    console.log('═══════════════════════════════════════');
     return 'assegnato';
   }
   
   // REGOLA 5: Campi completi senza conducente → da assegnare
-  if (hasRequired && !hasDriver) {
-    console.log('[STATO CALC] Returning DA_ASSEGNARE - all fields complete, no driver');
-    console.log('[DEBUG servizioValidation] calculateServizioStato - Campi completi SENZA conducente, stato: da_assegnare');
-    console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT: da_assegnare');
-    return 'da_assegnare';
-  }
-
-  // Fallback (non dovrebbe mai arrivare qui)
-  console.log('[DEBUG servizioValidation] calculateServizioStato - FALLBACK, stato: bozza');
-  console.log('[DEBUG servizioValidation] calculateServizioStato - RESULT: bozza');
-  return 'bozza';
+  console.log('🚗 Ha autista assegnato: NO');
+  console.log('🎯 STATO CALCOLATO: "da_assegnare"');
+  console.log('═══════════════════════════════════════');
+  return 'da_assegnare';
 }
 
 /**
