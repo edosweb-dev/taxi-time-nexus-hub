@@ -910,20 +910,23 @@ export const ServizioCreaPage = ({
         // Mappa passeggeri dal form a formato insert
         if (passeggeriForm.length > 0) {
           const passeggeriToInsert = passeggeriForm.map(p => {
-            const passeggeroData = {
-              servizio_id: servizio.id,
-              passeggero_id: p.id || null,
-              nome_cognome_inline: p.nome_cognome || null,
-              email_inline: p.email || null,
-              telefono_inline: p.telefono || null,
-              localita_inline: p.localita || null,
-              indirizzo_inline: p.indirizzo || null,
-              salva_in_database: Boolean(p.salva_in_database ?? false),
-              usa_indirizzo_personalizzato: Boolean(p.usa_indirizzo_personalizzato ?? false),
-              orario_presa_personalizzato: p.orario_presa_personalizzato || null,
-              luogo_presa_personalizzato: p.luogo_presa_personalizzato || null,
-              destinazione_personalizzato: p.destinazione_personalizzato || null,
-            };
+      const passeggeroData = {
+        servizio_id: servizio.id,
+        passeggero_id: p.id || null,
+        nome_cognome_inline: p.nome_cognome || null,
+        email_inline: p.email || null,
+        telefono_inline: p.telefono || null,
+        localita_inline: p.localita || null,
+        indirizzo_inline: p.indirizzo || null,
+        
+        // FIX: salva_in_database basato su presenza passeggero_id
+        salva_in_database: Boolean(p.id),  // true se ha ID, false se temporaneo
+        
+        usa_indirizzo_personalizzato: Boolean(p.usa_indirizzo_personalizzato ?? false),
+        orario_presa_personalizzato: p.orario_presa_personalizzato || null,
+        luogo_presa_personalizzato: p.luogo_presa_personalizzato || null,
+        destinazione_personalizzato: p.destinazione_personalizzato || null,
+      };
             
             console.log('[FIX BUG#14] Mapped passenger:', passeggeroData);
             return passeggeroData;
