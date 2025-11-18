@@ -22,10 +22,7 @@ export type BadgeVariant = 'default' | 'secondary' | 'success' | 'destructive' |
  * @returns true se tutti i campi obbligatori sono compilati
  */
 export function hasAllRequiredFields(servizio: Partial<Servizio>): boolean {
-  console.log('[DEBUG servizioValidation] hasAllRequiredFields - INPUT servizio:', servizio);
-  
   const tipoCliente = servizio.tipo_cliente || 'azienda';
-  console.log('[DEBUG servizioValidation] hasAllRequiredFields - tipo_cliente:', tipoCliente);
   
   // Campi comuni sempre obbligatori
   const hasCommonFields = !!(
@@ -36,44 +33,19 @@ export function hasAllRequiredFields(servizio: Partial<Servizio>): boolean {
     // metodo_pagamento è opzionale - può essere compilato dopo
   );
 
-  console.log('[DEBUG servizioValidation] hasAllRequiredFields - Campi comuni:', {
-    data_servizio: servizio.data_servizio,
-    orario_servizio: servizio.orario_servizio,
-    indirizzo_presa: servizio.indirizzo_presa,
-    indirizzo_destinazione: servizio.indirizzo_destinazione,
-    metodo_pagamento: servizio.metodo_pagamento + ' (opzionale)',
-    referente_id: servizio.referente_id + ' (opzionale)'
-  });
-  console.log('[DEBUG servizioValidation] hasAllRequiredFields - hasCommonFields:', hasCommonFields);
-
   if (!hasCommonFields) {
-    console.log('[DEBUG servizioValidation] hasAllRequiredFields - RESULT: false (campi comuni mancanti)');
     return false;
   }
 
   // Campi specifici per tipo cliente
   if (tipoCliente === 'azienda') {
-    const hasAzienda = !!(servizio.azienda_id);
-    console.log('[DEBUG servizioValidation] hasAllRequiredFields - Cliente AZIENDA:', {
-      azienda_id: servizio.azienda_id,
-      hasAzienda
-    });
-    console.log('[DEBUG servizioValidation] hasAllRequiredFields - RESULT:', hasAzienda);
-    return hasAzienda;
+    return !!(servizio.azienda_id);
   } else {
     // Cliente privato: O ha cliente_privato_id O ha nome+cognome inline
-    const hasPrivato = !!(
+    return !!(
       servizio.cliente_privato_id || 
       (servizio.cliente_privato_nome && servizio.cliente_privato_cognome)
     );
-    console.log('[DEBUG servizioValidation] hasAllRequiredFields - Cliente PRIVATO:', {
-      cliente_privato_id: servizio.cliente_privato_id,
-      cliente_privato_nome: servizio.cliente_privato_nome,
-      cliente_privato_cognome: servizio.cliente_privato_cognome,
-      hasPrivato
-    });
-    console.log('[DEBUG servizioValidation] hasAllRequiredFields - RESULT:', hasPrivato);
-    return hasPrivato;
   }
 }
 
@@ -86,28 +58,16 @@ export function hasAllRequiredFields(servizio: Partial<Servizio>): boolean {
  *   - OPPURE conducente_esterno === true AND conducente_esterno_id è compilato
  */
 export function hasDriverAssigned(servizio: Partial<Servizio>): boolean {
-  console.log('[DEBUG servizioValidation] hasDriverAssigned - INPUT servizio:', {
-    assegnato_a: servizio.assegnato_a,
-    conducente_esterno: servizio.conducente_esterno,
-    conducente_esterno_id: servizio.conducente_esterno_id
-  });
-  
   // Conducente dipendente
   if (servizio.assegnato_a) {
-    console.log('[DEBUG servizioValidation] hasDriverAssigned - Conducente DIPENDENTE trovato');
-    console.log('[DEBUG servizioValidation] hasDriverAssigned - RESULT: true');
     return true;
   }
   
   // Conducente esterno
   if (servizio.conducente_esterno === true && servizio.conducente_esterno_id) {
-    console.log('[DEBUG servizioValidation] hasDriverAssigned - Conducente ESTERNO trovato');
-    console.log('[DEBUG servizioValidation] hasDriverAssigned - RESULT: true');
     return true;
   }
   
-  console.log('[DEBUG servizioValidation] hasDriverAssigned - Nessun conducente trovato');
-  console.log('[DEBUG servizioValidation] hasDriverAssigned - RESULT: false');
   return false;
 }
 
@@ -124,62 +84,30 @@ export function hasDriverAssigned(servizio: Partial<Servizio>): boolean {
  * @returns Stato calcolato
  */
 export function calculateServizioStato(servizio: Partial<Servizio>): StatoServizio {
-  console.log('╔═══════════════════════════════════════╗');
-  console.log('║   CALCOLO STATO SERVIZIO - DEBUG      ║');
-  console.log('╚═══════════════════════════════════════╝');
-  
-  console.log('📥 INPUT DATA ricevuto:');
-  console.log('  - data_servizio:', servizio.data_servizio, typeof servizio.data_servizio);
-  console.log('  - orario_servizio:', servizio.orario_servizio, typeof servizio.orario_servizio);
-  console.log('  - indirizzo_presa:', servizio.indirizzo_presa, typeof servizio.indirizzo_presa);
-  console.log('  - indirizzo_destinazione:', servizio.indirizzo_destinazione, typeof servizio.indirizzo_destinazione);
-  console.log('  - assegnato_a:', servizio.assegnato_a, typeof servizio.assegnato_a);
-  console.log('  - tipo_cliente:', servizio.tipo_cliente);
-  console.log('  - azienda_id:', servizio.azienda_id);
-  console.log('  - referente_id:', servizio.referente_id);
-  console.log('  - stato_corrente:', servizio.stato);
-  
   // REGOLA 1: Non modificare stati avanzati (post-assegnazione)
   const statiBloccati: StatoServizio[] = ['completato', 'consuntivato', 'annullato', 'non_accettato'];
   
   if (servizio.stato && statiBloccati.includes(servizio.stato)) {
-    console.log('🔒 STATO BLOCCATO - Mantengo stato corrente:', servizio.stato);
-    console.log('═══════════════════════════════════════');
     return servizio.stato;
   }
-  
-  console.log('✅ Stato può transitare, procedo con calcolo');
   
   // Validazione campi
   const hasRequired = hasAllRequiredFields(servizio);
   const hasDriver = hasDriverAssigned(servizio);
-  
-  console.log('🔍 VALIDAZIONE:');
-  console.log('  - hasAllRequiredFields:', hasRequired);
-  console.log('  - hasDriverAssigned:', hasDriver);
 
   // REGOLA 3: Campi incompleti → rimane bozza
   if (!hasRequired) {
-    console.log('❌ MANCANO CAMPI ESSENZIALI');
-    console.log('🎯 STATO CALCOLATO: "bozza"');
-    console.log('═══════════════════════════════════════');
     return 'bozza';
   }
   
-  console.log('✅ SERVIZIO COMPLETO (ha tutti i campi base)');
+  
   
   // REGOLA 4: Campi completi + conducente → assegnato
   if (hasDriver) {
-    console.log('🚗 Ha autista assegnato: SÌ');
-    console.log('🎯 STATO CALCOLATO: "assegnato"');
-    console.log('═══════════════════════════════════════');
     return 'assegnato';
   }
-  
+
   // REGOLA 5: Campi completi senza conducente → da assegnare
-  console.log('🚗 Ha autista assegnato: NO');
-  console.log('🎯 STATO CALCOLATO: "da_assegnare"');
-  console.log('═══════════════════════════════════════');
   return 'da_assegnare';
 }
 
