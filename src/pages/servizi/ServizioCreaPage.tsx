@@ -775,8 +775,27 @@ export const ServizioCreaPage = ({
         // I clienti creano servizi con stato "richiesta_cliente"
         statoServizio = "richiesta_cliente";
       } else {
-        // Calcola stato corretto in base ai campi compilati
-        statoServizio = calculateServizioStato(data as any);
+        // ✅ FIX: Stato basato su TIPO DI INSERIMENTO, non su validazione campi
+        
+        // Controlla se c'è un autista assegnato
+        const hasDriver = Boolean(
+          data.assegnato_a || 
+          (data.conducente_esterno && data.conducente_esterno_id)
+        );
+        
+        if (formMode === 'veloce') {
+          // Inserimento veloce → sempre bozza
+          statoServizio = 'bozza';
+        } else {
+          // Inserimento completo → basato su presenza autista
+          statoServizio = hasDriver ? 'assegnato' : 'da_assegnare';
+        }
+        
+        console.log('🎯 Stato determinato:', {
+          formMode,
+          hasDriver,
+          statoFinale: statoServizio
+        });
       }
 
       const servizioData = {
