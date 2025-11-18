@@ -1,5 +1,5 @@
 
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext, useWatch, Controller } from "react-hook-form";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,16 +11,8 @@ interface PasseggeroBasicInfoFormProps {
 }
 
 export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps) => {
-  const { register, watch, setValue, control } = useFormContext<ServizioFormData>();
+  const { control, watch, setValue } = useFormContext<ServizioFormData>();
   const usaIndirizzoPersonalizzato = watch(`passeggeri.${index}.usa_indirizzo_personalizzato`);
-  
-  // Watch individual passenger fields for defaultValue
-  const passeggeroNome = useWatch({ control, name: `passeggeri.${index}.nome` });
-  const passeggeroCognome = useWatch({ control, name: `passeggeri.${index}.cognome` });
-  const passeggeroLocalita = useWatch({ control, name: `passeggeri.${index}.localita` });
-  const passeggeroIndirizzo = useWatch({ control, name: `passeggeri.${index}.indirizzo` });
-  const passeggeroTelefono = useWatch({ control, name: `passeggeri.${index}.telefono` });
-  const passeggeroEmail = useWatch({ control, name: `passeggeri.${index}.email` });
   
   // Watch the entire passeggeri array to determine if we should show the intermediate address option
   const passeggeri = useWatch({ control, name: "passeggeri" }) || [];
@@ -34,20 +26,32 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <label htmlFor={`passeggeri.${index}.nome`} className="block text-sm font-medium mb-2">
             Nome
           </label>
-          <MobileInput
-            {...register(`passeggeri.${index}.nome`)}
-            defaultValue={passeggeroNome}
-            placeholder="Nome"
+          <Controller
+            control={control}
+            name={`passeggeri.${index}.nome`}
+            render={({ field }) => (
+              <MobileInput
+                {...field}
+                value={field.value || ''}
+                placeholder="Nome"
+              />
+            )}
           />
         </div>
         <div>
           <label htmlFor={`passeggeri.${index}.cognome`} className="block text-sm font-medium mb-2">
             Cognome
           </label>
-          <MobileInput
-            {...register(`passeggeri.${index}.cognome`)}
-            defaultValue={passeggeroCognome}
-            placeholder="Cognome"
+          <Controller
+            control={control}
+            name={`passeggeri.${index}.cognome`}
+            render={({ field }) => (
+              <MobileInput
+                {...field}
+                value={field.value || ''}
+                placeholder="Cognome"
+              />
+            )}
           />
         </div>
       </div>
@@ -57,20 +61,32 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <label htmlFor={`passeggeri.${index}.localita`} className="block text-sm font-medium mb-2">
             Località
           </label>
-          <MobileInput
-            {...register(`passeggeri.${index}.localita`)}
-            defaultValue={passeggeroLocalita}
-            placeholder="Città/Località"
+          <Controller
+            control={control}
+            name={`passeggeri.${index}.localita`}
+            render={({ field }) => (
+              <MobileInput
+                {...field}
+                value={field.value || ''}
+                placeholder="Città/Località"
+              />
+            )}
           />
         </div>
         <div>
           <label htmlFor={`passeggeri.${index}.indirizzo`} className="block text-sm font-medium mb-2">
             Indirizzo
           </label>
-          <MobileInput
-            {...register(`passeggeri.${index}.indirizzo`)}
-            defaultValue={passeggeroIndirizzo}
-            placeholder="Via, numero civico"
+          <Controller
+            control={control}
+            name={`passeggeri.${index}.indirizzo`}
+            render={({ field }) => (
+              <MobileInput
+                {...field}
+                value={field.value || ''}
+                placeholder="Via, numero civico"
+              />
+            )}
           />
         </div>
       </div>
@@ -80,22 +96,34 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
           <label htmlFor={`passeggeri.${index}.telefono`} className="block text-sm font-medium mb-2">
             Telefono
           </label>
-          <MobileInput
-            type="tel"
-            {...register(`passeggeri.${index}.telefono`)}
-            defaultValue={passeggeroTelefono}
-            placeholder="Numero telefono"
+          <Controller
+            control={control}
+            name={`passeggeri.${index}.telefono`}
+            render={({ field }) => (
+              <MobileInput
+                {...field}
+                value={field.value || ''}
+                type="tel"
+                placeholder="Numero telefono"
+              />
+            )}
           />
         </div>
         <div>
           <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-2">
             Email aziendale
           </label>
-          <MobileInput
-            type="email"
-            {...register(`passeggeri.${index}.email`)}
-            defaultValue={passeggeroEmail}
-            placeholder="email@azienda.com"
+          <Controller
+            control={control}
+            name={`passeggeri.${index}.email`}
+            render={({ field }) => (
+              <MobileInput
+                {...field}
+                value={field.value || ''}
+                type="email"
+                placeholder="email@azienda.com"
+              />
+            )}
           />
         </div>
       </div>
