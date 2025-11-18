@@ -46,6 +46,8 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
   };
   
   const handleSaveEdit = () => {
+    // I dati sono già salvati nel form tramite register
+    // Chiudiamo semplicemente il form di modifica
     setEditingIndex(null);
   };
   
