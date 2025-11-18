@@ -53,6 +53,7 @@ import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AziendaSelectField } from "@/components/servizi/AziendaSelectField";
 import { ReferenteSelectField } from '@/components/servizi/ReferenteSelectField';
 import { PasseggeroForm } from "@/components/servizi/passeggeri/PasseggeroForm";
+import { calculateServizioStato } from '@/utils/servizioValidation';
 
 // Schema per modalità veloce - tipo cliente selezionabile
 const servizioSchemaVeloce = z.object({
@@ -774,13 +775,27 @@ export const ServizioCreaPage = ({
       }
 
       // Determina lo stato in base al ruolo e alla modalità
-      // NOTA: Per i nuovi servizi, lo stato verrà calcolato automaticamente da calculateServizioStato()
-      // in base alla completezza dei campi e all'assegnazione del conducente
-      let statoServizio = mode === 'edit' ? (initialData?.stato || "da_assegnare") : "bozza"; // Start with bozza for new services
-      
-      if (mode === 'create' && userProfile?.role === 'cliente') {
-        // I clienti creano servizi con stato "richiesta_cliente" (non passa da state machine)
+      let statoServizio: any;
+
+      if (mode === 'edit') {
+        // In modifica, mantieni stato esistente o default
+        statoServizio = initialData?.stato || "da_assegnare";
+      } else if (userProfile?.role === 'cliente') {
+        // I clienti creano servizi con stato "richiesta_cliente"
         statoServizio = "richiesta_cliente";
+      } else {
+        // ✅ FIX: Usa calculateServizioStato per calcolare stato corretto
+        console.log('🎯 Calculating initial service state');
+        console.log('Input data:', {
+          data_servizio: data.data_servizio,
+          indirizzo_presa: data.indirizzo_presa,
+          indirizzo_destinazione: data.indirizzo_destinazione,
+          assegnato_a: data.assegnato_a
+        });
+        
+        statoServizio = calculateServizioStato(data as any);
+        
+        console.log('✅ Stato calcolato:', statoServizio);
       }
 
       const servizioData = {
