@@ -98,7 +98,10 @@ export function ServizioDetailsForm() {
         </div>
 
         {/* Section: Route with Passenger Address Selection */}
-        <PercorsoSection />
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Percorso</h3>
+          <PercorsoSection />
+        </div>
 
         {/* Section: Service Details */}
         <div className="space-y-3">
