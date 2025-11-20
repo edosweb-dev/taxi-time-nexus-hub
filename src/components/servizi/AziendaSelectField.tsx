@@ -19,7 +19,6 @@ export function AziendaSelectField() {
   const [aziende, setAziende] = useState<Azienda[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [inputValue, setInputValue] = useState('');
   const [selectedAzienda, setSelectedAzienda] = useState<Azienda | null>(null);
   const [isCreatingAzienda, setIsCreatingAzienda] = useState(false);
   const [isAziendaDialogOpen, setIsAziendaDialogOpen] = useState(false);
@@ -55,11 +54,9 @@ export function AziendaSelectField() {
       const azienda = aziende.find(a => a.id === watchedAziendaId);
       if (azienda) {
         setSelectedAzienda(azienda);
-        setInputValue(azienda.nome);
       }
     } else {
       setSelectedAzienda(null);
-      setInputValue('');
     }
   }, [watchedAziendaId, aziende]);
 
@@ -79,7 +76,6 @@ export function AziendaSelectField() {
       if (azienda) {
         setAziende((prev) => [...prev, azienda]);
         setSelectedAzienda(azienda);
-        setInputValue(azienda.nome);
         setValue('azienda_id', azienda.id);
         setIsAziendaDialogOpen(false);
         setOpen(false);
@@ -102,53 +98,30 @@ export function AziendaSelectField() {
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      placeholder="Digita per cercare azienda..."
-                      value={inputValue}
-                      onChange={(e) => {
-                        setInputValue(e.target.value);
-                        setSearchTerm(e.target.value);
-                        setOpen(true);
-                      }}
-                      onFocus={() => {
-                        setOpen(true);
-                      }}
-                      className="w-full pr-16"
-                    />
-                    {selectedAzienda && (
-                      <>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-8 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-transparent"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedAzienda(null);
-                            setInputValue('');
-                            setValue('azienda_id', '');
-                            setSearchTerm('');
-                            setOpen(false);
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                      </>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className={cn(
+                      "w-full justify-between font-normal",
+                      !field.value && "text-muted-foreground"
                     )}
-                  </div>
+                  >
+                    {selectedAzienda ? selectedAzienda.nome : "Seleziona azienda..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
                 </FormControl>
               </PopoverTrigger>
               <PopoverContent 
                 className="w-[var(--radix-popover-trigger-width)] p-0 bg-popover" 
                 align="start"
-                onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 <Command shouldFilter={false}>
+                  <CommandInput 
+                    placeholder="Cerca azienda..." 
+                    value={searchTerm}
+                    onValueChange={setSearchTerm}
+                  />
                   <CommandList>
                     {isLoading ? (
                       <div className="flex items-center justify-center p-4">
@@ -168,8 +141,8 @@ export function AziendaSelectField() {
                               value={azienda.id}
                               onSelect={() => {
                                 setSelectedAzienda(azienda);
-                                setInputValue(azienda.nome);
                                 setValue('azienda_id', azienda.id);
+                                setSearchTerm('');
                                 setOpen(false);
                               }}
                             >
