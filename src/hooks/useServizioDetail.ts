@@ -67,6 +67,9 @@ export function useServizioDetail(id?: string) {
       
       const { data: servizioData, error: servizioError } = await query.single();
       
+      console.log('🔍 [useServizioDetail] servizioData:', servizioData);
+      console.log('🔍 [useServizioDetail] servizi_passeggeri COUNT:', servizioData?.servizi_passeggeri?.length);
+      
       if (servizioError) throw servizioError;
       if (!servizioData) return null;
       
@@ -118,6 +121,9 @@ export function useServizioDetail(id?: string) {
         };
       });
       
+      console.log('🔍 [useServizioDetail] passeggeriData MAPPED:', passeggeriData);
+      console.log('🔍 [useServizioDetail] passeggeriData.length:', passeggeriData.length);
+      
       return {
         servizio: {
           ...servizioData,
@@ -146,6 +152,11 @@ export function useServizioDetail(id?: string) {
   const passeggeri = useMemo(() => passeggeriRaw, [
     JSON.stringify(passeggeriRaw)
   ]);
+  
+  // ✅ LOG DEBUG - Verifica cosa viene restituito dall'hook
+  console.log('[useServizioDetail] RETURN - passeggeri:', passeggeri);
+  console.log('[useServizioDetail] RETURN - passeggeri.length:', passeggeri?.length);
+  console.log('[useServizioDetail] RETURN - servizio.id:', servizio?.id);
   
   // Veicolo
   const veicoloModello = servizio?.veicoli?.modello;
