@@ -53,40 +53,20 @@ export const PasseggeroEditCard = ({ index, onRemove, onSave, onCancel }: Passeg
               </p>
             </div>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            {onSave && (
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={onSave}
-              >
-                Salva
-              </Button>
-            )}
-            {onCancel && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={onCancel}
-              >
-                Annulla
-              </Button>
-            )}
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={handleRemove}
-              className="h-9 w-9"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Rimuovi {displayName}</span>
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={handleRemove}
+            className="h-9 w-9 flex-shrink-0"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Rimuovi {displayName}</span>
+          </Button>
         </div>
         
         {/* Form fields */}
         <div className="p-4">
-          <PasseggeroBasicInfoForm index={index} />
+          <PasseggeroBasicInfoForm index={index} onSave={onSave} onCancel={onCancel} />
         </div>
       </CardContent>
     </Card>

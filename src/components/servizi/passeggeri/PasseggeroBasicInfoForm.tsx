@@ -5,12 +5,15 @@ import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/for
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasseggeroCustomAddressForm } from "./PasseggeroCustomAddressForm";
 import { MobileInput } from "@/components/ui/mobile-input";
+import { Button } from "@/components/ui/button";
 
 interface PasseggeroBasicInfoFormProps {
   index: number;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
-export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps) => {
+export const PasseggeroBasicInfoForm = ({ index, onSave, onCancel }: PasseggeroBasicInfoFormProps) => {
   const { control, watch, setValue } = useFormContext<ServizioFormData>();
   const usaIndirizzoPersonalizzato = watch(`passeggeri.${index}.usa_indirizzo_personalizzato`);
   
@@ -128,28 +131,54 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
         </div>
       </div>
 
+      {/* Pulsanti Salva/Annulla dopo email */}
+      {(onSave || onCancel) && (
+        <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
+          {onCancel && (
+            <Button 
+              variant="outline" 
+              onClick={onCancel}
+              className="w-full sm:w-auto"
+            >
+              Annulla
+            </Button>
+          )}
+          {onSave && (
+            <Button 
+              variant="default" 
+              onClick={onSave}
+              className="w-full sm:w-auto"
+            >
+              Salva
+            </Button>
+          )}
+        </div>
+      )}
+
       {showIntermediateAddressOption && (
         <FormField
           name={`passeggeri.${index}.usa_indirizzo_personalizzato`}
           render={({ field }) => (
-            <FormItem className="col-span-full p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center space-x-3">
+            <FormItem className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-3">
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={(checked) => {
                       setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
                     }}
-                    className="h-6 w-6"
+                    className="h-5 w-5 mt-0.5"
                   />
                 </FormControl>
-                <FormLabel className="text-base font-medium cursor-pointer flex-1">
-                  📍 Indirizzo di presa personalizzato
-                </FormLabel>
+                <div className="flex-1">
+                  <FormLabel className="text-sm font-medium cursor-pointer block">
+                    📍 Indirizzo di presa personalizzato
+                  </FormLabel>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Attiva se questo passeggero ha un punto di ritiro diverso
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-1 ml-9">
-                Attiva se questo passeggero ha un punto di ritiro diverso
-              </p>
             </FormItem>
           )}
         />
