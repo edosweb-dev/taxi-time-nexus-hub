@@ -21,7 +21,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
   
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor={`passeggeri.${index}.nome`} className="block text-sm font-medium mb-2">
             Nome
@@ -56,7 +56,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor={`passeggeri.${index}.localita`} className="block text-sm font-medium mb-2">
             Località
@@ -91,7 +91,7 @@ export const PasseggeroBasicInfoForm = ({ index }: PasseggeroBasicInfoFormProps)
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor={`passeggeri.${index}.telefono`} className="block text-sm font-medium mb-2">
             Telefono
