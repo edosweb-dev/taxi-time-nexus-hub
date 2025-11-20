@@ -33,7 +33,21 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
   useEffect(() => {
     console.log('[EditServizioForm] useEffect triggered');
     console.log('[EditServizioForm] servizio:', servizio);
-    console.log('[EditServizioForm] passeggeri:', passeggeri);
+    console.log('[EditServizioForm] passeggeri RAW:', passeggeri);
+    console.log('[EditServizioForm] passeggeri COUNT:', passeggeri?.length);
+    
+    // Verifica dettagliata di ogni passeggero
+    passeggeri?.forEach((p, idx) => {
+      console.log(`[EditServizioForm] Passeggero ${idx}:`, {
+        id: p.id,
+        passeggero_id: p.passeggero_id,
+        nome_cognome: p.nome_cognome,
+        nome: p.nome,
+        cognome: p.cognome,
+        salva_in_database: p.salva_in_database
+      });
+    });
+    
     console.log('[EditServizioForm] form.formState.isDirty:', form.formState.isDirty);
     console.log('[EditServizioForm] current form values:', form.getValues());
     
@@ -80,7 +94,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         console.log('[EditServizioForm] Form values after reset:', form.getValues());
       }, 100);
     }
-  }, [servizio?.id]);
+  }, [servizio?.id, passeggeri]);
 
   const onSubmit = async (values: any) => {
     try {
