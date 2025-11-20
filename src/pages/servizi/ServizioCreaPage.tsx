@@ -914,6 +914,48 @@ export const ServizioCreaPage = ({
         // Passeggeri dal form (useFieldArray)
         const passeggeriForm = data.passeggeri || [];
         
+        // Prima di inserire i link, aggiorna i passeggeri esistenti nella rubrica permanente
+        if (passeggeriForm.length > 0) {
+          for (const p of passeggeriForm) {
+            // Se è un passeggero esistente E ha salva_in_database = true
+            if (p.is_existing && p.salva_in_database && p.id) {
+              console.log(`[ServizioCreaPage] 🔄 Aggiornamento passeggero esistente: ${p.nome_cognome}`, {
+                passeggero_id: p.id,
+                dati: {
+                  nome_cognome: p.nome_cognome,
+                  nome: p.nome,
+                  cognome: p.cognome,
+                  email: p.email,
+                  telefono: p.telefono,
+                  localita: p.localita,
+                  indirizzo: p.indirizzo,
+                }
+              });
+              
+              // Aggiorna la tabella passeggeri con i nuovi dati
+              const { error: updateError } = await supabase
+                .from('passeggeri')
+                .update({
+                  nome_cognome: p.nome_cognome || null,
+                  nome: p.nome || null,
+                  cognome: p.cognome || null,
+                  email: p.email || null,
+                  telefono: p.telefono || null,
+                  localita: p.localita || null,
+                  indirizzo: p.indirizzo || null,
+                })
+                .eq('id', p.id);
+              
+              if (updateError) {
+                console.error('[ServizioCreaPage] ❌ Errore aggiornamento passeggero:', updateError);
+                toast.warning(`Impossibile aggiornare ${p.nome_cognome || 'passeggero'}`);
+              } else {
+                console.log(`[ServizioCreaPage] ✅ Passeggero ${p.nome_cognome} aggiornato in anagrafica permanente`);
+              }
+            }
+          }
+        }
+        
         const passeggeriCompleti = [];
         
         // Mappa passeggeri dal form a formato insert
