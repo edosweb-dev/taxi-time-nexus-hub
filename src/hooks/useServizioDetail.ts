@@ -118,18 +118,13 @@ export function useServizioDetail(id?: string) {
         };
       });
       
-      // Memoizza passeggeri per evitare re-render inutili
-      const passeggeri = useMemo(() => passeggeriData, [
-        JSON.stringify(passeggeriData)
-      ]);
-      
       return {
         servizio: {
           ...servizioData,
           aziende: azienda,
           veicoli: veicolo,
         } as any, // Cast necessario per compatibilità con Servizio type
-        passeggeri,
+        passeggeri: passeggeriData,
       };
     },
     enabled: !!id,
@@ -145,7 +140,12 @@ export function useServizioDetail(id?: string) {
   const [consuntivaDialogOpen, setConsuntivaDialogOpen] = useState(false);
   
   const servizio = data?.servizio;
-  const passeggeri = data?.passeggeri || [];
+  const passeggeriRaw = data?.passeggeri || [];
+  
+  // Memoizza passeggeri per evitare re-render inutili (stabilizza la reference)
+  const passeggeri = useMemo(() => passeggeriRaw, [
+    JSON.stringify(passeggeriRaw)
+  ]);
   
   // Veicolo
   const veicoloModello = servizio?.veicoli?.modello;
