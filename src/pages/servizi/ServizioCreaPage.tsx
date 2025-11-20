@@ -915,6 +915,7 @@ export const ServizioCreaPage = ({
         const passeggeriForm = data.passeggeri || [];
         
         // Prima di inserire i link, aggiorna i passeggeri esistenti nella rubrica permanente
+        let passeggeriAggiornati = 0;
         if (passeggeriForm.length > 0) {
           for (const p of passeggeriForm) {
             // Se è un passeggero esistente E ha salva_in_database = true
@@ -951,6 +952,7 @@ export const ServizioCreaPage = ({
                 toast.warning(`Impossibile aggiornare ${p.nome_cognome || 'passeggero'}`);
               } else {
                 console.log(`[ServizioCreaPage] ✅ Passeggero ${p.nome_cognome} aggiornato in anagrafica permanente`);
+                passeggeriAggiornati++;
               }
             }
           }
@@ -1004,6 +1006,14 @@ export const ServizioCreaPage = ({
         }
 
         toast.success("Servizio creato con successo!");
+        
+        // Toast aggiuntivo se ci sono stati aggiornamenti all'anagrafica
+        if (passeggeriAggiornati > 0) {
+          toast.success(
+            `${passeggeriAggiornati} ${passeggeriAggiornati === 1 ? 'passeggero aggiornato' : 'passeggeri aggiornati'} in anagrafica`,
+            { duration: 3000 }
+          );
+        }
       }
 
       if (onSuccess) {
