@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useServizio, useServizi } from "./useServizi";
 import { useUsers } from "./useUsers";
 import { useAziende } from "./useAziende";
@@ -75,7 +75,7 @@ export function useServizioDetail(id?: string) {
       const veicolo = Array.isArray(servizioData.veicoli) ? servizioData.veicoli[0] : servizioData.veicoli;
       
       // Mappa passeggeri con tipo corretto
-      const passeggeri = (servizioData.servizi_passeggeri || []).map((sp: any) => {
+      const passeggeriData = (servizioData.servizi_passeggeri || []).map((sp: any) => {
         const p = Array.isArray(sp.passeggeri) ? sp.passeggeri[0] : sp.passeggeri;
         
         // Determina se usare dati DB o inline
@@ -117,6 +117,11 @@ export function useServizioDetail(id?: string) {
           salva_in_database: sp.salva_in_database ?? true,
         };
       });
+      
+      // Memoizza passeggeri per evitare re-render inutili
+      const passeggeri = useMemo(() => passeggeriData, [
+        JSON.stringify(passeggeriData)
+      ]);
       
       return {
         servizio: {

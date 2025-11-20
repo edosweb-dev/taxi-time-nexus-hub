@@ -36,6 +36,12 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
     console.log('[EditServizioForm] passeggeri RAW:', passeggeri);
     console.log('[EditServizioForm] passeggeri COUNT:', passeggeri?.length);
     
+    // ✅ GUARDIA: Non procedere se i dati non sono pronti
+    if (!servizio || !passeggeri || passeggeri.length === 0) {
+      console.log('[EditServizioForm] Dati non pronti, skip reset');
+      return;
+    }
+    
     // Verifica dettagliata di ogni passeggero
     passeggeri?.forEach((p, idx) => {
       console.log(`[EditServizioForm] Passeggero ${idx}:`, {
@@ -48,10 +54,22 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
       });
     });
     
+    // ✅ GUARDIA: Evita reset se il form è già stato popolato con questi passeggeri
+    const currentPasseggeri = form.getValues('passeggeri');
+    if (currentPasseggeri && currentPasseggeri.length === passeggeri.length) {
+      const allIdsMatch = currentPasseggeri.every((cp, idx) => 
+        cp.id === passeggeri[idx]?.id
+      );
+      if (allIdsMatch) {
+        console.log('[EditServizioForm] Form già popolato con gli stessi passeggeri, skip reset');
+        return;
+      }
+    }
+    
     console.log('[EditServizioForm] form.formState.isDirty:', form.formState.isDirty);
     console.log('[EditServizioForm] current form values:', form.getValues());
     
-    if (servizio && passeggeri && passeggeri.length >= 0) {
+    if (servizio && passeggeri) {
       const formData = {
         azienda_id: servizio.azienda_id ?? "",
         referente_id: servizio.referente_id ?? "",
@@ -94,7 +112,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         console.log('[EditServizioForm] Form values after reset:', form.getValues());
       }, 100);
     }
-  }, [servizio?.id, passeggeri]);
+  }, [servizio?.id]);
 
   const onSubmit = async (values: any) => {
     try {
