@@ -18,11 +18,33 @@ export default function ModificaServizioPage() {
       
       const { data, error } = await supabase
         .from('servizi')
-        .select('*')
+        .select(`
+          *,
+          servizi_passeggeri(
+            id,
+            passeggero_id,
+            nome_cognome_inline,
+            email_inline,
+            telefono_inline,
+            localita_inline,
+            indirizzo_inline,
+            orario_presa_personalizzato,
+            luogo_presa_personalizzato,
+            destinazione_personalizzato,
+            usa_indirizzo_personalizzato,
+            salva_in_database,
+            passeggeri:passeggero_id(*)
+          )
+        `)
         .eq('id', id)
         .single();
       
       if (error) throw error;
+      
+      console.log('[ModificaServizio] Passeggeri fetchati:', {
+        count: data?.servizi_passeggeri?.length,
+        has_relation: 'servizi_passeggeri' in (data || {})
+      });
       
       console.log('[ModificaServizioPage] ✅ Query result:', {
         servizio_id: data?.id,
