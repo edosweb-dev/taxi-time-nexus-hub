@@ -21,6 +21,7 @@ import { StatoServizio } from '@/lib/types/servizi';
 import { MobileButton } from '@/components/ui/mobile-button';
 import { FinancialSection } from '@/components/servizi/dettaglio/sections/FinancialSection';
 import { useAziende } from '@/hooks/useAziende';
+import { PasseggeriCard } from '@/components/dipendente/servizi/dettaglio/PasseggeriCard';
 
 interface MobileServizioOptimizedProps {
   servizio: any;
@@ -260,33 +261,11 @@ export function MobileServizioOptimized({
       </Card>
 
       {/* Passeggeri Card */}
-      {passeggeri.length > 0 && (
-        <Card className="p-4 space-y-3">
-          <h3 className="font-semibold text-sm flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Passeggeri ({passeggeri.length})
-          </h3>
-          
-          <div className="space-y-2">
-            {passeggeri.map((passeggero: any, index: number) => (
-              <div key={index} className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
-                <User className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-0.5 min-w-0 text-sm">
-                  <p className="font-semibold">
-                    {passeggero.nome_cognome || 'Passeggero senza nome'}
-                  </p>
-                  {passeggero.email && (
-                    <p className="text-xs text-muted-foreground">{passeggero.email}</p>
-                  )}
-                  {passeggero.telefono && (
-                    <p className="text-xs text-muted-foreground">{passeggero.telefono}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+      <PasseggeriCard
+        passeggeri={passeggeri}
+        orarioServizio={formatTime(servizio.orario_servizio)}
+        indirizzoPresa={servizio.indirizzo_presa}
+      />
 
       {/* Dettagli Economici Card */}
       <FinancialSection
