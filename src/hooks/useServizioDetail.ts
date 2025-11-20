@@ -78,28 +78,41 @@ export function useServizioDetail(id?: string) {
       const passeggeri = (servizioData.servizi_passeggeri || []).map((sp: any) => {
         const p = Array.isArray(sp.passeggeri) ? sp.passeggeri[0] : sp.passeggeri;
         
-        // Se salva_in_database è true, usa i dati dal DB, altrimenti usa inline
+        // Determina se usare dati DB o inline
         const usaDatiDB = sp.salva_in_database && p;
         
-        const nomeCognome = usaDatiDB ? p.nome_cognome : (sp.nome_cognome_inline || '');
-        const [nome = '', ...cognomeParts] = nomeCognome.split(' ');
-        const cognome = cognomeParts.join(' ');
+        // Ottieni nome_cognome con fallback robusto
+        let nomeCognome = '';
+        if (usaDatiDB && p?.nome_cognome) {
+          nomeCognome = p.nome_cognome;
+        } else if (sp.nome_cognome_inline) {
+          nomeCognome = sp.nome_cognome_inline;
+        }
+        
+        // Split robusto con gestione edge cases
+        let nome = '';
+        let cognome = '';
+        if (nomeCognome && nomeCognome.trim()) {
+          const parti = nomeCognome.trim().split(/\s+/);
+          nome = parti[0] || '';
+          cognome = parti.slice(1).join(' ') || '';
+        }
         
         return {
           id: sp.id,
-          passeggero_id: sp.passeggero_id,
+          passeggero_id: sp.passeggero_id || null,
           nome_cognome: nomeCognome,
           nome,
           cognome,
-          email: usaDatiDB ? p.email : sp.email_inline,
-          telefono: usaDatiDB ? p.telefono : sp.telefono_inline,
-          localita: usaDatiDB ? p.localita : sp.localita_inline,
-          indirizzo: usaDatiDB ? p.indirizzo : sp.indirizzo_inline,
+          email: usaDatiDB ? (p.email || '') : (sp.email_inline || ''),
+          telefono: usaDatiDB ? (p.telefono || '') : (sp.telefono_inline || ''),
+          localita: usaDatiDB ? (p.localita || '') : (sp.localita_inline || ''),
+          indirizzo: usaDatiDB ? (p.indirizzo || '') : (sp.indirizzo_inline || ''),
           azienda_id: p?.azienda_id || '',
           referente_id: p?.created_by_referente_id || '',
-          orario_presa_personalizzato: sp.orario_presa_personalizzato,
-          luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
-          destinazione_personalizzato: sp.destinazione_personalizzato,
+          orario_presa_personalizzato: sp.orario_presa_personalizzato || null,
+          luogo_presa_personalizzato: sp.luogo_presa_personalizzato || null,
+          destinazione_personalizzato: sp.destinazione_personalizzato || null,
           usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato ?? false,
           salva_in_database: sp.salva_in_database ?? true,
         };
