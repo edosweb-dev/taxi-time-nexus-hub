@@ -36,8 +36,8 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
     console.log('[EditServizioForm] passeggeri RAW:', passeggeri);
     console.log('[EditServizioForm] passeggeri COUNT:', passeggeri?.length);
     
-    // ✅ GUARDIA: Non procedere se i dati non sono pronti
-    if (!servizio || !passeggeri || passeggeri.length === 0) {
+    // ✅ GUARDIA: Non procedere se i dati non sono pronti (permetti array vuoti)
+    if (!servizio || passeggeri === undefined || passeggeri === null) {
       console.log('[EditServizioForm] Dati non pronti, skip reset');
       return;
     }
@@ -112,7 +112,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         console.log('[EditServizioForm] Form values after reset:', form.getValues());
       }, 100);
     }
-  }, [servizio?.id]);
+  }, [servizio?.id, passeggeri.length]);
 
   const onSubmit = async (values: any) => {
     try {
