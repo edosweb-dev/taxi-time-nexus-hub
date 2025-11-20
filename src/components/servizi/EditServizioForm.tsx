@@ -68,6 +68,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
           luogo_presa_personalizzato: p.luogo_presa_personalizzato ?? "",
           destinazione_personalizzato: p.destinazione_personalizzato ?? "",
           usa_indirizzo_personalizzato: p.usa_indirizzo_personalizzato ?? false,
+          salva_in_database: p.salva_in_database ?? true,
         }))
       };
       
