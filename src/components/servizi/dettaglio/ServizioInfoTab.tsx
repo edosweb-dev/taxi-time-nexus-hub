@@ -83,23 +83,37 @@ export function ServizioInfoTab({
             </div>
           ) : (
             <div className="space-y-2 md:space-y-3 max-h-48 md:max-h-64 overflow-y-auto">
-              {passeggeri.map((passeggero: any, index: number) => (
-                <div key={passeggero.id} className="bg-muted/30 rounded-lg p-3 animate-fade-in">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium flex-shrink-0">
-                      #{index + 1}
-                    </span>
-                    <div className="font-medium text-sm truncate">{passeggero.nome_cognome}</div>
-                  </div>
-                  
-                  {(passeggero.email || passeggero.telefono) && (
-                    <div className="text-xs space-y-1 text-muted-foreground">
-                      {passeggero.email && <div className="truncate">{passeggero.email}</div>}
-                      {passeggero.telefono && <div>{passeggero.telefono}</div>}
+              {passeggeri.map((passeggero: any, index: number) => {
+                const orarioPresa = passeggero.orario_presa_personalizzato || servizio.orario_servizio;
+                const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
+                
+                return (
+                  <div key={passeggero.id} className="bg-muted/30 rounded-lg p-3 animate-fade-in">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        {index + 1}
+                      </span>
+                      <div className="font-medium text-sm truncate">{passeggero.nome_cognome}</div>
                     </div>
-                  )}
-                </div>
-              ))}
+                    
+                    {/* Orario di presa */}
+                    <div className="flex items-center gap-1.5 mb-1 text-xs text-muted-foreground">
+                      <span className="font-medium">Presa:</span>
+                      <span>{orarioPresa}</span>
+                      {haPresaPersonalizzata && (
+                        <span className="text-primary text-[10px]">● Intermedia</span>
+                      )}
+                    </div>
+                    
+                    {(passeggero.email || passeggero.telefono) && (
+                      <div className="text-xs space-y-1 text-muted-foreground">
+                        {passeggero.email && <div className="truncate">{passeggero.email}</div>}
+                        {passeggero.telefono && <div>{passeggero.telefono}</div>}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
