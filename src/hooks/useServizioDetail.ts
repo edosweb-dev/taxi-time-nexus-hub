@@ -37,9 +37,15 @@ export function useServizioDetail(id?: string) {
             id,
             passeggero_id,
             nome_cognome_inline,
+            email_inline,
+            telefono_inline,
+            localita_inline,
+            indirizzo_inline,
             orario_presa_personalizzato,
             luogo_presa_personalizzato,
             destinazione_personalizzato,
+            usa_indirizzo_personalizzato,
+            salva_in_database,
             passeggeri:passeggero_id (
               id,
               nome_cognome,
@@ -71,7 +77,11 @@ export function useServizioDetail(id?: string) {
       // Mappa passeggeri con tipo corretto
       const passeggeri = (servizioData.servizi_passeggeri || []).map((sp: any) => {
         const p = Array.isArray(sp.passeggeri) ? sp.passeggeri[0] : sp.passeggeri;
-        const nomeCognome = p?.nome_cognome || sp.nome_cognome_inline || '';
+        
+        // Se salva_in_database è true, usa i dati dal DB, altrimenti usa inline
+        const usaDatiDB = sp.salva_in_database && p;
+        
+        const nomeCognome = usaDatiDB ? p.nome_cognome : (sp.nome_cognome_inline || '');
         const [nome = '', ...cognomeParts] = nomeCognome.split(' ');
         const cognome = cognomeParts.join(' ');
         
@@ -81,16 +91,17 @@ export function useServizioDetail(id?: string) {
           nome_cognome: nomeCognome,
           nome,
           cognome,
-          email: p?.email,
-          telefono: p?.telefono,
-          localita: p?.localita,
-          indirizzo: p?.indirizzo,
+          email: usaDatiDB ? p.email : sp.email_inline,
+          telefono: usaDatiDB ? p.telefono : sp.telefono_inline,
+          localita: usaDatiDB ? p.localita : sp.localita_inline,
+          indirizzo: usaDatiDB ? p.indirizzo : sp.indirizzo_inline,
           azienda_id: p?.azienda_id || '',
           referente_id: p?.created_by_referente_id || '',
           orario_presa_personalizzato: sp.orario_presa_personalizzato,
           luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
           destinazione_personalizzato: sp.destinazione_personalizzato,
-          usa_indirizzo_personalizzato: !!(sp.luogo_presa_personalizzato || sp.destinazione_personalizzato),
+          usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato ?? false,
+          salva_in_database: sp.salva_in_database ?? true,
         };
       });
       
