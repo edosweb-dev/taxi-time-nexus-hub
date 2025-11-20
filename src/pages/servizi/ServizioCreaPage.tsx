@@ -510,7 +510,7 @@ export const ServizioCreaPage = ({
 
   // Auto-espandi sezione passeggeri su mobile se ci sono passeggeri disponibili
   useEffect(() => {
-    if (passeggeri && passeggeri.length > 0) {
+    if (Array.isArray(passeggeri) && passeggeri.length > 0) {
       setIsPasseggeriOpen(true);
     }
   }, [passeggeri]);
@@ -519,7 +519,8 @@ export const ServizioCreaPage = ({
   const watchPasseggeriIds = form.watch("passeggeri_ids");
   const passeggeroSelezionato = useMemo(() => {
     if (!watchPasseggeriIds || watchPasseggeriIds.length === 0) return null;
-    return passeggeri?.find(p => p.id === watchPasseggeriIds[0]) || null;
+    if (!Array.isArray(passeggeri)) return null;
+    return passeggeri.find(p => p.id === watchPasseggeriIds[0]) || null;
   }, [passeggeri, watchPasseggeriIds]);
 
   // Query: Email Notifiche
