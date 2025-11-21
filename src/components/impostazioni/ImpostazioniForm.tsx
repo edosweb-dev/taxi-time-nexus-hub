@@ -132,17 +132,33 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
         <Tabs defaultValue="info" className="w-full">
-          <TabsList className={`grid w-full ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-5' : 'grid-cols-3'}`}>
-            <TabsTrigger value="info">Informazioni Azienda</TabsTrigger>
-            <TabsTrigger value="pagamenti">Metodi di Pagamento</TabsTrigger>
-            <TabsTrigger value="iva">Aliquote IVA</TabsTrigger>
+          {/* Tabs ottimizzate per mobile - scrollabili orizzontalmente */}
+          <TabsList className={`w-full grid ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3'} gap-1 h-auto p-1`}>
+            <TabsTrigger value="info" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Informazioni Azienda</span>
+              <span className="sm:hidden">Info</span>
+            </TabsTrigger>
+            <TabsTrigger value="pagamenti" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Metodi Pagamento</span>
+              <span className="sm:hidden">Pagamenti</span>
+            </TabsTrigger>
+            <TabsTrigger value="iva" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <span className="hidden sm:inline">Aliquote IVA</span>
+              <span className="sm:hidden">IVA</span>
+            </TabsTrigger>
             {(profile?.role === 'admin' || profile?.role === 'socio') && (
-              <TabsTrigger value="tariffe-km">Tariffe KM</TabsTrigger>
+              <TabsTrigger value="tariffe-km" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <span className="hidden sm:inline">Tariffe KM</span>
+                <span className="sm:hidden">Tariffe</span>
+              </TabsTrigger>
             )}
             {profile?.role === 'admin' && (
-              <TabsTrigger value="pagamenti-aziendali">Pagamenti Aziendali</TabsTrigger>
+              <TabsTrigger value="pagamenti-aziendali" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground col-span-3 md:col-span-1">
+                <span className="hidden sm:inline">Pagamenti Aziendali</span>
+                <span className="sm:hidden">Pag. Aziendali</span>
+              </TabsTrigger>
             )}
           </TabsList>
 
@@ -207,8 +223,14 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
           )}
         </Tabs>
 
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
+        {/* Bottone salva - Sticky su mobile */}
+        <div className="sticky bottom-4 md:static flex justify-end pt-4 md:pt-0">
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full md:w-auto shadow-lg md:shadow-none"
+            size="lg"
+          >
             {isSubmitting ? (
               "Salvataggio..."
             ) : (
