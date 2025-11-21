@@ -81,6 +81,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         citta_presa: data.servizio.citta_presa,
         citta_destinazione: data.servizio.citta_destinazione,
         metodo_pagamento: data.servizio.metodo_pagamento,
+        iva: data.servizio.iva, // ✅ Salva IVA dal form
         note: data.servizio.note,
         veicolo_id: data.servizio.veicolo_id,
         ore_effettive: data.servizio.ore_effettive,
