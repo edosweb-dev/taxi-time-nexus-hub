@@ -62,7 +62,7 @@ export function calculateBatchDates(params: {
       return isSelected;
     });
     
-  } else if (periodType === 'week' && weekNumber) {
+  } else if (periodType === 'week' && weekNumber !== undefined) {
     // Date di una settimana specifica
     const weekStart = startOfWeek(
       new Date(monthStart.getFullYear(), monthStart.getMonth(), 1 + (weekNumber - 1) * 7),
