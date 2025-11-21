@@ -20,6 +20,7 @@ const aliquotaIvaSchema = z.object({
     .min(0, "Percentage cannot be negative")
     .max(100, "Percentage cannot exceed 100"),
   descrizione: z.string().max(500, "Descrizione must be less than 500 characters").optional(),
+  is_default: z.boolean().optional(),
 });
 
 const impostazioniUpdateSchema = z.object({
@@ -66,6 +67,7 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
         nome: aliquota.nome || "",
         percentuale: Number(aliquota.percentuale || 0),
         descrizione: aliquota.descrizione || "",
+        is_default: aliquota.is_default === true,
       }));
     };
 
