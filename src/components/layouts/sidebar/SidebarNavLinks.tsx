@@ -88,6 +88,12 @@ const navItems: NavItem[] = [
     roles: ['admin', 'socio'],
   },
   {
+    title: 'Report Soci',
+    href: '/report-soci',
+    icon: FileBarChart,
+    roles: ['admin', 'socio'],
+  },
+  {
     title: 'Stipendi',
     href: '/stipendi',
     icon: Euro,
@@ -121,7 +127,7 @@ export function SidebarNavLinks() {
   const groupedItems = {
     main: filteredNavItems.filter(item => ['Dashboard', 'Servizi', 'Turni'].includes(item.title)),
     management: filteredNavItems.filter(item => ['Aziende', 'Privati', 'Utenti', 'Veicoli', 'Conducenti Esterni', 'Feedback'].includes(item.title)),
-    reports: filteredNavItems.filter(item => ['Report Passeggeri'].includes(item.title)),
+    reports: filteredNavItems.filter(item => ['Report Passeggeri', 'Report Soci'].includes(item.title)),
     finance: filteredNavItems.filter(item => ['Stipendi', 'Spese Aziendali', 'Impostazioni'].includes(item.title))
   };
 
