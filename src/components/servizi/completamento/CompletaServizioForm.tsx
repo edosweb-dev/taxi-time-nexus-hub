@@ -79,8 +79,8 @@ export function CompletaServizioForm({
   // ✅ incasso_previsto è l'imponibile - calcola totale con IVA del servizio
   const incassoNetto = Number(servizio.incasso_previsto) || 0;
   
-  // Usa solo servizio.iva, fallback a 22%
-  const ivaPercentuale = servizio.iva || 22;
+  // ✅ Default 10% come da specifiche
+  const ivaPercentuale = servizio.iva || 10;
   const importoIva = incassoNetto * (ivaPercentuale / 100);
   const totalePrevisto = incassoNetto + importoIva;
   

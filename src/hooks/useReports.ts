@@ -105,8 +105,8 @@ export function useReports(filters: ReportFilters = {}) {
         referente_id: data.referente_id,
       };
       
-      // Calcola IVA e totale
-      mockReport.totale_iva = mockReport.totale_imponibile * 0.22;
+      // ✅ Calcola IVA e totale con default 10%
+      mockReport.totale_iva = mockReport.totale_imponibile * 0.10;
       mockReport.totale_documento = mockReport.totale_imponibile + mockReport.totale_iva;
       
       return mockReport;
