@@ -59,6 +59,7 @@ const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AssistenzaPage = lazy(() => import('./pages/AssistenzaPage'));
 const ReportPasseggeriPage = lazy(() => import('./pages/reports/ReportPasseggeriPage'));
+const ReportSociPage = lazy(() => import('./pages/ReportSociPage'));
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -194,6 +195,11 @@ function App() {
                 <Route path="/report-passeggeri" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ReportPasseggeriPage />
+                  </AuthGuard>
+                } />
+                <Route path="/report-soci" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <ReportSociPage />
                   </AuthGuard>
                 } />
 
