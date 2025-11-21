@@ -69,6 +69,7 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       nome: aliquota.nome || "",
       percentuale: Number(aliquota.percentuale || 0),
       descrizione: aliquota.descrizione || "",
+      is_default: aliquota.is_default === true, // ✅ Preserva il flag default
     }));
   };
 
