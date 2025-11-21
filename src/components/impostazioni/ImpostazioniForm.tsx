@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useQueryClient } from '@tanstack/react-query';
 import { InfoAziendaForm } from "./InfoAziendaForm";
 import { MetodiPagamentoForm } from "./MetodiPagamentoForm";
 import { AliquoteIvaForm } from "./AliquoteIvaForm";
@@ -52,6 +53,7 @@ interface ImpostazioniFormProps {
 export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { profile } = useAuth();
+  const queryClient = useQueryClient();
 
   // Ensure each item has a required id field
   const ensureMetodiPagamentoIds = (metodi: any[] = []): MetodoPagamentoOption[] => {
@@ -107,6 +109,9 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       }
       
       await updateImpostazioni(formattedData);
+      
+      // Invalida cache per forzare re-fetch dei dati freschi
+      await queryClient.invalidateQueries({ queryKey: ['impostazioni'] });
       
       toast({
         title: "Impostazioni aggiornate",
