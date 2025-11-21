@@ -173,22 +173,30 @@ export function InserimentoSingoloUtenteForm({
       // Start progress
       onStartProgress(validationResult.validShifts.length);
 
+      // Track errors during creation
+      let errorCount = 0;
+
       // Create shifts
       const result = await createBatchShifts(
         validationResult.validShifts,
         profile.id,
         (created, total) => {
-          onUpdateProgress(created, result.errors.length);
+          onUpdateProgress(created, errorCount);
         }
       );
 
-      console.log(`✅ [SINGLE USER BATCH] Created: ${result.created}, Errors: ${result.errors.length}`);
+      // Update error count after creation
+      errorCount = result.errors.length;
 
+      console.log(`✅ [SINGLE USER BATCH] Created: ${result.created}, Errors: ${errorCount}`);
+
+      // Final progress update before complete
+      onUpdateProgress(result.created, errorCount);
       onCompleteProgress();
 
       toast({
         title: 'Turni creati con successo',
-        description: `${result.created} turni creati${result.errors.length > 0 ? `, ${result.errors.length} errori` : ''}`,
+        description: `${result.created} turni creati${errorCount > 0 ? `, ${errorCount} errori` : ''}`,
       });
 
     } catch (error) {
