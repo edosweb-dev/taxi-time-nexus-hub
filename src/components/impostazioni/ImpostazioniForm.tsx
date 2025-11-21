@@ -38,6 +38,7 @@ const formSchema = z.object({
       nome: z.string(),
       percentuale: z.number(),
       descrizione: z.string().optional(),
+      is_default: z.boolean().optional(),
     })
   ),
   id: z.string().optional(),
