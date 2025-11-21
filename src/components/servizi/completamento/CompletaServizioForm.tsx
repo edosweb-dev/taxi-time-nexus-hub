@@ -76,8 +76,11 @@ export function CompletaServizioForm({
     staleTime: 5 * 60 * 1000,
   });
 
-  // ✅ incasso_previsto è GIÀ comprensivo di IVA - nessun ricalcolo necessario
-  const totalePrevisto = Number(servizio.incasso_previsto) || 0;
+  // ✅ incasso_previsto è l'imponibile - calcola totale con IVA
+  const incassoNetto = Number(servizio.incasso_previsto) || 0;
+  const ivaPercentuale = Number(servizio.iva) || 0;
+  const importoIva = incassoNetto * (ivaPercentuale / 100);
+  const totalePrevisto = incassoNetto + importoIva;
 
   return (
     <Form {...form}>
