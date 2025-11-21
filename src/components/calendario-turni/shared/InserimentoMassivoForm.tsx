@@ -360,7 +360,7 @@ export function InserimentoMassivoForm({
                     </FormControl>
                     <SelectContent>
                       {monthWeeks.map((week, index) => (
-                        <SelectItem key={index} value={index.toString()}>
+                        <SelectItem key={index} value={(index + 1).toString()}>
                           Settimana {index + 1} ({format(week.start, 'd MMM')} - {format(week.end, 'd MMM')})
                         </SelectItem>
                       ))}
