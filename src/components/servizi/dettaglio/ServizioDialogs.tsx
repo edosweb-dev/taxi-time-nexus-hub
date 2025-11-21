@@ -1,6 +1,6 @@
 
 import React from "react";
-import { CompletaServizioSheet } from "@/components/servizi/completamento";
+import { CompletaServizioOrchestrator } from "@/components/servizi/completamento/CompletaServizioOrchestrator";
 import { ConsuntivaServizioSheet } from "@/components/servizi/consuntivazione";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
@@ -26,15 +26,13 @@ export function ServizioDialogs({
 }: ServizioDialogsProps) {
   return (
     <>
-      {/* Completa servizio sheet */}
-      <CompletaServizioSheet
+      {/* Completa servizio - orchestrator basato su metodo pagamento */}
+      <CompletaServizioOrchestrator
         open={completaDialogOpen}
         onOpenChange={onCompletaOpenChange}
-        servizioId={servizio.id}
-        metodoDefault={servizio.metodo_pagamento}
-        onComplete={onComplete}
-        users={users}
         servizio={servizio}
+        users={users}
+        onComplete={onComplete}
       />
 
       {/* Consuntiva servizio sheet */}
