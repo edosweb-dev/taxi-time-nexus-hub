@@ -237,10 +237,19 @@ export const ServizioCreaPage = ({
   useEffect(() => {
     if (mode === 'edit' && initialData && servizioId) {
       const loadData = async () => {
-        const [passResult, emailResult] = await Promise.all([
-          supabase.from('servizi_passeggeri').select('id, passeggero_id, salva_in_database, nome_cognome_inline, email_inline, telefono_inline, localita_inline, indirizzo_inline, usa_indirizzo_personalizzato').eq('servizio_id', servizioId),
-          supabase.from('servizi_email_notifiche').select('email_notifica_id').eq('servizio_id', servizioId)
-        ]);
+        // ✅ Usa i passeggeri già fetchati da ModificaServizioPage
+        const passeggeriData = initialData.servizi_passeggeri || [];
+
+        console.log('[ServizioCreaPage] Edit mode - Passeggeri da initialData:', {
+          count: passeggeriData.length,
+          data: passeggeriData
+        });
+
+        // Mantieni solo query email (elimina query passeggeri duplicata)
+        const emailResult = await supabase
+          .from('servizi_email_notifiche')
+          .select('email_notifica_id')
+          .eq('servizio_id', servizioId);
 
         console.log('[ServizioCreaPage] 🔵 Loading edit mode:', {
           referente_id: initialData.referente_id,
@@ -286,12 +295,29 @@ export const ServizioCreaPage = ({
           importo_totale_calcolato: null,
           applica_provvigione: initialData.applica_provvigione || false,
           consegna_contanti_a: initialData.consegna_contanti_a || null,
-          passeggeri_ids: passResult.data?.filter(r => r.passeggero_id).map(r => r.passeggero_id!) || [],
+          // ✅ FIX CRITICO: Popola array 'passeggeri' con oggetti completi
+          passeggeri: passeggeriData.map((sp: any) => ({
+            id: sp.id,
+            passeggero_id: sp.passeggero_id,
+            nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
+            email: sp.email_inline || sp.passeggeri?.email || '',
+            telefono: sp.telefono_inline || sp.passeggeri?.telefono || '',
+            localita: sp.localita_inline || sp.passeggeri?.localita || '',
+            indirizzo: sp.indirizzo_inline || sp.passeggeri?.indirizzo || '',
+            orario_presa_personalizzato: sp.orario_presa_personalizzato,
+            luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+            destinazione_personalizzato: sp.destinazione_personalizzato,
+            usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
+            salva_in_database: sp.salva_in_database !== false,
+            is_existing: !!sp.passeggero_id,
+          })) || [],
           email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
           note: initialData.note || null,
         });
         
-        console.log('[ServizioCreaPage] 🟢 Form reset completed:', {
+        console.log('[ServizioCreaPage] Form reset completato:', {
+          passeggeri_count: form.getValues('passeggeri')?.length,
+          passeggeri_data: form.getValues('passeggeri'),
           referente_id_form_value: form.getValues('referente_id'),
           referente_id_watch: form.watch('referente_id'),
           azienda_id_form_value: form.getValues('azienda_id'),
@@ -299,18 +325,16 @@ export const ServizioCreaPage = ({
         });
         
         // ✅ Carica passeggeri temporanei da DB (se presenti)
-        const tempPasseggeriDaDB = passResult.data
-          ?.filter(sp => !sp.salva_in_database && !sp.passeggero_id && sp.nome_cognome_inline)
-          .map(sp => ({
-            id: `temp-${sp.id}`,
-            passeggero_id: null,
-            nome_cognome: sp.nome_cognome_inline!,
-            email: sp.email_inline || "",
-            telefono: sp.telefono_inline || "",
-            localita: sp.localita_inline || "",
-            indirizzo: sp.indirizzo_inline || "",
-            salva_in_database: false,
-            is_existing: false,
+        const tempPasseggeriDaDB = passeggeriData
+          .filter((sp: any) => !sp.salva_in_database && !sp.passeggero_id)
+          .map((sp: any) => ({
+            id: sp.id,
+            nome_cognome: sp.nome_cognome_inline || '',
+            email: sp.email_inline || '',
+            telefono: sp.telefono_inline || '',
+            localita: sp.localita_inline || '',
+            indirizzo: sp.indirizzo_inline || '',
+            orario_presa_personalizzato: sp.orario_presa_personalizzato,
             usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
           })) || [];
         
