@@ -55,3 +55,28 @@ export const batchShiftSchema = z.object({
 });
 
 export type BatchShiftFormData = z.infer<typeof batchShiftSchema>;
+
+/**
+ * Schema per inserimento rapido turni singolo utente
+ */
+export const singleUserBatchShiftSchema = z.object({
+  user_id: z.string().min(1, 'Seleziona un dipendente'),
+  selected_dates: z.array(z.string()).min(1, 'Seleziona almeno una data'),
+  shift_type: z.enum(['full_day', 'half_day', 'extra', 'unavailable']),
+  half_day_type: z.enum(['morning', 'afternoon']).optional(),
+  notes: z.string().max(500).optional()
+}).refine(
+  (data) => {
+    // Se shift_type è 'half_day', half_day_type è obbligatorio
+    if (data.shift_type === 'half_day') {
+      return data.half_day_type !== undefined;
+    }
+    return true;
+  },
+  {
+    message: 'Seleziona il periodo (mattina o pomeriggio)',
+    path: ['half_day_type']
+  }
+);
+
+export type SingleUserBatchShiftFormData = z.infer<typeof singleUserBatchShiftSchema>;
