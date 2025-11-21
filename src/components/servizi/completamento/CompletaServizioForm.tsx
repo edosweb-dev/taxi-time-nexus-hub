@@ -79,24 +79,8 @@ export function CompletaServizioForm({
   // ✅ incasso_previsto è l'imponibile - calcola totale con IVA del servizio
   const incassoNetto = Number(servizio.incasso_previsto) || 0;
   
-  // Recupera IVA con priorità: servizio.iva > aziende.iva > default 22%
-  const getIvaServizio = (): number => {
-    // 1. Prova campo diretto servizio.iva
-    if (servizio.iva && servizio.iva > 0) {
-      return Number(servizio.iva);
-    }
-    
-    // 2. Prova campo azienda.iva (con type assertion sicura)
-    const aziendaIva = (servizio.aziende as any)?.iva;
-    if (aziendaIva && aziendaIva > 0) {
-      return Number(aziendaIva);
-    }
-    
-    // 3. Default 22% solo se non c'è niente
-    return 22;
-  };
-  
-  const ivaPercentuale = getIvaServizio();
+  // Usa solo servizio.iva, fallback a 22%
+  const ivaPercentuale = servizio.iva || 22;
   const importoIva = incassoNetto * (ivaPercentuale / 100);
   const totalePrevisto = incassoNetto + importoIva;
   
@@ -104,10 +88,8 @@ export function CompletaServizioForm({
   console.log('[CompletaServizio] Calcolo totale:', {
     incasso_previsto: servizio.incasso_previsto,
     iva_percentuale: ivaPercentuale,
-    iva_fonte: servizio.iva ? 'servizio.iva' : (servizio.aziende as any)?.iva ? 'aziende.iva' : 'default',
+    iva_dal_servizio: servizio.iva,
     totale_calcolato: totalePrevisto,
-    servizio_iva_raw: servizio.iva,
-    aziende_iva_raw: (servizio.aziende as any)?.iva
   });
 
   return (
