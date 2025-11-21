@@ -4,6 +4,7 @@ export interface AliquotaIvaOption {
   nome: string;
   percentuale: number;
   descrizione?: string;
+  is_default?: boolean; // ✅ Flag per aliquota di default
 }
 
 export interface MetodoPagamentoOption {
