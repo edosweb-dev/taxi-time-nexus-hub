@@ -234,116 +234,148 @@ export const ServizioCreaPage = ({
   const watchUsaIndirizzoDestinazione = form.watch('usa_indirizzo_passeggero_destinazione');
 
   // Pre-popola form in edit mode
+  // ✅ LOG DIAGNOSTICO PRE-useEffect
+  console.log('[ServizioCreaPage] 🚨 PRE-useEffect check:', {
+    mode,
+    mode_is_edit: mode === 'edit',
+    mode_type: typeof mode,
+    has_initialData: !!initialData,
+    has_servizioId: !!servizioId,
+    servizioId,
+    initialData_keys: initialData ? Object.keys(initialData) : null,
+    servizi_passeggeri_count: initialData?.servizi_passeggeri?.length,
+    servizi_passeggeri_raw: initialData?.servizi_passeggeri,
+    will_trigger: mode === 'edit' && !!initialData && !!servizioId
+  });
+
   useEffect(() => {
     if (mode === 'edit' && initialData && servizioId) {
       const loadData = async () => {
-        // ✅ Usa i passeggeri già fetchati da ModificaServizioPage
-        const passeggeriData = initialData.servizi_passeggeri || [];
+        try {
+          console.log('[ServizioCreaPage] 🔵 LoadData STARTED');
+          
+          // ✅ Usa i passeggeri già fetchati da ModificaServizioPage
+          const passeggeriData = initialData.servizi_passeggeri || [];
 
-        console.log('[ServizioCreaPage] Edit mode - Passeggeri da initialData:', {
-          count: passeggeriData.length,
-          data: passeggeriData
-        });
+          console.log('[ServizioCreaPage] Edit mode - Passeggeri da initialData:', {
+            count: passeggeriData.length,
+            data: passeggeriData
+          });
 
-        // Mantieni solo query email (elimina query passeggeri duplicata)
-        const emailResult = await supabase
-          .from('servizi_email_notifiche')
-          .select('email_notifica_id')
-          .eq('servizio_id', servizioId);
+          // Mantieni solo query email (elimina query passeggeri duplicata)
+          const emailResult = await supabase
+            .from('servizi_email_notifiche')
+            .select('email_notifica_id')
+            .eq('servizio_id', servizioId);
 
-        console.log('[ServizioCreaPage] 🔵 Loading edit mode:', {
-          referente_id: initialData.referente_id,
-          referente_id_type: typeof initialData.referente_id,
-          referente_id_is_null: initialData.referente_id === null,
-          referente_id_is_undefined: initialData.referente_id === undefined,
-          azienda_id: initialData.azienda_id,
-          azienda_id_type: typeof initialData.azienda_id,
-          mode: mode,
-          servizioId: servizioId,
-          initialData_keys: Object.keys(initialData)
-        });
-        
-        form.reset({
-          tipo_cliente: initialData.tipo_cliente || 'azienda',
-          azienda_id: initialData.azienda_id || '',
-          referente_id: initialData.referente_id || null,
-          cliente_privato_id: initialData.cliente_privato_id || null,
-          cliente_privato_nome: initialData.cliente_privato_nome || '',
-          cliente_privato_cognome: initialData.cliente_privato_cognome || '',
-          cliente_privato_email: initialData.clienti_privati?.email || '',
-          cliente_privato_telefono: initialData.clienti_privati?.telefono || '',
-          cliente_privato_indirizzo: initialData.clienti_privati?.indirizzo || '',
-          cliente_privato_citta: initialData.clienti_privati?.citta || '',
-          cliente_privato_note: initialData.clienti_privati?.note || '',
-          salva_cliente_anagrafica: false,
-          data_servizio: initialData.data_servizio || new Date().toISOString().split('T')[0],
-          orario_servizio: initialData.orario_servizio || "12:00",
-          numero_commessa: initialData.numero_commessa || null,
-          citta_presa: initialData.citta_presa || null,
-          indirizzo_presa: initialData.indirizzo_presa || '',
-          citta_destinazione: initialData.citta_destinazione || null,
-          indirizzo_destinazione: initialData.indirizzo_destinazione || '',
-          metodo_pagamento: initialData.metodo_pagamento || '',
-          conducente_esterno: initialData.conducente_esterno || false,
-          assegnato_a: initialData.assegnato_a || null,
-          conducente_esterno_id: initialData.conducente_esterno_id || null,
-          veicolo_id: initialData.veicolo_id || null,
-          ore_effettive: initialData.ore_effettive?.toString() || null,
-          ore_fatturate: initialData.ore_fatturate?.toString() || null,
-          incasso_previsto: initialData.incasso_previsto || null,
-          iva: initialData.iva || 22,
-          importo_totale_calcolato: null,
-          applica_provvigione: initialData.applica_provvigione || false,
-          consegna_contanti_a: initialData.consegna_contanti_a || null,
-          // ✅ FIX CRITICO: Popola array 'passeggeri' con oggetti completi
-          passeggeri: passeggeriData.map((sp: any) => ({
-            id: sp.id,
-            passeggero_id: sp.passeggero_id,
-            nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
-            email: sp.email_inline || sp.passeggeri?.email || '',
-            telefono: sp.telefono_inline || sp.passeggeri?.telefono || '',
-            localita: sp.localita_inline || sp.passeggeri?.localita || '',
-            indirizzo: sp.indirizzo_inline || sp.passeggeri?.indirizzo || '',
-            orario_presa_personalizzato: sp.orario_presa_personalizzato,
-            luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
-            destinazione_personalizzato: sp.destinazione_personalizzato,
-            usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
-            salva_in_database: sp.salva_in_database !== false,
-            is_existing: !!sp.passeggero_id,
-          })) || [],
-          email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
-          note: initialData.note || null,
-        });
-        
-        console.log('[ServizioCreaPage] Form reset completato:', {
-          passeggeri_count: form.getValues('passeggeri')?.length,
-          passeggeri_data: form.getValues('passeggeri'),
-          referente_id_form_value: form.getValues('referente_id'),
-          referente_id_watch: form.watch('referente_id'),
-          azienda_id_form_value: form.getValues('azienda_id'),
-          all_form_values_keys: Object.keys(form.getValues())
-        });
-        
-        // ✅ Carica passeggeri temporanei da DB (se presenti)
-        const tempPasseggeriDaDB = passeggeriData
-          .filter((sp: any) => !sp.salva_in_database && !sp.passeggero_id)
-          .map((sp: any) => ({
-            id: sp.id,
-            nome_cognome: sp.nome_cognome_inline || '',
-            email: sp.email_inline || '',
-            telefono: sp.telefono_inline || '',
-            localita: sp.localita_inline || '',
-            indirizzo: sp.indirizzo_inline || '',
-            orario_presa_personalizzato: sp.orario_presa_personalizzato,
-            usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
-          })) || [];
-        
-        if (tempPasseggeriDaDB.length > 0) {
-          setTempPasseggeri(tempPasseggeriDaDB);
-          console.log('[ServizioCreaPage] Loaded temporary passengers for edit:', tempPasseggeriDaDB.length);
+          console.log('[ServizioCreaPage] 🔵 Loading edit mode:', {
+            referente_id: initialData.referente_id,
+            referente_id_type: typeof initialData.referente_id,
+            referente_id_is_null: initialData.referente_id === null,
+            referente_id_is_undefined: initialData.referente_id === undefined,
+            azienda_id: initialData.azienda_id,
+            azienda_id_type: typeof initialData.azienda_id,
+            mode: mode,
+            servizioId: servizioId,
+            initialData_keys: Object.keys(initialData)
+          });
+          
+          form.reset({
+            tipo_cliente: initialData.tipo_cliente || 'azienda',
+            azienda_id: initialData.azienda_id || '',
+            referente_id: initialData.referente_id || null,
+            cliente_privato_id: initialData.cliente_privato_id || null,
+            cliente_privato_nome: initialData.cliente_privato_nome || '',
+            cliente_privato_cognome: initialData.cliente_privato_cognome || '',
+            cliente_privato_email: initialData.clienti_privati?.email || '',
+            cliente_privato_telefono: initialData.clienti_privati?.telefono || '',
+            cliente_privato_indirizzo: initialData.clienti_privati?.indirizzo || '',
+            cliente_privato_citta: initialData.clienti_privati?.citta || '',
+            cliente_privato_note: initialData.clienti_privati?.note || '',
+            salva_cliente_anagrafica: false,
+            data_servizio: initialData.data_servizio || new Date().toISOString().split('T')[0],
+            orario_servizio: initialData.orario_servizio || "12:00",
+            numero_commessa: initialData.numero_commessa || null,
+            citta_presa: initialData.citta_presa || null,
+            indirizzo_presa: initialData.indirizzo_presa || '',
+            citta_destinazione: initialData.citta_destinazione || null,
+            indirizzo_destinazione: initialData.indirizzo_destinazione || '',
+            metodo_pagamento: initialData.metodo_pagamento || '',
+            conducente_esterno: initialData.conducente_esterno || false,
+            assegnato_a: initialData.assegnato_a || null,
+            conducente_esterno_id: initialData.conducente_esterno_id || null,
+            veicolo_id: initialData.veicolo_id || null,
+            ore_effettive: initialData.ore_effettive?.toString() || null,
+            ore_fatturate: initialData.ore_fatturate?.toString() || null,
+            incasso_previsto: initialData.incasso_previsto || null,
+            iva: initialData.iva || 22,
+            importo_totale_calcolato: null,
+            applica_provvigione: initialData.applica_provvigione || false,
+            consegna_contanti_a: initialData.consegna_contanti_a || null,
+            // ✅ FIX CRITICO: Popola array 'passeggeri' con oggetti completi
+            passeggeri: passeggeriData.map((sp: any) => ({
+              id: sp.id,
+              passeggero_id: sp.passeggero_id,
+              nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
+              email: sp.email_inline || sp.passeggeri?.email || '',
+              telefono: sp.telefono_inline || sp.passeggeri?.telefono || '',
+              localita: sp.localita_inline || sp.passeggeri?.localita || '',
+              indirizzo: sp.indirizzo_inline || sp.passeggeri?.indirizzo || '',
+              orario_presa_personalizzato: sp.orario_presa_personalizzato,
+              luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+              destinazione_personalizzato: sp.destinazione_personalizzato,
+              usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
+              salva_in_database: sp.salva_in_database !== false,
+              is_existing: !!sp.passeggero_id,
+            })) || [],
+            email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
+            note: initialData.note || null,
+          });
+          
+          console.log('[ServizioCreaPage] Form reset completato:', {
+            passeggeri_count: form.getValues('passeggeri')?.length,
+            passeggeri_data: form.getValues('passeggeri'),
+            referente_id_form_value: form.getValues('referente_id'),
+            referente_id_watch: form.watch('referente_id'),
+            azienda_id_form_value: form.getValues('azienda_id'),
+            all_form_values_keys: Object.keys(form.getValues())
+          });
+          
+          // ✅ Carica passeggeri temporanei da DB (se presenti)
+          const tempPasseggeriDaDB = passeggeriData
+            .filter((sp: any) => !sp.salva_in_database && !sp.passeggero_id)
+            .map((sp: any) => ({
+              id: sp.id,
+              nome_cognome: sp.nome_cognome_inline || '',
+              email: sp.email_inline || '',
+              telefono: sp.telefono_inline || '',
+              localita: sp.localita_inline || '',
+              indirizzo: sp.indirizzo_inline || '',
+              orario_presa_personalizzato: sp.orario_presa_personalizzato,
+              usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
+            })) || [];
+          
+          if (tempPasseggeriDaDB.length > 0) {
+            setTempPasseggeri(tempPasseggeriDaDB);
+            console.log('[ServizioCreaPage] Loaded temporary passengers for edit:', tempPasseggeriDaDB.length);
+          }
+          
+          console.log('[ServizioCreaPage] 🟢 LoadData COMPLETED');
+          
+        } catch (error) {
+          console.error('[ServizioCreaPage] ❌ CRITICAL ERROR in loadData():', {
+            error,
+            error_message: error instanceof Error ? error.message : 'Unknown error',
+            error_stack: error instanceof Error ? error.stack : undefined
+          });
+          
+          toast.error('Errore nel caricamento dei dati del servizio');
         }
       };
+      
       loadData();
+      
+      console.log('[ServizioCreaPage] ⚡ loadData() called - async execution started');
     }
   }, [mode, initialData, servizioId, form]);
 
