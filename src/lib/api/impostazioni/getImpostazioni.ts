@@ -33,14 +33,15 @@ export async function getImpostazioni(): Promise<Impostazioni | null> {
       }));
     };
 
-    const ensureAliquoteIvaIds = (aliquote: any[] = []): AliquotaIvaOption[] => {
-      return aliquote.map(aliquota => ({
-        id: aliquota.id || uuidv4(),
-        nome: aliquota.nome || "",
-        percentuale: Number(aliquota.percentuale || 0),
-        descrizione: aliquota.descrizione || "",
-      }));
-    };
+  const ensureAliquoteIvaIds = (aliquote: any[] = []): AliquotaIvaOption[] => {
+    return aliquote.map(aliquota => ({
+      id: aliquota.id || uuidv4(),
+      nome: aliquota.nome || "",
+      percentuale: Number(aliquota.percentuale || 0),
+      descrizione: aliquota.descrizione || "",
+      is_default: aliquota.is_default === true,
+    }));
+  };
 
     // Parse JSON fields from database
     const metodi_raw = data.metodi_pagamento as unknown;
