@@ -287,7 +287,7 @@ export function useServizi() {
       updateStatoServizioMutation.mutate({ id, stato }),
     completaServizio: completaServizioMutation.mutate,
     consuntivaServizio: consuntivaServizioMutation.mutate,
-    deleteServizio: (id: string) => deleteServizioMutation.mutate(id),
+    deleteServizio: (id: string) => deleteServizioMutation.mutateAsync(id),
     isCreating: createServizioMutation.isPending,
     isUpdating: updateStatoServizioMutation.isPending,
     isUpdatingServizio: updateServizioMutation.isPending,

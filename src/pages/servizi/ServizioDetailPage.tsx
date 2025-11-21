@@ -335,11 +335,14 @@ export default function ServizioDetailPage() {
         onOpenChange={setDeleteDialogOpen}
         servizioId={servizio?.id}
         isDeleting={isDeleting}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (servizio?.id) {
-            deleteServizio(servizio.id);
-            setDeleteDialogOpen(false);
-            navigate('/servizi');
+            try {
+              await deleteServizio(servizio.id);
+              navigate('/servizi');
+            } catch (error) {
+              setDeleteDialogOpen(false);
+            }
           }
         }}
       />
