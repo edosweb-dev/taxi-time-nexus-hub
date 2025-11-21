@@ -31,7 +31,7 @@ export function CompletaCartaForm({
   servizio,
   onComplete,
 }: CompletaCartaFormProps) {
-  const ivaPercentuale = servizio.iva || 22;
+  const ivaPercentuale = servizio.iva || 10; // ✅ Default 10% come da specifiche
   const incassoNetto = servizio.incasso_previsto || 0;
   const importoIva = incassoNetto * (ivaPercentuale / 100);
   const totalePrevisto = incassoNetto + importoIva;

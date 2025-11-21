@@ -432,10 +432,10 @@ export const ServizioCreaPage = ({
 
   // ✅ Trova aliquota IVA di default
   const aliquotaIvaDefault = useMemo(() => {
-    if (!Array.isArray(impostazioniData?.aliquote_iva)) return 22;
+    if (!Array.isArray(impostazioniData?.aliquote_iva)) return 10; // ✅ Default 10%
     const aliquoteArray = impostazioniData.aliquote_iva as Array<{ percentuale: number; is_default?: boolean }>;
     const defaultAliquota = aliquoteArray.find(a => a.is_default === true);
-    return defaultAliquota ? Number(defaultAliquota.percentuale) : 22;
+    return defaultAliquota ? Number(defaultAliquota.percentuale) : 10; // ✅ Default 10%
   }, [impostazioniData?.aliquote_iva]);
 
   // ✅ Imposta aliquota IVA di default quando le impostazioni sono caricate (solo in modalità creazione)
