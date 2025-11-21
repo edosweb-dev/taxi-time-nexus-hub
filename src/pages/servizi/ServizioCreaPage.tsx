@@ -53,6 +53,7 @@ import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AziendaSelectField } from "@/components/servizi/AziendaSelectField";
 import { ReferenteSelectField } from '@/components/servizi/ReferenteSelectField';
 import { PasseggeroForm } from "@/components/servizi/passeggeri/PasseggeroForm";
+import { PercorsoSection } from "@/components/servizi/PercorsoSection";
 import { calculateServizioStato } from '@/utils/servizioValidation';
 
 // Schema per modalità veloce - tipo cliente selezionabile
@@ -1378,79 +1379,7 @@ export const ServizioCreaPage = ({
               <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
             </div>
             
-            <div className="space-y-6">
-              {/* Percorso: la logica di selezione indirizzi passeggero è ora gestita dal componente PercorsoSection */}
-              
-              {/* Partenza */}
-              <div>
-                <h3 className="text-sm font-medium mb-3 text-muted-foreground">
-                  Punto di Partenza
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="citta_presa" className="font-medium">Città</Label>
-                    <Input
-                      id="citta_presa"
-                      placeholder="Es: Milano"
-                      className="text-base"
-                      {...form.register("citta_presa")}
-                    />
-                  </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="indirizzo_presa" className="font-medium">
-                      Indirizzo Presa <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="indirizzo_presa"
-                      placeholder="Es: Via Roma 123"
-                      className="text-base"
-                      {...form.register("indirizzo_presa")}
-                    />
-                    {errors.indirizzo_presa && (
-                      <p className="text-sm text-destructive">
-                        {errors.indirizzo_presa.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Destinazione */}
-              <div>
-                <h3 className="text-sm font-medium mb-3 text-muted-foreground">
-                  Destinazione
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4">
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="citta_destinazione" className="font-medium">Città</Label>
-                    <Input
-                      id="citta_destinazione"
-                      placeholder="Es: Roma"
-                      className="text-base"
-                      {...form.register("citta_destinazione")}
-                    />
-                  </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="indirizzo_destinazione" className="font-medium">
-                      Indirizzo Destinazione <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="indirizzo_destinazione"
-                      placeholder="Es: Aeroporto Fiumicino"
-                      className="text-base"
-                      {...form.register("indirizzo_destinazione")}
-                    />
-                    {errors.indirizzo_destinazione && (
-                      <p className="text-sm text-destructive">
-                        {errors.indirizzo_destinazione.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PercorsoSection />
           </Card>
           )}
 
