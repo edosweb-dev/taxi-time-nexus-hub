@@ -76,20 +76,8 @@ export function CompletaServizioForm({
     staleTime: 5 * 60 * 1000,
   });
 
-  // Calcola l'importo totale IVA compresa
-  const calculateTotaleIncasso = () => {
-    const incassoPrevisto = Number(servizio.incasso_previsto) || 0;
-    const iva = Number(servizio.iva) || 0;
-    
-    // Se il servizio ha IVA, calcolala sempre
-    if (iva > 0) {
-      const ivaAmount = incassoPrevisto * (iva / 100);
-      return incassoPrevisto + ivaAmount;
-    }
-    
-    // Altrimenti ritorna solo l'incasso previsto
-    return incassoPrevisto;
-  };
+  // ✅ incasso_previsto è GIÀ comprensivo di IVA - nessun ricalcolo necessario
+  const totalePrevisto = Number(servizio.incasso_previsto) || 0;
 
   return (
     <Form {...form}>
@@ -142,7 +130,7 @@ export function CompletaServizioForm({
             <Input
               id="incasso_previsto_readonly"
               type="text"
-              value={formatCurrency(calculateTotaleIncasso())}
+              value={formatCurrency(totalePrevisto)}
               disabled
               className="bg-muted"
             />
@@ -181,38 +169,41 @@ export function CompletaServizioForm({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="consegna_contanti_a"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Consegna Contanti A *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona socio/admin..." />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {soci?.map((socio) => (
-                        <SelectItem key={socio.id} value={socio.id}>
-                          {socio.first_name} {socio.last_name}
-                          {socio.role && (
-                            <Badge variant="outline" className="ml-2 text-xs">
-                              {socio.role}
-                            </Badge>
-                          )}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Indica il socio/admin a cui consegnare i contanti
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* ✅ Campo visibile SOLO per Contanti */}
+            {servizio.metodo_pagamento === 'Contanti' && (
+              <FormField
+                control={form.control}
+                name="consegna_contanti_a"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Consegna Contanti A *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona socio/admin..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {soci?.map((socio) => (
+                          <SelectItem key={socio.id} value={socio.id}>
+                            {socio.first_name} {socio.last_name}
+                            {socio.role && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                {socio.role}
+                              </Badge>
+                            )}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Indica il socio/admin a cui consegnare i contanti
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
         )}
 
