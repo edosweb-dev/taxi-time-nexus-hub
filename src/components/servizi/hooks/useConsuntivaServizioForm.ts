@@ -27,31 +27,12 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
   const ivaServizio = servizio.iva || (servizio as any).azienda?.iva || 22;
   const [ivaPercentage, setIvaPercentage] = useState<number>(ivaServizio);
   
-  // Calcola totale previsto (incasso netto + IVA) SINCRONO per pre-fill
-  const calcolaTotalePrevisto = (incassoNetto: number | undefined, iva: number) => {
-    if (!incassoNetto) return undefined;
-    
-    const importoIva = incassoNetto * (iva / 100);
-    const totale = incassoNetto + importoIva;
-    
-    console.log('📊 Calcolo totale previsto:', {
-      netto: incassoNetto,
-      iva: `${iva}%`,
-      importoIva,
-      totale,
-    });
-    
-    return totale;
-  };
-  
-  const totalePrevisto = calcolaTotalePrevisto(servizio.incasso_previsto, ivaServizio);
-  
   const form = useForm<ConsuntivaServizioFormData>({
     resolver: zodResolver(consuntivaServizioSchema),
     defaultValues: {
       ore_sosta: servizio.ore_sosta || undefined,
-      // Pre-popola con totale previsto (netto + IVA)
-      incasso_previsto: totalePrevisto,
+      // ✅ Usa valore diretto - incasso_previsto è GIÀ il totale comprensivo IVA
+      incasso_previsto: servizio.incasso_previsto,
       km_totali: servizio.km_totali || undefined,
     },
   });
@@ -73,8 +54,12 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     loadIvaRate();
   }, [servizio]);
   
-  // Calculate the IVA amount
-  const ivaAmount = incassoPrevisto ? (incassoPrevisto * ivaPercentage) / 100 : 0;
+  // ✅ SCORPORO IVA: incassoPrevisto è il totale, calcoliamo IVA e imponibile
+  const ivaAmount = incassoPrevisto 
+    ? (incassoPrevisto * ivaPercentage) / (100 + ivaPercentage)
+    : 0;
+  
+  const imponibile = incassoPrevisto ? incassoPrevisto - ivaAmount : 0;
   
   const handleSubmit = (data: ConsuntivaServizioFormData) => {
     onSubmit(data);
@@ -85,7 +70,8 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     handleSubmit: form.handleSubmit(handleSubmit),
     ivaPercentage,
     ivaAmount,
-    totalePrevisto,
+    imponibile,
+    totalePrevisto: incassoPrevisto, // ✅ Totale = incasso previsto (nessun ricalcolo!)
     isSubmitting: form.formState.isSubmitting,
   };
 }
