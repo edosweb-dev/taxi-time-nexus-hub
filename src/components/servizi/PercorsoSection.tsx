@@ -127,7 +127,7 @@ export const PercorsoSection = () => {
                   <RadioGroupItem 
                     value="passeggero" 
                     id="partenza-passeggero"
-                    disabled={!passeggeri || passeggeri.length === 0 || passeggeri.length > 1}
+                    disabled={!passeggeri || passeggeri.length === 0}
                   />
                   <Label 
                     htmlFor="partenza-passeggero" 
@@ -137,11 +137,6 @@ export const PercorsoSection = () => {
                     {(!passeggeri || passeggeri.length === 0) && (
                       <span className="text-xs text-muted-foreground ml-2">
                         (Aggiungi prima un passeggero)
-                      </span>
-                    )}
-                    {passeggeri && passeggeri.length > 1 && (
-                      <span className="text-xs text-muted-foreground ml-2">
-                        (Con più passeggeri, usa indirizzi personalizzati)
                       </span>
                     )}
                   </Label>
@@ -261,7 +256,7 @@ export const PercorsoSection = () => {
                   <RadioGroupItem 
                     value="passeggero" 
                     id="dest-passeggero"
-                    disabled={!passeggeri || passeggeri.length === 0 || passeggeri.length > 1}
+                    disabled={!passeggeri || passeggeri.length === 0}
                   />
                   <Label 
                     htmlFor="dest-passeggero" 
@@ -271,11 +266,6 @@ export const PercorsoSection = () => {
                     {(!passeggeri || passeggeri.length === 0) && (
                       <span className="text-xs text-muted-foreground ml-2">
                         (Aggiungi prima un passeggero)
-                      </span>
-                    )}
-                    {passeggeri && passeggeri.length > 1 && (
-                      <span className="text-xs text-muted-foreground ml-2">
-                        (Con più passeggeri, usa indirizzi personalizzati)
                       </span>
                     )}
                   </Label>
