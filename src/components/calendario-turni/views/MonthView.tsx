@@ -129,7 +129,7 @@ export function MonthView({ currentDate, shifts, employees, onCreateShift, onEdi
                     <div className="flex flex-wrap gap-1.5">
                       {dayShifts.slice(0, 8).map((shift) => {
                         const user = getUserInfo(shift.user_id);
-                        const userColor = user?.color || '#6B7280';
+                        const userColor = shift.shift_type === 'unavailable' ? '#9CA3AF' : (user?.color || '#6B7280');
 
                         return (
                           <div

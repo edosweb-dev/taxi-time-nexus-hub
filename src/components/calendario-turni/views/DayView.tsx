@@ -40,7 +40,7 @@ export function DayView({ currentDate, shifts, employees, onCreateShift, onEditS
           <div className="space-y-3">
             {dayShifts.map((shift) => {
               const user = getUserInfo(shift.user_id);
-              const userColor = user?.color || '#6B7280';
+              const userColor = shift.shift_type === 'unavailable' ? '#9CA3AF' : (user?.color || '#6B7280');
 
               return (
                 <div
