@@ -83,6 +83,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         metodo_pagamento: data.servizio.metodo_pagamento,
         note: data.servizio.note,
         veicolo_id: data.servizio.veicolo_id,
+        iva: 10,
         ore_effettive: data.servizio.ore_effettive,
         ore_fatturate: data.servizio.ore_fatturate,
         applica_provvigione: data.servizio.applica_provvigione,
