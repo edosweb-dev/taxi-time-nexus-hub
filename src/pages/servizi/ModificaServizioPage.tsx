@@ -46,11 +46,13 @@ export default function ModificaServizioPage() {
         has_relation: 'servizi_passeggeri' in (data || {})
       });
       
-      console.log('[ModificaServizioPage] ✅ Query result:', {
+      console.log('[ModificaServizioPage] ✅ Query result COMPLETO:', {
         servizio_id: data?.id,
         referente_id: data?.referente_id,
         referente_id_type: typeof data?.referente_id,
         azienda_id: data?.azienda_id,
+        servizi_passeggeri_count: data?.servizi_passeggeri?.length,
+        servizi_passeggeri_raw: data?.servizi_passeggeri,
         has_servizio: !!data,
         all_keys: data ? Object.keys(data) : []
       });

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Users } from "lucide-react";
@@ -23,7 +23,8 @@ interface PasseggeroFormProps {
 }
 
 export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: PasseggeroFormProps) {
-  const { control } = useFormContext<ServizioFormData>();
+  const form = useFormContext<ServizioFormData>();
+  const { control } = form;
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   
   // Watch per azienda_id
@@ -33,6 +34,23 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
   const { fields, append, remove, move } = useFieldArray({
     control,
     name: "passeggeri",
+  });
+
+  // ✅ LOG DIAGNOSTICO - Monitor fields changes
+  useEffect(() => {
+    console.log('[PasseggeroForm] 🔍 Fields state update:', {
+      fields_length: fields.length,
+      fields_ids: fields.map(f => f.id),
+      form_passeggeri_length: form.getValues('passeggeri')?.length,
+      form_passeggeri_first: form.getValues('passeggeri')?.[0],
+      are_synced: fields.length === (form.getValues('passeggeri')?.length || 0)
+    });
+  }, [fields, form]);
+
+  // ✅ LOG DIAGNOSTICO - Initial render
+  console.log('[PasseggeroForm] 📍 Component rendered:', {
+    initial_fields_length: fields.length,
+    azienda_id: azienda_id
   });
 
   // Aggiungi un passeggero dal selector
