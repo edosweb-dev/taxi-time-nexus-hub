@@ -30,7 +30,7 @@ export function useServizioDetail(id?: string) {
         .from('servizi')
         .select(`
           *,
-          aziende!left(id, nome, email, firma_digitale_attiva, partita_iva, iva, created_at),
+          aziende!left(id, nome, email, firma_digitale_attiva, partita_iva, created_at),
           veicoli!left(id, modello, targa, numero_posti),
           assegnato:profiles!servizi_assegnato_a_fkey(first_name, last_name),
           servizi_passeggeri!left(
