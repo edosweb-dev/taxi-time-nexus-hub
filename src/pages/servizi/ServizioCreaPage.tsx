@@ -465,15 +465,12 @@ export const ServizioCreaPage = ({
     
     // Se il metodo prevede IVA, applica l'aliquota di default
     if ((metodo as any).iva_applicabile === true) {
-      const currentIva = form.getValues('iva');
-      // Applica default solo se IVA non è stata modificata manualmente (è ancora 0)
-      if (currentIva === 0 || currentIva === null || currentIva === undefined) {
-        form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
-        console.log('[ServizioCreaPage] ✅ Applied default IVA for payment method:', {
-          method: watchMetodoPagamento,
-          iva: aliquotaIvaDefault
-        });
-      }
+      // Applica SEMPRE il default quando cambia il metodo di pagamento
+      form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
+      console.log('[ServizioCreaPage] ✅ Applied default IVA for payment method:', {
+        method: watchMetodoPagamento,
+        iva: aliquotaIvaDefault
+      });
     } else {
       // Se il metodo NON prevede IVA, imposta a 0
       form.setValue('iva', 0, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
