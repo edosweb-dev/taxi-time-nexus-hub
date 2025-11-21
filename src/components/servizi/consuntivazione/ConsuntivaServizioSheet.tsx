@@ -6,6 +6,8 @@ import { ConsuntivaServizioForm } from "./ConsuntivaServizioForm";
 import { consuntivaServizio } from "@/lib/api/servizi";
 import { Profile } from "@/lib/types";
 import { ConsuntivaServizioFormData } from "../hooks/useConsuntivaServizioForm";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ConsuntivaServizioSheetProps {
   open: boolean;
@@ -30,6 +32,26 @@ export function ConsuntivaServizioSheet({
 }: ConsuntivaServizioSheetProps) {
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
 
+  // ✅ Fetch servizio reale dal database invece di usare mock
+  const { data: servizio, isLoading } = useQuery({
+    queryKey: ['servizio-consuntiva-sheet', servizioId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('servizi')
+        .select(`
+          *,
+          azienda:aziende(id, nome, iva),
+          assegnato:profiles!assegnato_a(id, first_name, last_name, role)
+        `)
+        .eq('id', servizioId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: open,
+  });
+
   useEffect(() => {
     if (users) {
       const filteredUsers = users
@@ -48,7 +70,7 @@ export function ConsuntivaServizioSheet({
         id: servizioId,
         incasso_previsto: data.incasso_previsto,
         ore_sosta: data.ore_sosta,
-        consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
+        consegna_contanti_a: servizio?.metodo_pagamento === 'Contanti' ? data.consegna_contanti_a : undefined,
         km_totali: data.km_totali,
       });
 
@@ -64,24 +86,24 @@ export function ConsuntivaServizioSheet({
     }
   }
 
-  // Create a mock servizio object with the necessary fields for the form
-  const servizio = {
-    id: servizioId,
-    tipo_cliente: 'azienda' as const,
-    incasso_previsto: incassoRicevuto,
-    ore_sosta: oreLavorate,
-    metodo_pagamento: isContanti ? 'Contanti' : '',
-    // Add other required fields with placeholder values
-    azienda_id: '',
-    referente_id: '',
-    data_servizio: '',
-    orario_servizio: '',
-    indirizzo_presa: '',
-    indirizzo_destinazione: '',
-    stato: 'completato' as const,
-    created_at: '',
-    created_by: '',
-  };
+  // ✅ Loading state mentre fetchiamo il servizio
+  if (isLoading || !servizio) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="sm:max-w-[500px] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Consuntiva servizio</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 flex justify-center">
+            <p className="text-muted-foreground">Caricamento...</p>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // ✅ isContanti ora usa il metodo_pagamento reale dal database
+  const isContiPayment = servizio.metodo_pagamento === 'Contanti';
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -92,9 +114,9 @@ export function ConsuntivaServizioSheet({
         
         <div className="mt-6">
           <ConsuntivaServizioForm
-            servizio={servizio}
+            servizio={servizio as any}
             adminUsers={adminUsers}
-            isContanti={isContanti}
+            isContanti={isContiPayment}
             onSubmit={onSubmit}
             onCancel={() => onOpenChange(false)}
           />
