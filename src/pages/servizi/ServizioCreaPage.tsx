@@ -1597,9 +1597,9 @@ export const ServizioCreaPage = ({
                       render={({ field }) => (
                         <Select 
                           onValueChange={(value) => field.onChange(Number(value))} 
-                          value={field.value?.toString()}
+                          value={field.value !== null && field.value !== undefined ? String(field.value) : undefined}
                         >
-                          <SelectTrigger className="text-base">
+                          <SelectTrigger className="text-base" key={`iva-${field.value}`}>
                             <SelectValue placeholder="Seleziona IVA" />
                           </SelectTrigger>
                           <SelectContent>
