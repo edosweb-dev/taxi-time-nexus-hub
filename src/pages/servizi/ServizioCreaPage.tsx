@@ -93,8 +93,10 @@ const servizioSchemaVeloce = z.object({
   passeggeri_ids: z.array(z.string()).default([]),
   passeggeri: z.array(z.any()).optional().default([]),
   email_notifiche_ids: z.array(z.string()).default([]),
-  usa_indirizzo_passeggero_partenza: z.boolean().optional(),
-  usa_indirizzo_passeggero_destinazione: z.boolean().optional(),
+  partenza_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
+  partenza_passeggero_index: z.number().optional().nullable(),
+  destinazione_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
+  destinazione_passeggero_index: z.number().optional().nullable(),
 });
 
 // Schema validazione completo
@@ -143,8 +145,10 @@ const servizioSchemaCompleto = z.object({
   passeggeri: z.array(z.any()).optional().default([]),
   email_notifiche_ids: z.array(z.string()).default([]),
   note: z.string().optional().nullable(),
-  usa_indirizzo_passeggero_partenza: z.boolean().optional(),
-  usa_indirizzo_passeggero_destinazione: z.boolean().optional(),
+  partenza_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
+  partenza_passeggero_index: z.number().optional().nullable(),
+  destinazione_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
+  destinazione_passeggero_index: z.number().optional().nullable(),
 }).refine((data) => {
   // Validation: se azienda → azienda_id required
   if (data.tipo_cliente === 'azienda') {
@@ -222,16 +226,14 @@ export const ServizioCreaPage = ({
       passeggeri_ids: [],
       passeggeri: [],
       email_notifiche_ids: [],
-      usa_indirizzo_passeggero_partenza: false,
-      usa_indirizzo_passeggero_destinazione: false,
+      partenza_tipo: 'personalizzato',
+      partenza_passeggero_index: null,
+      destinazione_tipo: 'personalizzato',
+      destinazione_passeggero_index: null,
     },
   });
 
   const { formState: { errors } } = form;
-  
-  // Watch checkbox values for exclusive logic
-  const watchUsaIndirizzoPartenza = form.watch('usa_indirizzo_passeggero_partenza');
-  const watchUsaIndirizzoDestinazione = form.watch('usa_indirizzo_passeggero_destinazione');
 
   // Pre-popola form in edit mode
   useEffect(() => {
@@ -1377,59 +1379,13 @@ export const ServizioCreaPage = ({
             </div>
             
             <div className="space-y-6">
+              {/* Percorso: la logica di selezione indirizzi passeggero è ora gestita dal componente PercorsoSection */}
+              
               {/* Partenza */}
               <div>
                 <h3 className="text-sm font-medium mb-3 text-muted-foreground">
                   Punto di Partenza
                 </h3>
-                
-                {/* Checkbox Usa Indirizzo Passeggero - Partenza */}
-                {watchTipoCliente === 'azienda' && !watchUsaIndirizzoDestinazione && (
-                  <Controller
-                    name="usa_indirizzo_passeggero_partenza"
-                    control={form.control}
-                    render={({ field }) => (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            id="usa_indirizzo_passeggero_partenza"
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              if (checked) {
-                                form.setValue('usa_indirizzo_passeggero_destinazione', false);
-                                if (passeggeroSelezionato) {
-                                  form.setValue('indirizzo_presa', passeggeroSelezionato.indirizzo || '');
-                                  form.setValue('citta_presa', passeggeroSelezionato.localita || '');
-                                }
-                              } else {
-                                form.setValue('indirizzo_presa', '');
-                                form.setValue('citta_presa', '');
-                              }
-                            }}
-                            disabled={!passeggeroSelezionato || !passeggeroSelezionato.indirizzo}
-                          />
-                          <label 
-                            htmlFor="usa_indirizzo_passeggero_partenza" 
-                            className="text-sm cursor-pointer leading-none"
-                          >
-                            Usa indirizzo del passeggero
-                          </label>
-                        </div>
-                        {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
-                          <p className="text-xs text-destructive ml-6">
-                            Il passeggero non ha un indirizzo salvato
-                          </p>
-                        )}
-                        {passeggeroSelezionato && passeggeroSelezionato.indirizzo && field.value && (
-                          <p className="text-xs text-muted-foreground ml-6">
-                            {passeggeroSelezionato.indirizzo}, {passeggeroSelezionato.localita}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  />
-                )}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4">
                   <div className="space-y-1.5 sm:space-y-2">
@@ -1465,54 +1421,6 @@ export const ServizioCreaPage = ({
                 <h3 className="text-sm font-medium mb-3 text-muted-foreground">
                   Destinazione
                 </h3>
-                
-                {/* Checkbox Usa Indirizzo Passeggero - Destinazione */}
-                {watchTipoCliente === 'azienda' && !watchUsaIndirizzoPartenza && (
-                  <Controller
-                    name="usa_indirizzo_passeggero_destinazione"
-                    control={form.control}
-                    render={({ field }) => (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            id="usa_indirizzo_passeggero_destinazione"
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              if (checked) {
-                                form.setValue('usa_indirizzo_passeggero_partenza', false);
-                                if (passeggeroSelezionato) {
-                                  form.setValue('indirizzo_destinazione', passeggeroSelezionato.indirizzo || '');
-                                  form.setValue('citta_destinazione', passeggeroSelezionato.localita || '');
-                                }
-                              } else {
-                                form.setValue('indirizzo_destinazione', '');
-                                form.setValue('citta_destinazione', '');
-                              }
-                            }}
-                            disabled={!passeggeroSelezionato || !passeggeroSelezionato.indirizzo}
-                          />
-                          <label 
-                            htmlFor="usa_indirizzo_passeggero_destinazione" 
-                            className="text-sm cursor-pointer leading-none"
-                          >
-                            Usa indirizzo del passeggero
-                          </label>
-                        </div>
-                        {passeggeroSelezionato && !passeggeroSelezionato.indirizzo && (
-                          <p className="text-xs text-destructive ml-6">
-                            Il passeggero non ha un indirizzo salvato
-                          </p>
-                        )}
-                        {passeggeroSelezionato && passeggeroSelezionato.indirizzo && field.value && (
-                          <p className="text-xs text-muted-foreground ml-6">
-                            {passeggeroSelezionato.indirizzo}, {passeggeroSelezionato.localita}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  />
-                )}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4">
                   <div className="space-y-1.5 sm:space-y-2">
