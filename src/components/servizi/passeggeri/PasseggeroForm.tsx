@@ -36,22 +36,12 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
     name: "passeggeri",
   });
 
-  // ✅ LOG DIAGNOSTICO - Monitor fields changes
+  // Log essenziale - solo quando ci sono passeggeri
   useEffect(() => {
-    console.log('[PasseggeroForm] 🔍 Fields state update:', {
-      fields_length: fields.length,
-      fields_ids: fields.map(f => f.id),
-      form_passeggeri_length: form.getValues('passeggeri')?.length,
-      form_passeggeri_first: form.getValues('passeggeri')?.[0],
-      are_synced: fields.length === (form.getValues('passeggeri')?.length || 0)
-    });
-  }, [fields, form]);
-
-  // ✅ LOG DIAGNOSTICO - Initial render
-  console.log('[PasseggeroForm] 📍 Component rendered:', {
-    initial_fields_length: fields.length,
-    azienda_id: azienda_id
-  });
+    if (fields.length > 0) {
+      console.log('[PasseggeroForm] Passeggeri caricati:', fields.length);
+    }
+  }, [fields.length]);
 
   // Aggiungi un passeggero dal selector
   const handlePasseggeroSelect = (passeggero: any) => {

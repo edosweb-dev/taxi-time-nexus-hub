@@ -234,26 +234,10 @@ export const ServizioCreaPage = ({
   const watchUsaIndirizzoDestinazione = form.watch('usa_indirizzo_passeggero_destinazione');
 
   // Pre-popola form in edit mode
-  // ✅ LOG DIAGNOSTICO PRE-useEffect
-  console.log('[ServizioCreaPage] 🚨 PRE-useEffect check:', {
-    mode,
-    mode_is_edit: mode === 'edit',
-    mode_type: typeof mode,
-    has_initialData: !!initialData,
-    has_servizioId: !!servizioId,
-    servizioId,
-    initialData_keys: initialData ? Object.keys(initialData) : null,
-    servizi_passeggeri_count: initialData?.servizi_passeggeri?.length,
-    servizi_passeggeri_raw: initialData?.servizi_passeggeri,
-    will_trigger: mode === 'edit' && !!initialData && !!servizioId
-  });
-
   useEffect(() => {
     if (mode === 'edit' && initialData && servizioId) {
       const loadData = async () => {
         try {
-          console.log('[ServizioCreaPage] 🔵 LoadData STARTED');
-          
           // ✅ Usa i passeggeri già fetchati da ModificaServizioPage
           const passeggeriData = initialData.servizi_passeggeri || [];
 
@@ -360,8 +344,6 @@ export const ServizioCreaPage = ({
             console.log('[ServizioCreaPage] Loaded temporary passengers for edit:', tempPasseggeriDaDB.length);
           }
           
-          console.log('[ServizioCreaPage] 🟢 LoadData COMPLETED');
-          
         } catch (error) {
           console.error('[ServizioCreaPage] ❌ CRITICAL ERROR in loadData():', {
             error,
@@ -374,8 +356,6 @@ export const ServizioCreaPage = ({
       };
       
       loadData();
-      
-      console.log('[ServizioCreaPage] ⚡ loadData() called - async execution started');
     }
   }, [mode, initialData, servizioId, form]);
 
