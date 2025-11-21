@@ -444,7 +444,7 @@ export const ServizioCreaPage = ({
       const currentIva = form.getValues('iva');
       // Applica default solo se IVA è 0 o non impostata
       if (currentIva === 0 || currentIva === null || currentIva === undefined) {
-        form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false });
+        form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
         console.log('[ServizioCreaPage] ✅ Applied default IVA on mount:', aliquotaIvaDefault);
       }
     }
@@ -468,7 +468,7 @@ export const ServizioCreaPage = ({
       const currentIva = form.getValues('iva');
       // Applica default solo se IVA non è stata modificata manualmente (è ancora 0)
       if (currentIva === 0 || currentIva === null || currentIva === undefined) {
-        form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false });
+        form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
         console.log('[ServizioCreaPage] ✅ Applied default IVA for payment method:', {
           method: watchMetodoPagamento,
           iva: aliquotaIvaDefault
@@ -476,10 +476,16 @@ export const ServizioCreaPage = ({
       }
     } else {
       // Se il metodo NON prevede IVA, imposta a 0
-      form.setValue('iva', 0, { shouldValidate: false });
+      form.setValue('iva', 0, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
       console.log('[ServizioCreaPage] ⚠️ Set IVA to 0 for non-VAT payment method:', watchMetodoPagamento);
     }
   }, [watchMetodoPagamento, metodiPagamento, aliquotaIvaDefault, mode, form]);
+
+  // 🔍 DEBUG: Verifica valore IVA dopo i cambiamenti
+  useEffect(() => {
+    const currentIva = form.getValues('iva');
+    console.log('[ServizioCreaPage] 🔍 Current IVA value in form:', currentIva, 'Type:', typeof currentIva);
+  }, [watchIva, form]);
 
   // Trova metodo selezionato con useMemo per performance
   const metodoPagamentoSelezionato = useMemo(() => {
@@ -1596,10 +1602,11 @@ export const ServizioCreaPage = ({
                       control={form.control}
                       render={({ field }) => (
                         <Select 
+                          key={`iva-select-${field.value}`}
                           onValueChange={(value) => field.onChange(Number(value))} 
                           value={field.value !== null && field.value !== undefined ? String(field.value) : undefined}
                         >
-                          <SelectTrigger className="text-base" key={`iva-${field.value}`}>
+                          <SelectTrigger className="text-base">
                             <SelectValue placeholder="Seleziona IVA" />
                           </SelectTrigger>
                           <SelectContent>
