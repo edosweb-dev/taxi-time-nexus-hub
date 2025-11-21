@@ -114,7 +114,8 @@ export function ReportPreviewTable({
   const totaleImponibile = servizi.reduce((sum, servizio) => 
     sum + (servizio.incasso_ricevuto || servizio.incasso_previsto || 0), 0
   );
-  const totaleIva = totaleImponibile * 0.22;
+  // ✅ Default 10% come da specifiche
+  const totaleIva = totaleImponibile * 0.10;
   const totaleDocumento = totaleImponibile + totaleIva;
 
   const monthName = new Date(year, month - 1).toLocaleDateString('it-IT', { 
@@ -160,7 +161,7 @@ export function ReportPreviewTable({
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">€{totaleIva.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>
-                  <div className="text-sm text-muted-foreground">IVA (22%)</div>
+                  <div className="text-sm text-muted-foreground">IVA (10%)</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">€{totaleDocumento.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</div>

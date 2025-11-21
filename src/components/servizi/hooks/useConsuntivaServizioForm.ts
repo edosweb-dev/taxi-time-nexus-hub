@@ -23,8 +23,8 @@ export const consuntivaServizioSchema = z.object({
 export type ConsuntivaServizioFormData = z.infer<typeof consuntivaServizioSchema>;
 
 export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: ConsuntivaServizioFormData) => void) {
-  // Calcola IVA sincrona usando dati del servizio
-  const ivaServizio = servizio.iva || (servizio as any).azienda?.iva || 22;
+  // ✅ Default 10% come da specifiche
+  const ivaServizio = servizio.iva || (servizio as any).azienda?.iva || 10;
   const [ivaPercentage, setIvaPercentage] = useState<number>(ivaServizio);
   
   const form = useForm<ConsuntivaServizioFormData>({

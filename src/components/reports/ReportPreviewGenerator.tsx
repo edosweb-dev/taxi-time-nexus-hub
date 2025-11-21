@@ -9,7 +9,7 @@ export function generateMockReportData(
 ): Report {
   const numeroServizi = Math.floor(Math.random() * 50) + 1;
   const totaleImponibile = Math.floor(Math.random() * 10000) + 1000;
-  const totaleIva = totaleImponibile * 0.22;
+  const totaleIva = totaleImponibile * 0.10; // ✅ Default 10%
   const totaleDocumento = totaleImponibile + totaleIva;
 
   // Genera contenuto mock per l'anteprima PDF
