@@ -4,9 +4,11 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InserimentoMassivoForm } from '@/components/calendario-turni/shared/InserimentoMassivoForm';
 import { ShiftCreationProgressDialog } from '@/components/shifts/dialogs/ShiftCreationProgressDialog';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function MobileInserimentoMassivoPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [currentDate] = useState(new Date());
   
   // Progress states
@@ -35,6 +37,9 @@ export default function MobileInserimentoMassivoPage() {
 
   const handleCompleteProgress = () => {
     setIsCreationComplete(true);
+    // Invalida la cache per ricaricare i turni
+    queryClient.invalidateQueries({ queryKey: ['turni-mese'] });
+    queryClient.invalidateQueries({ queryKey: ['turni-settimana'] });
     // Auto-navigate back dopo successo
     setTimeout(() => {
       navigate('/calendario-turni');
