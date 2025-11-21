@@ -215,7 +215,7 @@ export const ServizioCreaPage = ({
       indirizzo_destinazione: isVeloce ? "Da definire" : "",
       metodo_pagamento: isVeloce ? "da_definire" : "",
       incasso_previsto: null,
-      iva: 22, // Verrà aggiornato dall'aliquota di default
+      iva: 0, // ✅ Sarà popolato dall'aliquota di default via useEffect
       importo_totale_calcolato: null,
       conducente_esterno: false,
       applica_provvigione: false,
@@ -440,10 +440,46 @@ export const ServizioCreaPage = ({
 
   // ✅ Imposta aliquota IVA di default quando le impostazioni sono caricate (solo in modalità creazione)
   useEffect(() => {
-    if (mode === 'create' && aliquotaIvaDefault && !form.getValues('iva')) {
-      form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false });
+    if (mode === 'create' && aliquotaIvaDefault) {
+      const currentIva = form.getValues('iva');
+      // Applica default solo se IVA è 0 o non impostata
+      if (currentIva === 0 || currentIva === null || currentIva === undefined) {
+        form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false });
+        console.log('[ServizioCreaPage] ✅ Applied default IVA on mount:', aliquotaIvaDefault);
+      }
     }
   }, [aliquotaIvaDefault, mode, form]);
+
+  // ✅ Applica aliquota IVA di default quando cambia il metodo di pagamento
+  useEffect(() => {
+    // Solo in modalità creazione
+    if (mode !== 'create') return;
+    
+    // Solo se il metodo di pagamento è valido e non è "da_definire"
+    if (!watchMetodoPagamento || watchMetodoPagamento === 'da_definire') return;
+    
+    // Trova configurazione del metodo selezionato
+    const metodo = metodiPagamento?.find((m: any) => m.nome === watchMetodoPagamento);
+    
+    if (!metodo) return;
+    
+    // Se il metodo prevede IVA, applica l'aliquota di default
+    if ((metodo as any).iva_applicabile === true) {
+      const currentIva = form.getValues('iva');
+      // Applica default solo se IVA non è stata modificata manualmente (è ancora 0)
+      if (currentIva === 0 || currentIva === null || currentIva === undefined) {
+        form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false });
+        console.log('[ServizioCreaPage] ✅ Applied default IVA for payment method:', {
+          method: watchMetodoPagamento,
+          iva: aliquotaIvaDefault
+        });
+      }
+    } else {
+      // Se il metodo NON prevede IVA, imposta a 0
+      form.setValue('iva', 0, { shouldValidate: false });
+      console.log('[ServizioCreaPage] ⚠️ Set IVA to 0 for non-VAT payment method:', watchMetodoPagamento);
+    }
+  }, [watchMetodoPagamento, metodiPagamento, aliquotaIvaDefault, mode, form]);
 
   // Trova metodo selezionato con useMemo per performance
   const metodoPagamentoSelezionato = useMemo(() => {
