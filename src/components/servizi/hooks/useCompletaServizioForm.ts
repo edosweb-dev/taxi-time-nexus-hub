@@ -26,8 +26,8 @@ export function getCompletaServizioSchema(metodoPagamento?: string | null) {
           .min(0.01, "Importo deve essere maggiore di 0")
           .positive("Importo deve essere un numero positivo")
       : z.coerce.number().optional(),
-    // Consegna contanti richiesta SOLO per metodi che richiedono gestione
-    consegna_contanti_a: richiedeIncasso
+    // ✅ Consegna contanti richiesta SOLO per Contanti
+    consegna_contanti_a: metodoPagamento === 'Contanti'
       ? z.string().min(1, "Seleziona a chi consegnare i contanti")
       : z.string().optional(),
   });
