@@ -14,6 +14,7 @@ import {
   Rows3, 
   Square,
   Users,
+  User,
   Filter,
   BarChart3
 } from 'lucide-react';
@@ -29,6 +30,7 @@ import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
 import { ShiftCreationProgressDialog } from '@/components/shifts/dialogs/ShiftCreationProgressDialog';
 import { CalendarioView } from './CalendarioView';
 import { InserimentoMassivoDialog } from './InserimentoMassivoDialog';
+import { InserimentoSingoloUtenteDialog } from './InserimentoSingoloUtenteDialog';
 import { ViewFilterDropdown } from '@/components/shifts/filters/ViewFilterDropdown';
 import { Shift } from '@/components/shifts/types';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -67,6 +69,7 @@ export function CalendarioTurniContent({
   const [quickViewDialogOpen, setQuickViewDialogOpen] = useState(false);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [inserimentoMassivoOpen, setInserimentoMassivoOpen] = useState(false);
+  const [inserimentoSingoloOpen, setInserimentoSingoloOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
   // Progress dialog state
@@ -218,6 +221,10 @@ export function CalendarioTurniContent({
     }
   };
 
+  const handleOpenInserimentoSingolo = () => {
+    setInserimentoSingoloOpen(true);
+  };
+
   return (
     <div className="w-full space-y-6">
       {/* Inserimento Massivo Dialog */}
@@ -225,6 +232,17 @@ export function CalendarioTurniContent({
         <InserimentoMassivoDialog 
           currentDate={currentDate}
           onClose={() => setInserimentoMassivoOpen(false)}
+          onStartProgress={handleStartProgress}
+          onUpdateProgress={handleUpdateProgress}
+          onCompleteProgress={handleCompleteProgress}
+        />
+      )}
+
+      {/* Inserimento Singolo Utente Dialog */}
+      {inserimentoSingoloOpen && (
+        <InserimentoSingoloUtenteDialog 
+          currentDate={currentDate}
+          onClose={() => setInserimentoSingoloOpen(false)}
           onStartProgress={handleStartProgress}
           onUpdateProgress={handleUpdateProgress}
           onCompleteProgress={handleCompleteProgress}
@@ -336,11 +354,21 @@ export function CalendarioTurniContent({
                     <Button 
                       variant="outline"
                       size="sm" 
+                      onClick={handleOpenInserimentoSingolo} 
+                      className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl"
+                    >
+                      <User className="h-4 w-4" />
+                      <span className="hidden sm:inline">Rapido</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm" 
                       onClick={handleOpenInserimentoMassivo} 
                       className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl"
                     >
                       <Users className="h-4 w-4" />
-                      <span className="hidden sm:inline">Inserimento</span>
+                      <span className="hidden sm:inline">Massivo</span>
                     </Button>
                     
                     <Button 
@@ -449,6 +477,16 @@ export function CalendarioTurniContent({
                     >
                       <BarChart3 className="h-4 w-4" />
                       Report
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm" 
+                      onClick={handleOpenInserimentoSingolo} 
+                      className="h-9 px-3 gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      Inserimento rapido
                     </Button>
                     
                     <Button 
