@@ -86,16 +86,18 @@ export const PercorsoSection = () => {
                 </div>
                 
                 {partenzaTipo === 'personalizzato' && (
-                  <div className="ml-6 space-y-3">
+                  <div className="ml-6 space-y-3 mt-3">
                     <Controller
                       control={control}
                       name="citta_presa"
                       render={({ field }) => (
                         <div>
-                          <Label className="text-xs text-muted-foreground mb-1.5 block">Città</Label>
+                          <Label className="text-sm font-medium mb-1.5 block">Città</Label>
                           <MobileInput
                             {...field}
-                            placeholder="Milano"
+                            value={field.value || ''}
+                            placeholder="Es: Milano"
+                            fluid
                           />
                         </div>
                       )}
@@ -105,10 +107,12 @@ export const PercorsoSection = () => {
                       name="indirizzo_presa"
                       render={({ field }) => (
                         <div>
-                          <Label className="text-xs text-muted-foreground mb-1.5 block">Indirizzo *</Label>
+                          <Label className="text-sm font-medium mb-1.5 block">Indirizzo *</Label>
                           <MobileInput
                             {...field}
-                            placeholder="Via Roma 1"
+                            value={field.value || ''}
+                            placeholder="Es: Via Roma 1"
+                            fluid
                           />
                         </div>
                       )}
@@ -216,16 +220,18 @@ export const PercorsoSection = () => {
                 </div>
                 
                 {destinazioneTipo === 'personalizzato' && (
-                  <div className="ml-6 space-y-3">
+                  <div className="ml-6 space-y-3 mt-3">
                     <Controller
                       control={control}
                       name="citta_destinazione"
                       render={({ field }) => (
                         <div>
-                          <Label className="text-xs text-muted-foreground mb-1.5 block">Città</Label>
+                          <Label className="text-sm font-medium mb-1.5 block">Città</Label>
                           <MobileInput
                             {...field}
-                            placeholder="Malpensa"
+                            value={field.value || ''}
+                            placeholder="Es: Milano"
+                            fluid
                           />
                         </div>
                       )}
@@ -235,10 +241,12 @@ export const PercorsoSection = () => {
                       name="indirizzo_destinazione"
                       render={({ field }) => (
                         <div>
-                          <Label className="text-xs text-muted-foreground mb-1.5 block">Indirizzo *</Label>
+                          <Label className="text-sm font-medium mb-1.5 block">Indirizzo *</Label>
                           <MobileInput
                             {...field}
-                            placeholder="Terminal 1, Arrivi"
+                            value={field.value || ''}
+                            placeholder="Es: Aeroporto Malpensa, Terminal 1"
+                            fluid
                           />
                         </div>
                       )}
