@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, 
   Download, 
@@ -53,6 +54,7 @@ export function CalendarioTurniContent({
   const { shifts, isLoading, loadShifts, deleteShift } = useShifts();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   
   // State - Initialize with props if provided
   const [currentDate, setCurrentDate] = useState(initialDate || new Date());
@@ -195,6 +197,9 @@ export function CalendarioTurniContent({
 
   const handleCompleteProgress = () => {
     setIsCreationComplete(true);
+    // Invalida la cache per ricaricare i turni
+    queryClient.invalidateQueries({ queryKey: ['turni-mese'] });
+    queryClient.invalidateQueries({ queryKey: ['turni-settimana'] });
   };
 
   const handleProgressDialogClose = () => {
