@@ -215,7 +215,7 @@ export const ServizioCreaPage = ({
       indirizzo_destinazione: isVeloce ? "Da definire" : "",
       metodo_pagamento: isVeloce ? "da_definire" : "",
       incasso_previsto: null,
-      iva: 22,
+      iva: 22, // Verrà aggiornato dall'aliquota di default
       importo_totale_calcolato: null,
       conducente_esterno: false,
       applica_provvigione: false,
@@ -425,9 +425,25 @@ export const ServizioCreaPage = ({
   const metodiPagamento = Array.isArray(impostazioniData?.metodi_pagamento) 
     ? impostazioniData.metodi_pagamento 
     : [];
+  
   const aliquoteIva = Array.isArray(impostazioniData?.aliquote_iva) 
     ? impostazioniData.aliquote_iva.map((a: any) => a.percentuale)
     : [22, 10, 4, 0];
+
+  // ✅ Trova aliquota IVA di default
+  const aliquotaIvaDefault = useMemo(() => {
+    if (!Array.isArray(impostazioniData?.aliquote_iva)) return 22;
+    const aliquoteArray = impostazioniData.aliquote_iva as Array<{ percentuale: number; is_default?: boolean }>;
+    const defaultAliquota = aliquoteArray.find(a => a.is_default === true);
+    return defaultAliquota ? Number(defaultAliquota.percentuale) : 22;
+  }, [impostazioniData?.aliquote_iva]);
+
+  // ✅ Imposta aliquota IVA di default quando le impostazioni sono caricate (solo in modalità creazione)
+  useEffect(() => {
+    if (mode === 'create' && aliquotaIvaDefault && !form.getValues('iva')) {
+      form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false });
+    }
+  }, [aliquotaIvaDefault, mode, form]);
 
   // Trova metodo selezionato con useMemo per performance
   const metodoPagamentoSelezionato = useMemo(() => {
