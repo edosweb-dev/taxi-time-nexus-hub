@@ -45,7 +45,10 @@ export function AliquoteIvaForm({ aliquote, onChange }: AliquoteIvaFormProps) {
     onChange(updatedAliquote);
   };
 
-  const handleSetDefault = (id: string) => {
+  const handleSetDefault = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     // Rimuovi default da tutte e impostalo solo sulla selezionata
     const updatedAliquote = aliquote.map(aliquota => ({
       ...aliquota,
@@ -73,8 +76,8 @@ export function AliquoteIvaForm({ aliquote, onChange }: AliquoteIvaFormProps) {
                   type="button"
                   variant={aliquota.is_default ? "default" : "ghost"}
                   size="icon"
-                  onClick={() => handleSetDefault(aliquota.id)}
-                  className={aliquota.is_default ? "bg-primary" : ""}
+                  onClick={(e) => handleSetDefault(e, aliquota.id)}
+                  className={`pointer-events-auto ${aliquota.is_default ? 'bg-primary' : ''}`}
                   title={aliquota.is_default ? "Aliquota di default" : "Imposta come default"}
                 >
                   <Star className={`h-4 w-4 ${aliquota.is_default ? 'fill-current' : ''}`} />
