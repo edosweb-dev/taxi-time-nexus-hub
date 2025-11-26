@@ -62,6 +62,8 @@ export default function ServizioDetailPage() {
     canBeCompleted,
     canBeConsuntivato,
     veicoloModello: veicoloModelloFromHook,
+    allPasseggeriSigned,
+    firmePasseggeri,
   } = hookResult;
 
   // 🔒 SECURITY: Dipendente può vedere solo servizi assegnati a lui
@@ -152,6 +154,8 @@ export default function ServizioDetailPage() {
             canRequestSignature={canRequestSignature}
             isAdmin={isAdmin}
             servizioIndex={servizioIndex}
+            allPasseggeriSigned={allPasseggeriSigned}
+            firmePasseggeri={firmePasseggeri}
             onAssegna={() => setAssegnazioneSheetOpen(true)}
             onCompleta={() => setCompletaDialogOpen(true)}
             onConsuntiva={() => setConsuntivaDialogOpen(true)}

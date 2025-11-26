@@ -8,13 +8,19 @@ import { it } from "date-fns/locale";
 interface NotesSignatureSectionProps {
   servizio: Servizio;
   firmaDigitaleAttiva: boolean;
+  allPasseggeriSigned?: boolean;
+  firmePasseggeri?: number;
+  totalPasseggeri?: number;
 }
 
 export function NotesSignatureSection({
   servizio,
   firmaDigitaleAttiva,
+  allPasseggeriSigned = false,
+  firmePasseggeri = 0,
+  totalPasseggeri = 0,
 }: NotesSignatureSectionProps) {
-  const hasContent = servizio.note || (firmaDigitaleAttiva && (servizio.firma_url || servizio.firma_timestamp));
+  const hasContent = servizio.note || (firmaDigitaleAttiva && (allPasseggeriSigned || firmePasseggeri > 0));
 
   const safeFormat = (value?: string | Date, fmt: string = "dd/MM/yyyy 'alle' HH:mm") => {
     if (!value) return "—";
@@ -54,11 +60,14 @@ export function NotesSignatureSection({
             <CardTitle className="text-lg">Firma Cliente</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {servizio.firma_url ? (
+            {allPasseggeriSigned ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                    Cliente ha firmato
+                    {totalPasseggeri > 1 
+                      ? `Tutti i passeggeri hanno firmato (${totalPasseggeri}/${totalPasseggeri})`
+                      : 'Cliente ha firmato'
+                    }
                   </Badge>
                   {servizio.firma_timestamp && (
                     <span className="text-sm text-muted-foreground">
@@ -66,21 +75,29 @@ export function NotesSignatureSection({
                     </span>
                   )}
                 </div>
-                <div className="border rounded-lg p-4 bg-muted/30">
-                  <img 
-                    src={servizio.firma_url} 
-                    alt="Firma cliente" 
-                    className="max-w-full h-auto border rounded"
-                  />
-                </div>
+                {servizio.firma_url && (
+                  <div className="border rounded-lg p-4 bg-muted/30">
+                    <img 
+                      src={servizio.firma_url} 
+                      alt="Firma cliente" 
+                      className="max-w-full h-auto border rounded"
+                    />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-6">
                 <Badge variant="secondary" className="mb-2 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
-                  In attesa firma cliente
+                  {totalPasseggeri > 1 
+                    ? `In attesa firme (${firmePasseggeri}/${totalPasseggeri})`
+                    : 'In attesa firma cliente'
+                  }
                 </Badge>
                 <div className="text-sm text-muted-foreground">
-                  Il cliente non ha ancora firmato digitalmente il servizio
+                  {totalPasseggeri > 1
+                    ? `${firmePasseggeri} su ${totalPasseggeri} passeggeri hanno firmato`
+                    : 'Il cliente non ha ancora firmato digitalmente il servizio'
+                  }
                 </div>
               </div>
             )}

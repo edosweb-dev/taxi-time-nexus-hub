@@ -10,6 +10,7 @@ interface ServizioCardActionsProps {
   onSelect: () => void;
   onCompleta?: (servizio: Servizio) => void;
   onFirma?: (servizio: Servizio) => void;
+  allPasseggeriSigned?: boolean;
 }
 
 export const ServizioCardActions = ({
@@ -18,11 +19,12 @@ export const ServizioCardActions = ({
   isAdminOrSocio,
   onSelect,
   onCompleta,
-  onFirma
+  onFirma,
+  allPasseggeriSigned = false,
 }: ServizioCardActionsProps) => {
   // Determina se i pulsanti speciali devono essere mostrati
   const canBeCompleted = servizio.stato === 'assegnato';
-  const canBeSigned = (servizio.stato === 'assegnato' || servizio.stato === 'completato') && !servizio.firma_url;
+  const canBeSigned = (servizio.stato === 'assegnato' || servizio.stato === 'completato') && !allPasseggeriSigned;
 
   const handleClick = (e: React.MouseEvent, action: () => void) => {
     e.stopPropagation();
