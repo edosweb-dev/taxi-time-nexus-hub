@@ -991,6 +991,8 @@ export type Database = {
           created_at: string
           destinazione_personalizzato: string | null
           email_inline: string | null
+          firma_timestamp: string | null
+          firma_url: string | null
           id: string
           indirizzo_inline: string | null
           localita_inline: string | null
@@ -1007,6 +1009,8 @@ export type Database = {
           created_at?: string
           destinazione_personalizzato?: string | null
           email_inline?: string | null
+          firma_timestamp?: string | null
+          firma_url?: string | null
           id?: string
           indirizzo_inline?: string | null
           localita_inline?: string | null
@@ -1023,6 +1027,8 @@ export type Database = {
           created_at?: string
           destinazione_personalizzato?: string | null
           email_inline?: string | null
+          firma_timestamp?: string | null
+          firma_url?: string | null
           id?: string
           indirizzo_inline?: string | null
           localita_inline?: string | null
