@@ -66,6 +66,15 @@ export function ConsuntivaServizioDialog({
 
   async function onSubmit(data: ConsuntivaServizioFormData) {
     try {
+      // 🔍 DEBUG LOG per tracciare dati consuntivazione
+      console.log('📊 [ConsuntivaServizioDialog] Submit data:', {
+        servizio_id: servizioId,
+        metodo_pagamento: servizio?.metodo_pagamento,
+        incasso_ricevuto: data.incasso_ricevuto,
+        ore_sosta: data.ore_sosta,
+        km_totali: data.km_totali,
+      });
+      
       const result = await consuntivaServizio({
         id: servizioId,
         incasso_ricevuto: data.incasso_ricevuto,
