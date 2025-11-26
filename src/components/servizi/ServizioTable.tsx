@@ -33,10 +33,18 @@ export const ServizioTable = ({
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const { passeggeriCounts } = usePasseggeriCounts(servizi);
   
-  // Get company name by ID
-  const getAziendaName = (aziendaId?: string) => {
-    if (!aziendaId) return "Azienda sconosciuta";
-    const azienda = aziende.find(a => a.id === aziendaId);
+  // Get company name or private client name
+  const getAziendaName = (servizio: Servizio) => {
+    // If private client, show client name
+    if (servizio.tipo_cliente === 'privato') {
+      const nome = servizio.cliente_privato_nome || '';
+      const cognome = servizio.cliente_privato_cognome || '';
+      return `${nome} ${cognome}`.trim() || "Cliente privato";
+    }
+    
+    // Otherwise, show company name
+    if (!servizio.azienda_id) return "Azienda sconosciuta";
+    const azienda = aziende.find(a => a.id === servizio.azienda_id);
     return azienda ? azienda.nome : "Azienda sconosciuta";
   };
 
@@ -76,7 +84,7 @@ export const ServizioTable = ({
                     key={servizio.id}
                     servizio={servizio}
                     users={users}
-                    aziendaName={getAziendaName(servizio.azienda_id)}
+                    aziendaName={getAziendaName(servizio)}
                     passengerCount={passeggeriCounts[servizio.id] || 0}
                     isExpanded={expandedRow === servizio.id}
                     isAdminOrSocio={isAdminOrSocio}
