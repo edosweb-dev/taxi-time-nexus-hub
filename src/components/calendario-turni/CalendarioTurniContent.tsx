@@ -13,7 +13,6 @@ import {
   Grid3X3, 
   Rows3, 
   Square,
-  Users,
   User,
   Filter,
   BarChart3
@@ -29,7 +28,6 @@ import { ShiftQuickViewDialog } from '@/components/shifts/dialogs/ShiftQuickView
 import { BatchShiftForm } from '@/components/shifts/BatchShiftForm';
 import { ShiftCreationProgressDialog } from '@/components/shifts/dialogs/ShiftCreationProgressDialog';
 import { CalendarioView } from './CalendarioView';
-import { InserimentoMassivoDialog } from './InserimentoMassivoDialog';
 import { InserimentoSingoloUtenteDialog } from './InserimentoSingoloUtenteDialog';
 import { ViewFilterDropdown } from '@/components/shifts/filters/ViewFilterDropdown';
 import { Shift } from '@/components/shifts/types';
@@ -68,7 +66,6 @@ export function CalendarioTurniContent({
   const [editShiftDialogOpen, setEditShiftDialogOpen] = useState(false);
   const [quickViewDialogOpen, setQuickViewDialogOpen] = useState(false);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
-  const [inserimentoMassivoOpen, setInserimentoMassivoOpen] = useState(false);
   const [inserimentoSingoloOpen, setInserimentoSingoloOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
@@ -213,31 +210,12 @@ export function CalendarioTurniContent({
     setIsCreationComplete(false);
   };
 
-  const handleOpenInserimentoMassivo = () => {
-    if (isMobile) {
-      navigate('/calendario-turni/inserimento-massivo');
-    } else {
-      setInserimentoMassivoOpen(true);
-    }
-  };
-
   const handleOpenInserimentoSingolo = () => {
     setInserimentoSingoloOpen(true);
   };
 
   return (
     <div className="w-full space-y-6">
-      {/* Inserimento Massivo Dialog */}
-      {inserimentoMassivoOpen && (
-        <InserimentoMassivoDialog 
-          currentDate={currentDate}
-          onClose={() => setInserimentoMassivoOpen(false)}
-          onStartProgress={handleStartProgress}
-          onUpdateProgress={handleUpdateProgress}
-          onCompleteProgress={handleCompleteProgress}
-        />
-      )}
-
       {/* Inserimento Singolo Utente Dialog */}
       {inserimentoSingoloOpen && (
         <InserimentoSingoloUtenteDialog 
@@ -362,16 +340,6 @@ export function CalendarioTurniContent({
                     </Button>
                     
                     <Button 
-                      variant="outline"
-                      size="sm" 
-                      onClick={handleOpenInserimentoMassivo} 
-                      className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl"
-                    >
-                      <Users className="h-4 w-4" />
-                      <span className="hidden sm:inline">Massivo</span>
-                    </Button>
-                    
-                    <Button 
                       size="sm" 
                       onClick={() => handleCreateShift(currentDate)} 
                       className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg rounded-xl"
@@ -490,13 +458,12 @@ export function CalendarioTurniContent({
                     </Button>
                     
                     <Button 
-                      variant="outline"
                       size="sm" 
-                      onClick={handleOpenInserimentoMassivo} 
+                      onClick={() => handleCreateShift(currentDate)} 
                       className="h-9 px-3 gap-2"
                     >
-                      <Users className="h-4 w-4" />
-                      Inserimento massivo
+                      <Plus className="h-4 w-4" />
+                      Nuovo turno
                     </Button>
                     
                     <Button 

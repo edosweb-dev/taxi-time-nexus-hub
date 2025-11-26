@@ -47,7 +47,6 @@ const IncassiContantiPage = lazy(() => import('./pages/IncassiContantiPage'));
 const CalendarioPage = lazy(() => import('./pages/CalendarioPage'));
 const ReportPage = lazy(() => import('./pages/ReportPage'));
 const CalendarioTurniPage = lazy(() => import('./pages/CalendarioTurniPage'));
-const MobileInserimentoMassivoPage = lazy(() => import('./pages/calendario-turni/MobileInserimentoMassivoPage'));
 const ShiftReportsPage = lazy(() => import('./pages/shifts/ShiftReportsPage'));
 const AziendePage = lazy(() => import('./pages/aziende/AziendePage'));
 const NuovaAziendaPage = lazy(() => import('./pages/aziende/NuovaAziendaPage'));
@@ -314,11 +313,6 @@ function App() {
               <Route path="/calendario-turni" element={
                 <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                   <CalendarioTurniPage />
-                </AuthGuard>
-              } />
-              <Route path="/calendario-turni/inserimento-massivo" element={
-                <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
-                  <MobileInserimentoMassivoPage />
                 </AuthGuard>
               } />
                 <Route path="/report" element={

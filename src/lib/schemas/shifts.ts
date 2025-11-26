@@ -39,24 +39,6 @@ export const singleShiftSchema = z.object({
 export type SingleShiftFormData = z.infer<typeof singleShiftSchema>;
 
 /**
- * Schema per inserimento massivo turni (wizard multi-step)
- */
-export const batchShiftSchema = z.object({
-  user_ids: z.array(z.string()).min(1, 'Seleziona almeno un dipendente'),
-  month: z.number().min(1).max(12),
-  year: z.number().min(2020).max(2100),
-  period_type: z.enum(['full_month', 'single_week', 'multiple_weeks']),
-  week: z.number().min(1).max(5).optional(),
-  weeks: z.array(z.number().min(1).max(5)).optional(),
-  weekdays: z.array(z.number().min(0).max(6)).min(1, 'Seleziona almeno un giorno'),
-  shift_type: z.enum(['full_day', 'half_day', 'extra', 'unavailable']),
-  half_day_type: z.enum(['morning', 'afternoon']).optional(),
-  notes: z.string().max(500).optional()
-});
-
-export type BatchShiftFormData = z.infer<typeof batchShiftSchema>;
-
-/**
  * Schema per inserimento rapido turni singolo utente
  */
 export const singleUserBatchShiftSchema = z.object({
