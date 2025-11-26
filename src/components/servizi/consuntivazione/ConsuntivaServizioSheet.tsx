@@ -40,7 +40,7 @@ export function ConsuntivaServizioSheet({
         .from('servizi')
         .select(`
           *,
-          azienda:aziende(id, nome, iva),
+          azienda:aziende(id, nome),
           assegnato:profiles!assegnato_a(id, first_name, last_name, role)
         `)
         .eq('id', servizioId)
