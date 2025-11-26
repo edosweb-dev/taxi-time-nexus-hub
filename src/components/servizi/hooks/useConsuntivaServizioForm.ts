@@ -62,6 +62,13 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
   const imponibile = incassoRicevuto ? incassoRicevuto - ivaAmount : 0;
   
   const handleSubmit = (data: ConsuntivaServizioFormData) => {
+    // 🔍 DEBUG LOG per tracciare dati form
+    console.log('📊 [useConsuntivaServizioForm] Form submit:', {
+      metodo_pagamento: servizio.metodo_pagamento,
+      incasso_ricevuto_input: data.incasso_ricevuto,
+      ivaPercentage,
+      servizioIva: servizio.iva,
+    });
     onSubmit(data);
   };
   

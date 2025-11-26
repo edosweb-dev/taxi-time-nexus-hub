@@ -1,14 +1,17 @@
 export enum TipoPagamento {
-  DIRETTO_AZIENDA = 'diretto_azienda', // Bonifico - no fields needed
-  CONTANTI_UBER = 'contanti_uber',      // Contanti, Uber - amount without VAT
-  CARTA = 'carta'                        // Carta - amount with VAT
+  DIRETTO_AZIENDA = 'diretto_azienda', // Bonifico - no fields needed during completion
+  CONTANTI_UBER = 'contanti_uber',      // Contanti, Uber - requires amount confirmation
+  CARTA = 'carta'                        // Carta - requires amount confirmation
 }
 
 /**
- * Classifica il metodo di pagamento in 3 categorie:
- * - DIRETTO_AZIENDA: Bonifico → solo conferma, incasso in consuntivazione
- * - CONTANTI_UBER: Contanti, Uber → incasso SENZA IVA
- * - CARTA: Carta → incasso CON IVA dal servizio
+ * Classifica il metodo di pagamento in 3 categorie per il completamento servizio:
+ * - DIRETTO_AZIENDA: Bonifico → solo conferma, incasso popolato in consuntivazione
+ * - CONTANTI_UBER: Contanti, Uber → richiede conferma importo (TOTALE LORDO con IVA inclusa)
+ * - CARTA: Carta → richiede conferma importo (TOTALE LORDO con IVA inclusa)
+ * 
+ * IMPORTANTE: Tutti gli importi inseriti sono TOTALI LORDI (IVA già inclusa).
+ * Il sistema fa SCORPORO IVA solo per display, mai aggiunta.
  */
 export function getTipoPagamento(metodo?: string | null): TipoPagamento {
   if (!metodo) return TipoPagamento.DIRETTO_AZIENDA;

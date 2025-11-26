@@ -45,6 +45,14 @@ export function CompletaContantiUberForm({
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
+      // 🔍 DEBUG LOG per tracciare dati completamento Contanti/Uber
+      console.log('📊 [CompletaContantiUberForm] Submit data:', {
+        metodo_pagamento: servizio.metodo_pagamento,
+        incasso_previsto: servizio.incasso_previsto,
+        incasso_ricevuto_input: data.incasso_ricevuto,
+        totale_previsto: totalePrevisto,
+      });
+      
       // VALIDAZIONE: Check firma cliente/passeggeri se obbligatoria
       if (servizio?.aziende?.firma_digitale_attiva) {
         const firmaCheck = await checkAllPasseggeriSigned(servizio.id);
