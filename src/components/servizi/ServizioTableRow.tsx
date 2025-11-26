@@ -29,6 +29,9 @@ interface ServizioTableRowProps {
   onSelect?: (servizio: Servizio) => void;
   onCompleta?: (servizio: Servizio) => void; // Nuovo handler per completamento
   onFirma?: (servizio: Servizio) => void; // Nuovo handler per firma
+  allPasseggeriSigned?: boolean;
+  firmePasseggeri?: number;
+  totalPasseggeri?: number;
 }
 
 export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
@@ -43,7 +46,10 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   onNavigateToDetail,
   onSelect,
   onCompleta,
-  onFirma
+  onFirma,
+  allPasseggeriSigned = false,
+  firmePasseggeri = 0,
+  totalPasseggeri = 0,
 }) => {
   // Calcola l'indice globale stabile basato sulla data di creazione
   const globalIndex = getServizioIndex(servizio.id, allServizi || []);
@@ -51,7 +57,7 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   const isToAssign = servizio.stato === 'da_assegnare';
   const canBeAssigned = isAdminOrSocio && onSelect && isToAssign;
   const canBeCompleted = !isToAssign && onCompleta && servizio.stato === 'assegnato';
-  const canBeSigned = !isToAssign && onFirma && ['assegnato', 'completato'].includes(servizio.stato) && !servizio.firma_url;
+  const canBeSigned = !isToAssign && onFirma && ['assegnato', 'completato'].includes(servizio.stato) && !allPasseggeriSigned;
 
   return (
     <>

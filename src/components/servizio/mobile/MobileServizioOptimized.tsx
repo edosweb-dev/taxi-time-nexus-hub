@@ -38,6 +38,8 @@ interface MobileServizioOptimizedProps {
   canRequestSignature: boolean;
   isAdmin: boolean;
   servizioIndex: number;
+  allPasseggeriSigned?: boolean;
+  firmePasseggeri?: number;
   onAssegna: () => void;
   onCompleta: () => void;
   onConsuntiva: () => void;
@@ -61,6 +63,8 @@ export function MobileServizioOptimized({
   canRequestSignature,
   isAdmin,
   servizioIndex,
+  allPasseggeriSigned = false,
+  firmePasseggeri = 0,
   onAssegna,
   onCompleta,
   onConsuntiva,
@@ -284,28 +288,36 @@ export function MobileServizioOptimized({
             Firma Cliente
           </h3>
 
-          {servizio.firma_url ? (
+          {allPasseggeriSigned ? (
             <div className="space-y-2">
               <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                Cliente ha firmato
+                {passeggeri.length > 1 
+                  ? `Tutti i passeggeri hanno firmato (${passeggeri.length}/${passeggeri.length})`
+                  : 'Cliente ha firmato'
+                }
               </Badge>
               {servizio.firma_timestamp && (
                 <p className="text-xs text-muted-foreground">
                   Firmato il {format(new Date(servizio.firma_timestamp), "dd/MM/yyyy 'alle' HH:mm", { locale: it })}
                 </p>
               )}
-              <div className="border rounded-lg p-2 bg-muted/30">
-                <img 
-                  src={servizio.firma_url} 
-                  alt="Firma cliente" 
-                  className="max-w-full h-auto border rounded"
-                />
-              </div>
+              {servizio.firma_url && (
+                <div className="border rounded-lg p-2 bg-muted/30">
+                  <img 
+                    src={servizio.firma_url} 
+                    alt="Firma cliente" 
+                    className="max-w-full h-auto border rounded"
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
               <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
-                In attesa firma
+                {passeggeri.length > 1 
+                  ? `In attesa firme (${firmePasseggeri}/${passeggeri.length})`
+                  : 'In attesa firma'
+                }
               </Badge>
               
               {canRequestSignature && (

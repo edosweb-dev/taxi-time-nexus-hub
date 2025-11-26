@@ -16,6 +16,8 @@ interface MobileServizioSectionsProps {
   users: any[];
   getUserName: (users: any[], userId?: string) => string | null;
   firmaDigitaleAttiva?: boolean;
+  allPasseggeriSigned?: boolean;
+  firmePasseggeri?: number;
 }
 
 interface SectionProps {
@@ -102,7 +104,9 @@ export function MobileServizioSections({
   formatCurrency, 
   users, 
   getUserName,
-  firmaDigitaleAttiva = false 
+  firmaDigitaleAttiva = false,
+  allPasseggeriSigned = false,
+  firmePasseggeri = 0,
 }: MobileServizioSectionsProps) {
   const { veicoli } = useVeicoli();
   const { profile } = useAuth();
@@ -338,11 +342,14 @@ export function MobileServizioSections({
           isVisible={true}
         >
           <div className="space-y-4">
-            {servizio.firma_url ? (
+            {allPasseggeriSigned ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                    Cliente ha firmato
+                    {passeggeri.length > 1 
+                      ? `Tutti i passeggeri hanno firmato (${passeggeri.length}/${passeggeri.length})`
+                      : 'Cliente ha firmato'
+                    }
                   </Badge>
                   {servizio.firma_timestamp && (
                     <span className="text-xs text-muted-foreground">
@@ -350,21 +357,29 @@ export function MobileServizioSections({
                     </span>
                   )}
                 </div>
-                <div className="border rounded-lg p-3 bg-muted/30">
-                  <img 
-                    src={servizio.firma_url} 
-                    alt="Firma cliente" 
-                    className="max-w-full h-auto border rounded"
-                  />
-                </div>
+                {servizio.firma_url && (
+                  <div className="border rounded-lg p-3 bg-muted/30">
+                    <img 
+                      src={servizio.firma_url} 
+                      alt="Firma cliente" 
+                      className="max-w-full h-auto border rounded"
+                    />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-4">
                 <Badge variant="secondary" className="mb-2 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
-                  In attesa firma cliente
+                  {passeggeri.length > 1 
+                    ? `In attesa firme (${firmePasseggeri}/${passeggeri.length})`
+                    : 'In attesa firma cliente'
+                  }
                 </Badge>
                 <div className="text-xs text-muted-foreground mt-2">
-                  Il cliente non ha ancora firmato digitalmente il servizio
+                  {passeggeri.length > 1
+                    ? `${firmePasseggeri} su ${passeggeri.length} passeggeri hanno firmato`
+                    : 'Il cliente non ha ancora firmato digitalmente il servizio'
+                  }
                 </div>
               </div>
             )}

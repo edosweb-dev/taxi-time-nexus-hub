@@ -46,6 +46,8 @@ export function useServizioDetail(id?: string) {
             destinazione_personalizzato,
             usa_indirizzo_personalizzato,
             salva_in_database,
+            firma_url,
+            firma_timestamp,
             passeggeri:passeggero_id (
               id,
               nome_cognome,
@@ -118,6 +120,8 @@ export function useServizioDetail(id?: string) {
           destinazione_personalizzato: sp.destinazione_personalizzato || null,
           usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato ?? false,
           salva_in_database: sp.salva_in_database ?? true,
+          firma_url: sp.firma_url || null,
+          firma_timestamp: sp.firma_timestamp || null,
         };
       });
       
@@ -152,6 +156,20 @@ export function useServizioDetail(id?: string) {
   const passeggeri = useMemo(() => passeggeriRaw, [
     JSON.stringify(passeggeriRaw)
   ]);
+  
+  // Calcola se tutti i passeggeri hanno firmato
+  const allPasseggeriSigned = useMemo(() => {
+    if (passeggeri.length === 0) {
+      // Nessun passeggero: usa firma principale
+      return !!servizio?.firma_url;
+    }
+    // Multi-passeggero: verifica che tutti abbiano firmato
+    return passeggeri.every(p => !!p.firma_url);
+  }, [passeggeri, servizio?.firma_url]);
+
+  const firmePasseggeri = useMemo(() => {
+    return passeggeri.filter(p => p.firma_url).length;
+  }, [passeggeri]);
   
   // ✅ LOG DEBUG - Verifica cosa viene restituito dall'hook
   console.log('[useServizioDetail] RETURN - passeggeri:', passeggeri);
@@ -224,5 +242,7 @@ export function useServizioDetail(id?: string) {
     firmaDigitaleAttiva,
     formatCurrency: formatCurrencyUtil,
     veicoloModello,
+    allPasseggeriSigned,
+    firmePasseggeri,
   };
 }
