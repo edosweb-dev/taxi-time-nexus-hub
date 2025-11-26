@@ -227,7 +227,7 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
                     className="w-full gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Aggiungi come passeggero
+                    Aggiungi
                   </Button>
                 </div>
               </CardContent>
