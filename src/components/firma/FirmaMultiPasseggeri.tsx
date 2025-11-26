@@ -178,6 +178,7 @@ export function FirmaMultiPasseggeri({
               passeggeroIndex={currentIndex}
               totalPasseggeri={passeggeri.length}
               onSave={handleSaveFirma}
+              isLast={currentIndex === passeggeri.length - 1}
             />
           )}
 

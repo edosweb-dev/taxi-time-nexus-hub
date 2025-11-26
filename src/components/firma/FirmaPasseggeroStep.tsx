@@ -8,6 +8,7 @@ interface FirmaPasseggeroStepProps {
   passeggeroIndex: number;
   totalPasseggeri: number;
   onSave: (signatureData: string) => void;
+  isLast?: boolean;
 }
 
 export function FirmaPasseggeroStep({
@@ -15,9 +16,18 @@ export function FirmaPasseggeroStep({
   passeggeroIndex,
   totalPasseggeri,
   onSave,
+  isLast = false,
 }: FirmaPasseggeroStepProps) {
+  const buttonText = isLast ? "Completa ✓" : "Salva e Avanti →";
   return (
     <div className="space-y-6">
+      {/* Titolo prominente */}
+      <div className="text-center py-4 border-b">
+        <h2 className="text-2xl font-bold text-primary">
+          FIRMA PASSEGGERO {passeggeroIndex + 1} di {totalPasseggeri}
+        </h2>
+      </div>
+
       {/* Header con info passeggero */}
       <Card className="border-primary bg-primary/5">
         <CardHeader className="pb-3">
@@ -43,7 +53,7 @@ export function FirmaPasseggeroStep({
       {/* Canvas firma */}
       <div className="space-y-2">
         <h3 className="text-base font-medium">Firma del passeggero</h3>
-        <SignatureCanvas onSave={onSave} />
+        <SignatureCanvas onSave={onSave} buttonText={buttonText} />
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ interface SignatureCanvasProps {
   onSave: (signatureData: string) => void;
   width?: number;
   height?: number;
+  buttonText?: string;
 }
 
 interface SignaturePoint {
@@ -21,7 +22,7 @@ interface SignaturePoint {
 
 type SignatureStroke = SignaturePoint[];
 
-export function SignatureCanvas({ onSave, width = 500, height = 200 }: SignatureCanvasProps) {
+export function SignatureCanvas({ onSave, width = 500, height = 200, buttonText = "Salva firma" }: SignatureCanvasProps) {
   const signatureRef = useRef<SignaturePad>(null);
   const [hasSignature, setHasSignature] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -178,7 +179,7 @@ export function SignatureCanvas({ onSave, width = 500, height = 200 }: Signature
           className="flex gap-2 items-center"
           disabled={!hasSignature || totalPoints < 20}
         >
-          Salva firma
+          {buttonText}
         </Button>
       </div>
       <p className="text-sm text-muted-foreground">
