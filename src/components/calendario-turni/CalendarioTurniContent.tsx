@@ -336,16 +336,7 @@ export function CalendarioTurniContent({
                       className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-background to-muted/30 hover:from-muted/50 hover:to-muted/70 rounded-xl"
                     >
                       <User className="h-4 w-4" />
-                      <span className="hidden sm:inline">Rapido</span>
-                    </Button>
-                    
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleCreateShift(currentDate)} 
-                      className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg rounded-xl"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span className="hidden sm:inline">Nuovo</span>
+                      <span className="hidden sm:inline">Turni</span>
                     </Button>
                   </div>
                 )}
@@ -454,25 +445,7 @@ export function CalendarioTurniContent({
                       className="h-9 px-3 gap-2"
                     >
                       <User className="h-4 w-4" />
-                      Inserimento rapido
-                    </Button>
-                    
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleCreateShift(currentDate)} 
-                      className="h-9 px-3 gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Nuovo turno
-                    </Button>
-                    
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleCreateShift(currentDate)} 
-                      className="h-9 px-4 gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Nuovo
+                      Inserimento turni
                     </Button>
                   </>
                 )}
