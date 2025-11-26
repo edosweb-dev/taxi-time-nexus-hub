@@ -793,7 +793,10 @@ export default function ServiziPage() {
                             >
                               <div className="space-y-0.5">
                                 <div className="font-medium text-sm break-words leading-tight">
-                                  {servizio.aziende?.nome || 'N/A'}
+                                  {servizio.tipo_cliente === 'privato' 
+                                    ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente privato'
+                                    : servizio.aziende?.nome || 'N/A'
+                                  }
                                 </div>
                                 {servizio.numero_commessa && (
                                   <div className="text-xs text-muted-foreground truncate" title={servizio.numero_commessa}>
