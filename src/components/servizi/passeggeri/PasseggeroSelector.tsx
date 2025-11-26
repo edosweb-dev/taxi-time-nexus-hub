@@ -184,16 +184,19 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
           <div className="mb-4">
             <Card className="border border-border/50">
               <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
+                <div className="space-y-4">
+                  {/* Header e informazioni */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
                       <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <span className="text-xs font-medium text-muted-foreground">Cliente del servizio</span>
                     </div>
-                    <h5 className="font-semibold text-base mb-2 text-foreground">
+                    
+                    <h5 className="font-semibold text-base mb-3 text-foreground">
                       {clientePrivatoData.nome} {clientePrivatoData.cognome}
                     </h5>
-                    <div className="space-y-1.5 text-sm text-muted-foreground">
+                    
+                    <div className="space-y-2 text-sm text-muted-foreground">
                       {clientePrivatoData.email && (
                         <div className="flex items-center gap-2">
                           <Mail className="h-3.5 w-3.5 flex-shrink-0" />
@@ -216,13 +219,15 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
                       )}
                     </div>
                   </div>
+                  
+                  {/* CTA */}
                   <Button 
-                    size="sm"
+                    size="default"
                     onClick={handleSelectCliente}
-                    className="gap-1.5 flex-shrink-0"
+                    className="w-full gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Aggiungi
+                    Aggiungi come passeggero
                   </Button>
                 </div>
               </CardContent>
