@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { completaServizio } from "@/lib/api/servizi";
+import { checkAllPasseggeriSigned } from "@/lib/api/servizi/firmaPasseggero";
 import { toast } from "@/components/ui/sonner";
 import { Servizio } from "@/lib/types/servizi";
 
@@ -32,12 +33,25 @@ export function CompletaBonificoDialog({
     try {
       setIsLoading(true);
 
-      // VALIDAZIONE: Check firma cliente se obbligatoria
-      if (servizio?.aziende?.firma_digitale_attiva && !servizio?.firma_url) {
-        toast.error("Firma cliente mancante", {
-          description: "Richiedi prima la firma del cliente prima di completare il servizio."
-        });
-        return;
+      // VALIDAZIONE: Check firma cliente/passeggeri se obbligatoria
+      if (servizio?.aziende?.firma_digitale_attiva) {
+        const firmaCheck = await checkAllPasseggeriSigned(servizio.id);
+        
+        // Se ci sono passeggeri, controlla che tutti abbiano firmato
+        if (firmaCheck.totalPasseggeri > 0 && !firmaCheck.allSigned) {
+          toast.error("Firme passeggeri mancanti", {
+            description: `${firmaCheck.firmati}/${firmaCheck.totalPasseggeri} passeggeri hanno firmato`
+          });
+          return;
+        }
+        
+        // Fallback per servizi senza passeggeri (usa firma singola)
+        if (firmaCheck.totalPasseggeri === 0 && !servizio?.firma_url) {
+          toast.error("Firma cliente mancante", {
+            description: "Richiedi prima la firma del cliente prima di completare il servizio."
+          });
+          return;
+        }
       }
 
       const result = await completaServizio({
