@@ -193,7 +193,7 @@ export function ClientePrivatoFields() {
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    Salva in Anagrafica
+                    Salva
                   </>
                 )}
               </Button>
