@@ -18,7 +18,6 @@ const formSchema = z.object({
   incasso_ricevuto: z.coerce.number()
     .min(0.01, "Importo deve essere maggiore di 0")
     .positive("Importo deve essere un numero positivo"),
-  consegna_contanti_a: z.string().optional(),
 });
 
 interface CompletaContantiUberFormProps {
@@ -36,22 +35,10 @@ export function CompletaContantiUberForm({
   users,
   onComplete,
 }: CompletaContantiUberFormProps) {
-  const isContanti = servizio.metodo_pagamento.toLowerCase().includes('contanti');
-  
-  // Filtra solo soci e admin
-  const soci = users.filter(u => u.role === 'admin' || u.role === 'socio');
-
   const form = useForm({
-    resolver: zodResolver(
-      isContanti 
-        ? formSchema.extend({
-            consegna_contanti_a: z.string().min(1, "Seleziona a chi consegnare i contanti")
-          })
-        : formSchema
-    ),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       incasso_ricevuto: servizio.incasso_previsto || 0,
-      consegna_contanti_a: "",
     },
   });
 
@@ -69,7 +56,6 @@ export function CompletaContantiUberForm({
         id: servizio.id,
         metodo_pagamento: servizio.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
-        consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
       });
 
       if (result.error) {
@@ -133,38 +119,10 @@ export function CompletaContantiUberForm({
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
-              />
-              
-              {/* Consegna contanti (SOLO per Contanti) */}
-              {isContanti && (
-                <FormField
-                  control={form.control}
-                  name="consegna_contanti_a"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>A chi hai consegnato i contanti?</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleziona destinatario" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {soci.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.first_name} {user.last_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               )}
-              
-              <Button 
+            />
+            
+            <Button
                 type="submit" 
                 className="w-full"
                 disabled={form.formState.isSubmitting}

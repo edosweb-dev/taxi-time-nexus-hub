@@ -53,29 +53,6 @@ export function CompletaServizioForm({
     servizio,
   });
 
-  // DEBUG LOG
-  console.log('🔍 CompletaServizioForm DEBUG:', {
-    metodoPagamento: servizio.metodo_pagamento,
-    richiedeIncasso,
-  });
-
-  // Fetch soci/admin per campo consegna contanti
-  const { data: soci } = useQuery({
-    queryKey: ['soci-admin'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, role')
-        .in('role', ['admin', 'socio'])
-        .order('first_name');
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: richiedeIncasso && open,
-    staleTime: 5 * 60 * 1000,
-  });
-
   // ✅ incasso_previsto è l'imponibile - calcola totale con IVA del servizio
   const incassoNetto = Number(servizio.incasso_previsto) || 0;
   
@@ -183,42 +160,6 @@ export function CompletaServizioForm({
                 </FormItem>
               )}
             />
-
-            {/* ✅ Campo visibile SOLO per Contanti */}
-            {servizio.metodo_pagamento === 'Contanti' && (
-              <FormField
-                control={form.control}
-                name="consegna_contanti_a"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Consegna Contanti A *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona socio/admin..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {soci?.map((socio) => (
-                          <SelectItem key={socio.id} value={socio.id}>
-                            {socio.first_name} {socio.last_name}
-                            {socio.role && (
-                              <Badge variant="outline" className="ml-2 text-xs">
-                                {socio.role}
-                              </Badge>
-                            )}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Indica il socio/admin a cui consegnare i contanti
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
           </div>
         )}
 

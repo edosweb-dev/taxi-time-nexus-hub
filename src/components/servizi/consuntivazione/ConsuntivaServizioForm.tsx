@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 interface ConsuntivaServizioFormProps {
   servizio: Servizio;
   adminUsers: { id: string; name: string }[];
-  isContanti: boolean;
+  requiresConsegnaContanti: boolean;
   onSubmit: (data: ConsuntivaServizioFormData) => void;
   onCancel: () => void;
 }
@@ -20,7 +20,7 @@ interface ConsuntivaServizioFormProps {
 export function ConsuntivaServizioForm({
   servizio,
   adminUsers,
-  isContanti,
+  requiresConsegnaContanti,
   onSubmit,
   onCancel,
 }: ConsuntivaServizioFormProps) {
@@ -73,7 +73,7 @@ export function ConsuntivaServizioForm({
 
         {/* Campo ore_finali RIMOSSO: usa solo ore_sosta */}
 
-        {isContanti && (
+        {requiresConsegnaContanti && (
           <FormField
             control={form.control}
             name="consegna_contanti_a"
