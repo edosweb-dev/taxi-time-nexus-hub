@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { FirmaPasseggeroStep } from "./FirmaPasseggeroStep";
 import { uploadFirmaPasseggero, getFirmePasseggeri, type PasseggeroFirma } from "@/lib/api/servizi/firmaPasseggero";
 import { toast } from "@/components/ui/sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FirmaMultiPasseggeriProps {
   servizioId: string;
@@ -20,6 +22,7 @@ export function FirmaMultiPasseggeri({
   onOpenChange,
   onComplete,
 }: FirmaMultiPasseggeriProps) {
+  const isMobile = useIsMobile();
   const [passeggeri, setPasseggeri] = useState<PasseggeroFirma[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -104,91 +107,136 @@ export function FirmaMultiPasseggeri({
   const progressPercentage = passeggeri.length > 0 ? (firmatiFin / passeggeri.length) * 100 : 0;
   const currentPasseggero = passeggeri[currentIndex];
 
+  // Loading state
   if (loading) {
+    const LoadingContent = (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+
+    if (isMobile) {
+      return (
+        <Sheet open={open} onOpenChange={onOpenChange}>
+          <SheetContent side="bottom" className="h-[95vh]">
+            {LoadingContent}
+          </SheetContent>
+        </Sheet>
+      );
+    }
+
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+          {LoadingContent}
         </DialogContent>
       </Dialog>
     );
   }
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Raccolta firme passeggeri</DialogTitle>
-        </DialogHeader>
+  // Main content
+  const MainContent = (
+    <div className="space-y-4">
+      {/* Progress compatto */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">
+            Firma {currentIndex + 1} di {passeggeri.length}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {firmatiFin}/{passeggeri.length} completate
+          </span>
+        </div>
+        <Progress value={progressPercentage} className="h-2" />
+      </div>
 
-        <div className="space-y-6">
-          {/* Progress bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">Progresso</span>
-              <span className="text-muted-foreground">
-                {firmatiFin} di {passeggeri.length} firme
-              </span>
+      {/* Lista passeggeri compatta - solo su desktop */}
+      {!isMobile && (
+        <div className="space-y-1 border-b pb-4">
+          {passeggeri.map((passeggero, index) => (
+            <div
+              key={passeggero.id}
+              className={`flex items-center gap-2 rounded-lg border p-2 transition-colors ${
+                index === currentIndex
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border'
+              }`}
+            >
+              {passeggero.has_signed ? (
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+              ) : (
+                <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{passeggero.nome_cognome}</div>
+              </div>
+              {index === currentIndex && !passeggero.has_signed && (
+                <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
+                  Attuale
+                </span>
+              )}
             </div>
-            <Progress value={progressPercentage} className="h-2" />
-          </div>
+          ))}
+        </div>
+      )}
 
-          {/* Lista passeggeri */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">Stato passeggeri</h3>
-            <div className="space-y-1">
-              {passeggeri.map((passeggero, index) => (
-                <div
-                  key={passeggero.id}
-                  className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
-                    index === currentIndex
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border'
-                  }`}
-                >
-                  {passeggero.has_signed ? (
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
-                  ) : (
-                    <Circle className="h-5 w-5 shrink-0 text-muted-foreground" />
-                  )}
-                  <div className="flex-1">
-                    <div className="font-medium">{passeggero.nome_cognome}</div>
-                    {passeggero.has_signed && passeggero.firma_timestamp && (
-                      <div className="text-xs text-muted-foreground">
-                        Firmato il {new Date(passeggero.firma_timestamp).toLocaleString('it-IT')}
-                      </div>
-                    )}
-                  </div>
-                  {index === currentIndex && !passeggero.has_signed && (
-                    <span className="rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
-                      In corso
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* Step firma corrente */}
+      {currentPasseggero && !currentPasseggero.has_signed && (
+        <FirmaPasseggeroStep
+          passeggeroNome={currentPasseggero.nome_cognome}
+          passeggeroIndex={currentIndex}
+          totalPasseggeri={passeggeri.length}
+          onSave={handleSaveFirma}
+          isLast={currentIndex === passeggeri.length - 1}
+        />
+      )}
 
-          {/* Step firma corrente */}
-          {currentPasseggero && !currentPasseggero.has_signed && (
-            <FirmaPasseggeroStep
-              passeggeroNome={currentPasseggero.nome_cognome}
-              passeggeroIndex={currentIndex}
-              totalPasseggeri={passeggeri.length}
-              onSave={handleSaveFirma}
-              isLast={currentIndex === passeggeri.length - 1}
-            />
+      {/* Azioni */}
+      {!isMobile && (
+        <div className="flex justify-end gap-2 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={saving}
+          >
+            Annulla
+          </Button>
+          {firmatiFin === passeggeri.length && (
+            <Button
+              type="button"
+              onClick={() => {
+                onComplete();
+                onOpenChange(false);
+              }}
+            >
+              Completa
+            </Button>
           )}
+        </div>
+      )}
+    </div>
+  );
 
-          {/* Azioni */}
-          <div className="flex justify-end gap-2">
+  // Mobile: Sheet fullscreen
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="bottom" className="h-[95vh] flex flex-col">
+          <SheetHeader className="pb-4">
+            <SheetTitle>Raccolta Firme</SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto">
+            {MainContent}
+          </div>
+          {/* Azioni fisse in basso su mobile */}
+          <div className="flex gap-2 pt-4 border-t mt-auto">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={saving}
+              className="flex-1"
             >
               Annulla
             </Button>
@@ -199,12 +247,25 @@ export function FirmaMultiPasseggeri({
                   onComplete();
                   onOpenChange(false);
                 }}
+                className="flex-1"
               >
                 Completa
               </Button>
             )}
           </div>
-        </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop: Dialog
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Raccolta Firme Passeggeri</DialogTitle>
+        </DialogHeader>
+        {MainContent}
       </DialogContent>
     </Dialog>
   );

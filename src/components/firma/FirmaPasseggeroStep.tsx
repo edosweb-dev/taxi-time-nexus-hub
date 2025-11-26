@@ -20,39 +20,26 @@ export function FirmaPasseggeroStep({
 }: FirmaPasseggeroStepProps) {
   const buttonText = isLast ? "Completa ✓" : "Salva e Avanti →";
   return (
-    <div className="space-y-6">
-      {/* Titolo prominente */}
-      <div className="text-center py-4 border-b">
-        <h2 className="text-2xl font-bold text-primary">
-          FIRMA PASSEGGERO {passeggeroIndex + 1} di {totalPasseggeri}
-        </h2>
-      </div>
-
-      {/* Header con info passeggero */}
+    <div className="space-y-4">
+      {/* Header con info passeggero - compatto */}
       <Card className="border-primary bg-primary/5">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-3 text-lg">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <User className="h-5 w-5" />
+        <CardContent className="pt-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <User className="h-6 w-6" />
             </div>
-            <div className="flex-1">
-              <div className="font-semibold">{passeggeroNome}</div>
-              <div className="text-sm font-normal text-muted-foreground">
-                Passeggero {passeggeroIndex + 1} di {totalPasseggeri}
-              </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-lg mb-1">{passeggeroNome}</h3>
+              <p className="text-sm text-muted-foreground">
+                📱 Passa il dispositivo al passeggero per firmare
+              </p>
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            📱 Passa il dispositivo a <strong>{passeggeroNome}</strong> per la firma digitale
-          </p>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Canvas firma */}
-      <div className="space-y-2">
-        <h3 className="text-base font-medium">Firma del passeggero</h3>
+      {/* Canvas firma - focus principale */}
+      <div className="space-y-3">
         <SignatureCanvas onSave={onSave} buttonText={buttonText} />
       </div>
     </div>
