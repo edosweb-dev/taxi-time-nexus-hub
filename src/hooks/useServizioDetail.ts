@@ -191,7 +191,8 @@ export function useServizioDetail(id?: string) {
     : servizio?.stato === "da_assegnare";
     
   const canBeCompleted = servizio?.stato === "assegnato";
-  const canBeConsuntivato = servizio?.stato === "completato";
+  const canBeConsuntivato = servizio?.stato === "completato" && 
+    (!firmaDigitaleAttiva || allPasseggeriSigned);
   
   // Function to get azienda name
   const getAziendaName = (aziendaId?: string) => {

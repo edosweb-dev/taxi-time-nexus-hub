@@ -15,6 +15,8 @@ interface ServizioTabsProps {
   getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
   firmaDigitaleAttiva: boolean;
+  allPasseggeriSigned?: boolean;
+  firmePasseggeri?: number;
 }
 
 export function ServizioTabs({
@@ -26,6 +28,8 @@ export function ServizioTabs({
   getUserName,
   formatCurrency,
   firmaDigitaleAttiva,
+  allPasseggeriSigned = false,
+  firmePasseggeri = 0,
 }: ServizioTabsProps) {
   return (
     <div className="bg-card border rounded-lg overflow-hidden">
@@ -39,6 +43,8 @@ export function ServizioTabs({
           getUserName={getUserName}
           formatCurrency={formatCurrency}
           firmaDigitaleAttiva={firmaDigitaleAttiva}
+          allPasseggeriSigned={allPasseggeriSigned}
+          firmePasseggeri={firmePasseggeri}
         />
       </div>
     </div>

@@ -289,26 +289,61 @@ export function MobileServizioOptimized({
           </h3>
 
           {allPasseggeriSigned ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
                 {passeggeri.length > 1 
                   ? `Tutti i passeggeri hanno firmato (${passeggeri.length}/${passeggeri.length})`
                   : 'Cliente ha firmato'
                 }
               </Badge>
-              {servizio.firma_timestamp && (
-                <p className="text-xs text-muted-foreground">
-                  Firmato il {format(new Date(servizio.firma_timestamp), "dd/MM/yyyy 'alle' HH:mm", { locale: it })}
-                </p>
-              )}
-              {servizio.firma_url && (
-                <div className="border rounded-lg p-2 bg-muted/30">
-                  <img 
-                    src={servizio.firma_url} 
-                    alt="Firma cliente" 
-                    className="max-w-full h-auto border rounded"
-                  />
+              
+              {/* Griglia firme multiple passeggeri */}
+              {passeggeri.length > 1 && passeggeri.filter(p => p.firma_url).length > 0 ? (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold text-muted-foreground">Firme Raccolte</h4>
+                  <div className="grid grid-cols-1 gap-3">
+                    {passeggeri.filter(p => p.firma_url).map((passeggero, idx) => (
+                      <div key={idx} className="border rounded-lg p-2 bg-muted/30 space-y-2 animate-fade-in">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-medium">{passeggero.nome_cognome}</p>
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-green-50 text-green-700 border-green-200">
+                            ✓
+                          </Badge>
+                        </div>
+                        {passeggero.firma_timestamp && (
+                          <p className="text-[10px] text-muted-foreground">
+                            {format(new Date(passeggero.firma_timestamp), "dd/MM/yyyy HH:mm", { locale: it })}
+                          </p>
+                        )}
+                        <div className="border rounded p-1.5 bg-white dark:bg-card">
+                          <img 
+                            src={passeggero.firma_url} 
+                            alt={`Firma ${passeggero.nome_cognome}`}
+                            className="w-full h-auto max-h-16 object-contain"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              ) : (
+                /* Firma singola cliente */
+                servizio.firma_url && (
+                  <div className="space-y-2">
+                    {servizio.firma_timestamp && (
+                      <p className="text-xs text-muted-foreground">
+                        Firmato il {format(new Date(servizio.firma_timestamp), "dd/MM/yyyy 'alle' HH:mm", { locale: it })}
+                      </p>
+                    )}
+                    <div className="border rounded-lg p-2 bg-muted/30">
+                      <img 
+                        src={servizio.firma_url} 
+                        alt="Firma cliente" 
+                        className="max-w-full h-auto border rounded"
+                      />
+                    </div>
+                  </div>
+                )
               )}
             </div>
           ) : (
