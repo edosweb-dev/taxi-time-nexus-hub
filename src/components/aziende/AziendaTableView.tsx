@@ -33,15 +33,15 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
     <div className="space-y-4">
 
       {/* Table */}
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-[220px]">Azienda</TableHead>
-              <TableHead className="min-w-[160px]">Contatti</TableHead>
-              <TableHead className="min-w-[180px]">Indirizzo</TableHead>
-              <TableHead className="text-center min-w-[80px]">Referenti</TableHead>
-              <TableHead className="text-center min-w-[200px]">Azioni</TableHead>
+              <TableHead className="min-w-[250px]">Azienda</TableHead>
+              <TableHead className="min-w-[250px]">Contatti</TableHead>
+              <TableHead className="min-w-[200px]">Indirizzo</TableHead>
+              <TableHead className="text-center w-[100px]">Referenti</TableHead>
+              <TableHead className="text-center w-[180px]">Azioni</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -89,26 +89,17 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                     </TableCell>
                     
                     <TableCell>
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         {azienda.email && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center space-x-1 text-xs">
-                                  <Mail className="h-3 w-3 text-muted-foreground" />
-                                  <span className="truncate max-w-[120px]">{azienda.email}</span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{azienda.email}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                          <div className="flex items-center space-x-2 text-xs">
+                            <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                            <span className="break-all leading-tight">{azienda.email}</span>
+                          </div>
                         )}
                         {azienda.telefono && (
-                          <div className="flex items-center space-x-1 text-xs">
-                            <Phone className="h-3 w-3 text-muted-foreground" />
-                            <span>{azienda.telefono}</span>
+                          <div className="flex items-center space-x-2 text-xs">
+                            <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                            <span className="leading-tight">{azienda.telefono}</span>
                           </div>
                         )}
                       </div>
@@ -116,14 +107,14 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                     
                     <TableCell>
                       {(azienda.indirizzo || azienda.citta) && (
-                        <div className="flex items-start space-x-1 text-xs">
-                          <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <div className="flex items-start space-x-2 text-xs">
+                          <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
                           <div className="space-y-0.5">
                             {azienda.indirizzo && (
-                              <p className="leading-tight">{azienda.indirizzo}</p>
+                              <p className="leading-tight break-words">{azienda.indirizzo}</p>
                             )}
                             {azienda.citta && (
-                              <p className="leading-tight text-muted-foreground">{azienda.citta}</p>
+                              <p className="leading-tight text-muted-foreground break-words">{azienda.citta}</p>
                             )}
                           </div>
                         </div>
