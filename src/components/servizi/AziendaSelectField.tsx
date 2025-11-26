@@ -98,7 +98,7 @@ export function AziendaSelectField() {
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
-                  <Button
+                    <Button
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
@@ -107,7 +107,9 @@ export function AziendaSelectField() {
                       !field.value && "text-muted-foreground"
                     )}
                   >
-                    {selectedAzienda ? selectedAzienda.nome : "Seleziona azienda..."}
+                    <span className="truncate md:overflow-visible md:whitespace-normal">
+                      {selectedAzienda ? selectedAzienda.nome : "Seleziona azienda..."}
+                    </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </FormControl>
