@@ -198,6 +198,7 @@ export function CalendarioTurniContent({
   const handleCompleteProgress = () => {
     setIsCreationComplete(true);
     // Invalida la cache per ricaricare i turni
+    queryClient.invalidateQueries({ queryKey: ['shifts'] });
     queryClient.invalidateQueries({ queryKey: ['turni-mese'] });
     queryClient.invalidateQueries({ queryKey: ['turni-settimana'] });
   };
