@@ -55,12 +55,12 @@ export function ConsuntivaServizioForm({
                 </div>
               </FormControl>
               <FormDescription>
-                {totalePrevisto && (
-                  <span className="text-sm">
-                    💡 Totale previsto (netto + IVA {ivaPercentage}%): <strong>€{totalePrevisto.toFixed(2)}</strong>
+                {ivaPercentage > 0 && (
+                  <span className="text-sm text-muted-foreground">
+                    Importo totale (IVA {ivaPercentage}% inclusa)
                   </span>
                 )}
-                {!totalePrevisto && (
+                {ivaPercentage === 0 && (
                   <span className="text-sm text-muted-foreground">
                     Importo effettivamente ricevuto dal cliente
                   </span>

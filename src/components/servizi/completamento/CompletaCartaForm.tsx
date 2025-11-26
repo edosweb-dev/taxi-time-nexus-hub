@@ -33,9 +33,10 @@ export function CompletaCartaForm({
   onComplete,
 }: CompletaCartaFormProps) {
   const ivaPercentuale = servizio.iva || 10; // ✅ Default 10% come da specifiche
-  const incassoNetto = servizio.incasso_previsto || 0;
-  const importoIva = incassoNetto * (ivaPercentuale / 100);
-  const totalePrevisto = incassoNetto + importoIva;
+  // IMPORTANTE: incasso_previsto è GIÀ il totale con IVA inclusa!
+  const totalePrevisto = servizio.incasso_previsto || 0;
+  const ivaAmount = totalePrevisto * ivaPercentuale / (100 + ivaPercentuale);
+  const imponibile = totalePrevisto - ivaAmount;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -89,7 +90,8 @@ export function CompletaCartaForm({
   console.log('[CompletaCartaForm] Calcolo totale:', {
     incasso_previsto: servizio.incasso_previsto,
     iva_percentuale: ivaPercentuale,
-    importo_iva: importoIva,
+    importo_iva: ivaAmount,
+    imponibile: imponibile,
     totale_con_iva: totalePrevisto,
   });
 
@@ -117,11 +119,11 @@ export function CompletaCartaForm({
               <div className="space-y-2 rounded-lg border bg-muted/50 p-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Imponibile:</span>
-                  <span className="font-medium">€ {incassoNetto.toFixed(2)}</span>
+                  <span className="font-medium">€ {imponibile.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">IVA ({ivaPercentuale}%):</span>
-                  <span className="font-medium">€ {importoIva.toFixed(2)}</span>
+                  <span className="font-medium">€ {ivaAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2 font-semibold">
                   <span>Totale con IVA:</span>

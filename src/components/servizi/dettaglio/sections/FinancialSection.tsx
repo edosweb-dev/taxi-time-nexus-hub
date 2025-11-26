@@ -56,17 +56,19 @@ export function FinancialSection({
   });
 
   // Calcola importi IVA per incasso PREVISTO
+  // IMPORTANTE: incasso_previsto è GIÀ il totale con IVA inclusa!
   let nettoPrevistoValue = 0;
   let ivaPrevistoValue = 0;
   let totalePrevistoValue = 0;
-  
+
   if (servizio.incasso_previsto !== null) {
-    nettoPrevistoValue = Number(servizio.incasso_previsto) || 0;
+    totalePrevistoValue = Number(servizio.incasso_previsto) || 0;
     if (metodoHaIva) {
-      ivaPrevistoValue = nettoPrevistoValue * (ivaPercentage / 100);
-      totalePrevistoValue = nettoPrevistoValue + ivaPrevistoValue;
+      // SCORPORO IVA dal totale: IVA = totale × percentuale / (100 + percentuale)
+      ivaPrevistoValue = totalePrevistoValue * ivaPercentage / (100 + ivaPercentage);
+      nettoPrevistoValue = totalePrevistoValue - ivaPrevistoValue;
     } else {
-      totalePrevistoValue = nettoPrevistoValue;
+      nettoPrevistoValue = totalePrevistoValue;
     }
   }
   
