@@ -71,17 +71,19 @@ export function FinancialSection({
   }
   
   // Calcola importi IVA per incasso RICEVUTO
+  // IMPORTANTE: incasso_ricevuto è GIÀ il totale con IVA inclusa!
   let nettoRicevutoValue = 0;
   let ivaRicevutoValue = 0;
   let totaleRicevutoValue = 0;
   
   if (servizio.incasso_ricevuto !== null) {
-    nettoRicevutoValue = Number(servizio.incasso_ricevuto) || 0;
+    totaleRicevutoValue = Number(servizio.incasso_ricevuto) || 0;
     if (metodoHaIva) {
-      ivaRicevutoValue = nettoRicevutoValue * (ivaPercentage / 100);
-      totaleRicevutoValue = nettoRicevutoValue + ivaRicevutoValue;
+      // SCORPORO IVA dal totale: IVA = totale × percentuale / (100 + percentuale)
+      ivaRicevutoValue = totaleRicevutoValue * ivaPercentage / (100 + ivaPercentage);
+      nettoRicevutoValue = totaleRicevutoValue - ivaRicevutoValue;
     } else {
-      totaleRicevutoValue = nettoRicevutoValue;
+      nettoRicevutoValue = totaleRicevutoValue;
     }
   }
   
