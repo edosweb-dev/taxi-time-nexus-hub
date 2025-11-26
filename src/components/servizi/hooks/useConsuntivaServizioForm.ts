@@ -8,7 +8,7 @@ import { getIvaPercentageForServizio } from "../utils/ivaCalculation";
 
 // SEMPLIFICAZIONE: Solo ore_sosta
 export const consuntivaServizioSchema = z.object({
-  incasso_previsto: z
+  incasso_ricevuto: z
     .number()
     .min(0, { message: "L'incasso deve essere maggiore di 0" })
     .optional(),
@@ -31,14 +31,14 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     resolver: zodResolver(consuntivaServizioSchema),
     defaultValues: {
       ore_sosta: servizio.ore_sosta || undefined,
-      // ✅ Usa valore diretto - incasso_previsto è GIÀ il totale comprensivo IVA
-      incasso_previsto: servizio.incasso_previsto,
+      // ✅ Usa incasso_ricevuto se già presente, altrimenti usa incasso_previsto come suggerimento
+      incasso_ricevuto: servizio.incasso_ricevuto || servizio.incasso_previsto,
       km_totali: servizio.km_totali || undefined,
     },
   });
   
   // Watch the current form values
-  const incassoPrevisto = form.watch("incasso_previsto");
+  const incassoRicevuto = form.watch("incasso_ricevuto");
   
   // Load the IVA percentage from the settings (async override)
   useEffect(() => {
@@ -54,12 +54,12 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     loadIvaRate();
   }, [servizio]);
   
-  // ✅ SCORPORO IVA: incassoPrevisto è il totale, calcoliamo IVA e imponibile
-  const ivaAmount = incassoPrevisto 
-    ? (incassoPrevisto * ivaPercentage) / (100 + ivaPercentage)
+  // ✅ SCORPORO IVA: incassoRicevuto è il totale lordo, calcoliamo IVA e imponibile
+  const ivaAmount = incassoRicevuto 
+    ? (incassoRicevuto * ivaPercentage) / (100 + ivaPercentage)
     : 0;
   
-  const imponibile = incassoPrevisto ? incassoPrevisto - ivaAmount : 0;
+  const imponibile = incassoRicevuto ? incassoRicevuto - ivaAmount : 0;
   
   const handleSubmit = (data: ConsuntivaServizioFormData) => {
     onSubmit(data);
@@ -71,7 +71,7 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     ivaPercentage,
     ivaAmount,
     imponibile,
-    totalePrevisto: incassoPrevisto, // ✅ Totale = incasso previsto (nessun ricalcolo!)
+    totaleRicevuto: incassoRicevuto, // ✅ Totale = incasso ricevuto (nessun ricalcolo!)
     isSubmitting: form.formState.isSubmitting,
   };
 }

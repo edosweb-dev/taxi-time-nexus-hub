@@ -24,7 +24,7 @@ export function ConsuntivaServizioForm({
   onSubmit,
   onCancel,
 }: ConsuntivaServizioFormProps) {
-  const { form, handleSubmit, ivaPercentage, ivaAmount, totalePrevisto, isSubmitting } = useConsuntivaServizioForm(servizio, onSubmit);
+  const { form, handleSubmit, ivaPercentage, ivaAmount, totaleRicevuto, isSubmitting } = useConsuntivaServizioForm(servizio, onSubmit);
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
@@ -33,10 +33,10 @@ export function ConsuntivaServizioForm({
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormField
           control={form.control}
-          name="incasso_previsto"
+          name="incasso_ricevuto"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Incasso previsto (€)</FormLabel>
+              <FormLabel>Totale incassato (€)</FormLabel>
               <FormControl>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
