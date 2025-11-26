@@ -181,70 +181,49 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
       <CardContent className="space-y-4">
         {/* Card Cliente del Servizio - Solo per privati */}
         {tipo_cliente === 'privato' && clientePrivatoData && clientePrivatoData.nome && clientePrivatoData.cognome && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10">
-                <User className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-foreground">Cliente del servizio</h4>
-                <p className="text-xs text-muted-foreground">Dati dal form cliente privato</p>
-              </div>
-            </div>
-            <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5 hover:border-primary/40 hover:shadow-lg transition-all duration-300 overflow-hidden group">
-              <CardContent className="p-0">
-                <div className="flex flex-col sm:flex-row items-start gap-4 p-5">
-                  {/* Avatar e Nome */}
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors flex-shrink-0">
-                      <User className="h-6 w-6 text-primary" />
+          <div className="mb-4">
+            <Card className="border border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="text-xs font-medium text-muted-foreground">Cliente del servizio</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h5 className="font-bold text-lg mb-3 text-foreground">
-                        {clientePrivatoData.nome} {clientePrivatoData.cognome}
-                      </h5>
-                      <div className="space-y-2">
-                        {clientePrivatoData.email && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-background/50 border border-border/50">
-                            <div className="p-1.5 rounded-md bg-blue-500/10">
-                              <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <span className="text-sm truncate flex-1">{clientePrivatoData.email}</span>
-                          </div>
-                        )}
-                        {clientePrivatoData.telefono && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-background/50 border border-border/50">
-                            <div className="p-1.5 rounded-md bg-green-500/10">
-                              <Phone className="h-4 w-4 text-green-600 dark:text-green-400" />
-                            </div>
-                            <span className="text-sm">{clientePrivatoData.telefono}</span>
-                          </div>
-                        )}
-                        {(clientePrivatoData.indirizzo || clientePrivatoData.citta) && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-background/50 border border-border/50">
-                            <div className="p-1.5 rounded-md bg-orange-500/10">
-                              <MapPin className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                            </div>
-                            <span className="text-sm truncate flex-1">
-                              {clientePrivatoData.indirizzo}{clientePrivatoData.indirizzo && clientePrivatoData.citta && ', '}{clientePrivatoData.citta}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                    <h5 className="font-semibold text-base mb-2 text-foreground">
+                      {clientePrivatoData.nome} {clientePrivatoData.cognome}
+                    </h5>
+                    <div className="space-y-1.5 text-sm text-muted-foreground">
+                      {clientePrivatoData.email && (
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">{clientePrivatoData.email}</span>
+                        </div>
+                      )}
+                      {clientePrivatoData.telefono && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span>{clientePrivatoData.telefono}</span>
+                        </div>
+                      )}
+                      {(clientePrivatoData.indirizzo || clientePrivatoData.citta) && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">
+                            {clientePrivatoData.indirizzo}{clientePrivatoData.indirizzo && clientePrivatoData.citta && ', '}{clientePrivatoData.citta}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  
-                  {/* Pulsante Aggiungi */}
-                  <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
-                    <Button 
-                      size="default"
-                      onClick={handleSelectCliente}
-                      className="flex-1 sm:flex-none gap-2 h-11 font-semibold shadow-md hover:shadow-lg transition-all"
-                    >
-                      <Plus className="h-5 w-5" />
-                      Aggiungi come passeggero
-                    </Button>
-                  </div>
+                  <Button 
+                    size="sm"
+                    onClick={handleSelectCliente}
+                    className="gap-1.5 flex-shrink-0"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Aggiungi
+                  </Button>
                 </div>
               </CardContent>
             </Card>
