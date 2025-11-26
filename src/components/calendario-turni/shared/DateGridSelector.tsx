@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { 
@@ -10,28 +9,64 @@ import {
   format, 
   isSameMonth, 
   isWeekend,
-  getDay,
-  isSameDay,
-  startOfWeek
+  startOfWeek,
+  addMonths,
+  subMonths
 } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+interface ExistingShift {
+  id: string;
+  shift_date: string;
+  shift_type: 'full_day' | 'half_day' | 'extra' | 'unavailable';
+  half_day_type?: 'morning' | 'afternoon';
+}
 
 interface DateGridSelectorProps {
   month: Date;
   selectedDates: string[];
-  existingShiftDates: Set<string>;
+  existingShifts: Map<string, ExistingShift>;
   onDatesChange: (dates: string[]) => void;
+  onMonthChange: (date: Date) => void;
 }
+
+const SHIFT_TYPE_BADGES = {
+  full_day: { label: 'GI', color: 'bg-green-500', title: 'Giornata intera' },
+  half_day: { label: '½', color: 'bg-yellow-500', title: 'Mezza giornata' },
+  extra: { label: 'EX', color: 'bg-purple-500', title: 'Extra' },
+  unavailable: { label: 'ND', color: 'bg-gray-500', title: 'Non disponibile' }
+};
 
 const WEEKDAY_LABELS = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
 export function DateGridSelector({ 
   month, 
   selectedDates, 
-  existingShiftDates, 
-  onDatesChange 
+  existingShifts, 
+  onDatesChange,
+  onMonthChange
 }: DateGridSelectorProps) {
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+
+  const handlePrevMonth = () => {
+    onMonthChange(subMonths(month, 1));
+  };
+
+  const handleNextMonth = () => {
+    onMonthChange(addMonths(month, 1));
+  };
+
+  const getShiftBadge = (shift: ExistingShift) => {
+    const config = SHIFT_TYPE_BADGES[shift.shift_type];
+    let label = config.label;
+    
+    if (shift.shift_type === 'half_day' && shift.half_day_type) {
+      label = shift.half_day_type === 'morning' ? '½M' : '½P';
+    }
+    
+    return { ...config, label };
+  };
 
   // Generate calendar days
   const monthStart = startOfMonth(month);
@@ -105,11 +140,31 @@ export function DateGridSelector({
         )}
       </div>
 
-      {/* Month title */}
-      <div className="text-center">
+      {/* Month navigation */}
+      <div className="flex items-center justify-between">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handlePrevMonth}
+          className="h-8 w-8 p-0"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        
         <h3 className="font-semibold text-lg capitalize">
           {format(month, 'MMMM yyyy', { locale: it })}
         </h3>
+        
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleNextMonth}
+          className="h-8 w-8 p-0"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Calendar Grid */}
@@ -137,7 +192,7 @@ export function DateGridSelector({
           {monthDays.map((day) => {
             const dateStr = format(day, 'yyyy-MM-dd');
             const isSelected = selectedDates.includes(dateStr);
-            const hasExistingShift = existingShiftDates.has(dateStr);
+            const existingShift = existingShifts.get(dateStr);
             const isWeekendDay = isWeekend(day);
             const isHovered = hoveredDate === dateStr;
 
@@ -154,6 +209,8 @@ export function DateGridSelector({
                   "hover:scale-105 active:scale-95",
                   isSelected 
                     ? "bg-primary/10 border-primary shadow-md" 
+                    : existingShift
+                    ? "bg-orange-500/5 border-orange-500/50"
                     : "bg-background border-border/50 hover:border-border",
                   isWeekendDay && "bg-muted/30",
                   isHovered && "ring-2 ring-primary/30"
@@ -167,17 +224,27 @@ export function DateGridSelector({
                   {format(day, 'd')}
                 </span>
                 
-                {/* Indicators */}
-                <div className="flex items-center gap-1 absolute bottom-1">
-                  {hasExistingShift && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500" 
-                         title="Turno esistente" 
-                    />
-                  )}
-                  {isSelected && (
+                {/* Shift type badge */}
+                {existingShift && (
+                  <Badge 
+                    variant="secondary"
+                    className={cn(
+                      "absolute top-0.5 right-0.5 h-4 px-1 text-[8px] font-bold",
+                      getShiftBadge(existingShift).color,
+                      "text-white border-0"
+                    )}
+                    title={getShiftBadge(existingShift).title}
+                  >
+                    {getShiftBadge(existingShift).label}
+                  </Badge>
+                )}
+                
+                {/* Selection indicator */}
+                {isSelected && (
+                  <div className="absolute bottom-0.5 right-0.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  )}
-                </div>
+                  </div>
+                )}
               </button>
             );
           })}
@@ -185,19 +252,32 @@ export function DateGridSelector({
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground border-t pt-3">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-primary" />
-          <span>Selezionato</span>
+      <div className="space-y-2 border-t pt-3">
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-primary" />
+            <span>Selezionato</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Badge className="h-4 px-1 text-[8px] bg-green-500 text-white border-0">GI</Badge>
+            <span>Giornata intera</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Badge className="h-4 px-1 text-[8px] bg-yellow-500 text-white border-0">½</Badge>
+            <span>Mezza giornata</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Badge className="h-4 px-1 text-[8px] bg-purple-500 text-white border-0">EX</Badge>
+            <span>Extra</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Badge className="h-4 px-1 text-[8px] bg-gray-500 text-white border-0">ND</Badge>
+            <span>Non disponibile</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-orange-500" />
-          <span>Turno esistente</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-muted/50 rounded" />
-          <span>Weekend</span>
-        </div>
+        <p className="text-xs text-muted-foreground">
+          💡 I turni esistenti sono pre-selezionati. Deseleziona per eliminarli, seleziona nuove date per aggiungerli.
+        </p>
       </div>
     </div>
   );

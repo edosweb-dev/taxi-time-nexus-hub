@@ -34,6 +34,13 @@ interface User {
   color: string | null;
 }
 
+interface ExistingShift {
+  id: string;
+  shift_date: string;
+  shift_type: 'full_day' | 'half_day' | 'extra' | 'unavailable';
+  half_day_type?: 'morning' | 'afternoon';
+}
+
 const shiftTypeLabels = {
   full_day: 'Giornata intera',
   half_day: 'Mezza giornata',
@@ -51,7 +58,9 @@ export function InserimentoSingoloUtenteForm({
   const { profile } = useAuth();
   const [step, setStep] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
-  const [existingShiftDates, setExistingShiftDates] = useState<Set<string>>(new Set());
+  const [existingShifts, setExistingShifts] = useState<Map<string, ExistingShift>>(new Map());
+  const [originalShiftDates, setOriginalShiftDates] = useState<Set<string>>(new Set());
+  const [selectedMonth, setSelectedMonth] = useState<Date>(currentDate);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SingleUserBatchShiftFormData>({
@@ -89,36 +98,55 @@ export function InserimentoSingoloUtenteForm({
     fetchUsers();
   }, []);
 
-  // Fetch existing shifts when user changes
+  // Fetch existing shifts when user or month changes
   useEffect(() => {
     const fetchExistingShifts = async () => {
       if (!watchUserId) {
-        setExistingShiftDates(new Set());
+        setExistingShifts(new Map());
+        setOriginalShiftDates(new Set());
+        form.setValue('selected_dates', []);
         return;
       }
 
       try {
-        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        const monthStart = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
+        const monthEnd = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
 
         const { data, error } = await supabase
           .from('shifts')
-          .select('shift_date')
+          .select('id, shift_date, shift_type, half_day_type')
           .eq('user_id', watchUserId)
           .gte('shift_date', format(monthStart, 'yyyy-MM-dd'))
           .lte('shift_date', format(monthEnd, 'yyyy-MM-dd'));
 
         if (error) throw error;
 
-        const dates = new Set(data?.map(s => s.shift_date) || []);
-        setExistingShiftDates(dates);
+        // Create Map with shift details
+        const shiftsMap = new Map<string, ExistingShift>();
+        const originalDates = new Set<string>();
+        
+        data?.forEach(shift => {
+          shiftsMap.set(shift.shift_date, {
+            id: shift.id,
+            shift_date: shift.shift_date,
+            shift_type: shift.shift_type as ExistingShift['shift_type'],
+            half_day_type: shift.half_day_type as ExistingShift['half_day_type']
+          });
+          originalDates.add(shift.shift_date);
+        });
+
+        setExistingShifts(shiftsMap);
+        setOriginalShiftDates(originalDates);
+        
+        // Pre-select existing shift dates
+        form.setValue('selected_dates', Array.from(originalDates));
       } catch (error) {
         console.error('Error fetching existing shifts:', error);
       }
     };
 
     fetchExistingShifts();
-  }, [watchUserId, currentDate]);
+  }, [watchUserId, selectedMonth]);
 
   const selectedUser = users.find(u => u.id === watchUserId);
 
@@ -136,74 +164,88 @@ export function InserimentoSingoloUtenteForm({
         return;
       }
 
-      // Prepare shifts data
-      const shiftsToCreate = data.selected_dates.map(dateStr => ({
-        user_id: data.user_id,
-        shift_date: new Date(dateStr),
-        shift_type: data.shift_type,
-        half_day_type: data.half_day_type,
-        notes: data.notes,
-        created_by: profile.id,
-        updated_by: profile.id
-      }));
+      // Determine which shifts to create and which to delete
+      const currentDates = new Set(data.selected_dates);
+      const datesToCreate = data.selected_dates.filter(d => !originalShiftDates.has(d));
+      const datesToDelete = Array.from(originalShiftDates).filter(d => !currentDates.has(d));
 
-      console.log('🚀 [SINGLE USER BATCH] Creating shifts:', shiftsToCreate.length);
+      console.log('🚀 [SINGLE USER BATCH] To create:', datesToCreate.length, 'To delete:', datesToDelete.length);
 
-      // Validate
-      const validationResult = await validateBatchShifts(shiftsToCreate);
-      
-      if (validationResult.invalidShifts.length > 0) {
-        console.warn('⚠️ [SINGLE USER BATCH] Invalid shifts:', validationResult.invalidShifts);
-        toast({
-          title: 'Attenzione',
-          description: `${validationResult.invalidShifts.length} turni non possono essere creati per conflitti`,
-          variant: 'destructive'
-        });
-      }
-
-      if (validationResult.validShifts.length === 0) {
-        toast({
-          title: 'Nessun turno da creare',
-          description: 'Tutti i turni selezionati sono già presenti',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      // Start progress
-      onStartProgress(validationResult.validShifts.length);
-
-      // Track errors during creation
+      let createdCount = 0;
+      let deletedCount = 0;
       let errorCount = 0;
 
-      // Create shifts
-      const result = await createBatchShifts(
-        validationResult.validShifts,
-        profile.id,
-        (created, total) => {
-          onUpdateProgress(created, errorCount);
+      // Delete deselected shifts
+      if (datesToDelete.length > 0) {
+        const shiftsToDelete = datesToDelete
+          .map(date => existingShifts.get(date))
+          .filter(Boolean) as ExistingShift[];
+
+        for (const shift of shiftsToDelete) {
+          try {
+            const { error } = await supabase
+              .from('shifts')
+              .delete()
+              .eq('id', shift.id);
+            
+            if (error) throw error;
+            deletedCount++;
+          } catch (error) {
+            console.error('Error deleting shift:', error);
+            errorCount++;
+          }
         }
-      );
+      }
 
-      // Update error count after creation
-      errorCount = result.errors.length;
+      // Create new shifts
+      if (datesToCreate.length > 0) {
+        const shiftsToCreate = datesToCreate.map(dateStr => ({
+          user_id: data.user_id,
+          shift_date: new Date(dateStr),
+          shift_type: data.shift_type,
+          half_day_type: data.half_day_type,
+          notes: data.notes,
+          created_by: profile.id,
+          updated_by: profile.id
+        }));
 
-      console.log(`✅ [SINGLE USER BATCH] Created: ${result.created}, Errors: ${errorCount}`);
+        const validationResult = await validateBatchShifts(shiftsToCreate);
+        
+        if (validationResult.invalidShifts.length > 0) {
+          console.warn('⚠️ [SINGLE USER BATCH] Invalid shifts:', validationResult.invalidShifts);
+        }
 
-      // Final progress update before complete
-      onUpdateProgress(result.created, errorCount);
+        if (validationResult.validShifts.length > 0) {
+          onStartProgress(validationResult.validShifts.length);
+
+          const result = await createBatchShifts(
+            validationResult.validShifts,
+            profile.id,
+            (created, total) => {
+              onUpdateProgress(created, errorCount);
+            }
+          );
+
+          createdCount = result.created;
+          errorCount += result.errors.length;
+        }
+      }
+
+      console.log(`✅ [SINGLE USER BATCH] Created: ${createdCount}, Deleted: ${deletedCount}, Errors: ${errorCount}`);
+
+      onUpdateProgress(createdCount, errorCount);
       onCompleteProgress();
 
       toast({
-        title: 'Turni creati con successo',
-        description: `${result.created} turni creati${errorCount > 0 ? `, ${errorCount} errori` : ''}`,
+        title: 'Operazione completata',
+        description: `${createdCount} turni creati, ${deletedCount} eliminati${errorCount > 0 ? `, ${errorCount} errori` : ''}`,
       });
 
     } catch (error) {
-      console.error('Error creating shifts:', error);
+      console.error('Error processing shifts:', error);
       toast({
         title: 'Errore',
-        description: 'Errore durante la creazione dei turni',
+        description: 'Errore durante l\'elaborazione dei turni',
         variant: 'destructive'
       });
     } finally {
@@ -341,10 +383,11 @@ export function InserimentoSingoloUtenteForm({
                 <FormItem>
                   <FormControl>
                     <DateGridSelector
-                      month={currentDate}
+                      month={selectedMonth}
                       selectedDates={field.value}
-                      existingShiftDates={existingShiftDates}
+                      existingShifts={existingShifts}
                       onDatesChange={field.onChange}
+                      onMonthChange={setSelectedMonth}
                     />
                   </FormControl>
                   <FormMessage />
