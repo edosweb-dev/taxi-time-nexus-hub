@@ -102,8 +102,11 @@ export function ConsuntivaServizioSheet({
     );
   }
 
-  // ✅ isContanti ora usa il metodo_pagamento reale dal database
+  // ✅ Determina se mostrare campo "Consegna contanti a"
+  // Lo mostriamo SOLO se: pagamento è Contanti E assegnato è un dipendente
   const isContiPayment = servizio.metodo_pagamento === 'Contanti';
+  const assegnatoRole = servizio.assegnato?.role;
+  const requiresConsegnaContanti = isContiPayment && assegnatoRole === 'dipendente';
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -116,7 +119,7 @@ export function ConsuntivaServizioSheet({
           <ConsuntivaServizioForm
             servizio={servizio as any}
             adminUsers={adminUsers}
-            isContanti={isContiPayment}
+            requiresConsegnaContanti={requiresConsegnaContanti}
             onSubmit={onSubmit}
             onCancel={() => onOpenChange(false)}
           />

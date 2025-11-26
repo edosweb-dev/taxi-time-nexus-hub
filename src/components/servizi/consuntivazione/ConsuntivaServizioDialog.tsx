@@ -40,7 +40,7 @@ export function ConsuntivaServizioDialog({
         .from('servizi')
         .select(`
           *,
-          azienda:aziende(id, nome, iva),
+          azienda:aziende(id, nome),
           assegnato:profiles!assegnato_a(id, first_name, last_name, role)
         `)
         .eq('id', servizioId)
@@ -70,7 +70,7 @@ export function ConsuntivaServizioDialog({
         id: servizioId,
         incasso_previsto: data.incasso_previsto,
         ore_sosta: data.ore_sosta,
-        consegna_contanti_a: isContanti ? data.consegna_contanti_a : undefined,
+        consegna_contanti_a: servizio?.metodo_pagamento === 'Contanti' ? data.consegna_contanti_a : undefined,
         km_totali: data.km_totali,
       });
 
@@ -105,6 +105,12 @@ export function ConsuntivaServizioDialog({
     return null;
   }
 
+  // ✅ Determina se mostrare campo "Consegna contanti a"
+  // Lo mostriamo SOLO se: pagamento è Contanti E assegnato è un dipendente
+  const isContiPayment = servizio.metodo_pagamento === 'Contanti';
+  const assegnatoRole = servizio.assegnato?.role;
+  const requiresConsegnaContanti = isContiPayment && assegnatoRole === 'dipendente';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -115,7 +121,7 @@ export function ConsuntivaServizioDialog({
         <ConsuntivaServizioForm
           servizio={servizio}
           adminUsers={adminUsers}
-          isContanti={isContanti}
+          requiresConsegnaContanti={requiresConsegnaContanti}
           onSubmit={onSubmit}
           onCancel={() => onOpenChange(false)}
         />
