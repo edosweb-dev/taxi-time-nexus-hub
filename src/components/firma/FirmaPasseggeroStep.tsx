@@ -40,7 +40,11 @@ export function FirmaPasseggeroStep({
 
       {/* Canvas firma - focus principale */}
       <div className="space-y-3">
-        <SignatureCanvas onSave={onSave} buttonText={buttonText} />
+        <SignatureCanvas 
+          key={passeggeroIndex} 
+          onSave={onSave} 
+          buttonText={buttonText} 
+        />
       </div>
     </div>
   );
