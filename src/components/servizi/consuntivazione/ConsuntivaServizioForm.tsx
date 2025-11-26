@@ -162,15 +162,6 @@ export function ConsuntivaServizioForm({
             ) : null}
           </>
         )}
-        
-        {form.watch("incasso_previsto") !== undefined && (
-          <div className="text-sm text-muted-foreground">
-            <p>IVA ({ivaPercentage}%): €{ivaAmount.toFixed(2)}</p>
-            <p className="font-medium mt-1">
-              Totale: €{((form.watch("incasso_previsto") || 0) + ivaAmount).toFixed(2)}
-            </p>
-          </div>
-        )}
 
         <div className="flex justify-end space-x-2">
           <Button
