@@ -38,20 +38,16 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
           <TableHeader>
             <TableRow>
               <TableHead className="min-w-[220px]">Azienda</TableHead>
-              <TableHead className="min-w-[120px]">P.IVA</TableHead>
               <TableHead className="min-w-[160px]">Contatti</TableHead>
               <TableHead className="min-w-[180px]">Indirizzo</TableHead>
               <TableHead className="text-center min-w-[80px]">Referenti</TableHead>
-              <TableHead className="text-center min-w-[80px]">Firma</TableHead>
-              <TableHead className="text-center min-w-[100px]">Provvigione</TableHead>
-              <TableHead className="text-center min-w-[90px]">Fatturazione</TableHead>
               <TableHead className="text-center min-w-[200px]">Azioni</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {aziende.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="h-32 text-center">
+                <TableCell colSpan={5} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <Building2 className="h-8 w-8 text-muted-foreground" />
                     <div className="space-y-1">
@@ -93,12 +89,6 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                     </TableCell>
                     
                     <TableCell>
-                      <code className="text-xs bg-muted px-2 py-1 rounded">
-                        {azienda.partita_iva}
-                      </code>
-                    </TableCell>
-                    
-                    <TableCell>
                       <div className="space-y-1">
                         {azienda.email && (
                           <TooltipProvider>
@@ -125,20 +115,18 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                     </TableCell>
                     
                     <TableCell>
-                      {azienda.indirizzo && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="flex items-center space-x-1 text-xs">
-                                <MapPin className="h-3 w-3 text-muted-foreground" />
-                                <span className="truncate max-w-[150px]">{azienda.indirizzo}</span>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{azienda.indirizzo}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      {(azienda.indirizzo || azienda.citta) && (
+                        <div className="flex items-start space-x-1 text-xs">
+                          <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                          <div className="space-y-0.5">
+                            {azienda.indirizzo && (
+                              <p className="leading-tight">{azienda.indirizzo}</p>
+                            )}
+                            {azienda.citta && (
+                              <p className="leading-tight text-muted-foreground">{azienda.citta}</p>
+                            )}
+                          </div>
+                        </div>
                       )}
                     </TableCell>
                     
@@ -146,61 +134,6 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                       <div className="flex items-center justify-center space-x-1">
                         <Users className="h-3 w-3 text-muted-foreground" />
                         <span className="text-sm font-medium">{referentiCount}</span>
-                      </div>
-                    </TableCell>
-                    
-                    <TableCell className="text-center">
-                      <Badge variant={azienda.firma_digitale_attiva ? 'success' : 'secondary'} className="text-xs">
-                        {azienda.firma_digitale_attiva ? 'Attiva' : 'Disattiva'}
-                      </Badge>
-                    </TableCell>
-                    
-                    <TableCell className="text-center">
-                      {azienda.provvigione ? (
-                        <div className="flex items-center justify-center space-x-1">
-                          <CreditCard className="h-3 w-3 text-green-600" />
-                          <span className="text-xs font-medium text-green-600">
-                            {azienda.provvigione_valore}
-                            {azienda.provvigione_tipo === 'percentuale' ? '%' : '€'}
-                          </span>
-                        </div>
-                      ) : (
-                        <Badge variant="outline" className="text-xs">
-                          No
-                        </Badge>
-                      )}
-                    </TableCell>
-                    
-                    <TableCell className="text-center">
-                      <div className="space-y-1">
-                        {azienda.sdi && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center justify-center">
-                                  <FileText className="h-3 w-3 text-blue-600" />
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>SDI: {azienda.sdi}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                        {azienda.pec && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center justify-center">
-                                  <Mail className="h-3 w-3 text-green-600" />
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>PEC: {azienda.pec}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
                       </div>
                     </TableCell>
                     
