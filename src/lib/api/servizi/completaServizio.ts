@@ -28,12 +28,7 @@ export async function completaServizio({
       }
     }
     
-    // Consegna contanti obbligatoria SOLO per Contanti (non Uber, non Carta)
-    if (tipoPagamento === TipoPagamento.CONTANTI_UBER && metodo_pagamento.toLowerCase().includes('contanti')) {
-      if (!consegna_contanti_a) {
-        throw new Error('Devi indicare a chi consegnare i contanti');
-      }
-    }
+    // consegna_contanti_a gestito in fase di consuntivazione
 
     const updateData: any = {
       stato: 'completato',
@@ -45,13 +40,8 @@ export async function completaServizio({
       updateData.incasso_ricevuto = incasso_ricevuto;
     }
     
-    // Aggiungi consegna contanti SOLO per Contanti
-    if (tipoPagamento === TipoPagamento.CONTANTI_UBER && metodo_pagamento.toLowerCase().includes('contanti')) {
-      updateData.consegna_contanti_a = consegna_contanti_a;
-    }
-    
-    // Per bonifici: incasso_ricevuto e consegna_contanti_a rimangono NULL
-    // (incasso sarà popolato dall'admin in consuntivazione)
+    // consegna_contanti_a gestito solo in fase di consuntivazione
+    // Per bonifici: incasso_ricevuto rimane NULL (popolato in consuntivazione)
 
     const { data, error } = await supabase
       .from('servizi')
