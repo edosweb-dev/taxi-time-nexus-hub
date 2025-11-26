@@ -11,6 +11,7 @@ interface NotesSignatureSectionProps {
   allPasseggeriSigned?: boolean;
   firmePasseggeri?: number;
   totalPasseggeri?: number;
+  passeggeri?: any[];
 }
 
 export function NotesSignatureSection({
@@ -19,8 +20,12 @@ export function NotesSignatureSection({
   allPasseggeriSigned = false,
   firmePasseggeri = 0,
   totalPasseggeri = 0,
+  passeggeri = [],
 }: NotesSignatureSectionProps) {
   const hasContent = servizio.note || (firmaDigitaleAttiva && (allPasseggeriSigned || firmePasseggeri > 0));
+  
+  // Filtra solo i passeggeri che hanno firmato
+  const passeggeriConFirma = passeggeri.filter(p => p.firma_url);
 
   const safeFormat = (value?: string | Date, fmt: string = "dd/MM/yyyy 'alle' HH:mm") => {
     if (!value) return "—";
@@ -69,20 +74,55 @@ export function NotesSignatureSection({
                       : 'Cliente ha firmato'
                     }
                   </Badge>
-                  {servizio.firma_timestamp && (
-                    <span className="text-sm text-muted-foreground">
-                      il {safeFormat(servizio.firma_timestamp, "dd/MM/yyyy 'alle' HH:mm")}
-                    </span>
-                  )}
                 </div>
-                {servizio.firma_url && (
-                  <div className="border rounded-lg p-4 bg-muted/30">
-                    <img 
-                      src={servizio.firma_url} 
-                      alt="Firma cliente" 
-                      className="max-w-full h-auto border rounded"
-                    />
+                
+                {/* Griglia firme multiple passeggeri */}
+                {totalPasseggeri > 1 && passeggeriConFirma.length > 0 ? (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-muted-foreground">Firme Raccolte</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {passeggeriConFirma.map((passeggero, idx) => (
+                        <div key={idx} className="border rounded-lg p-3 bg-muted/30 space-y-2 animate-fade-in">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium">{passeggero.nome_cognome}</p>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400">
+                              ✓ Firmato
+                            </Badge>
+                          </div>
+                          {passeggero.firma_timestamp && (
+                            <p className="text-xs text-muted-foreground">
+                              {safeFormat(passeggero.firma_timestamp, "dd/MM/yyyy 'alle' HH:mm")}
+                            </p>
+                          )}
+                          <div className="border rounded p-2 bg-white dark:bg-card">
+                            <img 
+                              src={passeggero.firma_url} 
+                              alt={`Firma ${passeggero.nome_cognome}`}
+                              className="w-full h-auto max-h-24 object-contain"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                ) : (
+                  /* Firma singola cliente */
+                  servizio.firma_url && (
+                    <div className="space-y-2">
+                      {servizio.firma_timestamp && (
+                        <p className="text-sm text-muted-foreground">
+                          Firmato il {safeFormat(servizio.firma_timestamp, "dd/MM/yyyy 'alle' HH:mm")}
+                        </p>
+                      )}
+                      <div className="border rounded-lg p-4 bg-muted/30">
+                        <img 
+                          src={servizio.firma_url} 
+                          alt="Firma cliente" 
+                          className="max-w-full h-auto border rounded"
+                        />
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             ) : (

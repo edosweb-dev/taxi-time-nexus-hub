@@ -295,6 +295,8 @@ export default function ServizioDetailPage() {
               getUserName={getUserName}
               formatCurrency={formatCurrency}
               firmaDigitaleAttiva={firmaDigitaleAttiva}
+              allPasseggeriSigned={allPasseggeriSigned}
+              firmePasseggeri={firmePasseggeri}
             />
           </div>
         </div>

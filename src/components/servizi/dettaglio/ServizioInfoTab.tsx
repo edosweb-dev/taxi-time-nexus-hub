@@ -21,6 +21,8 @@ interface ServizioInfoTabProps {
   getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
   firmaDigitaleAttiva: boolean;
+  allPasseggeriSigned?: boolean;
+  firmePasseggeri?: number;
 }
 
 export function ServizioInfoTab({
@@ -32,6 +34,8 @@ export function ServizioInfoTab({
   getUserName,
   formatCurrency,
   firmaDigitaleAttiva,
+  allPasseggeriSigned = false,
+  firmePasseggeri = 0,
 }: ServizioInfoTabProps) {
   return (
     <div className="space-y-4 md:space-y-6">
@@ -131,6 +135,10 @@ export function ServizioInfoTab({
       <NotesSignatureSection 
         servizio={servizio}
         firmaDigitaleAttiva={firmaDigitaleAttiva}
+        allPasseggeriSigned={allPasseggeriSigned}
+        firmePasseggeri={firmePasseggeri}
+        totalPasseggeri={passeggeri.length}
+        passeggeri={passeggeri}
       />
     </div>
   );
