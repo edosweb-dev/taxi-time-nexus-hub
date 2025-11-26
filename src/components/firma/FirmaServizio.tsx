@@ -1,11 +1,13 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SignatureCanvas } from "./SignatureCanvas";
+import { FirmaMultiPasseggeri } from "./FirmaMultiPasseggeri";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
 import { Signature } from "lucide-react";
 import { useFirmaDigitale } from "@/hooks/useFirmaDigitale";
+import { getFirmePasseggeri } from "@/lib/api/servizi/firmaPasseggero";
 
 interface FirmaServizioProps {
   servizioId: string;
@@ -24,6 +26,21 @@ export function FirmaServizio({
 }: FirmaServizioProps) {
   const [isOpen, setIsOpen] = useState(externalOpen || false);
   const { uploadFirma, isLoading } = useFirmaDigitale();
+  const [numPasseggeri, setNumPasseggeri] = useState(0);
+  const [useMultiFirma, setUseMultiFirma] = useState(false);
+
+  // Controlla numero passeggeri all'apertura
+  useEffect(() => {
+    const checkPasseggeri = async () => {
+      const dialogOpen = externalOpen !== undefined ? externalOpen : isOpen;
+      if (dialogOpen) {
+        const firme = await getFirmePasseggeri(servizioId);
+        setNumPasseggeri(firme.length);
+        setUseMultiFirma(firme.length > 1);
+      }
+    };
+    checkPasseggeri();
+  }, [isOpen, externalOpen, servizioId]);
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => {
@@ -78,10 +95,43 @@ export function FirmaServizio({
     }
   };
 
+  const handleMultiFirmaComplete = () => {
+    onFirmaSalvata();
+    if (onComplete) {
+      onComplete();
+    }
+  };
+
   // Use external open state if provided
   const dialogOpen = externalOpen !== undefined ? externalOpen : isOpen;
   const onDialogOpenChange = externalOnOpenChange || setIsOpen;
 
+  // Firma multipla per 2+ passeggeri
+  if (useMultiFirma) {
+    return (
+      <>
+        {!externalOpen && (
+          <Button 
+            onClick={handleOpen} 
+            variant="outline" 
+            className="flex items-center gap-2"
+          >
+            <Signature className="h-4 w-4" />
+            Firma passeggeri ({numPasseggeri})
+          </Button>
+        )}
+
+        <FirmaMultiPasseggeri
+          servizioId={servizioId}
+          open={dialogOpen}
+          onOpenChange={onDialogOpenChange}
+          onComplete={handleMultiFirmaComplete}
+        />
+      </>
+    );
+  }
+
+  // Firma singola per 1 passeggero o nessuno
   return (
     <>
       {!externalOpen && (
