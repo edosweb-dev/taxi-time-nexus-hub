@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, MapPin, Users, FileCheck, CreditCard, FileText, Trash2, ChevronRight } from "lucide-react";
@@ -25,9 +26,13 @@ export function MobileAziendaCard({
       {/* Header con nome e P.IVA */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-base text-foreground break-words">
+          <Link 
+            to={`/aziende/${azienda.id}`}
+            className="font-semibold text-base text-foreground break-words hover:text-primary transition-colors block"
+            onClick={(e) => e.stopPropagation()}
+          >
             {azienda.nome}
-          </h3>
+          </Link>
           <Badge variant="outline" className="mt-1 text-xs">
             P.IVA {azienda.partita_iva}
           </Badge>

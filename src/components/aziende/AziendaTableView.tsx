@@ -1,5 +1,6 @@
 import { Azienda } from '@/lib/types';
 import { useAllReferenti } from '@/hooks/useReferenti';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -76,9 +77,12 @@ export function AziendaTableView({ aziende, onEdit, onDelete, onView }: AziendaT
                           <Building2 className="h-5 w-5 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-foreground leading-tight break-words">
+                          <Link 
+                            to={`/aziende/${azienda.id}`}
+                            className="font-semibold text-foreground leading-tight break-words hover:text-primary transition-colors cursor-pointer"
+                          >
                             {azienda.nome}
-                          </p>
+                          </Link>
                           {azienda.citta && (
                             <p className="text-xs text-muted-foreground mt-1">
                               {azienda.citta}
