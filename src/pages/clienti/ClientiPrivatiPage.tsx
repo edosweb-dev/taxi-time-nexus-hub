@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { DesktopClientiPrivatiList } from '@/components/clienti/DesktopClientiPrivatiList';
 import { MobileClientiPrivatiList } from '@/components/clienti/mobile-first/MobileClientiPrivatiList';
@@ -17,6 +17,7 @@ export default function ClientiPrivatiPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { setPaddingMode } = useLayout();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (isMobile) {
@@ -57,6 +58,7 @@ export default function ClientiPrivatiPage() {
     if (clienteToDelete) {
       try {
         await deleteClientePrivato(clienteToDelete.id);
+        queryClient.invalidateQueries({ queryKey: ['clienti-privati'] });
         toast.success("Cliente eliminato con successo");
         setDeleteDialogOpen(false);
         setClienteToDelete(null);
