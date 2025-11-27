@@ -3,6 +3,8 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { InserimentoServizioModal } from '@/components/servizi/InserimentoServizioModal';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Users, 
   Building2, 
@@ -15,9 +17,9 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRight,
-  BarChart3,
-  Activity
+  BarChart3
 } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -136,6 +138,7 @@ export default function DashboardPage() {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const { metrics: dashboardMetrics, activities, isLoading } = useDashboardData();
 
   const fullName = profile?.first_name && profile?.last_name
     ? `${profile.first_name} ${profile.last_name}`
@@ -143,28 +146,39 @@ export default function DashboardPage() {
 
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
+  // Calcolo trend
+  const diffServizi = (dashboardMetrics?.serviziOggi || 0) - (dashboardMetrics?.serviziIeri || 0);
+  const trendServizi = diffServizi >= 0 ? `+${diffServizi}` : `${diffServizi}`;
+  const trendDirectionServizi = diffServizi > 0 ? 'up' : diffServizi < 0 ? 'down' : 'neutral';
+
+  const diffRicavi = dashboardMetrics?.ricaviMese && dashboardMetrics?.ricaviMeseScorso
+    ? ((dashboardMetrics.ricaviMese - dashboardMetrics.ricaviMeseScorso) / dashboardMetrics.ricaviMeseScorso) * 100
+    : 0;
+  const trendRicavi = diffRicavi > 0 ? `+${diffRicavi.toFixed(0)}%` : `${diffRicavi.toFixed(0)}%`;
+  const trendDirectionRicavi = diffRicavi > 0 ? 'up' : diffRicavi < 0 ? 'down' : 'neutral';
+
   const metrics = [
     {
       title: 'Servizi Oggi',
-      value: '12',
-      trend: '+3',
-      trendDirection: 'up' as const,
+      value: isLoading ? '...' : `${dashboardMetrics?.serviziOggi || 0}`,
+      trend: trendServizi,
+      trendDirection: trendDirectionServizi as 'up' | 'down' | 'neutral',
       icon: Calendar,
       description: 'Rispetto a ieri',
       color: 'blue' as const
     },
     {
       title: 'Ricavi Mensili',
-      value: '€2.840',
-      trend: '+12%',
-      trendDirection: 'up' as const,
+      value: isLoading ? '...' : `€${(dashboardMetrics?.ricaviMese || 0).toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      trend: trendRicavi,
+      trendDirection: trendDirectionRicavi as 'up' | 'down' | 'neutral',
       icon: DollarSign,
       description: 'Vs mese scorso',
       color: 'green' as const
     },
     {
       title: 'Veicoli Attivi',
-      value: '8',
+      value: isLoading ? '...' : `${dashboardMetrics?.veicoliAttivi || 0}`,
       trend: '0',
       trendDirection: 'neutral' as const,
       icon: Car,
@@ -172,12 +186,12 @@ export default function DashboardPage() {
       color: 'purple' as const
     },
     {
-      title: 'Utenti Online',
-      value: '24',
-      trend: '+5',
-      trendDirection: 'up' as const,
-      icon: Activity,
-      description: 'Connessi ora',
+      title: 'Totale Utenti',
+      value: isLoading ? '...' : `${dashboardMetrics?.totaleUtenti || 0}`,
+      trend: undefined,
+      trendDirection: 'neutral' as const,
+      icon: Users,
+      description: 'Utenti registrati',
       color: 'orange' as const
     }
   ];
@@ -303,24 +317,45 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-3 lg:space-y-6">
-                  {[
-                    { time: '10:30', event: 'Nuovo servizio prenotato', user: 'Mario Rossi' },
-                    { time: '09:15', event: 'Turno completato', user: 'Luca Bianchi' },
-                    { time: '08:45', event: 'Veicolo in manutenzione', user: 'Sistema' }
-                  ].map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between py-2 lg:py-4 border-b border-border/50 last:border-0">
-                      <div className="flex items-center gap-2 lg:gap-4">
-                        <div className="w-2 h-2 lg:w-3 lg:h-3 rounded-full bg-primary"></div>
-                        <div>
-                          <p className="text-xs lg:text-sm font-medium">{activity.event}</p>
-                          <p className="text-xs lg:text-sm text-muted-foreground">{activity.user}</p>
+                {isLoading ? (
+                  <div className="space-y-3 lg:space-y-6">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center justify-between py-2 lg:py-4">
+                        <div className="flex items-center gap-2 lg:gap-4 flex-1">
+                          <Skeleton className="w-2 h-2 lg:w-3 lg:h-3 rounded-full" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-3 lg:h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
                         </div>
+                        <Skeleton className="h-3 lg:h-4 w-12" />
                       </div>
-                      <span className="text-xs lg:text-sm text-muted-foreground">{activity.time}</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : activities.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">Nessuna attività recente</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 lg:space-y-6">
+                    {activities.map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between py-2 lg:py-4 border-b border-border/50 last:border-0">
+                        <div className="flex items-center gap-2 lg:gap-4">
+                          <div className={`w-2 h-2 lg:w-3 lg:h-3 rounded-full ${
+                            activity.type === 'servizio' ? 'bg-blue-500' :
+                            activity.type === 'turno' ? 'bg-purple-500' :
+                            'bg-orange-500'
+                          }`}></div>
+                          <div>
+                            <p className="text-xs lg:text-sm font-medium">{activity.event}</p>
+                            <p className="text-xs lg:text-sm text-muted-foreground">{activity.user}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs lg:text-sm text-muted-foreground">{activity.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
