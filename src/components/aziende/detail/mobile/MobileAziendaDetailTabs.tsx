@@ -41,44 +41,44 @@ export function MobileAziendaDetailTabs({
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       {/* Tabs header sticky */}
-      <div className="sticky top-0 z-10 bg-background border-b">
-        <TabsList className="w-full grid grid-cols-4 rounded-none h-12 bg-muted/50">
-          <TabsTrigger value="info" className="flex flex-col gap-0.5 data-[state=active]:bg-background">
-            <Building2 className="h-4 w-4" />
-            <span className="text-xs">Info</span>
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b shadow-sm">
+        <TabsList className="w-full grid grid-cols-4 rounded-none h-14 bg-transparent">
+          <TabsTrigger value="info" className="flex flex-col gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all">
+            <Building2 className="h-5 w-5" />
+            <span className="text-[11px] font-medium">Info</span>
           </TabsTrigger>
-          <TabsTrigger value="referenti" className="flex flex-col gap-0.5 data-[state=active]:bg-background relative">
-            <Users className="h-4 w-4" />
-            <span className="text-xs">Referenti</span>
+          <TabsTrigger value="referenti" className="flex flex-col gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary relative transition-all">
+            <Users className="h-5 w-5" />
+            <span className="text-[11px] font-medium">Referenti</span>
             {referenti.length > 0 && (
-              <span className="absolute top-1 right-1 text-[10px] bg-primary text-primary-foreground rounded-full px-1.5 min-w-[18px] text-center">
+              <span className="absolute top-1.5 right-1.5 text-[10px] bg-primary text-primary-foreground rounded-full px-1.5 min-w-[18px] text-center font-semibold shadow-sm">
                 {referenti.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="passeggeri" className="flex flex-col gap-0.5 data-[state=active]:bg-background relative">
-            <UserCircle2 className="h-4 w-4" />
-            <span className="text-xs">Passeggeri</span>
+          <TabsTrigger value="passeggeri" className="flex flex-col gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary relative transition-all">
+            <UserCircle2 className="h-5 w-5" />
+            <span className="text-[11px] font-medium">Passeggeri</span>
             {passeggeri.length > 0 && (
-              <span className="absolute top-1 right-1 text-[10px] bg-primary text-primary-foreground rounded-full px-1.5 min-w-[18px] text-center">
+              <span className="absolute top-1.5 right-1.5 text-[10px] bg-primary text-primary-foreground rounded-full px-1.5 min-w-[18px] text-center font-semibold shadow-sm">
                 {passeggeri.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="config" className="flex flex-col gap-0.5 data-[state=active]:bg-background">
-            <Settings className="h-4 w-4" />
-            <span className="text-xs">Config</span>
+          <TabsTrigger value="config" className="flex flex-col gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all">
+            <Settings className="h-5 w-5" />
+            <span className="text-[11px] font-medium">Config</span>
           </TabsTrigger>
         </TabsList>
       </div>
 
       {/* Tab Content */}
-      <div className="p-4">
-        <TabsContent value="info" className="mt-0 space-y-4">
+      <div className="p-4 pb-safe-area-inset-bottom">
+        <TabsContent value="info" className="mt-0 space-y-4 animate-fade-in">
           <InfoTabMobile azienda={azienda} />
         </TabsContent>
 
-        <TabsContent value="referenti" className="mt-0 space-y-3">
+        <TabsContent value="referenti" className="mt-0 space-y-4 animate-fade-in">
           {isLoadingUsers ? (
             <MobileDetailSkeleton tab="referenti" />
           ) : (
@@ -91,7 +91,7 @@ export function MobileAziendaDetailTabs({
           )}
         </TabsContent>
 
-        <TabsContent value="passeggeri" className="mt-0 space-y-3">
+        <TabsContent value="passeggeri" className="mt-0 space-y-4 animate-fade-in">
           {isLoadingPasseggeri ? (
             <MobileDetailSkeleton tab="passeggeri" />
           ) : (
@@ -106,7 +106,7 @@ export function MobileAziendaDetailTabs({
           )}
         </TabsContent>
 
-        <TabsContent value="config" className="mt-0 space-y-4">
+        <TabsContent value="config" className="mt-0 space-y-4 animate-fade-in">
           <ConfigTabMobile azienda={azienda} />
         </TabsContent>
       </div>
