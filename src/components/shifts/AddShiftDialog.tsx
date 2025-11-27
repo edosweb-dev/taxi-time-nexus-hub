@@ -1,30 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useShifts } from './ShiftContext';
-import { Loader2, Trash2, Info, Clock, Calendar as CalendarIcon, User, Save, X, Settings, MapPin } from 'lucide-react';
+import { Loader2, Trash2, Save, X } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Import the refactored components
 import { DeleteConfirmDialog } from './dialogs/DeleteConfirmDialog';
 import { shiftFormSchema, type ShiftFormValues } from './dialogs/ShiftFormSchema';
-import {
-  ShiftDateField,
-  ShiftTimeFields,
-  HalfDayTypeField,
-  ShiftUserSelect,
-  ShiftTypeSelect,
-  ShiftNotesField,
-  DateRangeFields
-} from './form-fields';
+import { HalfDayTypeField, ShiftUserSelect, ShiftTypeSelect } from './form-fields';
 import { ShiftFormData } from './types';
 
 interface AddShiftDialogProps {
@@ -162,91 +154,41 @@ export function AddShiftDialog({
   // Shared form content
   const FormContent = () => (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-        {/* Card Assegnazione e Data - Mobile ottimizzato */}
-        <Card className={`border-l-4 border-l-primary ${isMobile ? 'shadow-sm' : ''}`}>
-          <CardHeader className={`pb-3 ${isMobile ? 'px-4 py-3' : 'pb-4'}`}>
-            <CardTitle className={`card-title flex items-center gap-2 ${isMobile ? 'text-base' : ''}`}>
-              <User className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-primary`} />
-              Assegnazione e Data
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={isMobile ? 'px-4 pb-4' : ''}>
-            <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
-              <ShiftUserSelect 
-                control={form.control} 
-                isAdminOrSocio={isAdminOrSocio} 
-                isEditing={isEditing} 
-              />
-              <ShiftDateField 
-                control={form.control}
-                name="shift_date"
-                label="Data del turno"
-              />
-            </div>
-          </CardContent>
-        </Card>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* User Selection */}
+        <ShiftUserSelect 
+          control={form.control} 
+          isAdminOrSocio={isAdminOrSocio} 
+          isEditing={isEditing} 
+        />
 
-        {/* Card Tipo e Orari - Mobile ottimizzato */}
-        <Card className={`border-l-4 border-l-blue-500 ${isMobile ? 'shadow-sm' : ''}`}>
-          <CardHeader className={`pb-3 ${isMobile ? 'px-4 py-3' : 'pb-4'}`}>
-            <CardTitle className={`card-title flex items-center gap-2 ${isMobile ? 'text-base' : ''}`}>
-              <Clock className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-blue-500`} />
-              Tipo di Turno e Orari
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={`space-y-3 sm:space-y-4 ${isMobile ? 'px-4 pb-4' : ''}`}>
-            <ShiftTypeSelect 
-              control={form.control} 
-              setValue={form.setValue} 
-            />
+        {/* Shift Type Selection */}
+        <ShiftTypeSelect 
+          control={form.control} 
+          setValue={form.setValue} 
+        />
 
-            {shiftType === 'half_day' && (
-              <div className="space-y-3 sm:space-y-4">
-                {!isMobile && (
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>
-                      Seleziona se il turno è nella mattina o nel pomeriggio.
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <HalfDayTypeField control={form.control} />
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Half Day Type - shown inline when half_day is selected */}
+        {shiftType === 'half_day' && (
+          <HalfDayTypeField control={form.control} />
+        )}
 
-
-        {/* Card Note - Mobile ottimizzato */}
-        <Card className={`border-l-4 border-l-green-500 ${isMobile ? 'shadow-sm' : ''}`}>
-          <CardHeader className={`pb-3 ${isMobile ? 'px-4 py-3' : 'pb-4'}`}>
-            <CardTitle className={`card-title flex items-center gap-2 ${isMobile ? 'text-base' : ''}`}>
-              <Settings className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-green-500`} />
-              Note Aggiuntive
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={isMobile ? 'px-4 pb-4' : ''}>
-            <ShiftNotesField control={form.control} />
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons - Mobile ottimizzati */}
-        <div className={`flex ${isMobile ? 'flex-col gap-3 pt-4 sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4 -mx-4' : 'flex-col sm:flex-row justify-between items-center pt-6 border-t gap-3'}`}>
+        {/* Action Buttons */}
+        <div className={`flex ${isMobile ? 'flex-col gap-3 pt-4' : 'flex-row justify-end items-center pt-6 border-t gap-3'}`}>
           {isEditing && (
             <Button 
               type="button" 
               variant="destructive"
               onClick={() => setConfirmDelete(true)}
               disabled={isLoading}
-              className={`flex items-center justify-center gap-2 ${isMobile ? 'w-full min-h-[48px]' : ''}`}
+              className={`flex items-center justify-center gap-2 ${isMobile ? 'w-full min-h-[48px]' : 'mr-auto'}`}
             >
               <Trash2 className="h-4 w-4" />
-              Elimina Turno
+              Elimina
             </Button>
           )}
           
-          <div className={`flex gap-3 ${isMobile ? 'w-full' : 'ml-auto'}`}>
+          <div className={`flex gap-3 ${isMobile ? 'w-full' : ''}`}>
             <Button 
               type="button" 
               variant="outline" 
@@ -283,14 +225,11 @@ export function AddShiftDialog({
             onOpenChange(value);
           }}
         >
-          <DrawerContent className="max-h-[95vh]">
+          <DrawerContent className="max-h-[85vh]">
             <DrawerHeader>
-              <DrawerTitle>{isEditing ? 'Modifica Turno' : 'Nuovo Turno'}</DrawerTitle>
-              <DrawerDescription>
-                {isEditing 
-                  ? 'Modifica i dettagli del turno esistente.' 
-                  : 'Inserisci i dettagli del nuovo turno.'}
-              </DrawerDescription>
+              <DrawerTitle>
+                {isEditing ? 'Modifica Turno' : `Nuovo Turno - ${format(defaultDate || new Date(), 'EEEE d MMMM yyyy', { locale: it })}`}
+              </DrawerTitle>
             </DrawerHeader>
             <div className="overflow-y-auto px-4 pb-4">
               <FormContent />
@@ -307,14 +246,11 @@ export function AddShiftDialog({
             onOpenChange(value);
           }}
         >
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>{isEditing ? 'Modifica Turno' : 'Nuovo Turno'}</DialogTitle>
-              <DialogDescription>
-                {isEditing 
-                  ? 'Modifica i dettagli del turno esistente.' 
-                  : 'Inserisci i dettagli del nuovo turno.'}
-              </DialogDescription>
+              <DialogTitle>
+                {isEditing ? 'Modifica Turno' : `Nuovo Turno - ${format(defaultDate || new Date(), 'EEEE d MMMM yyyy', { locale: it })}`}
+              </DialogTitle>
             </DialogHeader>
             <FormContent />
           </DialogContent>
