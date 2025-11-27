@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,13 +32,13 @@ export function DesktopAziendaCard({
               <Building2 className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 
-                className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors cursor-pointer"
-                onClick={onView}
+              <Link 
+                to={`/aziende/${azienda.id}`}
+                className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors cursor-pointer hover:underline"
               >
                 {azienda.nome}
-              </h3>
-              <Badge variant="secondary" className="text-xs mt-1">
+              </Link>
+              <Badge variant="secondary" className="text-xs mt-1 block">
                 P.IVA: {azienda.partita_iva}
               </Badge>
             </div>
