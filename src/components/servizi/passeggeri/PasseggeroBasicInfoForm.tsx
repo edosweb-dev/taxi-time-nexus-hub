@@ -1,9 +1,11 @@
 
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { PasseggeroCustomAddressForm } from "./PasseggeroCustomAddressForm";
 import { MobileInput } from "@/components/ui/mobile-input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 
 interface PasseggeroBasicInfoFormProps {
   index: number;
@@ -12,7 +14,12 @@ interface PasseggeroBasicInfoFormProps {
 }
 
 export const PasseggeroBasicInfoForm = ({ index, onSave, onCancel }: PasseggeroBasicInfoFormProps) => {
-  const { control } = useFormContext<ServizioFormData>();
+  const { control, setValue } = useFormContext<ServizioFormData>();
+  
+  const usaIndirizzoPersonalizzato = useWatch({
+    control,
+    name: `passeggeri.${index}.usa_indirizzo_personalizzato`
+  });
   
   return (
     <div className="space-y-4">
@@ -147,18 +154,40 @@ export const PasseggeroBasicInfoForm = ({ index, onSave, onCancel }: PasseggeroB
         </div>
       )}
 
-      {/* Indirizzi personalizzati sempre visibili */}
+      {/* Checkbox per attivare indirizzi personalizzati */}
       <div className="pt-4 border-t">
-        <div className="mb-3">
-          <h4 className="text-sm font-medium flex items-center gap-2">
-            📍 Indirizzi personalizzati
-          </h4>
-          <p className="text-xs text-muted-foreground mt-1">
-            Imposta orari e luoghi di presa/destinazione specifici per questo passeggero
-          </p>
-        </div>
-        <PasseggeroCustomAddressForm index={index} />
+        <FormField
+          name={`passeggeri.${index}.usa_indirizzo_personalizzato`}
+          render={({ field }) => (
+            <FormItem className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-3">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
+                    }}
+                    className="h-5 w-5 mt-0.5"
+                  />
+                </FormControl>
+                <div className="flex-1">
+                  <FormLabel className="text-sm font-medium cursor-pointer block">
+                    📍 Indirizzi personalizzati
+                  </FormLabel>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Attiva per impostare orari e luoghi di presa/destinazione specifici
+                  </p>
+                </div>
+              </div>
+            </FormItem>
+          )}
+        />
       </div>
+
+      {/* Campi indirizzi personalizzati (visibili solo se attivati) */}
+      {usaIndirizzoPersonalizzato && (
+        <PasseggeroCustomAddressForm index={index} />
+      )}
     </div>
   );
 };
