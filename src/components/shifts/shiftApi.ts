@@ -19,24 +19,24 @@ export const fetchShifts = async ({
   try {
     console.log('[fetchShifts] Starting fetch with params:', { start: format(start, 'yyyy-MM-dd'), end: format(end, 'yyyy-MM-dd'), isAdminOrSocio, userId });
 
-    // Single query with JOIN to fetch shifts and user data together
+    // Single query with JOIN to fetch shifts and user data together  
     let query = supabase
       .from('shifts')
       .select(`
         *,
-        user:profiles!user_id (
+        user:profiles!shifts_user_id_fkey (
           id, 
           first_name, 
           last_name, 
           email, 
           color
         ),
-        created_by_user:profiles!created_by (
+        created_by_user:profiles!shifts_created_by_fkey (
           id,
           first_name,
           last_name
         ),
-        updated_by_user:profiles!updated_by (
+        updated_by_user:profiles!shifts_updated_by_fkey (
           id,
           first_name,
           last_name
