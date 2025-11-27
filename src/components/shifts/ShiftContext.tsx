@@ -55,31 +55,44 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
 
   // Helper functions to expose mutations - wrapped in useCallback for memoization
   const createShift = useCallback(async (data: ShiftFormData) => {
+    // Verifica userId al momento dell'invocazione, non nella closure
+    if (!user?.id) {
+      console.error('[ShiftContext] createShift called without authenticated user');
+      throw new Error('Utente non autenticato');
+    }
     try {
       await createShiftMutation.mutateAsync(data);
     } catch (error) {
-      console.error('Error in createShift:', error);
+      console.error('[ShiftContext] Error in createShift:', error);
       throw error;
     }
-  }, [createShiftMutation]);
+  }, [createShiftMutation, user?.id]);
 
   const updateShift = useCallback(async (id: string, data: ShiftFormData) => {
+    if (!user?.id) {
+      console.error('[ShiftContext] updateShift called without authenticated user');
+      throw new Error('Utente non autenticato');
+    }
     try {
       await updateShiftMutation.mutateAsync({ id, data });
     } catch (error) {
-      console.error('Error in updateShift:', error);
+      console.error('[ShiftContext] Error in updateShift:', error);
       throw error;
     }
-  }, [updateShiftMutation]);
+  }, [updateShiftMutation, user?.id]);
 
   const deleteShift = useCallback(async (id: string) => {
+    if (!user?.id) {
+      console.error('[ShiftContext] deleteShift called without authenticated user');
+      throw new Error('Utente non autenticato');
+    }
     try {
       await deleteShiftMutation.mutateAsync(id);
     } catch (error) {
-      console.error('Error in deleteShift:', error);
+      console.error('[ShiftContext] Error in deleteShift:', error);
       throw error;
     }
-  }, [deleteShiftMutation]);
+  }, [deleteShiftMutation, user?.id]);
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
