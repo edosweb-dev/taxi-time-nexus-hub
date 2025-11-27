@@ -19,9 +19,29 @@ export const fetchShifts = async ({
   try {
     console.log('[fetchShifts] Starting fetch with params:', { start: format(start, 'yyyy-MM-dd'), end: format(end, 'yyyy-MM-dd'), isAdminOrSocio, userId });
 
+    // Single query with JOIN to fetch shifts and user data together
     let query = supabase
       .from('shifts')
-      .select('*');
+      .select(`
+        *,
+        user:profiles!user_id (
+          id, 
+          first_name, 
+          last_name, 
+          email, 
+          color
+        ),
+        created_by_user:profiles!created_by (
+          id,
+          first_name,
+          last_name
+        ),
+        updated_by_user:profiles!updated_by (
+          id,
+          first_name,
+          last_name
+        )
+      `);
 
     // If not admin/socio, only fetch own shifts
     if (!isAdminOrSocio && userId) {
@@ -40,57 +60,25 @@ export const fetchShifts = async ({
 
     if (shiftsError) throw shiftsError;
 
-    console.log('[fetchShifts] Raw shifts data:', shiftsData);
+    console.log('[fetchShifts] Shifts data with joined profiles:', shiftsData);
 
-    // Now fetch profile information for all user_ids
-    if (shiftsData && shiftsData.length > 0) {
-      // Extract unique user ids
-      const userIds = [...new Set(shiftsData.map(shift => shift.user_id))];
-      console.log('[fetchShifts] Fetching profiles for user IDs:', userIds);
+    // Map the joined data to maintain compatibility with existing components
+    const shiftsWithProfiles = (shiftsData || []).map(shift => {
+      const shiftWithProfile = {
+        ...shift,
+        user_first_name: shift.user?.first_name || null,
+        user_last_name: shift.user?.last_name || null,
+        user_email: shift.user?.email || null,
+        user_color: shift.user?.color || null
+      };
       
-      // Get profile data for these users
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, email, color')
-        .in('id', userIds);
+      console.log(`[fetchShifts] Shift ${shift.id} - User: ${shift.user_id}, Name: ${shiftWithProfile.user_first_name} ${shiftWithProfile.user_last_name}, Color: ${shiftWithProfile.user_color}`);
       
-      if (profilesError) {
-        console.error('[fetchShifts] Error fetching profiles:', profilesError);
-        throw profilesError;
-      }
+      return shiftWithProfile;
+    });
 
-      console.log('[fetchShifts] Profiles data:', profilesData);
-
-      // Create a map of user_id to profile data
-      const profilesMap = (profilesData || []).reduce((acc, profile) => {
-        acc[profile.id] = profile;
-        return acc;
-      }, {} as Record<string, { id: string; first_name: string | null; last_name: string | null; email: string | null; color: string | null; }>);
-      
-      console.log('[fetchShifts] Profiles map:', profilesMap);
-      
-      // Merge shifts with profile data
-      const shiftsWithProfiles = shiftsData.map(shift => {
-        const profile = profilesMap[shift.user_id];
-        const shiftWithProfile = {
-          ...shift,
-          user_first_name: profile?.first_name || null,
-          user_last_name: profile?.last_name || null,
-          user_email: profile?.email || null,
-          user_color: profile?.color || null
-        };
-        
-        console.log(`[fetchShifts] Shift ${shift.id} - User: ${shift.user_id}, Name: ${shiftWithProfile.user_first_name} ${shiftWithProfile.user_last_name}, Email: ${shiftWithProfile.user_email}`);
-        
-        return shiftWithProfile;
-      });
-
-      console.log('[fetchShifts] Final shifts with profiles:', shiftsWithProfiles);
-      return shiftsWithProfiles as Shift[];
-    }
-
-    console.log('[fetchShifts] No shifts data found');
-    return shiftsData as Shift[];
+    console.log('[fetchShifts] Final shifts with profiles:', shiftsWithProfiles);
+    return shiftsWithProfiles as Shift[];
   } catch (error) {
     console.error('[fetchShifts] Error fetching shifts:', error);
     toast.error('Errore nel caricamento dei turni');
