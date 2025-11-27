@@ -67,7 +67,16 @@ const LoadingSpinner = () => (
   </div>
 );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // 5 minuti - dati considerati "fresh"
+      gcTime: 10 * 60 * 1000,         // 10 minuti - garbage collection
+      retry: 1,                        // 1 solo retry su errore
+      refetchOnWindowFocus: false,    // No refetch automatico su focus
+    },
+  },
+});
 
 // Componente redirect dinamico per vecchia route dipendente
 const RedirectToServizioDetail = () => {
