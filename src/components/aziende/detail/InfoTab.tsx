@@ -333,9 +333,24 @@ export function InfoTab({
                           e.stopPropagation();
                           onEditReferente(referente);
                         }}
-                        className="h-8 w-8 p-0"
+                        className="h-8 px-3"
+                        title="Modifica referente"
                       >
-                        <User className="h-3 w-3" />
+                        Modifica
+                      </Button>
+                    )}
+                    {onDeleteReferente && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteReferente(referente);
+                        }}
+                        className="h-8 px-3 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        title="Elimina referente"
+                      >
+                        Elimina
                       </Button>
                     )}
                   </div>
@@ -517,15 +532,33 @@ export function InfoTab({
                   </div>
 
                   {(onEditPasseggero || onDeletePasseggero) && (
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {onEditPasseggero && (
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => onEditPasseggero(passeggero)}
-                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditPasseggero(passeggero);
+                          }}
+                          className="h-8 px-3"
+                          title="Modifica passeggero"
                         >
-                          <User className="h-3 w-3" />
+                          Modifica
+                        </Button>
+                      )}
+                      {onDeletePasseggero && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeletePasseggero(passeggero);
+                          }}
+                          className="h-8 px-3 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          title="Elimina passeggero"
+                        >
+                          Elimina
                         </Button>
                       )}
                     </div>

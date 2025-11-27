@@ -29,6 +29,8 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
   const [isPasseggeroDialogOpen, setIsPasseggeroDialogOpen] = useState(false);
   const [selectedPasseggero, setSelectedPasseggero] = useState<Passeggero | null>(null);
   const [isCreatingPasseggero, setIsCreatingPasseggero] = useState(false);
+  const [deletePasseggeroDialogOpen, setDeletePasseggeroDialogOpen] = useState(false);
+  const [passeggeroToDelete, setPasseggeroToDelete] = useState<Passeggero | null>(null);
 
   const { 
     getCompanyDetails, 
@@ -156,15 +158,20 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     setIsPasseggeroDialogOpen(true);
   };
 
-  const handleDeletePasseggero = async (passeggero: Passeggero) => {
-    if (!confirm(`Sei sicuro di voler eliminare ${passeggero.nome_cognome}?`)) {
-      return;
-    }
+  const handleDeletePasseggero = (passeggero: Passeggero) => {
+    setPasseggeroToDelete(passeggero);
+    setDeletePasseggeroDialogOpen(true);
+  };
+
+  const confirmDeletePasseggero = async () => {
+    if (!passeggeroToDelete) return;
 
     try {
-      await deletePasseggero(passeggero.id);
-      setPasseggeri(prev => prev.filter(p => p.id !== passeggero.id));
+      await deletePasseggero(passeggeroToDelete.id);
+      setPasseggeri(prev => prev.filter(p => p.id !== passeggeroToDelete.id));
       toast.success("Passeggero eliminato con successo");
+      setDeletePasseggeroDialogOpen(false);
+      setPasseggeroToDelete(null);
     } catch (error) {
       console.error('Error deleting passenger:', error);
       toast.error("Errore nell'eliminazione del passeggero");
@@ -221,6 +228,9 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     setIsPasseggeroDialogOpen,
     selectedPasseggero,
     isCreatingPasseggero,
+    deletePasseggeroDialogOpen,
+    setDeletePasseggeroDialogOpen,
+    passeggeroToDelete,
     handleBack,
     handleEditAzienda,
     handleCancelEdit,
@@ -233,6 +243,7 @@ export function useAziendaDetail(id: string | undefined, currentUserID: string |
     handleAddPasseggero,
     handleEditPasseggero,
     handleDeletePasseggero,
+    confirmDeletePasseggero,
     handleSubmitPasseggero,
     isUpdating,
     isCreatingUser,

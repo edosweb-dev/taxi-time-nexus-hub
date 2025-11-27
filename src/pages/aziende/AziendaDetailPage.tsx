@@ -8,6 +8,7 @@ import { InfoTab } from '@/components/aziende/detail/InfoTab';
 import { MobileAziendaDetailHeader } from '@/components/aziende/detail/mobile/MobileAziendaDetailHeader';
 import { MobileAziendaDetailTabs } from '@/components/aziende/detail/mobile/MobileAziendaDetailTabs';
 import { DeleteReferenteDialog } from '@/components/aziende/DeleteReferenteDialog';
+import { DeletePasseggeroDialog } from '@/components/aziende/DeletePasseggeroDialog';
 import { PasseggeroDialog } from '@/components/aziende/PasseggeroDialog';
 import { useAziendaDetail } from '@/hooks/useAziendaDetail';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,6 +39,9 @@ export default function AziendaDetailPage() {
     setIsPasseggeroDialogOpen,
     selectedPasseggero,
     isCreatingPasseggero,
+    deletePasseggeroDialogOpen,
+    setDeletePasseggeroDialogOpen,
+    passeggeroToDelete,
     handleBack,
     handleEditAzienda,
     handleCancelEdit,
@@ -50,6 +54,7 @@ export default function AziendaDetailPage() {
     handleAddPasseggero,
     handleEditPasseggero,
     handleDeletePasseggero,
+    confirmDeletePasseggero,
     handleSubmitPasseggero,
     isUpdating,
     isCreatingUser,
@@ -175,6 +180,13 @@ export default function AziendaDetailPage() {
           passeggero={selectedPasseggero}
           referenti={referenti}
           isSubmitting={isCreatingPasseggero}
+        />
+
+        <DeletePasseggeroDialog
+          passeggero={passeggeroToDelete}
+          open={deletePasseggeroDialogOpen}
+          onOpenChange={setDeletePasseggeroDialogOpen}
+          onConfirm={confirmDeletePasseggero}
         />
       </div>
     </MainLayout>
