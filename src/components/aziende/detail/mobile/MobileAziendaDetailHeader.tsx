@@ -33,8 +33,8 @@ export function MobileAziendaDetailHeader({
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1 min-w-0">
-            <h1 className="font-semibold text-base truncate">{azienda.nome}</h1>
-            <p className="text-xs text-muted-foreground truncate">
+            <h1 className="font-semibold text-base break-words">{azienda.nome}</h1>
+            <p className="text-xs text-muted-foreground break-words">
               P.IVA {azienda.partita_iva}
             </p>
           </div>
