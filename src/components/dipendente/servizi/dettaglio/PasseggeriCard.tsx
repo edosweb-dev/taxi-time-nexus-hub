@@ -10,7 +10,6 @@ interface Passeggero {
   orario_presa_personalizzato?: string;
   luogo_presa_personalizzato?: string;
   destinazione_personalizzato?: string;
-  usa_indirizzo_personalizzato?: boolean;
 }
 
 interface PasseggeriCardProps {
@@ -48,7 +47,7 @@ export function PasseggeriCard({
         {passeggeri.map((passeggero, index) => {
           const orarioPresa = passeggero.orario_presa_personalizzato || orarioServizio;
           const luogoPresa = passeggero.luogo_presa_personalizzato || indirizzoPresa;
-          const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
+          const haPresaPersonalizzata = !!passeggero.luogo_presa_personalizzato;
           
           return (
             <div 
@@ -64,30 +63,33 @@ export function PasseggeriCard({
                   <div className="font-medium text-sm truncate">
                     {passeggero.nome_cognome}
                   </div>
-                  {haPresaPersonalizzata && (
-                    <Badge variant="outline" className="text-[10px] mt-1">
-                      Presa intermedia
-                    </Badge>
-                  )}
                 </div>
               </div>
               
-              {/* Orario presa */}
-              <div className="flex items-center gap-2 text-xs">
-                <Clock className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                <span className="text-muted-foreground">Presa:</span>
-                <span className="font-medium">{orarioPresa}</span>
-              </div>
-              
-              {/* Luogo presa */}
-              <div className="flex items-start gap-2 text-xs">
-                <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  {haPresaPersonalizzata ? (
-                    <div className="font-medium">{luogoPresa}</div>
-                  ) : (
-                    <div className="text-muted-foreground">Punto di partenza</div>
+              {/* Orario e luogo di presa */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                  <span className="text-muted-foreground">Orario presa:</span>
+                  <span className="font-medium">{orarioPresa}</span>
+                  {passeggero.orario_presa_personalizzato && (
+                    <Badge variant="outline" className="text-[10px]">
+                      Personalizzato
+                    </Badge>
                   )}
+                </div>
+                
+                <div className="flex items-start gap-2 text-xs">
+                  <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-muted-foreground">Luogo presa: </span>
+                    <span className="font-medium">{luogoPresa}</span>
+                    {haPresaPersonalizzata && (
+                      <Badge variant="outline" className="text-[10px] ml-1">
+                        Personalizzato
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
               

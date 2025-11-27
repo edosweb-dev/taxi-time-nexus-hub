@@ -1,8 +1,6 @@
 
-import { useFormContext, useWatch, Controller } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import { ServizioFormData } from "@/lib/types/servizi";
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
 import { PasseggeroCustomAddressForm } from "./PasseggeroCustomAddressForm";
 import { MobileInput } from "@/components/ui/mobile-input";
 import { Button } from "@/components/ui/button";
@@ -14,13 +12,7 @@ interface PasseggeroBasicInfoFormProps {
 }
 
 export const PasseggeroBasicInfoForm = ({ index, onSave, onCancel }: PasseggeroBasicInfoFormProps) => {
-  const { control, watch, setValue } = useFormContext<ServizioFormData>();
-  const usaIndirizzoPersonalizzato = watch(`passeggeri.${index}.usa_indirizzo_personalizzato`);
-  
-  // Watch the entire passeggeri array to determine if we should show the intermediate address option
-  const passeggeri = useWatch({ control, name: "passeggeri" }) || [];
-  // Only show the checkbox if there are 2 or more passengers
-  const showIntermediateAddressOption = passeggeri.length >= 2;
+  const { control } = useFormContext<ServizioFormData>();
   
   return (
     <div className="space-y-4">
@@ -155,36 +147,18 @@ export const PasseggeroBasicInfoForm = ({ index, onSave, onCancel }: PasseggeroB
         </div>
       )}
 
-      {showIntermediateAddressOption && (
-        <FormField
-          name={`passeggeri.${index}.usa_indirizzo_personalizzato`}
-          render={({ field }) => (
-            <FormItem className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-start gap-3">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      setValue(`passeggeri.${index}.usa_indirizzo_personalizzato`, !!checked);
-                    }}
-                    className="h-5 w-5 mt-0.5"
-                  />
-                </FormControl>
-                <div className="flex-1">
-                  <FormLabel className="text-sm font-medium cursor-pointer block">
-                    📍 Indirizzo di presa personalizzato
-                  </FormLabel>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Attiva se questo passeggero ha un punto di ritiro diverso
-                  </p>
-                </div>
-              </div>
-            </FormItem>
-          )}
-        />
-      )}
-
-      {usaIndirizzoPersonalizzato && <PasseggeroCustomAddressForm index={index} />}
+      {/* Indirizzi personalizzati sempre visibili */}
+      <div className="pt-4 border-t">
+        <div className="mb-3">
+          <h4 className="text-sm font-medium flex items-center gap-2">
+            📍 Indirizzi personalizzati
+          </h4>
+          <p className="text-xs text-muted-foreground mt-1">
+            Imposta orari e luoghi di presa/destinazione specifici per questo passeggero
+          </p>
+        </div>
+        <PasseggeroCustomAddressForm index={index} />
+      </div>
     </div>
   );
 };
