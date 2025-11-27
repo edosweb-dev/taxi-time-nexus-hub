@@ -61,7 +61,11 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
       throw new Error('Utente non autenticato');
     }
     try {
-      await createShiftMutation.mutateAsync(data);
+      // Passa userId direttamente con i dati per evitare stale closure
+      await createShiftMutation.mutateAsync({
+        ...data,
+        created_by_override: user.id
+      });
     } catch (error) {
       console.error('[ShiftContext] Error in createShift:', error);
       throw error;
@@ -74,7 +78,14 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
       throw new Error('Utente non autenticato');
     }
     try {
-      await updateShiftMutation.mutateAsync({ id, data });
+      // Passa userId direttamente con i dati per evitare stale closure
+      await updateShiftMutation.mutateAsync({ 
+        id, 
+        data: {
+          ...data,
+          user_id_override: user.id
+        }
+      });
     } catch (error) {
       console.error('[ShiftContext] Error in updateShift:', error);
       throw error;

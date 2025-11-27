@@ -41,8 +41,15 @@ export const useShiftMutations = (userId?: string) => {
 
   // Mutation per creare un turno (ottimizzata per non fare doppia validazione in batch)
   const createShiftMutation = useMutation({
-    mutationFn: async (data: ShiftFormData) => {
-      if (!userId) throw new Error('Utente non autenticato');
+    mutationFn: async (data: ShiftFormData & { created_by_override?: string }) => {
+      // Usa override se passato, altrimenti fallback sulla closure
+      const effectiveUserId = data.created_by_override || userId;
+      if (!effectiveUserId) {
+        console.error('[shiftMutations] No userId available - override:', data.created_by_override, 'closure:', userId);
+        throw new Error('Utente non autenticato');
+      }
+      
+      console.log('[shiftMutations] createShift with effectiveUserId:', effectiveUserId);
       
       // Skip validation per batch operations che hanno già validato
       // Mantieni validazione solo per operazioni singole
@@ -68,7 +75,7 @@ export const useShiftMutations = (userId?: string) => {
         }
       }
       
-      return createShiftApi(data, userId);
+      return createShiftApi(data, effectiveUserId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['shifts']});
@@ -82,8 +89,15 @@ export const useShiftMutations = (userId?: string) => {
 
   // Mutation per aggiornare un turno
   const updateShiftMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: ShiftFormData }) => {
-      if (!userId) throw new Error('Utente non autenticato');
+    mutationFn: async ({ id, data }: { id: string; data: ShiftFormData & { user_id_override?: string } }) => {
+      // Usa override se passato, altrimenti fallback sulla closure
+      const effectiveUserId = data.user_id_override || userId;
+      if (!effectiveUserId) {
+        console.error('[shiftMutations] No userId available for update - override:', data.user_id_override, 'closure:', userId);
+        throw new Error('Utente non autenticato');
+      }
+      
+      console.log('[shiftMutations] updateShift with effectiveUserId:', effectiveUserId);
       
       const shiftDate = data.shift_date.toISOString().split('T')[0];
       const { data: existingShifts, error } = await supabase
@@ -104,7 +118,7 @@ export const useShiftMutations = (userId?: string) => {
         throw new Error(validation.errorMessage);
       }
       
-      return updateShiftApi(id, data, userId);
+      return updateShiftApi(id, data, effectiveUserId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['shifts']});
