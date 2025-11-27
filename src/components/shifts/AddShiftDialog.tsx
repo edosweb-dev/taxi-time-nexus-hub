@@ -137,7 +137,7 @@ export function AddShiftDialog({
       
     } catch (error) {
       console.error('Error submitting shift:', error);
-      toast.error('Errore nel salvataggio del turno');
+      // La mutation già gestisce il toast con il messaggio specifico
     } finally {
       setIsLoading(false);
     }

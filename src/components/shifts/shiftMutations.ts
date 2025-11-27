@@ -4,14 +4,15 @@ import { toast } from '@/components/ui/sonner';
 import { ShiftFormData, Shift } from './types';
 import { createShiftApi, updateShiftApi, deleteShiftApi } from './shiftApi';
 import { supabase } from '@/lib/supabase';
+import { format } from 'date-fns';
 
 export const useShiftMutations = (userId?: string) => {
   const queryClient = useQueryClient();
 
   // Funzione di validazione per verificare se un utente può inserire un nuovo turno
   const validateShiftRule = (shifts: Shift[], newShift: ShiftFormData, editingShiftId?: string): { isValid: boolean; errorMessage?: string } => {
-    // Formatta la data del nuovo turno per il confronto
-    const newShiftDate = newShift.shift_date.toISOString().split('T')[0];
+    // Formatta la data del nuovo turno per il confronto (mantiene timezone locale)
+    const newShiftDate = format(newShift.shift_date, 'yyyy-MM-dd');
     
     console.log(`[VALIDATION] Checking shift for user ${newShift.user_id} on date ${newShiftDate}, editing: ${editingShiftId || 'new'}`);
     console.log(`[VALIDATION] New shift type: ${newShift.shift_type}`);
@@ -56,7 +57,7 @@ export const useShiftMutations = (userId?: string) => {
       const isBatchOperation = data.notes?.includes('[BATCH]') || false;
       
       if (!isBatchOperation) {
-        const shiftDate = data.shift_date.toISOString().split('T')[0];
+        const shiftDate = format(data.shift_date, 'yyyy-MM-dd');
         const { data: existingShifts, error } = await supabase
           .from('shifts')
           .select('*')
@@ -99,7 +100,7 @@ export const useShiftMutations = (userId?: string) => {
       
       console.log('[shiftMutations] updateShift with effectiveUserId:', effectiveUserId);
       
-      const shiftDate = data.shift_date.toISOString().split('T')[0];
+      const shiftDate = format(data.shift_date, 'yyyy-MM-dd');
       const { data: existingShifts, error } = await supabase
         .from('shifts')
         .select('*')
