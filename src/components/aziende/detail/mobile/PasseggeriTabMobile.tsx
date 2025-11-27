@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
-import { UserCircle2, Mail, Phone, Plus } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { Plus, Mail, Phone, Edit, Trash2, UserCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Profile } from '@/lib/types';
 import { Passeggero } from '@/lib/api/passeggeri';
 
@@ -23,7 +23,6 @@ export function PasseggeriTabMobile({
   onDelete 
 }: PasseggeriTabMobileProps) {
   const [selectedReferente, setSelectedReferente] = useState<string>('all');
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const filteredPasseggeri = selectedReferente === 'all'
     ? passeggeri
@@ -59,7 +58,6 @@ export function PasseggeriTabMobile({
       {/* Filtri chip scroll orizzontale */}
       {referenti.length > 0 && (
         <div 
-          ref={scrollRef}
           className="flex gap-2 pb-3 mb-4 border-b overflow-x-auto no-scrollbar"
           style={{ 
             scrollbarWidth: 'none',
@@ -155,12 +153,12 @@ export function PasseggeriTabMobile({
               key={passeggero.id}
               className="mobile-card"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 mb-3">
                 <div className="p-2 rounded-full bg-purple-100 text-purple-600 flex-shrink-0">
                   <UserCircle2 className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-sm">{passeggero.nome}</h4>
+                  <h4 className="font-medium text-sm">{passeggero.nome_cognome}</h4>
                   {passeggero.email && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                       <Mail className="h-3 w-3 flex-shrink-0" />
@@ -183,6 +181,33 @@ export function PasseggeriTabMobile({
                   })()}
                 </div>
               </div>
+
+              {/* Actions touch-friendly */}
+              {(onEdit || onDelete) && (
+                <div className="flex gap-2 pt-3 border-t">
+                  {onEdit && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(passeggero)}
+                      className="flex-1 min-h-[44px]"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Modifica
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => onDelete(passeggero)}
+                      className="min-h-[44px] px-4"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
