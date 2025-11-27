@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { startOfMonth, endOfMonth, format } from 'date-fns';
@@ -53,35 +53,36 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
 
   const { createShiftMutation, updateShiftMutation, deleteShiftMutation } = useShiftMutations(user?.id);
 
-  // Helper functions to expose mutations
-  const createShift = async (data: ShiftFormData) => {
+  // Helper functions to expose mutations - wrapped in useCallback for memoization
+  const createShift = useCallback(async (data: ShiftFormData) => {
     try {
       await createShiftMutation.mutateAsync(data);
     } catch (error) {
       console.error('Error in createShift:', error);
       throw error;
     }
-  };
+  }, [createShiftMutation]);
 
-  const updateShift = async (id: string, data: ShiftFormData) => {
+  const updateShift = useCallback(async (id: string, data: ShiftFormData) => {
     try {
       await updateShiftMutation.mutateAsync({ id, data });
     } catch (error) {
       console.error('Error in updateShift:', error);
       throw error;
     }
-  };
+  }, [updateShiftMutation]);
 
-  const deleteShift = async (id: string) => {
+  const deleteShift = useCallback(async (id: string) => {
     try {
       await deleteShiftMutation.mutateAsync(id);
     } catch (error) {
       console.error('Error in deleteShift:', error);
       throw error;
     }
-  };
+  }, [deleteShiftMutation]);
 
-  const value = {
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
     shifts,
     isLoading,
     isError,
@@ -95,9 +96,22 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
     setUserFilter,
     filteredDate,
     setDateFilter
-  };
+  }), [
+    shifts,
+    isLoading,
+    isError,
+    createShift,
+    updateShift,
+    deleteShift,
+    loadShifts,
+    selectedShift,
+    filteredUserId,
+    setUserFilter,
+    filteredDate,
+    setDateFilter
+  ]);
 
-  return <ShiftContext.Provider value={value}>{children}</ShiftContext.Provider>;
+  return <ShiftContext.Provider value={contextValue}>{children}</ShiftContext.Provider>;
 }
 
 export function useShifts() {
