@@ -49,7 +49,7 @@ export const fetchShifts = async ({
     console.log('[fetchShifts] Shifts data with joined profiles:', shiftsData);
 
     // Map the joined data to maintain compatibility with existing components
-    const shiftsWithProfiles = (shiftsData || []).map(shift => {
+    const shiftsWithProfiles = (shiftsData || []).map((shift: any) => {
       const shiftWithProfile = {
         ...shift,
         user_first_name: shift.user?.first_name || null,
