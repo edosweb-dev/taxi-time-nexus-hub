@@ -299,22 +299,57 @@ export const ServizioCreaPage = ({
             importo_totale_calcolato: null,
             applica_provvigione: initialData.applica_provvigione || false,
             consegna_contanti_a: initialData.consegna_contanti_a || null,
-            // ✅ FIX CRITICO: Popola array 'passeggeri' con oggetti completi
-            passeggeri: passeggeriData.map((sp: any) => ({
-              id: sp.id,
-              passeggero_id: sp.passeggero_id,
-              nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
-              email: sp.email_inline || sp.passeggeri?.email || '',
-              telefono: sp.telefono_inline || sp.passeggeri?.telefono || '',
-              localita: sp.localita_inline || sp.passeggeri?.localita || '',
-              indirizzo: sp.indirizzo_inline || sp.passeggeri?.indirizzo || '',
-              orario_presa_personalizzato: sp.orario_presa_personalizzato,
-              luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
-              destinazione_personalizzato: sp.destinazione_personalizzato,
-              usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
-              salva_in_database: sp.salva_in_database !== false,
-              is_existing: !!sp.passeggero_id,
-            })) || [],
+            // ✅ FIX CRITICO: Popola array 'passeggeri' con oggetti completi + campi prese intermedie
+            passeggeri: [...passeggeriData]
+              .sort((a: any, b: any) => (a.ordine_presa || 1) - (b.ordine_presa || 1))
+              .map((sp: any, idx: number) => {
+                // Determina presa_tipo dal DB
+                let presaTipo: 'servizio' | 'passeggero' | 'personalizzato' = 'servizio';
+                if (sp.luogo_presa_personalizzato) {
+                  presaTipo = 'personalizzato';
+                } else if (sp.usa_indirizzo_personalizzato && (sp.passeggeri?.indirizzo || sp.indirizzo_inline)) {
+                  presaTipo = 'passeggero';
+                }
+                
+                // Determina destinazione_tipo dal DB
+                let destinazioneTipo: 'servizio' | 'passeggero' | 'personalizzato' = 'servizio';
+                if (sp.destinazione_personalizzato) {
+                  destinazioneTipo = 'personalizzato';
+                } else if (sp.usa_destinazione_personalizzata) {
+                  destinazioneTipo = 'passeggero';
+                }
+
+                return {
+                  id: sp.id,
+                  passeggero_id: sp.passeggero_id,
+                  nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
+                  email: sp.email_inline || sp.passeggeri?.email || '',
+                  telefono: sp.telefono_inline || sp.passeggeri?.telefono || '',
+                  localita: sp.localita_inline || sp.passeggeri?.localita || '',
+                  indirizzo: sp.indirizzo_inline || sp.passeggeri?.indirizzo || '',
+                  
+                  // Nuovi campi per prese intermedie
+                  ordine: sp.ordine_presa || idx + 1,
+                  presa_tipo: presaTipo,
+                  presa_indirizzo_custom: presaTipo === 'personalizzato' ? (sp.luogo_presa_personalizzato?.split(',')[0]?.trim() || '') : '',
+                  presa_citta_custom: presaTipo === 'personalizzato' ? (sp.luogo_presa_personalizzato?.split(',')[1]?.trim() || '') : '',
+                  presa_orario: sp.orario_presa_personalizzato ? sp.orario_presa_personalizzato.slice(0, 5) : '',
+                  presa_usa_orario_servizio: idx === 0 && !sp.orario_presa_personalizzato,
+                  destinazione_tipo: destinazioneTipo,
+                  destinazione_indirizzo_custom: sp.destinazione_personalizzato?.split(',')[0]?.trim() || '',
+                  destinazione_citta_custom: sp.destinazione_personalizzato?.split(',')[1]?.trim() || '',
+                  indirizzo_rubrica: sp.passeggeri?.indirizzo || sp.indirizzo_inline || '',
+                  localita_rubrica: sp.passeggeri?.localita || sp.localita_inline || '',
+                  
+                  // Campi esistenti
+                  orario_presa_personalizzato: sp.orario_presa_personalizzato,
+                  luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+                  destinazione_personalizzato: sp.destinazione_personalizzato,
+                  usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
+                  salva_in_database: sp.salva_in_database !== false,
+                  is_existing: !!sp.passeggero_id,
+                };
+              }) || [],
             email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
             note: initialData.note || null,
           });
