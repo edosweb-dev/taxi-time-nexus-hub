@@ -101,6 +101,8 @@ export interface ServizioPasseggero {
   luogo_presa_personalizzato?: string;
   destinazione_personalizzato?: string;
   usa_indirizzo_personalizzato: boolean;
+  usa_destinazione_personalizzata?: boolean;
+  ordine_presa?: number;
   created_at?: string;
 }
 
@@ -159,14 +161,28 @@ export interface PasseggeroFormData {
   indirizzo?: string;
   email?: string;
   telefono?: string;
+  // Campi presa intermedia
+  ordine?: number;
+  presa_tipo?: 'servizio' | 'passeggero' | 'personalizzato';
+  presa_indirizzo_custom?: string;
+  presa_citta_custom?: string;
+  presa_orario?: string;
+  presa_usa_orario_servizio?: boolean;
+  // Campi destinazione intermedia
+  destinazione_tipo?: 'servizio' | 'passeggero' | 'personalizzato';
+  destinazione_indirizzo_custom?: string;
+  destinazione_citta_custom?: string;
+  // Legacy fields - manteniamo per compatibilità
   orario_presa_personalizzato?: string;
   luogo_presa_personalizzato?: string;
-  usa_indirizzo_personalizzato: boolean;
+  usa_indirizzo_personalizzato?: boolean;
   destinazione_personalizzato?: string;
   is_existing?: boolean; // Flag per distinguere tra nuovo e esistente
   salva_in_database?: boolean; // Flag per salvare in anagrafica (default: true)
   azienda_id?: string; // Azienda di appartenenza
   referente_id?: string; // Referente che ha creato il passeggero (solo tracking)
+  indirizzo_rubrica?: string; // Per visualizzazione
+  localita_rubrica?: string; // Per visualizzazione
 }
 
 /**

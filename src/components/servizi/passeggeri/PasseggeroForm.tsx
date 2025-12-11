@@ -8,6 +8,7 @@ import { PasseggeroCompactCard } from "./PasseggeroCompactCard";
 import { PasseggeroEditCard } from "./PasseggeroEditCard";
 import { PasseggeroSelector } from "./PasseggeroSelector";
 import { PasseggeriList } from "./PasseggeriList";
+import { PasseggeroPresaList } from "./PasseggeroPresaList";
 
 interface PasseggeroFormProps {
   userRole?: string;
@@ -20,9 +21,25 @@ interface PasseggeroFormProps {
     indirizzo?: string;
     citta?: string;
   };
+  showPresaIntermedia?: boolean;
+  orarioServizio?: string;
+  indirizzoServizio?: string;
+  cittaServizio?: string;
+  destinazioneServizio?: string;
+  cittaDestinazioneServizio?: string;
 }
 
-export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: PasseggeroFormProps) {
+export function PasseggeroForm({ 
+  userRole, 
+  tipo_cliente, 
+  clientePrivatoData,
+  showPresaIntermedia = false,
+  orarioServizio = '',
+  indirizzoServizio = '',
+  cittaServizio = '',
+  destinazioneServizio = '',
+  cittaDestinazioneServizio = '',
+}: PasseggeroFormProps) {
   const form = useFormContext<ServizioFormData>();
   const { control } = form;
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -43,9 +60,23 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
     }
   }, [fields.length]);
 
-  // Aggiungi un passeggero dal selector
+  // Aggiungi un passeggero dal selector con campi presa intermedia
   const handlePasseggeroSelect = (passeggero: any) => {
-    append(passeggero);
+    const passeggeroConPresa = {
+      ...passeggero,
+      ordine: fields.length + 1,
+      presa_tipo: 'servizio' as const,
+      presa_indirizzo_custom: '',
+      presa_citta_custom: '',
+      presa_orario: '',
+      presa_usa_orario_servizio: fields.length === 0, // Solo il primo usa orario servizio
+      destinazione_tipo: 'servizio' as const,
+      destinazione_indirizzo_custom: '',
+      destinazione_citta_custom: '',
+      indirizzo_rubrica: passeggero.indirizzo || '',
+      localita_rubrica: passeggero.localita || '',
+    };
+    append(passeggeroConPresa);
     setEditingIndex(null);
   };
   
@@ -54,8 +85,6 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
   };
   
   const handleSaveEdit = () => {
-    // I dati sono già salvati nel form tramite register
-    // Chiudiamo semplicemente il form di modifica
     setEditingIndex(null);
   };
   
@@ -131,47 +160,6 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
         <PasseggeriList userRole={userRole} />
       </div>
 
-      {/* Passeggeri già aggiunti - Cards compatte o form edit */}
-      {fields.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Passeggeri del servizio ({fields.length})
-            </span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          {fields.length > 1 && (
-            <div className="text-xs text-muted-foreground text-center pb-1">
-              💡 Usa le frecce per ordinare la sequenza di pick-up
-            </div>
-          )}
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <div key={field.id}>
-                {editingIndex === index ? (
-                  <PasseggeroEditCard 
-                    index={index} 
-                    onRemove={() => handleRemove(index)}
-                    onSave={handleSaveEdit}
-                    onCancel={handleCancelEdit}
-                  />
-                ) : (
-                  <PasseggeroCompactCard
-                    index={index}
-                    totalCount={fields.length}
-                    onEdit={() => handleEdit(index)}
-                    onRemove={() => handleRemove(index)}
-                    onMoveUp={() => handleMoveUp(index)}
-                    onMoveDown={() => handleMoveDown(index)}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Selettore passeggeri - Area principale */}
       <div className="relative">
         <div className="flex items-center gap-2 mb-3">
@@ -183,15 +171,65 @@ export function PasseggeroForm({ userRole, tipo_cliente, clientePrivatoData }: P
         </div>
         
         <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4">
-        <PasseggeroSelector
-          azienda_id={azienda_id}
-          tipo_cliente={tipo_cliente}
-          clientePrivatoData={clientePrivatoData}
-          onPasseggeroSelect={handlePasseggeroSelect}
-        />
+          <PasseggeroSelector
+            azienda_id={azienda_id}
+            tipo_cliente={tipo_cliente}
+            clientePrivatoData={clientePrivatoData}
+            onPasseggeroSelect={handlePasseggeroSelect}
+          />
         </div>
       </div>
 
+      {/* Lista passeggeri - con drag-and-drop per prese intermedie */}
+      {fields.length > 0 && (
+        showPresaIntermedia ? (
+          <PasseggeroPresaList
+            orarioServizio={orarioServizio}
+            indirizzoServizio={indirizzoServizio}
+            cittaServizio={cittaServizio}
+            destinazioneServizio={destinazioneServizio}
+            cittaDestinazioneServizio={cittaDestinazioneServizio}
+          />
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Passeggeri del servizio ({fields.length})
+              </span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            {fields.length > 1 && (
+              <div className="text-xs text-muted-foreground text-center pb-1">
+                💡 Usa le frecce per ordinare la sequenza di pick-up
+              </div>
+            )}
+            <div className="space-y-3">
+              {fields.map((field, index) => (
+                <div key={field.id}>
+                  {editingIndex === index ? (
+                    <PasseggeroEditCard 
+                      index={index} 
+                      onRemove={() => handleRemove(index)}
+                      onSave={handleSaveEdit}
+                      onCancel={handleCancelEdit}
+                    />
+                  ) : (
+                    <PasseggeroCompactCard
+                      index={index}
+                      totalCount={fields.length}
+                      onEdit={() => handleEdit(index)}
+                      onRemove={() => handleRemove(index)}
+                      onMoveUp={() => handleMoveUp(index)}
+                      onMoveDown={() => handleMoveDown(index)}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      )}
 
       {/* Empty state - solo se non ci sono passeggeri */}
       {fields.length === 0 && (
