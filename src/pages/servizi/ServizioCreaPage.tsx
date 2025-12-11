@@ -374,6 +374,13 @@ export const ServizioCreaPage = ({
   const watchClientePrivatoTelefono = form.watch("cliente_privato_telefono");
   const watchClientePrivatoIndirizzo = form.watch("cliente_privato_indirizzo");
   const watchClientePrivatoCitta = form.watch("cliente_privato_citta");
+  // Watch per prese intermedie passeggeri
+  const watchOrarioServizio = form.watch("orario_servizio");
+  const watchIndirizzoPresa = form.watch("indirizzo_presa");
+  const watchCittaPresa = form.watch("citta_presa");
+  const watchIndirizzoDestinazione = form.watch("indirizzo_destinazione");
+  const watchCittaDestinazione = form.watch("citta_destinazione");
+  const watchPasseggeri = form.watch("passeggeri");
   
   // State per passeggeri temporanei
   const [tempPasseggeri, setTempPasseggeri] = useState<any[]>([]);
@@ -1057,7 +1064,7 @@ export const ServizioCreaPage = ({
         
         // Mappa passeggeri dal form a formato insert
         if (passeggeriForm.length > 0) {
-          const passeggeriToInsert = passeggeriForm.map(p => {
+          const passeggeriToInsert = passeggeriForm.map((p, idx) => {
       const passeggeroData = {
         servizio_id: servizio.id,
         passeggero_id: p.id || null,
@@ -1070,10 +1077,25 @@ export const ServizioCreaPage = ({
         // FIX: salva_in_database basato su presenza passeggero_id
         salva_in_database: Boolean(p.id),  // true se ha ID, false se temporaneo
         
-        usa_indirizzo_personalizzato: Boolean(p.usa_indirizzo_personalizzato ?? false),
-        orario_presa_personalizzato: p.orario_presa_personalizzato || null,
-        luogo_presa_personalizzato: p.luogo_presa_personalizzato || null,
-        destinazione_personalizzato: p.destinazione_personalizzato || null,
+        // Campi presa intermedia
+        ordine_presa: p.ordine || (idx + 1),
+        usa_indirizzo_personalizzato: p.presa_tipo !== 'servizio',
+        luogo_presa_personalizzato: 
+          p.presa_tipo === 'personalizzato' 
+            ? [p.presa_indirizzo_custom, p.presa_citta_custom].filter(Boolean).join(', ')
+            : p.presa_tipo === 'passeggero' 
+              ? p.indirizzo_rubrica || p.indirizzo
+              : null,
+        orario_presa_personalizzato: p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
+        
+        // Campi destinazione intermedia
+        usa_destinazione_personalizzata: p.destinazione_tipo !== 'servizio',
+        destinazione_personalizzato:
+          p.destinazione_tipo === 'personalizzato'
+            ? [p.destinazione_indirizzo_custom, p.destinazione_citta_custom].filter(Boolean).join(', ')
+            : p.destinazione_tipo === 'passeggero'
+              ? p.indirizzo_rubrica || p.indirizzo
+              : null,
       };
             
             return passeggeroData;
@@ -1354,6 +1376,12 @@ export const ServizioCreaPage = ({
           ) && (
             <PasseggeroForm 
               tipo_cliente={watchTipoCliente}
+              showPresaIntermedia={true}
+              orarioServizio={watchOrarioServizio || ''}
+              indirizzoServizio={watchIndirizzoPresa || ''}
+              cittaServizio={watchCittaPresa || ''}
+              destinazioneServizio={watchIndirizzoDestinazione || ''}
+              cittaDestinazioneServizio={watchCittaDestinazione || ''}
               clientePrivatoData={
                 watchTipoCliente === 'privato' && 
                 watchClientePrivatoNome && 

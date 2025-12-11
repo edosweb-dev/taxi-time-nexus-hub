@@ -999,10 +999,12 @@ export type Database = {
           luogo_presa_personalizzato: string | null
           nome_cognome_inline: string | null
           orario_presa_personalizzato: string | null
+          ordine_presa: number | null
           passeggero_id: string | null
           salva_in_database: boolean
           servizio_id: string
           telefono_inline: string | null
+          usa_destinazione_personalizzata: boolean | null
           usa_indirizzo_personalizzato: boolean
         }
         Insert: {
@@ -1017,10 +1019,12 @@ export type Database = {
           luogo_presa_personalizzato?: string | null
           nome_cognome_inline?: string | null
           orario_presa_personalizzato?: string | null
+          ordine_presa?: number | null
           passeggero_id?: string | null
           salva_in_database?: boolean
           servizio_id: string
           telefono_inline?: string | null
+          usa_destinazione_personalizzata?: boolean | null
           usa_indirizzo_personalizzato?: boolean
         }
         Update: {
@@ -1035,10 +1039,12 @@ export type Database = {
           luogo_presa_personalizzato?: string | null
           nome_cognome_inline?: string | null
           orario_presa_personalizzato?: string | null
+          ordine_presa?: number | null
           passeggero_id?: string | null
           salva_in_database?: boolean
           servizio_id?: string
           telefono_inline?: string | null
+          usa_destinazione_personalizzata?: boolean | null
           usa_indirizzo_personalizzato?: boolean
         }
         Relationships: [

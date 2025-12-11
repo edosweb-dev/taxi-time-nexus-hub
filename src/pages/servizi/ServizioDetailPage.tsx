@@ -21,6 +21,7 @@ import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/S
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
 import { ServizioDialogs } from "@/components/servizi/dettaglio/ServizioDialogs";
 import { ServizioDetailDesktop } from "@/components/servizi/dettaglio/ServizioDetailDesktop";
+import { RoadmapPasseggeri } from "@/components/servizi/detail/RoadmapPasseggeri";
 import { useVeicoli } from "@/hooks/useVeicoli";
 import { MobileServizioOptimized } from "@/components/servizio/mobile/MobileServizioOptimized";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
