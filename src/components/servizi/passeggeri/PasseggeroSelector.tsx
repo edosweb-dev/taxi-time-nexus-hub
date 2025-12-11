@@ -267,14 +267,20 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
               ))}
             </div>
           ) : filteredPasseggeri.length > 0 ? (
-            <div className="max-h-64 overflow-y-auto space-y-2">
+            <div className="max-h-64 overflow-y-auto space-y-2 overscroll-contain touch-pan-y">
               {filteredPasseggeri.map((passeggero) => {
                 const nomeCompleto = passeggero.nome_cognome || `${passeggero.nome || ''} ${passeggero.cognome || ''}`.trim();
                 return (
                   <div
                     key={passeggero.id}
-                    className="flex items-start justify-between p-3 border rounded hover:bg-muted cursor-pointer transition-colors"
+                    className="flex items-start justify-between p-3 border rounded hover:bg-muted cursor-pointer transition-colors touch-manipulation select-none active:bg-muted"
                     onClick={() => handleSelectExisting(passeggero)}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      handleSelectExisting(passeggero);
+                    }}
+                    role="button"
+                    tabIndex={0}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm">{nomeCompleto}</div>
