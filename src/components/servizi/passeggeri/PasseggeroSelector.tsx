@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, User, UserPlus, Search, MapPin, Mail, Phone, ChevronRight } from 'lucide-react';
+import { Plus, User, UserPlus, Search, MapPin, Mail, Phone, ChevronRight, Info } from 'lucide-react';
 import { usePasseggeri } from '@/hooks/usePasseggeri';
 import { Passeggero, PasseggeroFormData } from '@/lib/types/servizi';
 import { toast } from 'sonner';
@@ -205,6 +205,17 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
         {tipo_cliente === 'privato' && !showNewForm && (
           <div className="space-y-3">
             <p className="text-sm font-medium text-foreground">Chi è il passeggero?</p>
+            
+            {/* Messaggio informativo se dati cliente non compilati */}
+            {(!clientePrivatoData?.nome || !clientePrivatoData?.cognome) && (
+              <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-950/30 dark:border-blue-800">
+                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  Compila i <span className="font-semibold">dati del cliente</span> nella 
+                  sezione sopra per poterli importare automaticamente come passeggero
+                </p>
+              </div>
+            )}
             
             {/* Opzione 1: Il cliente stesso (visibile solo se ha dati) */}
             {clientePrivatoData?.nome && clientePrivatoData?.cognome && (
