@@ -11,6 +11,15 @@ import { Passeggero, PasseggeroFormData } from '@/lib/types/servizi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MobileInput } from '@/components/ui/mobile-input';
 import { MobileButton } from '@/components/ui/mobile-button';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PasseggeroSelectorProps {
   azienda_id?: string;
@@ -39,16 +48,28 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
     email: '',
     telefono: '',
   });
+  
+  // Dialog state per conferma aggiunta passeggero
+  const [pendingPasseggero, setPendingPasseggero] = useState<Passeggero | null>(null);
+  const [showConfigDialog, setShowConfigDialog] = useState(false);
 
   const handleSelectExisting = (passeggero: Passeggero) => {
-    console.log('[PasseggeroSelector] Selecting existing passenger:', passeggero);
+    console.log('[PasseggeroSelector] Opening dialog for:', passeggero.id);
+    setPendingPasseggero(passeggero);
+    setShowConfigDialog(true);
+  };
+
+  const handleConfirmAdd = (personalizzato: boolean) => {
+    if (!pendingPasseggero) return;
     
-    // Se nome e cognome sono null, li estraiamo da nome_cognome
-    let nome = passeggero.nome;
-    let cognome = passeggero.cognome;
+    console.log('[PasseggeroSelector] Confirming add, personalizzato:', personalizzato);
+    
+    // Estrai nome e cognome se non presenti
+    let nome = pendingPasseggero.nome;
+    let cognome = pendingPasseggero.cognome;
     
     if (!nome || !cognome) {
-      const nomeCognomeSplit = (passeggero.nome_cognome || '').trim().split(' ');
+      const nomeCognomeSplit = (pendingPasseggero.nome_cognome || '').trim().split(' ');
       if (nomeCognomeSplit.length >= 2) {
         nome = nome || nomeCognomeSplit[0];
         cognome = cognome || nomeCognomeSplit.slice(1).join(' ');
@@ -59,30 +80,26 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
     }
 
     const passeggeroData = {
-      id: passeggero.id,
-      passeggero_id: passeggero.id,
-      nome_cognome: passeggero.nome_cognome || `${nome || ''} ${cognome || ''}`.trim(),
+      id: pendingPasseggero.id,
+      passeggero_id: pendingPasseggero.id,
+      nome_cognome: pendingPasseggero.nome_cognome || `${nome || ''} ${cognome || ''}`.trim(),
       nome: nome || '',
       cognome: cognome || '',
-      localita: passeggero.localita || '',
-      indirizzo: passeggero.indirizzo || '',
-      email: passeggero.email || '',
-      telefono: passeggero.telefono || '',
-      usa_indirizzo_personalizzato: false,
+      localita: pendingPasseggero.localita || '',
+      indirizzo: pendingPasseggero.indirizzo || '',
+      email: pendingPasseggero.email || '',
+      telefono: pendingPasseggero.telefono || '',
+      usa_indirizzo_personalizzato: personalizzato,
       is_existing: true,
       salva_in_database: true,
     };
     
-    // ✅ DEBUG LOG
-    console.log('═══════════════════════════════════');
-    console.log('🔍 [PasseggeroSelector] handleSelectExisting FINAL DATA:');
-    console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
-    console.log('typeof usa_indirizzo_personalizzato:', typeof passeggeroData.usa_indirizzo_personalizzato);
-    console.log('salva_in_database:', passeggeroData.salva_in_database);
-    console.log('Full object:', JSON.stringify(passeggeroData, null, 2));
-    console.log('═══════════════════════════════════');
-    
+    console.log('[PasseggeroSelector] Final data:', passeggeroData);
     onPasseggeroSelect(passeggeroData);
+    
+    setShowConfigDialog(false);
+    setPendingPasseggero(null);
+    setSearchTerm("");
   };
 
   const handleCreateNew = () => {
@@ -273,12 +290,8 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
                 return (
                   <div
                     key={passeggero.id}
-                    className="flex items-start justify-between p-3 border rounded hover:bg-muted cursor-pointer transition-colors touch-manipulation select-none active:bg-muted"
+                    className="flex items-start justify-between p-3 border rounded hover:bg-muted cursor-pointer transition-colors active:bg-muted"
                     onClick={() => handleSelectExisting(passeggero)}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      handleSelectExisting(passeggero);
-                    }}
                     role="button"
                     tabIndex={0}
                   >
@@ -443,6 +456,58 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
           )}
         </div>
       </CardContent>
+      
+      {/* Dialog conferma aggiunta passeggero */}
+      <AlertDialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
+        <AlertDialogContent className="max-w-sm mx-4">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Aggiungi passeggero
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p className="font-medium text-foreground">
+                  {pendingPasseggero?.nome_cognome}
+                </p>
+                {pendingPasseggero?.indirizzo && (
+                  <p className="text-sm">
+                    📍 {pendingPasseggero.indirizzo}{pendingPasseggero.localita && `, ${pendingPasseggero.localita}`}
+                  </p>
+                )}
+                <p className="pt-2">
+                  Vuoi usare un indirizzo o orario diverso da quello del servizio?
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel 
+              onClick={() => {
+                setShowConfigDialog(false);
+                setPendingPasseggero(null);
+              }}
+              className="w-full sm:w-auto"
+            >
+              Annulla
+            </AlertDialogCancel>
+            <Button 
+              variant="outline" 
+              onClick={() => handleConfirmAdd(false)}
+              className="w-full sm:w-auto"
+            >
+              Usa dati servizio
+            </Button>
+            <Button 
+              onClick={() => handleConfirmAdd(true)}
+              className="w-full sm:w-auto"
+            >
+              Personalizza
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
