@@ -192,6 +192,9 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
 
   // Per privati, non serve azienda_id
 
+  // Debug log per diagnostica
+  console.log('[PasseggeroSelector] Render:', { tipo_cliente, hasClientePrivatoData: !!(clientePrivatoData?.nome && clientePrivatoData?.cognome), showNewForm });
+
   return (
     <Card>
       <CardHeader>
@@ -201,39 +204,54 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Card Cliente del Servizio - Solo per privati */}
-        {tipo_cliente === 'privato' && clientePrivatoData && clientePrivatoData.nome && clientePrivatoData.cognome && (
-          <div className="mb-4">
-            <Card className="border border-border/50">
+        {/* PER PRIVATI: Pulsante primario "Aggiungi passeggero" in cima */}
+        {tipo_cliente === 'privato' && !showNewForm && (
+          <Button
+            type="button"
+            variant="default"
+            size="lg"
+            className="w-full gap-2 h-12 text-base font-medium"
+            onClick={() => setShowNewForm(true)}
+          >
+            <Plus className="h-5 w-5" />
+            Aggiungi un passeggero
+          </Button>
+        )}
+
+        {/* Card Cliente del Servizio - Solo per privati (opzione secondaria) */}
+        {tipo_cliente === 'privato' && !showNewForm && clientePrivatoData && clientePrivatoData.nome && clientePrivatoData.cognome && (
+          <div className="mt-4">
+            <p className="text-xs text-muted-foreground mb-2 text-center">oppure importa i dati del cliente</p>
+            <Card className="border border-dashed border-border/50 bg-muted/30">
               <CardContent className="p-4">
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Header e informazioni */}
                   <div>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
                       <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <span className="text-xs font-medium text-muted-foreground">Cliente del servizio</span>
                     </div>
                     
-                    <h5 className="font-semibold text-base mb-3 text-foreground">
+                    <h5 className="font-semibold text-sm mb-2 text-foreground">
                       {clientePrivatoData.nome} {clientePrivatoData.cognome}
                     </h5>
                     
-                    <div className="space-y-2 text-sm text-muted-foreground">
+                    <div className="space-y-1 text-xs text-muted-foreground">
                       {clientePrivatoData.email && (
                         <div className="flex items-center gap-2">
-                          <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                          <Mail className="h-3 w-3 flex-shrink-0" />
                           <span className="truncate">{clientePrivatoData.email}</span>
                         </div>
                       )}
                       {clientePrivatoData.telefono && (
                         <div className="flex items-center gap-2">
-                          <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                          <Phone className="h-3 w-3 flex-shrink-0" />
                           <span>{clientePrivatoData.telefono}</span>
                         </div>
                       )}
                       {(clientePrivatoData.indirizzo || clientePrivatoData.citta) && (
                         <div className="flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                          <MapPin className="h-3 w-3 flex-shrink-0" />
                           <span className="truncate">
                             {clientePrivatoData.indirizzo}{clientePrivatoData.indirizzo && clientePrivatoData.citta && ', '}{clientePrivatoData.citta}
                           </span>
@@ -242,14 +260,16 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
                     </div>
                   </div>
                   
-                  {/* CTA */}
+                  {/* CTA secondario */}
                   <Button 
-                    size="default"
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={handleSelectCliente}
                     className="w-full gap-2"
                   >
-                    <Plus className="h-4 w-4" />
-                    Aggiungi
+                    <UserPlus className="h-4 w-4" />
+                    Usa come passeggero
                   </Button>
                 </div>
               </CardContent>
@@ -337,17 +357,11 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
           )}
         </div>
         )}
-        
-        {/* Per privati: messaggio informativo */}
-        {tipo_cliente === 'privato' && (
-          <div className="text-center py-3 text-muted-foreground text-sm bg-blue-50 border border-blue-200 rounded-lg">
-            Per clienti privati, crea passeggeri manualmente usando il form sottostante
-          </div>
-        )}
 
         {/* Crea nuovo passeggero */}
-        <div className="border-t pt-4">
-          {!showNewForm ? (
+        <div className={tipo_cliente === 'azienda' ? "border-t pt-4" : ""}>
+          {/* Per AZIENDE: mostra pulsante quando form chiuso */}
+          {tipo_cliente === 'azienda' && !showNewForm && (
             <Button
               type="button"
               variant="default"
@@ -357,7 +371,10 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
               <UserPlus className="h-4 w-4" />
               Crea nuovo passeggero
             </Button>
-          ) : (
+          )}
+          
+          {/* Form nuovo passeggero (per entrambi i tipi quando showNewForm=true) */}
+          {showNewForm && (
             <div className="space-y-3">
               <Label className="text-sm font-medium">
                 Nuovo passeggero
