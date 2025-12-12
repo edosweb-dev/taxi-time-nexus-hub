@@ -1,68 +1,71 @@
 import React from "react";
 import { useFormContext, useWatch, Controller } from "react-hook-form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { MobileInput } from "@/components/ui/mobile-input";
-import { Flag, Target, MapPin } from "lucide-react";
+import { Flag, Target } from "lucide-react";
 import { ServizioFormData } from "@/lib/types/servizi";
 
 export const PercorsoSection = () => {
   const { control, setValue } = useFormContext<ServizioFormData>();
   
-  // Watch passeggeri e tipi percorso
+  // Watch all needed values at top level (hooks rules)
   const passeggeri = useWatch({ control, name: "passeggeri" }) || [];
   const partenzaTipo = useWatch({ control, name: "partenza_tipo" });
   const destinazioneTipo = useWatch({ control, name: "destinazione_tipo" });
   const partenzaPasseggeroIndex = useWatch({ control, name: "partenza_passeggero_index" });
   const destinazionePasseggeroIndex = useWatch({ control, name: "destinazione_passeggero_index" });
   
-  // Debug logging
-  console.log("🔍 [PercorsoSection] Passeggeri count:", passeggeri?.length || 0);
-  console.log("🔍 [PercorsoSection] Passeggeri data:", passeggeri);
-  console.log("🔍 [PercorsoSection] partenzaTipo:", partenzaTipo);
-  console.log("🔍 [PercorsoSection] destinazioneTipo:", destinazioneTipo);
+  // Helper per costruire indirizzo display
+  const getPasseggeroIndirizzo = (p: any) => {
+    const parts = [p?.indirizzo, p?.localita].filter(Boolean);
+    return parts.length > 0 ? parts.join(', ') : null;
+  };
+
+  const getPasseggeroNome = (p: any) => {
+    return p?.nome_cognome || `${p?.nome || ''} ${p?.cognome || ''}`.trim() || 'Passeggero';
+  };
   
   // Quando seleziono un passeggero per partenza, auto-popolo campi
-  const handlePartenzaPasseggeroChange = (index: string) => {
-    const idx = parseInt(index);
-    setValue("partenza_passeggero_index", idx);
-    
-    const passeggero = passeggeri[idx];
-    if (passeggero) {
-      const localita = passeggero.localita || "";
-      const indirizzo = passeggero.indirizzo || "";
-      
-      setValue("citta_presa", localita);
-      setValue("indirizzo_presa", indirizzo);
-      
-      console.log("🔍 Partenza set:", { localita, indirizzo, passeggero });
+  const handlePartenzaChange = (value: string) => {
+    if (value !== 'personalizzato') {
+      const idx = parseInt(value);
+      if (!isNaN(idx) && passeggeri[idx]) {
+        setValue("partenza_passeggero_index", idx);
+        setValue("citta_presa", passeggeri[idx].localita || '');
+        setValue("indirizzo_presa", passeggeri[idx].indirizzo || '');
+      }
     }
   };
   
   // Quando seleziono un passeggero per destinazione, auto-popolo campi
-  const handleDestinazionePasseggeroChange = (index: string) => {
-    const idx = parseInt(index);
-    setValue("destinazione_passeggero_index", idx);
-    
-    const passeggero = passeggeri[idx];
-    if (passeggero) {
-      const localita = passeggero.localita || "";
-      const indirizzo = passeggero.indirizzo || "";
-      
-      setValue("citta_destinazione", localita);
-      setValue("indirizzo_destinazione", indirizzo);
-      
-      console.log("🔍 Destinazione set:", { localita, indirizzo, passeggero });
+  const handleDestinazioneChange = (value: string) => {
+    if (value !== 'personalizzato') {
+      const idx = parseInt(value);
+      if (!isNaN(idx) && passeggeri[idx]) {
+        setValue("destinazione_passeggero_index", idx);
+        setValue("citta_destinazione", passeggeri[idx].localita || '');
+        setValue("indirizzo_destinazione", passeggeri[idx].indirizzo || '');
+      }
     }
   };
+
+  // Calcola valore corrente per Select partenza
+  const partenzaSelectValue = partenzaTipo === 'passeggero' && partenzaPasseggeroIndex !== undefined 
+    ? partenzaPasseggeroIndex.toString() 
+    : 'personalizzato';
+
+  // Calcola valore corrente per Select destinazione
+  const destinazioneSelectValue = destinazioneTipo === 'passeggero' && destinazionePasseggeroIndex !== undefined 
+    ? destinazionePasseggeroIndex.toString() 
+    : 'personalizzato';
   
   return (
     <div className="space-y-6">
       {/* PARTENZA */}
-      <div className="space-y-4 border rounded-lg p-4 bg-card">
+      <div className="space-y-3 border rounded-lg p-4 bg-card">
         <Label className="text-base font-medium flex items-center gap-2">
-          <Flag className="h-4 w-4" />
+          <Flag className="h-4 w-4 text-primary" />
           Punto di partenza
         </Label>
         
@@ -71,127 +74,90 @@ export const PercorsoSection = () => {
           name="partenza_tipo"
           defaultValue="personalizzato"
           render={({ field }) => (
-            <RadioGroup
-              value={field.value}
-              onValueChange={field.onChange}
-              className="space-y-3"
+            <Select 
+              value={partenzaSelectValue} 
+              onValueChange={(val) => {
+                if (val === 'personalizzato') {
+                  field.onChange('personalizzato');
+                  setValue("partenza_passeggero_index", undefined);
+                } else {
+                  field.onChange('passeggero');
+                  handlePartenzaChange(val);
+                }
+              }}
             >
-              {/* Opzione: Indirizzo personalizzato */}
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="personalizzato" id="partenza-personalizzato" />
-                  <Label htmlFor="partenza-personalizzato" className="font-normal cursor-pointer">
-                    Indirizzo personalizzato
-                  </Label>
-                </div>
-                
-                {partenzaTipo === 'personalizzato' && (
-                  <div className="ml-6 space-y-3 mt-3">
-                    <Controller
-                      control={control}
-                      name="citta_presa"
-                      render={({ field }) => (
-                        <div>
-                          <Label className="text-sm font-medium mb-1.5 block">Città</Label>
-                          <MobileInput
-                            {...field}
-                            value={field.value || ''}
-                            placeholder="Es: Milano"
-                            fluid
-                          />
-                        </div>
-                      )}
-                    />
-                    <Controller
-                      control={control}
-                      name="indirizzo_presa"
-                      render={({ field }) => (
-                        <div>
-                          <Label className="text-sm font-medium mb-1.5 block">Indirizzo *</Label>
-                          <MobileInput
-                            {...field}
-                            value={field.value || ''}
-                            placeholder="Es: Via Roma 1"
-                            fluid
-                          />
-                        </div>
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-              
-              {/* Opzione: Usa indirizzo passeggero */}
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem 
-                    value="passeggero" 
-                    id="partenza-passeggero"
-                    disabled={!passeggeri || passeggeri.length === 0}
-                  />
-                  <Label 
-                    htmlFor="partenza-passeggero" 
-                    className="font-normal cursor-pointer"
-                  >
-                    Usa indirizzo passeggero
-                    {(!passeggeri || passeggeri.length === 0) && (
-                      <span className="text-xs text-muted-foreground ml-2">
-                        (Aggiungi prima un passeggero)
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleziona punto di partenza" />
+              </SelectTrigger>
+              <SelectContent>
+                {/* Opzioni passeggeri */}
+                {passeggeri.map((p: any, idx: number) => {
+                  const indirizzo = getPasseggeroIndirizzo(p);
+                  const nome = getPasseggeroNome(p);
+                  return (
+                    <SelectItem key={idx} value={idx.toString()}>
+                      <span className="flex flex-col items-start">
+                        <span>Indirizzo di {nome}</span>
+                        {indirizzo ? (
+                          <span className="text-xs text-muted-foreground">({indirizzo})</span>
+                        ) : (
+                          <span className="text-xs text-amber-600">(Nessun indirizzo)</span>
+                        )}
                       </span>
-                    )}
-                  </Label>
-                </div>
+                    </SelectItem>
+                  );
+                })}
                 
-                {partenzaTipo === 'passeggero' && passeggeri.length > 0 && (
-                  <div className="ml-6 space-y-2">
-                    <Select
-                      value={partenzaPasseggeroIndex?.toString()}
-                      onValueChange={handlePartenzaPasseggeroChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona passeggero..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {passeggeri.map((p: any, idx: number) => (
-                          <SelectItem key={idx} value={idx.toString()}>
-                            {idx + 1}️⃣ {p.nome_cognome || `${p.nome || ''} ${p.cognome || ''}`.trim()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* Preview indirizzo selezionato */}
-                    {partenzaPasseggeroIndex !== undefined && passeggeri[partenzaPasseggeroIndex] && (
-                      <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                        <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <div>
-                          {passeggeri[partenzaPasseggeroIndex].localita && (
-                            <div>{passeggeri[partenzaPasseggeroIndex].localita}</div>
-                          )}
-                          {passeggeri[partenzaPasseggeroIndex].indirizzo && (
-                            <div>{passeggeri[partenzaPasseggeroIndex].indirizzo}</div>
-                          )}
-                          {!passeggeri[partenzaPasseggeroIndex].localita && 
-                           !passeggeri[partenzaPasseggeroIndex].indirizzo && (
-                            <div className="text-amber-600">
-                              ⚠️ Questo passeggero non ha un indirizzo
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </RadioGroup>
+                {/* Opzione personalizzato */}
+                <SelectItem value="personalizzato">
+                  Altro indirizzo...
+                </SelectItem>
+              </SelectContent>
+            </Select>
           )}
         />
+
+        {/* Campi indirizzo personalizzato partenza */}
+        {partenzaTipo === 'personalizzato' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Controller
+              control={control}
+              name="citta_presa"
+              render={({ field }) => (
+                <div>
+                  <Label className="text-xs mb-1 block">Città</Label>
+                  <MobileInput
+                    {...field}
+                    value={field.value || ''}
+                    placeholder="Es: Milano"
+                    fluid
+                  />
+                </div>
+              )}
+            />
+            <Controller
+              control={control}
+              name="indirizzo_presa"
+              render={({ field }) => (
+                <div>
+                  <Label className="text-xs mb-1 block">Indirizzo *</Label>
+                  <MobileInput
+                    {...field}
+                    value={field.value || ''}
+                    placeholder="Es: Via Roma 1"
+                    fluid
+                  />
+                </div>
+              )}
+            />
+          </div>
+        )}
       </div>
       
       {/* DESTINAZIONE */}
-      <div className="space-y-4 border rounded-lg p-4 bg-card">
+      <div className="space-y-3 border rounded-lg p-4 bg-card">
         <Label className="text-base font-medium flex items-center gap-2">
-          <Target className="h-4 w-4" />
+          <Target className="h-4 w-4 text-primary" />
           Punto di destinazione
         </Label>
         
@@ -200,121 +166,84 @@ export const PercorsoSection = () => {
           name="destinazione_tipo"
           defaultValue="personalizzato"
           render={({ field }) => (
-            <RadioGroup
-              value={field.value}
-              onValueChange={field.onChange}
-              className="space-y-3"
+            <Select 
+              value={destinazioneSelectValue} 
+              onValueChange={(val) => {
+                if (val === 'personalizzato') {
+                  field.onChange('personalizzato');
+                  setValue("destinazione_passeggero_index", undefined);
+                } else {
+                  field.onChange('passeggero');
+                  handleDestinazioneChange(val);
+                }
+              }}
             >
-              {/* Opzione: Indirizzo personalizzato */}
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="personalizzato" id="dest-personalizzato" />
-                  <Label htmlFor="dest-personalizzato" className="font-normal cursor-pointer">
-                    Indirizzo personalizzato
-                  </Label>
-                </div>
-                
-                {destinazioneTipo === 'personalizzato' && (
-                  <div className="ml-6 space-y-3 mt-3">
-                    <Controller
-                      control={control}
-                      name="citta_destinazione"
-                      render={({ field }) => (
-                        <div>
-                          <Label className="text-sm font-medium mb-1.5 block">Città</Label>
-                          <MobileInput
-                            {...field}
-                            value={field.value || ''}
-                            placeholder="Es: Milano"
-                            fluid
-                          />
-                        </div>
-                      )}
-                    />
-                    <Controller
-                      control={control}
-                      name="indirizzo_destinazione"
-                      render={({ field }) => (
-                        <div>
-                          <Label className="text-sm font-medium mb-1.5 block">Indirizzo *</Label>
-                          <MobileInput
-                            {...field}
-                            value={field.value || ''}
-                            placeholder="Es: Aeroporto Malpensa, Terminal 1"
-                            fluid
-                          />
-                        </div>
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-              
-              {/* Opzione: Usa indirizzo passeggero */}
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem 
-                    value="passeggero" 
-                    id="dest-passeggero"
-                    disabled={!passeggeri || passeggeri.length === 0}
-                  />
-                  <Label 
-                    htmlFor="dest-passeggero" 
-                    className="font-normal cursor-pointer"
-                  >
-                    Usa indirizzo passeggero
-                    {(!passeggeri || passeggeri.length === 0) && (
-                      <span className="text-xs text-muted-foreground ml-2">
-                        (Aggiungi prima un passeggero)
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleziona destinazione" />
+              </SelectTrigger>
+              <SelectContent>
+                {/* Opzioni passeggeri */}
+                {passeggeri.map((p: any, idx: number) => {
+                  const indirizzo = getPasseggeroIndirizzo(p);
+                  const nome = getPasseggeroNome(p);
+                  return (
+                    <SelectItem key={idx} value={idx.toString()}>
+                      <span className="flex flex-col items-start">
+                        <span>Indirizzo di {nome}</span>
+                        {indirizzo ? (
+                          <span className="text-xs text-muted-foreground">({indirizzo})</span>
+                        ) : (
+                          <span className="text-xs text-amber-600">(Nessun indirizzo)</span>
+                        )}
                       </span>
-                    )}
-                  </Label>
-                </div>
+                    </SelectItem>
+                  );
+                })}
                 
-                {destinazioneTipo === 'passeggero' && passeggeri.length > 0 && (
-                  <div className="ml-6 space-y-2">
-                    <Select
-                      value={destinazionePasseggeroIndex?.toString()}
-                      onValueChange={handleDestinazionePasseggeroChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona passeggero..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {passeggeri.map((p: any, idx: number) => (
-                          <SelectItem key={idx} value={idx.toString()}>
-                            {idx + 1}️⃣ {p.nome_cognome || `${p.nome || ''} ${p.cognome || ''}`.trim()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* Preview indirizzo selezionato */}
-                    {destinazionePasseggeroIndex !== undefined && passeggeri[destinazionePasseggeroIndex] && (
-                      <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                        <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <div>
-                          {passeggeri[destinazionePasseggeroIndex].localita && (
-                            <div>{passeggeri[destinazionePasseggeroIndex].localita}</div>
-                          )}
-                          {passeggeri[destinazionePasseggeroIndex].indirizzo && (
-                            <div>{passeggeri[destinazionePasseggeroIndex].indirizzo}</div>
-                          )}
-                          {!passeggeri[destinazionePasseggeroIndex].localita && 
-                           !passeggeri[destinazionePasseggeroIndex].indirizzo && (
-                            <div className="text-amber-600">
-                              ⚠️ Questo passeggero non ha un indirizzo
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </RadioGroup>
+                {/* Opzione personalizzato */}
+                <SelectItem value="personalizzato">
+                  Altro indirizzo...
+                </SelectItem>
+              </SelectContent>
+            </Select>
           )}
         />
+
+        {/* Campi indirizzo personalizzato destinazione */}
+        {destinazioneTipo === 'personalizzato' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Controller
+              control={control}
+              name="citta_destinazione"
+              render={({ field }) => (
+                <div>
+                  <Label className="text-xs mb-1 block">Città</Label>
+                  <MobileInput
+                    {...field}
+                    value={field.value || ''}
+                    placeholder="Es: Milano"
+                    fluid
+                  />
+                </div>
+              )}
+            />
+            <Controller
+              control={control}
+              name="indirizzo_destinazione"
+              render={({ field }) => (
+                <div>
+                  <Label className="text-xs mb-1 block">Indirizzo *</Label>
+                  <MobileInput
+                    {...field}
+                    value={field.value || ''}
+                    placeholder="Es: Aeroporto Malpensa, Terminal 1"
+                    fluid
+                  />
+                </div>
+              )}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
