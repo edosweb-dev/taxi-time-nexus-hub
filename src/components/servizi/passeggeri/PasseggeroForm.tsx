@@ -201,6 +201,9 @@ export function PasseggeroForm({
         showPresaIntermedia ? (
           <div id="passeggeri-container" key={`presa-list-${fields.length}`}>
             <PasseggeroPresaList
+              fields={fields}
+              remove={remove}
+              move={move}
               orarioServizio={orarioServizio}
               indirizzoServizio={indirizzoServizio}
               cittaServizio={cittaServizio}
