@@ -39,6 +39,9 @@ export const PasseggeroPresaList = ({
     name: "passeggeri",
   });
 
+  // Debug log
+  console.log('[PasseggeroPresaList] 🔄 Render:', fields.length, 'passeggeri');
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {

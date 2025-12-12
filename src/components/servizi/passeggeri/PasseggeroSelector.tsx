@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, User, UserPlus, Search, MapPin, Mail, Phone } from 'lucide-react';
 import { usePasseggeri } from '@/hooks/usePasseggeri';
 import { Passeggero, PasseggeroFormData } from '@/lib/types/servizi';
+import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MobileInput } from '@/components/ui/mobile-input';
 import { MobileButton } from '@/components/ui/mobile-button';
@@ -97,6 +98,9 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
     
     console.log('[PasseggeroSelector] Final data:', passeggeroData);
     onPasseggeroSelect(passeggeroData);
+    
+    // Toast di conferma visivo
+    toast.success(`✅ ${passeggeroData.nome_cognome} aggiunto`);
     
     setShowConfigDialog(false);
     setPendingPasseggero(null);

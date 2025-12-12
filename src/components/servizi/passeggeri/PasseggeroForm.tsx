@@ -62,10 +62,15 @@ export function PasseggeroForm({
 
   // Aggiungi un passeggero dal selector con campi presa intermedia
   const handlePasseggeroSelect = (passeggero: any) => {
+    console.log('[PasseggeroForm] ✅ Ricevuto passeggero:', passeggero.nome_cognome);
+    console.log('[PasseggeroForm] Fields PRIMA:', fields.length);
+    console.log('[PasseggeroForm] usa_indirizzo_personalizzato:', passeggero.usa_indirizzo_personalizzato);
+    
     const passeggeroConPresa = {
       ...passeggero,
       ordine: fields.length + 1,
-      presa_tipo: 'servizio' as const,
+      // ✅ FIX: rispetta la scelta dell'utente dal dialog
+      presa_tipo: passeggero.usa_indirizzo_personalizzato ? 'passeggero' : 'servizio' as const,
       presa_indirizzo_custom: '',
       presa_citta_custom: '',
       presa_orario: '',
@@ -76,7 +81,18 @@ export function PasseggeroForm({
       indirizzo_rubrica: passeggero.indirizzo || '',
       localita_rubrica: passeggero.localita || '',
     };
+    
     append(passeggeroConPresa);
+    console.log('[PasseggeroForm] Fields DOPO append:', fields.length + 1);
+    
+    // Scroll al container passeggeri per mostrare il nuovo elemento
+    setTimeout(() => {
+      const container = document.getElementById('passeggeri-container');
+      if (container) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }, 150);
+    
     setEditingIndex(null);
   };
   
@@ -183,15 +199,17 @@ export function PasseggeroForm({
       {/* Lista passeggeri - con drag-and-drop per prese intermedie */}
       {fields.length > 0 && (
         showPresaIntermedia ? (
-          <PasseggeroPresaList
-            orarioServizio={orarioServizio}
-            indirizzoServizio={indirizzoServizio}
-            cittaServizio={cittaServizio}
-            destinazioneServizio={destinazioneServizio}
-            cittaDestinazioneServizio={cittaDestinazioneServizio}
-          />
+          <div id="passeggeri-container" key={`presa-list-${fields.length}`}>
+            <PasseggeroPresaList
+              orarioServizio={orarioServizio}
+              indirizzoServizio={indirizzoServizio}
+              cittaServizio={cittaServizio}
+              destinazioneServizio={destinazioneServizio}
+              cittaDestinazioneServizio={cittaDestinazioneServizio}
+            />
+          </div>
         ) : (
-          <div className="space-y-3">
+          <div id="passeggeri-container" className="space-y-3" key={`compact-list-${fields.length}`}>
             <div className="flex items-center gap-2">
               <div className="h-px flex-1 bg-border" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
