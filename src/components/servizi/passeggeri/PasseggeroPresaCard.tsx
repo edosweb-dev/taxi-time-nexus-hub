@@ -5,8 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { GripVertical, Trash2, MapPin, Clock, Navigation } from "lucide-react";
 import {
   AlertDialog,
@@ -156,50 +162,40 @@ export const PasseggeroPresaCard = ({
         <Controller
           control={control}
           name={`passeggeri.${index}.presa_tipo`}
-          defaultValue="servizio"
+          defaultValue={hasIndirizzoRubrica ? "passeggero" : "servizio"}
           render={({ field }) => (
-            <RadioGroup
-              value={field.value || 'servizio'}
-              onValueChange={field.onChange}
-              className="space-y-2"
-            >
-              <div className="flex items-start space-x-3">
-                <RadioGroupItem value="servizio" id={`presa-servizio-${index}`} className="mt-1" />
-                <div className="flex-1">
-                  <Label htmlFor={`presa-servizio-${index}`} className="font-normal cursor-pointer">
-                    Partenza servizio
-                  </Label>
-                  {indirizzoServizioDisplay && (
-                    <p className="text-xs text-muted-foreground mt-0.5">{indirizzoServizioDisplay}</p>
-                  )}
-                </div>
-              </div>
-              
-              {hasIndirizzoRubrica && (
-                <div className="flex items-start space-x-3">
-                  <RadioGroupItem value="passeggero" id={`presa-passeggero-${index}`} className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor={`presa-passeggero-${index}`} className="font-normal cursor-pointer">
-                      Indirizzo passeggero
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">{indirizzoRubricaDisplay}</p>
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex items-start space-x-3">
-                <RadioGroupItem value="personalizzato" id={`presa-custom-${index}`} className="mt-1" />
-                <Label htmlFor={`presa-custom-${index}`} className="font-normal cursor-pointer">
-                  Indirizzo personalizzato
-                </Label>
-              </div>
-            </RadioGroup>
+            <Select value={field.value || 'servizio'} onValueChange={field.onChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleziona punto di presa" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="servizio">
+                  <span className="flex flex-col items-start">
+                    <span>Partenza servizio</span>
+                    {indirizzoServizioDisplay && (
+                      <span className="text-xs text-muted-foreground">({indirizzoServizioDisplay})</span>
+                    )}
+                  </span>
+                </SelectItem>
+                {hasIndirizzoRubrica && (
+                  <SelectItem value="passeggero">
+                    <span className="flex flex-col items-start">
+                      <span>Indirizzo passeggero</span>
+                      <span className="text-xs text-muted-foreground">({indirizzoRubricaDisplay})</span>
+                    </span>
+                  </SelectItem>
+                )}
+                <SelectItem value="personalizzato">
+                  Altro indirizzo...
+                </SelectItem>
+              </SelectContent>
+            </Select>
           )}
         />
 
         {/* Campi indirizzo personalizzato presa */}
         {passeggero.presa_tipo === 'personalizzato' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs">Indirizzo</Label>
               <Controller
@@ -293,48 +289,38 @@ export const PasseggeroPresaCard = ({
           name={`passeggeri.${index}.destinazione_tipo`}
           defaultValue="servizio"
           render={({ field }) => (
-            <RadioGroup
-              value={field.value || 'servizio'}
-              onValueChange={field.onChange}
-              className="space-y-2"
-            >
-              <div className="flex items-start space-x-3">
-                <RadioGroupItem value="servizio" id={`dest-servizio-${index}`} className="mt-1" />
-                <div className="flex-1">
-                  <Label htmlFor={`dest-servizio-${index}`} className="font-normal cursor-pointer">
-                    Destinazione servizio
-                  </Label>
-                  {destinazioneServizioDisplay && (
-                    <p className="text-xs text-muted-foreground mt-0.5">{destinazioneServizioDisplay}</p>
-                  )}
-                </div>
-              </div>
-              
-              {hasIndirizzoRubrica && (
-                <div className="flex items-start space-x-3">
-                  <RadioGroupItem value="passeggero" id={`dest-passeggero-${index}`} className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor={`dest-passeggero-${index}`} className="font-normal cursor-pointer">
-                      Indirizzo passeggero
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">{indirizzoRubricaDisplay}</p>
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex items-start space-x-3">
-                <RadioGroupItem value="personalizzato" id={`dest-custom-${index}`} className="mt-1" />
-                <Label htmlFor={`dest-custom-${index}`} className="font-normal cursor-pointer">
-                  Indirizzo personalizzato
-                </Label>
-              </div>
-            </RadioGroup>
+            <Select value={field.value || 'servizio'} onValueChange={field.onChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleziona destinazione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="servizio">
+                  <span className="flex flex-col items-start">
+                    <span>Destinazione servizio</span>
+                    {destinazioneServizioDisplay && (
+                      <span className="text-xs text-muted-foreground">({destinazioneServizioDisplay})</span>
+                    )}
+                  </span>
+                </SelectItem>
+                {hasIndirizzoRubrica && (
+                  <SelectItem value="passeggero">
+                    <span className="flex flex-col items-start">
+                      <span>Indirizzo passeggero</span>
+                      <span className="text-xs text-muted-foreground">({indirizzoRubricaDisplay})</span>
+                    </span>
+                  </SelectItem>
+                )}
+                <SelectItem value="personalizzato">
+                  Altro indirizzo...
+                </SelectItem>
+              </SelectContent>
+            </Select>
           )}
         />
 
         {/* Campi indirizzo personalizzato destinazione */}
         {passeggero.destinazione_tipo === 'personalizzato' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs">Indirizzo</Label>
               <Controller
