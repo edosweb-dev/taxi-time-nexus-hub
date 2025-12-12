@@ -1,4 +1,4 @@
-import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import {
   DndContext,
   closestCenter,
@@ -13,12 +13,14 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { PasseggeroPresaCard, PasseggeroPresaData } from "./PasseggeroPresaCard";
 import { Users } from "lucide-react";
 
 interface PasseggeroPresaListProps {
+  fields: any[];  // ✅ Da props (single source of truth)
+  remove: (index: number) => void;  // ✅ Da props
+  move: (from: number, to: number) => void;  // ✅ Da props
   orarioServizio: string;
   indirizzoServizio: string;
   cittaServizio?: string;
@@ -27,17 +29,16 @@ interface PasseggeroPresaListProps {
 }
 
 export const PasseggeroPresaList = ({
+  fields,
+  remove,
+  move,
   orarioServizio,
   indirizzoServizio,
   cittaServizio,
   destinazioneServizio,
   cittaDestinazioneServizio,
 }: PasseggeroPresaListProps) => {
-  const { control, setValue, getValues } = useFormContext();
-  const { fields, remove, move } = useFieldArray({
-    control,
-    name: "passeggeri",
-  });
+  const { setValue, getValues } = useFormContext();
 
   // Debug log
   console.log('[PasseggeroPresaList] 🔄 Render:', fields.length, 'passeggeri');
