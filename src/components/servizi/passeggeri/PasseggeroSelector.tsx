@@ -13,6 +13,7 @@ import { MobileInput } from '@/components/ui/mobile-input';
 import { MobileButton } from '@/components/ui/mobile-button';
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -459,26 +460,22 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
       
       {/* Dialog conferma aggiunta passeggero */}
       <AlertDialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
-        <AlertDialogContent className="max-w-sm mx-4">
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
               Aggiungi passeggero
             </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="space-y-2">
-                <p className="font-medium text-foreground">
-                  {pendingPasseggero?.nome_cognome}
-                </p>
-                {pendingPasseggero?.indirizzo && (
-                  <p className="text-sm">
-                    📍 {pendingPasseggero.indirizzo}{pendingPasseggero.localita && `, ${pendingPasseggero.localita}`}
-                  </p>
-                )}
-                <p className="pt-2">
-                  Vuoi usare un indirizzo o orario diverso da quello del servizio?
-                </p>
+            <AlertDialogDescription className="space-y-3">
+              <div className="text-foreground font-medium">
+                {pendingPasseggero?.nome_cognome}
               </div>
+              {pendingPasseggero?.indirizzo && (
+                <div className="text-sm">
+                  📍 {pendingPasseggero.indirizzo}{pendingPasseggero.localita && `, ${pendingPasseggero.localita}`}
+                </div>
+              )}
+              <p>Vuoi personalizzare indirizzo o orario di presa?</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           
@@ -488,23 +485,22 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
                 setShowConfigDialog(false);
                 setPendingPasseggero(null);
               }}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto min-h-[44px]"
             >
               Annulla
             </AlertDialogCancel>
-            <Button 
-              variant="outline" 
+            <AlertDialogAction
               onClick={() => handleConfirmAdd(false)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto min-h-[44px]"
             >
               Usa dati servizio
-            </Button>
-            <Button 
+            </AlertDialogAction>
+            <AlertDialogAction
               onClick={() => handleConfirmAdd(true)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto min-h-[44px] bg-primary"
             >
               Personalizza
-            </Button>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
