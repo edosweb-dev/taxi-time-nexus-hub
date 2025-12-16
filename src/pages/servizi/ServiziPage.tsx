@@ -140,12 +140,8 @@ export default function ServiziPage() {
       {/* Card Header: Azienda/Privato + Status */}
       <div className="flex justify-between items-start gap-3 mb-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {servizio.id_progressivo && (
-              <span className="text-xs font-mono text-muted-foreground">
-                {servizio.id_progressivo}
-              </span>
-            )}
+          {/* Nome Azienda/Cliente + Badge */}
+          <div className="flex items-center gap-2 mb-0.5">
             <h3 className="font-semibold text-base truncate">
               {servizio.tipo_cliente === 'privato' 
                 ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente Privato'
@@ -154,17 +150,24 @@ export default function ServiziPage() {
             <Badge 
               variant="outline" 
               className={servizio.tipo_cliente === 'privato' 
-                ? 'bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-700' 
-                : 'bg-blue-500/10 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-700'}
+                ? 'bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-700 flex-shrink-0' 
+                : 'bg-blue-500/10 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-700 flex-shrink-0'}
             >
               {servizio.tipo_cliente === 'privato' ? 'Privato' : 'Azienda'}
             </Badge>
           </div>
-          {servizio.numero_commessa && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Commessa: {servizio.numero_commessa}
-            </p>
-          )}
+          {/* ID Servizio + Commessa */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {servizio.id_progressivo && (
+              <span className="font-mono">{servizio.id_progressivo}</span>
+            )}
+            {servizio.numero_commessa && (
+              <>
+                {servizio.id_progressivo && <span>•</span>}
+                <span>Commessa: {servizio.numero_commessa}</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
