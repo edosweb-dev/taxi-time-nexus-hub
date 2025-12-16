@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,6 +11,8 @@ import { UserMainInfoSection } from './form-sections/UserMainInfoSection';
 import { UserContactInfoSection } from './form-sections/UserContactInfoSection';
 import { UserAccountSection } from './form-sections/UserAccountSection';
 import { UserCompanySection } from './form-sections/UserCompanySection';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface UserFormProps {
   user?: Profile | null;
@@ -27,6 +28,7 @@ export function UserForm({
   isSubmitting
 }: UserFormProps) {
   const isEditing = !!user;
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
   const userFormSchema = z.object({
     first_name: z.string().min(2, { message: 'Il nome deve contenere almeno 2 caratteri' }),
@@ -61,7 +63,35 @@ export function UserForm({
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof userFormSchema>) => {
+  // Check if email exists before submitting
+  const checkEmailExists = useCallback(async (email: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email.toLowerCase().trim())
+      .maybeSingle();
+    return !!data;
+  }, []);
+
+  const handleSubmit = async (values: z.infer<typeof userFormSchema>) => {
+    // Check email existence for new users
+    if (!isEditing && values.email) {
+      setIsCheckingEmail(true);
+      const emailExists = await checkEmailExists(values.email);
+      setIsCheckingEmail(false);
+      
+      if (emailExists) {
+        form.setError('email', {
+          type: 'manual',
+          message: 'Questa email è già registrata. Utilizza un indirizzo diverso.'
+        });
+        toast.error('Email già registrata', {
+          description: 'Utilizza un indirizzo email diverso.'
+        });
+        return;
+      }
+    }
+
     if (isEditing) {
       const userData: Partial<UserFormData> = {};
       
@@ -138,11 +168,11 @@ export function UserForm({
           </Button>
           <Button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSubmitting || isCheckingEmail}
             className="flex items-center gap-2"
           >
             <Save className="h-4 w-4" />
-            {isSubmitting ? 'Salvataggio...' : isEditing ? 'Aggiorna Utente' : 'Crea Utente'}
+            {isCheckingEmail ? 'Verifica email...' : isSubmitting ? 'Salvataggio...' : isEditing ? 'Aggiorna Utente' : 'Crea Utente'}
           </Button>
         </div>
       </form>
