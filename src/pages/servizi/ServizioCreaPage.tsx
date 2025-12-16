@@ -1191,6 +1191,40 @@ export const ServizioCreaPage = ({
     else navigate("/servizi");
   };
 
+  // Handler per errori di validazione - mostra toast con campi mancanti
+  const onInvalid = (errors: any) => {
+    console.error('[ServizioCreaPage] Validation errors:', errors);
+    
+    const fieldLabels: Record<string, string> = {
+      indirizzo_presa: 'Indirizzo partenza',
+      indirizzo_destinazione: 'Indirizzo destinazione',
+      metodo_pagamento: 'Metodo pagamento',
+      data_servizio: 'Data servizio',
+      orario_servizio: 'Orario servizio',
+      azienda_id: 'Azienda',
+      cliente_privato_nome: 'Nome cliente',
+    };
+    
+    const errorMessages = Object.entries(errors)
+      .map(([field, error]: [string, any]) => fieldLabels[field] || error?.message || field)
+      .filter(Boolean)
+      .slice(0, 3);
+    
+    if (errorMessages.length > 0) {
+      toast.error(`Campi obbligatori mancanti: ${errorMessages.join(', ')}`);
+    } else {
+      toast.error('Compila tutti i campi obbligatori');
+    }
+    
+    // Scroll al primo campo con errore
+    const firstErrorField = Object.keys(errors)[0];
+    const element = document.querySelector(`[name="${firstErrorField}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      (element as HTMLElement).focus?.();
+    }
+  };
+
   return (
     <MainLayout>
     <div className="w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8">
@@ -1225,7 +1259,7 @@ export const ServizioCreaPage = ({
 
       {/* Form */}
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full sm:max-w-7xl">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="w-full sm:max-w-7xl">
           <div className="w-full space-y-4 sm:space-y-6">
           
           {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce */}
