@@ -7,7 +7,6 @@ export function useServiziUtente(userId: string | undefined, mese: number, anno:
     queryKey: ['servizi-utente', userId, mese, anno],
     queryFn: () => getDatiServiziUtente(userId!, mese, anno),
     enabled: !!userId,
-    // Cache per 5 minuti
-    staleTime: 1000 * 60 * 5
+    staleTime: 2 * 60 * 1000, // 2 minuti - dati operativi
   });
 }

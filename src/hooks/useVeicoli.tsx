@@ -15,6 +15,7 @@ export function useVeicoli() {
   const { data: veicoli = [], isLoading, error, refetch } = useQuery({
     queryKey: ['veicoli'],
     queryFn: getVeicoli,
+    staleTime: 10 * 60 * 1000, // 10 minuti - dati statici
   });
 
   return { veicoli, isLoading, error, refetch };
@@ -24,6 +25,7 @@ export function useVeicoliAttivi() {
   const { data: veicoli = [], isLoading, error } = useQuery({
     queryKey: ['veicoli', 'attivi'],
     queryFn: getVeicoliAttivi,
+    staleTime: 10 * 60 * 1000, // 10 minuti - dati statici
   });
 
   return { veicoli, isLoading, error };
@@ -34,6 +36,7 @@ export function useVeicolo(id?: string) {
     queryKey: ['veicoli', id],
     queryFn: () => getVeicoloById(id!),
     enabled: !!id,
+    staleTime: 10 * 60 * 1000, // 10 minuti - dati statici
   });
 }
 
