@@ -29,6 +29,7 @@ export function useUsers(options?: {
         throw err;
       }
     },
+    staleTime: 10 * 60 * 1000, // 10 minuti - dati statici
   });
 
   // Apply filtering based on options
@@ -46,7 +47,8 @@ export function useUsers(options?: {
     return useQuery({
       queryKey: ['user', id],
       queryFn: () => getUserById(id),
-      enabled: !!id
+      enabled: !!id,
+      staleTime: 10 * 60 * 1000, // 10 minuti - dati statici
     });
   };
 

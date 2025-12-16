@@ -138,7 +138,7 @@ export function useServizioDetail(id?: string) {
       };
     },
     enabled: !!id,
-    staleTime: 1 * 60 * 1000,
+    staleTime: 2 * 60 * 1000, // 2 minuti - dati operativi
     refetchOnWindowFocus: true,
   });
   
