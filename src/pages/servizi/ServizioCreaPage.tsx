@@ -1169,6 +1169,10 @@ export const ServizioCreaPage = ({
         }
       }
 
+      // Invalida cache per refresh immediato lista servizi
+      await queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      await queryClient.invalidateQueries({ queryKey: ['servizi-with-passeggeri'] });
+
       if (onSuccess) {
         onSuccess();
       } else {
