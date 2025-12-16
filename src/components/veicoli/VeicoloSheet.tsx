@@ -2,14 +2,13 @@ import React from 'react';
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
 } from '@/components/ui/sheet';
 import { VeicoloForm } from './VeicoloForm';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
-import { Car, Plus } from 'lucide-react';
+import { Car, Plus, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface VeicoloSheetProps {
   open: boolean;
@@ -34,48 +33,66 @@ export function VeicoloSheet({
       <SheetContent 
         side={isMobile ? "bottom" : "right"}
         className={cn(
-          "flex flex-col bg-background",
+          "flex flex-col bg-background p-0",
           isMobile 
-            ? "h-[85vh] rounded-t-3xl p-0" 
-            : "sm:max-w-[480px] p-0"
+            ? "h-[90vh] rounded-t-[20px]" 
+            : "sm:max-w-[500px]"
         )}
       >
-        {/* Mobile handle bar */}
+        {/* Mobile handle */}
         {isMobile && (
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+          <div className="flex justify-center py-3">
+            <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
           </div>
         )}
 
         {/* Header */}
-        <SheetHeader className={cn(
-          "px-5 pb-4 border-b border-border shrink-0",
-          isMobile ? "pt-2" : "pt-5"
+        <div className={cn(
+          "flex items-center justify-between",
+          isMobile ? "px-6 pb-4" : "px-6 pt-6 pb-4"
         )}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className={cn(
-              "h-11 w-11 rounded-xl flex items-center justify-center shrink-0",
+              "h-12 w-12 rounded-2xl flex items-center justify-center",
               isEditing 
-                ? "bg-amber-500/15 text-amber-600" 
-                : "bg-primary/15 text-primary"
+                ? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" 
+                : "bg-primary/10 text-primary"
             )}>
-              {isEditing ? <Car className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              {isEditing ? <Car className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
             </div>
-            <div className="min-w-0">
-              <SheetTitle className="text-xl font-semibold text-left">
+            <div>
+              <h2 className="text-xl font-bold text-foreground">
                 {isEditing ? 'Modifica Veicolo' : 'Nuovo Veicolo'}
-              </SheetTitle>
-              {isEditing && (
-                <p className="text-sm text-muted-foreground font-mono truncate">
-                  {veicolo.modello} • {veicolo.targa}
+              </h2>
+              {isEditing ? (
+                <p className="text-sm text-muted-foreground">
+                  {veicolo.modello} • <span className="font-mono">{veicolo.targa}</span>
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Aggiungi alla flotta
                 </p>
               )}
             </div>
           </div>
-        </SheetHeader>
+          
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-10 w-10 rounded-full"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="mx-6 border-t border-border" />
         
-        {/* Form with scrollable content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain">
+        {/* Form */}
+        <div className="flex-1 overflow-y-auto">
           <VeicoloForm
             initialData={veicolo}
             onSubmit={onSubmit}

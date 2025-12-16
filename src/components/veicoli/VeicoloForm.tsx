@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { VeicoloFormData } from '@/lib/types/veicoli';
-import { Save, Loader2, Car, Hash, Calendar, Palette, Users } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const veicoloSchema = z.object({
@@ -59,68 +59,63 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col h-full">
         {/* Scrollable content */}
-        <div className="flex-1 px-5 py-4 space-y-5">
-          {/* Primary fields */}
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="modello"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium flex items-center gap-2">
-                    <Car className="h-4 w-4 text-muted-foreground" />
-                    Modello *
-                  </FormLabel>
-                  <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="es. Mercedes Vito"
-                      className="h-12 text-base bg-muted/40 border-0 focus:ring-2 focus:ring-primary/20"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="flex-1 px-6 py-6 space-y-6">
+          
+          {/* Modello */}
+          <FormField
+            control={form.control}
+            name="modello"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-semibold text-foreground">
+                  Modello veicolo
+                </FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    placeholder="es. Mercedes Vito, Fiat Ducato"
+                    className="h-14 text-base rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="targa"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium flex items-center gap-2">
-                    <Hash className="h-4 w-4 text-muted-foreground" />
-                    Targa *
-                  </FormLabel>
-                  <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="AB123CD" 
-                      className="h-12 text-base bg-muted/40 border-0 focus:ring-2 focus:ring-primary/20 uppercase font-mono tracking-wider"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          {/* Targa */}
+          <FormField
+            control={form.control}
+            name="targa"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-semibold text-foreground">
+                  Targa
+                </FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    placeholder="AB123CD" 
+                    className="h-14 text-base rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background uppercase font-mono tracking-widest text-center"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Secondary fields */}
-          <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Dettagli opzionali
+          <div className="space-y-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Informazioni aggiuntive
             </p>
             
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="anno"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      Anno
-                    </FormLabel>
+                    <FormLabel className="text-xs text-muted-foreground">Anno</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -129,7 +124,7 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
                         value={field.value || ''}
                         onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                         placeholder="2024"
-                        className="h-11 text-base bg-muted/40 border-0 text-center focus:ring-2 focus:ring-primary/20"
+                        className="h-12 text-base rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background text-center"
                       />
                     </FormControl>
                   </FormItem>
@@ -141,15 +136,12 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
                 name="colore"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Palette className="h-3 w-3" />
-                      Colore
-                    </FormLabel>
+                    <FormLabel className="text-xs text-muted-foreground">Colore</FormLabel>
                     <FormControl>
                       <Input 
                         {...field} 
                         placeholder="Bianco"
-                        className="h-11 text-base bg-muted/40 border-0 focus:ring-2 focus:ring-primary/20"
+                        className="h-12 text-base rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background"
                       />
                     </FormControl>
                   </FormItem>
@@ -161,10 +153,7 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
                 name="numero_posti"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      Posti
-                    </FormLabel>
+                    <FormLabel className="text-xs text-muted-foreground">Posti</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -173,7 +162,7 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
                         value={field.value || ''}
                         onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                         placeholder="5"
-                        className="h-11 text-base bg-muted/40 border-0 text-center focus:ring-2 focus:ring-primary/20"
+                        className="h-12 text-base rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background text-center"
                       />
                     </FormControl>
                   </FormItem>
@@ -192,9 +181,9 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
                 <FormControl>
                   <Textarea 
                     {...field} 
-                    placeholder="Note aggiuntive..."
+                    placeholder="Aggiungi note sul veicolo..."
                     rows={3}
-                    className="text-base bg-muted/40 border-0 resize-none focus:ring-2 focus:ring-primary/20"
+                    className="text-base rounded-xl bg-muted/50 border-transparent focus:border-primary focus:bg-background resize-none"
                   />
                 </FormControl>
               </FormItem>
@@ -207,11 +196,13 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
               control={form.control}
               name="attivo"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-xl bg-muted/40 p-4">
-                  <div>
-                    <FormLabel className="text-sm font-medium">Veicolo attivo</FormLabel>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Disponibile per nuovi servizi
+                <FormItem className="flex items-center justify-between rounded-xl bg-muted/50 p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-sm font-semibold text-foreground">
+                      Veicolo attivo
+                    </FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Disponibile per i servizi
                     </p>
                   </div>
                   <FormControl>
@@ -228,32 +219,32 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
 
         {/* Fixed footer */}
         <div className={cn(
-          "shrink-0 px-5 py-4 border-t border-border bg-background",
-          isMobile && "pb-6" // Extra padding for mobile safe area
+          "shrink-0 px-6 py-5 border-t border-border bg-background/95 backdrop-blur-sm",
+          isMobile && "pb-8"
         )}>
           <div className="flex gap-3">
             <Button 
               type="button" 
-              variant="outline" 
+              variant="ghost" 
               onClick={onCancel}
-              className="flex-1 h-12 text-base font-medium"
+              className="flex-1 h-14 text-base font-semibold rounded-xl bg-muted/50 hover:bg-muted"
             >
               Annulla
             </Button>
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="flex-1 h-12 text-base font-medium"
+              className="flex-[2] h-14 text-base font-semibold rounded-xl"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                   Salvataggio...
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isEditing ? 'Salva' : 'Crea Veicolo'}
+                  <Check className="h-5 w-5 mr-2" />
+                  {isEditing ? 'Salva modifiche' : 'Crea veicolo'}
                 </>
               )}
             </Button>
