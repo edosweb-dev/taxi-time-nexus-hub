@@ -25,7 +25,7 @@ export function SmartSearchBar({
       "bg-background z-40",
       sticky && "sticky top-0"
     )}>
-      <div className="px-8 py-3 space-y-3">
+      <div className="px-4 py-3 space-y-2">
         {/* Search Input - 52px height for touch compliance */}
         <div className="relative">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />

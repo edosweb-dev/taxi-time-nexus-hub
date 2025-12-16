@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Power, Users, Calendar, Palette } from 'lucide-react';
+import { Edit, Power, Users, Calendar } from 'lucide-react';
 import { Veicolo } from '@/lib/types/veicoli';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -40,8 +40,7 @@ export function VeicoloCardEnhanced({
   return (
     <Card 
       className={cn(
-        "p-6 border-2 border-border rounded-xl shadow-sm",
-        "mx-4 my-3", // 16px margin laterale, 12px verticale
+        "p-4 border border-border rounded-xl shadow-sm",
         "transition-all duration-200",
         "active:scale-[0.98]"
       )}
@@ -49,7 +48,7 @@ export function VeicoloCardEnhanced({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Header: Status Badge */}
         <div className="flex items-center justify-between">
           <Badge 
@@ -66,90 +65,71 @@ export function VeicoloCardEnhanced({
         </div>
 
         {/* Primary Info: Targa (large, prominent) */}
-        <div className="space-y-1">
-          <h3 className="text-2xl font-black text-foreground">
+        <div className="space-y-0.5">
+          <h3 className="text-xl font-bold text-foreground leading-tight">
             {veicolo.modello}
           </h3>
-          <p className="text-sm font-mono font-semibold text-muted-foreground uppercase">
+          <p className="text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wide">
             {veicolo.targa}
           </p>
         </div>
 
-        {/* Secondary Info Grid - Icons 20px */}
-        <div className="grid grid-cols-3 gap-3 pt-4 border-t-2 border-border/50">
+        {/* Secondary Info - Compact inline */}
+        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-border/50">
           {veicolo.anno && (
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <span className="text-xs text-muted-foreground font-medium">Anno</span>
-                <p className="text-sm font-bold text-foreground">{veicolo.anno}</p>
-              </div>
+            <div className="flex items-center gap-1.5 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium text-foreground">{veicolo.anno}</span>
             </div>
           )}
           
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-purple-500/10 rounded-lg">
-              <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground font-medium">Posti</span>
-              <p className="text-sm font-bold text-foreground">{veicolo.numero_posti || '-'}</p>
-            </div>
+          <div className="flex items-center gap-1.5 text-sm">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium text-foreground">{veicolo.numero_posti || '-'} posti</span>
           </div>
           
           {veicolo.colore && (
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-amber-500/10 rounded-lg">
-                <Palette className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <span className="text-xs text-muted-foreground font-medium">Colore</span>
-                <p className="text-sm font-bold text-foreground capitalize">{veicolo.colore}</p>
-              </div>
+            <div className="flex items-center gap-1.5 text-sm">
+              <div 
+                className="w-3.5 h-3.5 rounded-full border border-border"
+                style={{ backgroundColor: veicolo.colore.toLowerCase() }}
+              />
+              <span className="font-medium text-foreground capitalize">{veicolo.colore}</span>
             </div>
           )}
         </div>
 
         {/* Notes */}
         {veicolo.note && (
-          <div className="pt-3 border-t border-border/50">
-            <span className="text-xs text-muted-foreground font-medium">Note</span>
-            <p className="text-sm text-foreground mt-1 line-clamp-2">
-              {veicolo.note}
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground line-clamp-2 pt-2 border-t border-border/50">
+            {veicolo.note}
+          </p>
         )}
 
-        {/* Action Buttons - 48px height (touch compliant) */}
-        <div className="flex gap-3 pt-2">
+        {/* Action Buttons - Compact */}
+        <div className="flex gap-2 pt-2">
           <Button
             onClick={() => onEdit(veicolo)}
             variant="outline"
-            className={cn(
-              "flex-1 h-12 text-base font-semibold",
-              "border-2 border-primary/30 text-primary",
-              "hover:bg-primary hover:text-primary-foreground",
-              "active:scale-95 transition-transform"
-            )}
+            size="sm"
+            className="flex-1 h-10 text-sm font-medium"
           >
-            <Edit className="h-5 w-5 mr-2" />
+            <Edit className="h-4 w-4 mr-1.5" />
             Modifica
           </Button>
           
           <Button
             onClick={() => onToggleStatus(veicolo)}
             variant={veicolo.attivo ? 'outline' : 'default'}
+            size="sm"
             className={cn(
-              "flex-1 h-12 text-base font-semibold",
+              "flex-1 h-10 text-sm font-medium",
               veicolo.attivo 
-                ? "border-2 border-amber-500/30 text-amber-600 hover:bg-amber-500 hover:text-white dark:text-amber-400" 
-                : "border-2 border-green-500/30 bg-green-500 text-white hover:bg-green-600",
-              "active:scale-95 transition-transform"
+                ? "text-amber-600 border-amber-300 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-600 dark:hover:bg-amber-950" 
+                : "bg-green-600 text-white hover:bg-green-700"
             )}
           >
-            <Power className="h-5 w-5 mr-2" />
+            <Power className="h-4 w-4 mr-1.5" />
             {veicolo.attivo ? 'Disattiva' : 'Attiva'}
           </Button>
         </div>
