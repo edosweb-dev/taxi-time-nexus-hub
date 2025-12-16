@@ -237,9 +237,9 @@ export const ServizioCreaPage = ({
 
   const { formState: { errors } } = form;
 
-  // Pre-popola form in edit mode
+  // Pre-popola form in edit mode - ✅ Aspetta che i dati siano pronti (fix race condition)
   useEffect(() => {
-    if (mode === 'edit' && initialData && servizioId) {
+    if (mode === 'edit' && initialData && servizioId && isDataReady) {
       const loadData = async () => {
         try {
           // ✅ Usa i passeggeri già fetchati da ModificaServizioPage
@@ -557,9 +557,6 @@ export const ServizioCreaPage = ({
     }
   }, [watchIncassoPrevisto, watchIva, mostraIva, form]);
 
-
-
-
   // Query: Dipendenti
   const { data: dipendenti } = useQuery({
     queryKey: ["dipendenti"],
@@ -601,6 +598,15 @@ export const ServizioCreaPage = ({
       return data;
     },
   });
+
+  // ✅ Flag per verificare che tutti i dati necessari siano caricati (fix race condition)
+  const isDataReady = useMemo(() => {
+    return (
+      !!impostazioniData && 
+      !!conducentiEsterni && 
+      Array.isArray(aliquoteIva) && aliquoteIva.length > 0
+    );
+  }, [impostazioniData, conducentiEsterni, aliquoteIva]);
 
   // Query: Passeggeri
   const { 
@@ -1230,6 +1236,20 @@ export const ServizioCreaPage = ({
     }
   };
 
+  // ✅ Loading state mentre i dati vengono caricati in edit mode (fix race condition)
+  if (mode === 'edit' && servizioId && !isDataReady) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Caricamento dati...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
     <div className="w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8">
@@ -1700,7 +1720,11 @@ export const ServizioCreaPage = ({
                       name="conducente_esterno_id"
                       control={form.control}
                       render={({ field }) => (
-                        <Select value={field.value || ""} onValueChange={field.onChange}>
+                        <Select 
+                          key={`conducente-${conducentiEsterni?.length || 0}`}
+                          value={field.value || ""} 
+                          onValueChange={field.onChange}
+                        >
                           <SelectTrigger className="text-base">
                             <SelectValue placeholder="Seleziona conducente esterno" />
                           </SelectTrigger>
