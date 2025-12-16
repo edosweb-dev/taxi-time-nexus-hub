@@ -58,7 +58,12 @@ export function useServizi() {
         throw result.error;
       }
       
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       
       const servizio = result.servizio;
       if (!servizio) {
@@ -102,7 +107,12 @@ export function useServizi() {
       return data?.[0] || null;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       toast.success('Stato del servizio aggiornato con successo');
     },
     onError: (error: any) => {
@@ -114,7 +124,12 @@ export function useServizi() {
   const completaServizioMutation = useMutation({
     mutationFn: completaServizio,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       toast.success('Servizio completato con successo');
     },
     onError: (error: any) => {
@@ -126,7 +141,12 @@ export function useServizi() {
   const consuntivaServizioMutation = useMutation({
     mutationFn: consuntivaServizio,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       toast.success('Servizio consuntivato con successo');
     },
     onError: (error: any) => {
@@ -201,8 +221,12 @@ export function useServizi() {
       };
     },
     onSuccess: ({ result, statoChanged, oldStato, newStato }) => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
-      queryClient.invalidateQueries({ queryKey: ['servizio'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       
       // ✨ Toast personalizzato per transizione stato
       if (statoChanged) {
@@ -242,9 +266,10 @@ export function useServizi() {
       
       // 4. Invalida anche altre query che potrebbero contenere servizi
       queryClient.invalidateQueries({ 
-        predicate: (query) => 
-          query.queryKey[0] === 'servizi' || 
-          query.queryKey[0] === 'servizio'
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
       });
       
       console.log('[deleteServizio] Optimistic update applied - removed:', deletedId);
@@ -256,9 +281,10 @@ export function useServizi() {
     onSuccess: () => {
       // ✅ Conferma eliminazione e invalida per sicurezza
       queryClient.invalidateQueries({ 
-        predicate: (query) => 
-          query.queryKey[0] === 'servizi' || 
-          query.queryKey[0] === 'servizio'
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
       });
       toast.success('Servizio eliminato definitivamente');
     },
