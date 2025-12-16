@@ -16,23 +16,23 @@ export function FloatingActionButton({
       onClick={onClick}
       size="icon"
       className={cn(
-        // Fixed positioning - higher on mobile to avoid bottom nav
-        "fixed bottom-24 right-6 z-50",
-        // Size: 64x64px for prominent touch target
-        "h-16 w-16 rounded-2xl",
+        // Fixed positioning
+        "fixed bottom-24 right-4 z-50",
+        // Size: 56x56px
+        "h-14 w-14 rounded-full",
         // Styling
         "bg-primary text-primary-foreground",
-        "shadow-2xl shadow-primary/50",
-        "hover:shadow-3xl hover:scale-110",
+        "shadow-lg shadow-primary/25",
+        "hover:shadow-xl hover:scale-105",
         "active:scale-95",
-        "transition-all duration-200",
-        // Desktop positioning
+        "transition-all duration-150",
+        // Desktop
         "md:bottom-8 md:right-8",
         className
       )}
       aria-label="Aggiungi veicolo"
     >
-      <Plus className="h-8 w-8" strokeWidth={2.5} />
+      <Plus className="h-6 w-6" strokeWidth={2.5} />
     </Button>
   );
 }

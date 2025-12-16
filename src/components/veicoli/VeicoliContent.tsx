@@ -114,8 +114,8 @@ export function VeicoliContent({
           onFilterChange={setMobileQuickFilter}
         />
 
-        {/* Enhanced Cards Grid */}
-        <div className="px-4 pt-3 pb-24 space-y-3">
+        {/* Cards Grid - Compact spacing */}
+        <div className="px-3 pt-2 pb-24 space-y-2">
           {displayedVeicoli.length === 0 ? (
             <EmptyState />
           ) : (
