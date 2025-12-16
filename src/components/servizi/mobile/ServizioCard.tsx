@@ -121,7 +121,9 @@ export function ServizioCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="text-xs font-mono text-muted-foreground">#{index}</span>
+              <span className="text-xs font-mono text-muted-foreground">
+                {servizio.id_progressivo || `#${index}`}
+              </span>
               {servizio.numero_commessa && (
                 <Badge variant="outline" className="text-xs">
                   {servizio.numero_commessa}
@@ -151,7 +153,7 @@ export function ServizioCard({
         <div className="flex items-center gap-2 text-sm">
           <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
           <span className="text-muted-foreground">
-            {format(dataServizio, 'dd MMM yyyy', { locale: it })} • {servizio.orario_servizio}
+            {format(dataServizio, 'dd MMM yyyy', { locale: it })} • {servizio.orario_servizio?.slice(0, 5) || servizio.orario_servizio}
           </span>
         </div>
         
