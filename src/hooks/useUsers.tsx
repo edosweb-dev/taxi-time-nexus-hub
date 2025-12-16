@@ -57,7 +57,8 @@ export function useUsers(options?: {
         queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success('Utente creato con successo');
       } else if (data.error) {
-        toast.error(`Errore nella creazione dell'utente: ${data.error.message}`);
+        const errorMessage = typeof data.error === 'string' ? data.error : data.error.message || 'Errore sconosciuto';
+        toast.error(`Errore nella creazione dell'utente: ${errorMessage}`);
       }
     },
     onError: (error: any) => {
