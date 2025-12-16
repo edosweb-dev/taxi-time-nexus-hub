@@ -1,10 +1,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserFormData } from '@/lib/api/users/types';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const quickFormSchema = z.object({
   first_name: z.string().min(1, "Nome richiesto"),
@@ -30,9 +35,13 @@ export function ReferenteQuickForm({
   onSwitchToComplete,
   isSubmitting,
 }: ReferenteQuickFormProps) {
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
+  
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<QuickFormData>({
     resolver: zodResolver(quickFormSchema),
@@ -44,13 +53,56 @@ export function ReferenteQuickForm({
     },
   });
 
+  const emailValue = watch('email');
+
+  // Verifica email con debounce
+  useEffect(() => {
+    const checkEmailExists = async () => {
+      const trimmedEmail = emailValue?.trim().toLowerCase();
+      
+      if (!trimmedEmail || trimmedEmail.length < 5 || !trimmedEmail.includes('@')) {
+        setEmailExists(false);
+        setIsCheckingEmail(false);
+        return;
+      }
+
+      setIsCheckingEmail(true);
+      
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', trimmedEmail)
+          .maybeSingle();
+        
+        setEmailExists(!!data);
+      } catch (error) {
+        console.error('Error checking email:', error);
+        setEmailExists(false);
+      } finally {
+        setIsCheckingEmail(false);
+      }
+    };
+
+    const timer = setTimeout(checkEmailExists, 300);
+    return () => clearTimeout(timer);
+  }, [emailValue]);
+
   const onSubmitForm = async (data: QuickFormData) => {
+    if (emailExists) {
+      toast.error("L'email inserita è già registrata. Utilizza un indirizzo diverso.");
+      return;
+    }
+    
     await onSubmit({
       ...data,
       role: 'cliente',
       azienda_id: aziendaId,
     } as UserFormData);
   };
+
+  const hasValidEmail = emailValue && emailValue.trim().length >= 5 && emailValue.includes('@');
+  const showEmailStatus = hasValidEmail && !isCheckingEmail;
 
   return (
     <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4 py-4">
@@ -87,15 +139,36 @@ export function ReferenteQuickForm({
 
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          {...register('email')}
-          placeholder="mario.rossi@azienda.it"
-          disabled={isSubmitting}
-        />
+        <div className="relative">
+          <Input
+            id="email"
+            type="email"
+            {...register('email')}
+            placeholder="mario.rossi@azienda.it"
+            disabled={isSubmitting}
+            className={cn(
+              "pr-10",
+              showEmailStatus && emailExists && "border-destructive focus-visible:ring-destructive",
+              showEmailStatus && !emailExists && "border-green-500 focus-visible:ring-green-500"
+            )}
+          />
+          {isCheckingEmail && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+          )}
+          {showEmailStatus && emailExists && (
+            <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
+          )}
+          {showEmailStatus && !emailExists && (
+            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+          )}
+        </div>
         {errors.email && (
           <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
+        {showEmailStatus && emailExists && (
+          <p className="text-sm text-destructive">
+            Questa email è già registrata. Utilizza un indirizzo diverso.
+          </p>
         )}
       </div>
 
@@ -123,8 +196,12 @@ export function ReferenteQuickForm({
           >
             Annulla
           </Button>
-          <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? "Creazione..." : "Crea Referente"}
+          <Button 
+            type="submit" 
+            disabled={isSubmitting || isCheckingEmail || emailExists} 
+            className="flex-1"
+          >
+            {isCheckingEmail ? "Verifica..." : isSubmitting ? "Creazione..." : "Crea Referente"}
           </Button>
         </div>
 
