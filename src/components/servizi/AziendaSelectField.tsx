@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils";
 import { Azienda } from "@/lib/types";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { supabase } from '@/lib/supabase';
-import { AziendaDialog } from '@/components/aziende/AziendaDialog';
+import { AziendaQuickDialog } from '@/components/aziende/AziendaQuickDialog';
 import { AziendaFormData, createAzienda } from '@/lib/api/aziende';
+import { toast } from 'sonner';
 
 export function AziendaSelectField() {
   const { control, setValue, watch } = useFormContext<ServizioFormData>();
@@ -79,9 +80,15 @@ export function AziendaSelectField() {
         setValue('azienda_id', azienda.id);
         setIsAziendaDialogOpen(false);
         setOpen(false);
+        toast.success('Azienda creata!', {
+          description: 'Puoi completare i dettagli nella sezione Aziende',
+        });
       }
     } catch (error: any) {
       console.error('Error creating azienda:', error);
+      toast.error('Errore nella creazione', {
+        description: error?.message || 'Si è verificato un errore',
+      });
     } finally {
       setIsCreatingAzienda(false);
     }
@@ -182,11 +189,10 @@ export function AziendaSelectField() {
         )}
       />
 
-      <AziendaDialog
+      <AziendaQuickDialog
         isOpen={isAziendaDialogOpen}
         onOpenChange={setIsAziendaDialogOpen}
         onSubmit={handleCreateAzienda}
-        azienda={null}
         isSubmitting={isCreatingAzienda}
       />
     </>
