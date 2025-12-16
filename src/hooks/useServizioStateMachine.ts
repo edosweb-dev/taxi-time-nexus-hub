@@ -55,7 +55,12 @@ export function useServizioStateMachine() {
       });
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       
       const { servizio } = result;
       if (!servizio) return;
@@ -141,7 +146,12 @@ export function useServizioStateMachine() {
       };
     },
     onSuccess: ({ result, statoChanged, oldStato, newStato }) => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       
       // Toast personalizzato in base alla transizione
       if (statoChanged) {
@@ -198,7 +208,12 @@ export function useServizioStateMachine() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       toast.success('Servizio assegnato!');
     },
     onError: (error: any) => {
@@ -220,7 +235,12 @@ export function useServizioStateMachine() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
       toast.success('Servizio eliminato');
     },
     onError: (error: any) => {
