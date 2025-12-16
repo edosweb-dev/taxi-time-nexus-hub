@@ -1,17 +1,15 @@
-
 import React from 'react';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
 import { VeicoloForm } from './VeicoloForm';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Car, Edit, Plus } from 'lucide-react';
+import { Car, Plus } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface VeicoloSheetProps {
   open: boolean;
@@ -31,59 +29,43 @@ export function VeicoloSheet({
   const isEditing = !!veicolo;
   const isMobile = useIsMobile();
 
-  // Helper function to get vehicle initials
-  const getVehicleInitials = (modello: string, targa: string) => {
-    const modelInitial = modello.charAt(0).toUpperCase();
-    const plateInitial = targa.charAt(0).toUpperCase();
-    return modelInitial + plateInitial;
-  };
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side={isMobile ? "bottom" : "right"}
-        className={isMobile ? "h-[90vh] overflow-y-auto" : "sm:max-w-[700px] overflow-y-auto"}
+        className={cn(
+          "bg-background",
+          isMobile 
+            ? "h-[92vh] rounded-t-2xl p-0" 
+            : "sm:max-w-[480px] p-0"
+        )}
       >
-        <SheetHeader className="space-y-4 pb-6 border-b">
-          <div className="flex items-start gap-4">
-            <Avatar className="h-16 w-16 border-2 border-primary/20">
-              <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
-                {isEditing ? getVehicleInitials(veicolo.modello, veicolo.targa) : <Plus className="h-8 w-8" />}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 space-y-2">
-              <SheetTitle className="section-title flex items-center gap-3">
-                {isEditing ? (
-                  <>
-                    <Edit className="h-6 w-6 text-amber-500" />
-                    Modifica Veicolo
-                  </>
-                ) : (
-                  <>
-                    <Plus className="h-6 w-6 text-green-500" />
-                    Nuovo Veicolo
-                  </>
-                )}
+        {/* Header */}
+        <SheetHeader className="px-4 pt-4 pb-3 border-b border-border bg-muted/30">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "h-10 w-10 rounded-full flex items-center justify-center",
+              isEditing 
+                ? "bg-amber-500/10 text-amber-600" 
+                : "bg-primary/10 text-primary"
+            )}>
+              {isEditing ? <Car className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+            </div>
+            <div>
+              <SheetTitle className="text-lg font-semibold">
+                {isEditing ? 'Modifica Veicolo' : 'Nuovo Veicolo'}
               </SheetTitle>
               {isEditing && (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Car className="h-4 w-4" />
-                  <span className="text-lg font-medium">{veicolo.modello} - {veicolo.targa}</span>
-                </div>
+                <p className="text-sm text-muted-foreground font-mono">
+                  {veicolo.targa}
+                </p>
               )}
             </div>
           </div>
-          
-          <SheetDescription className="text-left">
-            {isEditing 
-              ? "Modifica i dettagli e le configurazioni del veicolo esistente"
-              : "Inserisci tutti i dettagli necessari per aggiungere un nuovo veicolo alla flotta"
-            }
-          </SheetDescription>
         </SheetHeader>
         
-        <div className="pt-6">
+        {/* Form */}
+        <div className="flex-1 overflow-y-auto px-4 py-4">
           <VeicoloForm
             initialData={veicolo}
             onSubmit={onSubmit}
