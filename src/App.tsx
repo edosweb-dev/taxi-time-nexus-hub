@@ -27,7 +27,7 @@ const StoricoStipendiPage = lazy(() => import('./pages/dipendente/StoricoStipend
 const DipendenteNotFound = lazy(() => import('./pages/dipendente/DipendenteNotFound'));
 const MobileUIShowcase = lazy(() => import('./components/mobile-first/MobileUIShowcase').then(module => ({ default: module.MobileUIShowcase })));
 const ImpostazioniPage = lazy(() => import('./pages/ImpostazioniPage'));
-const ServiziPage = lazy(() => import('./pages/servizi/ServiziPage'));
+const ServiziPage = lazy(() => import('./pages/servizi/ServiziPage').then(m => ({ default: m.default })));
 const ServizioCreaPage = lazy(() => import('./pages/servizi/ServizioCreaPage').then(module => ({ default: module.ServizioCreaPage })));
 const NuovoServizioClientePage = lazy(() => import('./pages/cliente/NuovoServizioPage'));
 const ServizioConfermatoPage = lazy(() => import('./pages/cliente/ServizioConfermatoPage'));
