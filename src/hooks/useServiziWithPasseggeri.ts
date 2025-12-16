@@ -21,6 +21,7 @@ export interface ServizioWithPasseggeri extends Servizio {
 export const useServiziWithPasseggeri = () => {
   return useQuery({
     queryKey: ['servizi-with-passeggeri'],
+    staleTime: 2 * 60 * 1000, // 2 minuti - dati operativi
     queryFn: async () => {
       // Get all servizi
       const { data: servizi, error: serviziError } = await supabase
