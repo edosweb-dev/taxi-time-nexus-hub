@@ -7,7 +7,7 @@ import { Flag, Target } from "lucide-react";
 import { ServizioFormData } from "@/lib/types/servizi";
 
 export const PercorsoSection = () => {
-  const { control, setValue } = useFormContext<ServizioFormData>();
+  const { control, setValue, formState: { errors } } = useFormContext<ServizioFormData>();
   
   // Watch all needed values at top level (hooks rules)
   const passeggeri = useWatch({ control, name: "passeggeri" }) || [];
@@ -146,7 +146,13 @@ export const PercorsoSection = () => {
                     value={field.value || ''}
                     placeholder="Es: Via Roma 1"
                     fluid
+                    className={errors.indirizzo_presa ? "border-destructive" : ""}
                   />
+                  {errors.indirizzo_presa && (
+                    <p className="text-sm text-destructive mt-1">
+                      {(errors.indirizzo_presa as any)?.message || "Inserisci indirizzo partenza"}
+                    </p>
+                  )}
                 </div>
               )}
             />
@@ -238,7 +244,13 @@ export const PercorsoSection = () => {
                     value={field.value || ''}
                     placeholder="Es: Aeroporto Malpensa, Terminal 1"
                     fluid
+                    className={errors.indirizzo_destinazione ? "border-destructive" : ""}
                   />
+                  {errors.indirizzo_destinazione && (
+                    <p className="text-sm text-destructive mt-1">
+                      {(errors.indirizzo_destinazione as any)?.message || "Inserisci indirizzo destinazione"}
+                    </p>
+                  )}
                 </div>
               )}
             />
