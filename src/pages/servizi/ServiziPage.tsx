@@ -1,4 +1,5 @@
-// ServiziPage - Lista servizi v2
+// ServiziPage - Lista servizi - Gestione completa
+// Force rebuild: v3
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
