@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { VeicoloFormData } from '@/lib/types/veicoli';
-import { Save, Loader2 } from 'lucide-react';
+import { Save, Loader2, Car, Hash, Calendar, Palette, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const veicoloSchema = z.object({
@@ -26,9 +26,10 @@ interface VeicoloFormProps {
   onSubmit: (data: VeicoloFormData) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
+  isMobile?: boolean;
 }
 
-export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting }: VeicoloFormProps) {
+export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isMobile }: VeicoloFormProps) {
   const isEditing = !!initialData;
   
   const form = useForm<VeicoloFormData>({
@@ -56,179 +57,207 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting }: V
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-        {/* Primary fields */}
-        <div className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col h-full">
+        {/* Scrollable content */}
+        <div className="flex-1 px-5 py-4 space-y-5">
+          {/* Primary fields */}
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="modello"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium flex items-center gap-2">
+                    <Car className="h-4 w-4 text-muted-foreground" />
+                    Modello *
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      placeholder="es. Mercedes Vito"
+                      className="h-12 text-base bg-muted/40 border-0 focus:ring-2 focus:ring-primary/20"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="targa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium flex items-center gap-2">
+                    <Hash className="h-4 w-4 text-muted-foreground" />
+                    Targa *
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      placeholder="AB123CD" 
+                      className="h-12 text-base bg-muted/40 border-0 focus:ring-2 focus:ring-primary/20 uppercase font-mono tracking-wider"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Secondary fields */}
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Dettagli opzionali
+            </p>
+            
+            <div className="grid grid-cols-3 gap-2">
+              <FormField
+                control={form.control}
+                name="anno"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Anno
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        placeholder="2024"
+                        className="h-11 text-base bg-muted/40 border-0 text-center focus:ring-2 focus:ring-primary/20"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="colore"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Palette className="h-3 w-3" />
+                      Colore
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="Bianco"
+                        className="h-11 text-base bg-muted/40 border-0 focus:ring-2 focus:ring-primary/20"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="numero_posti"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      Posti
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        placeholder="5"
+                        className="h-11 text-base bg-muted/40 border-0 text-center focus:ring-2 focus:ring-primary/20"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Notes */}
           <FormField
             control={form.control}
-            name="modello"
+            name="note"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Modello *</FormLabel>
+                <FormLabel className="text-xs text-muted-foreground">Note</FormLabel>
                 <FormControl>
-                  <Input 
+                  <Textarea 
                     {...field} 
-                    placeholder="es. Mercedes Vito, Fiat Ducato"
-                    className="h-11 bg-muted/30 border-border"
+                    placeholder="Note aggiuntive..."
+                    rows={3}
+                    className="text-base bg-muted/40 border-0 resize-none focus:ring-2 focus:ring-primary/20"
                   />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="targa"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Targa *</FormLabel>
-                <FormControl>
-                  <Input 
-                    {...field} 
-                    placeholder="es. AB123CD" 
-                    className="h-11 bg-muted/30 border-border uppercase font-mono"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Secondary fields in grid */}
-        <div className="grid grid-cols-3 gap-3">
-          <FormField
-            control={form.control}
-            name="anno"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs text-muted-foreground">Anno</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                    placeholder="2020"
-                    className="h-10 bg-muted/30 border-border text-center"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="colore"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs text-muted-foreground">Colore</FormLabel>
-                <FormControl>
-                  <Input 
-                    {...field} 
-                    placeholder="Bianco"
-                    className="h-10 bg-muted/30 border-border"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="numero_posti"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs text-muted-foreground">Posti</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                    placeholder="5"
-                    className="h-10 bg-muted/30 border-border text-center"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Notes */}
-        <FormField
-          control={form.control}
-          name="note"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-xs text-muted-foreground">Note</FormLabel>
-              <FormControl>
-                <Textarea 
-                  {...field} 
-                  placeholder="Note aggiuntive sul veicolo..."
-                  className="min-h-[80px] bg-muted/30 border-border resize-none"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          {/* Status toggle - only in edit mode */}
+          {isEditing && (
+            <FormField
+              control={form.control}
+              name="attivo"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-xl bg-muted/40 p-4">
+                  <div>
+                    <FormLabel className="text-sm font-medium">Veicolo attivo</FormLabel>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Disponibile per nuovi servizi
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch 
+                      checked={field.value} 
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           )}
-        />
+        </div>
 
-        {/* Status toggle - only in edit mode */}
-        {isEditing && (
-          <FormField
-            control={form.control}
-            name="attivo"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg bg-muted/30 p-3">
-                <div>
-                  <FormLabel className="text-sm font-medium">Veicolo attivo</FormLabel>
-                  <p className="text-xs text-muted-foreground">
-                    Disponibile per nuovi servizi
-                  </p>
-                </div>
-                <FormControl>
-                  <Switch 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        )}
-
-        {/* Actions - sticky on mobile */}
-        <div className="flex gap-2 pt-4 border-t border-border sticky bottom-0 bg-background pb-2">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-            className="flex-1 h-11"
-          >
-            Annulla
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="flex-1 h-11"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Salvataggio...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                {isEditing ? 'Aggiorna' : 'Crea'}
-              </>
-            )}
-          </Button>
+        {/* Fixed footer */}
+        <div className={cn(
+          "shrink-0 px-5 py-4 border-t border-border bg-background",
+          isMobile && "pb-6" // Extra padding for mobile safe area
+        )}>
+          <div className="flex gap-3">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel}
+              className="flex-1 h-12 text-base font-medium"
+            >
+              Annulla
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="flex-1 h-12 text-base font-medium"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Salvataggio...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  {isEditing ? 'Salva' : 'Crea Veicolo'}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>
