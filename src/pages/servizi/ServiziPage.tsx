@@ -141,6 +141,11 @@ export default function ServiziPage() {
       <div className="flex justify-between items-start gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
+            {servizio.id_progressivo && (
+              <span className="text-xs font-mono text-muted-foreground">
+                {servizio.id_progressivo}
+              </span>
+            )}
             <h3 className="font-semibold text-base truncate">
               {servizio.tipo_cliente === 'privato' 
                 ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente Privato'
@@ -172,7 +177,7 @@ export default function ServiziPage() {
             {format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}
           </span>
           <span className="text-xs text-muted-foreground">
-            {servizio.orario_servizio}
+            {servizio.orario_servizio?.slice(0, 5) || servizio.orario_servizio}
           </span>
         </div>
 
