@@ -1,4 +1,5 @@
-import React, { Suspense, lazy } from 'react';
+// App.tsx - Direct imports (no lazy loading) - Cache fix 2024-12-16
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
@@ -8,57 +9,57 @@ import { AuthGuard } from './components/AuthGuard';
 import LoginPage from './pages/LoginPage';
 import Index from './pages/Index';
 
-// Lazy load components for better performance
-const DashboardPage = lazy(() => import('./pages/DashboardPage'));
-const ClientDashboardPage = lazy(() => import('./pages/cliente/ClientDashboardPage'));
-const ServiziClientePage = lazy(() => import('./pages/cliente/ServiziPage'));
-const PasseggeriCliente = lazy(() => import('./pages/cliente/PasseggeriCliente'));
-const DettaglioServizio = lazy(() => import('./pages/cliente/DettaglioServizio'));
-const ReportCliente = lazy(() => import('./pages/cliente/ReportCliente'));
+// Direct imports - removed lazy loading to fix cache issues
+import DashboardPage from './pages/DashboardPage';
+import ClientDashboardPage from './pages/cliente/ClientDashboardPage';
+import ServiziClientePage from './pages/cliente/ServiziPage';
+import PasseggeriCliente from './pages/cliente/PasseggeriCliente';
+import DettaglioServizio from './pages/cliente/DettaglioServizio';
+import ReportCliente from './pages/cliente/ReportCliente';
 
 // Dipendente Pages
-const DipendenteDashboard = lazy(() => import('./pages/dipendente/DipendenteDashboard'));
-const ServiziAssegnatiPage = lazy(() => import('./pages/dipendente/ServiziAssegnatiPage'));
-const CompletaServizioPage = lazy(() => import('./pages/dipendente/CompletaServizioPage'));
-const DipendenteTurniPage = lazy(() => import('./pages/dipendente/TurniPage'));
-const DipendenteSpesePage = lazy(() => import('./pages/dipendente/SpesePage'));
-const DipendenteStipendiPage = lazy(() => import('./pages/dipendente/StipendiPage'));
-const StoricoStipendiPage = lazy(() => import('./pages/dipendente/StoricoStipendi'));
-const DipendenteNotFound = lazy(() => import('./pages/dipendente/DipendenteNotFound'));
-const MobileUIShowcase = lazy(() => import('./components/mobile-first/MobileUIShowcase').then(module => ({ default: module.MobileUIShowcase })));
-const ImpostazioniPage = lazy(() => import('./pages/ImpostazioniPage'));
-const ServiziPage = lazy(() => import('./pages/servizi/ServiziPage').then(m => ({ default: m.default })));
-const ServizioCreaPage = lazy(() => import('./pages/servizi/ServizioCreaPage').then(module => ({ default: module.ServizioCreaPage })));
-const NuovoServizioClientePage = lazy(() => import('./pages/cliente/NuovoServizioPage'));
-const ServizioConfermatoPage = lazy(() => import('./pages/cliente/ServizioConfermatoPage'));
-const ServizioDetailPage = lazy(() => import('./pages/servizi/ServizioDetailPage'));
-const EditServizioPage = lazy(() => import('./pages/servizi/EditServizioPage'));
-const ModificaServizioPage = lazy(() => import('./pages/servizi/ModificaServizioPage'));
-const UsersPage = lazy(() => import('./pages/UsersPage'));
-const UserDetailPage = lazy(() => import('./pages/UserDetailPage'));
-const VeicoliPage = lazy(() => import('./pages/veicoli/VeicoliPage'));
-const ConducentiEsterniPage = lazy(() => import('./pages/conducenti-esterni/ConducentiEsterniPage'));
-const ConducenteEsternoDetailPage = lazy(() => import('./pages/conducenti-esterni/ConducenteEsternoDetailPage'));
-const StipendiPage = lazy(() => import('./pages/StipendiPage'));
-const StipendiDettaglioPage = lazy(() => import('./pages/stipendi/StipendiDettaglioPage'));
-const MobileServiziPage = lazy(() => import('./pages/servizi/MobileServiziPage'));
-const SpeseAziendaliPage = lazy(() => import('./pages/SpeseAziendaliPage'));
-const IncassiContantiPage = lazy(() => import('./pages/IncassiContantiPage'));
-const CalendarioPage = lazy(() => import('./pages/CalendarioPage'));
-const ReportPage = lazy(() => import('./pages/ReportPage'));
-const CalendarioTurniPage = lazy(() => import('./pages/CalendarioTurniPage'));
-const ShiftReportsPage = lazy(() => import('./pages/shifts/ShiftReportsPage'));
-const AziendePage = lazy(() => import('./pages/aziende/AziendePage'));
-const NuovaAziendaPage = lazy(() => import('./pages/aziende/NuovaAziendaPage'));
-const ModificaAziendaPage = lazy(() => import('./pages/aziende/ModificaAziendaPage'));
-const AziendaDetailPage = lazy(() => import('./pages/aziende/AziendaDetailPage'));
-const ReferenteDetailPage = lazy(() => import('./pages/referenti/ReferenteDetailPage'));
-const ClientiPrivatiPage = lazy(() => import('./pages/clienti/ClientiPrivatiPage'));
-const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const AssistenzaPage = lazy(() => import('./pages/AssistenzaPage'));
-const ReportPasseggeriPage = lazy(() => import('./pages/reports/ReportPasseggeriPage'));
-const ReportSociPage = lazy(() => import('./pages/ReportSociPage'));
+import DipendenteDashboard from './pages/dipendente/DipendenteDashboard';
+import ServiziAssegnatiPage from './pages/dipendente/ServiziAssegnatiPage';
+import CompletaServizioPage from './pages/dipendente/CompletaServizioPage';
+import DipendenteTurniPage from './pages/dipendente/TurniPage';
+import DipendenteSpesePage from './pages/dipendente/SpesePage';
+import DipendenteStipendiPage from './pages/dipendente/StipendiPage';
+import StoricoStipendiPage from './pages/dipendente/StoricoStipendi';
+import DipendenteNotFound from './pages/dipendente/DipendenteNotFound';
+import { MobileUIShowcase } from './components/mobile-first/MobileUIShowcase';
+import ImpostazioniPage from './pages/ImpostazioniPage';
+import ServiziPage from './pages/servizi/ServiziPage';
+import { ServizioCreaPage } from './pages/servizi/ServizioCreaPage';
+import NuovoServizioClientePage from './pages/cliente/NuovoServizioPage';
+import ServizioConfermatoPage from './pages/cliente/ServizioConfermatoPage';
+import ServizioDetailPage from './pages/servizi/ServizioDetailPage';
+import EditServizioPage from './pages/servizi/EditServizioPage';
+import ModificaServizioPage from './pages/servizi/ModificaServizioPage';
+import UsersPage from './pages/UsersPage';
+import UserDetailPage from './pages/UserDetailPage';
+import VeicoliPage from './pages/veicoli/VeicoliPage';
+import ConducentiEsterniPage from './pages/conducenti-esterni/ConducentiEsterniPage';
+import ConducenteEsternoDetailPage from './pages/conducenti-esterni/ConducenteEsternoDetailPage';
+import StipendiPage from './pages/StipendiPage';
+import StipendiDettaglioPage from './pages/stipendi/StipendiDettaglioPage';
+import MobileServiziPage from './pages/servizi/MobileServiziPage';
+import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
+import IncassiContantiPage from './pages/IncassiContantiPage';
+import CalendarioPage from './pages/CalendarioPage';
+import ReportPage from './pages/ReportPage';
+import CalendarioTurniPage from './pages/CalendarioTurniPage';
+import ShiftReportsPage from './pages/shifts/ShiftReportsPage';
+import AziendePage from './pages/aziende/AziendePage';
+import NuovaAziendaPage from './pages/aziende/NuovaAziendaPage';
+import ModificaAziendaPage from './pages/aziende/ModificaAziendaPage';
+import AziendaDetailPage from './pages/aziende/AziendaDetailPage';
+import ReferenteDetailPage from './pages/referenti/ReferenteDetailPage';
+import ClientiPrivatiPage from './pages/clienti/ClientiPrivatiPage';
+import FeedbackPage from './pages/FeedbackPage';
+import ProfilePage from './pages/ProfilePage';
+import AssistenzaPage from './pages/AssistenzaPage';
+import ReportPasseggeriPage from './pages/reports/ReportPasseggeriPage';
+import ReportSociPage from './pages/ReportSociPage';
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -402,20 +403,21 @@ function App() {
                 } />
 
                 <Route path="/dipendente/storico-stipendi" element={
-                  <AuthGuard allowedRoles={['dipendente', 'socio']}>
+                  <AuthGuard allowedRoles={['dipendente']}>
                     <StoricoStipendiPage />
                   </AuthGuard>
                 } />
 
-                {/* 404 per route dipendente non trovate */}
+                {/* Catch-all redirect for invalid dipendente routes */}
                 <Route path="/dipendente/*" element={
                   <AuthGuard allowedRoles={['dipendente']}>
                     <DipendenteNotFound />
                   </AuthGuard>
                 } />
-                
-                  {/* 404 Route */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
+
+                {/* Fallback: redirect qualsiasi URL non riconosciuto */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+
                 </Routes>
               </Suspense>
             </QueryClientProvider>
