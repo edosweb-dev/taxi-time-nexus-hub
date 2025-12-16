@@ -27,12 +27,20 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
   const ivaServizio = servizio.iva || (servizio as any).azienda?.iva || 10;
   const [ivaPercentage, setIvaPercentage] = useState<number>(ivaServizio);
   
+  // ✅ SEMANTICA CORRETTA:
+  // - incasso_previsto = NETTO (imponibile)
+  // - incasso_ricevuto = LORDO (totale con IVA)
+  // Calcola LORDO da NETTO se incasso_ricevuto non esiste
+  const calcolaLordoDaNetto = (netto: number, iva: number) => netto * (1 + iva / 100);
+  const defaultIncasso = servizio.incasso_ricevuto 
+    || (servizio.incasso_previsto ? calcolaLordoDaNetto(servizio.incasso_previsto, ivaServizio) : undefined);
+  
   const form = useForm<ConsuntivaServizioFormData>({
     resolver: zodResolver(consuntivaServizioSchema),
     defaultValues: {
       ore_sosta: servizio.ore_sosta || undefined,
-      // ✅ Usa incasso_ricevuto se già presente, altrimenti usa incasso_previsto come suggerimento
-      incasso_ricevuto: servizio.incasso_ricevuto || servizio.incasso_previsto,
+      // ✅ Se incasso_ricevuto esiste usa quello, altrimenti calcola LORDO da incasso_previsto (NETTO)
+      incasso_ricevuto: defaultIncasso,
       km_totali: servizio.km_totali || undefined,
     },
   });
