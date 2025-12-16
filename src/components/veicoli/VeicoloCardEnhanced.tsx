@@ -1,10 +1,8 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Edit, Power, Users, Calendar } from 'lucide-react';
+import { Edit, Power, Users, Calendar, Palette } from 'lucide-react';
 import { Veicolo } from '@/lib/types/veicoli';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 
 interface VeicoloCardEnhancedProps {
   veicolo: Veicolo;
@@ -17,119 +15,98 @@ export function VeicoloCardEnhanced({
   onEdit, 
   onToggleStatus 
 }: VeicoloCardEnhancedProps) {
-  const [swipeOffset, setSwipeOffset] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
-  // Touch handlers for swipe gestures
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const touch = e.touches[0];
-    const startX = touch.clientX;
-    // Simplified swipe detection - can be enhanced
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-    setSwipeOffset(0);
-  };
-
   return (
     <Card 
       className={cn(
-        "p-4 border border-border rounded-xl shadow-sm",
-        "transition-all duration-200",
-        "active:scale-[0.98]"
+        "overflow-hidden border-0 bg-card",
+        "shadow-sm hover:shadow-md transition-shadow duration-200",
+        !veicolo.attivo && "opacity-60"
       )}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
     >
-      <div className="space-y-3">
-        {/* Header: Status Badge */}
-        <div className="flex items-center justify-between">
-          <Badge 
-            variant={veicolo.attivo ? 'default' : 'secondary'}
-            className={cn(
-              "px-2 py-0.5 text-xs font-semibold rounded-md",
-              veicolo.attivo 
-                ? "bg-green-500/10 text-green-700 border border-green-500/30 dark:bg-green-900/30 dark:text-green-400 dark:border-green-500/50" 
-                : "bg-gray-500/10 text-gray-700 border border-gray-500/30 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-500/50"
-            )}
-          >
-            {veicolo.attivo ? '● ATTIVO' : '○ INATTIVO'}
-          </Badge>
-        </div>
-
-        {/* Primary Info: Targa (large, prominent) */}
-        <div className="space-y-0.5">
-          <h3 className="text-xl font-bold text-foreground leading-tight">
-            {veicolo.modello}
-          </h3>
-          <p className="text-sm font-mono font-semibold text-muted-foreground uppercase tracking-wide">
-            {veicolo.targa}
-          </p>
-        </div>
-
-        {/* Secondary Info - Compact inline */}
-        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-border/50">
-          {veicolo.anno && (
-            <div className="flex items-center gap-1.5 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium text-foreground">{veicolo.anno}</span>
-            </div>
-          )}
-          
-          <div className="flex items-center gap-1.5 text-sm">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium text-foreground">{veicolo.numero_posti || '-'} posti</span>
+      {/* Status indicator bar */}
+      <div className={cn(
+        "h-1 w-full",
+        veicolo.attivo ? "bg-green-500" : "bg-muted"
+      )} />
+      
+      <div className="p-3">
+        {/* Main row: Model + Plate + Status */}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-semibold text-foreground truncate leading-tight">
+              {veicolo.modello}
+            </h3>
+            <p className="text-sm font-mono font-medium text-primary tracking-wide">
+              {veicolo.targa}
+            </p>
           </div>
           
+          <span className={cn(
+            "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0",
+            veicolo.attivo 
+              ? "bg-green-500/15 text-green-700 dark:text-green-400" 
+              : "bg-muted text-muted-foreground"
+          )}>
+            {veicolo.attivo ? 'Attivo' : 'Inattivo'}
+          </span>
+        </div>
+
+        {/* Info chips row */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3">
+          {veicolo.anno && (
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {veicolo.anno}
+            </span>
+          )}
+          
+          <span className="flex items-center gap-1">
+            <Users className="h-3 w-3" />
+            {veicolo.numero_posti || '-'} posti
+          </span>
+          
           {veicolo.colore && (
-            <div className="flex items-center gap-1.5 text-sm">
+            <span className="flex items-center gap-1">
               <div 
-                className="w-3.5 h-3.5 rounded-full border border-border"
+                className="w-2.5 h-2.5 rounded-full ring-1 ring-border"
                 style={{ backgroundColor: veicolo.colore.toLowerCase() }}
               />
-              <span className="font-medium text-foreground capitalize">{veicolo.colore}</span>
-            </div>
+              {veicolo.colore}
+            </span>
           )}
         </div>
 
-        {/* Notes */}
+        {/* Notes - if present */}
         {veicolo.note && (
-          <p className="text-xs text-muted-foreground line-clamp-2 pt-2 border-t border-border/50">
+          <p className="text-xs text-muted-foreground line-clamp-1 mb-3 italic">
             {veicolo.note}
           </p>
         )}
 
-        {/* Action Buttons - Compact */}
-        <div className="flex gap-2 pt-2">
+        {/* Actions */}
+        <div className="flex gap-2">
           <Button
             onClick={() => onEdit(veicolo)}
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="flex-1 h-10 text-sm font-medium"
+            className="flex-1 h-9 text-xs font-medium bg-muted/50 hover:bg-muted"
           >
-            <Edit className="h-4 w-4 mr-1.5" />
+            <Edit className="h-3.5 w-3.5 mr-1" />
             Modifica
           </Button>
           
           <Button
             onClick={() => onToggleStatus(veicolo)}
-            variant={veicolo.attivo ? 'outline' : 'default'}
+            variant="ghost"
             size="sm"
             className={cn(
-              "flex-1 h-10 text-sm font-medium",
+              "flex-1 h-9 text-xs font-medium",
               veicolo.attivo 
-                ? "text-amber-600 border-amber-300 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-600 dark:hover:bg-amber-950" 
-                : "bg-green-600 text-white hover:bg-green-700"
+                ? "text-amber-600 bg-amber-500/10 hover:bg-amber-500/20" 
+                : "text-green-600 bg-green-500/10 hover:bg-green-500/20"
             )}
           >
-            <Power className="h-4 w-4 mr-1.5" />
+            <Power className="h-3.5 w-3.5 mr-1" />
             {veicolo.attivo ? 'Disattiva' : 'Attiva'}
           </Button>
         </div>

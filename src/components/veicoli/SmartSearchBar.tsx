@@ -22,24 +22,24 @@ export function SmartSearchBar({
 
   return (
     <div className={cn(
-      "bg-background z-40",
+      "bg-background/95 backdrop-blur-sm z-40",
       sticky && "sticky top-0"
     )}>
-      <div className="px-4 py-3 space-y-2">
-        {/* Search Input - 52px height for touch compliance */}
+      <div className="px-3 py-2">
+        {/* Compact Search Input */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             type="search"
             placeholder="Cerca targa, modello..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className={cn(
-              "h-[52px] pl-12 pr-14 text-base font-medium",
-              "bg-muted/30 border-2 border-border",
-              "focus:border-primary focus:bg-background",
-              "rounded-xl transition-all duration-200",
-              "placeholder:text-muted-foreground/60"
+              "h-10 pl-9 pr-10 text-sm",
+              "bg-muted/40 border-0",
+              "focus:bg-muted/60 focus:ring-1 focus:ring-primary/30",
+              "rounded-lg transition-all duration-150",
+              "placeholder:text-muted-foreground/50"
             )}
             aria-label="Cerca veicoli"
           />
@@ -48,44 +48,34 @@ export function SmartSearchBar({
               size="icon"
               variant="ghost"
               onClick={() => onSearchChange('')}
-              className={cn(
-                "absolute right-2 top-1/2 transform -translate-y-1/2",
-                "h-11 w-11 rounded-lg", // 44px touch target
-                "hover:bg-muted"
-              )}
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-md"
               aria-label="Cancella ricerca"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </Button>
           )}
         </div>
 
-        {/* Results Counter */}
+        {/* Results Counter - Inline compact */}
         {hasSearch && (
-          <div className={cn(
-            "flex items-center justify-between rounded-lg px-3 py-2",
-            "bg-muted/50 border border-border/50",
-            filteredCount === 0 && "bg-destructive/10 border-destructive/30"
-          )}>
-            <span className="text-sm text-muted-foreground">
+          <div className="flex items-center justify-between mt-2 px-1">
+            <span className="text-xs text-muted-foreground">
               {filteredCount > 0 ? (
                 <>
-                  <strong className="font-bold text-foreground">{filteredCount}</strong>
-                  {' '}di {totalCount} veicoli
+                  <strong className="font-semibold text-foreground">{filteredCount}</strong>
+                  {' '}/ {totalCount}
                 </>
               ) : (
-                <>Nessun risultato</>
+                <span className="text-destructive">Nessun risultato</span>
               )}
             </span>
             {filteredCount > 0 && filteredCount < totalCount && (
-              <Button 
-                variant="ghost" 
-                size="sm"
+              <button 
                 onClick={() => onSearchChange('')}
-                className="h-8 text-sm font-medium text-primary hover:text-primary/80 px-3"
+                className="text-xs font-medium text-primary hover:underline"
               >
                 Mostra tutti
-              </Button>
+              </button>
             )}
           </div>
         )}

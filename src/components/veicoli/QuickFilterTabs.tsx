@@ -19,28 +19,14 @@ export function QuickFilterTabs({
   };
 
   const tabs = [
-    { 
-      key: 'all' as const, 
-      label: 'Tutti', 
-      count: counts.all 
-    },
-    { 
-      key: 'active' as const, 
-      label: 'Attivi', 
-      count: counts.active,
-      color: 'text-green-600 dark:text-green-400'
-    },
-    { 
-      key: 'inactive' as const, 
-      label: 'Inattivi', 
-      count: counts.inactive,
-      color: 'text-gray-500 dark:text-gray-400'
-    }
+    { key: 'all' as const, label: 'Tutti', count: counts.all },
+    { key: 'active' as const, label: 'Attivi', count: counts.active },
+    { key: 'inactive' as const, label: 'Inattivi', count: counts.inactive }
   ];
 
   return (
-    <div className="bg-background border-b border-border">
-      <div className="flex overflow-x-auto scrollbar-hide px-4 gap-1">
+    <div className="bg-background px-3 pb-1">
+      <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
         {tabs.map(tab => {
           const isActive = activeFilter === tab.key;
           
@@ -49,24 +35,20 @@ export function QuickFilterTabs({
               key={tab.key}
               onClick={() => onFilterChange(tab.key)}
               className={cn(
-                // Touch-compliant height: 48px
-                "flex items-center gap-2 px-6 py-3 h-12 whitespace-nowrap",
-                "font-semibold text-sm transition-all duration-200",
-                "border-b-2 relative",
-                "active:scale-95 transform",
+                "flex-1 flex items-center justify-center gap-1.5 py-2 px-3",
+                "text-xs font-semibold rounded-md transition-all duration-150",
                 isActive 
-                  ? "border-primary text-primary" 
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                  ? "bg-background text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
               )}
               aria-pressed={isActive}
-              aria-label={`${tab.label}: ${tab.count} veicoli`}
             >
-              <span className="font-bold">{tab.label}</span>
+              <span>{tab.label}</span>
               <span className={cn(
-                "px-2 py-0.5 rounded-full text-xs font-bold min-w-[24px] text-center",
+                "text-[10px] font-bold min-w-[18px] px-1 rounded-full",
                 isActive 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-primary/10 text-primary" 
+                  : "bg-transparent"
               )}>
                 {tab.count}
               </span>
