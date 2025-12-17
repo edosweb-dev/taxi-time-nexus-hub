@@ -312,6 +312,11 @@ export const ServizioCreaPage = ({
             indirizzo_presa: initialData.indirizzo_presa || '',
             citta_destinazione: initialData.citta_destinazione || null,
             indirizzo_destinazione: initialData.indirizzo_destinazione || '',
+            // ✅ FIX: Imposta esplicitamente partenza/destinazione tipo per mostrare campi in modifica
+            partenza_tipo: 'personalizzato',
+            partenza_passeggero_index: null,
+            destinazione_tipo: 'personalizzato',
+            destinazione_passeggero_index: null,
             metodo_pagamento: initialData.metodo_pagamento || '',
             conducente_esterno: initialData.conducente_esterno || false,
             assegnato_a: initialData.assegnato_a || null,
@@ -320,7 +325,7 @@ export const ServizioCreaPage = ({
             ore_effettive: initialData.ore_effettive?.toString() || null,
             ore_fatturate: initialData.ore_fatturate?.toString() || null,
             incasso_previsto: initialData.incasso_previsto || null,
-            iva: initialData.iva ?? 10, // ✅ FIX: usa ?? per preservare 0, default 10%
+            iva: initialData.iva ?? 10,
             importo_totale_calcolato: null,
             applica_provvigione: initialData.applica_provvigione || false,
             consegna_contanti_a: initialData.consegna_contanti_a || null,
