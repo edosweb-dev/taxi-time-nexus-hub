@@ -142,60 +142,54 @@ export function LoginForm() {
 
   return (
     <div className="w-full mx-auto overflow-hidden">
-      {/* Enhanced Card with glassmorphism */}
-      <div className="bg-card/95 backdrop-blur-sm border border-border/50 rounded-2xl shadow-2xl shadow-primary/10 p-6 sm:p-8 mx-4 relative overflow-hidden">
-        {/* Subtle card accent */}
+      {/* Card with glassmorphism - compact */}
+      <div className="bg-card/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-xl shadow-primary/10 p-4 sm:p-6 relative overflow-hidden">
+        {/* Card accent */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50"></div>
         
-        <form onSubmit={handleLogin} className="space-y-6" aria-label="Form di accesso">
+        <form onSubmit={handleLogin} className="space-y-4" aria-label="Form di accesso">
             
-          {/* Enhanced Progressive Loading Bar */}
+          {/* Progressive Loading Bar */}
           {isAuthenticating && (
-            <div className="w-full bg-muted rounded-full h-2 mb-6 overflow-hidden shadow-inner">
+            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
               <div 
-                className="login-progress h-2 rounded-full bg-gradient-to-r from-primary via-primary/90 to-primary transition-all duration-500 ease-out shadow-sm"
+                className="login-progress h-1.5 rounded-full bg-gradient-to-r from-primary via-primary/90 to-primary transition-all duration-500 ease-out"
                 style={{ width: `${authProgress}%` }}
               />
             </div>
           )}
 
-          {/* Enhanced Email Field */}
+          {/* Email Field - Compact */}
           <div className="group">
-            <label className="block text-sm font-semibold text-foreground mb-3 group-focus-within:text-primary transition-colors">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Email
             </label>
-            <div className="relative">
-              <input
-                id="email"
-                type="email"
-                placeholder="nome@azienda.com"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (emailError) setEmailError(null);
-                }}
-                onBlur={() => {
-                  const error = validateEmail(email);
-                  setEmailError(error);
-                }}
-                className={`w-full px-4 py-4 border-2 border-border rounded-xl focus:outline-none focus:ring-0 focus:border-primary text-base bg-background/50 text-foreground transition-all duration-300 hover:border-border/80 ${emailError ? 'border-destructive focus:border-destructive bg-destructive/5' : 'focus:bg-background'}`}
-                disabled={isAuthenticating}
-                autoComplete="email"
-                inputMode="email"
-              />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-transparent opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-            </div>
+            <input
+              id="email"
+              type="email"
+              placeholder="nome@azienda.com"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError(null);
+              }}
+              onBlur={() => {
+                const error = validateEmail(email);
+                setEmailError(error);
+              }}
+              className={`w-full px-3 py-3 border-2 border-border rounded-lg focus:outline-none focus:border-primary text-base bg-background/50 text-foreground transition-colors ${emailError ? 'border-destructive bg-destructive/5' : ''}`}
+              disabled={isAuthenticating}
+              autoComplete="email"
+              inputMode="email"
+            />
             {emailError && (
-              <div className="mt-2 flex items-center space-x-2 animate-shake">
-                <div className="w-1 h-1 bg-destructive rounded-full"></div>
-                <p className="text-destructive text-sm font-medium" role="alert" aria-live="polite">{emailError}</p>
-              </div>
+              <p className="text-destructive text-xs mt-1 font-medium">{emailError}</p>
             )}
           </div>
 
-          {/* Enhanced Password Field */}
+          {/* Password Field - Compact */}
           <div className="group">
-            <label className="block text-sm font-semibold text-foreground mb-3 group-focus-within:text-primary transition-colors">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -212,15 +206,14 @@ export function LoginForm() {
                   const error = validatePassword(password);
                   setPasswordError(error);
                 }}
-                className={`w-full px-4 py-4 pr-14 border-2 border-border rounded-xl focus:outline-none focus:ring-0 focus:border-primary text-base bg-background/50 text-foreground transition-all duration-300 hover:border-border/80 ${passwordError ? 'border-destructive focus:border-destructive bg-destructive/5' : 'focus:bg-background'}`}
+                className={`w-full px-3 py-3 pr-12 border-2 border-border rounded-lg focus:outline-none focus:border-primary text-base bg-background/50 text-foreground transition-colors ${passwordError ? 'border-destructive bg-destructive/5' : ''}`}
                 disabled={isAuthenticating}
                 autoComplete="current-password"
               />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-transparent opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary focus:outline-none min-h-touch min-w-touch flex items-center justify-center transition-colors duration-200 rounded-lg hover:bg-primary/10"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary p-1 rounded"
                 disabled={isAuthenticating}
                 aria-label={showPassword ? "Nascondi password" : "Mostra password"}
               >
@@ -228,84 +221,67 @@ export function LoginForm() {
               </button>
             </div>
             {passwordError && (
-              <div className="mt-2 flex items-center space-x-2 animate-shake">
-                <div className="w-1 h-1 bg-destructive rounded-full"></div>
-                <p className="text-destructive text-sm font-medium" role="alert" aria-live="polite">{passwordError}</p>
-              </div>
+              <p className="text-destructive text-xs mt-1 font-medium">{passwordError}</p>
             )}
           </div>
 
-          {/* Enhanced Remember Me */}
-          <div className="flex items-center justify-between py-2">
-            <label className="flex items-center cursor-pointer group">
-              <div className="relative">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="sr-only"
-                  disabled={isAuthenticating}
-                />
-                <div className={`w-4 h-4 border-2 rounded transition-all duration-200 ${rememberMe ? 'bg-primary border-primary' : 'border-border hover:border-primary/50'} group-hover:scale-110`}>
-                  {rememberMe && (
-                    <svg className="w-3 h-3 text-primary-foreground transform scale-75 translate-x-0.5 translate-y-0.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-              </div>
-              <span className="ml-3 text-sm text-foreground font-medium group-hover:text-primary transition-colors">
-                Ricorda email
-              </span>
-            </label>
-          </div>
+          {/* Remember Me - Compact */}
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="sr-only"
+              disabled={isAuthenticating}
+            />
+            <div className={`w-4 h-4 border-2 rounded mr-2 flex items-center justify-center transition-colors ${rememberMe ? 'bg-primary border-primary' : 'border-border'}`}>
+              {rememberMe && (
+                <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              )}
+            </div>
+            <span className="text-sm text-foreground">Ricorda email</span>
+          </label>
 
-          {/* Enhanced Submit button */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isAuthenticating || loading || lockoutTime !== null && lockoutTime > Date.now()}
-              aria-busy={isAuthenticating || loading}
-              className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-4 px-8 rounded-xl hover:from-primary/90 hover:to-primary disabled:from-muted disabled:to-muted disabled:cursor-not-allowed transition-all duration-300 font-semibold text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none disabled:shadow-none"
-            >
+          {/* Submit button - min 44px touch target */}
+          <button
+            type="submit"
+            disabled={isAuthenticating || loading || (lockoutTime !== null && lockoutTime > Date.now())}
+            className="w-full bg-primary text-primary-foreground py-3 px-6 rounded-lg hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed transition-colors font-semibold text-base min-h-[44px]"
+          >
             {loading || isAuthenticating ? (
               <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
-                <span>{isAuthenticating ? 'Autenticazione in corso...' : 'Accesso in corso...'}</span>
+                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
+                <span>Accesso...</span>
               </div>
             ) : lockoutTime && lockoutTime > Date.now() ? (
-              <div className="flex items-center justify-center">
-                <HelpCircle className="mr-2 h-5 w-5" />
-                <span>Account temporaneamente bloccato</span>
-              </div>
+              <span>Account bloccato</span>
             ) : (
               <div className="flex items-center justify-center">
-                <LogIn className="mr-3 h-5 w-5" />
-                <span>Accedi al tuo account</span>
+                <LogIn className="mr-2 h-5 w-5" />
+                <span>Accedi</span>
               </div>
             )}
-            </button>
-          </div>
+          </button>
 
-          {/* Enhanced Links section */}
-          <div className="text-center space-y-4 pt-6 border-t border-border/50">
+          {/* Links section - Compact */}
+          <div className="text-center space-y-2 pt-2 border-t border-border/50">
             <RecuperaPasswordDialog>
               <button 
                 type="button" 
-                className="text-primary hover:text-primary/80 text-sm font-medium py-2 px-4 rounded-lg hover:bg-primary/10 transition-all duration-200 transform hover:scale-105"
+                className="text-primary hover:text-primary/80 text-sm font-medium py-2 px-3 min-h-[44px]"
                 disabled={isAuthenticating}
               >
                 Password dimenticata?
               </button>
             </RecuperaPasswordDialog>
             
-            <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
-              <span>Problemi di accesso?</span>
+            <div className="flex items-center justify-center text-xs text-muted-foreground">
+              <span>Problemi?</span>
               <Link
                 to="/assistenza"
-                className="text-primary hover:text-primary/80 font-medium py-1 px-2 rounded hover:bg-primary/10 transition-all duration-200"
+                className="text-primary hover:text-primary/80 font-medium py-1 px-2 min-h-[44px] flex items-center"
               >
                 Contatta l'assistenza
               </Link>
