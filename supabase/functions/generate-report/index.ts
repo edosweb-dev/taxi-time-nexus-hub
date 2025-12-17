@@ -244,9 +244,18 @@ serve(async (req) => {
 
     console.log('✅ PDF caricato:', uploadData.path)
 
-    // 6. Calculate totals
-    const totaleImponibile = enrichedServizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
-    const totaleIva = totaleImponibile * 0.22
+    // 6. Calculate totals using historical IVA from each service
+    const { totaleImponibile, totaleIva } = enrichedServizi.reduce((acc, s) => {
+      const ivaPercentuale = Number(s.iva) || 10 // Default 10% se non specificato
+      const importo = s.incasso_ricevuto || s.incasso_previsto || 0
+      // Scorporo IVA: Netto = Lordo / (1 + aliquota/100)
+      const netto = importo / (1 + ivaPercentuale / 100)
+      const iva = importo - netto
+      return {
+        totaleImponibile: acc.totaleImponibile + netto,
+        totaleIva: acc.totaleIva + iva
+      }
+    }, { totaleImponibile: 0, totaleIva: 0 })
     const totaleDocumento = totaleImponibile + totaleIva
 
     console.log('💰 Totali calcolati:', { totaleImponibile, totaleIva, totaleDocumento })
@@ -351,9 +360,18 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
   pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 36)
   pdf.text(`Firma Digitale: ${azienda.firma_digitale_attiva ? 'Attiva' : 'Non Attiva'}`, 20, 42)
   
-  // Calculate totals
-  const totaleImponibile = servizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
-  const totaleIva = totaleImponibile * 0.22
+  // Calculate totals using historical IVA from each service
+  const { totaleImponibile, totaleIva } = servizi.reduce((acc, s) => {
+    const ivaPercentuale = Number(s.iva) || 10 // Default 10% se non specificato
+    const importo = s.incasso_ricevuto || s.incasso_previsto || 0
+    // Scorporo IVA: Netto = Lordo / (1 + aliquota/100)
+    const netto = importo / (1 + ivaPercentuale / 100)
+    const iva = importo - netto
+    return {
+      totaleImponibile: acc.totaleImponibile + netto,
+      totaleIva: acc.totaleIva + iva
+    }
+  }, { totaleImponibile: 0, totaleIva: 0 })
   const totaleDocumento = totaleImponibile + totaleIva
   
   pdf.text(`Servizi: ${servizi.length}`, 200, 30)
@@ -468,7 +486,7 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
   const totalsX = pageWidth - 100
   pdf.text('TOTALI:', totalsX, yPosition)
   pdf.text(`Netto: €${totaleImponibile.toFixed(2)}`, totalsX, yPosition + 8)
-  pdf.text(`IVA (22%): €${totaleIva.toFixed(2)}`, totalsX, yPosition + 16)
+  pdf.text(`IVA: €${totaleIva.toFixed(2)}`, totalsX, yPosition + 16)
   pdf.text(`TOTALE: €${totaleDocumento.toFixed(2)}`, totalsX, yPosition + 24)
   
   // Linea sopra il totale
