@@ -41,6 +41,10 @@ export default function ModificaServizioPage() {
       
       if (error) throw error;
       
+      // DEBUG IVA: Log raw data dal DB
+      console.log('[ModificaServizio] 🔴 RAW servizio from DB:', data);
+      console.log('[ModificaServizio] 🔴 IVA field in raw data:', data?.iva, 'type:', typeof data?.iva);
+      
       console.log('[ModificaServizio] Passeggeri fetchati:', {
         count: data?.servizi_passeggeri?.length,
         has_relation: 'servizi_passeggeri' in (data || {})
