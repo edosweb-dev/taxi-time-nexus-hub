@@ -251,6 +251,14 @@ export const ServizioCreaPage = ({
     });
 
     if (mode === 'edit' && initialData && servizioId) {
+      // DEBUG IVA: Log dettagliato per capire il valore
+      console.log('[ServizioCreaPage] 🔴 IVA DEBUG:', {
+        'initialData.iva': initialData.iva,
+        'initialData.iva type': typeof initialData.iva,
+        'initialData.iva === null': initialData.iva === null,
+        'initialData.iva === undefined': initialData.iva === undefined,
+        'will use value': initialData.iva ?? 10
+      });
       console.log('[DEBUG form.reset] ✅ Executing reset with:', {
         iva: initialData.iva,
         conducente_esterno: initialData.conducente_esterno,
@@ -312,7 +320,7 @@ export const ServizioCreaPage = ({
             ore_effettive: initialData.ore_effettive?.toString() || null,
             ore_fatturate: initialData.ore_fatturate?.toString() || null,
             incasso_previsto: initialData.incasso_previsto || null,
-            iva: initialData.iva || 10, // ✅ Default 10%
+            iva: initialData.iva ?? 10, // ✅ FIX: usa ?? per preservare 0, default 10%
             importo_totale_calcolato: null,
             applica_provvigione: initialData.applica_provvigione || false,
             consegna_contanti_a: initialData.consegna_contanti_a || null,
