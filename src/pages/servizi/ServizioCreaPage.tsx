@@ -498,7 +498,7 @@ export const ServizioCreaPage = ({
   
   const aliquoteIva = Array.isArray(impostazioniData?.aliquote_iva) 
     ? impostazioniData.aliquote_iva.map((a: any) => a.percentuale)
-    : [22, 10, 4, 0];
+    : [10, 0]; // Fallback con solo aliquote configurate (10% default, 0% esente)
 
   // ✅ Trova aliquota IVA di default
   const aliquotaIvaDefault = useMemo(() => {

@@ -111,11 +111,23 @@ export function ReportPreviewTable({
   };
 
   const totaleServizi = servizi.length;
-  const totaleImponibile = servizi.reduce((sum, servizio) => 
-    sum + (servizio.incasso_ricevuto || servizio.incasso_previsto || 0), 0
-  );
-  // ✅ Default 10% come da specifiche
-  const totaleIva = totaleImponibile * 0.10;
+  
+  // ✅ Calcola totali usando l'aliquota IVA storica di ogni servizio
+  const { totaleImponibile, totaleIva } = servizi.reduce((acc, servizio) => {
+    const ivaPercentuale = Number(servizio.iva) || 10;
+    const importo = servizio.incasso_ricevuto || servizio.incasso_previsto || 0;
+    
+    // Trattiamo gli importi come LORDO e scorporiamo l'IVA storica
+    // Scorporo IVA: Netto = Lordo / (1 + aliquota/100), IVA = Lordo - Netto
+    const netto = importo / (1 + ivaPercentuale / 100);
+    const iva = importo - netto;
+    
+    return {
+      totaleImponibile: acc.totaleImponibile + netto,
+      totaleIva: acc.totaleIva + iva
+    };
+  }, { totaleImponibile: 0, totaleIva: 0 });
+  
   const totaleDocumento = totaleImponibile + totaleIva;
 
   const monthName = new Date(year, month - 1).toLocaleDateString('it-IT', { 
