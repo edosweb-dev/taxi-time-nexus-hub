@@ -237,9 +237,25 @@ export const ServizioCreaPage = ({
 
   const { formState: { errors } } = form;
 
-  // Pre-popola form in edit mode - ✅ Aspetta che i dati siano pronti (fix race condition)
+  // Pre-popola form in edit mode
   useEffect(() => {
-    if (mode === 'edit' && initialData && servizioId && isDataReady) {
+    // DEBUG: Log per capire il timing
+    console.log('[DEBUG form.reset]', {
+      mode,
+      hasInitialData: !!initialData,
+      servizioId,
+      initialDataIva: initialData?.iva,
+      initialDataConducenteEsterno: initialData?.conducente_esterno_id,
+      initialDataReferenteId: initialData?.referente_id,
+      initialDataAziendaId: initialData?.azienda_id
+    });
+
+    if (mode === 'edit' && initialData && servizioId) {
+      console.log('[DEBUG form.reset] ✅ Executing reset with:', {
+        iva: initialData.iva,
+        conducente_esterno: initialData.conducente_esterno,
+        conducente_esterno_id: initialData.conducente_esterno_id
+      });
       const loadData = async () => {
         try {
           // ✅ Usa i passeggeri già fetchati da ModificaServizioPage
@@ -599,14 +615,7 @@ export const ServizioCreaPage = ({
     },
   });
 
-  // ✅ Flag per verificare che tutti i dati necessari siano caricati (fix race condition)
-  const isDataReady = useMemo(() => {
-    return (
-      !!impostazioniData && 
-      !!conducentiEsterni && 
-      Array.isArray(aliquoteIva) && aliquoteIva.length > 0
-    );
-  }, [impostazioniData, conducentiEsterni, aliquoteIva]);
+  // (isDataReady removed - was causing form not to populate)
 
   // Query: Passeggeri
   const { 
@@ -1237,18 +1246,7 @@ export const ServizioCreaPage = ({
   };
 
   // ✅ Loading state mentre i dati vengono caricati in edit mode (fix race condition)
-  if (mode === 'edit' && servizioId && !isDataReady) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-[200px]">
-          <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">Caricamento dati...</p>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
+  // (Loading state removed - was blocking form population)
 
   return (
     <MainLayout>
