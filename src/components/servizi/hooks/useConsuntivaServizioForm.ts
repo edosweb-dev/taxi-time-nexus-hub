@@ -1,10 +1,7 @@
-
-import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Servizio } from "@/lib/types/servizi";
-import { getIvaPercentageForServizio } from "../utils/ivaCalculation";
 
 // SEMPLIFICAZIONE: Solo ore_sosta
 export const consuntivaServizioSchema = z.object({
@@ -23,9 +20,9 @@ export const consuntivaServizioSchema = z.object({
 export type ConsuntivaServizioFormData = z.infer<typeof consuntivaServizioSchema>;
 
 export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: ConsuntivaServizioFormData) => void) {
-  // ✅ Default 10% come da specifiche
-  const ivaServizio = servizio.iva || (servizio as any).azienda?.iva || 10;
-  const [ivaPercentage, setIvaPercentage] = useState<number>(ivaServizio);
+  // ✅ OPZIONE C (IVA IBRIDA): Usa sempre IVA storica dal DB
+  // L'IVA viene valorizzata alla creazione e non cambia successivamente
+  const ivaPercentage = servizio.iva ?? 10;
   
   // ✅ SEMANTICA CORRETTA:
   // - incasso_previsto = NETTO (imponibile)
@@ -33,7 +30,7 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
   // Calcola LORDO da NETTO se incasso_ricevuto non esiste
   const calcolaLordoDaNetto = (netto: number, iva: number) => netto * (1 + iva / 100);
   const defaultIncasso = servizio.incasso_ricevuto 
-    || (servizio.incasso_previsto ? calcolaLordoDaNetto(servizio.incasso_previsto, ivaServizio) : undefined);
+    || (servizio.incasso_previsto ? calcolaLordoDaNetto(servizio.incasso_previsto, ivaPercentage) : undefined);
   
   const form = useForm<ConsuntivaServizioFormData>({
     resolver: zodResolver(consuntivaServizioSchema),
@@ -47,20 +44,6 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
   
   // Watch the current form values
   const incassoRicevuto = form.watch("incasso_ricevuto");
-  
-  // Load the IVA percentage from the settings (async override)
-  useEffect(() => {
-    async function loadIvaRate() {
-      try {
-        const percentage = await getIvaPercentageForServizio(servizio);
-        setIvaPercentage(percentage);
-      } catch (error) {
-        console.error("Error loading IVA rate:", error);
-      }
-    }
-    
-    loadIvaRate();
-  }, [servizio]);
   
   // ✅ SCORPORO IVA: incassoRicevuto è il totale lordo, calcoliamo IVA e imponibile
   const ivaAmount = incassoRicevuto 

@@ -53,6 +53,12 @@ export interface Servizio {
   firma_timestamp?: string;
   incasso_ricevuto?: number;
   incasso_previsto?: number;
+  /**
+   * Campo IVA del servizio - SEMANTICA OPZIONE C (IVA IBRIDA):
+   * - CREAZIONE: Valorizzato dalla configurazione del metodo pagamento selezionato
+   * - VISUALIZZAZIONE/MODIFICA: Usare SEMPRE questo valore (storico), mai la configurazione
+   * - Una volta salvato, non cambia anche se la configurazione del metodo pagamento cambia
+   */
   iva?: number;
   // UNICO campo ore attivo
   ore_sosta?: number; // Ore di attesa (stipendio + fattura)
