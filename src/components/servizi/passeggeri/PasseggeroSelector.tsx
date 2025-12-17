@@ -515,6 +515,7 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
               onClick={() => {
                 setShowConfigDialog(false);
                 setPendingPasseggero(null);
+                setSearchTerm(""); // ✅ Pulisci campo ricerca anche su annulla
               }}
               className="w-full sm:w-auto min-h-[44px]"
             >
