@@ -28,14 +28,9 @@ export function AuthLayout({ children }: PropsWithChildren) {
                 />
               </div>
               
-              <div className="space-y-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                  Bentornato
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Accedi al tuo account per continuare
-                </p>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Accedi al tuo account per continuare
+              </p>
             </div>
 
             {/* Form Section */}
