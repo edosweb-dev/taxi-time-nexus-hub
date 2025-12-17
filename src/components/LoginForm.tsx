@@ -266,7 +266,7 @@ export function LoginForm() {
           </button>
 
           {/* Links section - Compact */}
-          <div className="text-center space-y-2 pt-2 border-t border-border/50">
+          <div className="text-center pt-2 border-t border-border/50">
             <RecuperaPasswordDialog>
               <button 
                 type="button" 
@@ -276,16 +276,6 @@ export function LoginForm() {
                 Password dimenticata?
               </button>
             </RecuperaPasswordDialog>
-            
-            <div className="flex items-center justify-center text-xs text-muted-foreground">
-              <span>Problemi?</span>
-              <Link
-                to="/assistenza"
-                className="text-primary hover:text-primary/80 font-medium py-1 px-2 min-h-[44px] flex items-center"
-              >
-                Contatta l'assistenza
-              </Link>
-            </div>
           </div>
 
         </form>
