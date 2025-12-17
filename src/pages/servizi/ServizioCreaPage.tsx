@@ -251,6 +251,19 @@ export const ServizioCreaPage = ({
     });
 
     if (mode === 'edit' && initialData && servizioId) {
+      // DEBUG IVA: Log dettagliato per capire il valore
+      console.log('[ServizioCreaPage] 🔴 IVA DEBUG:', {
+        'initialData.iva': initialData.iva,
+        'initialData.iva type': typeof initialData.iva,
+        'initialData.iva === null': initialData.iva === null,
+        'initialData.iva === undefined': initialData.iva === undefined,
+        'will use value': initialData.iva ?? 10
+      });
+      console.log('[DEBUG form.reset] ✅ Executing reset with:', {
+        iva: initialData.iva,
+        conducente_esterno: initialData.conducente_esterno,
+        conducente_esterno_id: initialData.conducente_esterno_id
+      });
       const loadData = async () => {
         try {
           // ✅ Usa i passeggeri già fetchati da ModificaServizioPage

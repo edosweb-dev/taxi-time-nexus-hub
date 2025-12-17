@@ -1,19 +1,10 @@
-/**
- * @deprecated OPZIONE C (IVA IBRIDA) - Questo file è DEPRECATO.
- * 
- * L'IVA viene ora gestita così:
- * - CREAZIONE: IVA viene presa dalla configurazione del metodo pagamento e salvata in servizio.iva
- * - VISUALIZZAZIONE/MODIFICA: Usare sempre servizio.iva (valore storico dal DB)
- * 
- * NON usare più queste funzioni. Usare direttamente servizio.iva ?? 10 per fallback.
- */
 
 import { MetodoPagamentoOption, AliquotaIvaOption } from "@/lib/types/impostazioni";
 import { Servizio } from "@/lib/types/servizi";
 import { getImpostazioni } from "@/lib/api/impostazioni/getImpostazioni";
 
 /**
- * @deprecated Usare servizio.iva invece
+ * Retrieves the IVA percentage for a servizio based on its payment method
  */
 export async function getIvaPercentageForServizio(servizio: Servizio): Promise<number> {
   try {

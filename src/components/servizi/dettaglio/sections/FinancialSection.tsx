@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Profile, Azienda } from "@/lib/types";
 import { Servizio } from "@/lib/types/servizi";
+import { useImpostazioniOptimized } from "@/hooks/useImpostazioniOptimized";
+import { getIvaPercentageForPaymentMethod } from "@/lib/utils/ivaUtils";
+import { AlertTriangle } from "lucide-react";
 
 interface FinancialSectionProps {
   servizio: Servizio;
@@ -20,11 +23,37 @@ export function FinancialSection({
   getUserName,
   formatCurrency,
 }: FinancialSectionProps) {
-  // ✅ OPZIONE C (IVA IBRIDA): Usa sempre IVA storica dal DB per visualizzazione
-  // L'IVA viene valorizzata alla creazione dalla configurazione del metodo pagamento
-  // Una volta salvato, è il valore STORICO e non cambia se la config cambia
-  const ivaPercentage = servizio.iva ?? 0;
+  // Carica impostazioni metodi pagamento con cache ottimizzata
+  const { metodiPagamento, aliquoteIva, isLoading: loadingImpostazioni } = useImpostazioniOptimized();
+  
+  // Trova configurazione del metodo di pagamento
+  const metodoPagamento = servizio.metodo_pagamento || '';
+  const configMetodo = metodiPagamento.find(m => m.nome === metodoPagamento);
+  
+  // ✅ PRIORITÀ ASSOLUTA: Usa sempre configurazione, mai servizio.iva (può essere sporco)
+  const ivaPercentage = getIvaPercentageForPaymentMethod(
+    metodoPagamento, 
+    metodiPagamento, 
+    aliquoteIva
+  );
+  
   const metodoHaIva = ivaPercentage > 0;
+  const usingFallback = metodiPagamento.length === 0 || aliquoteIva.length === 0;
+  
+  // Log per debug mobile
+  console.log('🔍 [FinancialSection] Stato caricamento:', {
+    loadingImpostazioni,
+    metodiPagamento: metodiPagamento?.length || 0,
+    aliquoteIva: aliquoteIva?.length || 0,
+    metodo_pagamento: metodoPagamento,
+    configMetodo,
+    metodoHaIva,
+    ivaPercentage,
+    usingFallback,
+    servizioIva: servizio.iva,
+    incasso_previsto: servizio.incasso_previsto,
+    incasso_ricevuto: servizio.incasso_ricevuto,
+  });
 
   // Calcola importi IVA per incasso PREVISTO
   // IMPORTANTE: incasso_previsto è GIÀ il totale con IVA inclusa!
@@ -64,6 +93,24 @@ export function FinancialSection({
     servizio.incasso_ricevuto !== null || 
     servizio.incasso_previsto !== null ||
     servizio.metodo_pagamento;
+
+  // Loading state per impostazioni
+  if (loadingImpostazioni) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Informazioni finanziarie</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-3">
+            <div className="h-4 bg-muted rounded w-3/4"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
+            <div className="h-4 bg-muted rounded w-2/3"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!hasFinancialData) {
     return (
