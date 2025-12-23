@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -36,6 +37,14 @@ export function VeicoloList({
   showOnlyActive,
   showOnlyInactive 
 }: VeicoloListProps) {
+  const navigate = useNavigate();
+
+  const handleRowClick = (veicolo: Veicolo, e: React.MouseEvent) => {
+    // Evita navigazione se click su bottoni
+    if ((e.target as HTMLElement).closest('button')) return;
+    navigate(`/veicoli/${veicolo.id}`);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -80,7 +89,11 @@ export function VeicoloList({
                   {veicoli.map((veicolo) => (
                     <TableRow 
                       key={veicolo.id}
-                      className={cn(!veicolo.attivo && "bg-muted/50")}
+                      onClick={(e) => handleRowClick(veicolo, e)}
+                      className={cn(
+                        "cursor-pointer hover:bg-muted/70",
+                        !veicolo.attivo && "bg-muted/50"
+                      )}
                     >
                       <TableCell className={cn(
                         "font-medium",

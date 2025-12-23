@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit, Users, Calendar } from 'lucide-react';
@@ -14,10 +15,19 @@ export function VeicoloCardEnhanced({
   veicolo, 
   onEdit,
 }: VeicoloCardEnhancedProps) {
+  const navigate = useNavigate();
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Evita navigazione se click su bottoni
+    if ((e.target as HTMLElement).closest('button')) return;
+    navigate(`/veicoli/${veicolo.id}`);
+  };
+
   return (
     <Card 
+      onClick={handleCardClick}
       className={cn(
-        "overflow-hidden border-0 bg-card",
+        "overflow-hidden border-0 bg-card cursor-pointer",
         "shadow-sm hover:shadow-md transition-shadow duration-200",
         !veicolo.attivo && "bg-muted/50"
       )}
