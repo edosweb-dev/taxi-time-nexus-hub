@@ -1,38 +1,37 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, Power, Users, Calendar, Palette } from 'lucide-react';
+import { Edit, Users, Calendar } from 'lucide-react';
 import { Veicolo } from '@/lib/types/veicoli';
 import { cn } from '@/lib/utils';
+import { VeicoloActions } from './VeicoloActions';
 
 interface VeicoloCardEnhancedProps {
   veicolo: Veicolo;
   onEdit: (veicolo: Veicolo) => void;
-  onToggleStatus: (veicolo: Veicolo) => void;
 }
 
 export function VeicoloCardEnhanced({ 
   veicolo, 
-  onEdit, 
-  onToggleStatus 
+  onEdit,
 }: VeicoloCardEnhancedProps) {
   return (
     <Card 
       className={cn(
         "overflow-hidden border-0 bg-card",
         "shadow-sm hover:shadow-md transition-shadow duration-200",
-        !veicolo.attivo && "opacity-60"
+        !veicolo.attivo && "bg-muted/50"
       )}
     >
       {/* Status indicator bar */}
       <div className={cn(
         "h-1 w-full",
-        veicolo.attivo ? "bg-green-500" : "bg-muted"
+        veicolo.attivo ? "bg-green-500" : "bg-muted-foreground/30"
       )} />
       
       <div className="p-3">
         {/* Main row: Model + Plate + Status */}
         <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex-1 min-w-0">
+          <div className={cn("flex-1 min-w-0", !veicolo.attivo && "opacity-70")}>
             <h3 className="text-base font-semibold text-foreground truncate leading-tight">
               {veicolo.modello}
             </h3>
@@ -52,7 +51,10 @@ export function VeicoloCardEnhanced({
         </div>
 
         {/* Info chips row */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3">
+        <div className={cn(
+          "flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3",
+          !veicolo.attivo && "opacity-70"
+        )}>
           {veicolo.anno && (
             <span className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
@@ -78,7 +80,10 @@ export function VeicoloCardEnhanced({
 
         {/* Notes - if present */}
         {veicolo.note && (
-          <p className="text-xs text-muted-foreground line-clamp-1 mb-3 italic">
+          <p className={cn(
+            "text-xs text-muted-foreground line-clamp-1 mb-3 italic",
+            !veicolo.attivo && "opacity-70"
+          )}>
             {veicolo.note}
           </p>
         )}
@@ -95,20 +100,7 @@ export function VeicoloCardEnhanced({
             Modifica
           </Button>
           
-          <Button
-            onClick={() => onToggleStatus(veicolo)}
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "flex-1 h-9 text-xs font-medium",
-              veicolo.attivo 
-                ? "text-amber-600 bg-amber-500/10 hover:bg-amber-500/20" 
-                : "text-green-600 bg-green-500/10 hover:bg-green-500/20"
-            )}
-          >
-            <Power className="h-3.5 w-3.5 mr-1" />
-            {veicolo.attivo ? 'Disattiva' : 'Attiva'}
-          </Button>
+          <VeicoloActions veicolo={veicolo} onEdit={onEdit} variant="mobile" />
         </div>
       </div>
     </Card>

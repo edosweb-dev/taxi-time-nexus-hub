@@ -37,8 +37,8 @@ export function VeicoliContent({
   // Handle undefined veicoli
   const safeVeicoli = veicoli || [];
   
-  // Mobile filter state
-  const [mobileQuickFilter, setMobileQuickFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  // Mobile filter state - default to 'active' as per requirements
+  const [mobileQuickFilter, setMobileQuickFilter] = useState<'all' | 'active' | 'inactive'>('active');
   
   // Use search and filter hook
   const {
@@ -63,13 +63,6 @@ export function VeicoliContent({
   const veicoliAttivi = safeVeicoli.filter(v => v.attivo);
   const veicoliInattivi = safeVeicoli.filter(v => !v.attivo);
 
-  // Toggle status handler
-  const handleToggleStatus = async (veicolo: Veicolo) => {
-    // For now, just call onDelete which handles deactivation
-    // In a full implementation, this would call a dedicated toggle API
-    onDelete(veicolo);
-  };
-
   // Empty state component
   const EmptyState = () => (
     <div className="text-center py-12 md:py-16">
@@ -80,7 +73,11 @@ export function VeicoliContent({
       <p className="text-muted-foreground mb-4">
         {searchQuery.trim() 
           ? `Nessun risultato per "${searchQuery}"`
-          : 'Aggiungi il primo veicolo alla tua flotta'
+          : mobileQuickFilter === 'active' 
+            ? 'Nessun veicolo attivo. Aggiungi il primo veicolo alla tua flotta.'
+            : mobileQuickFilter === 'inactive'
+              ? 'Nessun veicolo inattivo.'
+              : 'Aggiungi il primo veicolo alla tua flotta'
         }
       </p>
       {searchQuery.trim() && (
@@ -124,7 +121,6 @@ export function VeicoliContent({
                 key={veicolo.id}
                 veicolo={veicolo}
                 onEdit={onEdit}
-                onToggleStatus={handleToggleStatus}
               />
             ))
           )}
@@ -134,25 +130,14 @@ export function VeicoliContent({
         <FloatingActionButton onClick={onAddVeicolo} />
       </div>
 
-      {/* Desktop Tabs Layout (preserved) */}
+      {/* Desktop Tabs Layout - Default to Attivi */}
       <div className="hidden md:block">
-        <Tabs defaultValue="tutti" className="w-full">
+        <Tabs defaultValue="attivi" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="tutti">Tutti</TabsTrigger>
             <TabsTrigger value="attivi">Attivi ({veicoliAttivi.length})</TabsTrigger>
             <TabsTrigger value="inattivi">Inattivi ({veicoliInattivi.length})</TabsTrigger>
+            <TabsTrigger value="tutti">Tutti ({safeVeicoli.length})</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="tutti" className="space-y-4">
-            <VeicoloList 
-              veicoli={safeVeicoli}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onAddVeicolo={onAddVeicolo}
-              title="Tutti i Veicoli"
-              description="Gestione completa della flotta veicoli"
-            />
-          </TabsContent>
 
           <TabsContent value="attivi" className="space-y-4">
             <VeicoloList 
@@ -173,8 +158,19 @@ export function VeicoliContent({
               onDelete={onDelete}
               onAddVeicolo={onAddVeicolo}
               title="Veicoli Inattivi"
-              description="Veicoli non disponibili per i servizi"
+              description="Veicoli non disponibili - possono essere riattivati o eliminati definitivamente"
               showOnlyInactive={true}
+            />
+          </TabsContent>
+
+          <TabsContent value="tutti" className="space-y-4">
+            <VeicoloList 
+              veicoli={safeVeicoli}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onAddVeicolo={onAddVeicolo}
+              title="Tutti i Veicoli"
+              description="Gestione completa della flotta veicoli"
             />
           </TabsContent>
         </Tabs>

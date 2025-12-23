@@ -8,6 +8,9 @@ import {
   createVeicolo,
   updateVeicolo,
   deleteVeicolo,
+  deactivateVeicolo,
+  reactivateVeicolo,
+  hardDeleteVeicolo,
 } from '@/lib/api/veicoli';
 import { CreateVeicoloRequest, UpdateVeicoloRequest } from '@/lib/types/veicoli';
 
@@ -85,6 +88,54 @@ export function useDeleteVeicolo() {
     onError: (error: any) => {
       console.error('Error deleting veicolo:', error);
       toast.error('Errore nella disattivazione del veicolo');
+    },
+  });
+}
+
+export function useDeactivateVeicolo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deactivateVeicolo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['veicoli'] });
+      toast.success('Veicolo disattivato');
+    },
+    onError: (error: any) => {
+      console.error('Error deactivating veicolo:', error);
+      toast.error('Errore nella disattivazione del veicolo');
+    },
+  });
+}
+
+export function useReactivateVeicolo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: reactivateVeicolo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['veicoli'] });
+      toast.success('Veicolo riattivato');
+    },
+    onError: (error: any) => {
+      console.error('Error reactivating veicolo:', error);
+      toast.error('Errore nella riattivazione del veicolo');
+    },
+  });
+}
+
+export function useHardDeleteVeicolo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: hardDeleteVeicolo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['veicoli'] });
+      toast.success('Veicolo eliminato definitivamente');
+    },
+    onError: (error: any) => {
+      console.error('Error hard deleting veicolo:', error);
+      toast.error('Errore nell\'eliminazione del veicolo');
     },
   });
 }
