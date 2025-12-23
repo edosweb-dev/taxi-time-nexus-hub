@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   fetchTariffeKm, 
-  updateTariffa, 
+  updateTariffa,
+  createTariffa,
+  deleteTariffa,
   fetchConfigurazioneStipendi,
   updateConfigurazioneStipendi,
   generateFromPreviousYear,
@@ -30,6 +32,51 @@ export function useUpdateTariffa() {
       toast({
         title: 'Tariffa aggiornata',
         description: 'La tariffa è stata modificata con successo'
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Errore',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  });
+}
+
+export function useCreateTariffa() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { anno: number; km: number; importo_base: number }) => 
+      createTariffa(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tariffe-km'] });
+      toast({
+        title: 'Tariffa creata',
+        description: 'La nuova tariffa è stata aggiunta con successo'
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Errore',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  });
+}
+
+export function useDeleteTariffa() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteTariffa(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tariffe-km'] });
+      toast({
+        title: 'Tariffa eliminata',
+        description: 'La tariffa è stata rimossa'
       });
     },
     onError: (error: Error) => {
