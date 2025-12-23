@@ -58,9 +58,12 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col h-full">
-        {/* Scrollable content with inner padding */}
-        <div className="flex-1 overflow-y-auto py-6">
-          <div className="max-w-md mx-auto px-8 space-y-6">
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className={cn(
+            "space-y-5",
+            isMobile ? "px-5 py-5" : "px-6 py-6"
+          )}>
             
             {/* Modello */}
             <FormField
@@ -222,21 +225,21 @@ export function VeicoloForm({ initialData, onSubmit, onCancel, isSubmitting, isM
         {/* Fixed footer */}
         <div className={cn(
           "shrink-0 border-t border-border bg-background",
-          isMobile ? "px-6 py-5 pb-8" : "px-8 py-5"
+          isMobile ? "px-5 py-4 pb-6" : "px-6 py-4"
         )}>
-          <div className="max-w-md mx-auto flex gap-3">
+          <div className="flex gap-3">
             <Button 
               type="button" 
               variant="ghost" 
               onClick={onCancel}
-              className="flex-1 h-14 text-base font-semibold rounded-xl bg-muted/50 hover:bg-muted"
+              className="flex-1 h-12 text-base font-medium rounded-xl bg-muted/50 hover:bg-muted"
             >
               Annulla
             </Button>
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="flex-[2] h-14 text-base font-semibold rounded-xl"
+              className="flex-[2] h-12 text-base font-medium rounded-xl"
             >
               {isSubmitting ? (
                 <>

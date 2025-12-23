@@ -33,15 +33,15 @@ export function VeicoloSheet({
       <SheetContent 
         side={isMobile ? "bottom" : "right"}
         className={cn(
-          "flex flex-col bg-background p-0",
+          "flex flex-col bg-background p-0 overflow-hidden",
           isMobile 
-            ? "h-[90vh] rounded-t-[24px]" 
-            : "sm:max-w-[540px]"
+            ? "h-[85vh] max-h-[85vh] rounded-t-[24px]" 
+            : "sm:max-w-[480px] h-full"
         )}
       >
         {/* Mobile handle */}
         {isMobile && (
-          <div className="flex justify-center py-3">
+          <div className="flex justify-center py-3 shrink-0">
             <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
           </div>
         )}
@@ -49,20 +49,20 @@ export function VeicoloSheet({
         {/* Header */}
         <div className={cn(
           "shrink-0 border-b border-border",
-          isMobile ? "px-6 pb-5" : "px-8 pt-6 pb-5"
+          isMobile ? "px-5 pb-4" : "px-6 pt-6 pb-4"
         )}>
-          <div className="max-w-md mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <div className={cn(
-                "h-14 w-14 rounded-2xl flex items-center justify-center shrink-0",
+                "h-12 w-12 rounded-xl flex items-center justify-center shrink-0",
                 isEditing 
                   ? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" 
                   : "bg-primary/10 text-primary"
               )}>
-                {isEditing ? <Car className="h-7 w-7" /> : <Plus className="h-7 w-7" />}
+                {isEditing ? <Car className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-foreground">
+                <h2 className="text-lg font-bold text-foreground">
                   {isEditing ? 'Modifica Veicolo' : 'Nuovo Veicolo'}
                 </h2>
                 {isEditing ? (
@@ -82,7 +82,7 @@ export function VeicoloSheet({
                 variant="ghost"
                 size="icon"
                 onClick={() => onOpenChange(false)}
-                className="h-10 w-10 rounded-full shrink-0"
+                className="h-9 w-9 rounded-full shrink-0"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -90,14 +90,16 @@ export function VeicoloSheet({
           </div>
         </div>
         
-        {/* Form */}
-        <VeicoloForm
-          initialData={veicolo}
-          onSubmit={onSubmit}
-          onCancel={() => onOpenChange(false)}
-          isSubmitting={isSubmitting}
-          isMobile={isMobile}
-        />
+        {/* Form - occupa tutto lo spazio rimanente */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <VeicoloForm
+            initialData={veicolo}
+            onSubmit={onSubmit}
+            onCancel={() => onOpenChange(false)}
+            isSubmitting={isSubmitting}
+            isMobile={isMobile}
+          />
+        </div>
       </SheetContent>
     </Sheet>
   );
