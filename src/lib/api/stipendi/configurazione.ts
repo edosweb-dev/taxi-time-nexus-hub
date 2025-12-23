@@ -29,6 +29,39 @@ export async function updateTariffa(id: string, importo: number): Promise<void> 
 }
 
 /**
+ * Crea nuova tariffa KM
+ */
+export async function createTariffa(data: { anno: number; km: number; importo_base: number }): Promise<void> {
+  const { error } = await supabase
+    .from('tariffe_km_fissi')
+    .insert({
+      anno: data.anno,
+      km: data.km,
+      importo_base: data.importo_base,
+      attivo: true
+    });
+
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error(`Esiste già una tariffa per ${data.km}km nell'anno ${data.anno}`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Elimina tariffa KM
+ */
+export async function deleteTariffa(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('tariffe_km_fissi')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+}
+
+/**
  * Fetch configurazione stipendi per anno
  */
 export async function fetchConfigurazioneStipendi(anno: number): Promise<ConfigurazioneStipendi | null> {

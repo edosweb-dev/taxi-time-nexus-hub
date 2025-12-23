@@ -7,6 +7,7 @@ import { useTariffeKm, useConfigurazioneStipendi, useGenerateFromPreviousYear, u
 import { TariffeFisseTable } from './TariffeFisseTable';
 import { ParametriGlobaliCard } from './ParametriGlobaliCard';
 import { SimulatoreDialog } from './SimulatoreDialog';
+import { NuovaTariffaDialog } from './NuovaTariffaDialog';
 import { downloadTemplateCsv } from '@/lib/api/stipendi/configurazione';
 import { toast } from '@/hooks/use-toast';
 
@@ -70,6 +71,7 @@ export function TariffeKmTab() {
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <NuovaTariffaDialog anno={selectedYear} />
           <Button
             variant="outline"
             size="sm"
