@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Table,
@@ -11,8 +10,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Plus } from 'lucide-react';
 import { Veicolo } from '@/lib/types/veicoli';
+import { VeicoloActions } from './VeicoloActions';
+import { cn } from '@/lib/utils';
 
 interface VeicoloListProps {
   veicoli: Veicolo[];
@@ -72,24 +73,46 @@ export function VeicoloList({
                     <TableHead className="w-[100px]">Colore</TableHead>
                     <TableHead className="w-[80px] text-center">Posti</TableHead>
                     <TableHead className="w-[100px]">Stato</TableHead>
-                    <TableHead className="w-[120px] text-right">Azioni</TableHead>
+                    <TableHead className="w-[180px] text-right">Azioni</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {veicoli.map((veicolo) => (
-                    <TableRow key={veicolo.id}>
-                      <TableCell className="font-medium">{veicolo.modello}</TableCell>
-                      <TableCell className="font-mono">{veicolo.targa}</TableCell>
-                      <TableCell>{veicolo.anno || '-'}</TableCell>
-                      <TableCell>{veicolo.colore || '-'}</TableCell>
-                      <TableCell className="text-center">{veicolo.numero_posti || '-'}</TableCell>
+                    <TableRow 
+                      key={veicolo.id}
+                      className={cn(!veicolo.attivo && "bg-muted/50")}
+                    >
+                      <TableCell className={cn(
+                        "font-medium",
+                        !veicolo.attivo && "text-muted-foreground"
+                      )}>
+                        {veicolo.modello}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "font-mono",
+                        !veicolo.attivo && "text-muted-foreground"
+                      )}>
+                        {veicolo.targa}
+                      </TableCell>
+                      <TableCell className={cn(!veicolo.attivo && "text-muted-foreground")}>
+                        {veicolo.anno || '-'}
+                      </TableCell>
+                      <TableCell className={cn(!veicolo.attivo && "text-muted-foreground")}>
+                        {veicolo.colore || '-'}
+                      </TableCell>
+                      <TableCell className={cn(
+                        "text-center",
+                        !veicolo.attivo && "text-muted-foreground"
+                      )}>
+                        {veicolo.numero_posti || '-'}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={veicolo.attivo ? 'default' : 'secondary'}>
                           {veicolo.attivo ? 'Attivo' : 'Inattivo'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -97,15 +120,7 @@ export function VeicoloList({
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          {veicolo.attivo && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => onDelete(veicolo)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
+                          <VeicoloActions veicolo={veicolo} onEdit={onEdit} variant="desktop" />
                         </div>
                       </TableCell>
                     </TableRow>
