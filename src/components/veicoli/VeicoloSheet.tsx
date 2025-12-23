@@ -5,10 +5,9 @@ import {
 } from '@/components/ui/sheet';
 import { VeicoloForm } from './VeicoloForm';
 import { Veicolo, VeicoloFormData } from '@/lib/types/veicoli';
-import { Car, Plus, X } from 'lucide-react';
+import { Car, Plus } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 
 interface VeicoloSheetProps {
   open: boolean;
@@ -32,6 +31,7 @@ export function VeicoloSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side={isMobile ? "bottom" : "right"}
+        hideCloseButton
         className={cn(
           "flex flex-col bg-background p-0 overflow-hidden",
           isMobile 
@@ -76,17 +76,6 @@ export function VeicoloSheet({
                 )}
               </div>
             </div>
-            
-            {!isMobile && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onOpenChange(false)}
-                className="h-9 w-9 rounded-full shrink-0"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            )}
           </div>
         </div>
         
