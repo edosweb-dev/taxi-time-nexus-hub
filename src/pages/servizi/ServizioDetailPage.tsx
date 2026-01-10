@@ -201,6 +201,25 @@ export default function ServizioDetailPage() {
           }}
           servizio={servizio}
         />
+
+        {/* FIX: DeleteServizioDialog per mobile */}
+        <DeleteServizioDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          servizioId={servizio?.id}
+          isDeleting={isDeleting}
+          onConfirm={async () => {
+            if (servizio?.id) {
+              try {
+                await deleteServizio(servizio.id);
+                navigate('/servizi');
+              } catch (error) {
+                console.error('Errore eliminazione:', error);
+                setDeleteDialogOpen(false);
+              }
+            }
+          }}
+        />
       </Layout>
     );
   }
