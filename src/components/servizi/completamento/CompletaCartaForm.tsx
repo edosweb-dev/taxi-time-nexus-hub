@@ -35,11 +35,14 @@ export function CompletaCartaForm({
   const ivaPercentuale = servizio.iva ?? 10; // ✅ Default 10%, usa ?? per non trattare 0 come falsy
   
   // ✅ SEMANTICA CORRETTA:
-  // - incasso_previsto = NETTO (imponibile, senza IVA)
-  // - incasso_ricevuto = LORDO (totale con IVA, quello che riceve l'operatore)
-  const imponibile = servizio.incasso_previsto || 0;
-  const ivaAmount = imponibile * (ivaPercentuale / 100);
-  const totalePrevisto = imponibile + ivaAmount; // LORDO calcolato
+  // - incasso_previsto = LORDO (totale IVA inclusa, salvato in fase di creazione)
+  // - incasso_ricevuto = LORDO (totale effettivo, inserito in completamento)
+  // Scorporiamo l'IVA dal LORDO per visualizzazione
+  const totalePrevisto = servizio.incasso_previsto || 0;
+  const imponibile = ivaPercentuale > 0 
+    ? totalePrevisto / (1 + ivaPercentuale / 100) 
+    : totalePrevisto;
+  const ivaAmount = totalePrevisto - imponibile;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
