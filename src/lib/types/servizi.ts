@@ -52,7 +52,8 @@ export interface Servizio {
   firma_url?: string;
   firma_timestamp?: string;
   incasso_ricevuto?: number;
-  incasso_previsto?: number;
+  incasso_previsto?: number; // LORDO (con IVA)
+  incasso_netto_previsto?: number | null; // NETTO (senza IVA) - inserito dall'utente
   iva?: number;
   // UNICO campo ore attivo
   ore_sosta?: number; // Ore di attesa (stipendio + fattura)

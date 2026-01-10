@@ -324,11 +324,9 @@ export const ServizioCreaPage = ({
             veicolo_id: initialData.veicolo_id || null,
             ore_effettive: initialData.ore_effettive?.toString() || null,
             ore_fatturate: initialData.ore_fatturate?.toString() || null,
-            // FIX: Scorporo IVA per modalità edit
-            // Il DB contiene LORDO, ma il form vuole NETTO
-            incasso_previsto: initialData.incasso_previsto 
-              ? initialData.incasso_previsto / (1 + (initialData.iva ?? 0) / 100)
-              : null,
+            // Usa direttamente il NETTO salvato nel DB (no calcoli runtime!)
+            // Se incasso_netto_previsto non esiste (vecchi dati), fallback al lordo
+            incasso_previsto: (initialData as any).incasso_netto_previsto ?? initialData.incasso_previsto ?? null,
             iva: initialData.iva ?? 10,
             importo_totale_calcolato: null,
             applica_provvigione: initialData.applica_provvigione || false,
@@ -996,9 +994,10 @@ export const ServizioCreaPage = ({
         veicolo_id: data.veicolo_id || null,
         ore_effettive: data.ore_effettive ? parseFloat(data.ore_effettive) : null,
         ore_fatturate: data.ore_fatturate ? parseFloat(data.ore_fatturate) : null,
-        // Salva il LORDO (netto + IVA), non il netto inserito dall'utente
+        // Salva ENTRAMBI: netto (inserito dall'utente) e lordo (calcolato)
+        incasso_netto_previsto: data.incasso_previsto || null,
         incasso_previsto: data.incasso_previsto 
-          ? data.incasso_previsto * (1 + (data.iva ?? 0) / 100) 
+          ? Math.round(data.incasso_previsto * (1 + (data.iva ?? 0) / 100) * 100) / 100
           : null,
         // Campo IVA: usa il valore calcolato dal form in base al metodo pagamento
         iva: data.iva ?? 0,

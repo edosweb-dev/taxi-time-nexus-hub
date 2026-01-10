@@ -17,6 +17,7 @@ export interface ServizioInput {
   citta_destinazione?: string;
   metodo_pagamento: MetodoPagamento;
   iva?: number; // ✅ Aliquota IVA applicata al servizio
+  incasso_netto_previsto?: number | null; // ✅ NETTO inserito dall'utente
   note?: string;
   veicolo_id?: string;
   ore_effettive?: number;

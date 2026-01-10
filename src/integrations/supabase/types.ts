@@ -771,6 +771,7 @@ export type Database = {
           firma_url: string | null
           id: string
           id_progressivo: string | null
+          incasso_netto_previsto: number | null
           incasso_previsto: number | null
           incasso_ricevuto: number | null
           indirizzo_destinazione: string
@@ -813,6 +814,7 @@ export type Database = {
           firma_url?: string | null
           id?: string
           id_progressivo?: string | null
+          incasso_netto_previsto?: number | null
           incasso_previsto?: number | null
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
@@ -855,6 +857,7 @@ export type Database = {
           firma_url?: string | null
           id?: string
           id_progressivo?: string | null
+          incasso_netto_previsto?: number | null
           incasso_previsto?: number | null
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
