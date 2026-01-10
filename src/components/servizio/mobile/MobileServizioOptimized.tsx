@@ -272,6 +272,20 @@ export function MobileServizioOptimized({
         indirizzoPresa={servizio.indirizzo_presa}
       />
 
+      {/* KM Totali Card - solo per completati/consuntivati */}
+      {(servizio.stato === 'completato' || servizio.stato === 'consuntivato') && 
+        servizio.km_totali !== null && servizio.km_totali > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Car className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">KM Totali</span>
+            </div>
+            <span className="font-medium">{servizio.km_totali} km</span>
+          </div>
+        </Card>
+      )}
+
       {/* Dettagli Economici Card */}
       <FinancialSection
         servizio={servizio}
