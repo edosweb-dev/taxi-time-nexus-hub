@@ -993,8 +993,8 @@ export const ServizioCreaPage = ({
         ore_effettive: data.ore_effettive ? parseFloat(data.ore_effettive) : null,
         ore_fatturate: data.ore_fatturate ? parseFloat(data.ore_fatturate) : null,
         incasso_previsto: data.incasso_previsto || null,
-        // ⚠️ NON salvare campo IVA - deve essere calcolato dinamicamente dalle impostazioni
-        // iva: data.iva || null,  // RIMOSSO
+        // Campo IVA: usa il valore calcolato dal form in base al metodo pagamento
+        iva: data.iva ?? 0,
         applica_provvigione: data.applica_provvigione,
         consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
         note: data.note || null,
