@@ -150,19 +150,33 @@ export function AssignmentPopup({
         console.log('[AssignmentPopup] Assigning to employee:', selectedDipendente);
       }
       
-      const { error } = await supabase
+      // FIX: Aggiungi .select() per verificare l'update e logging
+      const { data: updatedServizio, error } = await supabase
         .from('servizi')
         .update(updateData)
-        .eq('id', servizio.id);
+        .eq('id', servizio.id)
+        .select('id, stato, assegnato_a, conducente_esterno_id')
+        .single();
       
       if (error) {
-        console.error('[AssignmentPopup] Assignment error:', error);
+        console.error('[AssignmentPopup] Errore update:', error);
         throw error;
       }
       
-      console.log('[AssignmentPopup] Assignment successful');
+      console.log('[AssignmentPopup] Servizio aggiornato:', updatedServizio);
+      
+      // Verifica che lo stato sia cambiato
+      if (updatedServizio?.stato !== 'assegnato') {
+        console.warn('[AssignmentPopup] ATTENZIONE: stato non aggiornato a "assegnato":', updatedServizio);
+      }
+      
       toast.success('Servizio assegnato con successo');
-      queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      
+      // Invalida tutte le query correlate per assicurare refresh UI
+      await queryClient.invalidateQueries({ queryKey: ['servizi'] });
+      await queryClient.invalidateQueries({ queryKey: ['servizio', servizio.id] });
+      await queryClient.invalidateQueries({ queryKey: ['assigned-users'] });
+      
       onClose();
     } catch (error: any) {
       console.error('[AssignmentPopup] Error assigning service:', error);
