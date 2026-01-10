@@ -97,11 +97,15 @@ export async function getAvailableUsers(date: string, serviceId?: string): Promi
       const hasValidShift = usersWithShifts.has(user.id);
       const isAlreadyAssigned = usersAlreadyAssigned.has(user.id);
       
-      const isAvailable = hasValidShift && !isAlreadyAssigned;
+      // FIX: Soci sempre disponibili, dipendenti possono avere più servizi
+      const isSocio = user.role === 'socio';
+      const isAvailable = isSocio || hasValidShift;
+      // NOTA: isAlreadyAssigned NON blocca più la disponibilità
       
       console.log(`[getAvailableUsers] User ${user.first_name} ${user.last_name} (${user.id}):`, {
         hasValidShift,
         isAlreadyAssigned,
+        isSocio,
         isAvailable
       });
       
