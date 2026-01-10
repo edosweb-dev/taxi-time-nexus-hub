@@ -23,8 +23,8 @@ export const consuntivaServizioSchema = z.object({
 export type ConsuntivaServizioFormData = z.infer<typeof consuntivaServizioSchema>;
 
 export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: ConsuntivaServizioFormData) => void) {
-  // ✅ Default 10% come da specifiche
-  const ivaServizio = servizio.iva || (servizio as any).azienda?.iva || 10;
+  // ✅ Default 10% come da specifiche (usa ?? per non trattare 0 come falsy)
+  const ivaServizio = servizio.iva ?? (servizio as any).azienda?.iva ?? 10;
   const [ivaPercentage, setIvaPercentage] = useState<number>(ivaServizio);
   
   // ✅ SEMANTICA CORRETTA:

@@ -246,7 +246,7 @@ serve(async (req) => {
 
     // 6. Calculate totals using historical IVA from each service
     const { totaleImponibile, totaleIva } = enrichedServizi.reduce((acc, s) => {
-      const ivaPercentuale = Number(s.iva) || 10 // Default 10% se non specificato
+      const ivaPercentuale = Number(s.iva ?? 10) // Usa ?? per non trattare 0 come falsy
       const importo = s.incasso_ricevuto || s.incasso_previsto || 0
       // Scorporo IVA: Netto = Lordo / (1 + aliquota/100)
       const netto = importo / (1 + ivaPercentuale / 100)
@@ -362,7 +362,7 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
   
   // Calculate totals using historical IVA from each service
   const { totaleImponibile, totaleIva } = servizi.reduce((acc, s) => {
-    const ivaPercentuale = Number(s.iva) || 10 // Default 10% se non specificato
+    const ivaPercentuale = Number(s.iva ?? 10) // Usa ?? per non trattare 0 come falsy
     const importo = s.incasso_ricevuto || s.incasso_previsto || 0
     // Scorporo IVA: Netto = Lordo / (1 + aliquota/100)
     const netto = importo / (1 + ivaPercentuale / 100)
