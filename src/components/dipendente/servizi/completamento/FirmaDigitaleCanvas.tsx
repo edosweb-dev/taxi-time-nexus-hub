@@ -39,16 +39,38 @@ export const FirmaDigitaleCanvas = forwardRef<FirmaCanvasRef, FirmaDigitaleCanva
 
     useEffect(() => {
       const updateSize = () => {
-        const isMobile = window.innerWidth < 768;
-        setCanvasSize({
-          width: isMobile ? window.innerWidth - 64 : 500,
-          height: isMobile ? 200 : 250,
-        });
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const isMobile = viewportWidth < 768;
+        const isLandscape = viewportWidth > viewportHeight;
+
+        if (isMobile) {
+          if (isLandscape) {
+            // Landscape: canvas più basso per lasciare spazio ai tasti
+            setCanvasSize({
+              width: Math.min(viewportWidth - 48, 500),
+              height: Math.min(viewportHeight - 180, 150),
+            });
+          } else {
+            // Portrait: comportamento normale
+            setCanvasSize({
+              width: viewportWidth - 64,
+              height: 200,
+            });
+          }
+        } else {
+          // Desktop
+          setCanvasSize({ width: 500, height: 250 });
+        }
       };
 
       updateSize();
       window.addEventListener('resize', updateSize);
-      return () => window.removeEventListener('resize', updateSize);
+      window.addEventListener('orientationchange', updateSize);
+      return () => {
+        window.removeEventListener('resize', updateSize);
+        window.removeEventListener('orientationchange', updateSize);
+      };
     }, []);
 
     const handleClear = () => {
@@ -70,7 +92,7 @@ export const FirmaDigitaleCanvas = forwardRef<FirmaCanvasRef, FirmaDigitaleCanva
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-sm">
-            ✍️ FIRMA DIGITALE <span className="text-destructive">*</span>
+            ✍️ Firma <span className="text-destructive">*</span>
           </h3>
           {error && (
             <span className="text-xs text-destructive">{error}</span>
@@ -103,7 +125,7 @@ export const FirmaDigitaleCanvas = forwardRef<FirmaCanvasRef, FirmaDigitaleCanva
           {isEmpty && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <p className="text-muted-foreground text-sm text-center px-4">
-                ✍️ Firma qui con il dito/mouse
+                Firma qui
               </p>
             </div>
           )}
