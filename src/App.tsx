@@ -72,10 +72,11 @@ const LoadingSpinner = () => (
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,      // 5 minuti - dati considerati "fresh"
-      gcTime: 10 * 60 * 1000,         // 10 minuti - garbage collection
-      retry: 1,                        // 1 solo retry su errore
-      refetchOnWindowFocus: false,    // No refetch automatico su focus
+      staleTime: 30 * 1000,           // 30 secondi - dati considerati fresh
+      gcTime: 5 * 60 * 1000,          // 5 minuti - garbage collection
+      retry: 1,
+      refetchOnWindowFocus: true,     // Refetch quando l'utente torna sulla pagina
+      refetchOnMount: true,           // Refetch quando il componente si monta
     },
   },
 });
