@@ -114,7 +114,7 @@ export function ReportPreviewTable({
   
   // ✅ Calcola totali usando l'aliquota IVA storica di ogni servizio
   const { totaleImponibile, totaleIva } = servizi.reduce((acc, servizio) => {
-    const ivaPercentuale = Number(servizio.iva) || 10;
+    const ivaPercentuale = Number(servizio.iva ?? 10); // Usa ?? per non trattare 0 come falsy
     const importo = servizio.incasso_ricevuto || servizio.incasso_previsto || 0;
     
     // Trattiamo gli importi come LORDO e scorporiamo l'IVA storica
