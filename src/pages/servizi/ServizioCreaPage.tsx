@@ -324,7 +324,11 @@ export const ServizioCreaPage = ({
             veicolo_id: initialData.veicolo_id || null,
             ore_effettive: initialData.ore_effettive?.toString() || null,
             ore_fatturate: initialData.ore_fatturate?.toString() || null,
-            incasso_previsto: initialData.incasso_previsto || null,
+            // FIX: Scorporo IVA per modalità edit
+            // Il DB contiene LORDO, ma il form vuole NETTO
+            incasso_previsto: initialData.incasso_previsto 
+              ? initialData.incasso_previsto / (1 + (initialData.iva ?? 0) / 100)
+              : null,
             iva: initialData.iva ?? 10,
             importo_totale_calcolato: null,
             applica_provvigione: initialData.applica_provvigione || false,
