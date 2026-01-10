@@ -94,9 +94,30 @@ export default function ServiziPage() {
     });
   }, [servizi, searchTerm]);
 
-  // Filter servizi by active tab
+  // Tab operativi = ordine ASC (urgenti/imminenti prima)
+  const OPERATIONAL_TABS = ['bozza', 'da_assegnare', 'assegnato', 'non_accettato'];
+
+  // Filter servizi by active tab + ordinamento differenziato
   const filteredServizi = useMemo(() => {
-    return searchFilteredServizi.filter((s: ServizioWithPasseggeri) => s.stato === activeTab);
+    const filtered = searchFilteredServizi.filter(
+      (s: ServizioWithPasseggeri) => s.stato === activeTab
+    );
+    
+    // Ordinamento differenziato per tipo tab
+    const isOperationalTab = OPERATIONAL_TABS.includes(activeTab);
+    
+    return filtered.sort((a, b) => {
+      const dateA = new Date(`${a.data_servizio}T${a.orario_servizio || '00:00'}`);
+      const dateB = new Date(`${b.data_servizio}T${b.orario_servizio || '00:00'}`);
+      
+      if (isOperationalTab) {
+        // ASC: servizi imminenti prima (date più vicine prima)
+        return dateA.getTime() - dateB.getTime();
+      } else {
+        // DESC: servizi più recenti prima (storico)
+        return dateB.getTime() - dateA.getTime();
+      }
+    });
   }, [searchFilteredServizi, activeTab]);
 
   const getStatusColor = (stato: string) => {
