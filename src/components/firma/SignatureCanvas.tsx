@@ -28,6 +28,41 @@ export function SignatureCanvas({ onSave, width = 500, height = 200, buttonText 
   const [isDrawing, setIsDrawing] = useState(false);
   const [totalPoints, setTotalPoints] = useState(0);
   const [strokeCount, setStrokeCount] = useState(0);
+  const [canvasSize, setCanvasSize] = useState({ width, height });
+
+  // Responsive canvas sizing for mobile landscape
+  useEffect(() => {
+    const updateSize = () => {
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const isMobile = viewportWidth < 768;
+      const isLandscape = viewportWidth > viewportHeight;
+
+      if (isMobile) {
+        if (isLandscape) {
+          setCanvasSize({
+            width: Math.min(viewportWidth - 48, 450),
+            height: Math.min(viewportHeight - 200, 140),
+          });
+        } else {
+          setCanvasSize({
+            width: Math.min(viewportWidth - 48, 340),
+            height: 180,
+          });
+        }
+      } else {
+        setCanvasSize({ width, height });
+      }
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    window.addEventListener('orientationchange', updateSize);
+    return () => {
+      window.removeEventListener('resize', updateSize);
+      window.removeEventListener('orientationchange', updateSize);
+    };
+  }, [width, height]);
 
   // Monitor when drawing begins
   const handleBegin = () => {
@@ -144,19 +179,19 @@ export function SignatureCanvas({ onSave, width = 500, height = 200, buttonText 
         <SignaturePad
           ref={signatureRef}
           canvasProps={{
-            width: width,
-            height: height,
+            width: canvasSize.width,
+            height: canvasSize.height,
             className: "signature-canvas",
-            style: { touchAction: 'none' } // Migliora supporto touch
+            style: { touchAction: 'none' }
           }}
           backgroundColor="#fff"
           onBegin={handleBegin}
           onEnd={handleEnd}
-          dotSize={2} // Aumenta la dimensione dei punti
-          minWidth={1.5} // Aumenta lo spessore minimo del tratto
-          maxWidth={4} // Aumenta lo spessore massimo del tratto
-          throttle={16} // Migliora fluidità del tratto (ms)
-          velocityFilterWeight={0.7} // Aumenta sensibilità alla velocità
+          dotSize={2}
+          minWidth={1.5}
+          maxWidth={4}
+          throttle={16}
+          velocityFilterWeight={0.7}
         />
         {!hasSignature && !isDrawing && (
           <div className="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none">
@@ -182,9 +217,6 @@ export function SignatureCanvas({ onSave, width = 500, height = 200, buttonText 
           {buttonText}
         </Button>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Utilizzare il mouse o il touchscreen per firmare
-      </p>
     </div>
   );
 }
