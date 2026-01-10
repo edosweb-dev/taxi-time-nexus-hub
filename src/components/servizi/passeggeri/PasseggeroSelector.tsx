@@ -38,7 +38,8 @@ interface PasseggeroSelectorProps {
 }
 
 export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPasseggeroSelect, clientePrivatoData }: PasseggeroSelectorProps) {
-  const { data: { passeggeri = [], isLoading = false } = {} } = usePasseggeri(azienda_id);
+  const { data, isLoading: isLoadingPasseggeri } = usePasseggeri(azienda_id);
+  const passeggeri = data?.passeggeri || [];
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [salvaInRubrica, setSalvaInRubrica] = useState(true);
@@ -307,12 +308,14 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
           
           {!searchTerm ? (
             <div className="text-center py-4 text-muted-foreground text-sm">
-              {passeggeri.length === 0 ? 
-                "Nessun passeggero trovato per questa azienda" :
-                "Inizia a digitare per cercare un passeggero esistente"
+              {isLoadingPasseggeri ? 
+                "Caricamento passeggeri..." :
+                passeggeri.length === 0 ? 
+                  "Nessun passeggero trovato per questa azienda" :
+                  "Inizia a digitare per cercare un passeggero esistente"
               }
             </div>
-          ) : isLoading ? (
+          ) : isLoadingPasseggeri ? (
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-16 w-full" />
