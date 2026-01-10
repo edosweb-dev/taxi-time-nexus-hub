@@ -116,21 +116,27 @@ export function useAssignmentUsers(serviceDate: string, serviceId?: string) {
     const processed: AssignmentUser[] = allUsers.map(user => {
       const hasShift = usersWithValidShifts.has(user.id);
       const isAlreadyAssigned = usersAlreadyAssigned.has(user.id);
+      const isSocio = user.role === 'socio';
       
       let displayStatus: AssignmentUser['displayStatus'];
       let isRecommended = false;
 
-      if (isAlreadyAssigned) {
-        displayStatus = 'In servizio';
+      // FIX: Soci sempre disponibili, "In servizio" è solo informativo (non blocca)
+      if (isSocio) {
+        // Soci sempre disponibili
+        displayStatus = isAlreadyAssigned ? 'In servizio' : 'Disponibile';
+        isRecommended = true;
       } else if (shifts.length === 0) {
         // FALLBACK: No shifts configured - show all users as available
-        displayStatus = 'Disponibile';
+        displayStatus = isAlreadyAssigned ? 'In servizio' : 'Disponibile';
         isRecommended = true;
       } else if (hasShift) {
-        displayStatus = 'Disponibile';
+        // Dipendente con turno: disponibile anche se ha altri servizi
+        displayStatus = isAlreadyAssigned ? 'In servizio' : 'Disponibile';
         isRecommended = true;
       } else {
         displayStatus = 'Turno assente';
+        isRecommended = false;
       }
 
       return {
