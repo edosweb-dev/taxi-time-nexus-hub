@@ -159,11 +159,18 @@ export function useServizioDetail(id?: string) {
   
   // Calcola se tutti i passeggeri hanno firmato
   const allPasseggeriSigned = useMemo(() => {
-    if (passeggeri.length === 0) {
-      // Nessun passeggero: usa firma principale
-      return !!servizio?.firma_url;
+    // Se esiste firma principale sul servizio, considerala sempre valida
+    // (gestisce servizi legacy con firma raccolta prima del sistema multi-passeggero)
+    if (servizio?.firma_url) {
+      return true;
     }
-    // Multi-passeggero: verifica che tutti abbiano firmato
+    
+    // Se nessun passeggero, serve la firma principale (che non c'è)
+    if (passeggeri.length === 0) {
+      return false;
+    }
+    
+    // Multi-passeggero: tutti devono aver firmato
     return passeggeri.every(p => !!p.firma_url);
   }, [passeggeri, servizio?.firma_url]);
 
