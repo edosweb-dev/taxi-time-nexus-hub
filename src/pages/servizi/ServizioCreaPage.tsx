@@ -1129,6 +1129,38 @@ export const ServizioCreaPage = ({
         
         const passeggeriCompleti = [];
         
+        // ✅ FIX: Crea passeggeri nella tabella 'passeggeri' se checkbox "Salva in rubrica" è attiva
+        for (const p of passeggeriForm) {
+          if (!p.is_existing && !p.id && p.salva_in_database) {
+            console.log('[ServizioCreaPage] 🆕 Creazione passeggero in anagrafica:', p.nome_cognome);
+            const { data: newPasseggero, error: passeggeroError } = await supabase
+              .from('passeggeri')
+              .insert({
+                nome_cognome: p.nome_cognome,
+                nome: p.nome || null,
+                cognome: p.cognome || null,
+                localita: p.localita || null,
+                indirizzo: p.indirizzo || null,
+                email: p.email || null,
+                telefono: p.telefono || null,
+                azienda_id: data.tipo_cliente === 'azienda' ? data.azienda_id : null,
+                created_by_referente_id: data.tipo_cliente === 'azienda' ? (data.referente_id || null) : null,
+                tipo: 'rubrica',
+              })
+              .select()
+              .single();
+
+            if (passeggeroError) {
+              console.error('[ServizioCreaPage] ❌ Errore creazione passeggero:', passeggeroError);
+              toast.warning(`Passeggero ${p.nome_cognome} non salvato in rubrica`);
+            } else {
+              console.log('[ServizioCreaPage] ✅ Passeggero creato con ID:', newPasseggero.id);
+              p.id = newPasseggero.id;
+              p.is_existing = true;
+            }
+          }
+        }
+        
         // Mappa passeggeri dal form a formato insert
         if (passeggeriForm.length > 0) {
           const passeggeriToInsert = passeggeriForm.map((p, idx) => {
@@ -1141,8 +1173,8 @@ export const ServizioCreaPage = ({
         localita_inline: p.localita || null,
         indirizzo_inline: p.indirizzo || null,
         
-        // FIX: salva_in_database basato su presenza passeggero_id
-        salva_in_database: Boolean(p.id),  // true se ha ID, false se temporaneo
+        // ✅ FIX: usa il flag dal form, non solo presenza ID
+        salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
         
         // Campi presa intermedia
         ordine_presa: p.ordine || (idx + 1),
