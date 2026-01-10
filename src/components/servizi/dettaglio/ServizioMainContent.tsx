@@ -2,7 +2,7 @@ import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, User, Clock } from "lucide-react";
+import { MapPin, User, Clock, Car } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FinancialSection } from "./sections/FinancialSection";
 import { useUsers } from "@/hooks/useUsers";
@@ -173,6 +173,37 @@ export function ServizioMainContent({
           )}
         </CardContent>
       </Card>
+
+      {/* Dati Operativi - KM e Ore Sosta per completati/consuntivati */}
+      {(servizio.stato === 'completato' || servizio.stato === 'consuntivato') && 
+        ((servizio.km_totali !== null && servizio.km_totali > 0) || 
+         (servizio.ore_sosta !== null && servizio.ore_sosta > 0)) && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Dati Operativi</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {servizio.km_totali !== null && servizio.km_totali > 0 && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Car className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">KM Totali</span>
+                </div>
+                <span className="font-medium">{servizio.km_totali} km</span>
+              </div>
+            )}
+            {servizio.ore_sosta !== null && servizio.ore_sosta > 0 && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Ore di Sosta</span>
+                </div>
+                <span className="font-medium">{servizio.ore_sosta}h</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Dettagli Economici */}
       <FinancialSection
