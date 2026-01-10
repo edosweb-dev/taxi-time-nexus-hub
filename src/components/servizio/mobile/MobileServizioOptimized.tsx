@@ -22,6 +22,7 @@ import { MobileButton } from '@/components/ui/mobile-button';
 import { FinancialSection } from '@/components/servizi/dettaglio/sections/FinancialSection';
 import { useAziende } from '@/hooks/useAziende';
 import { PasseggeriCard } from '@/components/dipendente/servizi/dettaglio/PasseggeriCard';
+import { NoteCard } from '@/components/dipendente/servizi/dettaglio/NoteCard';
 
 interface MobileServizioOptimizedProps {
   servizio: any;
@@ -279,6 +280,11 @@ export function MobileServizioOptimized({
         getUserName={getUserName}
         formatCurrency={formatCurrency}
       />
+
+      {/* Note Card - Bug #19 fix */}
+      {servizio.note && (
+        <NoteCard note={servizio.note} />
+      )}
 
       {/* Firma Cliente Card - only if active */}
       {firmaDigitaleAttiva && (
