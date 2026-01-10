@@ -97,6 +97,7 @@ export const useSpeseAziendali = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
+      queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
       toast({
@@ -126,7 +127,9 @@ export const useSpeseAziendali = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
+      queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
+      queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
       toast({
         title: "Stato aggiornato",
         description: "Lo stato del pagamento è stato aggiornato.",
@@ -192,6 +195,7 @@ export const useSpeseAziendali = () => {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
+      queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['spese-dipendenti'] });
       queryClient.invalidateQueries({ queryKey: ['spese-dipendenti-convertibili'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
