@@ -83,16 +83,25 @@ export const useSpeseAziendali = () => {
 
   const addMovimento = useMutation({
     mutationFn: async (data: MovimentoFormData) => {
+      if (!user?.id) {
+        throw new Error('Utente non autenticato');
+      }
+      
+      console.log('[useSpeseAziendali] Inserting data:', { ...data, created_by: user.id });
+      
       const { data: result, error } = await supabase
         .from('spese_aziendali')
         .insert([{
           ...data,
-          created_by: user?.id || ''
+          created_by: user.id
         }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[useSpeseAziendali] Insert error:', error);
+        throw error;
+      }
       return result;
     },
     onSuccess: () => {
