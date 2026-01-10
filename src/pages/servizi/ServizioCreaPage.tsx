@@ -992,7 +992,10 @@ export const ServizioCreaPage = ({
         veicolo_id: data.veicolo_id || null,
         ore_effettive: data.ore_effettive ? parseFloat(data.ore_effettive) : null,
         ore_fatturate: data.ore_fatturate ? parseFloat(data.ore_fatturate) : null,
-        incasso_previsto: data.incasso_previsto || null,
+        // Salva il LORDO (netto + IVA), non il netto inserito dall'utente
+        incasso_previsto: data.incasso_previsto 
+          ? data.incasso_previsto * (1 + (data.iva ?? 0) / 100) 
+          : null,
         // Campo IVA: usa il valore calcolato dal form in base al metodo pagamento
         iva: data.iva ?? 0,
         applica_provvigione: data.applica_provvigione,
