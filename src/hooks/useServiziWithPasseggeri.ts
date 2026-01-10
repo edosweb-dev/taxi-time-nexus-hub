@@ -39,7 +39,8 @@ export const useServiziWithPasseggeri = () => {
             email
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('data_servizio', { ascending: false })
+        .order('orario_servizio', { ascending: false });
 
       if (serviziError) throw serviziError;
 
