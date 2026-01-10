@@ -14,6 +14,7 @@ import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { MovimentoFormData } from '@/lib/types/spese-aziendali';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   data_movimento: z.string(),
@@ -39,6 +40,7 @@ interface MovimentoFormProps {
 export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormProps) {
   const { addMovimento } = useSpeseAziendali();
   const { modalitaAttive } = useModalitaPagamenti();
+  const { toast } = useToast();
 
   // Fetch dipendenti
   const { data: dipendenti } = useQuery({
@@ -97,9 +99,19 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
     }
   };
 
+  const onError = (errors: Record<string, any>) => {
+    console.error('[MovimentoForm] Errori validazione:', errors);
+    const firstError = Object.values(errors)[0] as any;
+    toast({
+      title: "Compila tutti i campi obbligatori",
+      description: firstError?.message || "Verifica i campi evidenziati",
+      variant: "destructive",
+    });
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6">
         <FormField
           control={form.control}
           name="data_movimento"
