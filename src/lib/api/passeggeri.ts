@@ -22,7 +22,7 @@ export async function getPasseggeriByAzienda(aziendaId: string): Promise<Passegg
       .select('*')
       .eq('azienda_id', aziendaId)
       .eq('tipo', 'rubrica')  // ✅ Solo passeggeri permanenti in rubrica
-      .order('nome_cognome');
+      .order('nome_cognome', { ascending: true });
 
     if (error) {
       console.error('[getPasseggeriByAzienda] Error fetching passengers:', error);
@@ -46,7 +46,7 @@ export async function getPasseggeriByReferente(aziendaId: string, referenteId: s
       .eq('azienda_id', aziendaId)
       .eq('created_by_referente_id', referenteId)
       .eq('tipo', 'rubrica')  // ✅ Solo passeggeri permanenti in rubrica
-      .order('nome_cognome');
+      .order('nome_cognome', { ascending: true });
 
     if (error) {
       console.error('[getPasseggeriByReferente] Error fetching passengers:', error);
