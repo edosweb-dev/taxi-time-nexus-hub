@@ -10,9 +10,9 @@ import {
   FileSignature,
   CheckCircle2,
   FileText,
-  Edit,
+  Pencil,
   Trash2,
-  UserMinus
+  MoreVertical
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,12 @@ import { FinancialSection } from '@/components/servizi/dettaglio/sections/Financ
 import { useAziende } from '@/hooks/useAziende';
 import { PasseggeriCard } from '@/components/dipendente/servizi/dettaglio/PasseggeriCard';
 import { NoteCard } from '@/components/dipendente/servizi/dettaglio/NoteCard';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface MobileServizioOptimizedProps {
   servizio: any;
@@ -180,9 +186,21 @@ export function MobileServizioOptimized({
         </h3>
         
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground w-24">Assegnato a:</span>
-            <span className="font-medium">{assignedToName || 'Non assegnato'}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground w-24">Assegnato a:</span>
+              <span className="font-medium">{assignedToName || 'Non assegnato'}</span>
+            </div>
+            {/* Link Rimuovi - Solo se assegnato e admin */}
+            {servizio.stato === 'assegnato' && isAdmin && onRimuoviAssegnazione && (
+              <button
+                onClick={onRimuoviAssegnazione}
+                disabled={isRimuoviAssegnazioneLoading}
+                className="text-xs text-orange-600 hover:text-orange-700 font-medium disabled:opacity-50"
+              >
+                {isRimuoviAssegnazioneLoading ? "..." : "Rimuovi"}
+              </button>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
@@ -396,70 +414,64 @@ export function MobileServizioOptimized({
       )}
 
       {/* Action Buttons - Fixed at bottom */}
-      <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 z-40 space-y-2">
-        {/* CTA Completa Servizio */}
-        {canBeCompleted && !canRequestSignature && (
-          <MobileButton
-            variant="default"
-            className="w-full"
-            onClick={onCompleta}
-          >
-            <CheckCircle2 className="h-5 w-5" />
-            Completa Servizio
-          </MobileButton>
-        )}
+      <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 z-40">
+        <div className="flex items-center gap-3">
+          {/* CTA Primaria: Completa o Consuntiva */}
+          {canBeCompleted && !canRequestSignature && (
+            <MobileButton
+              variant="default"
+              className="flex-1"
+              onClick={onCompleta}
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              Completa Servizio
+            </MobileButton>
+          )}
 
-        {/* CTA Consuntiva Servizio */}
-        {canBeConsuntivato && (
-          <MobileButton
-            variant="default"
-            className="w-full"
-            onClick={onConsuntiva}
-          >
-            <FileText className="h-5 w-5" />
-            Consuntiva Servizio
-          </MobileButton>
-        )}
+          {canBeConsuntivato && (
+            <MobileButton
+              variant="default"
+              className="flex-1"
+              onClick={onConsuntiva}
+            >
+              <FileText className="h-5 w-5" />
+              Consuntiva
+            </MobileButton>
+          )}
 
-        {/* CTA Modifica | Elimina | Rimuovi Assegnazione */}
-        {(canBeEdited || isAdmin || (servizio.stato === 'assegnato' && isAdmin && onRimuoviAssegnazione)) && (
-          <div className="flex gap-2 flex-wrap">
-            {canBeEdited && (
-              <MobileButton
-                variant="outline"
-                className="flex-1"
-                onClick={onModifica}
-              >
-                <Edit className="h-4 w-4" />
-                Modifica
-              </MobileButton>
-            )}
+          {/* Se nessuna CTA primaria, mostra placeholder per mantenere layout */}
+          {!canBeCompleted && !canBeConsuntivato && (canBeEdited || isAdmin) && (
+            <div className="flex-1" />
+          )}
 
-            {/* Rimuovi Assegnazione - Solo se assegnato */}
-            {servizio.stato === 'assegnato' && isAdmin && onRimuoviAssegnazione && (
-              <MobileButton
-                variant="outline"
-                className="flex-1 text-orange-600 border-orange-200 hover:bg-orange-50"
-                onClick={onRimuoviAssegnazione}
-                disabled={isRimuoviAssegnazioneLoading}
-              >
-                <UserMinus className="h-4 w-4" />
-                {isRimuoviAssegnazioneLoading ? "Rimuovendo..." : "Rimuovi Assegn."}
-              </MobileButton>
-            )}
-            
-            {isAdmin && (
-              <MobileButton
-                variant="destructive"
-                className="flex-1 text-white"
-                onClick={onElimina}
-              >
-                <Trash2 className="h-4 w-4 text-white" />
-                Elimina
-              </MobileButton>
-            )}
-          </div>
-        )}
+          {/* Menu Kebab per azioni secondarie */}
+          {(canBeEdited || isAdmin) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-12 w-12 shrink-0">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {canBeEdited && (
+                  <DropdownMenuItem onClick={onModifica} className="gap-2">
+                    <Pencil className="h-4 w-4" />
+                    Modifica
+                  </DropdownMenuItem>
+                )}
+                {isAdmin && (
+                  <DropdownMenuItem 
+                    onClick={onElimina} 
+                    className="gap-2 text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Elimina
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </div>
   );
