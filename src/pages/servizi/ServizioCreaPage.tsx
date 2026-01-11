@@ -1573,8 +1573,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce */}
-          {!isVeloce && (
+          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce e per servizi consuntivati */}
+          {!isVeloce && !(mode === 'edit' && initialData?.stato === 'consuntivato') && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -2004,71 +2004,120 @@ export const ServizioCreaPage = ({
               ⚠️ Modificare questi dati potrebbe influire sul calcolo stipendi
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-              {/* Incasso Ricevuto */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="incasso_ricevuto" className="font-medium">
-                  Incasso Ricevuto (€)
-                </Label>
-                <Controller
-                  name="incasso_ricevuto"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Input
-                      id="incasso_ricevuto"
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="text-base"
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
-                    />
-                  )}
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                {/* Metodo Pagamento */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="metodo_pagamento_consuntivo" className="font-medium">
+                    Metodo Pagamento
+                  </Label>
+                  <Controller
+                    name="metodo_pagamento"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="text-base">
+                          <SelectValue placeholder="Seleziona metodo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {metodiPagamento.length === 0 ? (
+                            <SelectItem value="placeholder" disabled>
+                              Configura metodi in Impostazioni
+                            </SelectItem>
+                          ) : (
+                            metodiPagamento.map((metodo: any) => (
+                              <SelectItem key={metodo.id || metodo.nome} value={metodo.nome}>
+                                {metodo.nome}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+
+                {/* Incasso Ricevuto */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="incasso_ricevuto" className="font-medium">
+                    Incasso Ricevuto (€)
+                  </Label>
+                  <Controller
+                    name="incasso_ricevuto"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        id="incasso_ricevuto"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        className="text-base"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                      />
+                    )}
+                  />
+                </div>
+                
+                {/* Ore di Sosta */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_sosta" className="font-medium">
+                    Ore di Sosta
+                  </Label>
+                  <Controller
+                    name="ore_sosta"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        id="ore_sosta"
+                        type="number"
+                        step="0.5"
+                        placeholder="0"
+                        className="text-base"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                      />
+                    )}
+                  />
+                </div>
+                
+                {/* KM Totali */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="km_totali" className="font-medium">
+                    KM Totali
+                  </Label>
+                  <Controller
+                    name="km_totali"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        id="km_totali"
+                        type="number"
+                        step="1"
+                        placeholder="0"
+                        className="text-base"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                      />
+                    )}
+                  />
+                </div>
               </div>
-              
-              {/* Ore di Sosta */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="ore_sosta" className="font-medium">
-                  Ore di Sosta
-                </Label>
+
+              {/* Checkbox Applica Provvigione */}
+              <div className="flex items-center space-x-2 pl-0.5 mt-4">
                 <Controller
-                  name="ore_sosta"
+                  name="applica_provvigione"
                   control={form.control}
                   render={({ field }) => (
-                    <Input
-                      id="ore_sosta"
-                      type="number"
-                      step="0.5"
-                      placeholder="0"
-                      className="text-base"
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
                     />
                   )}
                 />
-              </div>
-              
-              {/* KM Totali */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="km_totali" className="font-medium">
-                  KM Totali
-                </Label>
-                <Controller
-                  name="km_totali"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Input
-                      id="km_totali"
-                      type="number"
-                      step="1"
-                      placeholder="0"
-                      className="text-base"
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
-                    />
-                  )}
-                />
+                <Label className="text-sm sm:text-base cursor-pointer">Applica Provvigione</Label>
               </div>
             </div>
           </Card>
