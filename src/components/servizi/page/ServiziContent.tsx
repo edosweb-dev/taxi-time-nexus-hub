@@ -72,11 +72,23 @@ export function ServiziContent({
         const azienda = aziende.find(a => a.id === servizio.azienda_id);
         const aziendaNome = azienda?.nome?.toLowerCase() || '';
         
+        // Cliente privato search (Bug #11)
+        const clientePrivatoNome = servizio.cliente_privato_nome?.toLowerCase() || '';
+        const clientePrivatoCognome = servizio.cliente_privato_cognome?.toLowerCase() || '';
+        const clientePrivatoFull = `${clientePrivatoNome} ${clientePrivatoCognome}`.trim();
+
+        // Passeggeri search (Bug #8)
+        const passeggeriNomi = (servizio as any).passeggeri?.map(
+          (p: any) => p.nome_cognome?.toLowerCase() || ''
+        ).join(' ') || '';
+        
         const matches = 
           servizio.numero_commessa?.toLowerCase().includes(searchLower) ||
-          servizio.indirizzo_presa.toLowerCase().includes(searchLower) ||
-          servizio.indirizzo_destinazione.toLowerCase().includes(searchLower) ||
-          aziendaNome.includes(searchLower);
+          servizio.indirizzo_presa?.toLowerCase().includes(searchLower) ||
+          servizio.indirizzo_destinazione?.toLowerCase().includes(searchLower) ||
+          aziendaNome.includes(searchLower) ||
+          clientePrivatoFull.includes(searchLower) ||
+          passeggeriNomi.includes(searchLower);
         if (!matches) return false;
       }
 
