@@ -149,7 +149,8 @@ const PasseggeriCliente = () => {
         localita: data.localita || null,
         indirizzo: data.indirizzo || null,
         azienda_id: profile?.azienda_id,
-        referente_id: user.id,
+        created_by_referente_id: user.id,
+        tipo: 'rubrica',
       });
 
       if (error) throw error;
