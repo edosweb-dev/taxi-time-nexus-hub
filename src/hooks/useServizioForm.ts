@@ -42,6 +42,10 @@ export const servizioFormSchema = z.object({
   // NON includere campi ore: vengono inseriti solo in consuntivazione
   applica_provvigione: z.boolean().default(false),
   email_notifiche: z.array(z.string()).default([]),
+  // Campi consuntivo (per modifica servizi già consuntivati)
+  incasso_ricevuto: z.number().nullable().optional(),
+  ore_sosta: z.number().nullable().optional(),
+  km_totali: z.number().nullable().optional(),
   passeggeri: z.array(
     z.object({
       nome_cognome: z.string().min(1, "Nome e cognome obbligatorio"),
@@ -107,6 +111,10 @@ export function useServizioForm() {
       applica_provvigione: false,
       email_notifiche: [],
       passeggeri: [],
+      // Campi consuntivo (null di default)
+      incasso_ricevuto: null,
+      ore_sosta: null,
+      km_totali: null,
     },
   });
 
