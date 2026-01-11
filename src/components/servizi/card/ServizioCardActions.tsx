@@ -1,8 +1,7 @@
 
-import { Users, CheckSquare, Clipboard, Pencil } from "lucide-react";
+import { Users, CheckSquare, Clipboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Servizio } from "@/lib/types/servizi";
-import { useNavigate } from "react-router-dom";
 
 interface ServizioCardActionsProps {
   servizio: Servizio;
@@ -23,10 +22,7 @@ export const ServizioCardActions = ({
   onFirma,
   allPasseggeriSigned = false,
 }: ServizioCardActionsProps) => {
-  const navigate = useNavigate();
-  
   // Determina se i pulsanti speciali devono essere mostrati
-  const isConsuntivato = servizio.stato === 'consuntivato';
   const canBeCompleted = servizio.stato === 'assegnato';
   const canBeSigned = (servizio.stato === 'assegnato' || servizio.stato === 'completato') && !allPasseggeriSigned;
 
@@ -34,23 +30,6 @@ export const ServizioCardActions = ({
     e.stopPropagation();
     action();
   };
-
-  // Per servizi consuntivati: solo pulsante Modifica
-  if (isConsuntivato) {
-    return (
-      <div className="flex gap-2 mt-4">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex-1"
-          onClick={(e) => handleClick(e, () => navigate(`/servizi/${servizio.id}`))}
-        >
-          <Pencil className="mr-2 h-4 w-4" />
-          Modifica
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex gap-2 mt-4">
