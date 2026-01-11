@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '../EmptyState';
 import { Servizio } from '@/lib/types/servizi';
 import { Profile } from '@/lib/types';
@@ -112,6 +113,9 @@ export function MobileServiziLayout({
   const { passeggeriCounts } = usePasseggeriCounts(filteredServizi);
   const serviziByStatus = groupServiziByStatus(filteredServizi);
 
+  // Determina se mostrare ricerca globale (tutti i risultati, senza divisione per tab)
+  const isGlobalSearch = searchText?.trim().length > 0;
+
   const statusCounts = {
     da_assegnare: serviziByStatus.da_assegnare.length,
     assegnato: serviziByStatus.assegnato.length,
@@ -214,27 +218,43 @@ export function MobileServiziLayout({
         />
       </div>
 
-      {/* Tabs fissi */}
-      <div className="shrink-0">
-        <MobileServiziTabs
-          tabs={[
-            { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
-            { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
-            { id: 'completato', label: 'Completati', count: statusCounts.completato },
-            { id: 'non_accettato', label: 'Non Accettati', count: statusCounts.non_accettato },
-            { id: 'annullato', label: 'Annullati', count: statusCounts.annullato },
-            { id: 'consuntivato', label: 'Consuntivati', count: statusCounts.consuntivato },
-          ]}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-      </div>
+      {/* Global Search Message or Tabs fissi */}
+      {isGlobalSearch ? (
+        <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-primary/10 mx-4 rounded-lg">
+          <span className="text-sm text-primary font-medium">
+            {filteredServizi.length} risultati in tutti gli stati
+          </span>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="h-7 px-2"
+            onClick={() => setSearchText('')}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="shrink-0">
+          <MobileServiziTabs
+            tabs={[
+              { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
+              { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
+              { id: 'completato', label: 'Completati', count: statusCounts.completato },
+              { id: 'non_accettato', label: 'Non Accettati', count: statusCounts.non_accettato },
+              { id: 'annullato', label: 'Annullati', count: statusCounts.annullato },
+              { id: 'consuntivato', label: 'Consuntivati', count: statusCounts.consuntivato },
+            ]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        </div>
+      )}
 
-      {/* Lista scrollabile */}
+      {/* Lista scrollabile - mostra tutti durante ricerca o solo tab corrente */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
-        {serviziByStatus[activeTab as keyof typeof serviziByStatus].length > 0 ? (
+        {(isGlobalSearch ? filteredServizi : serviziByStatus[activeTab as keyof typeof serviziByStatus]).length > 0 ? (
           <MobileServiziList
-            servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
+            servizi={isGlobalSearch ? filteredServizi : serviziByStatus[activeTab as keyof typeof serviziByStatus]}
             users={users}
             aziende={aziende || []}
             passeggeriCounts={passeggeriCounts}
