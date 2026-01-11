@@ -55,9 +55,12 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
   const globalIndex = getServizioIndex(servizio.id, allServizi || []);
   // Logica ottimizzata per pulsanti in base allo stato
   const isToAssign = servizio.stato === 'da_assegnare';
+  const isConsuntivato = servizio.stato === 'consuntivato';
   const canBeAssigned = isAdminOrSocio && onSelect && isToAssign;
-  const canBeCompleted = !isToAssign && onCompleta && servizio.stato === 'assegnato';
-  const canBeSigned = !isToAssign && onFirma && ['assegnato', 'completato'].includes(servizio.stato) && !allPasseggeriSigned;
+  const canBeCompleted = !isToAssign && !isConsuntivato && onCompleta && servizio.stato === 'assegnato';
+  const canBeSigned = !isToAssign && !isConsuntivato && onFirma && ['assegnato', 'completato'].includes(servizio.stato) && !allPasseggeriSigned;
+  // Per i consuntivati, mostriamo solo azioni di modifica/dettagli
+  const showOnlyEditActions = isConsuntivato;
 
   return (
     <>
@@ -115,40 +118,54 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
                   </Button>
                 )}
               </>
+            ) : showOnlyEditActions ? (
+              /* Per consuntivati: solo pulsante Modifica diretto */
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigateToDetail(servizio.id);
+                }}
+                className="h-8 px-2"
+              >
+                <Pencil className="h-3 w-3 mr-1" />
+                Modifica
+              </Button>
             ) : (
               <>
-                {/* Se già assegnato: mostra pulsanti Completa e Firma */}
-                <Button 
-                  variant={canBeCompleted ? "outline" : "ghost"} 
-                  size="sm"
-                  disabled={!canBeCompleted}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (canBeCompleted) onCompleta?.(servizio);
-                  }}
-                  className="h-8 px-2"
-                  style={{ opacity: canBeCompleted ? 1 : 0.3 }}
-                >
-                  <CheckSquare className="h-3 w-3" />
-                </Button>
+                {/* Se già assegnato (non consuntivato): mostra pulsanti Completa e Firma */}
+                {canBeCompleted && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCompleta?.(servizio);
+                    }}
+                    className="h-8 px-2"
+                  >
+                    <CheckSquare className="h-3 w-3" />
+                  </Button>
+                )}
                 
-                <Button 
-                  variant={canBeSigned ? "outline" : "ghost"}
-                  size="sm"
-                  disabled={!canBeSigned}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (canBeSigned) onFirma?.(servizio);
-                  }}
-                  className="h-8 px-2"
-                  style={{ opacity: canBeSigned ? 1 : 0.3 }}
-                >
-                  <Clipboard className="h-3 w-3" />
-                </Button>
+                {canBeSigned && (
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onFirma?.(servizio);
+                    }}
+                    className="h-8 px-2"
+                  >
+                    <Clipboard className="h-3 w-3" />
+                  </Button>
+                )}
               </>
             )}
             
-            {/* Menu dropdown sempre presente per dettagli */}
+            {/* Menu dropdown sempre presente per dettagli/modifica/elimina */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 px-2" onClick={(e) => e.stopPropagation()}>
@@ -161,7 +178,7 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
                   onNavigateToDetail(servizio.id);
                 }}>
                   <Pencil className="h-4 w-4 mr-2" />
-                  Dettagli
+                  {showOnlyEditActions ? 'Modifica' : 'Dettagli'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
