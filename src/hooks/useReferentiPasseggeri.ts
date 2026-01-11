@@ -24,7 +24,8 @@ export function usePasseggeriByReferente(referenteId?: string) {
       const { data, error } = await supabase
         .from('passeggeri')
         .select('*')
-        .eq('created_by_referente_id', referenteId);
+        .eq('created_by_referente_id', referenteId)
+        .order('nome_cognome', { ascending: true });
 
       if (error) {
         console.error('Error fetching passeggeri:', error);
@@ -43,7 +44,8 @@ export function useAllPasseggeriByReferente() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('passeggeri')
-        .select('*');
+        .select('*')
+        .order('nome_cognome', { ascending: true });
 
       if (error) {
         console.error('Error fetching all passeggeri:', error);
