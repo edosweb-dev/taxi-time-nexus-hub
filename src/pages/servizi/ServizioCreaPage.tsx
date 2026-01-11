@@ -1254,9 +1254,15 @@ export const ServizioCreaPage = ({
         }
       }
 
-      // Invalida cache per refresh immediato lista servizi
+      // Invalida cache per refresh immediato lista servizi e dettaglio
       await queryClient.invalidateQueries({ queryKey: ['servizi'] });
       await queryClient.invalidateQueries({ queryKey: ['servizi-with-passeggeri'] });
+      // Invalida anche cache del singolo servizio per refresh immediato pagina dettaglio
+      if (servizioId) {
+        await queryClient.invalidateQueries({ queryKey: ['servizio', servizioId] });
+        await queryClient.invalidateQueries({ queryKey: ['servizio-edit', servizioId] });
+        await queryClient.invalidateQueries({ queryKey: ['servizio-detail', servizioId] });
+      }
 
       if (onSuccess) {
         onSuccess();
