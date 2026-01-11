@@ -1,26 +1,11 @@
 import { useFormContext } from "react-hook-form";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { PasseggeroPresaCard, PasseggeroPresaData } from "./PasseggeroPresaCard";
+import { PasseggeroPresaCard } from "./PasseggeroPresaCard";
 import { Users } from "lucide-react";
 
 interface PasseggeroPresaListProps {
-  fields: any[];  // ✅ Da props (single source of truth)
-  remove: (index: number) => void;  // ✅ Da props
-  move: (from: number, to: number) => void;  // ✅ Da props
+  fields: any[];
+  remove: (index: number) => void;
+  move: (from: number, to: number) => void;
   orarioServizio: string;
   indirizzoServizio: string;
   cittaServizio?: string;
@@ -40,48 +25,20 @@ export const PasseggeroPresaList = ({
 }: PasseggeroPresaListProps) => {
   const { setValue, getValues } = useFormContext();
 
-  // Debug log
-  console.log('[PasseggeroPresaList] 🔄 Render:', fields.length, 'passeggeri');
+  // Handler per spostare passeggero su/giù
+  const handleMove = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= fields.length) return;
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    move(fromIndex, toIndex);
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = fields.findIndex((f) => f.id === active.id || `temp-${fields.indexOf(f as any)}` === active.id);
-      const newIndex = fields.findIndex((f) => f.id === over.id || `temp-${fields.indexOf(f as any)}` === over.id);
-
-      if (oldIndex !== -1 && newIndex !== -1) {
-        move(oldIndex, newIndex);
-        
-        // Ricalcola ordini dopo il movimento
-        const passeggeri = getValues("passeggeri");
-        passeggeri.forEach((_: any, idx: number) => {
-          setValue(`passeggeri.${idx}.ordine`, idx + 1);
-          
-          // Se il primo passeggero cambia, resetta l'uso orario servizio
-          if (idx === 0) {
-            setValue(`passeggeri.${idx}.presa_usa_orario_servizio`, true);
-          }
-        });
+    // Ricalcola ordini dopo il movimento
+    const passeggeri = getValues("passeggeri");
+    passeggeri?.forEach((_: any, idx: number) => {
+      setValue(`passeggeri.${idx}.ordine`, idx + 1);
+      if (idx === 0) {
+        setValue(`passeggeri.${idx}.presa_usa_orario_servizio`, true);
       }
-    }
+    });
   };
 
   if (fields.length === 0) {
@@ -100,8 +57,6 @@ export const PasseggeroPresaList = ({
     );
   }
 
-  const sortableIds = fields.map((f, idx) => f.id || `temp-${idx}`);
-
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -114,36 +69,30 @@ export const PasseggeroPresaList = ({
       
       {fields.length > 1 && (
         <div className="text-xs text-muted-foreground text-center pb-1 flex items-center justify-center gap-2">
-          <span className="inline-block w-5 h-5 rounded bg-muted flex items-center justify-center">
-            <span className="text-[10px]">⠿</span>
+          <span className="inline-block">
+            Usa le frecce ▲▼ per riordinare la sequenza di pick-up
           </span>
-          Trascina per riordinare la sequenza di pick-up
         </div>
       )}
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <PasseggeroPresaCard
-                key={field.id}
-                index={index}
-                orarioServizio={orarioServizio}
-                indirizzoServizio={indirizzoServizio}
-                cittaServizio={cittaServizio}
-                destinazioneServizio={destinazioneServizio}
-                cittaDestinazioneServizio={cittaDestinazioneServizio}
-                isFirst={index === 0}
-                onRemove={() => remove(index)}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+      <div className="space-y-3">
+        {fields.map((field, index) => (
+          <PasseggeroPresaCard
+            key={field.id}
+            index={index}
+            totalCount={fields.length}
+            onMoveUp={() => handleMove(index, index - 1)}
+            onMoveDown={() => handleMove(index, index + 1)}
+            orarioServizio={orarioServizio}
+            indirizzoServizio={indirizzoServizio}
+            cittaServizio={cittaServizio}
+            destinazioneServizio={destinazioneServizio}
+            cittaDestinazioneServizio={cittaDestinazioneServizio}
+            isFirst={index === 0}
+            onRemove={() => remove(index)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

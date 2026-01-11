@@ -1,5 +1,3 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useFormContext, useWatch, Controller } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GripVertical, Trash2, MapPin, Clock, Navigation } from "lucide-react";
+import { ChevronUp, ChevronDown, Trash2, MapPin, Clock, Navigation } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,6 +47,9 @@ export interface PasseggeroPresaData {
 
 interface PasseggeroPresaCardProps {
   index: number;
+  totalCount: number;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   orarioServizio: string;
   indirizzoServizio: string;
   cittaServizio?: string;
@@ -60,6 +61,9 @@ interface PasseggeroPresaCardProps {
 
 export const PasseggeroPresaCard = ({
   index,
+  totalCount,
+  onMoveUp,
+  onMoveDown,
   orarioServizio,
   indirizzoServizio,
   cittaServizio,
@@ -70,21 +74,6 @@ export const PasseggeroPresaCard = ({
 }: PasseggeroPresaCardProps) => {
   const { control, setValue } = useFormContext();
   const passeggero = useWatch({ control, name: `passeggeri.${index}` });
-  
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: passeggero?.id || `temp-${index}` });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
 
   if (!passeggero) return null;
 
@@ -97,26 +86,51 @@ export const PasseggeroPresaCard = ({
   const destinazioneServizioDisplay = [destinazioneServizio, cittaDestinazioneServizio].filter(Boolean).join(', ');
 
   return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      className={`p-4 space-y-4 ${isDragging ? 'shadow-lg ring-2 ring-primary' : ''}`}
-    >
-      {/* Header con drag handle */}
+    <Card className="p-4 space-y-4">
+      {/* Header con frecce su/giù */}
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded touch-none"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical className="h-5 w-5 text-muted-foreground" />
-        </button>
+        {/* Frecce su/giù */}
+        {totalCount > 1 && (
+          <div className="flex flex-col gap-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 p-0"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onMoveUp();
+              }}
+              disabled={index === 0}
+              title="Sposta su"
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 p-0"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onMoveDown();
+              }}
+              disabled={index === totalCount - 1}
+              title="Sposta giù"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
         
+        {/* Numero ordine */}
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex-shrink-0">
           {index + 1}
         </div>
         
+        {/* Nome passeggero */}
         <div className="flex-1 min-w-0">
           <div className="font-medium truncate">{nomeCompleto}</div>
           <div className="text-xs text-muted-foreground">
