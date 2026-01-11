@@ -191,11 +191,15 @@ export function useServizioDetail(id?: string) {
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
   
-  // Admin e socio possono modificare servizi non ancora consuntivati
+  // Admin e socio possono modificare anche servizi consuntivati (per correzioni)
+  // Solo servizi annullati non sono modificabili
   // Altri utenti possono modificare solo servizi da assegnare
   const canBeEdited = isAdminOrSocio 
-    ? servizio?.stato !== "consuntivato" && servizio?.stato !== "annullato"
+    ? servizio?.stato !== "annullato"
     : servizio?.stato === "da_assegnare";
+    
+  // Flag specifico per modifica campi consuntivo
+  const canEditConsuntivo = isAdminOrSocio && servizio?.stato === "consuntivato";
     
   const canBeCompleted = servizio?.stato === "assegnato";
   const canBeConsuntivato = servizio?.stato === "completato" && 
@@ -237,6 +241,7 @@ export function useServizioDetail(id?: string) {
     canBeEdited,
     canBeCompleted,
     canBeConsuntivato,
+    canEditConsuntivo,
     getAziendaName,
     getAzienda,
     getUserName,

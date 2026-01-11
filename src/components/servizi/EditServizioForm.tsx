@@ -9,6 +9,10 @@ import { PasseggeroForm } from "./passeggeri/PasseggeroForm";
 import { useServizioForm } from "@/hooks/useServizioForm";
 import { IndirizziIntermediSummary } from "./IndirizziIntermediSummary";
 import { Servizio, PasseggeroFormData } from "@/lib/types/servizi";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { DollarSign } from "lucide-react";
 
 interface EditServizioFormProps {
   servizio: Servizio;
@@ -83,9 +87,12 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         metodo_pagamento: servizio.metodo_pagamento ?? "",
         note: servizio.note ?? "",
         veicolo_id: servizio.veicolo_id ?? "",
-        // NON includere campi ore
         applica_provvigione: servizio.applica_provvigione ?? false,
         email_notifiche: [],
+        // Campi consuntivo (per servizi già consuntivati)
+        incasso_ricevuto: servizio.incasso_ricevuto ?? null,
+        ore_sosta: servizio.ore_sosta ?? null,
+        km_totali: servizio.km_totali ?? null,
         passeggeri: passeggeri.map(p => ({
           id: p.id,
           passeggero_id: p.passeggero_id,
@@ -136,8 +143,11 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
           metodo_pagamento: values.metodo_pagamento,
           note: values.note,
           veicolo_id: values.veicolo_id,
-          // NON inviare campi ore
           applica_provvigione: values.applica_provvigione,
+          // Campi consuntivo (per servizi già consuntivati)
+          incasso_ricevuto: values.incasso_ricevuto,
+          ore_sosta: values.ore_sosta,
+          km_totali: values.km_totali,
         },
         passeggeri: values.passeggeri.map((p: any) => ({
           ...p,
@@ -196,6 +206,95 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
               <IndirizziIntermediSummary />
             </div>
           </div>
+
+          {/* Step 4: Dati Consuntivo - Solo per servizi consuntivati */}
+          {servizio.stato === 'consuntivato' && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center justify-center w-8 h-8 bg-amber-600 text-white rounded-full text-sm font-semibold">
+                  <DollarSign className="h-4 w-4" />
+                </div>
+                <h2 className="text-xl font-semibold">Dati Consuntivo</h2>
+              </div>
+              <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                    ⚠️ Modifica dati consuntivo
+                  </CardTitle>
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                    Modificare questi dati potrebbe influire sul calcolo stipendi
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Incasso Ricevuto */}
+                    <FormField
+                      control={form.control}
+                      name="incasso_ricevuto"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Incasso Ricevuto (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Ore di Sosta */}
+                    <FormField
+                      control={form.control}
+                      name="ore_sosta"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ore di Sosta</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.5"
+                              placeholder="0"
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* KM Totali */}
+                    <FormField
+                      control={form.control}
+                      name="km_totali"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>KM Totali</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="1"
+                              placeholder="0"
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </form>
         
         {/* Action Buttons - Sticky Bottom */}

@@ -29,6 +29,10 @@ export interface ServizioInput {
   conducente_esterno_email?: string;
   conducente_esterno_id?: string;
   stato?: StatoServizio;
+  // Campi consuntivo (per correzioni post-consuntivazione)
+  incasso_ricevuto?: number | null;
+  ore_sosta?: number | null;
+  km_totali?: number | null;
 }
 
 export interface CreateServizioRequest {

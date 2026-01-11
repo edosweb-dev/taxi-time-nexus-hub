@@ -150,6 +150,10 @@ export interface ServizioFormData {
   applica_provvigione?: boolean;
   email_notifiche?: string[];
   passeggeri: PasseggeroFormData[];
+  // Campi consuntivo (per modifica servizi già consuntivati)
+  incasso_ricevuto?: number | null;
+  ore_sosta?: number | null;
+  km_totali?: number | null;
 }
 
 export interface PasseggeroFormData {

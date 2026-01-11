@@ -34,6 +34,10 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
         conducente_esterno_email: servizio.conducente_esterno_email,
         conducente_esterno_id: servizio.conducente_esterno_id,
         stato: statoServizio,
+        // Campi consuntivo (permettono correzioni post-consuntivazione)
+        incasso_ricevuto: servizio.incasso_ricevuto,
+        ore_sosta: servizio.ore_sosta,
+        km_totali: servizio.km_totali,
       })
       .eq('id', servizio.id)
       .select()
