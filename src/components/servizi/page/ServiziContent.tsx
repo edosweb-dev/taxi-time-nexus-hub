@@ -124,6 +124,9 @@ export function ServiziContent({
   // Use passeggeri counts hook after filteredServizi is defined
   const { passeggeriCounts } = usePasseggeriCounts(filteredServizi);
   
+  // Determina se mostrare ricerca globale (tutti i risultati, senza divisione per tab)
+  const isGlobalSearch = filters.search?.trim().length > 0;
+  
   // Group filtered services by status
   const serviziByStatus = groupServiziByStatus(filteredServizi);
 
@@ -224,18 +227,21 @@ export function ServiziContent({
               })}
             />
             
-            <div className="w-full overflow-hidden">
-              <MobileTabs
-                tabs={[
-                  { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
-                  { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
-                  { id: 'completato', label: 'Completati', count: statusCounts.completato },
-                  { id: 'annullato', label: 'Annullati', count: statusCounts.annullato }
-                ]}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              />
-            </div>
+            {/* Hide tabs during global search */}
+            {!isGlobalSearch && (
+              <div className="w-full overflow-hidden">
+                <MobileTabs
+                  tabs={[
+                    { id: 'da_assegnare', label: 'Da Assegnare', count: statusCounts.da_assegnare },
+                    { id: 'assegnato', label: 'Assegnati', count: statusCounts.assegnato },
+                    { id: 'completato', label: 'Completati', count: statusCounts.completato },
+                    { id: 'annullato', label: 'Annullati', count: statusCounts.annullato }
+                  ]}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                />
+              </div>
+            )}
           </div>
           
           {/* Action Buttons - Mobile optimized grid */}
@@ -276,11 +282,28 @@ export function ServiziContent({
           </ResponsiveGrid>
         </div>
         
+        {/* Global Search Message */}
+        {isGlobalSearch && (
+          <div className="flex items-center justify-between px-4 py-2 bg-primary/10 rounded-lg mx-4">
+            <span className="text-sm text-primary font-medium">
+              {filteredServizi.length} risultati trovati in tutti gli stati
+            </span>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
+            >
+              Cancella
+            </Button>
+          </div>
+        )}
+
         {/* Mobile Content - Proper containment to prevent overflow */}
         <div className="w-full min-h-[50vh] overflow-hidden">
-          {Object.keys(serviziByStatus).some(status => serviziByStatus[status as keyof typeof serviziByStatus].length > 0) ? (
+          {(isGlobalSearch ? filteredServizi : serviziByStatus[activeTab as keyof typeof serviziByStatus]).length > 0 ? (
             <ServizioCardList
-              servizi={serviziByStatus[activeTab as keyof typeof serviziByStatus]}
+              servizi={isGlobalSearch ? filteredServizi : serviziByStatus[activeTab as keyof typeof serviziByStatus]}
               users={users}
               aziende={aziende || []}
               passeggeriCounts={passeggeriCounts}
@@ -354,62 +377,93 @@ export function ServiziContent({
           </div>
         </div>
 
-        {/* Desktop Tabbed Table View */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="da_assegnare" className="relative">
-              Da Assegnare
-              {statusCounts.da_assegnare > 0 && (
-                <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground">
-                  {statusCounts.da_assegnare}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="assegnato" className="relative">
-              Assegnati
-              {statusCounts.assegnato > 0 && (
-                <span className="ml-1 rounded-full bg-yellow-500 px-1.5 py-0.5 text-xs text-white">
-                  {statusCounts.assegnato}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="non_accettato">Non Accettati</TabsTrigger>
-            <TabsTrigger value="completato" className="relative">
-              Completati
-              {statusCounts.completato > 0 && (
-                <span className="ml-1 rounded-full bg-green-500 px-1.5 py-0.5 text-xs text-white">
-                  {statusCounts.completato}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="annullato" className="relative">
-              Annullati
-              {statusCounts.annullato > 0 && (
-                <span className="ml-1 rounded-full bg-gray-500 px-1.5 py-0.5 text-xs text-white">
-                  {statusCounts.annullato}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="consuntivato">Consuntivati</TabsTrigger>
-          </TabsList>
+        {/* Desktop View - Global Search or Tabbed */}
+        {isGlobalSearch ? (
+          // Global Search Results - Show all services
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-4 py-3 bg-primary/10 rounded-lg">
+              <span className="text-sm text-primary font-medium">
+                {filteredServizi.length} risultati trovati in tutti gli stati
+              </span>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
+              >
+                Cancella ricerca
+              </Button>
+            </div>
+            <div className="rounded-md border h-[600px] flex flex-col">
+              <ServizioTable
+                servizi={filteredServizi}
+                users={users}
+                onNavigateToDetail={onNavigateToDetail}
+                onSelect={onSelectServizio}
+                onCompleta={onCompleta}
+                onFirma={onFirma}
+                isAdminOrSocio={isAdminOrSocio}
+                allServizi={allServizi}
+              />
+            </div>
+          </div>
+        ) : (
+          // Normal Tabbed View
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="da_assegnare" className="relative">
+                Da Assegnare
+                {statusCounts.da_assegnare > 0 && (
+                  <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground">
+                    {statusCounts.da_assegnare}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="assegnato" className="relative">
+                Assegnati
+                {statusCounts.assegnato > 0 && (
+                  <span className="ml-1 rounded-full bg-yellow-500 px-1.5 py-0.5 text-xs text-white">
+                    {statusCounts.assegnato}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="non_accettato">Non Accettati</TabsTrigger>
+              <TabsTrigger value="completato" className="relative">
+                Completati
+                {statusCounts.completato > 0 && (
+                  <span className="ml-1 rounded-full bg-green-500 px-1.5 py-0.5 text-xs text-white">
+                    {statusCounts.completato}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="annullato" className="relative">
+                Annullati
+                {statusCounts.annullato > 0 && (
+                  <span className="ml-1 rounded-full bg-gray-500 px-1.5 py-0.5 text-xs text-white">
+                    {statusCounts.annullato}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="consuntivato">Consuntivati</TabsTrigger>
+            </TabsList>
 
-          {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
-            <TabsContent key={status} value={status} className="mt-0">
-              <div className="rounded-md border h-[600px] flex flex-col">
-                <ServizioTable
-                  servizi={serviziByStatus[status]}
-                  users={users}
-                  onNavigateToDetail={onNavigateToDetail}
-                  onSelect={onSelectServizio}
-                  onCompleta={onCompleta}
-                  onFirma={onFirma}
-                  isAdminOrSocio={isAdminOrSocio}
-                  allServizi={allServizi}
-                />
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+            {(["da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
+              <TabsContent key={status} value={status} className="mt-0">
+                <div className="rounded-md border h-[600px] flex flex-col">
+                  <ServizioTable
+                    servizi={serviziByStatus[status]}
+                    users={users}
+                    onNavigateToDetail={onNavigateToDetail}
+                    onSelect={onSelectServizio}
+                    onCompleta={onCompleta}
+                    onFirma={onFirma}
+                    isAdminOrSocio={isAdminOrSocio}
+                    allServizi={allServizi}
+                  />
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        )}
       </div>
     </ResponsiveContainer>
   );
