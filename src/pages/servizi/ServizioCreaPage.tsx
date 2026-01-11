@@ -46,7 +46,8 @@ import {
   ChevronUp,
   UserCircle,
   X,
-  Loader2
+  Loader2,
+  DollarSign
 } from "lucide-react";
 import { ClientePrivatoFields } from "@/components/servizi/form-fields/ClientePrivatoFields";
 import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePrivato";
@@ -150,6 +151,10 @@ const servizioSchemaCompleto = z.object({
   partenza_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
   partenza_passeggero_index: z.number().optional().nullable(),
   destinazione_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
+  // Campi consuntivo (per edit mode servizi consuntivati)
+  incasso_ricevuto: z.number().nullable().optional(),
+  ore_sosta: z.number().nullable().optional(),
+  km_totali: z.number().nullable().optional(),
   destinazione_passeggero_index: z.number().optional().nullable(),
 }).refine((data) => {
   // Validation: se azienda → azienda_id required
@@ -232,6 +237,10 @@ export const ServizioCreaPage = ({
       partenza_passeggero_index: null,
       destinazione_tipo: 'personalizzato',
       destinazione_passeggero_index: null,
+      // Campi consuntivo
+      incasso_ricevuto: null,
+      ore_sosta: null,
+      km_totali: null,
     },
   });
 
@@ -384,6 +393,10 @@ export const ServizioCreaPage = ({
               }) || [],
             email_notifiche_ids: emailResult.data?.map(r => r.email_notifica_id) || [],
             note: initialData.note || null,
+            // Campi consuntivo
+            incasso_ricevuto: initialData.incasso_ricevuto ?? null,
+            ore_sosta: initialData.ore_sosta ?? null,
+            km_totali: initialData.km_totali ?? null,
           });
           
           console.log('[ServizioCreaPage] Form reset completato:', {
@@ -1004,6 +1017,12 @@ export const ServizioCreaPage = ({
         applica_provvigione: data.applica_provvigione,
         consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
         note: data.note || null,
+        // Campi consuntivo (solo per servizi già consuntivati in edit mode)
+        ...(mode === 'edit' && initialData?.stato === 'consuntivato' && {
+          incasso_ricevuto: data.incasso_ricevuto,
+          ore_sosta: data.ore_sosta,
+          km_totali: data.km_totali,
+        }),
       };
 
       if (mode === 'edit' && servizioId) {
@@ -1966,6 +1985,90 @@ export const ServizioCreaPage = ({
                   </div>
                 )}
               />
+              </div>
+            </div>
+          </Card>
+          )}
+
+          {/* SEZIONE CONSUNTIVO - Solo per servizi già consuntivati in edit mode */}
+          {mode === 'edit' && initialData?.stato === 'consuntivato' && (
+          <Card className="w-full p-3 sm:p-4 md:p-6 border-amber-200 bg-amber-50/50 dark:bg-amber-900/20 dark:border-amber-800">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+              <h2 className="text-base sm:text-lg font-semibold text-amber-800 dark:text-amber-200">
+                Dati Consuntivo
+              </h2>
+            </div>
+            
+            <p className="text-sm text-amber-700 dark:text-amber-300 mb-4">
+              ⚠️ Modificare questi dati potrebbe influire sul calcolo stipendi
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+              {/* Incasso Ricevuto */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="incasso_ricevuto" className="font-medium">
+                  Incasso Ricevuto (€)
+                </Label>
+                <Controller
+                  name="incasso_ricevuto"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Input
+                      id="incasso_ricevuto"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="text-base"
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                    />
+                  )}
+                />
+              </div>
+              
+              {/* Ore di Sosta */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="ore_sosta" className="font-medium">
+                  Ore di Sosta
+                </Label>
+                <Controller
+                  name="ore_sosta"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Input
+                      id="ore_sosta"
+                      type="number"
+                      step="0.5"
+                      placeholder="0"
+                      className="text-base"
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                    />
+                  )}
+                />
+              </div>
+              
+              {/* KM Totali */}
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="km_totali" className="font-medium">
+                  KM Totali
+                </Label>
+                <Controller
+                  name="km_totali"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Input
+                      id="km_totali"
+                      type="number"
+                      step="1"
+                      placeholder="0"
+                      className="text-base"
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                    />
+                  )}
+                />
               </div>
             </div>
           </Card>
