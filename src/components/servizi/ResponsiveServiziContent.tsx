@@ -308,6 +308,8 @@ export function ResponsiveServiziContent({
         filters={filters}
         onFiltersChange={setFilters}
         onClearFilters={handleClearFilters}
+        searchText={searchText}
+        onSearchTextChange={setSearchText}
       />
     </div>
   );

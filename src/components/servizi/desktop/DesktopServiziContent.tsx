@@ -25,6 +25,8 @@ interface DesktopServiziContentProps {
   filters: ServiziFiltersState;
   onFiltersChange: (filters: ServiziFiltersState) => void;
   onClearFilters: () => void;
+  searchText?: string;
+  onSearchTextChange?: (text: string) => void;
 }
 
 export function DesktopServiziContent({
@@ -40,11 +42,16 @@ export function DesktopServiziContent({
   allServizi,
   filters,
   onFiltersChange,
-  onClearFilters
+  onClearFilters,
+  searchText,
+  onSearchTextChange
 }: DesktopServiziContentProps) {
   const [activeTab, setActiveTab] = useState<string>('da_assegnare');
   const [showModal, setShowModal] = useState(false);
   const { profile } = useAuth();
+  
+  // Determina se mostrare ricerca globale (senza divisione per tab)
+  const isGlobalSearch = (searchText?.trim().length || 0) > 0 || (filters.search?.trim().length || 0) > 0;
   
   const serviziByStatus = groupServiziByStatus(servizi);
 
@@ -116,58 +123,30 @@ export function DesktopServiziContent({
         onClose={() => setShowModal(false)}
       />
 
-      {/* Desktop Tabbed Table View */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="bozza" className="relative">
-            Bozze
-            {statusCounts.bozza > 0 && (
-              <span className="ml-1 rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
-                {statusCounts.bozza}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="da_assegnare" className="relative">
-            Da Assegnare
-            {statusCounts.da_assegnare > 0 && (
-              <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground">
-                {statusCounts.da_assegnare}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="assegnato" className="relative">
-            Assegnati
-            {statusCounts.assegnato > 0 && (
-              <span className="ml-1 rounded-full bg-yellow-500 px-1.5 py-0.5 text-xs text-white">
-                {statusCounts.assegnato}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="non_accettato">Non Accettati</TabsTrigger>
-          <TabsTrigger value="completato" className="relative">
-            Completati
-            {statusCounts.completato > 0 && (
-              <span className="ml-1 rounded-full bg-green-500 px-1.5 py-0.5 text-xs text-white">
-                {statusCounts.completato}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="annullato" className="relative">
-            Annullati
-            {statusCounts.annullato > 0 && (
-              <span className="ml-1 rounded-full bg-gray-500 px-1.5 py-0.5 text-xs text-white">
-                {statusCounts.annullato}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="consuntivato">Consuntivati</TabsTrigger>
-        </TabsList>
-
-        {(["bozza", "da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
-          <TabsContent key={status} value={status} className="mt-0">
+      {/* Desktop Tabbed Table View or Global Search Results */}
+      {isGlobalSearch ? (
+        // Vista ricerca globale - senza tab
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-4 py-3 bg-primary/10 rounded-lg">
+            <span className="text-sm text-primary font-medium">
+              {servizi.length} risultati trovati in tutti gli stati
+            </span>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                onSearchTextChange?.('');
+                onFiltersChange({ ...filters, search: '' });
+              }}
+            >
+              Cancella ricerca
+            </Button>
+          </div>
+          
+          {servizi.length > 0 ? (
             <div className="rounded-md border h-[600px] flex flex-col">
               <ServizioTable
-                servizi={serviziByStatus[status]}
+                servizi={servizi}
                 users={users}
                 onNavigateToDetail={onNavigateToDetail}
                 onSelect={onSelectServizio}
@@ -177,9 +156,78 @@ export function DesktopServiziContent({
                 allServizi={allServizi}
               />
             </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              Nessun risultato trovato
+            </div>
+          )}
+        </div>
+      ) : (
+        // Vista normale con tab
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-7">
+            <TabsTrigger value="bozza" className="relative">
+              Bozze
+              {statusCounts.bozza > 0 && (
+                <span className="ml-1 rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
+                  {statusCounts.bozza}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="da_assegnare" className="relative">
+              Da Assegnare
+              {statusCounts.da_assegnare > 0 && (
+                <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground">
+                  {statusCounts.da_assegnare}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="assegnato" className="relative">
+              Assegnati
+              {statusCounts.assegnato > 0 && (
+                <span className="ml-1 rounded-full bg-yellow-500 px-1.5 py-0.5 text-xs text-white">
+                  {statusCounts.assegnato}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="non_accettato">Non Accettati</TabsTrigger>
+            <TabsTrigger value="completato" className="relative">
+              Completati
+              {statusCounts.completato > 0 && (
+                <span className="ml-1 rounded-full bg-green-500 px-1.5 py-0.5 text-xs text-white">
+                  {statusCounts.completato}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="annullato" className="relative">
+              Annullati
+              {statusCounts.annullato > 0 && (
+                <span className="ml-1 rounded-full bg-gray-500 px-1.5 py-0.5 text-xs text-white">
+                  {statusCounts.annullato}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="consuntivato">Consuntivati</TabsTrigger>
+          </TabsList>
+
+          {(["bozza", "da_assegnare", "assegnato", "non_accettato", "completato", "annullato", "consuntivato"] as const).map((status) => (
+            <TabsContent key={status} value={status} className="mt-0">
+              <div className="rounded-md border h-[600px] flex flex-col">
+                <ServizioTable
+                  servizi={serviziByStatus[status]}
+                  users={users}
+                  onNavigateToDetail={onNavigateToDetail}
+                  onSelect={onSelectServizio}
+                  onCompleta={onCompleta}
+                  onFirma={onFirma}
+                  isAdminOrSocio={isAdminOrSocio}
+                  allServizi={allServizi}
+                />
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
     </div>
   );
 }
