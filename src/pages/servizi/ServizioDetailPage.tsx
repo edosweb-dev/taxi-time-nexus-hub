@@ -6,6 +6,7 @@ import { DipendenteLayout } from "@/components/layouts/DipendenteLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
 import { useUsers } from "@/hooks/useUsers";
 import { useServizi } from "@/hooks/useServizi";
+import { useServizioStateMachine } from "@/hooks/useServizioStateMachine";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getUserName } from "@/components/servizi/utils/userUtils";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ServizioHeader } from "@/components/servizi/dettaglio/ServizioHeader";
 import { ServizioLoading, ServizioError } from "@/components/servizi/dettaglio/ServizioLoadingError";
 import { ServizioTabs } from "@/components/servizi/dettaglio/ServizioTabs";
@@ -80,9 +91,11 @@ export default function ServizioDetailPage() {
   const [assegnazioneSheetOpen, setAssegnazioneSheetOpen] = useState(false);
   const [showFirmaClienteDialog, setShowFirmaClienteDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [rimuoviAssegnazioneDialogOpen, setRimuoviAssegnazioneDialogOpen] = useState(false);
   
   const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
   const { deleteServizio, isDeleting } = useServizi();
+  const { unassignServizio, isUnassigning } = useServizioStateMachine();
   
   const canRequestSignature = 
     servizio?.stato === 'assegnato' && 
@@ -167,6 +180,8 @@ export default function ServizioDetailPage() {
               }
             }}
             onFirmaCliente={() => setShowFirmaClienteDialog(true)}
+            onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
+            isRimuoviAssegnazioneLoading={isUnassigning}
           />
         </div>
 
@@ -220,6 +235,38 @@ export default function ServizioDetailPage() {
             }
           }}
         />
+
+        {/* Dialog Conferma Rimozione Assegnazione */}
+        <AlertDialog open={rimuoviAssegnazioneDialogOpen} onOpenChange={setRimuoviAssegnazioneDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Rimuovi Assegnazione</AlertDialogTitle>
+              <AlertDialogDescription>
+                Sei sicuro di voler rimuovere l'assegnazione di questo servizio?
+                Il servizio tornerà disponibile nella lista "Da Assegnare".
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isUnassigning}>Annulla</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (servizio?.id) {
+                    unassignServizio(servizio.id, {
+                      onSuccess: () => {
+                        setRimuoviAssegnazioneDialogOpen(false);
+                        refetch();
+                      }
+                    });
+                  }
+                }}
+                className="bg-orange-600 hover:bg-orange-700"
+                disabled={isUnassigning}
+              >
+                {isUnassigning ? "Rimuovendo..." : "Conferma Rimozione"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </Layout>
     );
   }
@@ -233,31 +280,33 @@ export default function ServizioDetailPage() {
     <Layout>
       {/* Desktop (≥1024px) - NEW Layout */}
       <div className="hidden lg:block">
-        <ServizioDetailDesktop
-          servizio={servizio}
-          passeggeri={passeggeri}
-          users={users}
-          canBeEdited={canBeEdited}
-          canBeCompleted={canBeCompleted}
-          canBeConsuntivato={canBeConsuntivato}
-          isAdmin={isAdmin}
-          getAziendaName={getAziendaName}
-          getUserName={getUserName}
-          formatCurrency={formatCurrency}
-          firmaDigitaleAttiva={firmaDigitaleAttiva}
-          veicoloModello={veicoloModelloDesktop}
-          onEdit={() => navigate(`/servizi/${servizio.id}/modifica`)}
-          onAssegna={() => setAssegnazioneSheetOpen(true)}
-          onDelete={() => {
-            if (isAdmin) {
-              setDeleteDialogOpen(true);
-            }
-          }}
-          onCompleta={() => setCompletaDialogOpen(true)}
-          onConsuntiva={() => setConsuntivaDialogOpen(true)}
-          onBack={() => navigate(isDipendente ? '/dipendente/servizi-assegnati' : '/servizi')}
-        />
-      </div>
+          <ServizioDetailDesktop
+            servizio={servizio}
+            passeggeri={passeggeri}
+            users={users}
+            canBeEdited={canBeEdited}
+            canBeCompleted={canBeCompleted}
+            canBeConsuntivato={canBeConsuntivato}
+            isAdmin={isAdmin}
+            getAziendaName={getAziendaName}
+            getUserName={getUserName}
+            formatCurrency={formatCurrency}
+            firmaDigitaleAttiva={firmaDigitaleAttiva}
+            veicoloModello={veicoloModelloDesktop}
+            onEdit={() => navigate(`/servizi/${servizio.id}/modifica`)}
+            onAssegna={() => setAssegnazioneSheetOpen(true)}
+            onDelete={() => {
+              if (isAdmin) {
+                setDeleteDialogOpen(true);
+              }
+            }}
+            onCompleta={() => setCompletaDialogOpen(true)}
+            onConsuntiva={() => setConsuntivaDialogOpen(true)}
+            onBack={() => navigate(isDipendente ? '/dipendente/servizi-assegnati' : '/servizi')}
+            onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
+            isRimuoviAssegnazioneLoading={isUnassigning}
+          />
+        </div>
 
       {/* Tablet/Small Desktop (768px-1023px) - EXISTING Layout */}
       <div className="hidden md:block lg:hidden">
@@ -372,6 +421,38 @@ export default function ServizioDetailPage() {
           }
         }}
       />
+
+      {/* Dialog Conferma Rimozione Assegnazione - Desktop */}
+      <AlertDialog open={rimuoviAssegnazioneDialogOpen} onOpenChange={setRimuoviAssegnazioneDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rimuovi Assegnazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler rimuovere l'assegnazione di questo servizio?
+              Il servizio tornerà disponibile nella lista "Da Assegnare".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isUnassigning}>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (servizio?.id) {
+                  unassignServizio(servizio.id, {
+                    onSuccess: () => {
+                      setRimuoviAssegnazioneDialogOpen(false);
+                      refetch();
+                    }
+                  });
+                }
+              }}
+              className="bg-orange-600 hover:bg-orange-700"
+              disabled={isUnassigning}
+            >
+              {isUnassigning ? "Rimuovendo..." : "Conferma Rimozione"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 }
