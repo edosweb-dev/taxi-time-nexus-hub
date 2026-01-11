@@ -1836,8 +1836,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 6: Note */}
-          {(isVeloce || !isVeloce) && (
+          {/* SEZIONE 6: Note - nascosto per servizi consuntivati */}
+          {(isVeloce || !isVeloce) && !(mode === 'edit' && initialData?.stato === 'consuntivato') && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Info className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1857,8 +1857,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 7: Email Notifiche - Solo per aziende e non in modalità veloce */}
-          {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && (
+          {/* SEZIONE 7: Email Notifiche - Solo per aziende e non in modalità veloce, nascosto per servizi consuntivati */}
+          {!isVeloce && watchTipoCliente === 'azienda' && watchAziendaId && !(mode === 'edit' && initialData?.stato === 'consuntivato') && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="space-y-3 mb-4">
               {/* Header con toggle collapsible */}
