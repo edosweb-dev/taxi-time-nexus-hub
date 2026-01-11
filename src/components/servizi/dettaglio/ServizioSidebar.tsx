@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { 
-  Pencil, Trash2, UserPlus, Building2, User, Car, ArrowLeft, CheckCircle2, FileText, Calendar
+  Pencil, Trash2, UserPlus, UserMinus, Building2, User, Car, ArrowLeft, CheckCircle2, FileText, Calendar
 } from "lucide-react";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
@@ -24,6 +24,8 @@ interface ServizioSidebarProps {
   onConsuntiva: () => void;
   onBack: () => void;
   veicoloModello?: string;
+  onRimuoviAssegnazione?: () => void;
+  isRimuoviAssegnazioneLoading?: boolean;
 }
 
 export function ServizioSidebar({
@@ -42,6 +44,8 @@ export function ServizioSidebar({
   onCompleta,
   onConsuntiva,
   onBack,
+  onRimuoviAssegnazione,
+  isRimuoviAssegnazioneLoading,
 }: ServizioSidebarProps) {
   return (
     <aside className="w-64 border-r bg-muted/30 sticky top-0 h-screen overflow-y-auto">
@@ -160,6 +164,20 @@ export function ServizioSidebar({
             <Button onClick={onAssegna} className="w-full" size="sm" variant="outline">
               <UserPlus className="mr-2 h-4 w-4" />
               Assegna
+            </Button>
+          )}
+
+          {/* Rimuovi Assegnazione - Solo se assegnato e admin/socio */}
+          {servizio.stato === "assegnato" && isAdmin && onRimuoviAssegnazione && (
+            <Button
+              variant="outline"
+              className="w-full justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+              size="sm"
+              onClick={onRimuoviAssegnazione}
+              disabled={isRimuoviAssegnazioneLoading}
+            >
+              <UserMinus className="mr-2 h-4 w-4" />
+              {isRimuoviAssegnazioneLoading ? "Rimuovendo..." : "Rimuovi Assegnazione"}
             </Button>
           )}
 

@@ -23,6 +23,8 @@ interface ServizioDetailDesktopProps {
   onCompleta: () => void;
   onConsuntiva: () => void;
   onBack: () => void;
+  onRimuoviAssegnazione?: () => void;
+  isRimuoviAssegnazioneLoading?: boolean;
 }
 
 export function ServizioDetailDesktop({
@@ -44,6 +46,8 @@ export function ServizioDetailDesktop({
   onCompleta,
   onConsuntiva,
   onBack,
+  onRimuoviAssegnazione,
+  isRimuoviAssegnazioneLoading,
 }: ServizioDetailDesktopProps) {
   return (
     <div className="flex min-h-screen w-full">
@@ -64,6 +68,8 @@ export function ServizioDetailDesktop({
         onCompleta={onCompleta}
         onConsuntiva={onConsuntiva}
         onBack={onBack}
+        onRimuoviAssegnazione={onRimuoviAssegnazione}
+        isRimuoviAssegnazioneLoading={isRimuoviAssegnazioneLoading}
       />
 
       {/* Main Content */}

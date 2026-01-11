@@ -223,6 +223,44 @@ export function useServizioStateMachine() {
   });
 
   /**
+   * Mutation per rimuovere l'assegnazione di un servizio (torna a da_assegnare).
+   */
+  const unassignMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('servizi')
+        .update({
+          assegnato_a: null,
+          veicolo_id: null,
+          conducente_esterno: false,
+          conducente_esterno_id: null,
+          conducente_esterno_nome: null,
+          conducente_esterno_email: null,
+          stato: 'da_assegnare'
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        }
+      });
+      toast.success('Assegnazione rimossa');
+    },
+    onError: (error: any) => {
+      console.error('[useServizioStateMachine] Error unassigning servizio:', error);
+      toast.error(`Errore rimozione assegnazione: ${error.message}`);
+    }
+  });
+
+  /**
    * Mutation per eliminare un servizio.
    */
   const deleteMutation = useMutation({
@@ -254,18 +292,21 @@ export function useServizioStateMachine() {
     createServizio: createMutation.mutate,
     updateServizio: updateMutation.mutate,
     assignServizio: assignMutation.mutate,
+    unassignServizio: unassignMutation.mutate,
     deleteServizio: deleteMutation.mutate,
     
     // Loading states
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isAssigning: assignMutation.isPending,
+    isUnassigning: unassignMutation.isPending,
     isDeleting: deleteMutation.isPending,
     
     // Raw mutation objects (per uso avanzato)
     createMutation,
     updateMutation,
     assignMutation,
+    unassignMutation,
     deleteMutation
   };
 }

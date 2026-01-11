@@ -11,7 +11,8 @@ import {
   CheckCircle2,
   FileText,
   Edit,
-  Trash2
+  Trash2,
+  UserMinus
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +48,8 @@ interface MobileServizioOptimizedProps {
   onModifica: () => void;
   onElimina: () => void;
   onFirmaCliente: () => void;
+  onRimuoviAssegnazione?: () => void;
+  isRimuoviAssegnazioneLoading?: boolean;
 }
 
 export function MobileServizioOptimized({
@@ -72,6 +75,8 @@ export function MobileServizioOptimized({
   onModifica,
   onElimina,
   onFirmaCliente,
+  onRimuoviAssegnazione,
+  isRimuoviAssegnazioneLoading,
 }: MobileServizioOptimizedProps) {
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -416,9 +421,9 @@ export function MobileServizioOptimized({
           </MobileButton>
         )}
 
-        {/* CTA Modifica | Elimina */}
-        {(canBeEdited || isAdmin) && (
-          <div className="flex gap-2">
+        {/* CTA Modifica | Elimina | Rimuovi Assegnazione */}
+        {(canBeEdited || isAdmin || (servizio.stato === 'assegnato' && isAdmin && onRimuoviAssegnazione)) && (
+          <div className="flex gap-2 flex-wrap">
             {canBeEdited && (
               <MobileButton
                 variant="outline"
@@ -427,6 +432,19 @@ export function MobileServizioOptimized({
               >
                 <Edit className="h-4 w-4" />
                 Modifica
+              </MobileButton>
+            )}
+
+            {/* Rimuovi Assegnazione - Solo se assegnato */}
+            {servizio.stato === 'assegnato' && isAdmin && onRimuoviAssegnazione && (
+              <MobileButton
+                variant="outline"
+                className="flex-1 text-orange-600 border-orange-200 hover:bg-orange-50"
+                onClick={onRimuoviAssegnazione}
+                disabled={isRimuoviAssegnazioneLoading}
+              >
+                <UserMinus className="h-4 w-4" />
+                {isRimuoviAssegnazioneLoading ? "Rimuovendo..." : "Rimuovi Assegn."}
               </MobileButton>
             )}
             
