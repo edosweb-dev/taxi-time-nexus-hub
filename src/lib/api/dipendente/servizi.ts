@@ -61,7 +61,9 @@ export async function getServiziAssegnati(
     query = query.or(`
       numero_commessa.ilike.${searchTerm},
       indirizzo_presa.ilike.${searchTerm},
-      indirizzo_destinazione.ilike.${searchTerm}
+      indirizzo_destinazione.ilike.${searchTerm},
+      cliente_privato_nome.ilike.${searchTerm},
+      cliente_privato_cognome.ilike.${searchTerm}
     `);
   }
 
