@@ -20,13 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { toast } from "sonner";
@@ -204,6 +204,7 @@ export const ServizioCreaPage = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasseggeriOpen, setIsPasseggeriOpen] = useState(false);
   const [isEmailOpen, setIsEmailOpen] = useState(false);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
 
   const form = useForm<ServizioFormData>({
     resolver: zodResolver(isVeloce ? servizioSchemaVeloce : servizioSchemaCompleto),
@@ -1911,8 +1912,8 @@ export const ServizioCreaPage = ({
               </button>
               
               {/* Button Aggiungi Email */}
-              <Sheet>
-                <SheetTrigger asChild>
+              <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+                <DialogTrigger asChild>
                   <Button 
                     type="button" 
                     variant="outline" 
@@ -1923,16 +1924,16 @@ export const ServizioCreaPage = ({
                     <Plus className="h-4 w-4 mr-2" />
                     Nuova Email
                   </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Aggiungi Email Notifica</SheetTitle>
-                    <SheetDescription>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Aggiungi Email Notifica</DialogTitle>
+                    <DialogDescription>
                       Crea una nuova email da notificare per questa azienda
-                    </SheetDescription>
-                  </SheetHeader>
+                    </DialogDescription>
+                  </DialogHeader>
                   
-                  <div className="space-y-4 mt-6">
+                  <div className="space-y-4 mt-4">
                     <div className="space-y-1.5 sm:space-y-2">
                       <Label htmlFor="new-email-nome" className="font-medium">
                         Nome Contatto <span className="text-destructive">*</span>
@@ -1964,17 +1965,30 @@ export const ServizioCreaPage = ({
                       />
                     </div>
 
-                    <Button
-                      type="button"
-                      onClick={handleCreateEmail}
-                      disabled={isAddingEmail || !newEmail.nome || !newEmail.email}
-                      className="w-full"
-                    >
-                      {isAddingEmail ? "Creazione..." : "Crea Email Notifica"}
-                    </Button>
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsEmailDialogOpen(false)}
+                        className="flex-1"
+                      >
+                        Annulla
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          handleCreateEmail();
+                          setIsEmailDialogOpen(false);
+                        }}
+                        disabled={isAddingEmail || !newEmail.nome || !newEmail.email}
+                        className="flex-1"
+                      >
+                        {isAddingEmail ? "Creazione..." : "Crea"}
+                      </Button>
+                    </div>
                   </div>
-                </SheetContent>
-              </Sheet>
+                </DialogContent>
+              </Dialog>
             </div>
             
             {/* Contenuto collapsible */}
