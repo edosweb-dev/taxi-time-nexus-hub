@@ -51,6 +51,7 @@ export function MobileServiziLayout({
     search: '',
     aziendaId: '',
     assigneeId: '',
+    metodoPagamento: '',
     dateFrom: undefined,
     dateTo: undefined
   });
@@ -131,6 +132,7 @@ export function MobileServiziLayout({
       search: '',
       aziendaId: '',
       assigneeId: '',
+      metodoPagamento: '',
       dateFrom: undefined,
       dateTo: undefined
     });

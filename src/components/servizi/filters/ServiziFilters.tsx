@@ -12,6 +12,7 @@ import {
   Calendar as CalendarIcon, 
   Building2,
   User,
+  CreditCard,
   X
 } from "lucide-react";
 import { format } from "date-fns";
@@ -19,11 +20,13 @@ import { it } from "date-fns/locale";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { useAziende } from "@/hooks/useAziende";
+import { useImpostazioni } from "@/hooks/useImpostazioni";
 
 export interface ServiziFiltersState {
   search: string;
   aziendaId: string;
   assigneeId: string;
+  metodoPagamento: string;
   dateFrom: Date | undefined;
   dateTo: Date | undefined;
 }
@@ -46,7 +49,10 @@ export const ServiziFilters = ({
   onClearFilters
 }: ServiziFiltersProps) => {
   const { aziende } = useAziende();
+  const { impostazioni } = useImpostazioni();
   const [isOpen, setIsOpen] = useState(false);
+  
+  const metodiPagamento = impostazioni?.metodi_pagamento || [];
 
   const handleFilterChange = (key: keyof ServiziFiltersState, value: any) => {
     onFiltersChange({
@@ -59,6 +65,7 @@ export const ServiziFilters = ({
     filters.search ||
     filters.aziendaId ||
     filters.assigneeId ||
+    filters.metodoPagamento ||
     filters.dateFrom ||
     filters.dateTo;
 
@@ -66,6 +73,7 @@ export const ServiziFilters = ({
     filters.search,
     filters.aziendaId,
     filters.assigneeId,
+    filters.metodoPagamento,
     filters.dateFrom,
     filters.dateTo
   ].filter(Boolean).length;
@@ -161,6 +169,30 @@ export const ServiziFilters = ({
                         {user.first_name} {user.last_name}
                       </SelectItem>
                     ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Metodo Pagamento Filter */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium flex items-center">
+                <CreditCard className="h-3 w-3 mr-1" />
+                Modalità Pagamento
+              </Label>
+              <Select 
+                value={filters.metodoPagamento || 'all'} 
+                onValueChange={(value) => handleFilterChange('metodoPagamento', value === 'all' ? '' : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Tutte le modalità" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutte le modalità</SelectItem>
+                  {metodiPagamento.map((metodo) => (
+                    <SelectItem key={metodo.id} value={metodo.nome}>
+                      {metodo.nome}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

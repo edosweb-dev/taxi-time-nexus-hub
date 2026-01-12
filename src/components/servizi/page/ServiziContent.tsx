@@ -57,6 +57,7 @@ export function ServiziContent({
     search: '',
     aziendaId: '',
     assigneeId: '',
+    metodoPagamento: '',
     dateFrom: undefined,
     dateTo: undefined
   });
@@ -159,6 +160,7 @@ export function ServiziContent({
       search: '',
       aziendaId: '',
       assigneeId: '',
+      metodoPagamento: '',
       dateFrom: undefined,
       dateTo: undefined
     });
@@ -222,6 +224,7 @@ export function ServiziContent({
                 search: '',
                 aziendaId: '',
                 assigneeId: '',
+                metodoPagamento: '',
                 dateFrom: undefined,
                 dateTo: undefined
               })}
@@ -342,6 +345,7 @@ export function ServiziContent({
                 search: '',
                 aziendaId: '',
                 assigneeId: '',
+                metodoPagamento: '',
                 dateFrom: undefined,
                 dateTo: undefined
               })}
