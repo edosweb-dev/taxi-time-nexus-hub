@@ -223,6 +223,63 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          created_at: string | null
+          destinatario: string
+          email_notifica_id: string | null
+          error_message: string | null
+          id: string
+          oggetto: string
+          resend_id: string | null
+          sent_at: string | null
+          servizio_id: string | null
+          stato: string | null
+          template: string
+        }
+        Insert: {
+          created_at?: string | null
+          destinatario: string
+          email_notifica_id?: string | null
+          error_message?: string | null
+          id?: string
+          oggetto: string
+          resend_id?: string | null
+          sent_at?: string | null
+          servizio_id?: string | null
+          stato?: string | null
+          template: string
+        }
+        Update: {
+          created_at?: string | null
+          destinatario?: string
+          email_notifica_id?: string | null
+          error_message?: string | null
+          id?: string
+          oggetto?: string
+          resend_id?: string | null
+          sent_at?: string | null
+          servizio_id?: string | null
+          stato?: string | null
+          template?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_email_notifica_id_fkey"
+            columns: ["email_notifica_id"]
+            isOneToOne: false
+            referencedRelation: "email_notifiche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_logs_servizio_id_fkey"
+            columns: ["servizio_id"]
+            isOneToOne: false
+            referencedRelation: "servizi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_notifiche: {
         Row: {
           attivo: boolean
