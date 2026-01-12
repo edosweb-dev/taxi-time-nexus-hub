@@ -41,7 +41,7 @@ serve(async (req) => {
       .from("servizi")
       .select(`
         *,
-        aziende:azienda_id(nome),
+        aziende:azienda_id(nome, email),
         autista:assegnato_a(first_name, last_name, email)
       `)
       .eq("id", servizio_id)
@@ -51,7 +51,81 @@ serve(async (req) => {
       throw new Error(`Servizio non trovato: ${servizioError?.message}`);
     }
 
-    // 2. Fetch email destinatari configurati per questo servizio
+    // 2. Costruisci lista destinatari automatica
+    const destinatariMap = new Map<string, { id: string | null; nome: string; email: string }>();
+
+    // 2a. Destinatario principale: referente o azienda
+    if (servizio.referente_id) {
+      // Fetch email referente
+      const { data: referente } = await supabase
+        .from("profiles")
+        .select("id, email, first_name, last_name")
+        .eq("id", servizio.referente_id)
+        .single();
+
+      if (referente?.email) {
+        const nomeReferente = `${referente.first_name || ""} ${referente.last_name || ""}`.trim() || "Referente";
+        destinatariMap.set(referente.email.toLowerCase(), {
+          id: null,
+          nome: nomeReferente,
+          email: referente.email,
+        });
+        console.log(`[send-notification] ✅ Aggiunto referente: ${referente.email}`);
+      }
+    } else if (servizio.aziende?.email) {
+      // Usa email azienda come fallback
+      destinatariMap.set(servizio.aziende.email.toLowerCase(), {
+        id: null,
+        nome: servizio.aziende.nome || "Azienda",
+        email: servizio.aziende.email,
+      });
+      console.log(`[send-notification] ✅ Aggiunto azienda: ${servizio.aziende.email}`);
+    }
+
+    // 2b. Aggiungi email passeggeri del servizio
+    const { data: serviziPasseggeri } = await supabase
+      .from("servizi_passeggeri")
+      .select("passeggero_id, email_inline")
+      .eq("servizio_id", servizio_id);
+
+    if (serviziPasseggeri && serviziPasseggeri.length > 0) {
+      // Raccogli ID passeggeri validi
+      const passeggeroIds = serviziPasseggeri
+        .map((sp: any) => sp.passeggero_id)
+        .filter((id: any) => id);
+      
+      if (passeggeroIds.length > 0) {
+        const { data: passeggeri } = await supabase
+          .from("passeggeri")
+          .select("id, nome_cognome, email")
+          .in("id", passeggeroIds);
+
+        passeggeri?.forEach((p: any) => {
+          if (p.email && !destinatariMap.has(p.email.toLowerCase())) {
+            destinatariMap.set(p.email.toLowerCase(), {
+              id: null,
+              nome: p.nome_cognome || "Passeggero",
+              email: p.email,
+            });
+            console.log(`[send-notification] ✅ Aggiunto passeggero: ${p.email}`);
+          }
+        });
+      }
+
+      // Aggiungi anche email inline dei passeggeri
+      serviziPasseggeri.forEach((sp: any) => {
+        if (sp.email_inline && !destinatariMap.has(sp.email_inline.toLowerCase())) {
+          destinatariMap.set(sp.email_inline.toLowerCase(), {
+            id: null,
+            nome: "Passeggero",
+            email: sp.email_inline,
+          });
+          console.log(`[send-notification] ✅ Aggiunto passeggero inline: ${sp.email_inline}`);
+        }
+      });
+    }
+
+    // 2c. Aggiungi email notifiche aggiuntive (configurate manualmente)
     const { data: emailLinks, error: emailError } = await supabase
       .from("servizi_email_notifiche")
       .select(`
@@ -60,13 +134,25 @@ serve(async (req) => {
       .eq("servizio_id", servizio_id);
 
     if (emailError) {
-      console.error("[send-notification] Errore fetch email:", emailError);
+      console.error("[send-notification] Errore fetch email notifiche:", emailError);
     }
 
-    // Filtra solo email attive
-    const destinatari = emailLinks
-      ?.map((link: any) => link.email_notifiche)
-      .filter((email: any) => email?.attivo && email?.email) || [];
+    emailLinks?.forEach((link: any) => {
+      const email = link.email_notifiche;
+      if (email?.attivo && email?.email && !destinatariMap.has(email.email.toLowerCase())) {
+        destinatariMap.set(email.email.toLowerCase(), {
+          id: email.id,
+          nome: email.nome || "Contatto",
+          email: email.email,
+        });
+        console.log(`[send-notification] ✅ Aggiunto email notifica: ${email.email}`);
+      }
+    });
+
+    // Converti Map in array
+    const destinatari = Array.from(destinatariMap.values());
+
+    console.log(`[send-notification] Totale destinatari: ${destinatari.length}`);
 
     if (destinatari.length === 0) {
       console.log("[send-notification] Nessun destinatario configurato");
