@@ -15,6 +15,7 @@ import { Servizio, StatoServizio } from '@/lib/types/servizi';
 import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
+import { sendNotification } from '@/hooks/useSendNotification';
 
 /**
  * Verifica se un servizio ha un percorso valido definito
@@ -171,6 +172,12 @@ export function AssignmentPopup({
       }
       
       toast.success('Servizio assegnato con successo');
+      
+      // Invia notifica email ai destinatari configurati
+      if (servizio?.id) {
+        console.log('[AssignmentPopup] Invio notifica email per servizio:', servizio.id);
+        sendNotification(servizio.id, 'assegnato');
+      }
       
       // Invalida tutte le query correlate per assicurare refresh UI
       await queryClient.invalidateQueries({ queryKey: ['servizi'] });
