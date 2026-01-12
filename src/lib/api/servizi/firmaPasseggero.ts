@@ -147,18 +147,46 @@ export async function getFirmePasseggeri(servizioId: string): Promise<Passeggero
 
 /**
  * Verifica se tutti i passeggeri hanno firmato
+ * Include controllo per firma legacy sul servizio
  */
 export async function checkAllPasseggeriSigned(servizioId: string): Promise<{
   allSigned: boolean;
   totalPasseggeri: number;
   firmati: number;
+  hasLegacySignature: boolean;
 }> {
+  // Prima controlla se esiste firma legacy sul servizio
+  const { data: servizio, error: servizioError } = await supabase
+    .from('servizi')
+    .select('firma_url')
+    .eq('id', servizioId)
+    .single();
+
+  if (servizioError) {
+    console.error('[checkAllPasseggeriSigned] Error fetching servizio:', servizioError);
+  }
+
+  // Se esiste firma legacy sul servizio, considera tutto firmato
+  if (servizio?.firma_url) {
+    console.log('[checkAllPasseggeriSigned] ✅ Legacy signature found on servizio');
+    const firme = await getFirmePasseggeri(servizioId);
+    return {
+      allSigned: true,
+      totalPasseggeri: firme.length,
+      firmati: firme.length,
+      hasLegacySignature: true,
+    };
+  }
+
+  // Altrimenti usa logica normale per passeggeri
   const firme = await getFirmePasseggeri(servizioId);
   const firmati = firme.filter(f => f.has_signed).length;
-  
+  console.log(`[checkAllPasseggeriSigned] Passeggeri check: ${firmati}/${firme.length}`);
+
   return {
     allSigned: firmati === firme.length && firme.length > 0,
     totalPasseggeri: firme.length,
     firmati,
+    hasLegacySignature: false,
   };
 }
