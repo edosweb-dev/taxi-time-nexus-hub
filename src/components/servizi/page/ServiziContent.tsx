@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Loader2, Plus, Calendar, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, Plus, Calendar, BarChart3, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -51,6 +52,7 @@ export function ServiziContent({
   onFirma,
   allServizi
 }: ServiziContentProps) {
+  const navigate = useNavigate();
   const { aziende } = useAziende();
   const [activeTab, setActiveTab] = useState<string>('da_assegnare');
   const [filters, setFilters] = useState<ServiziFiltersState>({
@@ -246,7 +248,7 @@ export function ServiziContent({
           
           {/* Action Buttons - Mobile optimized grid */}
           <ResponsiveGrid 
-            cols={{ mobile: 2, tablet: 2, desktop: 3 }} 
+            cols={{ mobile: 2, tablet: 3, desktop: 4 }} 
             gap="sm"
             className="w-full"
           >
@@ -254,7 +256,16 @@ export function ServiziContent({
               variant="outline"
               size="sm"
               className="text-xs w-full"
-              onClick={onNavigateToNewServizio}
+              onClick={() => navigate('/servizi/ricerca')}
+            >
+              <Search className="h-3 w-3 mr-1" />
+              Ricerca
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs w-full"
+              onClick={() => navigate('/report-servizi')}
             >
               <BarChart3 className="h-3 w-3 mr-1" />
               Report
@@ -263,7 +274,7 @@ export function ServiziContent({
               variant="outline" 
               size="sm"
               className="text-xs w-full"
-              onClick={onNavigateToNewServizio}
+              onClick={() => navigate('/calendario-servizi')}
             >
               <Calendar className="h-3 w-3 mr-1" />
               Calendario
@@ -352,7 +363,15 @@ export function ServiziContent({
             <Button
               variant="outline"
               size="sm"
-              onClick={onNavigateToNewServizio}
+              onClick={() => navigate('/servizi/ricerca')}
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Ricerca Avanzata
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/report-servizi')}
             >
               <BarChart3 className="h-4 w-4 mr-2" />
               Report
@@ -360,7 +379,7 @@ export function ServiziContent({
             <Button
               variant="outline"
               size="sm"
-              onClick={onNavigateToNewServizio}
+              onClick={() => navigate('/calendario-servizi')}
             >
               <Calendar className="h-4 w-4 mr-2" />
               Calendario

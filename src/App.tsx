@@ -35,6 +35,7 @@ import ServizioConfermatoPage from './pages/cliente/ServizioConfermatoPage';
 import ServizioDetailPage from './pages/servizi/ServizioDetailPage';
 import EditServizioPage from './pages/servizi/EditServizioPage';
 import ModificaServizioPage from './pages/servizi/ModificaServizioPage';
+import RicercaServiziPage from './pages/servizi/RicercaServiziPage';
 import UsersPage from './pages/UsersPage';
 import UserDetailPage from './pages/UserDetailPage';
 import VeicoliPage from './pages/veicoli/VeicoliPage';
@@ -176,6 +177,12 @@ function App() {
                 <Route path="/servizi/crea" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ServizioCreaPage />
+                  </AuthGuard>
+                } />
+                {/* Route ricerca PRIMA di :id per evitare conflitto */}
+                <Route path="/servizi/ricerca" element={
+                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                    <RicercaServiziPage />
                   </AuthGuard>
                 } />
                 <Route path="/servizi/:id/modifica" element={
