@@ -31,20 +31,40 @@ export function useEmailNotifiche(aziendaId?: string) {
     mutationFn: async (data: EmailNotificaFormData) => {
       const user = (await supabase.auth.getUser()).data.user;
       
+      // Fetch profilo per determinare il ruolo
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user?.id)
+        .single();
+
+      // Costruisci oggetto insert
+      const insertData: Record<string, unknown> = {
+        nome: data.nome,
+        email: data.email,
+        azienda_id: data.azienda_id,
+        note: data.note,
+        created_by: user?.id,
+      };
+
+      // Solo i clienti impostano referente_id per isolamento dati
+      // Admin/Socio possono creare email per qualsiasi azienda
+      if (profile?.role === 'cliente') {
+        insertData.referente_id = user?.id;
+      }
+
+      console.log('[useEmailNotifiche] Creating email with:', insertData);
+
       const { data: result, error } = await supabase
         .from('email_notifiche')
-        .insert({
-          nome: data.nome,
-          email: data.email,
-          azienda_id: data.azienda_id,
-          note: data.note,
-          created_by: user?.id,
-          referente_id: user?.id, // Popola referente_id per isolamento dati
-        })
+        .insert([insertData as any])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('[useEmailNotifiche] Error creating email:', error);
+        throw error;
+      }
       return result;
     },
     onSuccess: () => {
