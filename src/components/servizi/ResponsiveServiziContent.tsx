@@ -58,6 +58,7 @@ export function ResponsiveServiziContent({
     search: '',
     aziendaId: '',
     assigneeId: '',
+    metodoPagamento: '',
     dateFrom: undefined,
     dateTo: undefined
   });
@@ -98,6 +99,11 @@ export function ResponsiveServiziContent({
       }
 
       if (filters.assigneeId && servizio.assegnato_a !== filters.assigneeId) {
+        return false;
+      }
+
+      // Metodo pagamento filter
+      if (filters.metodoPagamento && servizio.metodo_pagamento !== filters.metodoPagamento) {
         return false;
       }
 
@@ -142,6 +148,7 @@ export function ResponsiveServiziContent({
       search: '',
       aziendaId: '',
       assigneeId: '',
+      metodoPagamento: '',
       dateFrom: undefined,
       dateTo: undefined
     });
