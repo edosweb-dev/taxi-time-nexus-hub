@@ -1,5 +1,4 @@
 import { Search, Filter } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -8,6 +7,7 @@ import { useResponsiveStyles } from '@/hooks/useResponsiveStyles';
 import { Servizio } from '@/lib/types/servizi';
 import { Profile } from '@/lib/types';
 import { ServiziFiltersState } from '../filters/ServiziFilters';
+import { useNavigate } from 'react-router-dom';
 
 interface MobileServiziSearchProps {
   searchText: string;
@@ -22,8 +22,6 @@ interface MobileServiziSearchProps {
 }
 
 export function MobileServiziSearch({
-  searchText,
-  onSearchChange,
   showFilters,
   onShowFiltersChange,
   filters,
@@ -32,25 +30,25 @@ export function MobileServiziSearch({
   servizi,
   users
 }: MobileServiziSearchProps) {
+  const navigate = useNavigate();
   const hasActiveFilters = filters.aziendaId || filters.assigneeId || filters.dateFrom || filters.dateTo;
-  const { inputClass, sectionSpacing } = useResponsiveStyles();
+  const { sectionSpacing } = useResponsiveStyles();
 
   return (
     <div className={`bg-card border-b w-full ${sectionSpacing}`}>
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Cerca servizi..."
-          value={searchText}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className={`pl-10 ${inputClass}`}
-        />
-      </div>
-
       <div className="flex items-center gap-2">
+        <Button 
+          variant="default" 
+          className="flex-1"
+          onClick={() => navigate('/servizi/ricerca')}
+        >
+          <Search className="h-4 w-4 mr-2" />
+          Cerca
+        </Button>
+        
         <Sheet open={showFilters} onOpenChange={onShowFiltersChange}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button variant="outline">
               <Filter className="h-4 w-4 mr-2" />
               Filtri
               {hasActiveFilters && (
@@ -72,7 +70,7 @@ export function MobileServiziSearch({
           </SheetContent>
         </Sheet>
         
-        {(searchText || hasActiveFilters) && (
+        {hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={onClearFilters} className="text-xs">
             Pulisci
           </Button>

@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Loader2, Plus, Filter, Search, Calendar, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EmptyState } from '../EmptyState';
@@ -48,6 +48,7 @@ export function MobileFirstServiziContent({
   onFirma,
   allServizi
 }: MobileFirstServiziContentProps) {
+  const navigate = useNavigate();
   const { aziende } = useAziende();
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<string>('richiesta_cliente');
@@ -204,22 +205,21 @@ export function MobileFirstServiziContent({
           <MobileFirstStats servizi={filteredServizi} isLoading={isLoading} />
         </div>
 
-        {/* Search and Filters Bar */}
+        {/* Search CTA and Filters Bar */}
         <div className="bg-card border-b p-4 space-y-3 -mx-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cerca servizi..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
           <div className="flex items-center gap-2">
+            <Button 
+              variant="default" 
+              className="flex-1"
+              onClick={() => navigate('/servizi/ricerca')}
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Cerca
+            </Button>
+            
             <Sheet open={showFilters} onOpenChange={setShowFilters}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline">
                   <Filter className="h-4 w-4 mr-2" />
                   Filtri
                   {(filters.aziendaId || filters.assigneeId || filters.dateFrom || filters.dateTo) && (
@@ -241,7 +241,7 @@ export function MobileFirstServiziContent({
               </SheetContent>
             </Sheet>
             
-            {(searchText || filters.aziendaId || filters.assigneeId || filters.dateFrom || filters.dateTo) && (
+            {(filters.aziendaId || filters.assigneeId || filters.dateFrom || filters.dateTo) && (
               <Button variant="ghost" size="sm" onClick={handleClearFilters} className="text-xs">
                 Pulisci
               </Button>

@@ -96,12 +96,12 @@ export function DesktopServiziContent({
 
         <div className="flex items-center space-x-2">
           <Button 
-            variant="outline" 
+            variant="default" 
             size="sm" 
             onClick={() => navigate('/servizi/ricerca')}
           >
             <Search className="h-4 w-4 mr-2" />
-            Ricerca Avanzata
+            Cerca
           </Button>
           <Button 
             variant="outline" 
