@@ -86,6 +86,20 @@ export function PasseggeroFields({ index }: PasseggeroFieldsProps) {
         />
       </div>
 
+      <FormField
+        control={control}
+        name={`passeggeri.${index}.telefono_2`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Telefono 2 (opzionale)</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="+39 123 456 7890" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       <div className="space-y-4">
         <FormField
           control={control}

@@ -9,6 +9,7 @@ export interface Passeggero {
   cognome: string | null;
   email: string | null;
   telefono: string | null;
+  telefono_2: string | null;
   localita: string | null;
   indirizzo: string | null;
   created_at: string;
@@ -69,6 +70,7 @@ export interface CreatePasseggeroData {
   cognome?: string;
   email?: string;
   telefono?: string;
+  telefono_2?: string;
   localita?: string;
   indirizzo?: string;
 }

@@ -70,6 +70,9 @@ const passeggeroSchema = z.object({
   telefono: z.string()
     .max(20, "Massimo 20 caratteri")
     .optional(),
+  telefono_2: z.string()
+    .max(20, "Massimo 20 caratteri")
+    .optional(),
   localita: z.string()
     .max(50, "Massimo 50 caratteri")
     .optional(),
@@ -98,6 +101,7 @@ const PasseggeriCliente = () => {
       nome_cognome: "",
       email: "",
       telefono: "",
+      telefono_2: "",
       localita: "",
       indirizzo: "",
     },
@@ -112,6 +116,7 @@ const PasseggeriCliente = () => {
           nome_cognome: editingPasseggero.nome_cognome || "",
           email: editingPasseggero.email || "",
           telefono: editingPasseggero.telefono || "",
+          telefono_2: editingPasseggero.telefono_2 || "",
           localita: editingPasseggero.localita || "",
           indirizzo: editingPasseggero.indirizzo || "",
         });
@@ -121,6 +126,7 @@ const PasseggeriCliente = () => {
           nome_cognome: "",
           email: "",
           telefono: "",
+          telefono_2: "",
           localita: "",
           indirizzo: "",
         });
@@ -146,6 +152,7 @@ const PasseggeriCliente = () => {
         nome_cognome: data.nome_cognome,
         email: data.email || null,
         telefono: data.telefono || null,
+        telefono_2: data.telefono_2 || null,
         localita: data.localita || null,
         indirizzo: data.indirizzo || null,
         azienda_id: profile?.azienda_id,
@@ -185,6 +192,7 @@ const PasseggeriCliente = () => {
           nome_cognome: data.nome_cognome,
           email: data.email || null,
           telefono: data.telefono || null,
+          telefono_2: data.telefono_2 || null,
           localita: data.localita || null,
           indirizzo: data.indirizzo || null,
         })
@@ -388,6 +396,12 @@ const PasseggeriCliente = () => {
                                 <span>{passeggero.telefono}</span>
                               </div>
                             )}
+                            {passeggero.telefono_2 && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-3 w-3 text-muted-foreground" />
+                                <span>{passeggero.telefono_2}</span>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
 
@@ -466,6 +480,12 @@ const PasseggeriCliente = () => {
                       <div className="flex items-center gap-2 text-sm">
                         <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <span>{passeggero.telefono}</span>
+                      </div>
+                    )}
+                    {passeggero.telefono_2 && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span>{passeggero.telefono_2}</span>
                       </div>
                     )}
 
@@ -580,6 +600,21 @@ const PasseggeriCliente = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Telefono</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+39 123 456 7890" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Campo Telefono 2 */}
+              <FormField
+                control={form.control}
+                name="telefono_2"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefono 2 (opzionale)</FormLabel>
                     <FormControl>
                       <Input placeholder="+39 123 456 7890" {...field} />
                     </FormControl>

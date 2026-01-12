@@ -640,6 +640,7 @@ export type Database = {
           nome: string | null
           nome_cognome: string
           telefono: string | null
+          telefono_2: string | null
           tipo: string | null
         }
         Insert: {
@@ -654,6 +655,7 @@ export type Database = {
           nome?: string | null
           nome_cognome: string
           telefono?: string | null
+          telefono_2?: string | null
           tipo?: string | null
         }
         Update: {
@@ -668,6 +670,7 @@ export type Database = {
           nome?: string | null
           nome_cognome?: string
           telefono?: string | null
+          telefono_2?: string | null
           tipo?: string | null
         }
         Relationships: [

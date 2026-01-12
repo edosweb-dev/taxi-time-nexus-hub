@@ -9,6 +9,7 @@ interface PasseggeroRoadmap {
   cognome?: string;
   email?: string;
   telefono?: string;
+  telefono_2?: string;
   orario_presa?: string;
   luogo_presa?: string;
   destinazione?: string;
@@ -126,6 +127,15 @@ export const RoadmapPasseggeri = ({
                       >
                         <Phone className="h-3 w-3" />
                         {passeggero.telefono}
+                      </a>
+                    )}
+                    {passeggero.telefono_2 && (
+                      <a 
+                        href={`tel:${passeggero.telefono_2}`}
+                        className="flex items-center gap-1 text-xs text-primary hover:underline"
+                      >
+                        <Phone className="h-3 w-3" />
+                        {passeggero.telefono_2}
                       </a>
                     )}
                     {passeggero.email && (

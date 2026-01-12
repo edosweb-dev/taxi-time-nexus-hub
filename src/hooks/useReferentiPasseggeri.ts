@@ -8,6 +8,7 @@ export interface Passeggero {
   cognome?: string;
   email?: string;
   telefono?: string;
+  telefono_2?: string | null;
   indirizzo?: string;
   localita?: string;
   azienda_id: string;

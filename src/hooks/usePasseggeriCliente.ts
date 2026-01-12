@@ -22,6 +22,7 @@ export const usePasseggeriCliente = (searchTerm?: string) => {
           nome_cognome,
           email,
           telefono,
+          telefono_2,
           localita,
           indirizzo,
           created_at,
