@@ -515,6 +515,12 @@ export function InfoTab({
                         <span>{passeggero.telefono}</span>
                       </div>
                     )}
+                    {passeggero.telefono_2 && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        <span>{passeggero.telefono_2}</span>
+                      </div>
+                    )}
                     {passeggero.localita && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <MapPin className="h-3 w-3" />
