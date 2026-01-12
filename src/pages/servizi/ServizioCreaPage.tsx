@@ -1764,8 +1764,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 5: Assegnazione - nascosto in modalità veloce */}
-          {!isVeloce && (
+          {/* SEZIONE 5: Assegnazione - nascosto in modalità veloce e in creazione (assegnazione solo via popup) */}
+          {!isVeloce && mode === 'edit' && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
