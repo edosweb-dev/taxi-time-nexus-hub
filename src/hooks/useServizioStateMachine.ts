@@ -10,6 +10,7 @@ import {
   createServizio as apiCreateServizio, 
   updateServizio as apiUpdateServizio 
 } from '@/lib/api/servizi';
+import { sendNotification } from '@/hooks/useSendNotification';
 import type { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/types';
 import type { Servizio, StatoServizio } from '@/lib/types/servizi';
 
@@ -207,7 +208,7 @@ export function useServizioStateMachine() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ 
         predicate: (query) => {
           const key = query.queryKey[0];
@@ -215,6 +216,11 @@ export function useServizioStateMachine() {
         }
       });
       toast.success('Servizio assegnato!');
+      
+      // Invia notifica email ai destinatari configurati
+      if (data?.id) {
+        sendNotification(data.id, 'assegnato');
+      }
     },
     onError: (error: any) => {
       console.error('[useServizioStateMachine] Error assigning servizio:', error);
