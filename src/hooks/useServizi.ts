@@ -4,6 +4,7 @@ import { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/
 import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
+import { sendNotification } from '@/hooks/useSendNotification';
 import { 
   calculateServizioStato, 
   getMissingFields,
@@ -104,9 +105,9 @@ export function useServizi() {
         .select();
       
       if (error) throw error;
-      return data?.[0] || null;
+      return { servizio: data?.[0] || null, stato };
     },
-    onSuccess: () => {
+    onSuccess: ({ servizio, stato }) => {
       queryClient.invalidateQueries({ 
         predicate: (query) => {
           const key = query.queryKey[0];
@@ -114,6 +115,11 @@ export function useServizi() {
         }
       });
       toast.success('Stato del servizio aggiornato con successo');
+      
+      // Invia notifica email per annullamento
+      if (stato === 'annullato' && servizio?.id) {
+        sendNotification(servizio.id, 'annullato');
+      }
     },
     onError: (error: any) => {
       console.error('Error updating service status:', error);
@@ -123,7 +129,7 @@ export function useServizi() {
 
   const completaServizioMutation = useMutation({
     mutationFn: completaServizio,
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ 
         predicate: (query) => {
           const key = query.queryKey[0];
@@ -131,6 +137,11 @@ export function useServizi() {
         }
       });
       toast.success('Servizio completato con successo');
+      
+      // Invia notifica email per completamento
+      if (result?.data?.[0]?.id) {
+        sendNotification(result.data[0].id, 'completato');
+      }
     },
     onError: (error: any) => {
       console.error('Error completing service:', error);
