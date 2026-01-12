@@ -950,8 +950,34 @@ export const ServizioCreaPage = ({
       let statoServizio: any;
 
       if (mode === 'edit') {
-        // In modifica, mantieni stato esistente o default
-        statoServizio = initialData?.stato || "da_assegnare";
+        // Stati che NON devono essere modificati automaticamente
+        const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato', 'richiesta_cliente'];
+        const statoCorrente = initialData?.stato || "da_assegnare";
+        
+        if (statiBloccati.includes(statoCorrente)) {
+          // Mantieni stati avanzati invariati
+          statoServizio = statoCorrente;
+        } else {
+          // Per stati "bozza", "da_assegnare", "assegnato": ricalcola in base all'autista
+          const hasDriver = Boolean(
+            data.assegnato_a || 
+            (data.conducente_esterno && data.conducente_esterno_id)
+          );
+          
+          if (statoCorrente === 'bozza') {
+            // Bozza rimane bozza (servizio incompleto)
+            statoServizio = 'bozza';
+          } else {
+            // Da_assegnare/assegnato: determina in base all'autista
+            statoServizio = hasDriver ? 'assegnato' : 'da_assegnare';
+          }
+          
+          console.log('[ServizioCreaPage] 🔄 Stato ricalcolato in modifica:', {
+            statoCorrente,
+            hasDriver,
+            nuovoStato: statoServizio
+          });
+        }
       } else if (userProfile?.role === 'cliente') {
         // I clienti creano servizi con stato "richiesta_cliente"
         statoServizio = "richiesta_cliente";
