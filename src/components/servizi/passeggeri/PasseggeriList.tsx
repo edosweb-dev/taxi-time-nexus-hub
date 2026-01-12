@@ -133,6 +133,19 @@ export function PasseggeriList({ userRole }: PasseggeriListProps) {
                         </div>
                       )}
                       
+                      {/* Telefono 2 */}
+                      {passeggero.telefono_2 && (
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-muted">
+                          <div className="bg-primary/10 p-2 rounded-md flex-shrink-0">
+                            <Phone className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide mb-1">Telefono 2</p>
+                            <p className="text-sm text-foreground font-medium">{passeggero.telefono_2}</p>
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Località */}
                       {passeggero.localita && (
                         <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-muted">

@@ -112,22 +112,40 @@ export const PasseggeroBasicInfoForm = ({ index, onSave, onCancel }: PasseggeroB
           />
         </div>
         <div>
-          <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-2">
-            Email aziendale
+          <label htmlFor={`passeggeri.${index}.telefono_2`} className="block text-sm font-medium mb-2">
+            Telefono 2 (opzionale)
           </label>
           <Controller
             control={control}
-            name={`passeggeri.${index}.email`}
+            name={`passeggeri.${index}.telefono_2`}
             render={({ field }) => (
               <MobileInput
                 {...field}
                 value={field.value || ''}
-                type="email"
-                placeholder="email@azienda.com"
+                type="tel"
+                placeholder="Secondo numero"
               />
             )}
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor={`passeggeri.${index}.email`} className="block text-sm font-medium mb-2">
+          Email aziendale
+        </label>
+        <Controller
+          control={control}
+          name={`passeggeri.${index}.email`}
+          render={({ field }) => (
+            <MobileInput
+              {...field}
+              value={field.value || ''}
+              type="email"
+              placeholder="email@azienda.com"
+            />
+          )}
+        />
       </div>
 
       {/* Pulsanti Salva/Annulla dopo email */}

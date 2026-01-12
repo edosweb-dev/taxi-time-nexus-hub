@@ -88,6 +88,7 @@ export interface Passeggero {
   indirizzo?: string;
   email?: string;
   telefono?: string;
+  telefono_2?: string | null;
   azienda_id: string;
   created_by_referente_id?: string | null; // Solo per tracking storico, non per filtri
   created_at?: string;
@@ -166,6 +167,7 @@ export interface PasseggeroFormData {
   indirizzo?: string;
   email?: string;
   telefono?: string;
+  telefono_2?: string | null;
   // Campi presa intermedia
   ordine?: number;
   presa_tipo?: 'servizio' | 'passeggero' | 'personalizzato';

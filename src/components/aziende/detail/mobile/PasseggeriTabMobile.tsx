@@ -174,6 +174,12 @@ export function PasseggeriTabMobile({
                       <span>{passeggero.telefono}</span>
                     </div>
                   )}
+                  {passeggero.telefono_2 && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
+                      <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>{passeggero.telefono_2}</span>
+                    </div>
+                  )}
                   {passeggero.created_by_referente_id && (() => {
                     const ref = referenti.find(r => r.id === passeggero.created_by_referente_id);
                     return ref ? (
