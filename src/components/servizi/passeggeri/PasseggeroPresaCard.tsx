@@ -178,7 +178,25 @@ export const PasseggeroPresaCard = ({
           name={`passeggeri.${index}.presa_tipo`}
           defaultValue={hasIndirizzoRubrica ? "passeggero" : "servizio"}
           render={({ field }) => (
-            <Select value={field.value || 'servizio'} onValueChange={field.onChange}>
+            <Select 
+              value={field.value || 'servizio'} 
+              onValueChange={(val) => {
+                field.onChange(val);
+                // Sincronizza primo passeggero con percorso principale
+                if (index === 0 && val === 'passeggero') {
+                  const indirizzoRubrica = passeggero?.indirizzo || passeggero?.indirizzo_rubrica || '';
+                  const localitaRubrica = passeggero?.localita || passeggero?.localita_rubrica || '';
+                  setValue('partenza_tipo', 'passeggero');
+                  setValue('partenza_passeggero_index', 0);
+                  setValue('citta_presa', localitaRubrica);
+                  setValue('indirizzo_presa', indirizzoRubrica);
+                  console.log('[PasseggeroPresaCard] ✅ Sincronizzato PRESA con passeggero:', {
+                    citta: localitaRubrica,
+                    indirizzo: indirizzoRubrica
+                  });
+                }
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Seleziona punto di presa" />
               </SelectTrigger>
@@ -303,7 +321,25 @@ export const PasseggeroPresaCard = ({
           name={`passeggeri.${index}.destinazione_tipo`}
           defaultValue="servizio"
           render={({ field }) => (
-            <Select value={field.value || 'servizio'} onValueChange={field.onChange}>
+            <Select 
+              value={field.value || 'servizio'} 
+              onValueChange={(val) => {
+                field.onChange(val);
+                // Sincronizza primo passeggero con percorso principale
+                if (index === 0 && val === 'passeggero') {
+                  const indirizzoRubrica = passeggero?.indirizzo || passeggero?.indirizzo_rubrica || '';
+                  const localitaRubrica = passeggero?.localita || passeggero?.localita_rubrica || '';
+                  setValue('destinazione_tipo', 'passeggero');
+                  setValue('destinazione_passeggero_index', 0);
+                  setValue('citta_destinazione', localitaRubrica);
+                  setValue('indirizzo_destinazione', indirizzoRubrica);
+                  console.log('[PasseggeroPresaCard] ✅ Sincronizzato DESTINAZIONE con passeggero:', {
+                    citta: localitaRubrica,
+                    indirizzo: indirizzoRubrica
+                  });
+                }
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Seleziona destinazione" />
               </SelectTrigger>
