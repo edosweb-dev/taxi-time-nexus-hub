@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Calendar, BarChart3, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, BarChart3, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServizioStats } from '../ServizioStats';
@@ -46,6 +47,7 @@ export function DesktopServiziContent({
   searchText,
   onSearchTextChange
 }: DesktopServiziContentProps) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('da_assegnare');
   const [showModal, setShowModal] = useState(false);
   const { profile } = useAuth();
@@ -96,7 +98,15 @@ export function DesktopServiziContent({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => window.location.href = '/report-servizi'}
+            onClick={() => navigate('/servizi/ricerca')}
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Ricerca Avanzata
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/report-servizi')}
           >
             <BarChart3 className="h-4 w-4 mr-2" />
             Report
@@ -104,7 +114,7 @@ export function DesktopServiziContent({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => window.location.href = '/calendario-servizi'}
+            onClick={() => navigate('/calendario-servizi')}
           >
             <Calendar className="h-4 w-4 mr-2" />
             Calendario
