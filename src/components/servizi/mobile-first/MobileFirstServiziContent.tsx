@@ -57,7 +57,6 @@ export function MobileFirstServiziContent({
     search: '',
     aziendaId: '',
     assigneeId: '',
-    metodoPagamento: '',
     dateFrom: undefined,
     dateTo: undefined
   });
@@ -128,7 +127,6 @@ export function MobileFirstServiziContent({
       search: '',
       aziendaId: '',
       assigneeId: '',
-      metodoPagamento: '',
       dateFrom: undefined,
       dateTo: undefined
     });
