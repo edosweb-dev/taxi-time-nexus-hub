@@ -22,6 +22,7 @@ export interface PasseggeroFormData {
   cognome?: string;
   email?: string;
   telefono?: string;
+  telefono_2?: string;
   localita?: string;
   indirizzo?: string;
   created_by_referente_id?: string | null;
@@ -41,6 +42,7 @@ export function PasseggeroDialog({
     cognome: '',
     email: '',
     telefono: '',
+    telefono_2: '',
     localita: '',
     indirizzo: '',
     created_by_referente_id: null
@@ -54,6 +56,7 @@ export function PasseggeroDialog({
         cognome: passeggero.cognome || '',
         email: passeggero.email || '',
         telefono: passeggero.telefono || '',
+        telefono_2: passeggero.telefono_2 || '',
         localita: passeggero.localita || '',
         indirizzo: passeggero.indirizzo || '',
         created_by_referente_id: passeggero.created_by_referente_id || null
@@ -65,6 +68,7 @@ export function PasseggeroDialog({
         cognome: '',
         email: '',
         telefono: '',
+        telefono_2: '',
         localita: '',
         indirizzo: '',
         created_by_referente_id: null
@@ -162,6 +166,17 @@ export function PasseggeroDialog({
               value={formData.telefono}
               onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
               placeholder="+39 333 1234567"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="telefono_2">Telefono 2 (opzionale)</Label>
+            <Input
+              id="telefono_2"
+              type="tel"
+              value={formData.telefono_2}
+              onChange={(e) => setFormData({ ...formData, telefono_2: e.target.value })}
+              placeholder="Secondo numero"
             />
           </div>
 
