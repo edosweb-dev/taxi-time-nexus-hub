@@ -253,13 +253,13 @@ export function ServiziContent({
             className="w-full"
           >
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               className="text-xs w-full"
               onClick={() => navigate('/servizi/ricerca')}
             >
               <Search className="h-3 w-3 mr-1" />
-              Ricerca
+              Cerca
             </Button>
             <Button
               variant="outline"
@@ -361,12 +361,12 @@ export function ServiziContent({
 
           <div className="flex items-center space-x-2">
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={() => navigate('/servizi/ricerca')}
             >
               <Search className="h-4 w-4 mr-2" />
-              Ricerca Avanzata
+              Cerca
             </Button>
             <Button
               variant="outline"

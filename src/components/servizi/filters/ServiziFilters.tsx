@@ -72,16 +72,6 @@ export const ServiziFilters = ({
 
   return (
     <div className="flex items-center gap-2">
-      {/* Search */}
-      <div className="relative flex-1 max-w-sm">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Cerca servizi..."
-          value={filters.search}
-          onChange={(e) => handleFilterChange('search', e.target.value)}
-          className="pl-8"
-        />
-      </div>
 
       {/* Advanced Filters */}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
