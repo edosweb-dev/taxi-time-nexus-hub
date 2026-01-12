@@ -40,7 +40,7 @@ export default function ServiziPage() {
   const { users = [] } = useUsers();
   
   const [activeTab, setActiveTab] = useState<string>("bozza");
-  const [searchTerm, setSearchTerm] = useState("");
+  // Campo ricerca rimosso - ora usa pagina dedicata /servizi/ricerca
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssignmentPopup, setShowAssignmentPopup] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -80,26 +80,14 @@ export default function ServiziPage() {
     consuntivato: servizi.filter(s => s.stato === 'consuntivato').length,
   }), [servizi]);
 
-  // Filter servizi by search term
-  const searchFilteredServizi = useMemo(() => {
-    if (!searchTerm) return servizi;
-    const term = searchTerm.toLowerCase();
-    return servizi.filter((s: ServizioWithPasseggeri) => {
-      return (
-        s.aziende?.nome?.toLowerCase().includes(term) ||
-        s.numero_commessa?.toLowerCase().includes(term) ||
-        s.indirizzo_presa?.toLowerCase().includes(term) ||
-        s.indirizzo_destinazione?.toLowerCase().includes(term)
-      );
-    });
-  }, [servizi, searchTerm]);
+  // Ricerca spostata su pagina dedicata /servizi/ricerca
 
   // Tab operativi = ordine ASC (urgenti/imminenti prima)
   const OPERATIONAL_TABS = ['bozza', 'da_assegnare', 'assegnato', 'non_accettato'];
 
   // Filter servizi by active tab + ordinamento differenziato
   const filteredServizi = useMemo(() => {
-    const filtered = searchFilteredServizi.filter(
+    const filtered = servizi.filter(
       (s: ServizioWithPasseggeri) => s.stato === activeTab
     );
     
@@ -118,7 +106,7 @@ export default function ServiziPage() {
         return dateB.getTime() - dateA.getTime();
       }
     });
-  }, [searchFilteredServizi, activeTab]);
+  }, [servizi, activeTab]);
 
   const getStatusColor = (stato: string) => {
     const colors: Record<string, string> = {
@@ -309,17 +297,16 @@ export default function ServiziPage() {
           </Button>
         </div>
 
-        {/* Search Bar (opzionale) */}
+        {/* Bottone Cerca */}
         <div className="mb-4">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cerca azienda, commessa..."
-              className="pl-9"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/servizi/ricerca')}
+            className="w-full sm:w-auto gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Cerca
+          </Button>
         </div>
 
         {/* Tabs Responsive con Sfondo Desktop */}
