@@ -139,12 +139,15 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
               <FormLabel>Importo (€)</FormLabel>
               <FormControl>
                 <div className="relative">
-                <Input
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg pointer-events-none z-10">
+                    €
+                  </span>
+                  <Input
                     type="number"
                     step="0.01"
                     min="0"
                     placeholder="0.00"
-                    className="text-lg pl-10"
+                    className="text-lg !pl-10"
                     value={field.value === 0 ? '' : field.value}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -154,7 +157,6 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                     name={field.name}
                     ref={field.ref}
                   />
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
                 </div>
               </FormControl>
               <FormMessage />
