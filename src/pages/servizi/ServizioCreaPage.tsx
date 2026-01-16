@@ -373,20 +373,28 @@ export const ServizioCreaPage = ({
                   // Nuovi campi per prese intermedie
                   ordine: sp.ordine_presa || idx + 1,
                   presa_tipo: presaTipo,
-                  presa_indirizzo_custom: presaTipo === 'personalizzato' ? (sp.luogo_presa_personalizzato?.split(',')[0]?.trim() || '') : '',
-                  presa_citta_custom: presaTipo === 'personalizzato' ? (sp.luogo_presa_personalizzato?.split(',')[1]?.trim() || '') : '',
+                  // ✅ FIX BUG #41: Leggi indirizzo e località dai campi separati
+                  presa_indirizzo_custom: presaTipo === 'personalizzato' 
+                    ? (sp.luogo_presa_personalizzato || '') 
+                    : '',
+                  presa_citta_custom: presaTipo === 'personalizzato' 
+                    ? (sp.localita_presa_personalizzato || '') 
+                    : '',
                   presa_orario: sp.orario_presa_personalizzato ? sp.orario_presa_personalizzato.slice(0, 5) : '',
                   presa_usa_orario_servizio: idx === 0 && !sp.orario_presa_personalizzato,
                   destinazione_tipo: destinazioneTipo,
-                  destinazione_indirizzo_custom: sp.destinazione_personalizzato?.split(',')[0]?.trim() || '',
-                  destinazione_citta_custom: sp.destinazione_personalizzato?.split(',')[1]?.trim() || '',
+                  // ✅ FIX BUG #41: Leggi indirizzo e località dai campi separati
+                  destinazione_indirizzo_custom: sp.destinazione_personalizzato || '',
+                  destinazione_citta_custom: sp.localita_destinazione_personalizzato || '',
                   indirizzo_rubrica: sp.passeggeri?.indirizzo || sp.indirizzo_inline || '',
                   localita_rubrica: sp.passeggeri?.localita || sp.localita_inline || '',
                   
                   // Campi esistenti
                   orario_presa_personalizzato: sp.orario_presa_personalizzato,
                   luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+                  localita_presa_personalizzato: sp.localita_presa_personalizzato,
                   destinazione_personalizzato: sp.destinazione_personalizzato,
+                  localita_destinazione_personalizzato: sp.localita_destinazione_personalizzato,
                   usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato || false,
                   salva_in_database: sp.salva_in_database !== false,
                   is_existing: !!sp.passeggero_id,
@@ -1087,7 +1095,10 @@ export const ServizioCreaPage = ({
             usa_indirizzo_personalizzato: Boolean(tp.usa_indirizzo_personalizzato ?? false),
             orario_presa_personalizzato: tp.orario_presa_personalizzato || null,
             luogo_presa_personalizzato: tp.luogo_presa_personalizzato || null,
+            // ✅ FIX BUG #41: Aggiungi campi località separati
+            localita_presa_personalizzato: tp.localita_presa_personalizzato || null,
             destinazione_personalizzato: tp.destinazione_personalizzato || null,
+            localita_destinazione_personalizzato: tp.localita_destinazione_personalizzato || null,
           };
           
           console.log('═══════════════════════════════════');
@@ -1229,21 +1240,35 @@ export const ServizioCreaPage = ({
         // Campi presa intermedia
         ordine_presa: p.ordine || (idx + 1),
         usa_indirizzo_personalizzato: p.presa_tipo !== 'servizio',
+        // ✅ FIX BUG #41: Salva indirizzo e località separatamente
         luogo_presa_personalizzato: 
           p.presa_tipo === 'personalizzato' 
-            ? [p.presa_indirizzo_custom, p.presa_citta_custom].filter(Boolean).join(', ')
+            ? (p.presa_indirizzo_custom || null)
             : p.presa_tipo === 'passeggero' 
-              ? p.indirizzo_rubrica || p.indirizzo
+              ? (p.indirizzo_rubrica || p.indirizzo || null)
+              : null,
+        localita_presa_personalizzato:
+          p.presa_tipo === 'personalizzato'
+            ? (p.presa_citta_custom || null)
+            : p.presa_tipo === 'passeggero'
+              ? (p.localita_rubrica || p.localita || null)
               : null,
         orario_presa_personalizzato: p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
         
         // Campi destinazione intermedia
         usa_destinazione_personalizzata: p.destinazione_tipo !== 'servizio',
+        // ✅ FIX BUG #41: Salva indirizzo e località separatamente
         destinazione_personalizzato:
           p.destinazione_tipo === 'personalizzato'
-            ? [p.destinazione_indirizzo_custom, p.destinazione_citta_custom].filter(Boolean).join(', ')
+            ? (p.destinazione_indirizzo_custom || null)
             : p.destinazione_tipo === 'passeggero'
-              ? p.indirizzo_rubrica || p.indirizzo
+              ? (p.indirizzo_rubrica || p.indirizzo || null)
+              : null,
+        localita_destinazione_personalizzato:
+          p.destinazione_tipo === 'personalizzato'
+            ? (p.destinazione_citta_custom || null)
+            : p.destinazione_tipo === 'passeggero'
+              ? (p.localita_rubrica || p.localita || null)
               : null,
       };
             
