@@ -106,11 +106,19 @@ export const RoadmapPasseggeri = ({
             const nomeCompleto = `${nome} ${cognome}`.trim() || passeggero.nome_cognome || `Passeggero ${idx + 1}`;
             const orarioPresa = passeggero.orario_presa || orarioServizio;
             
-            // Calcola indirizzo con località
+            // Calcola indirizzo con località - fallback intelligente
             const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa;
             const viaFermata = haPresaPersonalizzata ? passeggero.luogo_presa : partenzaDisplay;
-            const cittaFermata = haPresaPersonalizzata ? passeggero.localita_presa : cittaPartenza;
+            
+            // Fallback località: campo dedicato → località inline passeggero → città servizio
+            const cittaFermata = haPresaPersonalizzata 
+              ? (passeggero.localita_presa || cittaPartenza) 
+              : cittaPartenza;
+            
             const destinazionePasseggero = passeggero.destinazione || destinazioneDisplay;
+            
+            // Fallback località destinazione
+            const cittaDestinazionePasseggero = passeggero.localita_destinazione || cittaDestinazione;
 
             return (
               <div key={passeggero.id || idx} className="relative pb-6">
@@ -138,13 +146,13 @@ export const RoadmapPasseggeri = ({
                     )}
                   </div>
                   
-                  {/* Destinazione personalizzata */}
+                  {/* Destinazione personalizzata con fallback località */}
                   {passeggero.usa_destinazione_personalizzata && destinazionePasseggero !== destinazioneDisplay && (
                     <div className="flex items-start gap-1.5 text-sm text-amber-600 dark:text-amber-500 mt-1">
                       <Navigation className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
                       <span>
-                        Dest: {destinazionePasseggero}
-                        {passeggero.localita_destinazione && `, ${passeggero.localita_destinazione}`}
+                        Dest: {cittaDestinazionePasseggero}
+                        {destinazionePasseggero && ` • ${destinazionePasseggero}`}
                       </span>
                     </div>
                   )}
