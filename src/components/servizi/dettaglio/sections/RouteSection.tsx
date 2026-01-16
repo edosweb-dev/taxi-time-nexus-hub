@@ -90,12 +90,17 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
             const orarioPresa = passeggero.orario_presa_personalizzato || servizio.orario_servizio;
             const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
             
-            // Calcola indirizzo fermata
+            // Calcola indirizzo fermata con fallback intelligente
             const viaFermata = haPresaPersonalizzata 
               ? passeggero.luogo_presa_personalizzato 
               : (passeggero.indirizzo || servizio.indirizzo_presa);
+            
+            // Fallback località: campo dedicato → località inline passeggero → città servizio
             const cittaFermata = haPresaPersonalizzata
-              ? passeggero.localita_presa_personalizzato
+              ? (passeggero.localita_presa_personalizzato || 
+                 (passeggero as any).localita_inline || 
+                 passeggero.localita || 
+                 servizio.citta_presa)
               : (passeggero.localita || servizio.citta_presa);
 
             return (
@@ -134,8 +139,8 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
                     <div className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-500 mt-1.5">
                       <Navigation className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
                       <span>
-                        Dest: {passeggero.destinazione_personalizzato}
-                        {passeggero.localita_destinazione_personalizzato && `, ${passeggero.localita_destinazione_personalizzato}`}
+                        Dest: {passeggero.localita_destinazione_personalizzato || (passeggero as any).localita_inline || passeggero.localita || servizio.citta_destinazione}
+                        {passeggero.destinazione_personalizzato && ` • ${passeggero.destinazione_personalizzato}`}
                       </span>
                     </div>
                   )}
