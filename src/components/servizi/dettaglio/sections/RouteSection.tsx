@@ -72,6 +72,8 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
                         <MapPin className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
                         <span className={haPresaPersonalizzata ? "font-medium" : "text-muted-foreground"}>
                           {luogoPresa}
+                          {/* ✅ FIX BUG #41: Aggiungi località fermata presa */}
+                          {passeggero.localita_presa_personalizzato && `, ${passeggero.localita_presa_personalizzato}`}
                         </span>
                       </div>
                       
@@ -81,7 +83,11 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
                           <MapPin className="h-3.5 w-3.5 text-primary mt-0.5" />
                           <div>
                             <span className="text-muted-foreground">Dest: </span>
-                            <span className="font-medium">{passeggero.destinazione_personalizzato}</span>
+                            <span className="font-medium">
+                              {passeggero.destinazione_personalizzato}
+                              {/* ✅ FIX BUG #41: Aggiungi località fermata destinazione */}
+                              {passeggero.localita_destinazione_personalizzato && `, ${passeggero.localita_destinazione_personalizzato}`}
+                            </span>
                           </div>
                         </div>
                       )}

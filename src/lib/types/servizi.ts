@@ -101,7 +101,9 @@ export interface ServizioPasseggero {
   passeggero_id: string;
   orario_presa_personalizzato?: string;
   luogo_presa_personalizzato?: string;
+  localita_presa_personalizzato?: string; // ✅ FIX BUG #41
   destinazione_personalizzato?: string;
+  localita_destinazione_personalizzato?: string; // ✅ FIX BUG #41
   usa_indirizzo_personalizzato: boolean;
   usa_destinazione_personalizzata?: boolean;
   ordine_presa?: number;
@@ -112,7 +114,9 @@ export interface ServizioPasseggero {
 export interface PasseggeroConDettagli extends Passeggero {
   orario_presa_personalizzato?: string;
   luogo_presa_personalizzato?: string;
+  localita_presa_personalizzato?: string; // ✅ FIX BUG #41
   destinazione_personalizzato?: string;
+  localita_destinazione_personalizzato?: string; // ✅ FIX BUG #41
   usa_indirizzo_personalizzato: boolean;
   tipo?: 'permanente' | 'temporaneo';
 }
@@ -182,8 +186,10 @@ export interface PasseggeroFormData {
   // Legacy fields - manteniamo per compatibilità
   orario_presa_personalizzato?: string;
   luogo_presa_personalizzato?: string;
+  localita_presa_personalizzato?: string; // ✅ FIX BUG #41
   usa_indirizzo_personalizzato?: boolean;
   destinazione_personalizzato?: string;
+  localita_destinazione_personalizzato?: string; // ✅ FIX BUG #41
   is_existing?: boolean; // Flag per distinguere tra nuovo e esistente
   salva_in_database?: boolean; // Flag per salvare in anagrafica (default: true)
   azienda_id?: string; // Azienda di appartenenza

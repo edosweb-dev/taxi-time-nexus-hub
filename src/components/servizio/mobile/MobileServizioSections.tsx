@@ -178,7 +178,11 @@ export function MobileServizioSections({
                   .map((p: any, idx: number) => (
                     <div key={idx} className="detail-value text-sm">
                       <div className="font-medium text-muted-foreground">{p.nome_cognome}</div>
-                      <div>{p.luogo_presa_personalizzato}</div>
+                      <div>
+                        {p.luogo_presa_personalizzato}
+                        {/* ✅ FIX BUG #41: Aggiungi località */}
+                        {p.localita_presa_personalizzato && `, ${p.localita_presa_personalizzato}`}
+                      </div>
                       {p.orario_presa_personalizzato && (
                         <div className="text-xs text-muted-foreground">
                           Orario: {p.orario_presa_personalizzato.substring(0, 5)}
