@@ -40,6 +40,12 @@ export function ServizioMainContent({
     return time.substring(0, 5);
   };
 
+  // Ordina passeggeri e prendi il primo
+  const passeggeriOrdinati = [...passeggeri].sort((a, b) => 
+    ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0)
+  );
+  const primoPasseggero = passeggeriOrdinati[0];
+
   return (
     <div className="grid grid-cols-2 gap-4">
       {/* Percorso */}
@@ -54,7 +60,14 @@ export function ServizioMainContent({
               <MapPin className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs text-muted-foreground mb-0.5">Partenza</div>
+              <div className="text-xs text-muted-foreground mb-0.5">
+                <span>Partenza</span>
+                {primoPasseggero && (
+                  <span className="text-muted-foreground font-normal">
+                    {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
+                  </span>
+                )}
+              </div>
               {servizio.citta_presa && (
                 <div className="font-semibold text-sm">{servizio.citta_presa}</div>
               )}

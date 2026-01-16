@@ -129,6 +129,12 @@ export function MobileServizioOptimized({
   const referenteName = getUserName(users, servizio.referente_id);
   const assignedToName = getUserName(users, servizio.assegnato_a);
 
+  // Ordina passeggeri e prendi il primo
+  const passeggeriOrdinati = [...passeggeri].sort((a: any, b: any) => 
+    ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0)
+  );
+  const primoPasseggero = passeggeriOrdinati[0];
+
   return (
     <div className="space-y-4 pb-24">
       {/* Header Card: ID, Azienda/Cliente, Referente, Stato */}
@@ -238,7 +244,14 @@ export function MobileServizioOptimized({
               <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
             </div>
             <div className="flex-1 pb-2">
-              <div className="text-xs text-muted-foreground font-medium mb-1">Partenza</div>
+              <div className="text-xs text-muted-foreground font-medium mb-1">
+                <span>Partenza</span>
+                {primoPasseggero && (
+                  <span className="font-normal">
+                    {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
+                  </span>
+                )}
+              </div>
               <div className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
                 <Clock className="h-3 w-3" />
                 {formatTime(servizio.orario_servizio)}
