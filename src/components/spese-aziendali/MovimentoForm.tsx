@@ -144,7 +144,7 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                     step="0.01"
                     min="0"
                     placeholder="0.00"
-                    className="text-lg pl-8"
+                    className="text-lg pl-10"
                     value={field.value === 0 ? '' : field.value}
                     onChange={(e) => {
                       const value = e.target.value;

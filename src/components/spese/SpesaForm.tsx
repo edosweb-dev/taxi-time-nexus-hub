@@ -145,7 +145,7 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
                   <Input
                     type="text"
                     placeholder="0,00"
-                    className="pl-8 text-lg font-semibold"
+                    className="pl-10 text-lg font-semibold"
                     value={importoInput}
                     onChange={(e) => handleImportoChange(e.target.value)}
                   />
