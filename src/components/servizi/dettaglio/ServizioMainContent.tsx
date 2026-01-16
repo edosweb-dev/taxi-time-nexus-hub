@@ -66,28 +66,47 @@ export function ServizioMainContent({
             </div>
           </div>
 
-          {/* Fermata intermedia - se presente */}
-          {passeggeri.some(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato) && (
+          {/* Fermata intermedia - se presente (esclude primo passeggero già in partenza) */}
+          {passeggeri
+            .sort((a, b) => ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0))
+            .slice(1) // Escludi primo passeggero (già mostrato in partenza)
+            .some(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato) && (
             <div className="pl-6 border-l-2 border-muted space-y-2">
               {passeggeri
+                .sort((a, b) => ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0))
+                .slice(1) // Escludi primo passeggero
                 .filter(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato)
-                .map((p, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="mt-1 p-1.5 rounded-full bg-muted">
-                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-muted-foreground mb-0.5">Fermata - {p.nome_cognome}</div>
-                      <div className="font-medium text-sm">{p.luogo_presa_personalizzato}</div>
-                      {p.orario_presa_personalizzato && (
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {formatTime(p.orario_presa_personalizzato)}
+                .map((p, idx) => {
+                  // Fallback località: campo dedicato → località inline → località rubrica → città servizio
+                  const cittaFermata = p.localita_presa_personalizzato || 
+                    (p as any).localita_inline || 
+                    p.localita || 
+                    servizio.citta_presa;
+                  
+                  return (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="mt-1 p-1.5 rounded-full bg-muted">
+                        <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs text-muted-foreground mb-0.5">Fermata - {p.nome_cognome}</div>
+                        <div className="text-sm">
+                          {cittaFermata && (
+                            <span className="font-semibold text-foreground">{cittaFermata}</span>
+                          )}
+                          {cittaFermata && p.luogo_presa_personalizzato && " • "}
+                          <span className="text-muted-foreground">{p.luogo_presa_personalizzato}</span>
                         </div>
-                      )}
+                        {p.orario_presa_personalizzato && (
+                          <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatTime(p.orario_presa_personalizzato)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           )}
 

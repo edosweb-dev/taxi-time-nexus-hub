@@ -250,27 +250,46 @@ export function MobileServizioOptimized({
             </div>
           </div>
 
-          {/* Fermate intermedie */}
-          {passeggeri.filter((p: any) => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato).map((passeggero: any, idx: number) => (
-            <div key={idx} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground border-2 border-background shadow-sm" />
-                <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
-              </div>
-              <div className="flex-1 pb-2">
-                <div className="text-xs text-muted-foreground font-medium mb-1">
-                  Fermata - {passeggero.nome_cognome}
-                </div>
-                {passeggero.orario_presa_personalizzato && (
-                  <div className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
-                    <Clock className="h-3 w-3" />
-                    {formatTime(passeggero.orario_presa_personalizzato)}
+          {/* Fermate intermedie (esclude primo passeggero già in partenza) */}
+          {passeggeri
+            .sort((a: any, b: any) => ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0))
+            .slice(1) // Escludi primo passeggero
+            .filter((p: any) => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato)
+            .map((passeggero: any, idx: number) => {
+              // Fallback località: campo dedicato → località inline → località rubrica → città servizio
+              const cittaFermata = passeggero.localita_presa_personalizzato || 
+                passeggero.localita_inline || 
+                passeggero.localita || 
+                servizio.citta_presa;
+              
+              return (
+                <div key={idx} className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground border-2 border-background shadow-sm" />
+                    <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
                   </div>
-                )}
-                <div className="text-sm">{passeggero.luogo_presa_personalizzato}</div>
-              </div>
-            </div>
-          ))}
+                  <div className="flex-1 pb-2">
+                    <div className="text-xs text-muted-foreground font-medium mb-1">
+                      Fermata - {passeggero.nome_cognome}
+                    </div>
+                    {passeggero.orario_presa_personalizzato && (
+                      <div className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+                        <Clock className="h-3 w-3" />
+                        {formatTime(passeggero.orario_presa_personalizzato)}
+                      </div>
+                    )}
+                    <div className="text-sm">
+                      {cittaFermata && (
+                        <span className="font-semibold text-foreground">{cittaFermata}</span>
+                      )}
+                      {cittaFermata && passeggero.luogo_presa_personalizzato && " • "}
+                      <span className="text-muted-foreground">{passeggero.luogo_presa_personalizzato}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
 
           {/* Arrivo */}
           <div className="flex gap-3">
