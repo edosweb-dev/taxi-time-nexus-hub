@@ -1058,7 +1058,9 @@ export type Database = {
           firma_url: string | null
           id: string
           indirizzo_inline: string | null
+          localita_destinazione_personalizzato: string | null
           localita_inline: string | null
+          localita_presa_personalizzato: string | null
           luogo_presa_personalizzato: string | null
           nome_cognome_inline: string | null
           orario_presa_personalizzato: string | null
@@ -1078,7 +1080,9 @@ export type Database = {
           firma_url?: string | null
           id?: string
           indirizzo_inline?: string | null
+          localita_destinazione_personalizzato?: string | null
           localita_inline?: string | null
+          localita_presa_personalizzato?: string | null
           luogo_presa_personalizzato?: string | null
           nome_cognome_inline?: string | null
           orario_presa_personalizzato?: string | null
@@ -1098,7 +1102,9 @@ export type Database = {
           firma_url?: string | null
           id?: string
           indirizzo_inline?: string | null
+          localita_destinazione_personalizzato?: string | null
           localita_inline?: string | null
+          localita_presa_personalizzato?: string | null
           luogo_presa_personalizzato?: string | null
           nome_cognome_inline?: string | null
           orario_presa_personalizzato?: string | null
