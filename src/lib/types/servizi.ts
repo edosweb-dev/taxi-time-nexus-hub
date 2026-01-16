@@ -118,6 +118,8 @@ export interface PasseggeroConDettagli extends Passeggero {
   destinazione_personalizzato?: string;
   localita_destinazione_personalizzato?: string; // ✅ FIX BUG #41
   usa_indirizzo_personalizzato: boolean;
+  usa_destinazione_personalizzata?: boolean; // ✅ FIX BUG #41
+  ordine_presa?: number; // ✅ FIX BUG #41
   tipo?: 'permanente' | 'temporaneo';
 }
 
