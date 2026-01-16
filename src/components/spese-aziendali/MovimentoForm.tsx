@@ -85,7 +85,9 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
       tipo_causale: values.tipo_causale || 'generica',
       modalita_pagamento_id: values.modalita_pagamento_id,
       dipendente_id: undefined,
-      socio_id: values.tipologia === 'prelievo' ? values.socio_id : undefined,
+      socio_id: (values.tipologia === 'prelievo' || values.tipologia === 'spesa') 
+        ? (values.socio_id === 'none' ? null : values.socio_id) 
+        : null,
       note: values.note || undefined,
       stato_pagamento: values.is_pending ? 'pending' : 'completato',
     };
@@ -216,20 +218,29 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
           />
         )}
 
-        {tipologia === 'prelievo' && (
+        {(tipologia === 'prelievo' || tipologia === 'spesa') && (
           <FormField
             control={form.control}
             name="socio_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Socio/Admin *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <FormLabel>
+                  {tipologia === 'prelievo' ? 'Socio che preleva *' : 'Spesa effettuata da'}
+                </FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || ''}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleziona socio/admin" />
+                      <SelectValue placeholder={
+                        tipologia === 'prelievo' 
+                          ? "Seleziona socio che preleva" 
+                          : "Chi ha effettuato questa spesa?"
+                      } />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    {tipologia === 'spesa' && (
+                      <SelectItem value="none">Nessuno (spesa non attribuita)</SelectItem>
+                    )}
                     {dipendenti
                       ?.filter(d => d.role === 'socio' || d.role === 'admin')
                       .map(d => (
@@ -240,7 +251,9 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                   </SelectContent>
                 </Select>
                 <div className="text-sm text-muted-foreground mt-2">
-                  Questo prelievo apparirà nello storico del socio/admin
+                  {tipologia === 'prelievo' 
+                    ? "Questo prelievo apparirà nello storico del socio" 
+                    : "Se specificato, la spesa apparirà nel report del socio"}
                 </div>
                 <FormMessage />
               </FormItem>
