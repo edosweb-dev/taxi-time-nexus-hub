@@ -70,7 +70,11 @@ export function IndirizziIntermediSummary() {
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                   <span className="text-blue-700 dark:text-blue-300">Presa:</span>
-                  <span className="text-blue-800 dark:text-blue-200">{p.luogo_presa_personalizzato}</span>
+                  <span className="text-blue-800 dark:text-blue-200">
+                    {p.luogo_presa_personalizzato}
+                    {/* ✅ FIX BUG #41: Aggiungi località */}
+                    {p.localita_presa_personalizzato && `, ${p.localita_presa_personalizzato}`}
+                  </span>
                 </div>
               )}
               
@@ -86,7 +90,11 @@ export function IndirizziIntermediSummary() {
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                   <span className="text-blue-700 dark:text-blue-300">Destinazione:</span>
-                  <span className="text-blue-800 dark:text-blue-200">{p.destinazione_personalizzato}</span>
+                  <span className="text-blue-800 dark:text-blue-200">
+                    {p.destinazione_personalizzato}
+                    {/* ✅ FIX BUG #41: Aggiungi località */}
+                    {p.localita_destinazione_personalizzato && `, ${p.localita_destinazione_personalizzato}`}
+                  </span>
                 </div>
               )}
             </div>

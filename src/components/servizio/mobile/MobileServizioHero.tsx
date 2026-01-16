@@ -24,6 +24,7 @@ interface MobileServizioHeroProps {
     nome_cognome: string;
     usa_indirizzo_personalizzato?: boolean;
     luogo_presa_personalizzato?: string;
+    localita_presa_personalizzato?: string;
     orario_presa_personalizzato?: string;
   }>;
   isAdmin?: boolean;
@@ -137,6 +138,8 @@ export function MobileServizioHero({ servizio, passeggeri = [], isAdmin = false,
                   onClick={() => handleNavigate(passeggero.luogo_presa_personalizzato!)}
                 >
                   {passeggero.luogo_presa_personalizzato}
+                  {/* ✅ FIX BUG #41: Aggiungi località */}
+                  {passeggero.localita_presa_personalizzato && `, ${passeggero.localita_presa_personalizzato}`}
                 </div>
                 {passeggero.orario_presa_personalizzato && (
                   <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
