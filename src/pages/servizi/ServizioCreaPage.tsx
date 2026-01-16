@@ -1056,66 +1056,67 @@ export const ServizioCreaPage = ({
         const { error: servizioError } = await supabase.from("servizi").update(servizioData).eq('id', servizioId);
         if (servizioError) throw servizioError;
 
-        // Gestisci passeggeri/email solo per aziende
-        if (data.tipo_cliente === 'azienda') {
-          await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
+        // ✅ FIX: Gestisci passeggeri per TUTTI i tipi cliente (non solo aziende)
+        await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
+        
+        // Combina passeggeri permanenti e temporanei
+        const passeggeriCompleti = [];
+        
+        // Passeggeri permanenti (da checkbox)
+        if (data.passeggeri_ids.length > 0) {
+          const permanenti = data.passeggeri_ids.map(pid => ({ 
+            servizio_id: servizioId, 
+            passeggero_id: pid,
+            salva_in_database: Boolean(true),
+            usa_indirizzo_personalizzato: Boolean(false),
+          }));
+          passeggeriCompleti.push(...permanenti);
+        }
+        
+        // Passeggeri temporanei (da state)
+        const temporanei = tempPasseggeri.map(tp => {
+          const passeggeroData = {
+            servizio_id: servizioId,
+            passeggero_id: null,
+            nome_cognome_inline: tp.nome_cognome,
+            email_inline: tp.email || null,
+            telefono_inline: tp.telefono || null,
+            localita_inline: tp.localita || null,
+            indirizzo_inline: tp.indirizzo || null,
+            salva_in_database: Boolean(false),
+            usa_indirizzo_personalizzato: Boolean(tp.usa_indirizzo_personalizzato ?? false),
+            orario_presa_personalizzato: tp.orario_presa_personalizzato || null,
+            luogo_presa_personalizzato: tp.luogo_presa_personalizzato || null,
+            destinazione_personalizzato: tp.destinazione_personalizzato || null,
+          };
           
-          // ✅ Combina passeggeri permanenti e temporanei
-          const passeggeriCompleti = [];
+          console.log('═══════════════════════════════════');
+          console.log('🔍 [ServizioCreaPage EDIT] Temp passenger data:');
+          console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
+          console.log('typeof:', typeof passeggeroData.usa_indirizzo_personalizzato);
+          console.log('Full data:', JSON.stringify(passeggeroData, null, 2));
+          console.log('═══════════════════════════════════');
           
-          // Passeggeri permanenti (da checkbox)
-          if (data.passeggeri_ids.length > 0) {
-            const permanenti = data.passeggeri_ids.map(pid => ({ 
-              servizio_id: servizioId, 
-              passeggero_id: pid,
-              salva_in_database: Boolean(true),
-              usa_indirizzo_personalizzato: Boolean(false),
-            }));
-            passeggeriCompleti.push(...permanenti);
-          }
-          
-          // Passeggeri temporanei (da state)
-          const temporanei = tempPasseggeri.map(tp => {
-            const passeggeroData = {
-              servizio_id: servizioId,
-              passeggero_id: null,
-              nome_cognome_inline: tp.nome_cognome,
-              email_inline: tp.email || null,
-              telefono_inline: tp.telefono || null,
-              localita_inline: tp.localita || null,
-              indirizzo_inline: tp.indirizzo || null,
-              salva_in_database: Boolean(false),
-              usa_indirizzo_personalizzato: Boolean(tp.usa_indirizzo_personalizzato ?? false),
-              orario_presa_personalizzato: tp.orario_presa_personalizzato || null,
-              luogo_presa_personalizzato: tp.luogo_presa_personalizzato || null,
-              destinazione_personalizzato: tp.destinazione_personalizzato || null,
-            };
-            
-            console.log('═══════════════════════════════════');
-            console.log('🔍 [ServizioCreaPage EDIT] Temp passenger data:');
-            console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
-            console.log('typeof:', typeof passeggeroData.usa_indirizzo_personalizzato);
-            console.log('Full data:', JSON.stringify(passeggeroData, null, 2));
-            console.log('═══════════════════════════════════');
-            
-            return passeggeroData;
-          });
-          passeggeriCompleti.push(...temporanei);
-          
-          console.log('[ServizioCreaPage] Saving passengers (edit mode):', {
-            permanenti: data.passeggeri_ids.length,
-            temporanei: tempPasseggeri.length,
-            totale: passeggeriCompleti.length,
-            passeggeriCompleti: passeggeriCompleti
-          });
-          
-          if (passeggeriCompleti.length > 0) {
-            console.log('🔍 [ServizioCreaPage EDIT] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
-            const { error: passErr } = await supabase.from("servizi_passeggeri")
-              .insert(passeggeriCompleti);
-            if (passErr) throw passErr;
-          }
+          return passeggeroData;
+        });
+        passeggeriCompleti.push(...temporanei);
+        
+        console.log('[ServizioCreaPage] Saving passengers (edit mode):', {
+          permanenti: data.passeggeri_ids.length,
+          temporanei: tempPasseggeri.length,
+          totale: passeggeriCompleti.length,
+          passeggeriCompleti: passeggeriCompleti
+        });
+        
+        if (passeggeriCompleti.length > 0) {
+          console.log('🔍 [ServizioCreaPage EDIT] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
+          const { error: passErr } = await supabase.from("servizi_passeggeri")
+            .insert(passeggeriCompleti);
+          if (passErr) throw passErr;
+        }
 
+        // ✅ Email notifiche SOLO per aziende (corretto mantenerlo condizionato)
+        if (data.tipo_cliente === 'azienda') {
           await supabase.from("servizi_email_notifiche").delete().eq('servizio_id', servizioId);
           if (data.email_notifiche_ids.length > 0) {
             const { error: emailErr } = await supabase.from("servizi_email_notifiche")
