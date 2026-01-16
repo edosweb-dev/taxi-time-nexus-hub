@@ -12,7 +12,9 @@ interface PasseggeroRoadmap {
   telefono_2?: string;
   orario_presa?: string;
   luogo_presa?: string;
+  localita_presa?: string;
   destinazione?: string;
+  localita_destinazione?: string;
   ordine: number;
   usa_indirizzo_personalizzato?: boolean;
   usa_destinazione_personalizzata?: boolean;
@@ -63,29 +65,51 @@ export const RoadmapPasseggeri = ({
           {/* Linea verticale timeline */}
           <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-primary/50 to-green-500" />
 
-          {/* Punto di partenza */}
+          {/* Punto di partenza - include primo passeggero */}
           <div className="relative pb-6">
             <div className="absolute left-[-22px] w-6 h-6 rounded-full bg-primary flex items-center justify-center">
               <MapPin className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
             <div className="pl-2">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
                 <Badge variant="outline" className="text-xs font-medium">
+                  <Clock className="h-3 w-3 mr-1" />
                   {orarioServizio}
                 </Badge>
                 <span className="text-xs text-muted-foreground font-medium uppercase">Partenza</span>
+                {passeggeriOrdinati[0] && (
+                  <span className="text-sm font-semibold text-foreground">
+                    - {passeggeriOrdinati[0].nome_cognome || `${passeggeriOrdinati[0].nome || ''} ${passeggeriOrdinati[0].cognome || ''}`.trim()}
+                  </span>
+                )}
               </div>
-              <p className="text-sm font-medium">{partenzaDisplay || 'Non specificato'}</p>
+              {/* Città + Via */}
+              <div className="text-sm">
+                {cittaPartenza && (
+                  <span className="font-semibold text-primary">{cittaPartenza}</span>
+                )}
+                {cittaPartenza && indirizzoPartenza && <span className="text-muted-foreground"> • </span>}
+                {indirizzoPartenza && (
+                  <span className="text-muted-foreground">{indirizzoPartenza}</span>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Passeggeri */}
           {passeggeriOrdinati.map((passeggero, idx) => {
+            // Primo passeggero già mostrato in partenza? Skippiamo
+            if (idx === 0) return null;
+            
             const nome = passeggero.nome || '';
             const cognome = passeggero.cognome || '';
             const nomeCompleto = `${nome} ${cognome}`.trim() || passeggero.nome_cognome || `Passeggero ${idx + 1}`;
             const orarioPresa = passeggero.orario_presa || orarioServizio;
-            const luogoPresa = passeggero.luogo_presa || partenzaDisplay;
+            
+            // Calcola indirizzo con località
+            const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa;
+            const viaFermata = haPresaPersonalizzata ? passeggero.luogo_presa : partenzaDisplay;
+            const cittaFermata = haPresaPersonalizzata ? passeggero.localita_presa : cittaPartenza;
             const destinazionePasseggero = passeggero.destinazione || destinazioneDisplay;
 
             return (
@@ -99,22 +123,29 @@ export const RoadmapPasseggeri = ({
                       <Clock className="h-3 w-3 mr-1" />
                       {orarioPresa}
                     </Badge>
-                    <span className="text-sm font-semibold text-foreground">{nomeCompleto}</span>
+                    <span className="text-xs text-muted-foreground font-medium uppercase">Fermata</span>
+                    <span className="text-sm font-semibold text-foreground">- {nomeCompleto}</span>
                   </div>
                   
-                  {/* Luogo di presa */}
-                  {passeggero.usa_indirizzo_personalizzato && luogoPresa !== partenzaDisplay && (
-                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground mt-1">
-                      <MapPin className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                      <span>Presa: {luogoPresa}</span>
-                    </div>
-                  )}
+                  {/* Città + Via */}
+                  <div className="text-sm">
+                    {cittaFermata && (
+                      <span className="font-semibold text-primary">{cittaFermata}</span>
+                    )}
+                    {cittaFermata && viaFermata && <span className="text-muted-foreground"> • </span>}
+                    {viaFermata && viaFermata !== partenzaDisplay && (
+                      <span className="text-muted-foreground">{viaFermata}</span>
+                    )}
+                  </div>
                   
                   {/* Destinazione personalizzata */}
                   {passeggero.usa_destinazione_personalizzata && destinazionePasseggero !== destinazioneDisplay && (
                     <div className="flex items-start gap-1.5 text-sm text-amber-600 dark:text-amber-500 mt-1">
                       <Navigation className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                      <span>Destinazione: {destinazionePasseggero}</span>
+                      <span>
+                        Dest: {destinazionePasseggero}
+                        {passeggero.localita_destinazione && `, ${passeggero.localita_destinazione}`}
+                      </span>
                     </div>
                   )}
                   
@@ -152,6 +183,8 @@ export const RoadmapPasseggeri = ({
               </div>
             );
           })}
+
+
 
           {/* Punto di arrivo */}
           <div className="relative">

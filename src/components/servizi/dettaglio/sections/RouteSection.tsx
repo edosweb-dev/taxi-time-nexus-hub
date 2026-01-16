@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
-import { MapPin, Clock, User } from "lucide-react";
+import { MapPin, Clock, User, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface RouteSectionProps {
@@ -10,108 +10,162 @@ interface RouteSectionProps {
 }
 
 export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
+  // Ordina passeggeri per ordine_presa, poi orario
+  const passeggeriOrdinati = [...passeggeri].sort((a, b) => {
+    const ordineA = (a as any).ordine_presa ?? 0;
+    const ordineB = (b as any).ordine_presa ?? 0;
+    if (ordineA !== ordineB) return ordineA - ordineB;
+    const orarioA = a.orario_presa_personalizzato || servizio.orario_servizio;
+    const orarioB = b.orario_presa_personalizzato || servizio.orario_servizio;
+    return orarioA.localeCompare(orarioB);
+  });
+
+  // Primo passeggero = partenza
+  const primoPasseggero = passeggeriOrdinati[0];
+  // Passeggeri successivi = fermate intermedie
+  const fermateIntermedie = passeggeriOrdinati.slice(1);
+
+  // Calcola indirizzo partenza
+  const getIndirizzoPartenza = () => {
+    if (primoPasseggero) {
+      // Se ha presa personalizzata, usa quella
+      if (primoPasseggero.usa_indirizzo_personalizzato && primoPasseggero.luogo_presa_personalizzato) {
+        const via = primoPasseggero.luogo_presa_personalizzato;
+        const citta = primoPasseggero.localita_presa_personalizzato;
+        return { via, citta };
+      }
+    }
+    // Fallback a indirizzo servizio
+    return { via: servizio.indirizzo_presa, citta: servizio.citta_presa };
+  };
+
+  const partenza = getIndirizzoPartenza();
+
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Percorso e Ordine di Presa</CardTitle>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Navigation className="h-4 w-4 text-primary" />
+          Percorso Pick-up
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {/* Partenza */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-              <div className="bg-primary/10 rounded-full p-1.5">
-                <MapPin className="h-4 w-4" />
-              </div>
-              <span>Partenza</span>
+        <div className="relative pl-6">
+          {/* Linea verticale timeline */}
+          <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-primary/50 to-green-500" />
+
+          {/* PARTENZA - Primo passeggero */}
+          <div className="relative pb-5">
+            <div className="absolute left-[-22px] w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+              <MapPin className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
-            <div className="text-sm font-medium pl-9">{servizio.indirizzo_presa}</div>
-            {servizio.citta_presa && (
-              <div className="text-xs text-muted-foreground pl-9">
-                {servizio.citta_presa}
+            <div className="pl-2">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <Badge variant="outline" className="text-xs font-medium">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {servizio.orario_servizio}
+                </Badge>
+                <span className="text-xs text-muted-foreground font-medium uppercase">Partenza</span>
+                {primoPasseggero && (
+                  <span className="text-sm font-semibold text-foreground">
+                    - {primoPasseggero.nome_cognome}
+                  </span>
+                )}
               </div>
-            )}
+              {/* Città + Via */}
+              <div className="text-sm">
+                {partenza.citta && (
+                  <span className="font-semibold text-primary">{partenza.citta}</span>
+                )}
+                {partenza.citta && partenza.via && <span className="text-muted-foreground"> • </span>}
+                {partenza.via && (
+                  <span className="text-muted-foreground">{partenza.via}</span>
+                )}
+              </div>
+            </div>
           </div>
-          
-          {/* Timeline passeggeri */}
-          {passeggeri.length > 0 && (
-            <div className="relative pl-5 border-l-2 border-primary/30 ml-3 space-y-3">
-              {passeggeri.map((passeggero, index) => {
-                // Determina orario e luogo presa
-                const orarioPresa = passeggero.orario_presa_personalizzato || servizio.orario_servizio;
-                const luogoPresa = passeggero.luogo_presa_personalizzato || "Punto di partenza";
-                const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
+
+          {/* FERMATE INTERMEDIE - Passeggeri dal 2° in poi */}
+          {fermateIntermedie.map((passeggero, index) => {
+            const orarioPresa = passeggero.orario_presa_personalizzato || servizio.orario_servizio;
+            const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
+            
+            // Calcola indirizzo fermata
+            const viaFermata = haPresaPersonalizzata 
+              ? passeggero.luogo_presa_personalizzato 
+              : (passeggero.indirizzo || servizio.indirizzo_presa);
+            const cittaFermata = haPresaPersonalizzata
+              ? passeggero.localita_presa_personalizzato
+              : (passeggero.localita || servizio.citta_presa);
+
+            return (
+              <div key={passeggero.id || index} className="relative pb-5">
+                {/* Badge numero progressivo */}
+                <div className="absolute left-[-22px] w-6 h-6 rounded-full bg-background border-2 border-primary flex items-center justify-center">
+                  <span className="text-xs font-bold text-primary">{index + 2}</span>
+                </div>
                 
-                return (
-                  <div key={passeggero.id || index} className="relative">
-                    {/* Badge numero progressivo */}
-                    <div className="absolute -left-8 top-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                      {index + 1}
-                    </div>
-                    
-                    <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-                      {/* Nome passeggero */}
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium text-sm">{passeggero.nome_cognome}</span>
-                        {haPresaPersonalizzata && (
-                          <Badge variant="outline" className="text-xs">
-                            Presa intermedia
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Orario presa */}
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>{orarioPresa}</span>
-                      </div>
-                      
-                      {/* Luogo presa */}
-                      <div className="flex items-start gap-2 text-xs">
-                        <MapPin className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
-                        <span className={haPresaPersonalizzata ? "font-medium" : "text-muted-foreground"}>
-                          {luogoPresa}
-                          {/* ✅ FIX BUG #41: Aggiungi località fermata presa */}
-                          {passeggero.localita_presa_personalizzato && `, ${passeggero.localita_presa_personalizzato}`}
-                        </span>
-                      </div>
-                      
-                      {/* Destinazione personalizzata se presente */}
-                      {passeggero.destinazione_personalizzato && (
-                        <div className="flex items-start gap-2 text-xs pt-1 border-t border-border/50">
-                          <MapPin className="h-3.5 w-3.5 text-primary mt-0.5" />
-                          <div>
-                            <span className="text-muted-foreground">Dest: </span>
-                            <span className="font-medium">
-                              {passeggero.destinazione_personalizzato}
-                              {/* ✅ FIX BUG #41: Aggiungi località fermata destinazione */}
-                              {passeggero.localita_destinazione_personalizzato && `, ${passeggero.localita_destinazione_personalizzato}`}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                <div className="pl-2">
+                  {/* Header fermata: orario + nome */}
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <Badge variant="secondary" className="text-xs">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {orarioPresa}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground font-medium uppercase">Fermata</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      - {passeggero.nome_cognome}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          )}
-          
-          {/* Destinazione finale */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-              <div className="bg-primary/10 rounded-full p-1.5">
-                <MapPin className="h-4 w-4" />
+                  
+                  {/* Città + Via */}
+                  <div className="text-sm">
+                    {cittaFermata && (
+                      <span className="font-semibold text-primary">{cittaFermata}</span>
+                    )}
+                    {cittaFermata && viaFermata && <span className="text-muted-foreground"> • </span>}
+                    {viaFermata && (
+                      <span className="text-muted-foreground">{viaFermata}</span>
+                    )}
+                  </div>
+                  
+                  {/* Destinazione personalizzata se presente */}
+                  {passeggero.usa_destinazione_personalizzata && passeggero.destinazione_personalizzato && (
+                    <div className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-500 mt-1.5">
+                      <Navigation className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                      <span>
+                        Dest: {passeggero.destinazione_personalizzato}
+                        {passeggero.localita_destinazione_personalizzato && `, ${passeggero.localita_destinazione_personalizzato}`}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <span>Destinazione</span>
+            );
+          })}
+
+          {/* ARRIVO - Destinazione finale servizio */}
+          <div className="relative">
+            <div className="absolute left-[-22px] w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+              <Navigation className="h-3.5 w-3.5 text-white" />
             </div>
-            <div className="text-sm font-medium pl-9">{servizio.indirizzo_destinazione}</div>
-            {servizio.citta_destinazione && (
-              <div className="text-xs text-muted-foreground pl-9">
-                {servizio.citta_destinazione}
+            <div className="pl-2">
+              <div className="flex items-center gap-2 mb-1">
+                <Badge className="bg-green-500 hover:bg-green-500 text-white text-xs font-medium">
+                  ARRIVO
+                </Badge>
               </div>
-            )}
+              {/* Città + Via */}
+              <div className="text-sm">
+                {servizio.citta_destinazione && (
+                  <span className="font-semibold text-primary">{servizio.citta_destinazione}</span>
+                )}
+                {servizio.citta_destinazione && servizio.indirizzo_destinazione && <span className="text-muted-foreground"> • </span>}
+                {servizio.indirizzo_destinazione && (
+                  <span className="text-muted-foreground">{servizio.indirizzo_destinazione}</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>
