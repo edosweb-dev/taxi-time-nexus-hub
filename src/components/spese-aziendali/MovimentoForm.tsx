@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { DatePickerField } from '@/components/ui/date-picker-field';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
@@ -290,19 +291,25 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
           control={form.control}
           name="is_pending"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between">
-              <div className="flex flex-col gap-0.5">
-                <FormLabel className="text-sm font-medium">Pagamento pending</FormLabel>
-                <span className="text-xs text-muted-foreground">
-                  Il pagamento non è ancora stato effettuato
-                </span>
+            <FormItem>
+              <div className="flex items-start gap-3">
+                <FormControl>
+                  <Checkbox
+                    id="pagamento_pending"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    className="mt-0.5"
+                  />
+                </FormControl>
+                <div className="flex flex-col gap-0.5">
+                  <Label htmlFor="pagamento_pending" className="text-sm font-medium cursor-pointer">
+                    Pagamento pending
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Il pagamento non è ancora stato effettuato
+                  </span>
+                </div>
               </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
             </FormItem>
           )}
         />
