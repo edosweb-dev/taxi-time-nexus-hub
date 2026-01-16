@@ -139,13 +139,13 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
               <FormLabel>Importo</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground text-lg">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg pointer-events-none z-10">
                     €
                   </span>
                   <Input
                     type="text"
                     placeholder="0,00"
-                    className="pl-10 text-lg font-semibold"
+                    className="!pl-10 text-lg font-semibold"
                     value={importoInput}
                     onChange={(e) => handleImportoChange(e.target.value)}
                   />
