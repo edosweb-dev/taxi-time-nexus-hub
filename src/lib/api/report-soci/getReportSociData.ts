@@ -60,16 +60,28 @@ export async function getReportSociData(
 
         const speseEffettuate = speseData?.reduce((sum, s) => sum + (s.importo || 0), 0) || 0;
 
-        // Fetch incassi da dipendenti (contante) del mese
+        // Fetch incassi da dipendenti (contanti consegnati al socio da servizi di altri)
         const { data: incassiDipData } = await supabase
+          .from('servizi')
+          .select('incasso_ricevuto')
+          .eq('consegna_contanti_a', socio.id)
+          .eq('stato', 'consuntivato')
+          .not('assegnato_a', 'eq', socio.id) // Solo servizi di ALTRI (dipendenti), non propri
+          .gte('data_servizio', dataInizio)
+          .lte('data_servizio', dataFine);
+
+        const incassiDaDipendenti = incassiDipData?.reduce((sum, i) => sum + (i.incasso_ricevuto || 0), 0) || 0;
+
+        // Fetch versamenti del mese
+        const { data: versamentiData } = await supabase
           .from('spese_aziendali')
           .select('importo')
           .eq('socio_id', socio.id)
-          .eq('tipologia', 'incasso')
+          .eq('tipologia', 'versamento')
           .gte('data_movimento', dataInizio)
           .lte('data_movimento', dataFine);
 
-        const incassiDaDipendenti = incassiDipData?.reduce((sum, i) => sum + (i.importo || 0), 0) || 0;
+        const versamenti = versamentiData?.reduce((sum, v) => sum + (v.importo || 0), 0) || 0;
 
         // Fetch incassi personali da servizi in contanti del mese
         const { data: serviziContantiData } = await supabase
@@ -101,7 +113,7 @@ export async function getReportSociData(
         ) || 0;
 
         // Calcola totale del mese
-        const totaleMese = riporto + stipendio - prelievi - speseEffettuate + incassiDaDipendenti + incassiPersonali;
+        const totaleMese = riporto + stipendio - prelievi - speseEffettuate + incassiDaDipendenti + incassiPersonali + versamenti;
 
         return {
           userId: socio.id,
