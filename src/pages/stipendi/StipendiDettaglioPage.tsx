@@ -163,7 +163,24 @@ export default function StipendiDettaglioPage() {
     enabled: !!userId,
   });
 
-  // Query 8: Riporto mese precedente
+  // Query 8: Versamenti del mese
+  const { data: versamenti } = useQuery({
+    queryKey: ['versamenti-mese', userId, meseCorrente, annoCorrente],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('spese_aziendali')
+        .select('importo')
+        .eq('socio_id', userId)
+        .eq('tipologia', 'versamento')
+        .gte('data_movimento', primoGiornoMese)
+        .lte('data_movimento', ultimoGiornoMese);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
+  // Query 9: Riporto mese precedente
   const { data: riportoMesePrecedente } = useQuery({
     queryKey: ['riporto-stipendio', userId, meseCorrente - 1, annoCorrente],
     queryFn: async () => {
@@ -232,6 +249,7 @@ export default function StipendiDettaglioPage() {
   const totaleSpesePersonali = spesePersonali?.reduce((sum, s) => sum + Number(s.importo), 0) || 0;
   const totalePrelievi = prelievi?.reduce((sum, p) => sum + Number(p.importo), 0) || 0;
   const totaleIncassiDipendenti = incassiDipendenti?.reduce((sum, i) => sum + Number(i.importo), 0) || 0;
+  const totaleVersamenti = versamenti?.reduce((sum, v) => sum + Number(v.importo), 0) || 0;
   const riporto = Number(riportoMesePrecedente) || 0;
 
   // Funzioni helper per calcolo compenso singolo servizio
@@ -285,6 +303,7 @@ export default function StipendiDettaglioPage() {
     totaliServizi.compensiKm + 
     totaliServizi.compensiOre + 
     totaleSpesePersonali + 
+    totaleVersamenti +
     (riporto > 0 ? riporto : 0);
 
   const totaleUscite = 
@@ -507,6 +526,10 @@ export default function StipendiDettaglioPage() {
                 <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                   <span className="text-sm">Spese personali approvate</span>
                   <span className="font-bold text-primary">+€{totaleSpesePersonali.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
+                  <span className="text-sm">Versamenti socio</span>
+                  <span className="font-bold text-primary">+€{totaleVersamenti.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                   <span className="text-sm">Riporto mese precedente</span>
