@@ -146,17 +146,18 @@ export default function StipendiDettaglioPage() {
     enabled: !!userId,
   });
 
-  // Query 7: Incassi da dipendenti
+  // Query 7: Incassi da dipendenti (contanti consegnati al socio da servizi)
   const { data: incassiDipendenti } = useQuery({
     queryKey: ['incassi-dipendenti', userId, meseCorrente, annoCorrente],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('spese_aziendali')
-        .select('importo')
-        .eq('socio_id', userId)
-        .eq('tipologia', 'incasso')
-        .gte('data_movimento', primoGiornoMese)
-        .lte('data_movimento', ultimoGiornoMese);
+        .from('servizi')
+        .select('incasso_ricevuto, id_progressivo, data_servizio, assegnato_a')
+        .eq('consegna_contanti_a', userId)
+        .eq('stato', 'consuntivato')
+        .not('assegnato_a', 'eq', userId) // Solo servizi di ALTRI (dipendenti), non propri
+        .gte('data_servizio', primoGiornoMese)
+        .lte('data_servizio', ultimoGiornoMese);
       if (error) throw error;
       return data || [];
     },
@@ -248,7 +249,7 @@ export default function StipendiDettaglioPage() {
   // 5. Detrazioni/Addizioni
   const totaleSpesePersonali = spesePersonali?.reduce((sum, s) => sum + Number(s.importo), 0) || 0;
   const totalePrelievi = prelievi?.reduce((sum, p) => sum + Number(p.importo), 0) || 0;
-  const totaleIncassiDipendenti = incassiDipendenti?.reduce((sum, i) => sum + Number(i.importo), 0) || 0;
+  const totaleIncassiDipendenti = incassiDipendenti?.reduce((sum, i) => sum + Number(i.incasso_ricevuto), 0) || 0;
   const totaleVersamenti = versamenti?.reduce((sum, v) => sum + Number(v.importo), 0) || 0;
   const riporto = Number(riportoMesePrecedente) || 0;
 
