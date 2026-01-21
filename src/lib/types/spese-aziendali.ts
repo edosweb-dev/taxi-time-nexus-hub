@@ -11,7 +11,7 @@ export interface SpesaAziendale {
   data_movimento: string;
   importo: number;
   causale: string;
-  tipologia: 'spesa' | 'incasso' | 'prelievo';
+  tipologia: 'spesa' | 'incasso' | 'prelievo' | 'versamento';
   tipo_causale?: 'generica' | 'f24' | 'pagamento_fornitori' | 'spese_gestione' | 'multe' | 'fattura_conducenti_esterni';
   modalita_pagamento_id: string;
   socio_id?: string;
@@ -37,7 +37,7 @@ export interface MovimentoFormData {
   data_movimento: string;
   importo: number;
   causale: string;
-  tipologia: 'spesa' | 'incasso' | 'prelievo';
+  tipologia: 'spesa' | 'incasso' | 'prelievo' | 'versamento';
   tipo_causale?: 'generica' | 'f24' | 'pagamento_fornitori' | 'spese_gestione' | 'multe' | 'fattura_conducenti_esterni';
   modalita_pagamento_id: string;
   socio_id?: string;
@@ -50,5 +50,6 @@ export interface TotaliMese {
   spese: number;
   incassi: number;
   prelievi: number;
+  versamenti: number;
   saldo: number;
 }

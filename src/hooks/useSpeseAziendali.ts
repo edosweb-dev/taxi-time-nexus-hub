@@ -125,6 +125,74 @@ export const useSpeseAziendali = () => {
     },
   });
 
+  const updateMovimento = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<MovimentoFormData> }) => {
+      console.log('[useSpeseAziendali] Updating movimento:', id, data);
+      
+      const { data: result, error } = await supabase
+        .from('spese_aziendali')
+        .update(data)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[useSpeseAziendali] Update error:', error);
+        throw error;
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
+      queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
+      queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      toast({
+        title: "Movimento aggiornato",
+        description: "Il movimento è stato aggiornato con successo.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore aggiornamento",
+        description: error.message || "Errore durante l'aggiornamento del movimento.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMovimento = useMutation({
+    mutationFn: async (id: string) => {
+      console.log('[useSpeseAziendali] Deleting movimento:', id);
+      
+      const { error } = await supabase
+        .from('spese_aziendali')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('[useSpeseAziendali] Delete error:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
+      queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-count'] });
+      queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      toast({
+        title: "Movimento eliminato",
+        description: "Il movimento è stato eliminato con successo.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore eliminazione",
+        description: error.message || "Errore durante l'eliminazione del movimento.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const updateStatoPagamento = useMutation({
     mutationFn: async ({ id, stato }: { id: string; stato: 'completato' | 'pending' }) => {
       const { error } = await supabase
@@ -305,6 +373,8 @@ export const useSpeseAziendali = () => {
     isLoadingCompleti: fetchMovimentiCompleti.isLoading,
     error: fetchMovimenti.error,
     addMovimento,
+    updateMovimento,
+    deleteMovimento,
     updateStatoPagamento,
     convertiSpeseDipendenti,
     pendingCount: getPendingCount.data || 0,
