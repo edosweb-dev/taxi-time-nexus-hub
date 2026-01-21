@@ -94,7 +94,7 @@ export function ModificaMovimentoDialog({ open, onOpenChange, movimento }: Modif
         tipo_causale: values.tipo_causale,
         causale: values.causale,
         modalita_pagamento_id: values.modalita_pagamento_id,
-        socio_id: values.socio_id || null,
+        socio_id: values.socio_id === 'none' ? null : (values.socio_id || null),
         note: values.note || null,
       },
     });
@@ -186,7 +186,7 @@ export function ModificaMovimentoDialog({ open, onOpenChange, movimento }: Modif
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nessuno</SelectItem>
+                        <SelectItem value="none">Nessuno</SelectItem>
                         {soci?.map((s) => (
                           <SelectItem key={s.id} value={s.id}>
                             {s.first_name} {s.last_name}
