@@ -133,7 +133,68 @@ export async function generateFromPreviousYear(annoDestinazione: number): Promis
 }
 
 /**
+ * Calcola base KM per singolo servizio (funzione SINCRONA)
+ * Usata nel loop di calcolo mensile per ogni servizio
+ */
+export function calcolaBaseKmSingoloServizio(
+  km: number,
+  tariffeKm: TariffaKmFissa[],
+  config: ConfigurazioneStipendi
+): { base: number; dettaglio: string; modalita: 'tabella' | 'lineare' } {
+  if (km <= 0) {
+    return { base: 0, dettaglio: '0 km → €0', modalita: 'tabella' };
+  }
+
+  if (km <= 200) {
+    // Arrotonda a multiplo di 5 (eccetto <= 12km)
+    let kmArrotondati = km;
+    if (km > 12) {
+      kmArrotondati = Math.round(km / 5) * 5;
+    }
+
+    // Cerca tariffa esatta
+    const tariffaEsatta = tariffeKm.find(t => t.km === kmArrotondati);
+    if (tariffaEsatta) {
+      return {
+        base: Number(tariffaEsatta.importo_base),
+        dettaglio: `${km}km → arrot. ${kmArrotondati}km → €${tariffaEsatta.importo_base}`,
+        modalita: 'tabella'
+      };
+    }
+
+    // Fallback: trova tariffa più vicina inferiore
+    const tariffaVicina = tariffeKm
+      .filter(t => t.km <= kmArrotondati)
+      .sort((a, b) => b.km - a.km)[0];
+
+    if (tariffaVicina) {
+      console.warn(`[calcolaBaseKmSingoloServizio] Tariffa esatta non trovata per ${kmArrotondati}km, uso ${tariffaVicina.km}km`);
+      return {
+        base: Number(tariffaVicina.importo_base),
+        dettaglio: `${km}km → fallback ${tariffaVicina.km}km → €${tariffaVicina.importo_base}`,
+        modalita: 'tabella'
+      };
+    }
+
+    // Nessuna tariffa trovata
+    console.error(`[calcolaBaseKmSingoloServizio] Nessuna tariffa trovata per ${kmArrotondati}km`);
+    return { base: 0, dettaglio: `${km}km → NESSUNA TARIFFA`, modalita: 'tabella' };
+
+  } else {
+    // Calcolo lineare per km > 200
+    const tariffaLineare = Number(config.tariffa_oltre_200km) || 0.25;
+    const base = km * tariffaLineare;
+    return {
+      base: Number(base.toFixed(2)),
+      dettaglio: `${km}km × €${tariffaLineare}/km = €${base.toFixed(2)}`,
+      modalita: 'lineare'
+    };
+  }
+}
+
+/**
  * Calcola base KM con logica doppia (≤200km: tabella, >200km: lineare)
+ * Funzione ASINCRONA per calcoli singoli (es. simulatore)
  */
 export async function calcolaBaseKm(
   kmTotali: number,
