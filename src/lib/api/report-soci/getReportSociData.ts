@@ -26,16 +26,33 @@ export async function getReportSociData(
     // 3. Per ogni socio, calcola tutte le metriche
     const rows: ReportSocioRow[] = await Promise.all(
       soci.map(async (socio) => {
+        // Calcola mese/anno precedente
+        const mesePrecedente = mese === 1 ? 12 : mese - 1;
+        const annoPrecedente = mese === 1 ? anno - 1 : anno;
+
+        // Fetch riporto dal mese PRECEDENTE (totale_netto dello stipendio precedente)
+        const { data: stipendioPrecedente } = await supabase
+          .from('stipendi')
+          .select('totale_netto')
+          .eq('user_id', socio.id)
+          .eq('mese', mesePrecedente)
+          .eq('anno', annoPrecedente)
+          .in('stato', ['bozza', 'confermato', 'pagato'])
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const riporto = stipendioPrecedente?.totale_netto || 0;
+
         // Fetch stipendio del mese corrente
         const { data: stipendioData } = await supabase
           .from('stipendi')
-          .select('totale_lordo, riporto_mese_precedente')
+          .select('totale_lordo')
           .eq('user_id', socio.id)
           .eq('mese', mese)
           .eq('anno', anno)
           .maybeSingle();
 
-        const riporto = stipendioData?.riporto_mese_precedente || 0;
         const stipendio = stipendioData?.totale_lordo || 0;
 
         // Fetch prelievi del mese
@@ -83,13 +100,13 @@ export async function getReportSociData(
 
         const versamenti = versamentiData?.reduce((sum, v) => sum + (v.importo || 0), 0) || 0;
 
-        // Fetch incassi personali da servizi in contanti del mese
+        // Fetch incassi personali da servizi in contanti del mese (solo consuntivati)
         const { data: serviziContantiData } = await supabase
           .from('servizi')
           .select('incasso_ricevuto, incasso_previsto')
           .eq('assegnato_a', socio.id)
           .eq('metodo_pagamento', 'Contanti')
-          .in('stato', ['completato', 'consuntivato'])
+          .eq('stato', 'consuntivato')
           .gte('data_servizio', dataInizio)
           .lte('data_servizio', dataFine);
 
