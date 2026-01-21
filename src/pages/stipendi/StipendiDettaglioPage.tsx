@@ -25,8 +25,11 @@ export default function StipendiDettaglioPage() {
   const now = new Date();
   const meseCorrente = now.getMonth() + 1;
   const annoCorrente = now.getFullYear();
-  const primoGiornoMese = new Date(annoCorrente, meseCorrente - 1, 1).toISOString().split('T')[0];
-  const ultimoGiornoMese = new Date(annoCorrente, meseCorrente, 0).toISOString().split('T')[0];
+  
+  // Calcolo date sicuro senza problemi timezone
+  const primoGiornoMese = `${annoCorrente}-${String(meseCorrente).padStart(2, '0')}-01`;
+  const ultimoGiornoMeseNum = new Date(annoCorrente, meseCorrente, 0).getDate();
+  const ultimoGiornoMese = `${annoCorrente}-${String(meseCorrente).padStart(2, '0')}-${String(ultimoGiornoMeseNum).padStart(2, '0')}`;
 
   // Nome mese in italiano
   const nomiMesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
@@ -52,6 +55,7 @@ export default function StipendiDettaglioPage() {
   const { data: servizi, isLoading: isLoadingServizi } = useQuery({
     queryKey: ['servizi-stipendio', userId, meseCorrente, annoCorrente],
     queryFn: async () => {
+      console.log(`[StipendiDettaglioPage] Range date: ${primoGiornoMese} → ${ultimoGiornoMese}`);
       const { data, error } = await supabase
         .from('servizi')
         .select(`
