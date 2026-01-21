@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 const formSchema = z.object({
   data_movimento: z.string(),
   importo: z.number().positive('L\'importo deve essere positivo'),
-  tipologia: z.enum(['spesa', 'incasso', 'prelievo']).default('spesa'),
+  tipologia: z.enum(['spesa', 'incasso', 'prelievo', 'versamento']).default('spesa'),
   tipo_causale: z.enum(['generica', 'f24', 'pagamento_fornitori', 'spese_gestione', 'multe', 'fattura_conducenti_esterni']).default('generica'),
   causale: z.string().min(3, 'La causale deve avere almeno 3 caratteri').max(500, 'La causale è troppo lunga'),
   modalita_pagamento_id: z.string().uuid({ message: 'Seleziona una modalità di pagamento' }),
@@ -29,8 +29,8 @@ const formSchema = z.object({
   note: z.string().optional(),
   is_pending: z.boolean().default(false),
 }).refine(
-  (data) => data.tipologia !== 'prelievo' || data.socio_id,
-  { message: "Seleziona un socio per i prelievi", path: ["socio_id"] }
+  (data) => (data.tipologia !== 'prelievo' && data.tipologia !== 'versamento') || data.socio_id,
+  { message: "Seleziona un socio", path: ["socio_id"] }
 );
 
 interface MovimentoFormProps {
@@ -85,7 +85,7 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
       tipo_causale: values.tipo_causale || 'generica',
       modalita_pagamento_id: values.modalita_pagamento_id,
       dipendente_id: undefined,
-      socio_id: (values.tipologia === 'prelievo' || values.tipologia === 'spesa') 
+      socio_id: (values.tipologia === 'prelievo' || values.tipologia === 'versamento' || values.tipologia === 'spesa') 
         ? (values.socio_id === 'none' ? null : values.socio_id) 
         : null,
       note: values.note || undefined,
@@ -183,6 +183,7 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                   <SelectItem value="spesa">Spesa (uscita)</SelectItem>
                   <SelectItem value="incasso">Incasso (entrata)</SelectItem>
                   <SelectItem value="prelievo">Prelievo Socio</SelectItem>
+                  <SelectItem value="versamento">Versamento Socio</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -218,14 +219,16 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
           />
         )}
 
-        {(tipologia === 'prelievo' || tipologia === 'spesa') && (
+        {(tipologia === 'prelievo' || tipologia === 'versamento' || tipologia === 'spesa') && (
           <FormField
             control={form.control}
             name="socio_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {tipologia === 'prelievo' ? 'Socio che preleva *' : 'Spesa effettuata da'}
+                  {tipologia === 'prelievo' ? 'Socio che preleva *' : 
+                   tipologia === 'versamento' ? 'Socio che versa *' : 
+                   'Spesa effettuata da'}
                 </FormLabel>
                 <Select onValueChange={field.onChange} value={field.value || ''}>
                   <FormControl>
@@ -233,6 +236,8 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                       <SelectValue placeholder={
                         tipologia === 'prelievo' 
                           ? "Seleziona socio che preleva" 
+                          : tipologia === 'versamento'
+                          ? "Seleziona socio che versa"
                           : "Chi ha effettuato questa spesa?"
                       } />
                     </SelectTrigger>
@@ -253,6 +258,8 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                 <div className="text-sm text-muted-foreground mt-2">
                   {tipologia === 'prelievo' 
                     ? "Questo prelievo apparirà nello storico del socio" 
+                    : tipologia === 'versamento'
+                    ? "Questo versamento riduce il debito del socio verso l'azienda"
                     : "Se specificato, la spesa apparirà nel report del socio"}
                 </div>
                 <FormMessage />

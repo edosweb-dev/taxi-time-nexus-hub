@@ -15,6 +15,7 @@ export interface CalcoloStipendioParams {
 export interface DetrazioniStipendio {
   totaleSpesePersonali: number;
   totalePrelievi: number;
+  totaleVersamenti: number;
   incassiDaDipendenti: number;
   incassiServiziContanti: number;
   riportoMesePrecedente: number;
@@ -82,8 +83,10 @@ export async function getDetrazioniStipendio(
 ): Promise<DetrazioniStipendio> {
   console.log(`[getDetrazioniStipendio] Recuperando detrazioni per user ${userId}, ${mese}/${anno}`);
   
-  const startDate = new Date(anno, mese - 1, 1).toISOString().split('T')[0];
-  const endDate = new Date(anno, mese, 0).toISOString().split('T')[0];
+  // Calcolo date sicuro senza problemi timezone
+  const startDate = `${anno}-${String(mese).padStart(2, '0')}-01`;
+  const lastDay = new Date(anno, mese, 0).getDate();
+  const endDate = `${anno}-${String(mese).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
   
   // Recupera spese personali del mese
   const { data: spesePersonali, error: errorSpese } = await supabase
@@ -112,6 +115,20 @@ export async function getDetrazioniStipendio(
     console.error('[getDetrazioniStipendio] Errore recupero prelievi:', errorPrelievi);
     throw errorPrelievi;
   }
+
+  // NUOVO: Recupera versamenti del mese (movimenti aziendali di tipo versamento)
+  const { data: versamenti, error: errorVersamenti } = await supabase
+    .from('spese_aziendali')
+    .select('importo')
+    .eq('socio_id', userId)
+    .eq('tipologia', 'versamento')
+    .gte('data_movimento', startDate)
+    .lte('data_movimento', endDate);
+  
+  if (errorVersamenti) {
+    console.error('[getDetrazioniStipendio] Errore recupero versamenti:', errorVersamenti);
+    throw errorVersamenti;
+  }
   
   // Recupera incassi da dipendenti (movimenti aziendali di tipo incasso per il socio)
   const { data: incassi, error: errorIncassi } = await supabase
@@ -127,7 +144,7 @@ export async function getDetrazioniStipendio(
     throw errorIncassi;
   }
   
-  // NUOVO: Calcola incassi da servizi contanti personali
+  // Calcola incassi da servizi contanti personali
   const incassiServiziContanti = await getIncassiServiziContanti(
     userId,
     startDate,
@@ -159,12 +176,14 @@ export async function getDetrazioniStipendio(
   
   const totaleSpesePersonali = spesePersonali?.reduce((sum, spesa) => sum + Number(spesa.importo), 0) || 0;
   const totalePrelievi = prelievi?.reduce((sum, prelievo) => sum + Number(prelievo.importo), 0) || 0;
+  const totaleVersamenti = versamenti?.reduce((sum, versamento) => sum + Number(versamento.importo), 0) || 0;
   const incassiDaDipendenti = incassi?.reduce((sum, incasso) => sum + Number(incasso.importo), 0) || 0;
   const riportoMesePrecedente = stipendioPrecedente?.totale_netto ? Number(stipendioPrecedente.totale_netto) : 0;
   
   const detrazioni: DetrazioniStipendio = {
     totaleSpesePersonali,
     totalePrelievi,
+    totaleVersamenti,
     incassiDaDipendenti,
     incassiServiziContanti,
     riportoMesePrecedente
@@ -231,19 +250,21 @@ export async function calcolaStipendioCompleto(
     console.log('[CALCOLO] 📋 Detrazioni:', detrazioni);
     
     // 7. Calcola totale netto
-    // Formula corretta: incassi servizi devono essere SOTTRATTI (socio ha già incassato denaro)
+    // Formula: versamenti aumentano il netto (socio restituisce denaro all'azienda)
     const totaleNetto = Number((
       totaleLordo +                          // Base lordo (KM + ore attesa con aumento)
-      detrazioni.totaleSpesePersonali -      // ✅ AGGIUNGI rimborsi spese
+      detrazioni.totaleSpesePersonali +      // ✅ AGGIUNGI rimborsi spese
+      detrazioni.totaleVersamenti -          // ✅ AGGIUNGI versamenti (riducono debito socio)
       detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
       detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti
-      detrazioni.incassiServiziContanti -    // ✅ SOTTRAI incassi servizi contanti (FIX BUG #1)
+      detrazioni.incassiServiziContanti -    // ✅ SOTTRAI incassi servizi contanti
       detrazioni.riportoMesePrecedente       // ✅ ± riporto mese precedente
     ).toFixed(2));
 
     console.log('[CALCOLO] 💳 Breakdown netto:', {
       totaleLordo,
       spesePersonali: `+${detrazioni.totaleSpesePersonali}`,
+      versamenti: `+${detrazioni.totaleVersamenti}`,
       prelievi: `-${detrazioni.totalePrelievi}`,
       incassiDipendenti: `-${detrazioni.incassiDaDipendenti}`,
       incassiServizi: `-${detrazioni.incassiServiziContanti}`,
