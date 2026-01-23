@@ -200,6 +200,15 @@ export async function calcolaBaseKm(
   kmTotali: number,
   anno: number
 ): Promise<{ base: number; dettaglio: string; modalita: 'tabella' | 'lineare' }> {
+  // Guard: se km = 0, restituisci subito €0 senza cercare nella tabella
+  if (kmTotali <= 0) {
+    return {
+      base: 0,
+      dettaglio: 'Nessun chilometro',
+      modalita: 'tabella'
+    };
+  }
+
   if (kmTotali <= 200) {
     // Arrotonda a multiplo di 5 (eccetto 12km)
     let kmArrotondati = kmTotali;
