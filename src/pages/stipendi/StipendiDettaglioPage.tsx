@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ExternalLink, TrendingUp, TrendingDown, FileText } from 'lucide-react';
+import { ArrowLeft, ExternalLink, TrendingUp, TrendingDown, FileText, RefreshCw, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   Table,
@@ -16,10 +17,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from '@/components/ui/sonner';
 
 export default function StipendiDettaglioPage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [isRecalculating, setIsRecalculating] = useState(false);
 
   // Mese e anno correnti
   const now = new Date();
@@ -317,6 +321,84 @@ export default function StipendiDettaglioPage() {
 
   const isLoading = isLoadingUtente || isLoadingServizi;
 
+  // Funzione per ricalcolare e salvare lo stipendio nel database
+  const handleRecalculate = async () => {
+    if (!userId) return;
+    
+    setIsRecalculating(true);
+    try {
+      // Verifica se esiste già uno stipendio per questo mese
+      const { data: existingStipendio, error: fetchError } = await supabase
+        .from('stipendi')
+        .select('id, stato')
+        .eq('user_id', userId)
+        .eq('mese', meseCorrente)
+        .eq('anno', annoCorrente)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
+
+      // Prepara i dati calcolati
+      const stipendioData = {
+        totale_km: totaleKm,
+        totale_ore_attesa: totaleOreSosta,
+        base_calcolo: baseKm,
+        coefficiente_applicato: coefficienteAumento,
+        totale_lordo: totaleLordo,
+        totale_spese: totaleSpesePersonali,
+        totale_prelievi: totalePrelievi,
+        incassi_da_dipendenti: totaleIncassiDipendenti + totaliServizi.contanti,
+        riporto_mese_precedente: riporto,
+        totale_netto: totaleNetto,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (existingStipendio) {
+        // Aggiorna lo stipendio esistente (solo se in bozza)
+        if (existingStipendio.stato !== 'bozza') {
+          toast.error('Non è possibile ricalcolare uno stipendio già confermato');
+          return;
+        }
+
+        const { error: updateError } = await supabase
+          .from('stipendi')
+          .update(stipendioData)
+          .eq('id', existingStipendio.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Crea un nuovo stipendio
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Utente non autenticato');
+
+        const { error: insertError } = await supabase
+          .from('stipendi')
+          .insert({
+            ...stipendioData,
+            user_id: userId,
+            mese: meseCorrente,
+            anno: annoCorrente,
+            tipo_calcolo: 'socio',
+            stato: 'bozza',
+            created_by: user.id,
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      // Invalida le query per refresh
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      
+      toast.success('Stipendio ricalcolato e salvato con successo');
+    } catch (error) {
+      console.error('[handleRecalculate] Error:', error);
+      toast.error('Errore durante il ricalcolo dello stipendio');
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-4 space-y-6">
@@ -372,6 +454,19 @@ export default function StipendiDettaglioPage() {
               )}
             </div>
             <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={handleRecalculate}
+                disabled={isRecalculating}
+              >
+                {isRecalculating ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                Ricalcola
+              </Button>
               <Button size="sm">Paga ora</Button>
               <Button size="sm" variant="outline">
                 <FileText className="h-4 w-4 mr-2" />
