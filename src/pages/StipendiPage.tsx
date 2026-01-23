@@ -149,15 +149,6 @@ export default function StipendiPage() {
                 Ricalcola Tutti
               </Button>
             )}
-            {countBozza > 0 && (
-              <Alert className="max-w-md">
-                <Clock className="h-4 w-4" />
-                <AlertTitle>Stipendi in Bozza</AlertTitle>
-                <AlertDescription>
-                  {countBozza} stipend{countBozza === 1 ? 'io' : 'i'} calcolat{countBozza === 1 ? 'o' : 'i'} automaticamente in attesa di conferma.
-                </AlertDescription>
-              </Alert>
-            )}
             <StipendiGuida />
           </div>
         </div>
