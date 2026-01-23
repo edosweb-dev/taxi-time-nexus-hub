@@ -130,19 +130,28 @@ export async function getDetrazioniStipendio(
     throw errorVersamenti;
   }
   
-  // Recupera incassi da dipendenti (movimenti aziendali di tipo incasso per il socio)
-  const { data: incassi, error: errorIncassi } = await supabase
-    .from('spese_aziendali')
-    .select('importo')
-    .eq('socio_id', userId)
-    .eq('tipologia', 'incasso')
-    .gte('data_movimento', startDate)
-    .lte('data_movimento', endDate);
-  
+  // Recupera incassi da dipendenti (contanti consegnati al socio da servizi di altri)
+  const { data: serviziConContanti, error: errorIncassi } = await supabase
+    .from('servizi')
+    .select('incasso_ricevuto, incasso_previsto')
+    .eq('consegna_contanti_a', userId)
+    .eq('stato', 'consuntivato')
+    .not('assegnato_a', 'eq', userId)  // Solo servizi di ALTRI dipendenti
+    .gte('data_servizio', startDate)
+    .lte('data_servizio', endDate);
+
   if (errorIncassi) {
-    console.error('[getDetrazioniStipendio] Errore recupero incassi:', errorIncassi);
+    console.error('[getDetrazioniStipendio] Errore recupero incassi dipendenti:', errorIncassi);
     throw errorIncassi;
   }
+  
+  // Calcola totale incassi da dipendenti
+  const incassiDaDipendenti = serviziConContanti?.reduce(
+    (sum, s) => sum + Number(s.incasso_ricevuto || s.incasso_previsto || 0), 
+    0
+  ) || 0;
+  
+  console.log('[getDetrazioniStipendio] Incassi da dipendenti:', incassiDaDipendenti);
   
   // Calcola incassi da servizi contanti personali
   const incassiServiziContanti = await getIncassiServiziContanti(
@@ -177,7 +186,6 @@ export async function getDetrazioniStipendio(
   const totaleSpesePersonali = spesePersonali?.reduce((sum, spesa) => sum + Number(spesa.importo), 0) || 0;
   const totalePrelievi = prelievi?.reduce((sum, prelievo) => sum + Number(prelievo.importo), 0) || 0;
   const totaleVersamenti = versamenti?.reduce((sum, versamento) => sum + Number(versamento.importo), 0) || 0;
-  const incassiDaDipendenti = incassi?.reduce((sum, incasso) => sum + Number(incasso.importo), 0) || 0;
   const riportoMesePrecedente = stipendioPrecedente?.totale_netto ? Number(stipendioPrecedente.totale_netto) : 0;
   
   const detrazioni: DetrazioniStipendio = {
