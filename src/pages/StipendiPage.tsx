@@ -129,7 +129,6 @@ export default function StipendiPage() {
               selectedYear={selectedYear}
               onMonthChange={setSelectedMonth}
               onYearChange={setSelectedYear}
-              onNewStipendio={() => toast.info('Usa il pulsante "Salva" nella tabella per salvare gli stipendi')}
             />
           </div>
           
