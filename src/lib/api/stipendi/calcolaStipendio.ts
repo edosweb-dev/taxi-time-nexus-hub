@@ -81,7 +81,6 @@ export async function getDetrazioniStipendio(
   mese: number, 
   anno: number
 ): Promise<DetrazioniStipendio> {
-  console.log(`[getDetrazioniStipendio] Recuperando detrazioni per user ${userId}, ${mese}/${anno}`);
   
   // Calcolo date sicuro senza problemi timezone
   const startDate = `${anno}-${String(mese).padStart(2, '0')}-01`;
@@ -151,16 +150,12 @@ export async function getDetrazioniStipendio(
     0
   ) || 0;
   
-  console.log('[getDetrazioniStipendio] Incassi da dipendenti:', incassiDaDipendenti);
-  
   // Calcola incassi da servizi contanti personali
   const incassiServiziContanti = await getIncassiServiziContanti(
     userId,
     startDate,
     endDate
   );
-  
-  console.log('[getDetrazioniStipendio] Incassi servizi contanti:', incassiServiziContanti);
   
   // Recupera riporto dal mese precedente (stipendio del mese precedente)
   const mesePrecedente = mese === 1 ? 12 : mese - 1;
@@ -197,7 +192,6 @@ export async function getDetrazioniStipendio(
     riportoMesePrecedente
   };
   
-  console.log('[getDetrazioniStipendio] Detrazioni calcolate:', detrazioni);
   return detrazioni;
 }
 

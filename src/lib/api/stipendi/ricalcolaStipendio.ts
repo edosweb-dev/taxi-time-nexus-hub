@@ -18,8 +18,6 @@ export async function ricalcolaESalvaStipendio(
   mese: number,
   anno: number
 ): Promise<RicalcolaStipendioResult> {
-  console.log(`[ricalcolaESalvaStipendio] Inizio ricalcolo per user ${userId}, ${mese}/${anno}`);
-
   try {
     // 1. Verifica se esiste già uno stipendio per questo mese
     const { data: existingStipendio, error: fetchError } = await supabase
@@ -94,8 +92,6 @@ export async function ricalcolaESalvaStipendio(
       updated_at: new Date().toISOString(),
     };
 
-    console.log('[ricalcolaESalvaStipendio] Dati calcolati:', stipendioData);
-
     // 5. Salva o aggiorna
     if (existingStipendio) {
       // Aggiorna stipendio esistente
@@ -109,7 +105,6 @@ export async function ricalcolaESalvaStipendio(
         throw updateError;
       }
 
-      console.log(`[ricalcolaESalvaStipendio] Stipendio ${existingStipendio.id} aggiornato`);
       return {
         success: true,
         stipendioId: existingStipendio.id,
@@ -141,7 +136,6 @@ export async function ricalcolaESalvaStipendio(
         throw insertError;
       }
 
-      console.log(`[ricalcolaESalvaStipendio] Nuovo stipendio creato: ${newStipendio.id}`);
       return {
         success: true,
         stipendioId: newStipendio.id,
@@ -164,8 +158,6 @@ export async function ricalcolaTuttiStipendiMese(
   mese: number,
   anno: number
 ): Promise<{ success: number; errors: number; details: string[] }> {
-  console.log(`[ricalcolaTuttiStipendiMese] Ricalcolo tutti gli stipendi ${mese}/${anno}`);
-
   // Recupera tutti i soci e admin
   const { data: soci, error: sociError } = await supabase
     .from('profiles')
@@ -193,6 +185,5 @@ export async function ricalcolaTuttiStipendiMese(
     }
   }
 
-  console.log(`[ricalcolaTuttiStipendiMese] Completato: ${successCount} successi, ${errorCount} errori`);
   return { success: successCount, errors: errorCount, details };
 }
