@@ -164,17 +164,6 @@ export function TabellaStipendAutomatici({
       const calc = stipendio.calcoloCompleto;
       const detr = calc.detrazioni;
       
-      // DEBUG: Verifica valori detrazioni
-      console.log(`[TabellaStipendi] ${stipendio.firstName} ${stipendio.lastName} - detrazioni:`, {
-        totaleLordo: calc.totaleLordo,
-        totaleSpesePersonali: detr.totaleSpesePersonali,
-        totaleVersamenti: detr.totaleVersamenti,
-        totalePrelievi: detr.totalePrelievi,
-        incassiDaDipendenti: detr.incassiDaDipendenti,
-        incassiServiziContanti: detr.incassiServiziContanti,
-        riportoMesePrecedente: detr.riportoMesePrecedente,
-      });
-      
       // ENTRATE = lordo + spese personali + versamenti + riporto positivo
       entratePositive = 
         calc.totaleLordo +
@@ -188,8 +177,6 @@ export function TabellaStipendAutomatici({
         detr.incassiDaDipendenti +
         detr.incassiServiziContanti +
         (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
-      
-      console.log(`[TabellaStipendi] ${stipendio.firstName} - Entrate: €${entratePositive}, Uscite: €${usciteTotali}, Netto: €${entratePositive - usciteTotali}`);
     }
 
     // Calcolo diretto: Netto = Entrate - Uscite
