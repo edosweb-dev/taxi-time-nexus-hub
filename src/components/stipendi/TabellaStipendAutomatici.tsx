@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Table,
@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Save, Eye, CheckCircle, Clock, CheckCircle2, Loader2, RefreshCw } from 'lucide-react';
+import { Save, Eye, CheckCircle, Clock, CheckCircle2, Loader2, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle } from 'lucide-react';
 import { StipendiAutomaticoUtente } from '@/lib/api/stipendi/calcoloAutomaticoStipendi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DialogConfermaStipendio } from './DialogConfermaStipendio';
@@ -28,6 +28,9 @@ interface TabellaStipendAutomaticiProps {
   mese?: number;
   anno?: number;
 }
+
+type SortKey = 'nome' | 'servizi' | 'km' | 'netto' | null;
+type SortDirection = 'asc' | 'desc';
 
 const formatCurrency = (value: number | null | undefined) => {
   if (value === null || value === undefined) return '€0,00';
@@ -84,6 +87,28 @@ const getStatoBadge = (stipendio: StipendiAutomaticoUtente) => {
   );
 };
 
+// Funzione per calcolare il netto di uno stipendio
+const calcolaNetto = (stipendio: StipendiAutomaticoUtente): number => {
+  if (!stipendio.calcoloCompleto) return 0;
+  
+  const calc = stipendio.calcoloCompleto;
+  const detr = calc.detrazioni;
+  
+  const entratePositive = 
+    calc.totaleLordo +
+    detr.totaleSpesePersonali +
+    detr.totaleVersamenti +
+    (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
+  
+  const usciteTotali = 
+    detr.totalePrelievi +
+    detr.incassiDaDipendenti +
+    detr.incassiServiziContanti +
+    (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
+  
+  return entratePositive - usciteTotali;
+};
+
 export function TabellaStipendAutomatici({
   stipendi,
   isLoading,
@@ -94,8 +119,64 @@ export function TabellaStipendAutomatici({
 }: TabellaStipendAutomaticiProps) {
   const [confermaDialogStipendio, setConfermaDialogStipendio] = useState<any>(null);
   const [recalculatingUserId, setRecalculatingUserId] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const confermaStipendioMutation = useConfermaStipendio();
   const queryClient = useQueryClient();
+
+  // Ordinamento
+  const sortedStipendi = useMemo(() => {
+    if (!sortKey) return stipendi;
+    
+    return [...stipendi].sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortKey) {
+        case 'nome':
+          const nomeA = `${a.firstName} ${a.lastName}`.toLowerCase();
+          const nomeB = `${b.firstName} ${b.lastName}`.toLowerCase();
+          comparison = nomeA.localeCompare(nomeB);
+          break;
+        case 'servizi':
+          comparison = (a.numeroServizi || 0) - (b.numeroServizi || 0);
+          break;
+        case 'km':
+          comparison = (a.kmTotali || 0) - (b.kmTotali || 0);
+          break;
+        case 'netto':
+          comparison = calcolaNetto(a) - calcolaNetto(b);
+          break;
+      }
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [stipendi, sortKey, sortDirection]);
+
+  // Toggle ordinamento
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else {
+        // Reset
+        setSortKey(null);
+        setSortDirection('asc');
+      }
+    } else {
+      setSortKey(key);
+      setSortDirection('asc');
+    }
+  };
+
+  // Icona ordinamento
+  const SortIcon = ({ columnKey }: { columnKey: SortKey }) => {
+    if (sortKey !== columnKey) {
+      return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" />;
+    }
+    return sortDirection === 'asc' 
+      ? <ArrowUp className="h-3 w-3 ml-1" />
+      : <ArrowDown className="h-3 w-3 ml-1" />;
+  };
 
   // Handler per ricalcolo singolo stipendio
   const handleRicalcola = async (stipendio: StipendiAutomaticoUtente) => {
@@ -122,8 +203,6 @@ export function TabellaStipendAutomatici({
       setRecalculatingUserId(null);
     }
   };
-
-
 
   const handleConferma = (stipendio: StipendiAutomaticoUtente) => {
     if (stipendio.stipendioEsistente) {
@@ -185,6 +264,7 @@ export function TabellaStipendAutomatici({
 
     // Calcolo diretto: Netto = Entrate - Uscite
     const totNetto = entratePositive - usciteTotali;
+    const isNegativo = totNetto < 0;
 
     const hasCalcoloValido = stipendio.numeroServizi > 0 || stipendio.hasStipendioSalvato;
 
@@ -195,7 +275,10 @@ export function TabellaStipendAutomatici({
     return (
       <TableRow
         key={stipendio.userId}
-        className={!hasCalcoloValido ? 'opacity-50' : ''}
+        className={cn(
+          !hasCalcoloValido && 'opacity-50',
+          isNegativo && hasCalcoloValido && 'bg-red-50/50 dark:bg-red-950/20'
+        )}
       >
         <TableCell className="font-medium">
           <div className="flex flex-col">
@@ -233,8 +316,16 @@ export function TabellaStipendAutomatici({
         <TableCell className="text-right hidden lg:table-cell text-orange-600">
           {hasCalcoloValido ? formatCurrency(incassiPersonali) : '-'}
         </TableCell>
-        <TableCell className="text-right font-semibold">
-          {hasCalcoloValido ? formatCurrency(totNetto) : '-'}
+        <TableCell className={cn(
+          "text-right font-semibold",
+          isNegativo && hasCalcoloValido && "text-red-600"
+        )}>
+          {hasCalcoloValido ? (
+            <span className="inline-flex items-center gap-1">
+              {isNegativo && <AlertTriangle className="h-3.5 w-3.5" />}
+              {formatCurrency(totNetto)}
+            </span>
+          ) : '-'}
         </TableCell>
         <TableCell className="hidden sm:table-cell">{getStatoBadge(stipendio)}</TableCell>
         <TableCell className="text-right">
@@ -302,20 +393,52 @@ export function TabellaStipendAutomatici({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead className="text-right hidden md:table-cell">Servizi</TableHead>
-            <TableHead className="text-right hidden md:table-cell">KM</TableHead>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/50 select-none"
+              onClick={() => handleSort('nome')}
+            >
+              <span className="inline-flex items-center">
+                Nome
+                <SortIcon columnKey="nome" />
+              </span>
+            </TableHead>
+            <TableHead 
+              className="text-right hidden md:table-cell cursor-pointer hover:bg-muted/50 select-none"
+              onClick={() => handleSort('servizi')}
+            >
+              <span className="inline-flex items-center justify-end w-full">
+                Servizi
+                <SortIcon columnKey="servizi" />
+              </span>
+            </TableHead>
+            <TableHead 
+              className="text-right hidden md:table-cell cursor-pointer hover:bg-muted/50 select-none"
+              onClick={() => handleSort('km')}
+            >
+              <span className="inline-flex items-center justify-end w-full">
+                KM
+                <SortIcon columnKey="km" />
+              </span>
+            </TableHead>
             <TableHead className="text-right hidden md:table-cell">Ore</TableHead>
             <TableHead className="text-right">Entrate</TableHead>
             <TableHead className="text-right">Uscite</TableHead>
             <TableHead className="text-right hidden lg:table-cell">Incassi Pers.</TableHead>
-            <TableHead className="text-right">Netto</TableHead>
+            <TableHead 
+              className="text-right cursor-pointer hover:bg-muted/50 select-none"
+              onClick={() => handleSort('netto')}
+            >
+              <span className="inline-flex items-center justify-end w-full">
+                Netto
+                <SortIcon columnKey="netto" />
+              </span>
+            </TableHead>
             <TableHead className="hidden sm:table-cell">Stato</TableHead>
             <TableHead className="text-right">Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {stipendi.map((stipendio) => (
+          {sortedStipendi.map((stipendio) => (
             <StipendioRow key={stipendio.userId} stipendio={stipendio} />
           ))}
         </TableBody>
