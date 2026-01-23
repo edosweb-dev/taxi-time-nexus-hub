@@ -28,9 +28,6 @@ export async function getStipendiDipendenti(
   mese: number,
   anno: number
 ): Promise<StipendioManualeDipendente[]> {
-  console.log(`[getStipendiDipendenti] ===== INIZIO =====`);
-  console.log(`[getStipendiDipendenti] Parametri: mese=${mese}, anno=${anno}`);
-
   try {
     // 1. Ottieni tutti i dipendenti
     const { data: dipendenti, error: dipendentiError } = await supabase
@@ -40,14 +37,10 @@ export async function getStipendiDipendenti(
       .order('last_name', { ascending: true });
 
     if (dipendentiError) {
-      console.error('[getStipendiDipendenti] Errore fetch dipendenti:', dipendentiError);
       throw dipendentiError;
     }
 
-    console.log(`[getStipendiDipendenti] Dipendenti trovati: ${dipendenti?.length || 0}`);
-    
     if (!dipendenti || dipendenti.length === 0) {
-      console.log('[getStipendiDipendenti] Nessun dipendente trovato');
       return [];
     }
 
@@ -60,7 +53,7 @@ export async function getStipendiDipendenti(
       .in('user_id', dipendenti.map(d => d.id));
 
     if (stipendiError) {
-      console.error('[getStipendiDipendenti] Errore fetch stipendi:', stipendiError);
+      // Errore non bloccante
     }
 
     const stipendiMap = new Map(
@@ -71,9 +64,6 @@ export async function getStipendiDipendenti(
     const inizioMese = format(startOfMonth(new Date(anno, mese - 1)), 'yyyy-MM-dd');
     const fineMese = format(endOfMonth(new Date(anno, mese - 1)), 'yyyy-MM-dd');
 
-    console.log(`[getStipendiDipendenti] Range date: ${inizioMese} - ${fineMese}`);
-    console.log(`[getStipendiDipendenti] IDs dipendenti per query:`, dipendenti.map(d => d.id));
-
     // 4. Ottieni i servizi per ogni dipendente nel mese
     const { data: serviziData, error: serviziError } = await supabase
       .from('servizi')
@@ -82,13 +72,6 @@ export async function getStipendiDipendenti(
       .gte('data_servizio', inizioMese)
       .lte('data_servizio', fineMese)
       .in('stato', ['consuntivato', 'fatturato', 'completato']);
-
-    if (serviziError) {
-      console.error('[getStipendiDipendenti] Errore fetch servizi:', serviziError);
-    }
-
-    console.log(`[getStipendiDipendenti] Servizi trovati: ${serviziData?.length || 0}`);
-    console.log(`[getStipendiDipendenti] Servizi raw:`, serviziData);
 
     // 5. Aggrega i dati servizi per dipendente
     const serviziPerDipendente = new Map<string, { count: number; oreTotali: number }>();
@@ -102,26 +85,10 @@ export async function getStipendiDipendenti(
       }
     });
 
-    console.log(`[getStipendiDipendenti] Aggregazione:`, 
-      Array.from(serviziPerDipendente.entries()).map(([id, data]) => ({id, ...data}))
-    );
-
     // 6. Mappa i dipendenti con tutti i dati
-    console.log(`[getStipendiDipendenti] ===== MAPPING DETTAGLIATO =====`);
-    
     const risultati: StipendioManualeDipendente[] = dipendenti.map((dipendente) => {
       const stipendioEsistente = stipendiMap.get(dipendente.id);
-      const serviziInfo = serviziPerDipendente.get(dipendente.id);
-      
-      // Debug: mostra cosa trova per ogni dipendente
-      console.log(`[getStipendiDipendenti] Dipendente ${dipendente.first_name} ${dipendente.last_name} (${dipendente.id}):`, {
-        serviziInfoTrovato: !!serviziInfo,
-        serviziInfo: serviziInfo,
-        count: serviziInfo?.count ?? 'N/A',
-        oreTotali: serviziInfo?.oreTotali ?? 'N/A'
-      });
-
-      const finalServiziInfo = serviziInfo || { count: 0, oreTotali: 0 };
+      const serviziInfo = serviziPerDipendente.get(dipendente.id) || { count: 0, oreTotali: 0 };
 
       return {
         userId: dipendente.id,
@@ -129,10 +96,9 @@ export async function getStipendiDipendenti(
         lastName: dipendente.last_name || '',
         role: dipendente.role,
         stipendioFisso: Number(dipendente.stipendio_fisso) || 0,
-        // Nuovi campi
-        numeroServizi: finalServiziInfo.count,
-        oreLavorate: finalServiziInfo.oreTotali,
-        oreFatturate: finalServiziInfo.oreTotali, // Per ora stesso valore
+        numeroServizi: serviziInfo.count,
+        oreLavorate: serviziInfo.oreTotali,
+        oreFatturate: serviziInfo.oreTotali,
         stipendioSalvato: stipendioEsistente ? {
           id: stipendioEsistente.id,
           stato: stipendioEsistente.stato,
@@ -143,17 +109,8 @@ export async function getStipendiDipendenti(
       };
     });
 
-    console.log(`[getStipendiDipendenti] Risultati finali:`, 
-      risultati.map(r => ({
-        nome: `${r.firstName} ${r.lastName}`,
-        servizi: r.numeroServizi,
-        oreLavorate: r.oreLavorate
-      }))
-    );
-    console.log(`[getStipendiDipendenti] ===== FINE =====`);
     return risultati;
   } catch (error) {
-    console.error('[getStipendiDipendenti] Errore generale:', error);
     throw error;
   }
 }
