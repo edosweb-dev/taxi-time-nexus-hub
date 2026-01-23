@@ -68,8 +68,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
         `)
         .gte('data_servizio', filters.dataInizio)
         .lte('data_servizio', filters.dataFine)
-        .order('data_servizio', { ascending: false })
-        .order('orario_servizio', { ascending: false });
+        .order('data_servizio', { ascending: true })
+        .order('orario_servizio', { ascending: true });
 
       if (filters.aziendaId) {
         query = query.eq('azienda_id', filters.aziendaId);
