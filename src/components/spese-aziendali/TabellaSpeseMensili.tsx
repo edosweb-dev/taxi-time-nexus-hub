@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Minus, ArrowDownLeft, Pencil, Trash2 } from 'lucide-react';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 import { useAuth } from '@/contexts/AuthContext';
@@ -71,18 +71,41 @@ export function TabellaSpeseMensili() {
     } as const;
 
     const labels = {
-      spesa: 'Spesa',
+      spesa: 'Spesa Aziendale',
       incasso: 'Incasso',
-      prelievo: 'Prelievo',
-      versamento: 'Versamento'
+      prelievo: 'Prelievo Socio',
+      versamento: 'Versamento Socio'
     } as const;
 
-    return (
+    const tooltips = {
+      prelievo: 'Uscita cassa → anticipo al socio',
+      versamento: 'Entrata cassa ← deposito dal socio'
+    } as const;
+
+    const badge = (
       <Badge variant={variants[tipologia as keyof typeof variants] || 'outline'} className="flex items-center gap-1">
         {getTipologiaIcon(tipologia)}
         {labels[tipologia as keyof typeof labels] || tipologia}
       </Badge>
     );
+
+    // Aggiungi tooltip solo per prelievo e versamento
+    if (tipologia === 'prelievo' || tipologia === 'versamento') {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {badge}
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{tooltips[tipologia]}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return badge;
   };
 
   const getStatoBadge = (stato: string) => {
@@ -233,7 +256,6 @@ export function TabellaSpeseMensili() {
                       `}
                       onClick={() => {
                         if (movimento.tipo === 'pending' && isAdminOrSocio) {
-                          console.log('[TabellaSpeseMensili] Opening approval dialog for:', movimento.id);
                           setSpesaToApprove(movimento);
                           setApprovaDialogOpen(true);
                         }
