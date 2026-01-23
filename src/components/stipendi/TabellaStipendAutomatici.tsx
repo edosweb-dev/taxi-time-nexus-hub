@@ -57,7 +57,7 @@ const getStatoBadge = (stipendio: StipendiAutomaticoUtente) => {
   const config = {
     'bozza': {
       icon: Clock,
-      label: 'Bozza (Auto-calcolato)',
+      label: 'Bozza',
       className: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20'
     },
     'confermato': {
