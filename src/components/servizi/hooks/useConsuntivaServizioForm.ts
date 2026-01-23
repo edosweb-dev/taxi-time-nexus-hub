@@ -6,11 +6,15 @@ import { z } from "zod";
 import { Servizio } from "@/lib/types/servizi";
 import { getIvaPercentageForServizio } from "../utils/ivaCalculation";
 
-// SEMPLIFICAZIONE: Solo ore_sosta
+// Schema con ore_effettive (lavorate) e ore_sosta (fatturate)
 export const consuntivaServizioSchema = z.object({
   incasso_ricevuto: z
     .number()
     .min(0, { message: "L'incasso deve essere maggiore di 0" })
+    .optional(),
+  ore_effettive: z
+    .number()
+    .min(0, { message: "Le ore devono essere maggiori di 0" })
     .optional(),
   ore_sosta: z
     .number()
@@ -36,8 +40,8 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
   const form = useForm<ConsuntivaServizioFormData>({
     resolver: zodResolver(consuntivaServizioSchema),
     defaultValues: {
+      ore_effettive: servizio.ore_effettive || undefined,
       ore_sosta: servizio.ore_sosta || undefined,
-      // ✅ Se incasso_ricevuto esiste usa quello, altrimenti calcola LORDO da incasso_previsto (NETTO)
       incasso_ricevuto: defaultIncasso,
       km_totali: servizio.km_totali || undefined,
     },

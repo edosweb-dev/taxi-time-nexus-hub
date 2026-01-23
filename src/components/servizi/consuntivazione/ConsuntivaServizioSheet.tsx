@@ -69,6 +69,7 @@ export function ConsuntivaServizioSheet({
       const result = await consuntivaServizio({
         id: servizioId,
         incasso_ricevuto: data.incasso_ricevuto,
+        ore_effettive: data.ore_effettive,
         ore_sosta: data.ore_sosta,
         consegna_contanti_a: servizio?.metodo_pagamento === 'Contanti' ? data.consegna_contanti_a : undefined,
         km_totali: data.km_totali,

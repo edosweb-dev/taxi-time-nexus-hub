@@ -4,7 +4,8 @@ import { supabase } from '@/lib/supabase';
 interface ConsuntivaServizioParams {
   id: string;
   incasso_ricevuto?: number;
-  ore_sosta?: number;  // UNICO campo ore
+  ore_effettive?: number;  // Ore lavorate (dipendenti)
+  ore_sosta?: number;      // Ore fatturate/sosta
   consegna_contanti_a?: string;
   km_totali?: number;
 }
@@ -12,26 +13,19 @@ interface ConsuntivaServizioParams {
 export async function consuntivaServizio({
   id,
   incasso_ricevuto,
+  ore_effettive,
   ore_sosta,
   consegna_contanti_a,
   km_totali,
 }: ConsuntivaServizioParams) {
   try {
-    // 🔍 DEBUG LOG per tracciare valori salvati
-    console.log('📊 [consuntivaServizio] Saving data:', {
-      id,
-      incasso_ricevuto,
-      ore_sosta,
-      consegna_contanti_a,
-      km_totali,
-    });
-    
     const { data, error } = await supabase
       .from('servizi')
       .update({
         stato: 'consuntivato',
         incasso_ricevuto,
-        ore_sosta,  // UNICO campo ore
+        ore_effettive,
+        ore_sosta,
         consegna_contanti_a,
         km_totali,
       })
