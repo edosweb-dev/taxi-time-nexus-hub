@@ -19,6 +19,8 @@ export interface ReportPasseggeroRow {
   stato: string;
   consegnato_a_id: string | null;
   consegnato_a_nome: string | null;
+  ore_fatturate: number;
+  note: string;
 }
 
 interface ReportFilters {
@@ -28,6 +30,7 @@ interface ReportFilters {
   referenteId?: string;
   dipendenteId?: string;
   socioId?: string;
+  stato?: string;
 }
 
 export const useReportPasseggeri = (filters: ReportFilters) => {
@@ -52,6 +55,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           azienda_id,
           referente_id,
           consegna_contanti_a,
+          ore_fatturate,
+          note,
           aziende:azienda_id (
             id,
             nome
@@ -85,6 +90,10 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
 
       if (filters.socioId) {
         query = query.eq('consegna_contanti_a', filters.socioId);
+      }
+
+      if (filters.stato && filters.stato !== 'tutti') {
+        query = query.eq('stato', filters.stato);
       }
 
       const { data, error } = await query;
@@ -152,6 +161,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
               stato: servizio.stato,
               consegnato_a_id: servizio.consegna_contanti_a,
               consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
+              ore_fatturate: servizio.ore_fatturate || 0,
+              note: servizio.note || '',
             });
           });
         } else {
@@ -174,6 +185,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             stato: servizio.stato,
             consegnato_a_id: servizio.consegna_contanti_a,
             consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
+            ore_fatturate: servizio.ore_fatturate || 0,
+            note: servizio.note || '',
           });
         }
       });

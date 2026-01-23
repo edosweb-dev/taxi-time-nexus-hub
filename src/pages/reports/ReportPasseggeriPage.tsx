@@ -17,6 +17,7 @@ export default function ReportPasseggeriPage() {
     referenteId: '',
     dipendenteId: '',
     socioId: '',
+    stato: 'tutti',
   });
 
   const { data: reportData, isLoading } = useReportPasseggeri(filters);

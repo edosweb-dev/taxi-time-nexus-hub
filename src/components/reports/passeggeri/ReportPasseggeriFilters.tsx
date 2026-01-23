@@ -21,6 +21,7 @@ interface ReportPasseggeriFiltersProps {
     referenteId: string;
     dipendenteId: string;
     socioId: string;
+    stato: string;
   };
   onFiltersChange: (filters: any) => void;
 }
@@ -46,6 +47,7 @@ export function ReportPasseggeriFilters({
       referenteId: '',
       dipendenteId: '',
       socioId: '',
+      stato: 'tutti',
     });
   };
 
@@ -168,6 +170,26 @@ export function ReportPasseggeriFilters({
                     {socio.first_name} {socio.last_name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stato">Stato Servizio</Label>
+            <Select
+              value={filters.stato || 'tutti'}
+              onValueChange={(value) =>
+                onFiltersChange({ ...filters, stato: value })
+              }
+            >
+              <SelectTrigger id="stato">
+                <SelectValue placeholder="Tutti gli stati" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="tutti">Tutti gli stati</SelectItem>
+                <SelectItem value="completato">Completato</SelectItem>
+                <SelectItem value="consuntivato">Consuntivato</SelectItem>
+                <SelectItem value="fatturato">Fatturato</SelectItem>
               </SelectContent>
             </Select>
           </div>
