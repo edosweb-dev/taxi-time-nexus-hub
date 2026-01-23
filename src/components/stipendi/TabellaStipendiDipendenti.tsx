@@ -27,8 +27,8 @@ const formatCurrency = (value: number | null | undefined) => {
   }).format(value);
 };
 
-const formatOre = (ore: number) => {
-  if (ore === 0) return '0h';
+const formatOre = (ore: number | undefined | null) => {
+  if (ore === undefined || ore === null || ore === 0) return '0h';
   // Arrotonda a 1 decimale
   const oreFormatted = ore % 1 === 0 ? ore.toString() : ore.toFixed(1);
   return `${oreFormatted}h`;
