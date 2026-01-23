@@ -2,6 +2,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -142,7 +143,21 @@ export function ReportPasseggeriTable({ data, isLoading }: ReportPasseggeriTable
                       </TableCell>
                     </TableRow>
                   ))}
-                </TableBody>
+              </TableBody>
+                <TableFooter>
+                  <TableRow className="bg-muted/50 font-semibold">
+                    <TableCell colSpan={4}>
+                      Totale: {data.length} {data.length === 1 ? 'servizio' : 'servizi'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      €{data.reduce((sum, s) => sum + (s.importo || 0), 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      {data.reduce((sum, s) => sum + (s.ore_fatturate || 0), 0).toFixed(1)}h
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </TableFooter>
               </Table>
             </div>
           </CardContent>
@@ -209,8 +224,21 @@ export function ReportPasseggeriTable({ data, isLoading }: ReportPasseggeriTable
         ))}
       </div>
 
-      <div className="text-sm text-muted-foreground text-center py-4">
-        Totale: {data.length} {data.length === 1 ? 'risultato' : 'risultati'}
+      {/* Mobile Footer */}
+      <div className="md:hidden mt-4 p-4 bg-muted/50 rounded-lg">
+        <div className="flex justify-between items-center">
+          <span className="font-semibold">
+            Totale: {data.length} {data.length === 1 ? 'servizio' : 'servizi'}
+          </span>
+          <div className="text-right">
+            <p className="font-bold text-primary">
+              €{data.reduce((sum, s) => sum + (s.importo || 0), 0).toFixed(2)}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {data.reduce((sum, s) => sum + (s.ore_fatturate || 0), 0).toFixed(1)}h attesa
+            </p>
+          </div>
+        </div>
       </div>
     </>
   );

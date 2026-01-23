@@ -26,6 +26,7 @@ export const exportReportPasseggeri = (
     importo: number;
     ore_fatturate: number;
     note: string;
+    stato: string;
   }>();
 
   data.forEach((row) => {
@@ -49,7 +50,8 @@ export const exportReportPasseggeri = (
         percorso: row.percorso,
         importo: row.importo,
         ore_fatturate: row.ore_fatturate || 0,
-        note: row.note || ''
+        note: row.note || '',
+        stato: row.stato || '-'
       });
     }
   });
@@ -66,6 +68,7 @@ export const exportReportPasseggeri = (
     'Importo',
     'Ore Attesa',
     'Note',
+    'Stato',
   ].join(';');
 
   // Create CSV rows
@@ -82,6 +85,7 @@ export const exportReportPasseggeri = (
       escapeCsvField(`€${servizio.importo.toFixed(2)}`),
       escapeCsvField(servizio.ore_fatturate > 0 ? servizio.ore_fatturate.toString() : '-'),
       escapeCsvField(servizio.note || '-'),
+      escapeCsvField(servizio.stato || '-'),
     ].join(';');
   });
 
