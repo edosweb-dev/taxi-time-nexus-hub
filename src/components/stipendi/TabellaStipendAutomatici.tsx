@@ -204,6 +204,12 @@ export function TabellaStipendAutomatici({
         <TableCell className="text-right">
           {stipendio.numeroServizi || '-'}
         </TableCell>
+        <TableCell className="text-right hidden md:table-cell">
+          {stipendio.kmTotali ? new Intl.NumberFormat('it-IT').format(stipendio.kmTotali) : '-'}
+        </TableCell>
+        <TableCell className="text-right hidden md:table-cell">
+          {stipendio.oreAttesa ? `${stipendio.oreAttesa}h` : '-'}
+        </TableCell>
         <TableCell className="text-right font-medium text-primary">
           {hasCalcoloValido ? formatCurrency(entratePositive) : '-'}
         </TableCell>
@@ -281,6 +287,8 @@ export function TabellaStipendAutomatici({
           <TableRow>
             <TableHead>Nome e Cognome</TableHead>
             <TableHead className="text-right">Nr servizi</TableHead>
+            <TableHead className="text-right hidden md:table-cell">KM</TableHead>
+            <TableHead className="text-right hidden md:table-cell">Ore</TableHead>
             <TableHead className="text-right">Entrate totali</TableHead>
             <TableHead className="text-right">Uscite totali</TableHead>
             <TableHead className="text-right">Stipendio netto</TableHead>
