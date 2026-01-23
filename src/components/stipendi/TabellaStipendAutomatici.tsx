@@ -16,9 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DialogConfermaStipendio } from './DialogConfermaStipendio';
 import { useConfermaStipendio } from '@/hooks/useStipendi';
 import { cn } from '@/lib/utils';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useCompensiServizi } from '@/hooks/useCompensiServizi';
+import { useQueryClient } from '@tanstack/react-query';
 import { ricalcolaESalvaStipendio } from '@/lib/api/stipendi/ricalcolaStipendio';
 import { toast } from '@/components/ui/sonner';
 
@@ -125,33 +123,7 @@ export function TabellaStipendAutomatici({
     }
   };
 
-  // Helper per ottenere contanti dai servizi salvati
-  const useContantiServizi = (userId: string, mese: number, anno: number, enabled: boolean) => {
-    return useQuery({
-      queryKey: ['contanti-servizi', userId, mese, anno],
-      queryFn: async () => {
-        const startDate = new Date(anno, mese - 1, 1).toISOString().split('T')[0];
-        const endDate = new Date(anno, mese, 0).toISOString().split('T')[0];
 
-        const { data: servizi, error } = await supabase
-          .from('servizi')
-          .select('incasso_ricevuto, incasso_previsto')
-          .eq('assegnato_a', userId)
-          .eq('metodo_pagamento', 'Contanti')
-          .gte('data_servizio', startDate)
-          .lte('data_servizio', endDate)
-          .in('stato', ['completato', 'consuntivato']);
-
-        if (error) throw error;
-
-        return servizi?.reduce((sum, s) => 
-          sum + (Number(s.incasso_ricevuto) || Number(s.incasso_previsto) || 0), 0
-        ) || 0;
-      },
-      enabled,
-      staleTime: 1000 * 60 * 5,
-    });
-  };
 
   const handleConferma = (stipendio: StipendiAutomaticoUtente) => {
     if (stipendio.stipendioEsistente) {
@@ -184,55 +156,19 @@ export function TabellaStipendAutomatici({
 
   // Wrapper per renderizzare ogni riga
   const StipendioRow = ({ stipendio }: { stipendio: StipendiAutomaticoUtente }) => {
-    // Per stipendi salvati, fetch contanti dai servizi
-    const mese = stipendio.stipendioEsistente?.mese || 0;
-    const anno = stipendio.stipendioEsistente?.anno || 0;
-    const { data: contantiServizi } = useContantiServizi(
-      stipendio.userId, 
-      mese, 
-      anno, 
-      stipendio.hasStipendioSalvato
-    );
-
-    // Hook per calcolare compensi esattamente come nella pagina dettaglio
-    const { data: compensiServizi } = useCompensiServizi(
-      stipendio.userId,
-      mese,
-      anno,
-      stipendio.hasStipendioSalvato
-    );
-
-    // Calcola entrate e uscite ESATTAMENTE come nella pagina dettaglio
+    // SEMPRE usare calcoloCompleto se disponibile (calcolato on-the-fly)
     let entratePositive = 0;
     let usciteTotali = 0;
     
-    if (stipendio.hasStipendioSalvato && stipendio.stipendioEsistente) {
-      // Per stipendi salvati: usa compensi ricalcolati
-      const riporto = stipendio.stipendioEsistente.riporto_mese_precedente || 0;
-      const contanti = contantiServizi || 0;
-      
-      // ENTRATE = compensi KM + compensi Ore + spese personali + riporto positivo
-      entratePositive = 
-        (compensiServizi?.compensiKm || 0) +
-        (compensiServizi?.compensiOre || 0) +
-        (stipendio.stipendioEsistente.totale_spese || 0) +
-        (riporto > 0 ? riporto : 0);
-      
-      // USCITE = prelievi + incassi dipendenti + contanti servizi + riporto negativo
-      usciteTotali = 
-        (stipendio.stipendioEsistente.totale_prelievi || 0) +
-        (stipendio.stipendioEsistente.incassi_da_dipendenti || 0) +
-        contanti +
-        (riporto < 0 ? Math.abs(riporto) : 0);
-    } else if (stipendio.calcoloCompleto) {
-      // Per calcoli automatici: usa totaleLordo dal calcolo completo
+    if (stipendio.calcoloCompleto) {
       const calc = stipendio.calcoloCompleto;
       const detr = calc.detrazioni;
       
-      // ENTRATE = compensi servizi (totaleLordo) + spese personali + riporto positivo
+      // ENTRATE = lordo + spese personali + versamenti + riporto positivo
       entratePositive = 
         calc.totaleLordo +
         detr.totaleSpesePersonali +
+        detr.totaleVersamenti +
         (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
       
       // USCITE = prelievi + incassi dipendenti + contanti servizi + riporto negativo
