@@ -159,6 +159,7 @@ export function TabellaStipendAutomatici({
     // SEMPRE usare calcoloCompleto se disponibile (calcolato on-the-fly)
     let entratePositive = 0;
     let usciteTotali = 0;
+    let incassiPersonali = 0;
     
     if (stipendio.calcoloCompleto) {
       const calc = stipendio.calcoloCompleto;
@@ -177,6 +178,9 @@ export function TabellaStipendAutomatici({
         detr.incassiDaDipendenti +
         detr.incassiServiziContanti +
         (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
+      
+      // Incassi personali = contanti incassati dai servizi
+      incassiPersonali = detr.incassiServiziContanti || 0;
     }
 
     // Calcolo diretto: Netto = Entrate - Uscite
@@ -184,24 +188,34 @@ export function TabellaStipendAutomatici({
 
     const hasCalcoloValido = stipendio.numeroServizi > 0 || stipendio.hasStipendioSalvato;
 
+    // Formattazione compatta per mobile
+    const kmFormatted = stipendio.kmTotali ? new Intl.NumberFormat('it-IT').format(stipendio.kmTotali) : '0';
+    const oreFormatted = stipendio.oreAttesa ? `${stipendio.oreAttesa}h` : '0h';
+
     return (
       <TableRow
         key={stipendio.userId}
         className={!hasCalcoloValido ? 'opacity-50' : ''}
       >
         <TableCell className="font-medium">
-          {stipendio.role === 'admin' || stipendio.role === 'socio' ? (
-            <Link 
-              to={`/utenti/${stipendio.userId}/stipendio`}
-              className="text-primary hover:underline font-medium"
-            >
-              {stipendio.firstName} {stipendio.lastName}
-            </Link>
-          ) : (
-            <span>{stipendio.firstName} {stipendio.lastName}</span>
-          )}
+          <div className="flex flex-col">
+            {stipendio.role === 'admin' || stipendio.role === 'socio' ? (
+              <Link 
+                to={`/utenti/${stipendio.userId}/stipendio`}
+                className="text-primary hover:underline font-medium"
+              >
+                {stipendio.firstName} {stipendio.lastName}
+              </Link>
+            ) : (
+              <span>{stipendio.firstName} {stipendio.lastName}</span>
+            )}
+            {/* Riga compatta su mobile con metriche */}
+            <span className="text-xs text-muted-foreground md:hidden mt-0.5">
+              {stipendio.numeroServizi || 0} serv. • {kmFormatted} km • {oreFormatted}
+            </span>
+          </div>
         </TableCell>
-        <TableCell className="text-right">
+        <TableCell className="text-right hidden md:table-cell">
           {stipendio.numeroServizi || '-'}
         </TableCell>
         <TableCell className="text-right hidden md:table-cell">
@@ -216,10 +230,13 @@ export function TabellaStipendAutomatici({
         <TableCell className="text-right font-medium text-destructive">
           {hasCalcoloValido ? formatCurrency(usciteTotali) : '-'}
         </TableCell>
+        <TableCell className="text-right hidden lg:table-cell text-orange-600">
+          {hasCalcoloValido ? formatCurrency(incassiPersonali) : '-'}
+        </TableCell>
         <TableCell className="text-right font-semibold">
           {hasCalcoloValido ? formatCurrency(totNetto) : '-'}
         </TableCell>
-        <TableCell>{getStatoBadge(stipendio)}</TableCell>
+        <TableCell className="hidden sm:table-cell">{getStatoBadge(stipendio)}</TableCell>
         <TableCell className="text-right">
           <div className="flex justify-end gap-2">
             {hasCalcoloValido && (
@@ -281,18 +298,19 @@ export function TabellaStipendAutomatici({
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome e Cognome</TableHead>
-            <TableHead className="text-right">Nr servizi</TableHead>
+            <TableHead>Nome</TableHead>
+            <TableHead className="text-right hidden md:table-cell">Servizi</TableHead>
             <TableHead className="text-right hidden md:table-cell">KM</TableHead>
             <TableHead className="text-right hidden md:table-cell">Ore</TableHead>
-            <TableHead className="text-right">Entrate totali</TableHead>
-            <TableHead className="text-right">Uscite totali</TableHead>
-            <TableHead className="text-right">Stipendio netto</TableHead>
-            <TableHead>Stato</TableHead>
+            <TableHead className="text-right">Entrate</TableHead>
+            <TableHead className="text-right">Uscite</TableHead>
+            <TableHead className="text-right hidden lg:table-cell">Incassi Pers.</TableHead>
+            <TableHead className="text-right">Netto</TableHead>
+            <TableHead className="hidden sm:table-cell">Stato</TableHead>
             <TableHead className="text-right">Azioni</TableHead>
           </TableRow>
         </TableHeader>
