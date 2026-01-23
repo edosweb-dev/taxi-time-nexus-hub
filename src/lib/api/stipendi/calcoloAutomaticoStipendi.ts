@@ -186,24 +186,67 @@ export async function getStipendiAutomaticiMese(
           const numeroServizi = servizi.length;
           const kmTotali = servizi.reduce((sum, s) => sum + (Number(s.km_totali) || 0), 0);
 
-          // Se non ci sono servizi, restituisci dati vuoti
+          // ANCHE senza servizi, dobbiamo calcolare le detrazioni
+          // (prelievi, versamenti, incassi da dipendenti, riporto)
+          // Quindi chiamiamo SEMPRE calcolaStipendioCompleto
+          
+          // Se non ci sono servizi, calcoliamo comunque le detrazioni
           if (numeroServizi === 0 || kmTotali === 0) {
-            console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}: Nessun servizio o 0 km`);
+            console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}: Nessun servizio, calcolo solo detrazioni`);
+            
+            // Chiamiamo calcolaStipendioCompleto per ottenere le detrazioni
+            const calcoloCompleto = await calcolaStipendioCompleto({
+              userId: user.id,
+              mese,
+              anno,
+              km: 0,
+              oreAttesa: 0,
+            });
+
+            // Ricalcola netto con lordo = 0 ma detrazioni corrette
+            const detr = calcoloCompleto.detrazioni;
+            const totaleNettoCorretto = Number((
+              0 + // totaleLordo = 0
+              detr.totaleSpesePersonali +
+              detr.totaleVersamenti -
+              detr.totalePrelievi -
+              detr.incassiDaDipendenti -
+              detr.incassiServiziContanti -
+              (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : -detr.riportoMesePrecedente)
+            ).toFixed(2));
+
+            // Aggiorna i valori per lordo = 0
+            calcoloCompleto.baseKm = 0;
+            calcoloCompleto.baseConAumento = 0;
+            calcoloCompleto.importoOreAttesa = 0;
+            calcoloCompleto.totaleLordo = 0;
+            calcoloCompleto.totaleNetto = totaleNettoCorretto;
+            calcoloCompleto.dettaglioCalcolo.dettaglio = 'Nessun servizio nel mese';
+
+            console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}: Detrazioni calcolate:`, {
+              prelievi: detr.totalePrelievi,
+              incassiDipendenti: detr.incassiDaDipendenti,
+              versamenti: detr.totaleVersamenti,
+              spesePersonali: detr.totaleSpesePersonali,
+              riporto: detr.riportoMesePrecedente,
+              nettoCorretto: totaleNettoCorretto
+            });
+
             return {
               userId: user.id,
               firstName: user.first_name || '',
               lastName: user.last_name || '',
               role: user.role,
-              numeroServizi,
-              kmTotali,
+              numeroServizi: 0,
+              kmTotali: 0,
               oreAttesa: 0,
-              calcoloCompleto: null,
+              calcoloCompleto, // ✅ ORA include le detrazioni!
               stipendioEsistente,
               hasStipendioSalvato: !!stipendioEsistente,
             };
           }
 
-          // NUOVA LOGICA: Calcola per singolo servizio
+          // LOGICA NORMALE: Calcola per singolo servizio (soci CON servizi)
           const { totaleBaseKm, totaleOreAttesa, dettaglioServizi } = await calcolaBaseKmPerServizi(servizi, anno);
 
           console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}:`);
