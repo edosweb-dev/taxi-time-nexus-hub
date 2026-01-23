@@ -2,6 +2,7 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { FileBarChart, FileText } from 'lucide-react';
 import { ReportPasseggeriTable } from '@/components/reports/passeggeri/ReportPasseggeriTable';
 import { ReportPasseggeriFilters } from '@/components/reports/passeggeri/ReportPasseggeriFilters';
+import { ReportPasseggeriChart } from '@/components/reports/passeggeri/ReportPasseggeriChart';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
@@ -106,6 +107,8 @@ export default function ReportPasseggeriPage() {
         </div>
 
         <ReportPasseggeriFilters filters={filters} onFiltersChange={setFilters} />
+
+        <ReportPasseggeriChart data={reportData || []} />
 
         <ReportPasseggeriTable data={reportData || []} isLoading={isLoading} />
       </div>
