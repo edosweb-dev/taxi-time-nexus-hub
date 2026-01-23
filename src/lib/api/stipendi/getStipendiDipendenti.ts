@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { startOfMonth, endOfMonth, format } from 'date-fns';
 
 export interface StipendioManualeDipendente {
   userId: string;
@@ -6,6 +7,10 @@ export interface StipendioManualeDipendente {
   lastName: string;
   role: string;
   stipendioFisso: number;
+  // Nuovi campi per metriche servizi
+  numeroServizi: number;
+  oreLavorate: number;
+  oreFatturate: number;
   stipendioSalvato: {
     id: string;
     stato: string;
@@ -17,6 +22,7 @@ export interface StipendioManualeDipendente {
 
 /**
  * Recupera i dipendenti con i loro stipendi manuali salvati per il mese
+ * e le metriche dei servizi svolti (numero, ore lavorate, ore fatturate)
  */
 export async function getStipendiDipendenti(
   mese: number,
@@ -58,9 +64,41 @@ export async function getStipendiDipendenti(
       (stipendiSalvati || []).map(s => [s.user_id, s])
     );
 
-    // 3. Mappa i dipendenti con i loro stipendi
+    // 3. Calcola date inizio/fine mese per query servizi
+    const inizioMese = format(startOfMonth(new Date(anno, mese - 1)), 'yyyy-MM-dd');
+    const fineMese = format(endOfMonth(new Date(anno, mese - 1)), 'yyyy-MM-dd');
+
+    console.log(`[getStipendiDipendenti] Query servizi dal ${inizioMese} al ${fineMese}`);
+
+    // 4. Ottieni i servizi per ogni dipendente nel mese
+    const { data: serviziData, error: serviziError } = await supabase
+      .from('servizi')
+      .select('assegnato_a, ore_sosta')
+      .in('assegnato_a', dipendenti.map(d => d.id))
+      .gte('data_servizio', inizioMese)
+      .lte('data_servizio', fineMese)
+      .in('stato', ['consuntivato', 'fatturato', 'completato']);
+
+    if (serviziError) {
+      console.error('[getStipendiDipendenti] Errore fetch servizi:', serviziError);
+    }
+
+    // 5. Aggrega i dati servizi per dipendente
+    const serviziPerDipendente = new Map<string, { count: number; oreTotali: number }>();
+    
+    (serviziData || []).forEach(servizio => {
+      if (servizio.assegnato_a) {
+        const current = serviziPerDipendente.get(servizio.assegnato_a) || { count: 0, oreTotali: 0 };
+        current.count += 1;
+        current.oreTotali += Number(servizio.ore_sosta || 0);
+        serviziPerDipendente.set(servizio.assegnato_a, current);
+      }
+    });
+
+    // 6. Mappa i dipendenti con tutti i dati
     const risultati: StipendioManualeDipendente[] = dipendenti.map((dipendente) => {
       const stipendioEsistente = stipendiMap.get(dipendente.id);
+      const serviziInfo = serviziPerDipendente.get(dipendente.id) || { count: 0, oreTotali: 0 };
 
       return {
         userId: dipendente.id,
@@ -68,6 +106,10 @@ export async function getStipendiDipendenti(
         lastName: dipendente.last_name || '',
         role: dipendente.role,
         stipendioFisso: Number(dipendente.stipendio_fisso) || 0,
+        // Nuovi campi
+        numeroServizi: serviziInfo.count,
+        oreLavorate: serviziInfo.oreTotali,
+        oreFatturate: serviziInfo.oreTotali, // Per ora stesso valore
         stipendioSalvato: stipendioEsistente ? {
           id: stipendioEsistente.id,
           stato: stipendioEsistente.stato,
@@ -78,7 +120,7 @@ export async function getStipendiDipendenti(
       };
     });
 
-    console.log(`[getStipendiDipendenti] Recuperati ${risultati.length} dipendenti`);
+    console.log(`[getStipendiDipendenti] Recuperati ${risultati.length} dipendenti con metriche servizi`);
     return risultati;
   } catch (error) {
     console.error('[getStipendiDipendenti] Errore generale:', error);

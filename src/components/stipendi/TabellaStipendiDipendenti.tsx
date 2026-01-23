@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
+import { Eye, Clock, Briefcase } from 'lucide-react';
 import { StipendioManualeDipendente } from '@/lib/api/stipendi/getStipendiDipendenti';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -25,6 +25,13 @@ const formatCurrency = (value: number | null | undefined) => {
     style: 'currency',
     currency: 'EUR',
   }).format(value);
+};
+
+const formatOre = (ore: number) => {
+  if (ore === 0) return '0h';
+  // Arrotonda a 1 decimale
+  const oreFormatted = ore % 1 === 0 ? ore.toString() : ore.toFixed(1);
+  return `${oreFormatted}h`;
 };
 
 const getStatoBadge = (dipendente: StipendioManualeDipendente) => {
@@ -74,10 +81,13 @@ export function TabellaStipendiDipendenti({
         <TableHeader>
           <TableRow>
             <TableHead>Dipendente</TableHead>
-            <TableHead className="text-right">Stipendio Fisso</TableHead>
-            <TableHead className="text-right">Totale Lordo</TableHead>
-            <TableHead className="text-right">Totale Netto</TableHead>
-            <TableHead>Stato</TableHead>
+            <TableHead className="text-center hidden md:table-cell">Servizi</TableHead>
+            <TableHead className="text-center hidden md:table-cell">Ore Lav.</TableHead>
+            <TableHead className="text-center hidden md:table-cell">Ore Fatt.</TableHead>
+            <TableHead className="text-right hidden sm:table-cell">Stip. Fisso</TableHead>
+            <TableHead className="text-right hidden lg:table-cell">Lordo</TableHead>
+            <TableHead className="text-right">Netto</TableHead>
+            <TableHead className="hidden sm:table-cell">Stato</TableHead>
             <TableHead className="text-right">Azioni</TableHead>
           </TableRow>
         </TableHeader>
@@ -89,21 +99,63 @@ export function TabellaStipendiDipendenti({
             return (
               <TableRow
                 key={dipendente.userId}
-                className={!dipendente.hasStipendioSalvato ? 'opacity-50' : ''}
+                className={!dipendente.hasStipendioSalvato ? 'opacity-60' : ''}
               >
+                {/* Nome + info mobile */}
                 <TableCell className="font-medium">
-                  {dipendente.firstName} {dipendente.lastName}
+                  <div className="flex flex-col">
+                    <span>{dipendente.firstName} {dipendente.lastName}</span>
+                    {/* Info compatta per mobile */}
+                    <span className="text-xs text-muted-foreground md:hidden flex items-center gap-2 mt-0.5">
+                      <span className="flex items-center gap-0.5">
+                        <Briefcase className="h-3 w-3" />
+                        {dipendente.numeroServizi}
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-0.5">
+                        <Clock className="h-3 w-3" />
+                        {formatOre(dipendente.oreLavorate)} lav.
+                      </span>
+                      <span>•</span>
+                      <span>{formatOre(dipendente.oreFatturate)} fatt.</span>
+                    </span>
+                  </div>
                 </TableCell>
-                <TableCell className="text-right">
+                
+                {/* Servizi - solo desktop */}
+                <TableCell className="text-center hidden md:table-cell">
+                  <span className="font-medium">{dipendente.numeroServizi}</span>
+                </TableCell>
+                
+                {/* Ore Lavorate - solo desktop */}
+                <TableCell className="text-center hidden md:table-cell">
+                  <span className="text-muted-foreground">{formatOre(dipendente.oreLavorate)}</span>
+                </TableCell>
+                
+                {/* Ore Fatturate - solo desktop */}
+                <TableCell className="text-center hidden md:table-cell">
+                  <span className="text-muted-foreground">{formatOre(dipendente.oreFatturate)}</span>
+                </TableCell>
+                
+                {/* Stipendio Fisso */}
+                <TableCell className="text-right hidden sm:table-cell">
                   {formatCurrency(dipendente.stipendioFisso)}
                 </TableCell>
-                <TableCell className="text-right font-medium">
+                
+                {/* Lordo */}
+                <TableCell className="text-right font-medium hidden lg:table-cell">
                   {dipendente.hasStipendioSalvato ? formatCurrency(totLordo) : '-'}
                 </TableCell>
+                
+                {/* Netto */}
                 <TableCell className="text-right font-semibold text-primary">
                   {dipendente.hasStipendioSalvato ? formatCurrency(totNetto) : '-'}
                 </TableCell>
-                <TableCell>{getStatoBadge(dipendente)}</TableCell>
+                
+                {/* Stato */}
+                <TableCell className="hidden sm:table-cell">{getStatoBadge(dipendente)}</TableCell>
+                
+                {/* Azioni */}
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     {dipendente.hasStipendioSalvato && (
