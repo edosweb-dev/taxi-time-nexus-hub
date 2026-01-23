@@ -14,7 +14,8 @@ interface StipendiHeaderProps {
   selectedYear: number;
   onMonthChange: (month: number) => void;
   onYearChange: (year: number) => void;
-  onNewStipendio: () => void;
+  onNewStipendio?: () => void;
+  showNewButton?: boolean;
 }
 
 export function StipendiHeader({ 
@@ -22,7 +23,8 @@ export function StipendiHeader({
   selectedYear, 
   onMonthChange, 
   onYearChange, 
-  onNewStipendio 
+  onNewStipendio,
+  showNewButton = false
 }: StipendiHeaderProps) {
   const months = [
     { value: 1, label: 'Gennaio' },
@@ -42,45 +44,54 @@ export function StipendiHeader({
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => currentYear - 3 + i);
 
-  return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex items-center gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Gestione Stipendi</h1>
-        
-        {/* Selettori Mese/Anno */}
-        <div className="flex gap-2">
-          <Select value={selectedMonth.toString()} onValueChange={(value) => onMonthChange(Number(value))}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month.value} value={month.value.toString()}>
-                  {month.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <h1 className="text-3xl font-bold tracking-tight">Gestione Stipendi</h1>
           
-          <Select value={selectedYear.toString()} onValueChange={(value) => onYearChange(Number(value))}>
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Selettori Mese/Anno */}
+          <div className="flex gap-2">
+            <Select value={selectedMonth.toString()} onValueChange={(value) => onMonthChange(Number(value))}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {months.map((month) => (
+                  <SelectItem key={month.value} value={month.value.toString()}>
+                    {month.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedYear.toString()} onValueChange={(value) => onYearChange(Number(value))}>
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
 
-      <Button onClick={onNewStipendio}>
-        <Plus className="mr-2 h-4 w-4" />
-        Nuovo Stipendio
-      </Button>
+        {showNewButton && onNewStipendio && (
+          <Button onClick={onNewStipendio}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuovo Stipendio
+          </Button>
+        )}
+      </div>
+      
+      {/* Messaggio informativo calcolo automatico */}
+      <p className="text-sm text-muted-foreground">
+        Il calcolo degli stipendi è automatico in base ai servizi del mese selezionato.
+      </p>
     </div>
   );
 }
