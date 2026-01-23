@@ -13,7 +13,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, RefreshCw, Loader2 } from 'lucide-react';
 
 import { 
   StipendiHeader,
@@ -29,6 +30,7 @@ import { StipendiAutomaticoUtente } from '@/lib/api/stipendi/calcoloAutomaticoSt
 import { StipendioManualeDipendente } from '@/lib/api/stipendi/getStipendiDipendenti';
 import { toast } from 'sonner';
 import { createStipendio } from '@/lib/api/stipendi/createStipendio';
+import { ricalcolaTuttiStipendiMese } from '@/lib/api/stipendi/ricalcolaStipendio';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function StipendiPage() {
@@ -39,6 +41,7 @@ export default function StipendiPage() {
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [selectedStipendioSocio, setSelectedStipendioSocio] = useState<StipendiAutomaticoUtente | null>(null);
   const [selectedStipendiodiPendente, setSelectedStipendiodiPendente] = useState<StipendioManualeDipendente | null>(null);
+  const [isRecalculatingAll, setIsRecalculatingAll] = useState(false);
 
   // Verifica accesso solo per admin e soci
   if (profile && !['admin', 'socio'].includes(profile.role)) {
@@ -91,6 +94,30 @@ export default function StipendiPage() {
     ).length;
   }, [stipendiSoci]);
 
+  // Handler per ricalcolare tutti gli stipendi del mese
+  const handleRicalcolaTutti = async () => {
+    setIsRecalculatingAll(true);
+    try {
+      const result = await ricalcolaTuttiStipendiMese(selectedMonth, selectedYear);
+      
+      if (result.errors === 0) {
+        toast.success(`${result.success} stipendi ricalcolati con successo`);
+      } else {
+        toast.warning(`${result.success} ricalcolati, ${result.errors} errori`);
+      }
+      
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      refetchSoci();
+    } catch (error) {
+      console.error('[handleRicalcolaTutti] Error:', error);
+      toast.error('Errore durante il ricalcolo degli stipendi');
+    } finally {
+      setIsRecalculatingAll(false);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -107,6 +134,21 @@ export default function StipendiPage() {
           </div>
           
           <div className="flex gap-3 items-center">
+            {countBozza > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRicalcolaTutti}
+                disabled={isRecalculatingAll}
+              >
+                {isRecalculatingAll ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                Ricalcola Tutti
+              </Button>
+            )}
             {countBozza > 0 && (
               <Alert className="max-w-md">
                 <Clock className="h-4 w-4" />
@@ -142,6 +184,8 @@ export default function StipendiPage() {
                   isLoading={isLoadingSoci}
                   onSalvaStipendio={handleSalvaStipendio}
                   onViewDetails={handleViewDetails}
+                  mese={selectedMonth}
+                  anno={selectedYear}
                 />
               </CardContent>
             </Card>
