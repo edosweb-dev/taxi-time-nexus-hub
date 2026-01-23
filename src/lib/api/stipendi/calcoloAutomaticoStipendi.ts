@@ -230,10 +230,11 @@ export async function getStipendiAutomaticiMese(
             const importoOreAttesaCorretto = Number((totaleOreAttesa * config.tariffa_oraria_attesa).toFixed(2));
             const totaleLordoCorretto = Number((baseConAumentoCorretta + importoOreAttesaCorretto).toFixed(2));
             
-            // Ricalcola netto con valori corretti
+            // Ricalcola netto con valori corretti (inclusi versamenti)
             const totaleNettoCorretto = Number((
               totaleLordoCorretto +
-              calcoloCompleto.detrazioni.totaleSpesePersonali -
+              calcoloCompleto.detrazioni.totaleSpesePersonali +
+              calcoloCompleto.detrazioni.totaleVersamenti -
               calcoloCompleto.detrazioni.totalePrelievi -
               calcoloCompleto.detrazioni.incassiDaDipendenti -
               calcoloCompleto.detrazioni.incassiServiziContanti -
