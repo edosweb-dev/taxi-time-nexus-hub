@@ -28,7 +28,8 @@ export async function getStipendiDipendenti(
   mese: number,
   anno: number
 ): Promise<StipendioManualeDipendente[]> {
-  console.log(`[getStipendiDipendenti] Recupero stipendi per ${mese}/${anno}`);
+  console.log(`[getStipendiDipendenti] ===== INIZIO =====`);
+  console.log(`[getStipendiDipendenti] Parametri: mese=${mese}, anno=${anno}`);
 
   try {
     // 1. Ottieni tutti i dipendenti
@@ -43,6 +44,8 @@ export async function getStipendiDipendenti(
       throw dipendentiError;
     }
 
+    console.log(`[getStipendiDipendenti] Dipendenti trovati: ${dipendenti?.length || 0}`);
+    
     if (!dipendenti || dipendenti.length === 0) {
       console.log('[getStipendiDipendenti] Nessun dipendente trovato');
       return [];
@@ -68,7 +71,8 @@ export async function getStipendiDipendenti(
     const inizioMese = format(startOfMonth(new Date(anno, mese - 1)), 'yyyy-MM-dd');
     const fineMese = format(endOfMonth(new Date(anno, mese - 1)), 'yyyy-MM-dd');
 
-    console.log(`[getStipendiDipendenti] Query servizi dal ${inizioMese} al ${fineMese}`);
+    console.log(`[getStipendiDipendenti] Range date: ${inizioMese} - ${fineMese}`);
+    console.log(`[getStipendiDipendenti] IDs dipendenti per query:`, dipendenti.map(d => d.id));
 
     // 4. Ottieni i servizi per ogni dipendente nel mese
     const { data: serviziData, error: serviziError } = await supabase
@@ -83,6 +87,9 @@ export async function getStipendiDipendenti(
       console.error('[getStipendiDipendenti] Errore fetch servizi:', serviziError);
     }
 
+    console.log(`[getStipendiDipendenti] Servizi trovati: ${serviziData?.length || 0}`);
+    console.log(`[getStipendiDipendenti] Servizi raw:`, serviziData);
+
     // 5. Aggrega i dati servizi per dipendente
     const serviziPerDipendente = new Map<string, { count: number; oreTotali: number }>();
     
@@ -94,6 +101,10 @@ export async function getStipendiDipendenti(
         serviziPerDipendente.set(servizio.assegnato_a, current);
       }
     });
+
+    console.log(`[getStipendiDipendenti] Aggregazione:`, 
+      Array.from(serviziPerDipendente.entries()).map(([id, data]) => ({id, ...data}))
+    );
 
     // 6. Mappa i dipendenti con tutti i dati
     const risultati: StipendioManualeDipendente[] = dipendenti.map((dipendente) => {
@@ -120,7 +131,14 @@ export async function getStipendiDipendenti(
       };
     });
 
-    console.log(`[getStipendiDipendenti] Recuperati ${risultati.length} dipendenti con metriche servizi`);
+    console.log(`[getStipendiDipendenti] Risultati finali:`, 
+      risultati.map(r => ({
+        nome: `${r.firstName} ${r.lastName}`,
+        servizi: r.numeroServizi,
+        oreLavorate: r.oreLavorate
+      }))
+    );
+    console.log(`[getStipendiDipendenti] ===== FINE =====`);
     return risultati;
   } catch (error) {
     console.error('[getStipendiDipendenti] Errore generale:', error);
