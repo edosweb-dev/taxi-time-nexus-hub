@@ -24,7 +24,7 @@ export const exportReportPasseggeri = (
     passeggeri: string[];
     percorso: string;
     importo: number;
-    ore_sosta: number;
+    ore_fatturate: number;
     note: string;
   }>();
 
@@ -43,13 +43,13 @@ export const exportReportPasseggeri = (
         id_progressivo: row.id_progressivo,
         data_servizio: row.data_servizio,
         referente_nome: row.referente_nome || '-',
-        passeggeri: row.passeggero_nome && row.passeggero_nome !== 'Nessun passeggero' 
-          ? [row.passeggero_nome] 
+        passeggeri: row.passeggero_nome && row.passeggero_nome !== 'Nessun passeggero'
+          ? [row.passeggero_nome]
           : [],
         percorso: row.percorso,
         importo: row.importo,
-        ore_sosta: 0, // Will need to be added to the data if needed
-        note: '', // Will need to be added to the data if needed
+        ore_fatturate: row.ore_fatturate || 0,
+        note: row.note || ''
       });
     }
   });
@@ -64,20 +64,24 @@ export const exportReportPasseggeri = (
     'Passeggero',
     'Percorso',
     'Importo',
+    'Ore Attesa',
+    'Note',
   ].join(';');
 
   // Create CSV rows
   const rows = aggregatedData.map((servizio) => {
-    const passeggeriAggregati = servizio.passeggeri.length > 0 
+    const passeggeriAggregati = servizio.passeggeri.length > 0
       ? servizio.passeggeri.join(', ')
       : '-';
-    
+
     return [
       escapeCsvField(servizio.referente_nome),
       escapeCsvField(format(new Date(servizio.data_servizio), 'dd/MM/yyyy')),
       escapeCsvField(passeggeriAggregati),
       escapeCsvField(servizio.percorso),
       escapeCsvField(`€${servizio.importo.toFixed(2)}`),
+      escapeCsvField(servizio.ore_fatturate > 0 ? servizio.ore_fatturate.toString() : '-'),
+      escapeCsvField(servizio.note || '-'),
     ].join(';');
   });
 
