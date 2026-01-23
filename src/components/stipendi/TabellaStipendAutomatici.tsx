@@ -10,21 +10,25 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Save, Eye, CheckCircle, Clock, CheckCircle2, Loader2 } from 'lucide-react';
+import { Save, Eye, CheckCircle, Clock, CheckCircle2, Loader2, RefreshCw } from 'lucide-react';
 import { StipendiAutomaticoUtente } from '@/lib/api/stipendi/calcoloAutomaticoStipendi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DialogConfermaStipendio } from './DialogConfermaStipendio';
 import { useConfermaStipendio } from '@/hooks/useStipendi';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompensiServizi } from '@/hooks/useCompensiServizi';
+import { ricalcolaESalvaStipendio } from '@/lib/api/stipendi/ricalcolaStipendio';
+import { toast } from '@/components/ui/sonner';
 
 interface TabellaStipendAutomaticiProps {
   stipendi: StipendiAutomaticoUtente[];
   isLoading: boolean;
   onSalvaStipendio: (stipendio: StipendiAutomaticoUtente) => void;
   onViewDetails: (stipendio: StipendiAutomaticoUtente) => void;
+  mese?: number;
+  anno?: number;
 }
 
 const formatCurrency = (value: number | null | undefined) => {
@@ -87,9 +91,39 @@ export function TabellaStipendAutomatici({
   isLoading,
   onSalvaStipendio,
   onViewDetails,
+  mese,
+  anno,
 }: TabellaStipendAutomaticiProps) {
   const [confermaDialogStipendio, setConfermaDialogStipendio] = useState<any>(null);
+  const [recalculatingUserId, setRecalculatingUserId] = useState<string | null>(null);
   const confermaStipendioMutation = useConfermaStipendio();
+  const queryClient = useQueryClient();
+
+  // Handler per ricalcolo singolo stipendio
+  const handleRicalcola = async (stipendio: StipendiAutomaticoUtente) => {
+    if (!mese || !anno) {
+      toast.error('Mese o anno non specificati');
+      return;
+    }
+
+    setRecalculatingUserId(stipendio.userId);
+    try {
+      const result = await ricalcolaESalvaStipendio(stipendio.userId, mese, anno);
+      
+      if (result.success) {
+        toast.success(`Stipendio ricalcolato: €${result.totaleNetto?.toFixed(2)}`);
+        queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+        queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      } else {
+        toast.error(result.error || 'Errore durante il ricalcolo');
+      }
+    } catch (error) {
+      console.error('[handleRicalcola] Error:', error);
+      toast.error('Errore durante il ricalcolo dello stipendio');
+    } finally {
+      setRecalculatingUserId(null);
+    }
+  };
 
   // Helper per ottenere contanti dai servizi salvati
   const useContantiServizi = (userId: string, mese: number, anno: number, enabled: boolean) => {
@@ -248,6 +282,22 @@ export function TabellaStipendAutomatici({
           <div className="flex justify-end gap-2">
             {hasCalcoloValido && (
               <>
+                {/* Pulsante Ricalcola - solo per stipendi salvati in bozza */}
+                {stipendio.hasStipendioSalvato && stipendio.stipendioEsistente?.stato === 'bozza' && mese && anno && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRicalcola(stipendio)}
+                    disabled={recalculatingUserId === stipendio.userId}
+                    title="Ricalcola stipendio"
+                  >
+                    {recalculatingUserId === stipendio.userId ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
