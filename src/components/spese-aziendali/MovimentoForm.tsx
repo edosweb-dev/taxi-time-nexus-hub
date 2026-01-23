@@ -180,10 +180,10 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="spesa">Spesa (uscita)</SelectItem>
-                  <SelectItem value="incasso">Incasso (entrata)</SelectItem>
-                  <SelectItem value="prelievo">Prelievo Socio</SelectItem>
-                  <SelectItem value="versamento">Versamento Socio</SelectItem>
+                  <SelectItem value="spesa">Spesa Aziendale (uscita cassa)</SelectItem>
+                  <SelectItem value="incasso">Incasso (entrata cassa)</SelectItem>
+                  <SelectItem value="prelievo">Prelievo Socio (uscita cassa → anticipo al socio)</SelectItem>
+                  <SelectItem value="versamento">Versamento Socio (entrata cassa ← deposito dal socio)</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -226,19 +226,19 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {tipologia === 'prelievo' ? 'Socio che preleva *' : 
+                  {tipologia === 'prelievo' ? 'Socio beneficiario *' : 
                    tipologia === 'versamento' ? 'Socio che versa *' : 
-                   'Spesa effettuata da'}
+                   'Associa a socio (opzionale)'}
                 </FormLabel>
                 <Select onValueChange={field.onChange} value={field.value || ''}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder={
                         tipologia === 'prelievo' 
-                          ? "Seleziona socio che preleva" 
+                          ? "Seleziona socio beneficiario" 
                           : tipologia === 'versamento'
                           ? "Seleziona socio che versa"
-                          : "Chi ha effettuato questa spesa?"
+                          : "Nessuno (spesa generica)"
                       } />
                     </SelectTrigger>
                   </FormControl>
@@ -257,10 +257,10 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                 </Select>
                 <div className="text-sm text-muted-foreground mt-2">
                   {tipologia === 'prelievo' 
-                    ? "Questo prelievo apparirà nello storico del socio" 
+                    ? "L'azienda paga per conto del socio (es. F24, cellulare, ristorante). Sarà SOTTRATTO dallo stipendio." 
                     : tipologia === 'versamento'
-                    ? "Questo versamento riduce il debito del socio verso l'azienda"
-                    : "Se specificato, la spesa apparirà nel report del socio"}
+                    ? "Il socio paga per conto dell'azienda con soldi propri. Sarà AGGIUNTO allo stipendio."
+                    : "Spesa aziendale generica. Se associata a un socio, apparirà nel suo report."}
                 </div>
                 <FormMessage />
               </FormItem>
