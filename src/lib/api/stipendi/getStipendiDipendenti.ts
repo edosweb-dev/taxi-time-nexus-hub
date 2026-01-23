@@ -107,9 +107,21 @@ export async function getStipendiDipendenti(
     );
 
     // 6. Mappa i dipendenti con tutti i dati
+    console.log(`[getStipendiDipendenti] ===== MAPPING DETTAGLIATO =====`);
+    
     const risultati: StipendioManualeDipendente[] = dipendenti.map((dipendente) => {
       const stipendioEsistente = stipendiMap.get(dipendente.id);
-      const serviziInfo = serviziPerDipendente.get(dipendente.id) || { count: 0, oreTotali: 0 };
+      const serviziInfo = serviziPerDipendente.get(dipendente.id);
+      
+      // Debug: mostra cosa trova per ogni dipendente
+      console.log(`[getStipendiDipendenti] Dipendente ${dipendente.first_name} ${dipendente.last_name} (${dipendente.id}):`, {
+        serviziInfoTrovato: !!serviziInfo,
+        serviziInfo: serviziInfo,
+        count: serviziInfo?.count ?? 'N/A',
+        oreTotali: serviziInfo?.oreTotali ?? 'N/A'
+      });
+
+      const finalServiziInfo = serviziInfo || { count: 0, oreTotali: 0 };
 
       return {
         userId: dipendente.id,
@@ -118,9 +130,9 @@ export async function getStipendiDipendenti(
         role: dipendente.role,
         stipendioFisso: Number(dipendente.stipendio_fisso) || 0,
         // Nuovi campi
-        numeroServizi: serviziInfo.count,
-        oreLavorate: serviziInfo.oreTotali,
-        oreFatturate: serviziInfo.oreTotali, // Per ora stesso valore
+        numeroServizi: finalServiziInfo.count,
+        oreLavorate: finalServiziInfo.oreTotali,
+        oreFatturate: finalServiziInfo.oreTotali, // Per ora stesso valore
         stipendioSalvato: stipendioEsistente ? {
           id: stipendioEsistente.id,
           stato: stipendioEsistente.stato,
