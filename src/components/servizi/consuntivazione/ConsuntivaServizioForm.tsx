@@ -10,7 +10,7 @@ import { Servizio } from "@/lib/types/servizi";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ConsuntivaServizioFormProps {
-  servizio: Servizio;
+  servizio: Servizio & { assegnato?: { role?: string } };
   adminUsers: { id: string; name: string }[];
   requiresConsegnaContanti: boolean;
   onSubmit: (data: ConsuntivaServizioFormData) => void;
@@ -27,6 +27,11 @@ export function ConsuntivaServizioForm({
   const { form, handleSubmit, ivaPercentage, ivaAmount, totaleRicevuto, isSubmitting } = useConsuntivaServizioForm(servizio, onSubmit);
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  
+  // Determina se l'assegnato è un dipendente
+  const assegnatoRole = servizio.assegnato?.role;
+  const isAssegnatoToDipendente = assegnatoRole === 'dipendente';
+  const isAssegnatoToSocio = assegnatoRole === 'admin' || assegnatoRole === 'socio';
 
   return (
     <Form {...form}>
@@ -97,63 +102,116 @@ export function ConsuntivaServizioForm({
           />
         )}
 
-        {/* CAMPI EXTRA - Solo per admin/socio */}
+        {/* CAMPI ORE - Differenziati per ruolo assegnato */}
         {isAdminOrSocio && (
           <>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="ore_sosta"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Ore di sosta</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        placeholder="0"
-                        {...field}
-                        value={field.value === undefined ? '' : field.value}
-                        onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs">
-                      Ore di attesa durante il servizio (usate per stipendio e fattura)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Per DIPENDENTI: Ore lavorate + Ore fatturate */}
+            {isAssegnatoToDipendente && (
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="ore_effettive"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ore lavorate</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          placeholder="0"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Ore effettive di lavoro del dipendente
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="ore_sosta"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ore fatturate</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          placeholder="0"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Ore di attesa da fatturare al cliente
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
 
-            {/* Campo KM - Solo se esecutore è admin/socio */}
-            {(servizio as any).assegnato?.role === 'admin' || (servizio as any).assegnato?.role === 'socio' ? (
-              <FormField
-                control={form.control}
-                name="km_totali"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Km percorsi</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="1"
-                        min="0"
-                        placeholder="Es: 120"
-                        {...field}
-                        value={field.value === undefined ? '' : field.value}
-                        onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs">
-                      Chilometri effettivamente percorsi (per calcolo stipendio)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : null}
+            {/* Per SOCI/ADMIN: Ore di sosta + Km percorsi */}
+            {isAssegnatoToSocio && (
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="ore_sosta"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ore di sosta</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          placeholder="0"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Ore di attesa durante il servizio
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="km_totali"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Km percorsi</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="1"
+                          min="0"
+                          placeholder="Es: 120"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Chilometri effettivamente percorsi (per calcolo stipendio)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </>
         )}
 
