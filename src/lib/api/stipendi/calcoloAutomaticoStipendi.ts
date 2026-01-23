@@ -192,8 +192,6 @@ export async function getStipendiAutomaticiMese(
           
           // Se non ci sono servizi, calcoliamo comunque le detrazioni
           if (numeroServizi === 0 || kmTotali === 0) {
-            console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}: Nessun servizio, calcolo solo detrazioni`);
-            
             // Chiamiamo calcolaStipendioCompleto per ottenere le detrazioni
             const calcoloCompleto = await calcolaStipendioCompleto({
               userId: user.id,
@@ -222,15 +220,6 @@ export async function getStipendiAutomaticiMese(
             calcoloCompleto.totaleLordo = 0;
             calcoloCompleto.totaleNetto = totaleNettoCorretto;
             calcoloCompleto.dettaglioCalcolo.dettaglio = 'Nessun servizio nel mese';
-
-            console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}: Detrazioni calcolate:`, {
-              prelievi: detr.totalePrelievi,
-              incassiDipendenti: detr.incassiDaDipendenti,
-              versamenti: detr.totaleVersamenti,
-              spesePersonali: detr.totaleSpesePersonali,
-              riporto: detr.riportoMesePrecedente,
-              nettoCorretto: totaleNettoCorretto
-            });
 
             return {
               userId: user.id,
