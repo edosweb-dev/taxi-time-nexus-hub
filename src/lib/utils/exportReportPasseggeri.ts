@@ -15,55 +15,13 @@ export const exportReportPasseggeri = (
   dataInizio: string,
   dataFine: string
 ) => {
-  // Aggregate passengers by service (group by servizio_id)
-  const serviziMap = new Map<string, {
-    servizio_id: string;
-    id_progressivo: string;
-    data_servizio: string;
-    referente_nome: string;
-    passeggeri: string[];
-    percorso: string;
-    importo: number;
-    ore_fatturate: number;
-    note: string;
-    stato: string;
-  }>();
-
-  data.forEach((row) => {
-    const existing = serviziMap.get(row.servizio_id);
-    
-    if (existing) {
-      // Add passenger to existing service
-      if (row.passeggero_nome && row.passeggero_nome !== 'Nessun passeggero') {
-        existing.passeggeri.push(row.passeggero_nome);
-      }
-    } else {
-      // Create new service entry
-      serviziMap.set(row.servizio_id, {
-        servizio_id: row.servizio_id,
-        id_progressivo: row.id_progressivo,
-        data_servizio: row.data_servizio,
-        referente_nome: row.referente_nome || '-',
-        passeggeri: row.passeggero_nome && row.passeggero_nome !== 'Nessun passeggero'
-          ? [row.passeggero_nome]
-          : [],
-        percorso: row.percorso,
-        importo: row.importo,
-        ore_fatturate: row.ore_fatturate || 0,
-        note: row.note || '',
-        stato: row.stato || '-'
-      });
-    }
-  });
-
-  // Convert map to array (already in chronological order from query)
-  const aggregatedData = Array.from(serviziMap.values());
-
+  // Data is already aggregated by service (one row per service)
   // Create CSV header with correct columns
   const header = [
     'Referente',
     'Data',
-    'Passeggero',
+    'N° Passeggeri',
+    'Passeggeri',
     'Percorso',
     'Importo',
     'Ore Attesa',
@@ -72,20 +30,17 @@ export const exportReportPasseggeri = (
   ].join(';');
 
   // Create CSV rows
-  const rows = aggregatedData.map((servizio) => {
-    const passeggeriAggregati = servizio.passeggeri.length > 0
-      ? servizio.passeggeri.join(', ')
-      : '-';
-
+  const rows = data.map((row) => {
     return [
-      escapeCsvField(servizio.referente_nome),
-      escapeCsvField(format(new Date(servizio.data_servizio), 'dd/MM/yyyy')),
-      escapeCsvField(passeggeriAggregati),
-      escapeCsvField(servizio.percorso),
-      escapeCsvField(`€${servizio.importo.toFixed(2)}`),
-      escapeCsvField(servizio.ore_fatturate > 0 ? servizio.ore_fatturate.toString() : '-'),
-      escapeCsvField(servizio.note || '-'),
-      escapeCsvField(servizio.stato || '-'),
+      escapeCsvField(row.referente_nome || '-'),
+      escapeCsvField(format(new Date(row.data_servizio), 'dd/MM/yyyy')),
+      escapeCsvField(row.num_passeggeri.toString()),
+      escapeCsvField(row.passeggeri_nomi || '-'),
+      escapeCsvField(row.percorso),
+      escapeCsvField(`€${row.importo.toFixed(2)}`),
+      escapeCsvField(row.ore_fatturate > 0 ? row.ore_fatturate.toString() : '-'),
+      escapeCsvField(row.note || '-'),
+      escapeCsvField(row.stato || '-'),
     ].join(';');
   });
 

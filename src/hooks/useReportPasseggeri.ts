@@ -6,12 +6,11 @@ export interface ReportPasseggeroRow {
   id_progressivo: string;
   data_servizio: string;
   orario_servizio: string;
-  passeggero_nome: string;
-  passeggero_id: string | null;
+  passeggeri_nomi: string;
+  num_passeggeri: number;
   percorso: string;
   indirizzo_presa: string;
   indirizzo_destinazione: string;
-  nr_passeggeri_totale: number;
   metodo_pagamento: string;
   importo: number;
   azienda_nome?: string;
@@ -131,64 +130,41 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
         });
       }
 
-      // Transform data to flat structure
+      // Transform data: ONE ROW PER SERVICE (aggregate passengers)
       const rows: ReportPasseggeroRow[] = [];
 
       data?.forEach((servizio: any) => {
         const passeggeri = servizio.servizi_passeggeri || [];
-        const nrPasseggeri = passeggeri.length;
+        const numPasseggeri = passeggeri.length;
 
-        // If there are passengers, create one row per passenger
-        if (passeggeri.length > 0) {
-          passeggeri.forEach((sp: any) => {
-            const passeggeroNome = sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || 'N/D';
-            
-            rows.push({
-              servizio_id: servizio.id,
-              id_progressivo: servizio.id_progressivo || 'N/D',
-              data_servizio: servizio.data_servizio,
-              orario_servizio: servizio.orario_servizio,
-              passeggero_nome: passeggeroNome,
-              passeggero_id: sp.passeggero_id,
-              percorso: `${servizio.citta_presa || servizio.indirizzo_presa} → ${servizio.citta_destinazione || servizio.indirizzo_destinazione}`,
-              indirizzo_presa: servizio.indirizzo_presa,
-              indirizzo_destinazione: servizio.indirizzo_destinazione,
-              nr_passeggeri_totale: nrPasseggeri,
-              metodo_pagamento: servizio.metodo_pagamento,
-              importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
-              azienda_nome: servizio.aziende?.nome,
-              referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
-              stato: servizio.stato,
-              consegnato_a_id: servizio.consegna_contanti_a,
-              consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
-              ore_fatturate: servizio.ore_fatturate || 0,
-              note: servizio.note || '',
-            });
-          });
-        } else {
-          // Show services without passengers
-          rows.push({
-            servizio_id: servizio.id,
-            id_progressivo: servizio.id_progressivo || 'N/D',
-            data_servizio: servizio.data_servizio,
-            orario_servizio: servizio.orario_servizio,
-            passeggero_nome: 'Nessun passeggero',
-            passeggero_id: null,
-            percorso: `${servizio.citta_presa || servizio.indirizzo_presa} → ${servizio.citta_destinazione || servizio.indirizzo_destinazione}`,
-            indirizzo_presa: servizio.indirizzo_presa,
-            indirizzo_destinazione: servizio.indirizzo_destinazione,
-            nr_passeggeri_totale: 0,
-            metodo_pagamento: servizio.metodo_pagamento,
-            importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
-            azienda_nome: servizio.aziende?.nome,
-            referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
-            stato: servizio.stato,
-            consegnato_a_id: servizio.consegna_contanti_a,
-            consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
-            ore_fatturate: servizio.ore_fatturate || 0,
-            note: servizio.note || '',
-          });
-        }
+        // Aggregate all passenger names into a single string
+        const passeggeriNomi = passeggeri.length > 0
+          ? passeggeri
+              .map((sp: any) => sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || 'N/D')
+              .join(', ')
+          : 'Nessun passeggero';
+
+        // Create ONE row per service (not per passenger)
+        rows.push({
+          servizio_id: servizio.id,
+          id_progressivo: servizio.id_progressivo || 'N/D',
+          data_servizio: servizio.data_servizio,
+          orario_servizio: servizio.orario_servizio,
+          passeggeri_nomi: passeggeriNomi,
+          num_passeggeri: numPasseggeri,
+          percorso: `${servizio.citta_presa || servizio.indirizzo_presa} → ${servizio.citta_destinazione || servizio.indirizzo_destinazione}`,
+          indirizzo_presa: servizio.indirizzo_presa,
+          indirizzo_destinazione: servizio.indirizzo_destinazione,
+          metodo_pagamento: servizio.metodo_pagamento,
+          importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
+          azienda_nome: servizio.aziende?.nome,
+          referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
+          stato: servizio.stato,
+          consegnato_a_id: servizio.consegna_contanti_a,
+          consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
+          ore_fatturate: servizio.ore_fatturate || 0,
+          note: servizio.note || '',
+        });
       });
 
       return rows;

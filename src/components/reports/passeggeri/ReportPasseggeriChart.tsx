@@ -18,16 +18,9 @@ interface ReportPasseggeriChartProps {
 
 export function ReportPasseggeriChart({ data }: ReportPasseggeriChartProps) {
   const chartData = useMemo(() => {
-    // First deduplicate by servizio_id to avoid counting same service multiple times
-    const uniqueServizi = new Map<string, ReportPasseggeroRow>();
-    data.forEach((row) => {
-      if (!uniqueServizi.has(row.servizio_id)) {
-        uniqueServizi.set(row.servizio_id, row);
-      }
-    });
-
+    // Data is already aggregated by service (one row per service)
     // Group by date
-    const grouped = Array.from(uniqueServizi.values()).reduce((acc, s) => {
+    const grouped = data.reduce((acc, s) => {
       const date = format(new Date(s.data_servizio), 'dd/MM');
       const sortKey = s.data_servizio; // Keep original for sorting
       if (!acc[date]) {
