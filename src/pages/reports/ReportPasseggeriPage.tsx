@@ -26,14 +26,14 @@ export default function ReportPasseggeriPage() {
 
   const { data: reportData, isLoading } = useReportPasseggeri(filters);
 
-  // Fetch azienda name if selected
+  // Fetch azienda name and firma_digitale_attiva if selected
   const { data: aziendaSelezionata } = useQuery({
     queryKey: ['azienda', filters.aziendaId],
     queryFn: async () => {
       if (!filters.aziendaId) return null;
       const { data } = await supabase
         .from('aziende')
-        .select('nome')
+        .select('nome, firma_digitale_attiva')
         .eq('id', filters.aziendaId)
         .single();
       return data;
@@ -61,7 +61,15 @@ export default function ReportPasseggeriPage() {
       toast.error('Nessun dato da esportare');
       return;
     }
-    exportReportPasseggeri(reportData, filters.dataInizio, filters.dataFine);
+    
+    // Passa info azienda filtrata per logica N° Commessa / Firma
+    const aziendaFiltrata = filters.aziendaId && aziendaSelezionata ? {
+      id: filters.aziendaId,
+      nome: aziendaSelezionata.nome,
+      firma_digitale_attiva: aziendaSelezionata.firma_digitale_attiva || false
+    } : null;
+    
+    exportReportPasseggeri(reportData, filters.dataInizio, filters.dataFine, aziendaFiltrata);
     toast.success('Report CSV esportato con successo');
   };
 
