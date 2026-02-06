@@ -1,6 +1,16 @@
 import { ReportPasseggeroRow } from '@/hooks/useReportPasseggeri';
 import { format } from 'date-fns';
 
+interface ExportCsvOptions {
+  dataInizio: string;
+  dataFine: string;
+  aziendaFiltrata?: {
+    id: string;
+    nome: string;
+    firma_digitale_attiva: boolean;
+  } | null;
+}
+
 // Escape CSV field to handle commas, quotes, and newlines
 function escapeCsvField(field: string | number | null | undefined): string {
   const str = String(field ?? '-');
@@ -10,14 +20,28 @@ function escapeCsvField(field: string | number | null | undefined): string {
   return str;
 }
 
+// Sanitizza testo per CSV - rimuove caratteri non supportati
+const sanitizeForCsv = (text: string): string => {
+  if (!text) return '-';
+  return text
+    .replace(/→/g, '->')           // Freccia Unicode
+    .replace(/€/g, '')             // Simbolo euro
+    .replace(/[^\x20-\x7E\xA0-\xFF]/g, '')  // Altri caratteri non-latin
+    .trim() || '-';
+};
+
 export const exportReportPasseggeri = (
   data: ReportPasseggeroRow[],
   dataInizio: string,
-  dataFine: string
+  dataFine: string,
+  aziendaFiltrata?: { id: string; nome: string; firma_digitale_attiva: boolean } | null
 ) => {
-  // Data is already aggregated by service (one row per service)
-  // Create CSV header with correct columns
-  const header = [
+  // Determina quali colonne mostrare in base al filtro azienda
+  const mostraCommessa = !aziendaFiltrata || !aziendaFiltrata.firma_digitale_attiva;
+  const mostraFirma = !aziendaFiltrata || aziendaFiltrata.firma_digitale_attiva;
+
+  // Header dinamico - RIMOSSO "Stato"
+  const headerColumns = [
     'Referente',
     'Data',
     'N° Passeggeri',
@@ -26,22 +50,37 @@ export const exportReportPasseggeri = (
     'Importo',
     'Ore Attesa',
     'Note',
-    'Stato',
-  ].join(';');
+  ];
 
-  // Create CSV rows
+  // Aggiungi colonne condizionali
+  if (mostraCommessa) headerColumns.push('N° Commessa');
+  if (mostraFirma) headerColumns.push('Firma');
+
+  const header = headerColumns.join(';');
+
+  // Create CSV rows con logica condizionale
   const rows = data.map((row) => {
-    return [
+    const baseColumns = [
       escapeCsvField(row.referente_nome || '-'),
       escapeCsvField(format(new Date(row.data_servizio), 'dd/MM/yyyy')),
       escapeCsvField(row.num_passeggeri.toString()),
       escapeCsvField(row.passeggeri_nomi || '-'),
-      escapeCsvField(row.percorso),
-      escapeCsvField(`€${row.importo.toFixed(2)}`),
+      escapeCsvField(sanitizeForCsv(row.percorso)),
+      escapeCsvField(row.importo.toFixed(2)),  // Senza simbolo €
       escapeCsvField(row.ore_fatturate > 0 ? row.ore_fatturate.toString() : '-'),
       escapeCsvField(row.note || '-'),
-      escapeCsvField(row.stato || '-'),
-    ].join(';');
+    ];
+
+    // Aggiungi colonne condizionali
+    if (mostraCommessa) {
+      baseColumns.push(escapeCsvField(row.numero_commessa || '-'));
+    }
+    if (mostraFirma) {
+      const firmaValue = row.firma_url ? 'Sì' : 'No';
+      baseColumns.push(escapeCsvField(firmaValue));
+    }
+
+    return baseColumns.join(';');
   });
 
   // Combine header and rows

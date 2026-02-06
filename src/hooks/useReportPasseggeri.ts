@@ -14,12 +14,15 @@ export interface ReportPasseggeroRow {
   metodo_pagamento: string;
   importo: number;
   azienda_nome?: string;
+  azienda_firma_digitale_attiva?: boolean;
   referente_nome?: string;
   stato: string;
   consegnato_a_id: string | null;
   consegnato_a_nome: string | null;
   ore_fatturate: number;
   note: string;
+  numero_commessa?: string;
+  firma_url?: string;
 }
 
 interface ReportFilters {
@@ -56,9 +59,12 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           consegna_contanti_a,
           ore_fatturate,
           note,
+          numero_commessa,
+          firma_url,
           aziende:azienda_id (
             id,
-            nome
+            nome,
+            firma_digitale_attiva
           ),
           servizi_passeggeri (
             id,
@@ -158,12 +164,15 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           metodo_pagamento: servizio.metodo_pagamento,
           importo: servizio.incasso_ricevuto || servizio.incasso_previsto || 0,
           azienda_nome: servizio.aziende?.nome,
+          azienda_firma_digitale_attiva: servizio.aziende?.firma_digitale_attiva || false,
           referente_nome: servizio.referente_id ? referentiMap.get(servizio.referente_id) : undefined,
           stato: servizio.stato,
           consegnato_a_id: servizio.consegna_contanti_a,
           consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
           ore_fatturate: servizio.ore_fatturate || 0,
           note: servizio.note || '',
+          numero_commessa: servizio.numero_commessa || '',
+          firma_url: servizio.firma_url || '',
         });
       });
 
