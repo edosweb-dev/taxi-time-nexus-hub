@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { X } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -50,9 +51,12 @@ export function InfoTab({
   onDeletePasseggero
 }: InfoTabProps) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const referenteIdFromUrl = searchParams.get('referente_id');
+  
   const [passeggeriState, setPasseggeriState] = useState<Passeggero[]>([]);
   const [filteredPasseggeri, setFilteredPasseggeri] = useState<Passeggero[]>([]);
-  const [selectedReferente, setSelectedReferente] = useState<string>('all');
+  const [selectedReferente, setSelectedReferente] = useState<string>(referenteIdFromUrl || 'all');
   const [loadingPasseggeriState, setLoadingPasseggeriState] = useState(false);
 
   // Usa i passeggeri passati come prop se disponibili, altrimenti carica
@@ -325,6 +329,19 @@ export function InfoTab({
                   </div>
                   
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/aziende/${azienda.id}?tab=passeggeri&referente_id=${referente.id}`);
+                      }}
+                      className="h-8 px-3"
+                      title="Visualizza passeggeri del referente"
+                    >
+                      <UserCheck className="h-3.5 w-3.5 mr-1.5" />
+                      Passeggeri
+                    </Button>
                     {onEditReferente && (
                       <Button
                         variant="outline"
@@ -468,6 +485,30 @@ export function InfoTab({
               </Select>
             </div>
           </div>
+          
+          {/* Filter active banner */}
+          {referenteIdFromUrl && selectedReferente !== 'all' && (() => {
+            const referenteAttivo = referenti.find(r => r.id === referenteIdFromUrl);
+            return referenteAttivo ? (
+              <div className="flex items-center gap-2 mt-2 p-2 bg-primary/10 rounded-md">
+                <span className="text-sm">
+                  Filtro attivo: <strong>{referenteAttivo.first_name} {referenteAttivo.last_name}</strong>
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 px-2"
+                  onClick={() => {
+                    setSelectedReferente('all');
+                    searchParams.delete('referente_id');
+                    setSearchParams(searchParams);
+                  }}
+                >
+                  <X className="h-4 w-4 mr-1" /> Rimuovi filtro
+                </Button>
+              </div>
+            ) : null;
+          })()}
         </CardHeader>
         <CardContent>
           {loadingPasseggeri ? (
