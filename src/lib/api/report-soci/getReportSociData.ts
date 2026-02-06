@@ -1,5 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import { ReportSocioRow, ReportSocioStats } from '@/lib/types/report-soci';
+import { 
+  fetchTariffeKm, 
+  fetchConfigurazioneStipendi, 
+  calcolaBaseKmSingoloServizio 
+} from '@/lib/api/stipendi/configurazione';
 
 export async function getReportSociData(
   mese: number,
@@ -44,16 +49,42 @@ export async function getReportSociData(
 
         const riporto = stipendioPrecedente?.totale_netto || 0;
 
-        // Fetch stipendio del mese corrente
-        const { data: stipendioData } = await supabase
-          .from('stipendi')
-          .select('totale_lordo')
-          .eq('user_id', socio.id)
-          .eq('mese', mese)
-          .eq('anno', anno)
-          .maybeSingle();
+        // Fetch configurazione e tariffe una volta per tutti i calcoli
+        const [config, tariffe] = await Promise.all([
+          fetchConfigurazioneStipendi(anno),
+          fetchTariffeKm(anno)
+        ]);
 
-        const stipendio = stipendioData?.totale_lordo || 0;
+        // Fetch servizi del socio nel mese (consuntivati/completati)
+        const { data: serviziMese } = await supabase
+          .from('servizi')
+          .select('km_totali, ore_sosta')
+          .eq('assegnato_a', socio.id)
+          .in('stato', ['completato', 'consuntivato'])
+          .gte('data_servizio', dataInizio)
+          .lte('data_servizio', dataFine);
+
+        // Calcola LIVE come fa StipendiDettaglioPage
+        let totaleBaseKm = 0;
+        let totaleOreAttesa = 0;
+
+        for (const servizio of (serviziMese || [])) {
+          const km = Number(servizio.km_totali) || 0;
+          const ore = Number(servizio.ore_sosta) || 0;
+          
+          if (config && tariffe.length > 0) {
+            const risultato = calcolaBaseKmSingoloServizio(km, tariffe, config);
+            totaleBaseKm += risultato.base;
+          }
+          totaleOreAttesa += ore;
+        }
+
+        // Applica coefficiente e calcola totale lordo
+        const coefficiente = config?.coefficiente_aumento || 1.22;
+        const tariffaOraria = config?.tariffa_oraria_attesa || 15;
+        const baseConAumento = totaleBaseKm * coefficiente;
+        const importoOreAttesa = totaleOreAttesa * tariffaOraria;
+        const stipendio = baseConAumento + importoOreAttesa;
 
         // Fetch prelievi del mese
         const { data: prelieviData } = await supabase
