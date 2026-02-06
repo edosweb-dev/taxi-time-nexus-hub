@@ -170,11 +170,34 @@ Deno.serve(async (req) => {
     // Delete stipendi
     await supabase.from('stipendi').delete().eq('user_id', userId);
     
-    // Update servizi to remove assignment
+    // Update servizi to remove assignment AND referente
     await supabase
       .from('servizi')
       .update({ assegnato_a: null })
       .eq('assegnato_a', userId);
+    
+    await supabase
+      .from('servizi')
+      .update({ referente_id: null })
+      .eq('referente_id', userId);
+    
+    // Update passeggeri to remove referente reference (FIX for foreign key constraint)
+    await supabase
+      .from('passeggeri')
+      .update({ created_by_referente_id: null })
+      .eq('created_by_referente_id', userId);
+    
+    // Update email_notifiche to remove referente reference
+    await supabase
+      .from('email_notifiche')
+      .update({ referente_id: null })
+      .eq('referente_id', userId);
+    
+    // Update reports to remove referente reference
+    await supabase
+      .from('reports')
+      .update({ referente_id: null })
+      .eq('referente_id', userId);
     
     // Update other tables that reference the user
     await supabase
