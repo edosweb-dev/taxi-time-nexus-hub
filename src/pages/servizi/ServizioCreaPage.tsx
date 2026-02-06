@@ -1067,60 +1067,59 @@ export const ServizioCreaPage = ({
         // ✅ FIX: Gestisci passeggeri per TUTTI i tipi cliente (non solo aziende)
         await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
         
-        // Combina passeggeri permanenti e temporanei
+        // ✅ FIX Bug #56: Usa data.passeggeri (popolato dal form) invece di data.passeggeri_ids
+        const passeggeriForm = data.passeggeri || [];
         const passeggeriCompleti = [];
         
-        // Passeggeri permanenti (da checkbox)
-        if (data.passeggeri_ids.length > 0) {
-          const permanenti = data.passeggeri_ids.map(pid => ({ 
-            servizio_id: servizioId, 
-            passeggero_id: pid,
-            salva_in_database: Boolean(true),
-            usa_indirizzo_personalizzato: Boolean(false),
+        if (passeggeriForm.length > 0) {
+          const passeggeriToInsert = passeggeriForm.map((p, idx) => ({
+            servizio_id: servizioId,
+            passeggero_id: p.id || null,
+            nome_cognome_inline: p.nome_cognome || null,
+            email_inline: p.email || null,
+            telefono_inline: p.telefono || null,
+            localita_inline: p.localita || null,
+            indirizzo_inline: p.indirizzo || null,
+            salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
+            ordine_presa: p.ordine || (idx + 1),
+            usa_indirizzo_personalizzato: p.presa_tipo !== 'servizio',
+            luogo_presa_personalizzato: 
+              p.presa_tipo === 'personalizzato' 
+                ? (p.presa_indirizzo_custom || null)
+                : p.presa_tipo === 'passeggero' 
+                  ? (p.indirizzo_rubrica || p.indirizzo || null)
+                  : null,
+            localita_presa_personalizzato:
+              p.presa_tipo === 'personalizzato'
+                ? (p.presa_citta_custom || null)
+                : p.presa_tipo === 'passeggero'
+                  ? (p.localita_rubrica || p.localita || null)
+                  : null,
+            orario_presa_personalizzato: p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
+            usa_destinazione_personalizzata: p.destinazione_tipo !== 'servizio',
+            destinazione_personalizzato:
+              p.destinazione_tipo === 'personalizzato'
+                ? (p.destinazione_indirizzo_custom || null)
+                : p.destinazione_tipo === 'passeggero'
+                  ? (p.indirizzo_rubrica || p.indirizzo || null)
+                  : null,
+            localita_destinazione_personalizzato:
+              p.destinazione_tipo === 'personalizzato'
+                ? (p.destinazione_citta_custom || null)
+                : p.destinazione_tipo === 'passeggero'
+                  ? (p.localita_rubrica || p.localita || null)
+                  : null,
           }));
-          passeggeriCompleti.push(...permanenti);
+          
+          passeggeriCompleti.push(...passeggeriToInsert);
         }
         
-        // Passeggeri temporanei (da state)
-        const temporanei = tempPasseggeri.map(tp => {
-          const passeggeroData = {
-            servizio_id: servizioId,
-            passeggero_id: null,
-            nome_cognome_inline: tp.nome_cognome,
-            email_inline: tp.email || null,
-            telefono_inline: tp.telefono || null,
-            localita_inline: tp.localita || null,
-            indirizzo_inline: tp.indirizzo || null,
-            salva_in_database: Boolean(false),
-            usa_indirizzo_personalizzato: Boolean(tp.usa_indirizzo_personalizzato ?? false),
-            orario_presa_personalizzato: tp.orario_presa_personalizzato || null,
-            luogo_presa_personalizzato: tp.luogo_presa_personalizzato || null,
-            // ✅ FIX BUG #41: Aggiungi campi località separati
-            localita_presa_personalizzato: tp.localita_presa_personalizzato || null,
-            destinazione_personalizzato: tp.destinazione_personalizzato || null,
-            localita_destinazione_personalizzato: tp.localita_destinazione_personalizzato || null,
-          };
-          
-          console.log('═══════════════════════════════════');
-          console.log('🔍 [ServizioCreaPage EDIT] Temp passenger data:');
-          console.log('usa_indirizzo_personalizzato:', passeggeroData.usa_indirizzo_personalizzato);
-          console.log('typeof:', typeof passeggeroData.usa_indirizzo_personalizzato);
-          console.log('Full data:', JSON.stringify(passeggeroData, null, 2));
-          console.log('═══════════════════════════════════');
-          
-          return passeggeroData;
-        });
-        passeggeriCompleti.push(...temporanei);
-        
         console.log('[ServizioCreaPage] Saving passengers (edit mode):', {
-          permanenti: data.passeggeri_ids.length,
-          temporanei: tempPasseggeri.length,
           totale: passeggeriCompleti.length,
           passeggeriCompleti: passeggeriCompleti
         });
         
         if (passeggeriCompleti.length > 0) {
-          console.log('🔍 [ServizioCreaPage EDIT] Final insert data:', JSON.stringify(passeggeriCompleti, null, 2));
           const { error: passErr } = await supabase.from("servizi_passeggeri")
             .insert(passeggeriCompleti);
           if (passErr) throw passErr;
