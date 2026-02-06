@@ -15,6 +15,18 @@ export const usePasseggeriCliente = (searchTerm?: string) => {
     queryFn: async () => {
       if (!user?.id) return [];
 
+      // Recupera l'azienda_id dell'utente corrente
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('azienda_id')
+        .eq('id', user.id)
+        .single();
+
+      if (!userProfile?.azienda_id) {
+        console.log('[usePasseggeriCliente] User without azienda_id');
+        return [];
+      }
+
       let query = supabase
         .from("passeggeri")
         .select(`
@@ -30,7 +42,7 @@ export const usePasseggeriCliente = (searchTerm?: string) => {
             nome
           )
         `)
-        .eq("created_by_referente_id", user.id)
+        .eq("azienda_id", userProfile.azienda_id)
         .eq("tipo", "rubrica")
         .order("nome_cognome", { ascending: true });
 
@@ -46,6 +58,7 @@ export const usePasseggeriCliente = (searchTerm?: string) => {
         throw error;
       }
 
+      console.log(`[usePasseggeriCliente] Found ${data?.length || 0} passengers for azienda ${userProfile.azienda_id}`);
       return data || [];
     },
     enabled: !!user?.id,
