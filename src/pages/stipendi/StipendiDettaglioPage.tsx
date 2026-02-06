@@ -616,7 +616,7 @@ export default function StipendiDettaglioPage() {
                   <span className="font-bold text-primary">+€{totaliServizi.compensiKm.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
-                  <span className="text-sm">Compensi Ore servizi</span>
+                  <span className="text-sm">Compensi Ore sosta</span>
                   <span className="font-bold text-primary">+€{totaliServizi.compensiOre.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
