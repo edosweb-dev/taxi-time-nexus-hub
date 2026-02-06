@@ -110,7 +110,11 @@ export default function ReportPasseggeriPage() {
 
         <ReportPasseggeriChart data={reportData || []} />
 
-        <ReportPasseggeriTable data={reportData || []} isLoading={isLoading} />
+        <ReportPasseggeriTable 
+          data={reportData || []} 
+          isLoading={isLoading} 
+          hasActiveFilters={!!(filters.aziendaId || filters.referenteId || filters.dipendenteId || filters.socioId || (filters.stato && filters.stato !== 'tutti'))}
+        />
       </div>
     </MainLayout>
   );
