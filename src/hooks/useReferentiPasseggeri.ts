@@ -18,21 +18,36 @@ export interface Passeggero {
 
 export function usePasseggeriByReferente(referenteId?: string) {
   return useQuery({
-    queryKey: ['passeggeri', referenteId],
+    queryKey: ['passeggeri', 'referente', referenteId],
     queryFn: async () => {
       if (!referenteId) return [];
       
+      // Prima recupera l'azienda_id del referente
+      const { data: referenteProfile } = await supabase
+        .from('profiles')
+        .select('azienda_id')
+        .eq('id', referenteId)
+        .single();
+
+      if (!referenteProfile?.azienda_id) {
+        console.log('[usePasseggeriByReferente] Referente senza azienda_id');
+        return [];
+      }
+
+      // Query passeggeri: tutti i passeggeri dell'azienda del referente
       const { data, error } = await supabase
         .from('passeggeri')
         .select('*')
-        .eq('created_by_referente_id', referenteId)
+        .eq('azienda_id', referenteProfile.azienda_id)
+        .eq('tipo', 'rubrica')
         .order('nome_cognome', { ascending: true });
 
       if (error) {
-        console.error('Error fetching passeggeri:', error);
+        console.error('[usePasseggeriByReferente] Error fetching passeggeri:', error);
         throw error;
       }
 
+      console.log(`[usePasseggeriByReferente] Found ${data?.length || 0} passengers for azienda ${referenteProfile.azienda_id}`);
       return data as Passeggero[];
     },
     enabled: !!referenteId,
@@ -46,6 +61,7 @@ export function useAllPasseggeriByReferente() {
       const { data, error } = await supabase
         .from('passeggeri')
         .select('*')
+        .eq('tipo', 'rubrica')
         .order('nome_cognome', { ascending: true });
 
       if (error) {
