@@ -81,18 +81,24 @@ export default function ReportPasseggeriPage() {
     toast.success('Report CSV esportato con successo');
   };
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     if (!reportData || reportData.length === 0) {
       toast.error('Nessun dato da esportare');
       return;
     }
-    exportReportPasseggeriPdf(reportData, {
-      dataInizio: filters.dataInizio,
-      dataFine: filters.dataFine,
-      aziendaNome: aziendaSelezionata?.nome,
-      referenteNome: referenteSelezionato || undefined,
-    });
-    toast.success('Report PDF esportato con successo');
+    toast.info('Generazione PDF in corso...');
+    try {
+      await exportReportPasseggeriPdf(reportData, {
+        dataInizio: filters.dataInizio,
+        dataFine: filters.dataFine,
+        aziendaNome: aziendaSelezionata?.nome,
+        referenteNome: referenteSelezionato || undefined,
+      });
+      toast.success('Report PDF esportato con successo');
+    } catch (err) {
+      console.error('Errore export PDF:', err);
+      toast.error('Errore nella generazione del PDF');
+    }
   };
 
   return (
