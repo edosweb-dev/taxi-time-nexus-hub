@@ -3,7 +3,8 @@ import { FileBarChart, FileText } from 'lucide-react';
 import { ReportPasseggeriTable } from '@/components/reports/passeggeri/ReportPasseggeriTable';
 import { ReportPasseggeriFilters } from '@/components/reports/passeggeri/ReportPasseggeriFilters';
 import { ReportPasseggeriChart } from '@/components/reports/passeggeri/ReportPasseggeriChart';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { exportReportPasseggeri } from '@/lib/utils/exportReportPasseggeri';
@@ -14,14 +15,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function ReportPasseggeriPage() {
-  const [filters, setFilters] = useState({
-    dataInizio: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
-    dataFine: new Date().toISOString().split('T')[0],
-    aziendaId: '',
-    referenteId: '',
-    dipendenteId: '',
-    socioId: '',
-    stato: 'tutti',
+  const location = useLocation();
+  const [filters, setFilters] = useState(() => {
+    const savedFilters = location.state?.filters;
+    if (savedFilters) {
+      return savedFilters;
+    }
+    return {
+      dataInizio: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
+      dataFine: new Date().toISOString().split('T')[0],
+      aziendaId: '',
+      referenteId: '',
+      dipendenteId: '',
+      socioId: '',
+      stato: 'tutti',
+    };
   });
 
   const { data: reportData, isLoading } = useReportPasseggeri(filters);
@@ -122,6 +130,7 @@ export default function ReportPasseggeriPage() {
           data={reportData || []} 
           isLoading={isLoading} 
           hasActiveFilters={!!(filters.aziendaId || filters.referenteId || filters.dipendenteId || filters.socioId || (filters.stato && filters.stato !== 'tutti'))}
+          filters={filters}
         />
       </div>
     </MainLayout>

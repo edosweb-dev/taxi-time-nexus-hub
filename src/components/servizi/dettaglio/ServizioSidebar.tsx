@@ -23,6 +23,7 @@ interface ServizioSidebarProps {
   onCompleta: () => void;
   onConsuntiva: () => void;
   onBack: () => void;
+  backLabel?: string;
   veicoloModello?: string;
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
@@ -38,6 +39,7 @@ export function ServizioSidebar({
   getAziendaName,
   getUserName,
   veicoloModello,
+  backLabel,
   onEdit,
   onAssegna,
   onDelete,
@@ -58,7 +60,7 @@ export function ServizioSidebar({
           className="w-full justify-start"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Torna ai Servizi
+          {backLabel || 'Torna ai Servizi'}
         </Button>
 
         {/* ID Progressivo */}
