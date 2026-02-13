@@ -72,6 +72,13 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             nome_cognome_inline,
             firma_url,
             firma_timestamp,
+            usa_indirizzo_personalizzato,
+            luogo_presa_personalizzato,
+            localita_presa_personalizzato,
+            usa_destinazione_personalizzata,
+            destinazione_personalizzato,
+            localita_destinazione_personalizzato,
+            ordine_presa,
             passeggeri:passeggero_id (
               id,
               nome_cognome
@@ -152,6 +159,41 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
               .join(', ')
           : 'Nessun passeggero';
 
+        // Build full route with intermediate stops
+        const tappe: string[] = [];
+        
+        // Partenza
+        const partenza = servizio.citta_presa 
+          ? `${servizio.indirizzo_presa}, ${servizio.citta_presa}` 
+          : servizio.indirizzo_presa;
+        tappe.push(partenza);
+        
+        // Tappe intermedie (passeggeri con indirizzo personalizzato)
+        const passeggeriOrdinati = [...passeggeri].sort(
+          (a: any, b: any) => (a.ordine_presa || 1) - (b.ordine_presa || 1)
+        );
+        
+        for (const sp of passeggeriOrdinati) {
+          if (sp.usa_indirizzo_personalizzato && sp.luogo_presa_personalizzato) {
+            const localita = sp.localita_presa_personalizzato || '';
+            const tappa = localita 
+              ? `${sp.luogo_presa_personalizzato}, ${localita}`
+              : sp.luogo_presa_personalizzato;
+            // Avoid duplicating partenza/destinazione
+            if (tappa !== partenza) {
+              tappe.push(tappa);
+            }
+          }
+        }
+        
+        // Destinazione
+        const destinazione = servizio.citta_destinazione 
+          ? `${servizio.indirizzo_destinazione}, ${servizio.citta_destinazione}` 
+          : servizio.indirizzo_destinazione;
+        tappe.push(destinazione);
+        
+        const percorsoCompleto = tappe.join(' → ');
+
         // Create ONE row per service (not per passenger)
         rows.push({
           servizio_id: servizio.id,
@@ -160,7 +202,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           orario_servizio: servizio.orario_servizio,
           passeggeri_nomi: passeggeriNomi,
           num_passeggeri: numPasseggeri,
-          percorso: `${servizio.citta_presa || servizio.indirizzo_presa} → ${servizio.citta_destinazione || servizio.indirizzo_destinazione}`,
+          percorso: percorsoCompleto,
           indirizzo_presa: servizio.indirizzo_presa,
           indirizzo_destinazione: servizio.indirizzo_destinazione,
           metodo_pagamento: servizio.metodo_pagamento,
