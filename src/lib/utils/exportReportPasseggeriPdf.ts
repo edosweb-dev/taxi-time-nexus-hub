@@ -2,6 +2,7 @@ import { ReportPasseggeroRow } from '@/hooks/useReportPasseggeri';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { cleanupFirmaUrl } from '@/components/servizi/utils/firmaUtils';
 
 interface ExportPdfOptions {
   dataInizio: string;
@@ -19,7 +20,43 @@ const sanitizePercorso = (percorso: string): string => {
     .trim() || '-';
 };
 
-export const exportReportPasseggeriPdf = (
+/**
+ * Scarica un'immagine da URL e la converte in dataURL per jsPDF
+ */
+async function fetchImageAsDataUrl(url: string): Promise<string | null> {
+  try {
+    const cleanUrl = cleanupFirmaUrl(url);
+    const cacheBustUrl = `${cleanUrl}?v=${Date.now()}`;
+    
+    const response = await fetch(cacheBustUrl, {
+      mode: 'cors',
+      credentials: 'omit',
+    });
+    
+    if (!response.ok) {
+      console.warn('Errore download firma per PDF:', response.status, url);
+      return null;
+    }
+    
+    const blob = await response.blob();
+    if (blob.size < 100) {
+      console.warn('Firma troppo piccola, saltata:', blob.size);
+      return null;
+    }
+    
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Errore fetch firma per PDF:', error);
+    return null;
+  }
+}
+
+export const exportReportPasseggeriPdf = async (
   data: ReportPasseggeroRow[],
   options: ExportPdfOptions
 ) => {
@@ -80,20 +117,20 @@ export const exportReportPasseggeriPdf = (
     },
     alternateRowStyles: { fillColor: [248, 248, 248] },
     columnStyles: {
-      0: { cellWidth: 28 },   // Referente
-      1: { cellWidth: 22 },   // Data
-      2: { cellWidth: 12, halign: 'center' },  // N° Pass
-      3: { cellWidth: 55 },   // Passeggeri
-      4: { cellWidth: 60 },   // Percorso
-      5: { cellWidth: 20, halign: 'right' },   // Importo
-      6: { cellWidth: 15, halign: 'center' },  // Ore
-      7: { cellWidth: 35 },   // Note
-      8: { cellWidth: 22, halign: 'center' },  // Stato
+      0: { cellWidth: 28 },
+      1: { cellWidth: 22 },
+      2: { cellWidth: 12, halign: 'center' },
+      3: { cellWidth: 55 },
+      4: { cellWidth: 60 },
+      5: { cellWidth: 20, halign: 'right' },
+      6: { cellWidth: 15, halign: 'center' },
+      7: { cellWidth: 35 },
+      8: { cellWidth: 22, halign: 'center' },
     }
   });
 
   // Footer totals
-  const finalY = (doc as any).lastAutoTable.finalY + 8;
+  let finalY = (doc as any).lastAutoTable.finalY + 8;
   const totaleImporto = data.reduce((sum, s) => sum + (s.importo || 0), 0);
   const totaleOre = data.reduce((sum, s) => sum + (s.ore_fatturate || 0), 0);
   const totalePasseggeri = data.reduce((sum, s) => sum + (s.num_passeggeri || 0), 0);
@@ -101,6 +138,66 @@ export const exportReportPasseggeriPdf = (
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text(`Totale: ${data.length} servizi (${totalePasseggeri} passeggeri)  |  Importo: €${totaleImporto.toFixed(2)}  |  Ore attesa: ${totaleOre.toFixed(1)}h`, 14, finalY);
+
+  // Sezione Firme Digitali
+  const serviziConFirma = data.filter(row => row.firma_url && row.firma_url.trim() !== '');
+  
+  if (serviziConFirma.length > 0) {
+    // Nuova pagina per le firme
+    doc.addPage();
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Firme Digitali', 14, 15);
+    
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${serviziConFirma.length} servizi con firma digitale`, 14, 21);
+    
+    let firmaY = 30;
+    const pageHeight = 200; // margine inferiore landscape A4
+    
+    for (const row of serviziConFirma) {
+      // Controlla spazio pagina
+      if (firmaY + 40 > pageHeight) {
+        doc.addPage();
+        firmaY = 15;
+      }
+      
+      // Header servizio
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      const label = `${row.id_progressivo} - ${format(new Date(row.data_servizio), 'dd/MM/yyyy')} - ${row.passeggeri_nomi || 'N/D'}`;
+      doc.text(label, 14, firmaY);
+      firmaY += 5;
+      
+      // Download e render firma
+      const dataUrl = await fetchImageAsDataUrl(row.firma_url!);
+      
+      if (dataUrl) {
+        try {
+          doc.addImage(dataUrl, 'PNG', 14, firmaY, 60, 20);
+          firmaY += 25;
+        } catch (imgErr) {
+          console.error('Errore addImage firma:', imgErr);
+          doc.setFontSize(7);
+          doc.setFont('helvetica', 'italic');
+          doc.text('(Errore rendering firma)', 14, firmaY);
+          firmaY += 5;
+        }
+      } else {
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'italic');
+        doc.text('(Firma non disponibile)', 14, firmaY);
+        firmaY += 5;
+      }
+      
+      // Linea separatrice
+      doc.setDrawColor(200, 200, 200);
+      doc.line(14, firmaY, 283, firmaY);
+      firmaY += 5;
+    }
+  }
 
   // Download
   doc.save(`report-passeggeri-${dataInizio}-${dataFine}.pdf`);

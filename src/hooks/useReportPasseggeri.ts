@@ -70,6 +70,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
             id,
             passeggero_id,
             nome_cognome_inline,
+            firma_url,
+            firma_timestamp,
             passeggeri:passeggero_id (
               id,
               nome_cognome
@@ -172,7 +174,8 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           ore_fatturate: servizio.ore_fatturate || 0,
           note: servizio.note || '',
           numero_commessa: servizio.numero_commessa || '',
-          firma_url: servizio.firma_url || '',
+          firma_url: servizio.firma_url || 
+            passeggeri.find((sp: any) => sp.firma_url)?.firma_url || '',
         });
       });
 
