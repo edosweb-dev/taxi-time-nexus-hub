@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { DipendenteLayout } from "@/components/layouts/DipendenteLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
@@ -43,6 +43,9 @@ import { DeleteServizioDialog } from "@/components/servizi/dialogs";
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isFromReport = location.state?.from === 'report-passeggeri';
+  const reportFilters = location.state?.filters;
   const { users } = useUsers();
   const { profile } = useAuth();
   const isMobile = useIsMobile();
@@ -302,7 +305,14 @@ export default function ServizioDetailPage() {
             }}
             onCompleta={() => setCompletaDialogOpen(true)}
             onConsuntiva={() => setConsuntivaDialogOpen(true)}
-            onBack={() => navigate(isDipendente ? '/dipendente/servizi-assegnati' : '/servizi')}
+            onBack={() => {
+              if (isFromReport && reportFilters) {
+                navigate('/report-passeggeri', { state: { filters: reportFilters } });
+              } else {
+                navigate(isDipendente ? '/dipendente/servizi-assegnati' : '/servizi');
+              }
+            }}
+            backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
           />

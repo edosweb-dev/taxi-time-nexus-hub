@@ -18,10 +18,21 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Eye, Users } from 'lucide-react';
 
+interface ReportPasseggeriFiltersState {
+  dataInizio: string;
+  dataFine: string;
+  aziendaId: string;
+  referenteId: string;
+  dipendenteId: string;
+  socioId: string;
+  stato: string;
+}
+
 interface ReportPasseggeriTableProps {
   data: ReportPasseggeroRow[];
   isLoading: boolean;
   hasActiveFilters?: boolean;
+  filters?: ReportPasseggeriFiltersState;
 }
 
 interface MonthGroup {
@@ -33,8 +44,17 @@ interface MonthGroup {
   totalePasseggeri: number;
 }
 
-export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = false }: ReportPasseggeriTableProps) {
+export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = false, filters }: ReportPasseggeriTableProps) {
   const navigate = useNavigate();
+
+  const handleViewServizio = (servizioId: string) => {
+    navigate(`/servizi/${servizioId}`, {
+      state: {
+        from: 'report-passeggeri',
+        filters,
+      }
+    });
+  };
 
   // Group data by month when no specific filters are active
   const groupedByMonth = useMemo<MonthGroup[] | null>(() => {
@@ -172,7 +192,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
         <Button 
           variant="ghost" 
           size="sm"
-          onClick={() => navigate(`/servizi/${row.servizio_id}`)}
+          onClick={() => handleViewServizio(row.servizio_id)}
           title="Visualizza servizio"
         >
           <Eye className="h-4 w-4" />
@@ -281,7 +301,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => navigate(`/servizi/${row.servizio_id}`)}
+                          onClick={() => handleViewServizio(row.servizio_id)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -340,7 +360,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => navigate(`/servizi/${row.servizio_id}`)}
+                      onClick={() => handleViewServizio(row.servizio_id)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>

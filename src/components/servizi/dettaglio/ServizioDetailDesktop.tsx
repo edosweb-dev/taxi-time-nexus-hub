@@ -23,6 +23,7 @@ interface ServizioDetailDesktopProps {
   onCompleta: () => void;
   onConsuntiva: () => void;
   onBack: () => void;
+  backLabel?: string;
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
 }
@@ -46,6 +47,7 @@ export function ServizioDetailDesktop({
   onCompleta,
   onConsuntiva,
   onBack,
+  backLabel,
   onRimuoviAssegnazione,
   isRimuoviAssegnazioneLoading,
 }: ServizioDetailDesktopProps) {
@@ -68,6 +70,7 @@ export function ServizioDetailDesktop({
         onCompleta={onCompleta}
         onConsuntiva={onConsuntiva}
         onBack={onBack}
+        backLabel={backLabel}
         onRimuoviAssegnazione={onRimuoviAssegnazione}
         isRimuoviAssegnazioneLoading={isRimuoviAssegnazioneLoading}
       />
