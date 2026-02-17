@@ -1074,7 +1074,7 @@ export const ServizioCreaPage = ({
         if (passeggeriForm.length > 0) {
           const passeggeriToInsert = passeggeriForm.map((p, idx) => ({
             servizio_id: servizioId,
-            passeggero_id: p.id || null,
+            passeggero_id: p.passeggero_id || null,
             nome_cognome_inline: p.nome_cognome || null,
             email_inline: p.email || null,
             telefono_inline: p.telefono || null,
