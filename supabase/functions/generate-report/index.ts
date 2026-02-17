@@ -20,8 +20,10 @@ interface ServizioData {
   orario_servizio: string
   indirizzo_presa: string
   indirizzo_destinazione: string
+  citta_presa?: string
+  citta_destinazione?: string
   numero_commessa?: string
-  ore_sosta?: number  // UNICO campo ore
+  ore_sosta?: number
   firma_url?: string
   incasso_previsto?: number
   incasso_ricevuto?: number
@@ -442,6 +444,8 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     const commessaText = servizio.numero_commessa || ''
     const oreSostaText = servizio.ore_sosta ? `${servizio.ore_sosta}h` : '-'
     const noteText = servizio.note || ''
+    const cittaPresa = (servizio as any).citta_presa || 'N/A'
+    const cittaDest = (servizio as any).citta_destinazione || 'N/A'
     
     // Truncate text to fit columns
     const truncateText = (text: string, maxLength: number) => {
@@ -454,8 +458,8 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
       dataFormatted,
       orarioFormatted,
       truncateText(passeggeriText, 25),
-      truncateText(servizio.indirizzo_presa, 20),
-      truncateText(servizio.indirizzo_destinazione, 20),
+      truncateText(cittaPresa, 20),
+      truncateText(cittaDest, 20),
       truncateText(commessaText, 15),
       oreSostaText,
       truncateText(veicoloText, 18),
