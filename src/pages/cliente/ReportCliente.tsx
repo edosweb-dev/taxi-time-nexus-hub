@@ -206,12 +206,12 @@ const ReportCliente = () => {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label>Anno</Label>
-                <Select value={filtroAnno} onValueChange={setFiltroAnno}>
+                <Select value={filtroAnno || 'all'} onValueChange={(v) => setFiltroAnno(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Tutti gli anni" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti</SelectItem>
+                    <SelectItem value="all">Tutti</SelectItem>
                     {anniDisponibili.map((anno) => (
                       <SelectItem key={anno} value={anno.toString()}>
                         {anno}
@@ -223,12 +223,12 @@ const ReportCliente = () => {
 
               <div className="space-y-2">
                 <Label>Mese</Label>
-                <Select value={filtroMese} onValueChange={setFiltroMese}>
+                <Select value={filtroMese || 'all'} onValueChange={(v) => setFiltroMese(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Tutti i mesi" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti</SelectItem>
+                    <SelectItem value="all">Tutti</SelectItem>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((mese) => (
                       <SelectItem key={mese} value={mese.toString()}>
                         {getMeseNome(mese)}
@@ -240,12 +240,12 @@ const ReportCliente = () => {
 
               <div className="space-y-2">
                 <Label>Stato</Label>
-                <Select value={filtroStato} onValueChange={setFiltroStato}>
+                <Select value={filtroStato || 'all'} onValueChange={(v) => setFiltroStato(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Tutti gli stati" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti</SelectItem>
+                    <SelectItem value="all">Tutti</SelectItem>
                     <SelectItem value="completato">Completato</SelectItem>
                     <SelectItem value="in_generazione">In Generazione</SelectItem>
                     <SelectItem value="errore">Errore</SelectItem>
