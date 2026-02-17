@@ -390,13 +390,13 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     { label: 'ID', x: 20, width: 15 },
     { label: 'Data', x: 35, width: 20 },
     { label: 'Orario', x: 55, width: 15 },
-    { label: 'Passeggeri', x: 70, width: 35 },
-    { label: 'Partenza', x: 105, width: 30 },
-    { label: 'Destinazione', x: 135, width: 30 },
-    { label: 'Commessa', x: 165, width: 20 },
-    { label: 'Ore Sosta', x: 185, width: 15 },
-    { label: 'Veicolo', x: 200, width: 25 },
-    { label: 'Note', x: 225, width: 25 }
+    { label: 'Passeggeri', x: 70, width: 38 },
+    { label: 'Partenza', x: 108, width: 32 },
+    { label: 'Destinazione', x: 140, width: 32 },
+    { label: 'Commessa', x: 172, width: 16 },
+    { label: 'Ore Sosta', x: 188, width: 14 },
+    { label: 'Veicolo', x: 202, width: 24 },
+    { label: 'Note', x: 226, width: 24 }
   ]
   
   // Se firma digitale attiva, aggiungi colonna firma
