@@ -34,6 +34,24 @@ const navItems: NavItem[] = [
     roles: ['admin', 'socio', 'dipendente'],
   },
   {
+    title: 'Dashboard',
+    href: '/dashboard-cliente',
+    icon: LayoutDashboard,
+    roles: ['cliente'],
+  },
+  {
+    title: 'Servizi',
+    href: '/dashboard-cliente/servizi',
+    icon: FileText,
+    roles: ['cliente'],
+  },
+  {
+    title: 'Report',
+    href: '/dashboard-cliente/report',
+    icon: FileBarChart,
+    roles: ['cliente'],
+  },
+  {
     title: 'Servizi',
     href: '/servizi',
     icon: FileText,
