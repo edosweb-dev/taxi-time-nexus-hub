@@ -5,45 +5,38 @@ import {
   Calendar, 
   Users, 
   Car,
-  Settings 
+  Settings,
+  FileText,
+  FileBarChart
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface NavItem {
+  id: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  path: string;
+  roles: string[];
+}
 
 export function BottomNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { profile } = useAuth();
 
-  const navItems = [
-    {
-      id: 'dashboard',
-      icon: Home,
-      label: 'Dashboard',
-      path: '/dashboard'
-    },
-    {
-      id: 'servizi',
-      icon: Calendar,
-      label: 'Servizi',
-      path: '/servizi'
-    },
-    {
-      id: 'veicoli',
-      icon: Car,
-      label: 'Veicoli',
-      path: '/veicoli'
-    },
-    {
-      id: 'users',
-      icon: Users,
-      label: 'Utenti',
-      path: '/users'
-    },
-    {
-      id: 'settings',
-      icon: Settings,
-      label: 'Altro',
-      path: '/impostazioni'
-    }
+  const allNavItems: NavItem[] = [
+    { id: 'dashboard', icon: Home, label: 'Dashboard', path: '/dashboard', roles: ['admin', 'socio', 'dipendente'] },
+    { id: 'dashboard-cliente', icon: Home, label: 'Dashboard', path: '/dashboard-cliente', roles: ['cliente'] },
+    { id: 'servizi', icon: Calendar, label: 'Servizi', path: '/servizi', roles: ['admin', 'socio', 'dipendente'] },
+    { id: 'servizi-cliente', icon: FileText, label: 'Servizi', path: '/dashboard-cliente/servizi', roles: ['cliente'] },
+    { id: 'report-cliente', icon: FileBarChart, label: 'Report', path: '/dashboard-cliente/report', roles: ['cliente'] },
+    { id: 'veicoli', icon: Car, label: 'Veicoli', path: '/veicoli', roles: ['admin', 'socio'] },
+    { id: 'users', icon: Users, label: 'Utenti', path: '/users', roles: ['admin', 'socio'] },
+    { id: 'settings', icon: Settings, label: 'Altro', path: '/impostazioni', roles: ['admin', 'socio'] },
   ];
+
+  const userRole = profile?.role || 'dipendente';
+  const navItems = allNavItems.filter(item => item.roles.includes(userRole));
 
   const handleNavigation = (path: string) => {
     navigate(path);
