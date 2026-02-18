@@ -978,13 +978,9 @@ export const ServizioCreaPage = ({
             (data.conducente_esterno && data.conducente_esterno_id)
           );
           
-          if (statoCorrente === 'bozza') {
-            // Bozza rimane bozza (servizio incompleto)
-            statoServizio = 'bozza';
-          } else {
-            // Da_assegnare/assegnato: determina in base all'autista
-            statoServizio = hasDriver ? 'assegnato' : 'da_assegnare';
-          }
+          // Bozza/Da_assegnare/Assegnato: ricalcola in base all'autista
+          // Se bozza viene completata (validazione Zod passata), promuovi a da_assegnare/assegnato
+          statoServizio = hasDriver ? 'assegnato' : 'da_assegnare';
           
           console.log('[ServizioCreaPage] 🔄 Stato ricalcolato in modifica:', {
             statoCorrente,
