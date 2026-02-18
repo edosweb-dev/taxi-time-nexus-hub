@@ -776,6 +776,7 @@ export default function ServiziPage() {
                         <TableHead className="w-[140px]">Azienda</TableHead>
                         <TableHead className="min-w-[280px]">Percorso</TableHead>
                         <TableHead className="w-[120px]">Data e Orario</TableHead>
+                        <TableHead className="w-[100px]">Pagamento</TableHead>
                         <TableHead className="w-[100px]">Passeggeri</TableHead>
                         <TableHead className="w-[120px]">Assegnato a</TableHead>
                         <TableHead className="w-[80px] text-right">Azioni</TableHead>
@@ -784,7 +785,7 @@ export default function ServiziPage() {
                     <TableBody>
                       {filteredServizi.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                             Nessun servizio trovato
                           </TableCell>
                         </TableRow>
@@ -872,6 +873,14 @@ export default function ServiziPage() {
                               <div className="text-xs text-muted-foreground whitespace-nowrap">
                                 {servizio.orario_servizio}
                               </div>
+                            </TableCell>
+
+                            {/* Pagamento */}
+                            <TableCell 
+                              className="cursor-pointer w-[100px]"
+                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            >
+                              <span className="text-xs">{servizio.metodo_pagamento || "—"}</span>
                             </TableCell>
 
                             {/* Passeggeri con Tooltip */}
