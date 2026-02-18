@@ -52,6 +52,18 @@ const navItems: NavItem[] = [
     roles: ['cliente'],
   },
   {
+    title: 'Nuovo Servizio',
+    href: '/dashboard-cliente/nuovo-servizio',
+    icon: FileText,
+    roles: ['cliente'],
+  },
+  {
+    title: 'Passeggeri',
+    href: '/dashboard-cliente/passeggeri',
+    icon: Users,
+    roles: ['cliente'],
+  },
+  {
     title: 'Servizi',
     href: '/servizi',
     icon: FileText,
@@ -143,7 +155,7 @@ export function SidebarNavLinks() {
 
   // Group items for better organization (optimized for no scroll)
   const groupedItems = {
-    main: filteredNavItems.filter(item => ['Dashboard', 'Servizi', 'Turni'].includes(item.title)),
+    main: filteredNavItems.filter(item => ['Dashboard', 'Servizi', 'Turni', 'Nuovo Servizio', 'Passeggeri', 'Report'].includes(item.title)),
     management: filteredNavItems.filter(item => ['Aziende', 'Privati', 'Utenti', 'Veicoli', 'Conducenti Esterni', 'Feedback'].includes(item.title)),
     reports: filteredNavItems.filter(item => ['Report Passeggeri', 'Report Soci'].includes(item.title)),
     finance: filteredNavItems.filter(item => ['Stipendi', 'Spese Aziendali', 'Impostazioni'].includes(item.title))

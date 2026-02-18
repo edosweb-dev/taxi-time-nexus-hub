@@ -29,6 +29,8 @@ export function BottomNavigation() {
     { id: 'dashboard-cliente', icon: Home, label: 'Dashboard', path: '/dashboard-cliente', roles: ['cliente'] },
     { id: 'servizi', icon: Calendar, label: 'Servizi', path: '/servizi', roles: ['admin', 'socio', 'dipendente'] },
     { id: 'servizi-cliente', icon: FileText, label: 'Servizi', path: '/dashboard-cliente/servizi', roles: ['cliente'] },
+    { id: 'nuovo-cliente', icon: FileText, label: 'Nuovo', path: '/dashboard-cliente/nuovo-servizio', roles: ['cliente'] },
+    { id: 'passeggeri-cliente', icon: Users, label: 'Passeggeri', path: '/dashboard-cliente/passeggeri', roles: ['cliente'] },
     { id: 'report-cliente', icon: FileBarChart, label: 'Report', path: '/dashboard-cliente/report', roles: ['cliente'] },
     { id: 'veicoli', icon: Car, label: 'Veicoli', path: '/veicoli', roles: ['admin', 'socio'] },
     { id: 'users', icon: Users, label: 'Utenti', path: '/users', roles: ['admin', 'socio'] },

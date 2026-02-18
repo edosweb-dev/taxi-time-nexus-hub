@@ -46,6 +46,8 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
         { icon: Calendar, label: 'Servizi', path: '/servizi', roles: ['admin', 'socio', 'dipendente'] },
         { icon: FileText, label: 'Servizi', path: '/dashboard-cliente/servizi', roles: ['cliente'] },
         { icon: Clock, label: 'Turni', path: '/calendario-turni', roles: ['admin', 'socio', 'dipendente'] },
+        { icon: FileText, label: 'Nuovo Servizio', path: '/dashboard-cliente/nuovo-servizio', roles: ['cliente'] },
+        { icon: Users, label: 'Passeggeri', path: '/dashboard-cliente/passeggeri', roles: ['cliente'] },
         { icon: FileText, label: 'Report', path: '/dashboard-cliente/report', roles: ['cliente'] }
       ]
     },
