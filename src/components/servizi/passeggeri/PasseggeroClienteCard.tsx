@@ -14,6 +14,7 @@ export interface PasseggeroClienteData {
   email?: string;
   telefono?: string;
   isNew: boolean;
+  isTemporary?: boolean;
   // Indirizzo passeggero (dalla rubrica)
   indirizzo?: string;
   localita?: string;

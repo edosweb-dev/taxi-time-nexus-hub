@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus } from 'lucide-react';
 
 // Schema senza campi passeggero (gestiti via stato React)
@@ -46,6 +47,7 @@ export default function NuovoServizioPage() {
   const [nuovoNome, setNuovoNome] = useState('');
   const [nuovoEmail, setNuovoEmail] = useState('');
   const [nuovoTelefono, setNuovoTelefono] = useState('');
+  const [salvaInRubrica, setSalvaInRubrica] = useState(true);
 
   // Usa profilo da useAuth (supporta impersonificazione)
   const { profile: authProfile } = useAuth();
@@ -134,10 +136,12 @@ export default function NuovoServizioPage() {
       email: nuovoEmail || undefined,
       telefono: nuovoTelefono || undefined,
       isNew: true,
+      isTemporary: !salvaInRubrica,
     }]);
     setNuovoNome('');
     setNuovoEmail('');
     setNuovoTelefono('');
+    setSalvaInRubrica(true);
     setShowNuovoDialog(false);
   };
 
@@ -196,8 +200,8 @@ export default function NuovoServizioPage() {
               email: passeggero.email || null,
               telefono: passeggero.telefono || null,
               azienda_id: currentProfile.azienda_id,
-              created_by_referente_id: user.id, // FIX #2: campo corretto
-              tipo: 'rubrica',
+              created_by_referente_id: user.id,
+              tipo: passeggero.isTemporary ? 'guest' : 'rubrica',
             })
             .select()
             .single();
@@ -603,8 +607,20 @@ export default function NuovoServizioPage() {
                 />
               </div>
             </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="salva-rubrica"
+                checked={salvaInRubrica}
+                onCheckedChange={(checked) => setSalvaInRubrica(checked === true)}
+              />
+              <Label htmlFor="salva-rubrica" className="text-sm font-normal cursor-pointer">
+                Salva in rubrica aziendale
+              </Label>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Il passeggero verrà salvato nella rubrica aziendale.
+              {salvaInRubrica 
+                ? "Il passeggero sarà disponibile per servizi futuri"
+                : "Il passeggero sarà usato solo per questo servizio"}
             </p>
           </div>
           <DialogFooter>
