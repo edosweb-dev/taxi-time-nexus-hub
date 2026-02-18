@@ -44,6 +44,9 @@ export default function ServiziPage() {
   const handleTabChange = (newTab: string) => {
     setSearchParams({ tab: newTab }, { replace: true });
   };
+  const navigateToDetail = (servizioId: string) => {
+    navigate(`/servizi/${servizioId}`, { state: { fromTab: activeTab } });
+  };
   // Campo ricerca rimosso - ora usa pagina dedicata /servizi/ricerca
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssignmentPopup, setShowAssignmentPopup] = useState(false);
@@ -148,7 +151,7 @@ export default function ServiziPage() {
     <Card 
       key={servizio.id}
       className="w-full p-3 sm:p-4 cursor-pointer hover:shadow-md transition-shadow"
-      onClick={() => navigate(`/servizi/${servizio.id}`)}
+      onClick={() => navigateToDetail(servizio.id)}
     >
       {/* Card Header: Azienda/Privato + Status */}
       <div className="flex justify-between items-start gap-3 mb-3">
@@ -718,7 +721,7 @@ export default function ServiziPage() {
                           <TableRow 
                             key={servizio.id}
                             className="hover:bg-muted/50"
-                            onClick={() => navigate(`/servizi/${servizio.id}`)}
+                            onClick={() => navigateToDetail(servizio.id)}
                           >
                             {/* Inserire qui le celle della tabella - duplicare il codice esistente */}
                           </TableRow>
@@ -802,7 +805,7 @@ export default function ServiziPage() {
                             {/* ID */}
                             <TableCell 
                               className="font-mono text-xs cursor-pointer w-[70px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigateToDetail(servizio.id)}
                             >
                               <div className="truncate" title={servizio.id_progressivo || servizio.id}>
                                 {servizio.id_progressivo || `#${servizio.id.slice(0, 8)}`}
@@ -812,7 +815,7 @@ export default function ServiziPage() {
                             {/* Azienda */}
                             <TableCell 
                               className="cursor-pointer w-[140px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigateToDetail(servizio.id)}
                             >
                               <div className="space-y-0.5">
                                 <div className="font-medium text-sm break-words leading-tight">
@@ -832,7 +835,7 @@ export default function ServiziPage() {
                             {/* Percorso con Città */}
                             <TableCell 
                               className="min-w-[280px] cursor-pointer"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigateToDetail(servizio.id)}
                             >
                               <div className="text-xs space-y-1">
                                 <div className="flex items-center gap-1">
@@ -869,7 +872,7 @@ export default function ServiziPage() {
                             {/* Data e Orario */}
                             <TableCell 
                               className="cursor-pointer w-[120px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigateToDetail(servizio.id)}
                             >
                               <div className="whitespace-nowrap font-medium">
                                 {format(new Date(servizio.data_servizio), 'dd/MM/yyyy', { locale: it })}
@@ -882,7 +885,7 @@ export default function ServiziPage() {
                             {/* Pagamento */}
                             <TableCell 
                               className="cursor-pointer w-[100px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigateToDetail(servizio.id)}
                             >
                               <span className="text-xs">{servizio.metodo_pagamento || "—"}</span>
                             </TableCell>
@@ -890,7 +893,7 @@ export default function ServiziPage() {
                             {/* Passeggeri con Tooltip */}
                             <TableCell 
                               className="cursor-pointer w-[100px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigateToDetail(servizio.id)}
                             >
                               {servizio.passeggeriCount && servizio.passeggeriCount > 0 ? (
                                 <Tooltip>
@@ -919,7 +922,7 @@ export default function ServiziPage() {
                             {/* Assegnato a */}
                             <TableCell 
                               className="cursor-pointer w-[120px]"
-                              onClick={() => navigate(`/servizi/${servizio.id}`)}
+                              onClick={() => navigateToDetail(servizio.id)}
                             >
                               {servizio.conducente_esterno ? (
                                 <div className="text-xs break-words leading-tight">
@@ -971,7 +974,7 @@ export default function ServiziPage() {
                                       className="h-8 w-8"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/servizi/${servizio.id}`);
+                                        navigateToDetail(servizio.id);
                                       }}
                                     >
                                       <Eye className="h-4 w-4" />
@@ -992,7 +995,7 @@ export default function ServiziPage() {
                                         className="h-8 w-8"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          navigate(`/servizi/${servizio.id}`);
+                                          navigateToDetail(servizio.id);
                                         }}
                                       >
                                         <CheckCircle className="h-4 w-4 text-green-600" />
@@ -1014,7 +1017,7 @@ export default function ServiziPage() {
                                         className="h-8 w-8"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          navigate(`/servizi/${servizio.id}`);
+                                          navigateToDetail(servizio.id);
                                         }}
                                       >
                                         <FileText className="h-4 w-4 text-blue-600" />
