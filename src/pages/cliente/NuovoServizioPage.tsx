@@ -26,9 +26,9 @@ const formSchema = z.object({
   data_servizio: z.string().min(1, "Data obbligatoria"),
   orario_servizio: z.string().min(1, "Orario obbligatorio"),
   citta_presa: z.string().optional(),
-  indirizzo_presa: z.string().min(5, "Indirizzo partenza obbligatorio (min 5 caratteri)"),
+  indirizzo_presa: z.string().min(1, "Indirizzo partenza obbligatorio"),
   citta_destinazione: z.string().optional(),
-  indirizzo_destinazione: z.string().min(5, "Indirizzo arrivo obbligatorio (min 5 caratteri)"),
+  indirizzo_destinazione: z.string().min(1, "Indirizzo arrivo obbligatorio"),
   numero_commessa: z.string().optional(),
   note: z.string().optional(),
 });
