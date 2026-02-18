@@ -6,9 +6,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,10 +17,10 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, MapPin, User, FileText, Send, Loader2 } from 'lucide-react';
+import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus } from 'lucide-react';
 
+// Schema senza campi passeggero (gestiti via stato React)
 const formSchema = z.object({
-  // Campi servizio
   data_servizio: z.string().min(1, "Data obbligatoria"),
   orario_servizio: z.string().min(1, "Orario obbligatorio"),
   citta_presa: z.string().optional(),
@@ -28,30 +29,27 @@ const formSchema = z.object({
   indirizzo_destinazione: z.string().min(5, "Indirizzo arrivo obbligatorio (min 5 caratteri)"),
   numero_commessa: z.string().optional(),
   note: z.string().optional(),
-  
-  // Gestione passeggero (modalità esistente)
-  passeggero_esistente_id: z.string().optional(),
-  
-  // Gestione passeggero (modalità nuovo)
-  passeggero_nome: z.string().optional(),
-  passeggero_email: z.string().email("Email non valida").optional().or(z.literal("")),
-  passeggero_telefono: z.string().optional(),
-}).refine(
-  (data) => {
-    // Validazione: deve avere almeno passeggero_esistente_id O passeggero_nome
-    return data.passeggero_esistente_id || data.passeggero_nome;
-  },
-  {
-    message: "Seleziona un passeggero dalla rubrica o creane uno nuovo",
-    path: ["passeggero_esistente_id"],
-  }
-);
+});
+
+interface PasseggeroSelezionato {
+  id?: string;
+  nome_cognome: string;
+  email?: string;
+  telefono?: string;
+  isNew: boolean;
+}
 
 export default function NuovoServizioPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [modalitaPasseggero, setModalitaPasseggero] = useState<"esistente" | "nuovo">("esistente");
+  
+  // Stato passeggeri multipli
+  const [passeggeriSelezionati, setPasseggeriSelezionati] = useState<PasseggeroSelezionato[]>([]);
+  const [showNuovoDialog, setShowNuovoDialog] = useState(false);
+  const [nuovoNome, setNuovoNome] = useState('');
+  const [nuovoEmail, setNuovoEmail] = useState('');
+  const [nuovoTelefono, setNuovoTelefono] = useState('');
 
   // Query profilo utente corrente
   const { data: currentProfile, isLoading: isLoadingProfile } = useQuery({
@@ -73,23 +71,23 @@ export default function NuovoServizioPage() {
     },
   });
 
-  // Query passeggeri dalla rubrica
+  // FIX #1: Query passeggeri per azienda_id (non created_by_referente_id)
   const { data: passeggeri = [], isLoading: isLoadingPasseggeri } = useQuery({
-    queryKey: ["passeggeri-cliente", currentProfile?.id],
+    queryKey: ["passeggeri-cliente", currentProfile?.azienda_id],
     queryFn: async () => {
-      if (!currentProfile?.id) return [];
+      if (!currentProfile?.azienda_id) return [];
 
       const { data, error } = await supabase
         .from("passeggeri")
         .select("id, nome_cognome, email, telefono")
-        .eq("created_by_referente_id", currentProfile.id)
+        .eq("azienda_id", currentProfile.azienda_id)
         .eq("tipo", "rubrica")
         .order("nome_cognome", { ascending: true });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!currentProfile?.id,
+    enabled: !!currentProfile?.azienda_id,
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -103,12 +101,49 @@ export default function NuovoServizioPage() {
       indirizzo_destinazione: "",
       numero_commessa: "",
       note: "",
-      passeggero_esistente_id: "",
-      passeggero_nome: "",
-      passeggero_email: "",
-      passeggero_telefono: "",
     },
   });
+
+  // Aggiungi passeggero dalla rubrica
+  const aggiungiDaRubrica = (passeggeroId: string) => {
+    const p = passeggeri.find(x => x.id === passeggeroId);
+    if (!p) return;
+    // Evita duplicati
+    if (passeggeriSelezionati.some(s => s.id === p.id)) {
+      toast({ title: "Passeggero già aggiunto", variant: "destructive" });
+      return;
+    }
+    setPasseggeriSelezionati(prev => [...prev, {
+      id: p.id,
+      nome_cognome: p.nome_cognome,
+      email: p.email || undefined,
+      telefono: p.telefono || undefined,
+      isNew: false,
+    }]);
+  };
+
+  // Aggiungi nuovo passeggero
+  const aggiungiNuovo = () => {
+    if (!nuovoNome.trim()) {
+      toast({ title: "Nome obbligatorio", variant: "destructive" });
+      return;
+    }
+    setPasseggeriSelezionati(prev => [...prev, {
+      nome_cognome: nuovoNome.trim(),
+      email: nuovoEmail || undefined,
+      telefono: nuovoTelefono || undefined,
+      isNew: true,
+    }]);
+    setNuovoNome('');
+    setNuovoEmail('');
+    setNuovoTelefono('');
+    setShowNuovoDialog(false);
+  };
+
+  // Rimuovi passeggero
+  const rimuoviPasseggero = (index: number) => {
+    setPasseggeriSelezionati(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Mutation per creare servizio
   const createServizio = useMutation({
@@ -116,34 +151,12 @@ export default function NuovoServizioPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !currentProfile) throw new Error("Utente non autenticato");
 
-      let passeggeroId: string;
-
-      // STEP 1: Determina passeggero_id
-      if (modalitaPasseggero === "esistente" && values.passeggero_esistente_id) {
-        passeggeroId = values.passeggero_esistente_id;
-        console.log("✅ Uso passeggero esistente:", passeggeroId);
-      } else if (modalitaPasseggero === "nuovo" && values.passeggero_nome) {
-        // Crea nuovo passeggero (PERMANENTE)
-        const { data: nuovoPasseggero, error: passeggeroError } = await supabase
-          .from("passeggeri")
-          .insert({
-            nome_cognome: values.passeggero_nome,
-            email: values.passeggero_email || null,
-            telefono: values.passeggero_telefono || null,
-            azienda_id: currentProfile.azienda_id,
-            referente_id: user.id,
-          })
-          .select()
-          .single();
-
-        if (passeggeroError) throw passeggeroError;
-        passeggeroId = nuovoPasseggero.id;
-        console.log("✅ Nuovo passeggero creato:", nuovoPasseggero);
-      } else {
-        throw new Error("Nessun passeggero selezionato o creato");
+      // Validazione passeggeri
+      if (passeggeriSelezionati.length === 0) {
+        throw new Error("Seleziona almeno un passeggero");
       }
 
-      // STEP 2: Crea servizio
+      // STEP 1: Crea servizio
       const { data: servizio, error: servizioError } = await supabase
         .from("servizi")
         .insert({
@@ -166,18 +179,44 @@ export default function NuovoServizioPage() {
         .single();
 
       if (servizioError) throw servizioError;
-      console.log("✅ Servizio creato:", servizio);
+      console.log("✅ Servizio creato:", servizio.id);
 
-      // STEP 3: Associa passeggero a servizio
-      const { error: associazioneError } = await supabase
-        .from("servizi_passeggeri")
-        .insert({
-          servizio_id: servizio.id,
-          passeggero_id: passeggeroId,
-        });
+      // STEP 2: Gestisci ogni passeggero
+      for (const passeggero of passeggeriSelezionati) {
+        let passeggeroId = passeggero.id;
 
-      if (associazioneError) throw associazioneError;
-      console.log("✅ Passeggero associato a servizio");
+        // Se nuovo, crea in tabella passeggeri
+        if (passeggero.isNew) {
+          const { data: nuovoPasseggero, error: passeggeroError } = await supabase
+            .from("passeggeri")
+            .insert({
+              nome_cognome: passeggero.nome_cognome,
+              email: passeggero.email || null,
+              telefono: passeggero.telefono || null,
+              azienda_id: currentProfile.azienda_id,
+              created_by_referente_id: user.id, // FIX #2: campo corretto
+              tipo: 'rubrica',
+            })
+            .select()
+            .single();
+
+          if (passeggeroError) throw passeggeroError;
+          passeggeroId = nuovoPasseggero.id;
+          console.log("✅ Nuovo passeggero creato:", passeggeroId);
+        }
+
+        // Associa passeggero a servizio
+        const { error: linkError } = await supabase
+          .from("servizi_passeggeri")
+          .insert({
+            servizio_id: servizio.id,
+            passeggero_id: passeggeroId,
+            usa_indirizzo_personalizzato: false,
+          });
+
+        if (linkError) throw linkError;
+        console.log("✅ Passeggero associato:", passeggeroId);
+      }
 
       return servizio;
     },
@@ -205,6 +244,10 @@ export default function NuovoServizioPage() {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    if (passeggeriSelezionati.length === 0) {
+      toast({ title: "Seleziona almeno un passeggero", variant: "destructive" });
+      return;
+    }
     createServizio.mutate(values);
   };
 
@@ -344,151 +387,106 @@ export default function NuovoServizioPage() {
 
                 <Separator />
 
-                {/* SEZIONE: Passeggero (HYBRID) */}
+                {/* SEZIONE: Passeggeri (MULTIPLI) */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <User className="h-5 w-5 text-primary" />
-                    Passeggero
+                    Passeggeri
                   </h3>
 
-                  {/* Radio Group: Esistente o Nuovo */}
-                  <RadioGroup
-                    value={modalitaPasseggero}
-                    onValueChange={(value) => {
-                      setModalitaPasseggero(value as "esistente" | "nuovo");
-                      // Reset campi quando si cambia modalità
-                      if (value === "esistente") {
-                        form.setValue("passeggero_nome", "");
-                        form.setValue("passeggero_email", "");
-                        form.setValue("passeggero_telefono", "");
-                      } else {
-                        form.setValue("passeggero_esistente_id", "");
-                      }
-                    }}
-                    className="flex flex-col space-y-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="esistente" id="esistente" />
-                      <Label htmlFor="esistente" className="cursor-pointer">
-                        Seleziona dalla rubrica
+                  {/* Lista passeggeri aggiunti */}
+                  {passeggeriSelezionati.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        Passeggeri selezionati ({passeggeriSelezionati.length})
                       </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="nuovo" id="nuovo" />
-                      <Label htmlFor="nuovo" className="cursor-pointer">
-                        Aggiungi nuovo passeggero
-                      </Label>
-                    </div>
-                  </RadioGroup>
-
-                  {/* Opzione A: Dropdown Passeggero Esistente */}
-                  {modalitaPasseggero === "esistente" && (
-                    <FormField
-                      control={form.control}
-                      name="passeggero_esistente_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Passeggero *</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
-                            value={field.value}
-                            disabled={isLoadingPasseggeri}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder={
-                                  isLoadingPasseggeri 
-                                    ? "Caricamento..." 
-                                    : passeggeri.length === 0
-                                      ? "Nessun passeggero in rubrica"
-                                      : "Seleziona passeggero"
-                                } />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {passeggeri.length > 0 ? (
-                                passeggeri.map((p) => (
-                                  <SelectItem key={p.id} value={p.id}>
-                                    {p.nome_cognome}
-                                    {p.email && ` • ${p.email}`}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem value="empty" disabled>
-                                  Nessun passeggero disponibile
-                                </SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          {passeggeri.length === 0 && !isLoadingPasseggeri && (
-                            <FormDescription className="text-sm text-muted-foreground">
-                              Non hai ancora creato passeggeri. Seleziona "Aggiungi nuovo passeggero" oppure{" "}
-                              <a 
-                                href="/dashboard-cliente/passeggeri" 
-                                target="_blank"
-                                className="text-primary hover:underline"
-                              >
-                                vai alla rubrica
-                              </a>
-                            </FormDescription>
-                          )}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-
-                  {/* Opzione B: Form Inline Nuovo Passeggero */}
-                  {modalitaPasseggero === "nuovo" && (
-                    <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                      <p className="text-sm text-muted-foreground">
-                        Il passeggero verrà salvato nella tua rubrica e potrai riutilizzarlo per servizi futuri.
-                      </p>
-                      
-                      <FormField
-                        control={form.control}
-                        name="passeggero_nome"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nome e Cognome *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Mario Rossi" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="passeggero_email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input type="email" placeholder="mario@example.com" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="passeggero_telefono"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Telefono</FormLabel>
-                              <FormControl>
-                                <Input placeholder="+39 123 456 7890" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      <div className="space-y-2">
+                        {passeggeriSelezionati.map((p, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-muted-foreground" />
+                              <span className="font-medium text-sm">{p.nome_cognome}</span>
+                              {p.telefono && <span className="text-xs text-muted-foreground">• {p.telefono}</span>}
+                              {p.isNew && <Badge variant="secondary" className="text-xs">Nuovo</Badge>}
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => rimuoviPasseggero(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
                       </div>
                     </div>
+                  )}
+
+                  {/* Aggiungi dalla rubrica */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Aggiungi dalla rubrica</Label>
+                    <Select
+                      onValueChange={aggiungiDaRubrica}
+                      value=""
+                      disabled={isLoadingPasseggeri}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={
+                          isLoadingPasseggeri 
+                            ? "Caricamento..." 
+                            : passeggeri.length === 0
+                              ? "Nessun passeggero in rubrica"
+                              : "Seleziona passeggero da aggiungere"
+                        } />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {passeggeri.length > 0 ? (
+                          passeggeri
+                            .filter(p => !passeggeriSelezionati.some(s => s.id === p.id))
+                            .map((p) => (
+                              <SelectItem key={p.id} value={p.id}>
+                                {p.nome_cognome}
+                                {p.telefono && ` • ${p.telefono}`}
+                              </SelectItem>
+                            ))
+                        ) : (
+                          <SelectItem value="empty" disabled>
+                            Nessun passeggero disponibile
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {passeggeri.length === 0 && !isLoadingPasseggeri && (
+                      <FormDescription className="text-sm text-muted-foreground">
+                        Non hai ancora passeggeri in rubrica.{" "}
+                        <a 
+                          href="/dashboard-cliente/passeggeri" 
+                          target="_blank"
+                          className="text-primary hover:underline"
+                        >
+                          Vai alla rubrica
+                        </a>
+                      </FormDescription>
+                    )}
+                  </div>
+
+                  {/* Bottone crea nuovo */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowNuovoDialog(true)}
+                    className="w-full"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Crea Nuovo Passeggero
+                  </Button>
+
+                  {/* Messaggio se nessun passeggero */}
+                  {passeggeriSelezionati.length === 0 && (
+                    <p className="text-sm text-destructive">
+                      Seleziona almeno un passeggero dalla rubrica o creane uno nuovo
+                    </p>
                   )}
                 </div>
 
@@ -542,7 +540,7 @@ export default function NuovoServizioPage() {
                   type="submit"
                   className="w-full"
                   size="lg"
-                  disabled={createServizio.isPending || isLoadingProfile}
+                  disabled={createServizio.isPending || isLoadingProfile || passeggeriSelezionati.length === 0}
                 >
                   {createServizio.isPending ? (
                     <>
@@ -561,6 +559,56 @@ export default function NuovoServizioPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog Nuovo Passeggero */}
+      <Dialog open={showNuovoDialog} onOpenChange={setShowNuovoDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuovo Passeggero</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Nome e Cognome *</Label>
+              <Input
+                placeholder="Mario Rossi"
+                value={nuovoNome}
+                onChange={(e) => setNuovoNome(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  placeholder="mario@example.com"
+                  value={nuovoEmail}
+                  onChange={(e) => setNuovoEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Telefono</Label>
+                <Input
+                  placeholder="+39 123 456 7890"
+                  value={nuovoTelefono}
+                  onChange={(e) => setNuovoTelefono(e.target.value)}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Il passeggero verrà salvato nella rubrica aziendale.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNuovoDialog(false)}>
+              Annulla
+            </Button>
+            <Button onClick={aggiungiNuovo} disabled={!nuovoNome.trim()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Aggiungi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }
