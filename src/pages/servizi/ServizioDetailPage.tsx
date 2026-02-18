@@ -46,6 +46,7 @@ export default function ServizioDetailPage() {
   const location = useLocation();
   const isFromReport = location.state?.from === 'report-passeggeri';
   const reportFilters = location.state?.filters;
+  const fromTab = location.state?.fromTab;
   const { users } = useUsers();
   const { profile } = useAuth();
   const isMobile = useIsMobile();
@@ -309,7 +310,8 @@ export default function ServizioDetailPage() {
               if (isFromReport && reportFilters) {
                 navigate('/report-passeggeri', { state: { filters: reportFilters } });
               } else {
-                navigate(isDipendente ? '/dipendente/servizi-assegnati' : '/servizi');
+                const backUrl = isDipendente ? '/dipendente/servizi-assegnati' : (fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
+                navigate(backUrl);
               }
             }}
             backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
