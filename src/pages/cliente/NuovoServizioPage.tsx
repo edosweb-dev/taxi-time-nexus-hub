@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PasseggeroClienteCard, PasseggeroClienteData } from '@/components/servizi/passeggeri/PasseggeroClienteCard';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,13 +33,7 @@ const formSchema = z.object({
   note: z.string().optional(),
 });
 
-interface PasseggeroSelezionato {
-  id?: string;
-  nome_cognome: string;
-  email?: string;
-  telefono?: string;
-  isNew: boolean;
-}
+type PasseggeroSelezionato = PasseggeroClienteData;
 
 export default function NuovoServizioPage() {
   const navigate = useNavigate();
@@ -186,7 +181,8 @@ export default function NuovoServizioPage() {
       console.log("✅ Servizio creato:", servizio.id);
 
       // STEP 2: Gestisci ogni passeggero
-      for (const passeggero of passeggeriSelezionati) {
+      for (let pIdx = 0; pIdx < passeggeriSelezionati.length; pIdx++) {
+        const passeggero = passeggeriSelezionati[pIdx];
         let passeggeroId = passeggero.id;
 
         // Se nuovo, crea in tabella passeggeri
@@ -215,7 +211,13 @@ export default function NuovoServizioPage() {
           .insert({
             servizio_id: servizio.id,
             passeggero_id: passeggeroId,
-            usa_indirizzo_personalizzato: false,
+            usa_indirizzo_personalizzato: passeggero.usa_indirizzo_personalizzato || false,
+            luogo_presa_personalizzato: passeggero.luogo_presa_personalizzato || null,
+            localita_presa_personalizzato: passeggero.localita_presa_personalizzato || null,
+            orario_presa_personalizzato: passeggero.orario_presa_personalizzato || null,
+            destinazione_personalizzato: passeggero.destinazione_personalizzato || null,
+            localita_destinazione_personalizzato: passeggero.localita_destinazione_personalizzato || null,
+            ordine_presa: pIdx + 1,
           });
 
         if (linkError) throw linkError;
@@ -404,24 +406,25 @@ export default function NuovoServizioPage() {
                       <Label className="text-sm font-medium">
                         Passeggeri selezionati ({passeggeriSelezionati.length})
                       </Label>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {passeggeriSelezionati.map((p, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium text-sm">{p.nome_cognome}</span>
-                              {p.telefono && <span className="text-xs text-muted-foreground">• {p.telefono}</span>}
-                              {p.isNew && <Badge variant="secondary" className="text-xs">Nuovo</Badge>}
-                            </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => rimuoviPasseggero(index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          <PasseggeroClienteCard
+                            key={`${p.id || p.nome_cognome}-${index}`}
+                            passeggero={p}
+                            index={index}
+                            onRemove={() => rimuoviPasseggero(index)}
+                            onUpdate={(updatedData) => {
+                              setPasseggeriSelezionati(prev => {
+                                const updated = [...prev];
+                                updated[index] = { ...updated[index], ...updatedData };
+                                return updated;
+                              });
+                            }}
+                            indirizzoPresaServizio={form.watch('indirizzo_presa') || ''}
+                            cittaPresaServizio={form.watch('citta_presa') || ''}
+                            indirizzoDestinazioneServizio={form.watch('indirizzo_destinazione') || ''}
+                            cittaDestinazioneServizio={form.watch('citta_destinazione') || ''}
+                          />
                         ))}
                       </div>
                     </div>
