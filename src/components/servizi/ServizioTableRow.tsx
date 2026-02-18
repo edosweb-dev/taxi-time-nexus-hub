@@ -74,6 +74,9 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
         <TableCell>{servizio.orario_servizio}</TableCell>
         <TableCell>{getStatoBadge(servizio.stato)}</TableCell>
         <TableCell>
+          <span className="text-sm">{servizio.metodo_pagamento || "—"}</span>
+        </TableCell>
+        <TableCell>
           <div className="flex items-center">
             <Users className="h-4 w-4 mr-1" />
             {passengerCount}
@@ -170,7 +173,7 @@ export const ServizioTableRow: React.FC<ServizioTableRowProps> = ({
       </TableRow>
       {isExpanded && (
         <TableRow>
-          <TableCell colSpan={8} className="bg-muted/30 p-4">
+          <TableCell colSpan={9} className="bg-muted/30 p-4">
             <ServizioExpandedRow 
               servizio={servizio}
               users={users}
