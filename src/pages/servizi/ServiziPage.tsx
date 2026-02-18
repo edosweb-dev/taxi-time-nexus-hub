@@ -1,7 +1,7 @@
 // ServiziPage - Lista servizi - Gestione completa
 // Force rebuild: v3
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useServiziWithPasseggeri, ServizioWithPasseggeri } from "@/hooks/useServiziWithPasseggeri";
 import { useAziende } from "@/hooks/useAziende";
@@ -29,6 +29,7 @@ import { DeleteServizioDialog } from "@/components/servizi/dialogs";
 
 export default function ServiziPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const { profile } = useAuth();
   
@@ -39,7 +40,10 @@ export default function ServiziPage() {
   const { aziende = [] } = useAziende();
   const { users = [] } = useUsers();
   
-  const [activeTab, setActiveTab] = useState<string>("bozza");
+  const activeTab = searchParams.get('tab') || 'bozza';
+  const handleTabChange = (newTab: string) => {
+    setSearchParams({ tab: newTab }, { replace: true });
+  };
   // Campo ricerca rimosso - ora usa pagina dedicata /servizi/ricerca
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
   const [showAssignmentPopup, setShowAssignmentPopup] = useState(false);
@@ -311,7 +315,7 @@ export default function ServiziPage() {
 
         {/* Tabs Responsive con Sfondo Desktop */}
         <div className="w-full mb-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             
             {/* Container con sfondo grigio */}
             <div className="
