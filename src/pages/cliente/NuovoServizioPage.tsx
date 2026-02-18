@@ -173,7 +173,7 @@ export default function NuovoServizioPage() {
           indirizzo_destinazione: values.indirizzo_destinazione,
           numero_commessa: values.numero_commessa || null,
           note: values.note || null,
-          stato: "da_assegnare",
+          stato: "richiesta_cliente",
           metodo_pagamento: "Da definire",
         })
         .select()
