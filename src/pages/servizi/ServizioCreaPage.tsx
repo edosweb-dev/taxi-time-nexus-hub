@@ -1590,7 +1590,19 @@ export const ServizioCreaPage = ({
             )}
           </Card>
 
-          {/* SEZIONE 2: Passeggeri */}
+          {/* SEZIONE 2: Percorso - nascosto in modalità veloce */}
+          {!isVeloce && (
+          <Card className="w-full p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
+            </div>
+            
+            <PercorsoSection />
+          </Card>
+          )}
+
+          {/* SEZIONE 3: Passeggeri */}
           {!isVeloce && (
             (watchTipoCliente === 'azienda' && watchAziendaId) ||
             watchTipoCliente === 'privato'
@@ -1618,18 +1630,6 @@ export const ServizioCreaPage = ({
                   : undefined
               }
             />
-          )}
-
-          {/* SEZIONE 3: Percorso - nascosto in modalità veloce */}
-          {!isVeloce && (
-          <Card className="w-full p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
-            </div>
-            
-            <PercorsoSection />
-          </Card>
           )}
 
           {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce e per servizi consuntivati */}
