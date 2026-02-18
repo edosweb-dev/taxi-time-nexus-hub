@@ -64,6 +64,7 @@ export const ServizioTable = ({
               <TableHead>Orario</TableHead>
               <TableHead>Stato</TableHead>
               <TableHead>Passeggeri</TableHead>
+              <TableHead>Pagamento</TableHead>
               <TableHead>Assegnato a</TableHead>
               <TableHead className="text-right">Azioni</TableHead>
             </TableRow>
@@ -71,7 +72,7 @@ export const ServizioTable = ({
           <TableBody>
             {servizi.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12">
+                <TableCell colSpan={9} className="text-center py-12">
                   <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                     <p className="text-lg">Nessun servizio disponibile</p>
                   </div>
