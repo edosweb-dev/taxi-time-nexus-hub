@@ -560,7 +560,12 @@ export const ServizioCreaPage = ({
     // Trova configurazione del metodo selezionato
     const metodo = metodiPagamento?.find((m: any) => m.nome === watchMetodoPagamento);
     
-    if (!metodo) return;
+    if (!metodo) {
+      // CRITICAL: Safe default per metodi non configurati (Contanti, Uber, etc.)
+      // Bug #47 - Metodi non in DB → IVA = 0
+      form.setValue('iva', 0, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
+      return;
+    }
     
     // Se il metodo prevede IVA, applica l'aliquota di default
     if ((metodo as any).iva_applicabile === true) {
