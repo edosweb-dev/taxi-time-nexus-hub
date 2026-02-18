@@ -91,7 +91,7 @@ export async function getStatisticheMese(
     .from('servizi')
     .select('*', { count: 'exact', head: true })
     .eq('assegnato_a', userId)
-    .eq('stato', 'completato')
+    .in('stato', ['completato', 'consuntivato'])
     .gte('data_servizio', startMonth)
     .lte('data_servizio', endMonth);
 
@@ -106,7 +106,7 @@ export async function getStatisticheMese(
     .from('servizi')
     .select('ore_effettive, ore_lavorate')
     .eq('assegnato_a', userId)
-    .eq('stato', 'completato')
+    .in('stato', ['completato', 'consuntivato'])
     .gte('data_servizio', startMonth)
     .lte('data_servizio', endMonth);
 
