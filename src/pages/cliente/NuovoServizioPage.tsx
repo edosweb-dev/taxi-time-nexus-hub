@@ -14,6 +14,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -51,17 +52,19 @@ export default function NuovoServizioPage() {
   const [nuovoEmail, setNuovoEmail] = useState('');
   const [nuovoTelefono, setNuovoTelefono] = useState('');
 
-  // Query profilo utente corrente
+  // Usa profilo da useAuth (supporta impersonificazione)
+  const { profile: authProfile } = useAuth();
+
+  // Query profilo utente corrente (o impersonificato)
   const { data: currentProfile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ["current-profile"],
+    queryKey: ["current-profile-cliente", authProfile?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Utente non autenticato");
+      if (!authProfile?.id) throw new Error("Utente non autenticato");
 
       const { data, error } = await supabase
         .from("profiles")
         .select("id, azienda_id, first_name, last_name")
-        .eq("id", user.id)
+        .eq("id", authProfile.id)
         .single();
 
       if (error) throw error;
@@ -69,6 +72,7 @@ export default function NuovoServizioPage() {
       
       return data;
     },
+    enabled: !!authProfile?.id,
   });
 
   // FIX #1: Query passeggeri per azienda_id (non created_by_referente_id)
