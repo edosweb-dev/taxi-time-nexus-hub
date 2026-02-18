@@ -78,7 +78,7 @@ export default function NuovoServizioPage() {
 
       const { data, error } = await supabase
         .from("passeggeri")
-        .select("id, nome_cognome, email, telefono")
+        .select("id, nome_cognome, email, telefono, indirizzo, localita")
         .eq("azienda_id", currentProfile.azienda_id)
         .eq("tipo", "rubrica")
         .order("nome_cognome", { ascending: true });
@@ -117,6 +117,8 @@ export default function NuovoServizioPage() {
       nome_cognome: p.nome_cognome,
       email: p.email || undefined,
       telefono: p.telefono || undefined,
+      indirizzo: (p as any).indirizzo || undefined,
+      localita: (p as any).localita || undefined,
       isNew: false,
     }]);
   };
