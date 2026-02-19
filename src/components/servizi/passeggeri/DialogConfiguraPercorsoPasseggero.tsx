@@ -99,7 +99,7 @@ export const DialogConfiguraPercorsoPasseggero = ({
 
   const renderToggleItem = (value: string, label: string, disabled?: boolean, tooltip?: string) => {
     const item = (
-      <ToggleGroupItem value={value} disabled={disabled} className="text-xs sm:text-sm">
+      <ToggleGroupItem value={value} disabled={disabled} className="px-4 py-3 text-sm">
         {label}
       </ToggleGroupItem>
     );
@@ -116,32 +116,36 @@ export const DialogConfiguraPercorsoPasseggero = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side={isMobile ? "bottom" : "right"} className={cn(
-        "flex flex-col p-0",
-        isMobile ? "h-[95vh] w-full rounded-t-xl" : "w-full max-w-lg"
-      )} hideCloseButton>
-        <SheetHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
-          <SheetTitle className="flex items-center gap-2 text-base">
-            <MapPin className="h-4 w-4 text-primary" />
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={cn(
+          "flex flex-col p-0",
+          isMobile ? "h-[95vh] w-full rounded-t-xl" : "w-full max-w-lg"
+        )}
+        hideCloseButton
+      >
+        <SheetHeader className="px-6 pt-6 pb-4 space-y-2">
+          <SheetTitle className="flex items-center gap-2 text-xl">
+            <MapPin className="w-5 h-5 text-primary" />
             {passeggero.nome_cognome}
           </SheetTitle>
           {passeggeroIndirizzo && (
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground pl-7">
               📍 Indirizzo salvato: {passeggeroIndirizzo}
             </p>
           )}
         </SheetHeader>
 
         <TooltipProvider>
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-8">
             {/* PARTENZA */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Scegli indirizzo partenza</Label>
+            <div className="space-y-4">
+              <Label className="text-base font-semibold block">Scegli indirizzo partenza</Label>
               <ToggleGroup
                 type="single"
                 value={partenzaTipo}
                 onValueChange={(v) => v && setPartenzaTipo(v as TipoIndirizzo)}
-                className="grid grid-cols-3"
+                className="grid grid-cols-3 gap-2 w-full"
               >
                 {renderToggleItem('passeggero', 'Passeggero', !hasIndirizzo, 'Nessun indirizzo salvato')}
                 {renderToggleItem('servizio', 'Servizio')}
@@ -149,24 +153,30 @@ export const DialogConfiguraPercorsoPasseggero = ({
               </ToggleGroup>
 
               {partenzaTipo === 'passeggero' && hasIndirizzo && (
-                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                </div>
               )}
               {partenzaTipo === 'servizio' && (
-                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {presaServizioDisplay || "Non specificato"}</p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-sm text-muted-foreground">Usa: {presaServizioDisplay || "Non specificato"}</p>
+                </div>
               )}
               {partenzaTipo === 'personalizzato' && (
-                <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-[1fr_1.5fr_auto] sm:gap-2 mt-1">
-                  <div>
-                    <Label className="text-xs">Città</Label>
-                    <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="Città" className="mt-1 h-9" />
+                <div className="space-y-4 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Città</Label>
+                      <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="Milano" className="h-11" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Indirizzo</Label>
+                      <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, numero civico" className="h-11" />
+                    </div>
                   </div>
-                  <div>
-                    <Label className="text-xs">Indirizzo</Label>
-                    <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1 h-9" />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Orario</Label>
-                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="w-full sm:w-24 mt-1 h-9" />
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Orario presa</Label>
+                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="h-11 w-full sm:w-40" />
                   </div>
                 </div>
               )}
@@ -175,13 +185,13 @@ export const DialogConfiguraPercorsoPasseggero = ({
             <Separator />
 
             {/* ARRIVO */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Scegli indirizzo arrivo</Label>
+            <div className="space-y-4">
+              <Label className="text-base font-semibold block">Scegli indirizzo arrivo</Label>
               <ToggleGroup
                 type="single"
                 value={arrivoTipo}
                 onValueChange={(v) => v && setArrivoTipo(v as TipoIndirizzo)}
-                className="grid grid-cols-3"
+                className="grid grid-cols-3 gap-2 w-full"
               >
                 {renderToggleItem('passeggero', 'Passeggero', !hasIndirizzo, 'Nessun indirizzo salvato')}
                 {renderToggleItem('servizio', 'Servizio')}
@@ -189,20 +199,24 @@ export const DialogConfiguraPercorsoPasseggero = ({
               </ToggleGroup>
 
               {arrivoTipo === 'passeggero' && hasIndirizzo && (
-                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                </div>
               )}
               {arrivoTipo === 'servizio' && (
-                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {destServizioDisplay || "Non specificato"}</p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-sm text-muted-foreground">Usa: {destServizioDisplay || "Non specificato"}</p>
+                </div>
               )}
               {arrivoTipo === 'personalizzato' && (
-                <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-[1fr_1.5fr] sm:gap-2 mt-1">
-                  <div>
-                    <Label className="text-xs">Città</Label>
-                    <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="Città" className="mt-1 h-9" />
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4 pt-2">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Città</Label>
+                    <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="Milano" className="h-11" />
                   </div>
-                  <div>
-                    <Label className="text-xs">Indirizzo</Label>
-                    <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1 h-9" />
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Indirizzo</Label>
+                    <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, numero civico" className="h-11" />
                   </div>
                 </div>
               )}
@@ -210,12 +224,12 @@ export const DialogConfiguraPercorsoPasseggero = ({
           </div>
         </TooltipProvider>
 
-        <SheetFooter className="sticky bottom-0 bg-background border-t px-4 sm:px-6 py-3 sm:py-4 flex-row gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-10">
+        <SheetFooter className="sticky bottom-0 bg-background border-t px-6 py-4 flex-row gap-3 mt-auto">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-11">
             Annulla
           </Button>
-          <Button onClick={handleConfirm} disabled={!isValid} className="flex-1 h-10">
-            <Check className="h-4 w-4 mr-1" />
+          <Button onClick={handleConfirm} disabled={!isValid} className="flex-1 h-11">
+            <Check className="h-4 w-4 mr-2" />
             Conferma
           </Button>
         </SheetFooter>
