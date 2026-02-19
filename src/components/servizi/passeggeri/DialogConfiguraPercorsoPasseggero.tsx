@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Check, MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { PasseggeroClienteData } from "./PasseggeroClienteCard";
 
 export interface PercorsoConfig {
@@ -45,6 +47,7 @@ export const DialogConfiguraPercorsoPasseggero = ({
   datiServizio,
   onConfirm,
 }: DialogConfiguraPercorsoPasseggeroProps) => {
+  const isMobile = useIsMobile();
   const hasIndirizzo = !!(passeggero.indirizzo || passeggero.localita);
 
   const [partenzaTipo, setPartenzaTipo] = useState<TipoIndirizzo>('servizio');
@@ -113,7 +116,10 @@ export const DialogConfiguraPercorsoPasseggero = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="sm:!inset-y-0 sm:!inset-x-auto sm:!right-0 sm:!left-auto sm:!w-[28rem] sm:!max-w-lg sm:!translate-x-0 sm:!rounded-none h-[85vh] sm:h-full flex flex-col p-0 rounded-t-xl" hideCloseButton>
+      <SheetContent side={isMobile ? "bottom" : "right"} className={cn(
+        "flex flex-col p-0",
+        isMobile ? "h-[95vh] w-full rounded-t-xl" : "w-full max-w-lg"
+      )} hideCloseButton>
         <SheetHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
           <SheetTitle className="flex items-center gap-2 text-base">
             <MapPin className="h-4 w-4 text-primary" />
