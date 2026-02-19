@@ -113,21 +113,21 @@ export const DialogConfiguraPercorsoPasseggero = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col p-0">
-        <SheetHeader className="px-6 pt-6 pb-2">
-          <SheetTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" />
+      <SheetContent side="bottom" className="sm:!inset-y-0 sm:!inset-x-auto sm:!right-0 sm:!left-auto sm:!w-[28rem] sm:!max-w-lg sm:!translate-x-0 sm:!rounded-none h-[85vh] sm:h-full flex flex-col p-0 rounded-t-xl" hideCloseButton>
+        <SheetHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
+          <SheetTitle className="flex items-center gap-2 text-base">
+            <MapPin className="h-4 w-4 text-primary" />
             {passeggero.nome_cognome}
           </SheetTitle>
           {passeggeroIndirizzo && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               📍 Indirizzo salvato: {passeggeroIndirizzo}
             </p>
           )}
         </SheetHeader>
 
         <TooltipProvider>
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5">
             {/* PARTENZA */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Scegli indirizzo partenza</Label>
@@ -139,28 +139,28 @@ export const DialogConfiguraPercorsoPasseggero = ({
               >
                 {renderToggleItem('passeggero', 'Passeggero', !hasIndirizzo, 'Nessun indirizzo salvato')}
                 {renderToggleItem('servizio', 'Servizio')}
-                {renderToggleItem('personalizzato', 'Personalizzato')}
+                {renderToggleItem('personalizzato', 'Custom')}
               </ToggleGroup>
 
               {partenzaTipo === 'passeggero' && hasIndirizzo && (
-                <p className="text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
               )}
               {partenzaTipo === 'servizio' && (
-                <p className="text-sm text-muted-foreground">Usa: {presaServizioDisplay || "Non specificato"}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {presaServizioDisplay || "Non specificato"}</p>
               )}
               {partenzaTipo === 'personalizzato' && (
-                <div className="grid grid-cols-[1fr_1.5fr_auto] gap-2 mt-1">
+                <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-[1fr_1.5fr_auto] sm:gap-2 mt-1">
                   <div>
                     <Label className="text-xs">Città</Label>
-                    <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="Città" className="mt-1" />
+                    <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="Città" className="mt-1 h-9" />
                   </div>
                   <div>
                     <Label className="text-xs">Indirizzo</Label>
-                    <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1" />
+                    <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1 h-9" />
                   </div>
                   <div>
                     <Label className="text-xs">Orario</Label>
-                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="w-24 mt-1" />
+                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="w-full sm:w-24 mt-1 h-9" />
                   </div>
                 </div>
               )}
@@ -179,24 +179,24 @@ export const DialogConfiguraPercorsoPasseggero = ({
               >
                 {renderToggleItem('passeggero', 'Passeggero', !hasIndirizzo, 'Nessun indirizzo salvato')}
                 {renderToggleItem('servizio', 'Servizio')}
-                {renderToggleItem('personalizzato', 'Personalizzato')}
+                {renderToggleItem('personalizzato', 'Custom')}
               </ToggleGroup>
 
               {arrivoTipo === 'passeggero' && hasIndirizzo && (
-                <p className="text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
               )}
               {arrivoTipo === 'servizio' && (
-                <p className="text-sm text-muted-foreground">Usa: {destServizioDisplay || "Non specificato"}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Usa: {destServizioDisplay || "Non specificato"}</p>
               )}
               {arrivoTipo === 'personalizzato' && (
-                <div className="grid grid-cols-[1fr_1.5fr] gap-2 mt-1">
+                <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-[1fr_1.5fr] sm:gap-2 mt-1">
                   <div>
                     <Label className="text-xs">Città</Label>
-                    <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="Città" className="mt-1" />
+                    <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="Città" className="mt-1 h-9" />
                   </div>
                   <div>
                     <Label className="text-xs">Indirizzo</Label>
-                    <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1" />
+                    <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1 h-9" />
                   </div>
                 </div>
               )}
@@ -204,11 +204,11 @@ export const DialogConfiguraPercorsoPasseggero = ({
           </div>
         </TooltipProvider>
 
-        <SheetFooter className="sticky bottom-0 bg-background border-t px-6 py-4 flex-row gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+        <SheetFooter className="sticky bottom-0 bg-background border-t px-4 sm:px-6 py-3 sm:py-4 flex-row gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-10">
             Annulla
           </Button>
-          <Button onClick={handleConfirm} disabled={!isValid} className="flex-1">
+          <Button onClick={handleConfirm} disabled={!isValid} className="flex-1 h-10">
             <Check className="h-4 w-4 mr-1" />
             Conferma
           </Button>
