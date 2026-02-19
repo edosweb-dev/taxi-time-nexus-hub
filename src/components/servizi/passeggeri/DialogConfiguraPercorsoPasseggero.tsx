@@ -153,7 +153,7 @@ export const DialogConfiguraPercorsoPasseggero = ({
                 <Label className="text-base font-bold uppercase tracking-wide">Partenza</Label>
               </div>
               <p className="text-sm text-muted-foreground">
-                Dove prelevare? Scegli tra indirizzo salvato, partenza servizio o personalizzato.
+                Scegli l'indirizzo di partenza del cliente. Puoi scegliere tra indirizzo di residenza, indirizzo del servizio o personalizzato.
               </p>
 
               <ToggleGroup
@@ -214,7 +214,7 @@ export const DialogConfiguraPercorsoPasseggero = ({
                 <Label className="text-base font-bold uppercase tracking-wide">Arrivo</Label>
               </div>
               <p className="text-sm text-muted-foreground">
-                Dove portare? Scegli tra indirizzo salvato, destinazione servizio o personalizzato.
+                Scegli l'indirizzo di arrivo del cliente. Puoi scegliere tra indirizzo di residenza, indirizzo del servizio o personalizzato.
               </p>
 
               <ToggleGroup
