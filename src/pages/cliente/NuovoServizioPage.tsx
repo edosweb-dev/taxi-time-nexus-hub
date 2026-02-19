@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PasseggeroClienteCard, PasseggeroClienteData } from '@/components/servizi/passeggeri/PasseggeroClienteCard';
+import { DialogConfiguraPercorsoPasseggero, PercorsoConfig } from '@/components/servizi/passeggeri/DialogConfiguraPercorsoPasseggero';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,10 @@ export default function NuovoServizioPage() {
   const [nuovoEmail, setNuovoEmail] = useState('');
   const [nuovoTelefono, setNuovoTelefono] = useState('');
   const [salvaInRubrica, setSalvaInRubrica] = useState(true);
+
+  // Dialog configurazione percorso
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [configDialogIndex, setConfigDialogIndex] = useState<number | null>(null);
 
   // Usa profilo da useAuth (supporta impersonificazione)
   const { profile: authProfile } = useAuth();
@@ -105,15 +110,15 @@ export default function NuovoServizioPage() {
     },
   });
 
-  // Aggiungi passeggero dalla rubrica
+  // Aggiungi passeggero dalla rubrica e apri config dialog
   const aggiungiDaRubrica = (passeggeroId: string) => {
     const p = passeggeri.find(x => x.id === passeggeroId);
     if (!p) return;
-    // Evita duplicati
     if (passeggeriSelezionati.some(s => s.id === p.id)) {
       toast({ title: "Passeggero già aggiunto", variant: "destructive" });
       return;
     }
+    const newIndex = passeggeriSelezionati.length;
     setPasseggeriSelezionati(prev => [...prev, {
       id: p.id,
       nome_cognome: p.nome_cognome,
@@ -122,32 +127,69 @@ export default function NuovoServizioPage() {
       indirizzo: (p as any).indirizzo || undefined,
       localita: (p as any).localita || undefined,
       isNew: false,
+      _presa_tipo: 'servizio',
+      _destinazione_tipo: 'servizio',
+      _usa_orario_servizio: true,
     }]);
+    // Open config dialog for newly added passenger
+    setConfigDialogIndex(newIndex);
+    setConfigDialogOpen(true);
   };
 
-  // Aggiungi nuovo passeggero
+  // Aggiungi nuovo passeggero e apri config dialog
   const aggiungiNuovo = () => {
     if (!nuovoNome.trim()) {
       toast({ title: "Nome obbligatorio", variant: "destructive" });
       return;
     }
+    const newIndex = passeggeriSelezionati.length;
     setPasseggeriSelezionati(prev => [...prev, {
       nome_cognome: nuovoNome.trim(),
       email: nuovoEmail || undefined,
       telefono: nuovoTelefono || undefined,
       isNew: true,
       isTemporary: !salvaInRubrica,
+      _presa_tipo: 'servizio',
+      _destinazione_tipo: 'servizio',
+      _usa_orario_servizio: true,
     }]);
     setNuovoNome('');
     setNuovoEmail('');
     setNuovoTelefono('');
     setSalvaInRubrica(true);
     setShowNuovoDialog(false);
+    // Open config dialog
+    setConfigDialogIndex(newIndex);
+    setConfigDialogOpen(true);
   };
 
-  // Rimuovi passeggero
   const rimuoviPasseggero = (index: number) => {
     setPasseggeriSelezionati(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Handle config dialog confirm
+  const handleConfigConfirm = (config: PercorsoConfig) => {
+    if (configDialogIndex === null) return;
+    setPasseggeriSelezionati(prev => {
+      const updated = [...prev];
+      if (updated[configDialogIndex]) {
+        updated[configDialogIndex] = {
+          ...updated[configDialogIndex],
+          _presa_tipo: config.presaTipo,
+          _destinazione_tipo: config.destinazioneTipo === 'servizio' ? 'servizio' : 'personalizzato',
+          _usa_orario_servizio: config.usaOrarioServizio,
+          usa_indirizzo_personalizzato: config.presaTipo !== 'servizio' || config.destinazioneTipo !== 'servizio',
+          luogo_presa_personalizzato: config.luogoPresa || undefined,
+          localita_presa_personalizzato: config.localitaPresa || undefined,
+          orario_presa_personalizzato: config.orarioPresaPersonalizzato || undefined,
+          destinazione_personalizzato: config.destinazione || undefined,
+          localita_destinazione_personalizzato: config.localitaDestinazione || undefined,
+        };
+      }
+      return updated;
+    });
+    setConfigDialogOpen(false);
+    setConfigDialogIndex(null);
   };
 
   // Mutation per creare servizio
@@ -262,6 +304,8 @@ export default function NuovoServizioPage() {
     }
     createServizio.mutate(values);
   };
+
+  const configPasseggero = configDialogIndex !== null ? passeggeriSelezionati[configDialogIndex] : null;
 
   return (
     <MainLayout>
@@ -399,7 +443,7 @@ export default function NuovoServizioPage() {
 
                 <Separator />
 
-                {/* SEZIONE: Passeggeri (MULTIPLI) */}
+                {/* SEZIONE: Passeggeri */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <User className="h-5 w-5 text-primary" />
@@ -419,12 +463,9 @@ export default function NuovoServizioPage() {
                             passeggero={p}
                             index={index}
                             onRemove={() => rimuoviPasseggero(index)}
-                            onUpdate={(updatedData) => {
-                              setPasseggeriSelezionati(prev => {
-                                const updated = [...prev];
-                                updated[index] = { ...updated[index], ...updatedData };
-                                return updated;
-                              });
+                            onConfigura={() => {
+                              setConfigDialogIndex(index);
+                              setConfigDialogOpen(true);
                             }}
                             indirizzoPresaServizio={form.watch('indirizzo_presa') || ''}
                             cittaPresaServizio={form.watch('citta_presa') || ''}
@@ -634,6 +675,26 @@ export default function NuovoServizioPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog Configurazione Percorso */}
+      {configPasseggero && (
+        <DialogConfiguraPercorsoPasseggero
+          open={configDialogOpen}
+          onOpenChange={(open) => {
+            setConfigDialogOpen(open);
+            if (!open) setConfigDialogIndex(null);
+          }}
+          passeggero={configPasseggero}
+          datiServizio={{
+            indirizzoPresaServizio: form.watch('indirizzo_presa') || '',
+            cittaPresaServizio: form.watch('citta_presa') || '',
+            indirizzoDestinazioneServizio: form.watch('indirizzo_destinazione') || '',
+            cittaDestinazioneServizio: form.watch('citta_destinazione') || '',
+            orarioServizio: form.watch('orario_servizio') || '',
+          }}
+          onConfirm={handleConfigConfirm}
+        />
+      )}
     </MainLayout>
   );
 }
