@@ -121,13 +121,13 @@ export const DialogConfiguraPercorsoPasseggero = ({
       <SheetContent
         side={isMobile ? "bottom" : "right"}
         className={cn(
-          "flex flex-col p-0",
+          "flex flex-col px-6 py-6",
           isMobile ? "h-[95vh] w-full rounded-t-xl" : "w-full max-w-lg"
         )}
         hideCloseButton
       >
         {/* HEADER */}
-        <SheetHeader className="px-6 pt-6 pb-4 space-y-3 border-b">
+        <SheetHeader className="space-y-3 pb-6 border-b">
           <SheetTitle className="flex items-center gap-2 text-xl">
             <MapPin className="w-5 h-5 text-primary" />
             {passeggero.nome_cognome}
@@ -143,7 +143,7 @@ export const DialogConfiguraPercorsoPasseggero = ({
         </SheetHeader>
 
         <TooltipProvider>
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+          <div className="flex-1 overflow-y-auto py-6 space-y-6">
             {/* ===== PARTENZA ===== */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export const DialogConfiguraPercorsoPasseggero = ({
         </TooltipProvider>
 
         {/* FOOTER */}
-        <SheetFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t shadow-lg px-6 py-4 flex-row gap-3 mt-auto">
+        <SheetFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t shadow-lg -mx-6 px-6 pt-4 pb-6 flex-row gap-3 mt-auto">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-12 text-base">
             Annulla
           </Button>
