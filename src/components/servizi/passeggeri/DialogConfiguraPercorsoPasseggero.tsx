@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
-import { Check, MapPin } from "lucide-react";
+import { Check, MapPin, Home, Car, MapPinned } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PasseggeroClienteData } from "./PasseggeroClienteCard";
 
@@ -97,9 +97,11 @@ export const DialogConfiguraPercorsoPasseggero = ({
     });
   };
 
+  const toggleItemClass = "px-4 py-3 text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
+
   const renderToggleItem = (value: string, label: string, disabled?: boolean, tooltip?: string) => {
     const item = (
-      <ToggleGroupItem value={value} disabled={disabled} className="px-4 py-3 text-sm">
+      <ToggleGroupItem value={value} disabled={disabled} className={toggleItemClass}>
         {label}
       </ToggleGroupItem>
     );
@@ -124,23 +126,33 @@ export const DialogConfiguraPercorsoPasseggero = ({
         )}
         hideCloseButton
       >
-        <SheetHeader className="px-6 pt-6 pb-4 space-y-2">
+        {/* HEADER */}
+        <SheetHeader className="px-6 pt-6 pb-4 space-y-3 border-b">
           <SheetTitle className="flex items-center gap-2 text-xl">
             <MapPin className="w-5 h-5 text-primary" />
             {passeggero.nome_cognome}
           </SheetTitle>
           {passeggeroIndirizzo && (
-            <p className="text-sm text-muted-foreground pl-7">
-              📍 Indirizzo salvato: {passeggeroIndirizzo}
-            </p>
+            <div className="bg-muted/50 rounded-lg p-2">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Home className="w-4 h-4" />
+                <span>Indirizzo salvato: <strong>{passeggeroIndirizzo}</strong></span>
+              </p>
+            </div>
           )}
         </SheetHeader>
 
         <TooltipProvider>
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-8">
-            {/* PARTENZA */}
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+            {/* ===== PARTENZA ===== */}
             <div className="space-y-4">
-              <Label className="text-base font-semibold block">Scegli indirizzo partenza</Label>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Car className="w-4 h-4 text-primary" />
+                </div>
+                <Label className="text-base font-bold uppercase tracking-wide">Partenza</Label>
+              </div>
+
               <ToggleGroup
                 type="single"
                 value={partenzaTipo}
@@ -153,40 +165,52 @@ export const DialogConfiguraPercorsoPasseggero = ({
               </ToggleGroup>
 
               {partenzaTipo === 'passeggero' && hasIndirizzo && (
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-900">📍 Usa: {passeggeroIndirizzo}</p>
                 </div>
               )}
               {partenzaTipo === 'servizio' && (
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Usa: {presaServizioDisplay || "Non specificato"}</p>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm text-green-900">🚗 Usa: {presaServizioDisplay || "Non specificato"}</p>
                 </div>
               )}
               {partenzaTipo === 'personalizzato' && (
-                <div className="space-y-4 pt-2">
+                <div className="space-y-4 bg-amber-50/50 border border-amber-200 rounded-lg p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Città</Label>
-                      <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="Milano" className="h-11" />
+                      <Label className="text-sm font-medium">Città *</Label>
+                      <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="es. Milano" className="h-11 bg-background" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Indirizzo</Label>
-                      <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, numero civico" className="h-11" />
+                      <Label className="text-sm font-medium">Indirizzo *</Label>
+                      <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, numero civico" className="h-11 bg-background" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Orario presa</Label>
-                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="h-11 w-full sm:w-40" />
+                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="h-11 w-full sm:w-40 bg-background" />
                   </div>
                 </div>
               )}
             </div>
 
-            <Separator />
+            {/* ===== SEPARATOR ===== */}
+            <div className="relative py-2">
+              <Separator />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-background px-4 text-xs text-muted-foreground font-medium">• • •</div>
+              </div>
+            </div>
 
-            {/* ARRIVO */}
+            {/* ===== ARRIVO ===== */}
             <div className="space-y-4">
-              <Label className="text-base font-semibold block">Scegli indirizzo arrivo</Label>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <MapPinned className="w-4 h-4 text-primary" />
+                </div>
+                <Label className="text-base font-bold uppercase tracking-wide">Arrivo</Label>
+              </div>
+
               <ToggleGroup
                 type="single"
                 value={arrivoTipo}
@@ -199,24 +223,26 @@ export const DialogConfiguraPercorsoPasseggero = ({
               </ToggleGroup>
 
               {arrivoTipo === 'passeggero' && hasIndirizzo && (
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Usa: {passeggeroIndirizzo}</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-900">📍 Usa: {passeggeroIndirizzo}</p>
                 </div>
               )}
               {arrivoTipo === 'servizio' && (
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Usa: {destServizioDisplay || "Non specificato"}</p>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm text-green-900">🏁 Usa: {destServizioDisplay || "Non specificato"}</p>
                 </div>
               )}
               {arrivoTipo === 'personalizzato' && (
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4 pt-2">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Città</Label>
-                    <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="Milano" className="h-11" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Indirizzo</Label>
-                    <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, numero civico" className="h-11" />
+                <div className="space-y-4 bg-amber-50/50 border border-amber-200 rounded-lg p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Città *</Label>
+                      <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="es. Milano" className="h-11 bg-background" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Indirizzo *</Label>
+                      <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, numero civico" className="h-11 bg-background" />
+                    </div>
                   </div>
                 </div>
               )}
@@ -224,12 +250,13 @@ export const DialogConfiguraPercorsoPasseggero = ({
           </div>
         </TooltipProvider>
 
-        <SheetFooter className="sticky bottom-0 bg-background border-t px-6 py-4 flex-row gap-3 mt-auto">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-11">
+        {/* FOOTER */}
+        <SheetFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t shadow-lg px-6 py-4 flex-row gap-3 mt-auto">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-12 text-base">
             Annulla
           </Button>
-          <Button onClick={handleConfirm} disabled={!isValid} className="flex-1 h-11">
-            <Check className="h-4 w-4 mr-2" />
+          <Button onClick={handleConfirm} disabled={!isValid} className="flex-1 h-12 text-base font-semibold">
+            <Check className="h-5 w-5 mr-2" />
             Conferma
           </Button>
         </SheetFooter>
