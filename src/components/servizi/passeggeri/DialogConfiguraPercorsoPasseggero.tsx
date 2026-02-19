@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -112,22 +112,22 @@ export const DialogConfiguraPercorsoPasseggero = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col p-0">
+        <SheetHeader className="px-6 pt-6 pb-2">
+          <SheetTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
             {passeggero.nome_cognome}
-          </DialogTitle>
+          </SheetTitle>
           {passeggeroIndirizzo && (
-            <DialogDescription>
+            <p className="text-sm text-muted-foreground">
               📍 Indirizzo salvato: {passeggeroIndirizzo}
-            </DialogDescription>
+            </p>
           )}
-        </DialogHeader>
+        </SheetHeader>
 
         <TooltipProvider>
-          <div className="space-y-1 py-2">
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
             {/* PARTENZA */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Scegli indirizzo partenza</Label>
@@ -166,7 +166,7 @@ export const DialogConfiguraPercorsoPasseggero = ({
               )}
             </div>
 
-            <Separator className="my-6" />
+            <Separator />
 
             {/* ARRIVO */}
             <div className="space-y-2">
@@ -204,16 +204,16 @@ export const DialogConfiguraPercorsoPasseggero = ({
           </div>
         </TooltipProvider>
 
-        <DialogFooter className="flex-row gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <SheetFooter className="sticky bottom-0 bg-background border-t px-6 py-4 flex-row gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
             Annulla
           </Button>
-          <Button onClick={handleConfirm} disabled={!isValid}>
+          <Button onClick={handleConfirm} disabled={!isValid} className="flex-1">
             <Check className="h-4 w-4 mr-1" />
             Conferma
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };
