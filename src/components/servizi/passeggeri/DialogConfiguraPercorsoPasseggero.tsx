@@ -149,18 +149,18 @@ export const DialogConfiguraPercorsoPasseggero = ({
                 <p className="text-sm text-muted-foreground">Usa: {presaServizioDisplay || "Non specificato"}</p>
               )}
               {partenzaTipo === 'personalizzato' && (
-                <div className="space-y-3 mt-1">
+                <div className="grid grid-cols-[1fr_1.5fr_auto] gap-2 mt-1">
                   <div>
                     <Label className="text-xs">Città</Label>
                     <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="Città" className="mt-1" />
                   </div>
                   <div>
                     <Label className="text-xs">Indirizzo</Label>
-                    <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, numero civico" className="mt-1" />
+                    <Input value={presaIndirizzo} onChange={(e) => setPresaIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1" />
                   </div>
                   <div>
-                    <Label className="text-xs">Orario presa</Label>
-                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="w-32 mt-1" />
+                    <Label className="text-xs">Orario</Label>
+                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="w-24 mt-1" />
                   </div>
                 </div>
               )}
@@ -189,14 +189,14 @@ export const DialogConfiguraPercorsoPasseggero = ({
                 <p className="text-sm text-muted-foreground">Usa: {destServizioDisplay || "Non specificato"}</p>
               )}
               {arrivoTipo === 'personalizzato' && (
-                <div className="space-y-3 mt-1">
+                <div className="grid grid-cols-[1fr_1.5fr] gap-2 mt-1">
                   <div>
                     <Label className="text-xs">Città</Label>
                     <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="Città" className="mt-1" />
                   </div>
                   <div>
                     <Label className="text-xs">Indirizzo</Label>
-                    <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, numero civico" className="mt-1" />
+                    <Input value={destIndirizzo} onChange={(e) => setDestIndirizzo(e.target.value)} placeholder="Via, n°" className="mt-1" />
                   </div>
                 </div>
               )}
