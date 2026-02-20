@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { PasseggeroPresaCard } from "./PasseggeroPresaCard";
 import { Users } from "lucide-react";
 
@@ -23,7 +23,10 @@ export const PasseggeroPresaList = ({
   destinazioneServizio,
   cittaDestinazioneServizio,
 }: PasseggeroPresaListProps) => {
-  const { setValue, getValues } = useFormContext();
+  const { setValue, getValues, control } = useFormContext();
+
+  // Watch primo passeggero per passare dati aggiornati ai successivi
+  const primoPasseggero = useWatch({ control, name: 'passeggeri.0' });
 
   // Handler per spostare passeggero su/giù
   const handleMove = (fromIndex: number, toIndex: number) => {
@@ -90,6 +93,7 @@ export const PasseggeroPresaList = ({
             cittaDestinazioneServizio={cittaDestinazioneServizio}
             isFirst={index === 0}
             onRemove={() => remove(index)}
+            primoPasseggero={index > 0 ? primoPasseggero : undefined}
           />
         ))}
       </div>
