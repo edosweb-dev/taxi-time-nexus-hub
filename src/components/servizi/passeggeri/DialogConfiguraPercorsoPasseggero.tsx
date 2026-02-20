@@ -76,9 +76,10 @@ export const DialogConfiguraPercorsoPasseggero = ({
 
   const isValid = useMemo(() => {
     if (partenzaTipo === 'personalizzato' && !presaCitta && !presaIndirizzo) return false;
+    if (partenzaTipo === 'passeggero' && !orarioPresa) return false;
     if (arrivoTipo === 'personalizzato' && !destCitta && !destIndirizzo) return false;
     return true;
-  }, [partenzaTipo, arrivoTipo, presaCitta, presaIndirizzo, destCitta, destIndirizzo]);
+  }, [partenzaTipo, arrivoTipo, presaCitta, presaIndirizzo, destCitta, destIndirizzo, orarioPresa]);
 
   const handleConfirm = () => {
     onConfirm({
@@ -92,8 +93,8 @@ export const DialogConfiguraPercorsoPasseggero = ({
                     arrivoTipo === 'passeggero' ? (passeggero.indirizzo || null) : null,
       localitaDestinazione: arrivoTipo === 'personalizzato' ? (destCitta || null) :
                             arrivoTipo === 'passeggero' ? (passeggero.localita || null) : null,
-      orarioPresaPersonalizzato: partenzaTipo === 'personalizzato' ? (orarioPresa || null) : null,
-      usaOrarioServizio: partenzaTipo !== 'personalizzato',
+      orarioPresaPersonalizzato: (partenzaTipo === 'personalizzato' || partenzaTipo === 'passeggero') ? (orarioPresa || null) : null,
+      usaOrarioServizio: partenzaTipo === 'servizio',
     });
   };
 
@@ -168,8 +169,15 @@ export const DialogConfiguraPercorsoPasseggero = ({
               </ToggleGroup>
 
               {partenzaTipo === 'passeggero' && hasIndirizzo && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-900">📍 Usa: {passeggeroIndirizzo}</p>
+                <div className="space-y-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900 flex items-center gap-2">
+                    <Home className="h-4 w-4 flex-shrink-0" />
+                    Indirizzo: <strong>{passeggeroIndirizzo}</strong>
+                  </p>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Orario di presa *</Label>
+                    <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="h-11 w-full sm:w-40 bg-background" />
+                  </div>
                 </div>
               )}
               {partenzaTipo === 'servizio' && (
