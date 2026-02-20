@@ -20,7 +20,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus, Mail, Trash2 } from 'lucide-react';
+import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus, Mail, Trash2, Users, Search, Info } from 'lucide-react';
 import { useEmailNotifiche } from '@/hooks/useEmailNotifiche';
 
 // Schema senza campi passeggero (gestiti via stato React)
@@ -443,62 +443,108 @@ export default function NuovoServizioPage() {
                   )}
 
                   {/* Aggiungi dalla rubrica */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">Aggiungi dalla rubrica</Label>
-                    <Select
-                      onValueChange={aggiungiDaRubrica}
-                      value=""
-                      disabled={isLoadingPasseggeri}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={
-                          isLoadingPasseggeri 
-                            ? "Caricamento..." 
-                            : passeggeri.length === 0
-                              ? "Nessun passeggero in rubrica"
-                              : "Seleziona passeggero da aggiungere"
-                        } />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {passeggeri.length > 0 ? (
-                          passeggeri
-                            .filter(p => !passeggeriSelezionati.some(s => s.id === p.id))
-                            .map((p) => (
-                              <SelectItem key={p.id} value={p.id}>
-                                {p.nome_cognome}
-                                {p.telefono && ` • ${p.telefono}`}
-                              </SelectItem>
-                            ))
-                        ) : (
-                          <SelectItem value="empty" disabled>
-                            Nessun passeggero disponibile
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    {passeggeri.length === 0 && !isLoadingPasseggeri && (
-                      <FormDescription className="text-sm text-muted-foreground">
-                        Non hai ancora passeggeri in rubrica.{" "}
-                        <a 
-                          href="/dashboard-cliente/passeggeri" 
-                          target="_blank"
-                          className="text-primary hover:underline"
-                        >
-                          Vai alla rubrica
-                        </a>
-                      </FormDescription>
-                    )}
-                  </div>
+                  <Card className="border-primary/30 bg-primary/5">
+                    <CardContent className="pt-5 pb-4 space-y-4">
+                      {/* Header con icona e titolo */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 shrink-0">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">Aggiungi dalla rubrica</p>
+                          <p className="text-xs text-muted-foreground">
+                            Seleziona passeggeri già salvati nella rubrica aziendale
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Select migliorato */}
+                      <Select
+                        onValueChange={aggiungiDaRubrica}
+                        value=""
+                        disabled={isLoadingPasseggeri}
+                      >
+                        <SelectTrigger className="bg-background">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Search className="h-4 w-4 shrink-0" />
+                            <span>
+                              {isLoadingPasseggeri
+                                ? "Caricamento..."
+                                : passeggeri.length === 0
+                                  ? "Nessun passeggero in rubrica"
+                                  : "Cerca per nome, email o località..."}
+                            </span>
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {passeggeri.length > 0 ? (
+                            passeggeri
+                              .filter(p => !passeggeriSelezionati.some(s => s.id === p.id))
+                              .map((p) => (
+                                <SelectItem key={p.id} value={p.id}>
+                                  <div className="flex flex-col">
+                                    <span>{p.nome_cognome}</span>
+                                    {(p.localita || p.email) && (
+                                      <span className="text-xs text-muted-foreground flex items-center gap-2">
+                                        {p.localita && (
+                                          <span className="flex items-center gap-1">
+                                            <MapPin className="h-3 w-3" />
+                                            {p.localita}
+                                          </span>
+                                        )}
+                                        {p.email && (
+                                          <span className="flex items-center gap-1">
+                                            <Mail className="h-3 w-3" />
+                                            {p.email}
+                                          </span>
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
+                                </SelectItem>
+                              ))
+                          ) : (
+                            <SelectItem value="empty" disabled>
+                              Nessun passeggero disponibile
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+
+                      {/* Helper text con conteggio */}
+                      {passeggeri && passeggeri.length > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Info className="h-3.5 w-3.5 shrink-0" />
+                          <span>
+                            {passeggeri.filter(p => !passeggeriSelezionati.some(s => s.id === p.id)).length} passeggeri disponibili
+                          </span>
+                        </div>
+                      )}
+
+                      {passeggeri.length === 0 && !isLoadingPasseggeri && (
+                        <p className="text-xs text-muted-foreground">
+                          Non hai ancora passeggeri in rubrica.{" "}
+                          <a
+                            href="/dashboard-cliente/passeggeri"
+                            target="_blank"
+                            className="text-primary hover:underline"
+                          >
+                            Vai alla rubrica
+                          </a>
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
 
                   {/* Bottone crea nuovo */}
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setShowNuovoDialog(true)}
-                    className="w-full"
+                    className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5"
                   >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Crea Nuovo Passeggero
+                    <UserPlus className="h-5 w-5 mr-2" />
+                    <span className="font-medium">Crea Nuovo Passeggero</span>
                   </Button>
 
                   {/* Messaggio se nessun passeggero */}
