@@ -58,6 +58,7 @@ import {
 import { usePasseggeriCliente } from "@/hooks/usePasseggeriCliente";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const passeggeroSchema = z.object({
   nome_cognome: z.string()
@@ -85,13 +86,14 @@ type PasseggeroFormData = z.infer<typeof passeggeroSchema>;
 
 const PasseggeriCliente = () => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingPasseggero, setEditingPasseggero] = useState<any | null>(null);
   const [deletingPasseggero, setDeletingPasseggero] = useState<any | null>(null);
 
-  const { passeggeri, isLoading } = usePasseggeriCliente(searchTerm);
+  const { passeggeri, isLoading } = usePasseggeriCliente(profile?.azienda_id, searchTerm);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -137,16 +139,8 @@ const PasseggeriCliente = () => {
   // CREATE Mutation
   const createMutation = useMutation({
     mutationFn: async (data: PasseggeroFormData) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("azienda_id")
-        .eq("id", user.id)
-        .single();
-
-      if (profileError) throw profileError;
+      if (!profile?.azienda_id) throw new Error("Azienda non trovata");
+      if (!profile?.id) throw new Error("Utente non autenticato");
 
       const { error } = await supabase.from("passeggeri").insert({
         nome_cognome: data.nome_cognome,
@@ -155,15 +149,15 @@ const PasseggeriCliente = () => {
         telefono_2: data.telefono_2 || null,
         localita: data.localita || null,
         indirizzo: data.indirizzo || null,
-        azienda_id: profile?.azienda_id,
-        created_by_referente_id: user.id,
+        azienda_id: profile.azienda_id,
+        created_by_referente_id: profile.id,
         tipo: 'rubrica',
       });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente"] });
+      queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente", profile?.azienda_id] });
       toast({
         title: "✅ Passeggero creato",
         description: "Il passeggero è stato aggiunto con successo.",
@@ -201,7 +195,7 @@ const PasseggeriCliente = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente"] });
+      queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente", profile?.azienda_id] });
       toast({
         title: "✅ Passeggero aggiornato",
         description: "Le modifiche sono state salvate.",
@@ -230,7 +224,7 @@ const PasseggeriCliente = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente"] });
+      queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente", profile?.azienda_id] });
       toast({
         title: "🗑️ Passeggero eliminato",
         description: "Il passeggero è stato rimosso.",
