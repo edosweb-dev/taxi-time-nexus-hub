@@ -200,50 +200,39 @@ export function ClientePrivatoFields() {
         </Card>
       )}
 
-      {/* SEZIONE 2: Dati Cliente */}
-      <Card className={isNewCliente ? "border-primary/20" : "border-muted"}>
+      {/* SEZIONE 2: Dati Cliente - solo per nuovo cliente */}
+      {isNewCliente && (
+      <Card className="border-primary/20">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {isNewCliente ? (
-                <UserPlus className="h-5 w-5 text-primary" />
-              ) : (
-                <User className="h-5 w-5 text-muted-foreground" />
-              )}
-              <CardTitle className="text-base">
-                {isNewCliente ? "Nuovo Cliente" : "Dati Cliente"}
-              </CardTitle>
+              <UserPlus className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base">Nuovo Cliente</CardTitle>
             </div>
             
-            {/* Pulsante SALVA in Anagrafica */}
-            {isNewCliente && (
-              <Button
-                type="button"
-                variant="default"
-                size="sm"
-                onClick={handleSalvaInAnagrafica}
-                disabled={!canSave}
-                className="gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Salvataggio...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    Salva
-                  </>
-                )}
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={handleSalvaInAnagrafica}
+              disabled={!canSave}
+              className="gap-2"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Salvataggio...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Salva
+                </>
+              )}
+            </Button>
           </div>
           <CardDescription className="text-sm">
-            {isNewCliente 
-              ? "Inserisci i dati del nuovo cliente. Clicca 'Salva in Anagrafica' per riutilizzarlo nei prossimi servizi."
-              : "Cliente salvato in anagrafica. I campi sono di sola lettura."
-            }
+            Inserisci i dati del nuovo cliente. Clicca 'Salva in Anagrafica' per riutilizzarlo nei prossimi servizi.
           </CardDescription>
         </CardHeader>
         
@@ -271,8 +260,6 @@ export function ClientePrivatoFields() {
                       placeholder="Mario" 
                       {...field}
                       value={field.value || ''}
-                      disabled={!isNewCliente}
-                      className={!isNewCliente ? "bg-muted" : ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -291,8 +278,6 @@ export function ClientePrivatoFields() {
                       placeholder="Rossi" 
                       {...field}
                       value={field.value || ''}
-                      disabled={!isNewCliente}
-                      className={!isNewCliente ? "bg-muted" : ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -315,8 +300,6 @@ export function ClientePrivatoFields() {
                       placeholder="mario.rossi@email.com" 
                       {...field}
                       value={field.value || ''}
-                      disabled={!isNewCliente}
-                      className={!isNewCliente ? "bg-muted" : ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -335,8 +318,6 @@ export function ClientePrivatoFields() {
                       placeholder="+39 333 1234567" 
                       {...field}
                       value={field.value || ''}
-                      disabled={!isNewCliente}
-                      className={!isNewCliente ? "bg-muted" : ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -358,8 +339,6 @@ export function ClientePrivatoFields() {
                       placeholder="Via Roma 123" 
                       {...field}
                       value={field.value || ''}
-                      disabled={!isNewCliente}
-                      className={!isNewCliente ? "bg-muted" : ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -378,8 +357,6 @@ export function ClientePrivatoFields() {
                       placeholder="Milano" 
                       {...field}
                       value={field.value || ''}
-                      disabled={!isNewCliente}
-                      className={!isNewCliente ? "bg-muted" : ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -400,8 +377,6 @@ export function ClientePrivatoFields() {
                     placeholder="Note aggiuntive sul cliente..." 
                     {...field}
                     value={field.value || ''}
-                    disabled={!isNewCliente}
-                    className={!isNewCliente ? "bg-muted" : ""}
                     rows={3}
                   />
                 </FormControl>
@@ -411,6 +386,7 @@ export function ClientePrivatoFields() {
           />
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }
