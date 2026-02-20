@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, subDays, addDays, isToday, getMonth, getYear } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Car, CheckCircle, Coffee, MapPin, Clock, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Car, CheckCircle, Circle, XCircle, DollarSign, MapPin, Navigation, Clock, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DipendenteLayout } from '@/components/layouts/DipendenteLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiziAgenda, getServiziByDay } from '@/hooks/dipendente/useServiziAgenda';
 import { cn } from '@/lib/utils';
 import { ServizioWithRelations } from '@/lib/api/dipendente/servizi';
+import type { LucideIcon } from 'lucide-react';
 
 export default function CalendarioDashboardPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -74,10 +74,17 @@ export default function CalendarioDashboardPage() {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="flex-1 h-12 md:h-10 text-sm md:text-base font-semibold capitalize"
+                      className="flex-1 h-12 md:h-10 font-semibold capitalize"
                     >
                       <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-                      {format(selectedDate, 'EEEE d MMMM yyyy', { locale: it })}
+                      <span className="truncate">
+                        <span className="md:hidden">
+                          {format(selectedDate, 'd MMM yyyy', { locale: it })}
+                        </span>
+                        <span className="hidden md:inline">
+                          {format(selectedDate, 'EEEE d MMMM yyyy', { locale: it })}
+                        </span>
+                      </span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="center">
@@ -141,7 +148,7 @@ export default function CalendarioDashboardPage() {
         {/* Service List */}
         <div className="px-4 md:px-0">
           <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Car className="h-5 w-5" />
+            <Car className="h-5 w-5 text-primary" />
             Servizi del giorno
           </h2>
 
@@ -164,8 +171,8 @@ export default function CalendarioDashboardPage() {
           ) : serviziGiorno.length === 0 ? (
             <Card>
               <CardContent className="py-16 px-4 text-center">
-                <div className="text-6xl mb-4">
-                  {isToday(selectedDate) ? '🎉' : '📅'}
+                <div className="mb-4 text-muted-foreground">
+                  <CalendarIcon className="h-16 w-16 mx-auto" />
                 </div>
                 <p className="text-xl font-semibold mb-2">Nessun servizio</p>
                 <p className="text-sm text-muted-foreground max-w-xs mx-auto">
@@ -207,16 +214,17 @@ function CalendarioServizioCard({
   onCompleta: () => void;
 }) {
   const getStatoBadge = (stato: string) => {
-    const configs: Record<string, { label: string; className: string; emoji: string }> = {
-      assegnato: { label: 'Da completare', className: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-400 dark:border-yellow-800', emoji: '🟡' },
-      completato: { label: 'Completato', className: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800', emoji: '✅' },
-      consuntivato: { label: 'Consuntivato', className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800', emoji: '💰' },
-      annullato: { label: 'Annullato', className: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800', emoji: '🚫' },
+    const configs: Record<string, { label: string; className: string; icon: LucideIcon }> = {
+      assegnato: { label: 'Da completare', className: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-400 dark:border-yellow-800', icon: Circle },
+      completato: { label: 'Completato', className: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800', icon: CheckCircle },
+      consuntivato: { label: 'Consuntivato', className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800', icon: DollarSign },
+      annullato: { label: 'Annullato', className: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800', icon: XCircle },
     };
     return configs[stato] || configs.assegnato;
   };
 
   const badge = getStatoBadge(servizio.stato);
+  const BadgeIcon = badge.icon;
   const canComplete = servizio.stato === 'assegnato';
   const cliente = servizio.tipo_cliente === 'privato'
     ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || 'Cliente privato'
@@ -251,7 +259,7 @@ function CalendarioServizioCard({
             'px-3 py-1.5 rounded-full border text-xs font-semibold flex items-center gap-1.5',
             badge.className
           )}>
-            <span>{badge.emoji}</span>
+            <BadgeIcon className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{badge.label}</span>
           </span>
         </div>
@@ -262,7 +270,7 @@ function CalendarioServizioCard({
         {/* Route */}
         <div className="space-y-2 text-sm">
           <div className="flex items-start gap-2">
-            <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">📍</span>
+            <MapPin className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
             <div className="min-w-0 flex-1">
               <p className="truncate">
                 {servizio.citta_presa && <span className="text-muted-foreground">{servizio.citta_presa} • </span>}
@@ -271,7 +279,7 @@ function CalendarioServizioCard({
             </div>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0">🎯</span>
+            <Navigation className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
             <div className="min-w-0 flex-1">
               <p className="truncate">
                 {servizio.citta_destinazione && <span className="text-muted-foreground">{servizio.citta_destinazione} • </span>}
@@ -284,7 +292,7 @@ function CalendarioServizioCard({
         {/* Vehicle */}
         {servizio.veicolo_modello && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 px-3 py-2 rounded-md">
-            <Car className="h-3.5 w-3.5" />
+            <Car className="h-4 w-4 flex-shrink-0" />
             <span className="font-medium">
               {servizio.veicolo_modello}{servizio.veicolo_targa && ` • ${servizio.veicolo_targa}`}
             </span>
@@ -295,7 +303,7 @@ function CalendarioServizioCard({
         <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
           {canComplete && (
             <Button size="lg" className="flex-1 h-12 text-base font-semibold" onClick={onCompleta}>
-              <CheckCircle className="h-4 w-4 mr-1.5" />
+              <CheckCircle className="h-5 w-5 mr-2" />
               Completa
             </Button>
           )}
@@ -305,7 +313,7 @@ function CalendarioServizioCard({
             className={cn('h-12 text-base font-semibold', canComplete ? 'flex-1' : 'w-full')}
             onClick={onDettagli}
           >
-            <Eye className="h-4 w-4 mr-1.5" />
+            <Eye className="h-5 w-5 mr-2" />
             Dettagli
           </Button>
         </div>
