@@ -599,33 +599,6 @@ export default function NuovoServizioPage() {
                         </div>
                       )}
 
-                      {/* Preview cliente selezionato */}
-                      {selectedClienteId && selectedClienteId !== 'nuovo' && (() => {
-                        const c = clientiAnagrafica.find(c => c.id === selectedClienteId);
-                        if (!c) return null;
-                        return (
-                          <div className="rounded-lg bg-primary/5 p-4 border border-primary/20">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium">{c.nome} {c.cognome}</p>
-                                <div className="text-sm text-muted-foreground space-y-0.5">
-                                  {c.email && <p>{c.email}</p>}
-                                  {c.telefono && <p>{c.telefono}</p>}
-                                  {c.indirizzo && <p>{c.indirizzo}{c.citta ? `, ${c.citta}` : ''}</p>}
-                                </div>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSelectedClienteId('')}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })()}
                     </div>
                   </>
                 )}
