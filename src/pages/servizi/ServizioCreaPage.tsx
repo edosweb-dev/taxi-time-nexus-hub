@@ -109,8 +109,8 @@ const servizioSchemaCompleto = z.object({
   azienda_id: z.string().optional(),
   data_servizio: z.string().min(1, "Inserisci la data"),
   orario_servizio: z.string().min(1, "Inserisci l'orario"),
-  indirizzo_presa: z.string().min(1, "Inserisci indirizzo partenza"),
-  indirizzo_destinazione: z.string().min(1, "Inserisci indirizzo destinazione"),
+  indirizzo_presa: z.string().default(''),
+  indirizzo_destinazione: z.string().default(''),
   metodo_pagamento: z.string().min(1, "Seleziona metodo pagamento"),
   
   // Cliente privato
@@ -1002,32 +1002,7 @@ export const ServizioCreaPage = ({
         });
       }
 
-      // ========== Popola indirizzi dal primo passeggero ==========
-      if (data.passeggeri && data.passeggeri.length > 0) {
-        const primo = data.passeggeri[0];
-        
-        if (primo.presa_tipo === 'personalizzato') {
-          data.indirizzo_presa = primo.presa_indirizzo_custom || data.indirizzo_presa || '';
-          data.citta_presa = primo.presa_citta_custom || data.citta_presa || null;
-        } else if (primo.presa_tipo === 'passeggero') {
-          data.indirizzo_presa = primo.indirizzo_rubrica || primo.indirizzo || data.indirizzo_presa || '';
-          data.citta_presa = primo.localita_rubrica || primo.localita || data.citta_presa || null;
-        }
-        
-        if (primo.destinazione_tipo === 'personalizzato') {
-          data.indirizzo_destinazione = primo.destinazione_indirizzo_custom || data.indirizzo_destinazione || '';
-          data.citta_destinazione = primo.destinazione_citta_custom || data.citta_destinazione || null;
-        } else if (primo.destinazione_tipo === 'passeggero') {
-          data.indirizzo_destinazione = primo.indirizzo_rubrica || primo.indirizzo || data.indirizzo_destinazione || '';
-          data.citta_destinazione = primo.localita_rubrica || primo.localita || data.citta_destinazione || null;
-        }
-        
-        console.log('[Submit] Indirizzi popolati dal primo passeggero:', {
-          presa: data.indirizzo_presa,
-          destinazione: data.indirizzo_destinazione,
-        });
-      }
-      // ==========================================================
+      // Indirizzi già popolati nel wrapper handleSubmit
 
       const servizioData = {
         tipo_cliente: data.tipo_cliente,
@@ -1425,7 +1400,35 @@ export const ServizioCreaPage = ({
 
       {/* Form */}
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="w-full sm:max-w-7xl">
+        <form onSubmit={form.handleSubmit(async (data) => {
+          // Pre-popola indirizzi dal primo passeggero PRIMA di onSubmit
+          if (data.passeggeri && data.passeggeri.length > 0) {
+            const primo = data.passeggeri[0];
+            
+            if (primo.presa_tipo === 'personalizzato') {
+              data.indirizzo_presa = primo.presa_indirizzo_custom || '';
+              data.citta_presa = primo.presa_citta_custom || null;
+            } else if (primo.presa_tipo === 'passeggero') {
+              data.indirizzo_presa = primo.indirizzo_rubrica || primo.indirizzo || '';
+              data.citta_presa = primo.localita_rubrica || primo.localita || null;
+            }
+            
+            if (primo.destinazione_tipo === 'personalizzato') {
+              data.indirizzo_destinazione = primo.destinazione_indirizzo_custom || '';
+              data.citta_destinazione = primo.destinazione_citta_custom || null;
+            } else if (primo.destinazione_tipo === 'passeggero') {
+              data.indirizzo_destinazione = primo.indirizzo_rubrica || primo.indirizzo || '';
+              data.citta_destinazione = primo.localita_rubrica || primo.localita || null;
+            }
+            
+            console.log('[Pre-validation] Indirizzi popolati:', {
+              presa: data.indirizzo_presa,
+              destinazione: data.indirizzo_destinazione,
+            });
+          }
+          
+          await onSubmit(data);
+        }, onInvalid)} className="w-full sm:max-w-7xl">
           {isEditLoading && (
             <div className="flex items-center gap-3 p-4 mb-4 rounded-lg border border-primary/30 bg-primary/5">
               <Loader2 className="h-5 w-5 animate-spin text-primary flex-shrink-0" />
