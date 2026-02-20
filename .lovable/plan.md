@@ -1,38 +1,59 @@
 
+# Fix: Transizione stato da "richiesta_cliente" a "da_assegnare"
 
-## Fix: Sidebar completa per ruolo cliente
+## Causa Root
 
-### Stato attuale
-Le modifiche precedenti hanno aggiunto Dashboard, Servizi e Report per il cliente. Mancano ancora **Nuovo Servizio** e **Passeggeri**. Le rotte esistono gia in `App.tsx`.
+Il file `ServizioCreaPage.tsx` (linea 977) include `'richiesta_cliente'` nell'array `statiBloccati`. Quando l'admin modifica un servizio in edit mode, lo stato viene forzato a rimanere `'richiesta_cliente'` e scritto direttamente su Supabase (linea 1076), bypassando completamente `useServizi.ts` e `updateServizio.ts`.
 
-C'e anche un problema nel **grouping** della sidebar desktop: il codice raggruppa le voci per titolo (`['Dashboard', 'Servizi', 'Turni']`), quindi voci con titoli nuovi come "Nuovo Servizio" e "Passeggeri" non apparirebbero in nessun gruppo.
+## Il flusso attuale (DIFETTOSO)
 
-### Modifiche previste
+```text
+Admin apre servizio "richiesta_cliente"
+  -> ModificaServizioPage
+    -> ServizioCreaPage (mode="edit")
+      -> Admin aggiunge metodo_pagamento, salva
+        -> onSubmit() [linea 910]
+          -> statiBloccati include 'richiesta_cliente' [linea 977]
+          -> statoServizio = 'richiesta_cliente' (BLOCCATO!)
+          -> supabase.update({stato: 'richiesta_cliente'}) [linea 1076]
+          -> Stato NON cambia mai
+```
 
-#### 1. `src/components/layouts/sidebar/SidebarNavLinks.tsx`
-- Aggiungere 2 nuove voci nell'array `navItems` per il ruolo `cliente`:
-  - **Nuovo Servizio** (`/dashboard-cliente/nuovo-servizio`, icona `FileText`)
-  - **Passeggeri** (`/dashboard-cliente/passeggeri`, icona `Users`)
-- Aggiornare la logica di grouping (riga 146) per includere i nuovi titoli nel gruppo `main`:
-  - Da: `['Dashboard', 'Servizi', 'Turni']`
-  - A: `['Dashboard', 'Servizi', 'Turni', 'Nuovo Servizio', 'Passeggeri', 'Report']`
+## Modifica necessaria
 
-#### 2. `src/components/mobile/MobileSidebar.tsx`
-- Aggiungere 2 nuove voci nella sezione "Principale" (riga 43-50):
-  - **Nuovo Servizio** (`/dashboard-cliente/nuovo-servizio`, roles: `['cliente']`)
-  - **Passeggeri** (`/dashboard-cliente/passeggeri`, roles: `['cliente']`)
+**File**: `src/pages/servizi/ServizioCreaPage.tsx`
+**Linea 977**: Rimuovere `'richiesta_cliente'` dall'array `statiBloccati`
 
-#### 3. `src/components/mobile/BottomNavigation.tsx`
-- Aggiungere 2 nuove voci nell'array `allNavItems`:
-  - **Nuovo** (`/dashboard-cliente/nuovo-servizio`, roles: `['cliente']`)
-  - **Passeggeri** (`/dashboard-cliente/passeggeri`, roles: `['cliente']`)
+Da:
+```text
+const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato', 'richiesta_cliente'];
+```
 
-### Risultato per cliente
-- **Desktop sidebar**: 5 voci (Dashboard, Servizi, Nuovo Servizio, Passeggeri, Report)
-- **Mobile sidebar**: 5 voci (stesse)
-- **Bottom nav**: 5 icone (Dashboard, Servizi, Nuovo, Passeggeri, Report)
+A:
+```text
+const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato'];
+```
 
-### Nessuna modifica a
-- Voci menu esistenti per admin/socio/dipendente
-- Routing, AuthGuard, logica business, database
+Con questa modifica, quando admin modifica un servizio in `richiesta_cliente`, il codice cade nel ramo `else` (linee 983-998) che ricalcola lo stato in base alla presenza dell'autista:
+- Se autista assegnato: stato = `'assegnato'`
+- Se nessun autista: stato = `'da_assegnare'`
 
+## Flusso post-fix
+
+```text
+Admin apre servizio "richiesta_cliente"
+  -> onSubmit()
+    -> statiBloccati NON include 'richiesta_cliente'
+    -> Ramo else (linea 983): ricalcola stato
+    -> Se ha autista -> 'assegnato'
+    -> Se no autista -> 'da_assegnare'
+    -> supabase.update({stato: 'da_assegnare'})
+    -> Servizio esce da "Richieste Clienti" e va in "Da Assegnare"
+```
+
+## Scope
+
+- **1 file, 1 riga** da modificare
+- `src/pages/servizi/ServizioCreaPage.tsx` linea 977
+
+Nessun altro file da toccare. Le fix precedenti su `useServizi.ts` e `updateServizio.ts` non fanno male (sono corrette per altri flussi) ma non sono coinvolte in questo percorso specifico.
