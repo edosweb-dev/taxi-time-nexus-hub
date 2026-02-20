@@ -8,6 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -445,6 +446,9 @@ export const ServizioCreaPage = ({
 
   const watchAziendaId = form.watch("azienda_id");
   const watchReferenteId = form.watch("referente_id");
+
+
+
   const watchConducenteEsterno = form.watch("conducente_esterno");
   const watchMetodoPagamento = form.watch("metodo_pagamento");
   const watchTipoCliente = form.watch("tipo_cliente");
@@ -491,13 +495,26 @@ export const ServizioCreaPage = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("aziende")
-        .select("id, nome")
+        .select("id, nome, provvigione, provvigione_tipo, provvigione_valore")
         .order("nome");
       
       if (error) throw error;
       return data;
     },
   });
+
+  // Logica provvigione automatica
+  const aziendaSelezionata = aziende?.find(a => a.id === watchAziendaId);
+  const provvigioneObbligatoria = aziendaSelezionata?.provvigione === true;
+
+  useEffect(() => {
+    if (!aziendaSelezionata) return;
+    if (aziendaSelezionata.provvigione === true) {
+      form.setValue('applica_provvigione', true);
+    } else {
+      form.setValue('applica_provvigione', false);
+    }
+  }, [aziendaSelezionata, form]);
 
   // Query: Impostazioni (metodi pagamento e aliquote IVA)
   const { data: impostazioniData } = useQuery({
@@ -1830,18 +1847,33 @@ export const ServizioCreaPage = ({
 
               {/* Checkbox Provvigione */}
               <div className="flex items-center space-x-2 pl-0.5 mt-4">
-                <Controller
-                  name="applica_provvigione"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
-                    />
-                  )}
+                <Checkbox
+                  checked={form.watch('applica_provvigione') || false}
+                  onCheckedChange={(checked) => {
+                    if (!provvigioneObbligatoria) {
+                      form.setValue('applica_provvigione', checked === true);
+                    }
+                  }}
+                  disabled={provvigioneObbligatoria}
+                  className="h-5 w-5 flex-shrink-0"
                 />
-                <Label className="text-sm sm:text-base cursor-pointer">Applica Provvigione</Label>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Label className="text-sm sm:text-base cursor-pointer">
+                    Applica Provvigione
+                    {provvigioneObbligatoria && (
+                      <span className="text-xs text-muted-foreground ml-2">
+                        (obbligatoria per questa azienda)
+                      </span>
+                    )}
+                  </Label>
+                  {provvigioneObbligatoria && aziendaSelezionata && (
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      {aziendaSelezionata.provvigione_tipo === 'percentuale' 
+                        ? `${aziendaSelezionata.provvigione_valore}%` 
+                        : `€${aziendaSelezionata.provvigione_valore}`}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
@@ -2241,18 +2273,33 @@ export const ServizioCreaPage = ({
 
               {/* Checkbox Applica Provvigione */}
               <div className="flex items-center space-x-2 pl-0.5 mt-4">
-                <Controller
-                  name="applica_provvigione"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="h-5 w-5 flex-shrink-0 sm:h-5 sm:w-5"
-                    />
-                  )}
+                <Checkbox
+                  checked={form.watch('applica_provvigione') || false}
+                  onCheckedChange={(checked) => {
+                    if (!provvigioneObbligatoria) {
+                      form.setValue('applica_provvigione', checked === true);
+                    }
+                  }}
+                  disabled={provvigioneObbligatoria}
+                  className="h-5 w-5 flex-shrink-0"
                 />
-                <Label className="text-sm sm:text-base cursor-pointer">Applica Provvigione</Label>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Label className="text-sm sm:text-base cursor-pointer">
+                    Applica Provvigione
+                    {provvigioneObbligatoria && (
+                      <span className="text-xs text-muted-foreground ml-2">
+                        (obbligatoria per questa azienda)
+                      </span>
+                    )}
+                  </Label>
+                  {provvigioneObbligatoria && aziendaSelezionata && (
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      {aziendaSelezionata.provvigione_tipo === 'percentuale' 
+                        ? `${aziendaSelezionata.provvigione_valore}%` 
+                        : `€${aziendaSelezionata.provvigione_valore}`}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
