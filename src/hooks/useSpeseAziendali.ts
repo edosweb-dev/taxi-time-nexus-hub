@@ -355,13 +355,16 @@ export const useSpeseAziendali = () => {
             case 'prelievo':
               acc.prelievi += Number(movimento.importo);
               break;
+            case 'versamento':
+              acc.versamenti += Number(movimento.importo);
+              break;
           }
           return acc;
         },
-        { spese: 0, incassi: 0, prelievi: 0, saldo: 0 }
+        { spese: 0, incassi: 0, prelievi: 0, versamenti: 0, saldo: 0 }
       );
 
-      totali.saldo = totali.incassi - totali.spese - totali.prelievi;
+      totali.saldo = totali.incassi - totali.spese;
       return totali as TotaliMese;
     },
   });

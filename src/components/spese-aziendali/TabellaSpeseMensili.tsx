@@ -143,7 +143,7 @@ export function TabellaSpeseMensili() {
     .filter(m => m.tipo === 'pending')
     .reduce((sum, m) => sum + Number(m.importo), 0);
 
-  const saldo = totaliMese.incassi + totaliMese.versamenti - totaliMese.spese - totaliMese.prelievi;
+  const saldo = totaliMese.incassi - totaliMese.spese;
 
   const previousMonth = () => {
     setSelectedMonth(subMonths(selectedMonth, 1));
