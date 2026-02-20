@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Pencil, Home, Car, MapPin } from "lucide-react";
+import { X, Pencil, Home, Car, MapPin, ChevronUp, ChevronDown } from "lucide-react";
 
 export interface PasseggeroClienteData {
   id?: string;
@@ -33,6 +33,9 @@ interface PasseggeroClienteCardProps {
   cittaPresaServizio: string;
   indirizzoDestinazioneServizio: string;
   cittaDestinazioneServizio: string;
+  totalCount?: number;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }
 
 export const PasseggeroClienteCard = ({
@@ -44,6 +47,9 @@ export const PasseggeroClienteCard = ({
   cittaPresaServizio,
   indirizzoDestinazioneServizio,
   cittaDestinazioneServizio,
+  totalCount = 1,
+  onMoveUp,
+  onMoveDown,
 }: PasseggeroClienteCardProps) => {
   const presaTipo = passeggero._presa_tipo || 'servizio';
 
@@ -99,6 +105,16 @@ export const PasseggeroClienteCard = ({
           </div>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
+          {totalCount > 1 && (
+            <>
+              <Button type="button" variant="ghost" size="sm" onClick={onMoveUp} disabled={index === 0} className="h-8 w-8 p-0">
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={onMoveDown} disabled={index === totalCount - 1} className="h-8 w-8 p-0">
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </>
+          )}
           <Button type="button" variant="ghost" size="sm" onClick={onConfigura} className="h-8 w-8 p-0">
             <Pencil className="h-4 w-4" />
           </Button>
