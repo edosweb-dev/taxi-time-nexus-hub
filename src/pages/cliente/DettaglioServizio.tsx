@@ -171,7 +171,7 @@ const DettaglioServizio = () => {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-muted-foreground mb-0.5">
                           Partenza
-                          {primoPasseggero?.passeggeri?.nome_cognome && (
+                          {primoPasseggero?.passeggeri?.nome_cognome && passeggeriOrdinati.length === 1 && (
                             <span> - {primoPasseggero.passeggeri.nome_cognome}</span>
                           )}
                         </p>
