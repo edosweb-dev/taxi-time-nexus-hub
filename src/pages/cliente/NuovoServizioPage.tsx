@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,8 +23,9 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus, Mail, Trash2 } from 'lucide-react';
+import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus, Mail, Trash2, Check, ChevronsUpDown, Building, UserCircle } from 'lucide-react';
 import { useEmailNotifiche } from '@/hooks/useEmailNotifiche';
+import { cn } from '@/lib/utils';
 
 // Schema senza campi passeggero (gestiti via stato React)
 const formSchema = z.object({
@@ -57,6 +60,17 @@ export default function NuovoServizioPage() {
 
   // Email notifiche state
   const [emailNotificheIds, setEmailNotificheIds] = useState<string[]>([]);
+
+  // Tipo cliente state
+  const [tipoCliente, setTipoCliente] = useState<'azienda' | 'privato'>('azienda');
+  const [selectedClienteId, setSelectedClienteId] = useState<string>('');
+  const [clientiOpen, setClientiOpen] = useState(false);
+
+  // Nuovo cliente privato fields
+  const [nuovoClienteNome, setNuovoClienteNome] = useState('');
+  const [nuovoClienteCognome, setNuovoClienteCognome] = useState('');
+  const [nuovoClienteEmail, setNuovoClienteEmail] = useState('');
+  const [nuovoClienteTelefono, setNuovoClienteTelefono] = useState('');
 
   // Usa profilo da useAuth (supporta impersonificazione)
   const { profile: authProfile } = useAuth();
@@ -100,6 +114,21 @@ export default function NuovoServizioPage() {
     enabled: !!currentProfile?.azienda_id,
   });
 
+  // Clienti privati query
+  const { data: clientiAnagrafica = [] } = useQuery({
+    queryKey: ["clienti-privati-form"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('clienti_privati')
+        .select('*')
+        .order('cognome', { ascending: true })
+        .order('nome', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: tipoCliente === 'privato',
+  });
+
   // Email notifiche hook
   const { emailNotifiche, createEmailNotifica, deleteEmailNotifica, isCreating: isCreatingEmail } = useEmailNotifiche(currentProfile?.azienda_id);
 
@@ -108,6 +137,36 @@ export default function NuovoServizioPage() {
       setEmailNotificheIds(prev => [...prev, emailId]);
     } else {
       setEmailNotificheIds(prev => prev.filter(id => id !== emailId));
+    }
+  };
+
+  const handleTipoChange = (tipo: 'azienda' | 'privato') => {
+    setTipoCliente(tipo);
+    setSelectedClienteId('');
+    setNuovoClienteNome('');
+    setNuovoClienteCognome('');
+    setNuovoClienteEmail('');
+    setNuovoClienteTelefono('');
+    // Reset passeggeri when switching type
+    setPasseggeriSelezionati([]);
+    setEmailNotificheIds([]);
+  };
+
+  const handleSelectCliente = (clienteId: string) => {
+    setSelectedClienteId(clienteId);
+    if (clienteId && clienteId !== 'nuovo') {
+      const cliente = clientiAnagrafica.find(c => c.id === clienteId);
+      if (cliente) {
+        setNuovoClienteNome(cliente.nome);
+        setNuovoClienteCognome(cliente.cognome);
+        setNuovoClienteEmail(cliente.email || '');
+        setNuovoClienteTelefono(cliente.telefono || '');
+      }
+    } else if (clienteId === 'nuovo') {
+      setNuovoClienteNome('');
+      setNuovoClienteCognome('');
+      setNuovoClienteEmail('');
+      setNuovoClienteTelefono('');
     }
   };
 
@@ -215,6 +274,12 @@ export default function NuovoServizioPage() {
     setConfigDialogIndex(null);
   };
 
+  // Determine if form is ready to show remaining fields
+  const isClienteReady = tipoCliente === 'azienda' || 
+    (tipoCliente === 'privato' && selectedClienteId !== '' && 
+      (selectedClienteId !== 'nuovo' || (nuovoClienteNome.trim() && nuovoClienteCognome.trim()))
+    );
+
   // Mutation per creare servizio
   const createServizio = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
@@ -226,25 +291,43 @@ export default function NuovoServizioPage() {
         throw new Error("Seleziona almeno un passeggero");
       }
 
+      // Build insert data based on tipo_cliente
+      const insertData: Record<string, any> = {
+        created_by: user.id,
+        referente_id: user.id,
+        data_servizio: values.data_servizio,
+        orario_servizio: values.orario_servizio,
+        citta_presa: values.citta_presa || null,
+        indirizzo_presa: values.indirizzo_presa,
+        citta_destinazione: values.citta_destinazione || null,
+        indirizzo_destinazione: values.indirizzo_destinazione,
+        numero_commessa: values.numero_commessa || null,
+        note: values.note || null,
+        stato: "richiesta_cliente",
+        metodo_pagamento: "Da definire",
+        tipo_cliente: tipoCliente,
+      };
+
+      if (tipoCliente === 'azienda') {
+        insertData.azienda_id = currentProfile.azienda_id;
+      } else {
+        // Cliente privato
+        if (selectedClienteId && selectedClienteId !== 'nuovo') {
+          insertData.cliente_privato_id = selectedClienteId;
+          const cliente = clientiAnagrafica.find(c => c.id === selectedClienteId);
+          insertData.cliente_privato_nome = cliente?.nome || null;
+          insertData.cliente_privato_cognome = cliente?.cognome || null;
+        } else {
+          // Nuovo cliente - salva solo nome/cognome sul servizio
+          insertData.cliente_privato_nome = nuovoClienteNome || null;
+          insertData.cliente_privato_cognome = nuovoClienteCognome || null;
+        }
+      }
+
       // STEP 1: Crea servizio
       const { data: servizio, error: servizioError } = await supabase
         .from("servizi")
-        .insert({
-          tipo_cliente: "azienda",
-          azienda_id: currentProfile.azienda_id,
-          referente_id: user.id,
-          created_by: user.id,
-          data_servizio: values.data_servizio,
-          orario_servizio: values.orario_servizio,
-          citta_presa: values.citta_presa || null,
-          indirizzo_presa: values.indirizzo_presa,
-          citta_destinazione: values.citta_destinazione || null,
-          indirizzo_destinazione: values.indirizzo_destinazione,
-          numero_commessa: values.numero_commessa || null,
-          note: values.note || null,
-          stato: "richiesta_cliente",
-          metodo_pagamento: "Da definire",
-        })
+        .insert(insertData as any)
         .select()
         .single();
 
@@ -343,6 +426,10 @@ export default function NuovoServizioPage() {
       toast({ title: "Seleziona almeno un passeggero", variant: "destructive" });
       return;
     }
+    if (tipoCliente === 'privato' && !selectedClienteId) {
+      toast({ title: "Seleziona un cliente privato", variant: "destructive" });
+      return;
+    }
     createServizio.mutate(values);
   };
 
@@ -366,275 +453,473 @@ export default function NuovoServizioPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 
-                {/* SEZIONE: Quando */}
+                {/* SEZIONE: Tipo Cliente */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-primary" />
-                    Quando
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="data_servizio"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data Servizio *</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="orario_servizio"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Orario *</FormLabel>
-                          <FormControl>
-                            <Input type="time" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <h3 className="text-lg font-semibold">Chi richiede il servizio?</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant={tipoCliente === 'azienda' ? 'default' : 'outline'}
+                      className="h-auto py-3 flex flex-col items-center gap-1"
+                      onClick={() => handleTipoChange('azienda')}
+                    >
+                      <Building className="h-5 w-5" />
+                      <span className="text-sm">Azienda</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={tipoCliente === 'privato' ? 'default' : 'outline'}
+                      className="h-auto py-3 flex flex-col items-center gap-1"
+                      onClick={() => handleTipoChange('privato')}
+                    >
+                      <UserCircle className="h-5 w-5" />
+                      <span className="text-sm">Cliente Privato</span>
+                    </Button>
                   </div>
                 </div>
 
-                <Separator />
+                {/* SEZIONE: Selezione Cliente Privato */}
+                {tipoCliente === 'privato' && (
+                  <>
+                    <Separator />
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <UserCircle className="h-5 w-5 text-primary" />
+                        Clienti in Anagrafica
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Seleziona un cliente già salvato oppure crea un nuovo cliente qui sotto
+                      </p>
 
-                {/* SEZIONE: Dove */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    Dove
-                  </h3>
+                      <Popover open={clientiOpen} onOpenChange={setClientiOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={clientiOpen}
+                            className="w-full justify-between font-normal"
+                          >
+                            {selectedClienteId === "nuovo"
+                              ? "✨ Nuovo cliente"
+                              : selectedClienteId
+                                ? (() => {
+                                    const c = clientiAnagrafica.find(c => c.id === selectedClienteId);
+                                    return c ? `${c.nome} ${c.cognome}` : "Seleziona cliente...";
+                                  })()
+                                : "Seleziona cliente..."
+                            }
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Cerca per nome o cognome..." />
+                            <CommandList>
+                              <CommandEmpty>Nessun cliente trovato.</CommandEmpty>
+                              <CommandGroup>
+                                <CommandItem
+                                  onSelect={() => {
+                                    handleSelectCliente("nuovo");
+                                    setClientiOpen(false);
+                                  }}
+                                >
+                                  <UserPlus className="mr-2 h-4 w-4" />
+                                  Nuovo cliente
+                                </CommandItem>
+                                {clientiAnagrafica.map((cliente) => (
+                                  <CommandItem
+                                    key={cliente.id}
+                                    value={`${cliente.nome} ${cliente.cognome} ${cliente.email || ''}`}
+                                    onSelect={() => {
+                                      handleSelectCliente(cliente.id);
+                                      setClientiOpen(false);
+                                    }}
+                                  >
+                                    <Check className={cn("mr-2 h-4 w-4", selectedClienteId === cliente.id ? "opacity-100" : "opacity-0")} />
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">{cliente.nome} {cliente.cognome}</span>
+                                      {cliente.email && (
+                                        <span className="text-xs text-muted-foreground">{cliente.email}</span>
+                                      )}
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
 
-                  {/* Partenza */}
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-muted-foreground">Partenza</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="citta_presa"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Città</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Milano" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {/* Form nuovo cliente inline */}
+                      {selectedClienteId === 'nuovo' && (
+                        <div className="space-y-3 rounded-lg bg-primary/5 p-4 border border-primary/20">
+                          <p className="text-sm font-medium">Dati nuovo cliente</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-sm">Nome *</Label>
+                              <Input
+                                placeholder="Mario"
+                                value={nuovoClienteNome}
+                                onChange={(e) => setNuovoClienteNome(e.target.value)}
+                                className="bg-background"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Cognome *</Label>
+                              <Input
+                                placeholder="Rossi"
+                                value={nuovoClienteCognome}
+                                onChange={(e) => setNuovoClienteCognome(e.target.value)}
+                                className="bg-background"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-sm">Email</Label>
+                              <Input
+                                type="email"
+                                placeholder="mario@example.com"
+                                value={nuovoClienteEmail}
+                                onChange={(e) => setNuovoClienteEmail(e.target.value)}
+                                className="bg-background"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Telefono</Label>
+                              <Input
+                                placeholder="+39 123 456 7890"
+                                value={nuovoClienteTelefono}
+                                onChange={(e) => setNuovoClienteTelefono(e.target.value)}
+                                className="bg-background"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
-                      <FormField
-                        control={form.control}
-                        name="indirizzo_presa"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Indirizzo di Presa *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Via Roma 123" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {/* Preview cliente selezionato */}
+                      {selectedClienteId && selectedClienteId !== 'nuovo' && (() => {
+                        const c = clientiAnagrafica.find(c => c.id === selectedClienteId);
+                        if (!c) return null;
+                        return (
+                          <div className="rounded-lg bg-primary/5 p-4 border border-primary/20">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium">{c.nome} {c.cognome}</p>
+                                <div className="text-sm text-muted-foreground space-y-0.5">
+                                  {c.email && <p>{c.email}</p>}
+                                  {c.telefono && <p>{c.telefono}</p>}
+                                  {c.indirizzo && <p>{c.indirizzo}{c.citta ? `, ${c.citta}` : ''}</p>}
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedClienteId('')}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
-                  </div>
+                  </>
+                )}
 
-                  {/* Destinazione */}
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-muted-foreground">Destinazione</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="citta_destinazione"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Città</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Ferno" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                {/* SEZIONE: Quando - always for azienda, after client for privato */}
+                {isClienteReady && (
+                  <>
+                    <Separator />
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-primary" />
+                        Quando
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="data_servizio"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Data Servizio *</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name="indirizzo_destinazione"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Indirizzo di Destinazione *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Aeroporto Malpensa" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* SEZIONE: Passeggeri */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <User className="h-5 w-5 text-primary" />
-                    Passeggeri
-                  </h3>
-
-                  {/* Lista passeggeri aggiunti */}
-                  {passeggeriSelezionati.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">
-                        Passeggeri selezionati ({passeggeriSelezionati.length})
-                      </Label>
-                      <div className="space-y-3">
-                        {passeggeriSelezionati.map((p, index) => (
-                          <PasseggeroClienteCard
-                            key={`${p.id || p.nome_cognome}-${index}`}
-                            passeggero={p}
-                            index={index}
-                            totalCount={passeggeriSelezionati.length}
-                            onRemove={() => rimuoviPasseggero(index)}
-                            onConfigura={() => {
-                              setConfigDialogIndex(index);
-                              setConfigDialogOpen(true);
-                            }}
-                            onMoveUp={() => handleMovePasseggero(index, 'up')}
-                            onMoveDown={() => handleMovePasseggero(index, 'down')}
-                            indirizzoPresaServizio={form.watch('indirizzo_presa') || ''}
-                            cittaPresaServizio={form.watch('citta_presa') || ''}
-                            indirizzoDestinazioneServizio={form.watch('indirizzo_destinazione') || ''}
-                            cittaDestinazioneServizio={form.watch('citta_destinazione') || ''}
-                          />
-                        ))}
+                        <FormField
+                          control={form.control}
+                          name="orario_servizio"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Orario *</FormLabel>
+                              <FormControl>
+                                <Input type="time" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     </div>
-                  )}
+                  </>
+                )}
 
-                  {/* Aggiungi dalla rubrica */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">Aggiungi dalla rubrica</Label>
-                    <Select
-                      onValueChange={aggiungiDaRubrica}
-                      value=""
-                      disabled={isLoadingPasseggeri}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={
-                          isLoadingPasseggeri 
-                            ? "Caricamento..." 
-                            : passeggeri.length === 0
-                              ? "Nessun passeggero in rubrica"
-                              : "Seleziona passeggero da aggiungere"
-                        } />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {passeggeri.length > 0 ? (
-                          passeggeri
-                            .filter(p => !passeggeriSelezionati.some(s => s.id === p.id))
-                            .map((p) => (
-                              <SelectItem key={p.id} value={p.id}>
-                                {p.nome_cognome}
-                                {p.telefono && ` • ${p.telefono}`}
-                              </SelectItem>
-                            ))
-                        ) : (
-                          <SelectItem value="empty" disabled>
-                            Nessun passeggero disponibile
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    {passeggeri.length === 0 && !isLoadingPasseggeri && (
-                      <FormDescription className="text-sm text-muted-foreground">
-                        Non hai ancora passeggeri in rubrica.{" "}
-                        <a 
-                          href="/dashboard-cliente/passeggeri" 
-                          target="_blank"
-                          className="text-primary hover:underline"
-                        >
-                          Vai alla rubrica
-                        </a>
-                      </FormDescription>
-                    )}
-                  </div>
+                {/* SEZIONE: Dove */}
+                {isClienteReady && (
+                  <>
+                    <Separator />
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-primary" />
+                        Dove
+                      </h3>
 
-                  {/* Bottone crea nuovo */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowNuovoDialog(true)}
-                    className="w-full"
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Crea Nuovo Passeggero
-                  </Button>
+                      {/* Partenza */}
+                      <div className="space-y-3">
+                        <p className="text-sm font-medium text-muted-foreground">Partenza</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="citta_presa"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Città</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Milano" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                  {/* Messaggio se nessun passeggero */}
-                  {passeggeriSelezionati.length === 0 && (
-                    <p className="text-sm text-destructive">
-                      Seleziona almeno un passeggero dalla rubrica o creane uno nuovo
-                    </p>
-                  )}
-                </div>
+                          <FormField
+                            control={form.control}
+                            name="indirizzo_presa"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Indirizzo di Presa *</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Via Roma 123" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
 
-                <Separator />
+                      {/* Destinazione */}
+                      <div className="space-y-3">
+                        <p className="text-sm font-medium text-muted-foreground">Destinazione</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="citta_destinazione"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Città</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Ferno" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="indirizzo_destinazione"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Indirizzo di Destinazione *</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Aeroporto Malpensa" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* SEZIONE: Passeggeri */}
+                {isClienteReady && (
+                  <>
+                    <Separator />
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <User className="h-5 w-5 text-primary" />
+                        Passeggeri
+                      </h3>
+
+                      {/* Lista passeggeri aggiunti */}
+                      {passeggeriSelezionati.length > 0 && (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Passeggeri selezionati ({passeggeriSelezionati.length})
+                          </Label>
+                          {passeggeriSelezionati.length > 1 && (
+                            <p className="text-xs text-muted-foreground">
+                              Usa le frecce ▲▼ per riordinare la sequenza di pick-up
+                            </p>
+                          )}
+                          <div className="space-y-3">
+                            {passeggeriSelezionati.map((p, index) => (
+                              <PasseggeroClienteCard
+                                key={`${p.id || p.nome_cognome}-${index}`}
+                                passeggero={p}
+                                index={index}
+                                totalCount={passeggeriSelezionati.length}
+                                onRemove={() => rimuoviPasseggero(index)}
+                                onConfigura={() => {
+                                  setConfigDialogIndex(index);
+                                  setConfigDialogOpen(true);
+                                }}
+                                onMoveUp={() => handleMovePasseggero(index, 'up')}
+                                onMoveDown={() => handleMovePasseggero(index, 'down')}
+                                indirizzoPresaServizio={form.watch('indirizzo_presa') || ''}
+                                cittaPresaServizio={form.watch('citta_presa') || ''}
+                                indirizzoDestinazioneServizio={form.watch('indirizzo_destinazione') || ''}
+                                cittaDestinazioneServizio={form.watch('citta_destinazione') || ''}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Aggiungi dalla rubrica */}
+                      {tipoCliente === 'azienda' && (
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium">Aggiungi dalla rubrica</Label>
+                          <Select
+                            onValueChange={aggiungiDaRubrica}
+                            value=""
+                            disabled={isLoadingPasseggeri}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={
+                                isLoadingPasseggeri 
+                                  ? "Caricamento..." 
+                                  : passeggeri.length === 0
+                                    ? "Nessun passeggero in rubrica"
+                                    : "Seleziona passeggero da aggiungere"
+                              } />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {passeggeri.length > 0 ? (
+                                passeggeri
+                                  .filter(p => !passeggeriSelezionati.some(s => s.id === p.id))
+                                  .map((p) => (
+                                    <SelectItem key={p.id} value={p.id}>
+                                      {p.nome_cognome}
+                                      {p.telefono && ` • ${p.telefono}`}
+                                    </SelectItem>
+                                  ))
+                              ) : (
+                                <SelectItem value="empty" disabled>
+                                  Nessun passeggero disponibile
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          {passeggeri.length === 0 && !isLoadingPasseggeri && (
+                            <FormDescription className="text-sm text-muted-foreground">
+                              Non hai ancora passeggeri in rubrica.{" "}
+                              <a 
+                                href="/dashboard-cliente/passeggeri" 
+                                target="_blank"
+                                className="text-primary hover:underline"
+                              >
+                                Vai alla rubrica
+                              </a>
+                            </FormDescription>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Bottone crea nuovo */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowNuovoDialog(true)}
+                        className="w-full"
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Crea Nuovo Passeggero
+                      </Button>
+
+                      {/* Messaggio se nessun passeggero */}
+                      {passeggeriSelezionati.length === 0 && (
+                        <p className="text-sm text-destructive">
+                          Seleziona almeno un passeggero dalla rubrica o creane uno nuovo
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 {/* SEZIONE: Info Aggiuntive */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    Informazioni Aggiuntive
-                  </h3>
+                {isClienteReady && (
+                  <>
+                    <Separator />
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        Informazioni Aggiuntive
+                      </h3>
 
-                  <FormField
-                    control={form.control}
-                    name="numero_commessa"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Numero Commessa</FormLabel>
-                        <FormControl>
-                          <Input placeholder="COM-2025-001" {...field} />
-                        </FormControl>
-                        <FormDescription className="text-xs">
-                          Opzionale - Inserisci il numero di commessa se disponibile
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="numero_commessa"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Numero Commessa</FormLabel>
+                            <FormControl>
+                              <Input placeholder="COM-2025-001" {...field} />
+                            </FormControl>
+                            <FormDescription className="text-xs">
+                              Opzionale - Inserisci il numero di commessa se disponibile
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormField
-                    control={form.control}
-                    name="note"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Note</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Eventuali note o richieste particolari..."
-                            className="min-h-[100px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                      <FormField
+                        control={form.control}
+                        name="note"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Note</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Eventuali note o richieste particolari..."
+                                className="min-h-[100px] resize-none"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </>
+                )}
 
-                {/* SEZIONE: Email Notifiche */}
-                {currentProfile?.azienda_id && (
+                {/* SEZIONE: Email Notifiche - solo azienda */}
+                {tipoCliente === 'azienda' && currentProfile?.azienda_id && isClienteReady && (
                   <>
                     <Separator />
                     <div className="space-y-4">
@@ -682,24 +967,26 @@ export default function NuovoServizioPage() {
                 )}
 
                 {/* SUBMIT BUTTON */}
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  disabled={createServizio.isPending || isLoadingProfile || passeggeriSelezionati.length === 0}
-                >
-                  {createServizio.isPending ? (
-                    <>
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Invio richiesta...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-5 w-5 mr-2" />
-                      Richiedi Servizio
-                    </>
-                  )}
-                </Button>
+                {isClienteReady && (
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    size="lg"
+                    disabled={createServizio.isPending || isLoadingProfile || passeggeriSelezionati.length === 0}
+                  >
+                    {createServizio.isPending ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Invio richiesta...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-5 w-5 mr-2" />
+                        Richiedi Servizio
+                      </>
+                    )}
+                  </Button>
+                )}
               </form>
             </Form>
           </CardContent>
