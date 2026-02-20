@@ -195,9 +195,11 @@ export default function NuovoServizioPage() {
         updated[configDialogIndex] = {
           ...updated[configDialogIndex],
           _presa_tipo: config.presaTipo,
-          _destinazione_tipo: config.destinazioneTipo === 'servizio' ? 'servizio' : 'personalizzato',
+          _destinazione_tipo: config.destinazioneTipo,
           _usa_orario_servizio: config.usaOrarioServizio,
-          usa_indirizzo_personalizzato: config.presaTipo !== 'servizio' || config.destinazioneTipo !== 'servizio',
+          usa_indirizzo_personalizzato: 
+            config.presaTipo !== 'passeggero' && 
+            config.presaTipo !== 'primo_passeggero',
           luogo_presa_personalizzato: config.luogoPresa || undefined,
           localita_presa_personalizzato: config.localitaPresa || undefined,
           orario_presa_personalizzato: config.orarioPresaPersonalizzato || undefined,
@@ -722,6 +724,12 @@ export default function NuovoServizioPage() {
             if (!open) setConfigDialogIndex(null);
           }}
           passeggero={configPasseggero}
+          index={configDialogIndex ?? 0}
+          primoPasseggero={
+            configDialogIndex !== null && configDialogIndex > 0
+              ? passeggeriSelezionati[0]
+              : undefined
+          }
           datiServizio={{
             indirizzoPresaServizio: form.watch('indirizzo_presa') || '',
             cittaPresaServizio: form.watch('citta_presa') || '',

@@ -19,8 +19,8 @@ export interface PasseggeroClienteData {
   destinazione_personalizzato?: string;
   localita_destinazione_personalizzato?: string;
   ordine_presa?: number;
-  _presa_tipo?: 'servizio' | 'passeggero' | 'personalizzato';
-  _destinazione_tipo?: 'servizio' | 'passeggero' | 'personalizzato';
+  _presa_tipo?: 'servizio' | 'passeggero' | 'personalizzato' | 'primo_passeggero';
+  _destinazione_tipo?: 'servizio' | 'passeggero' | 'personalizzato' | 'primo_passeggero';
   _usa_orario_servizio?: boolean;
 }
 
