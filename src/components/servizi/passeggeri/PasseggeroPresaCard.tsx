@@ -283,64 +283,68 @@ export const PasseggeroPresaCard = ({
           </div>
         )}
 
-        {/* Orario presa - SEMPRE visibile */}
-        <div className="flex items-center gap-2 pt-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">Orario presa</span>
-        </div>
-        
-        {isFirst ? (
-          <div className="space-y-2 pl-6">
-            <Controller
-              control={control}
-              name={`passeggeri.${index}.presa_usa_orario_servizio`}
-              defaultValue={true}
-              render={({ field }) => (
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`usa-orario-${index}`}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                  <Label htmlFor={`usa-orario-${index}`} className="font-normal text-sm cursor-pointer">
-                    Usa orario servizio ({orarioServizio || 'non impostato'})
-                  </Label>
-                </div>
-              )}
-            />
+        {/* Orario presa - visibile solo se indirizzo diverso dal primo */}
+        {(isFirst || passeggero.presa_tipo !== 'primo_passeggero') && (
+          <>
+            <div className="flex items-center gap-2 pt-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Orario presa</span>
+            </div>
             
-            {!passeggero.presa_usa_orario_servizio && (
-              <Controller
-                control={control}
-                name={`passeggeri.${index}.presa_orario`}
-                defaultValue=""
-                render={({ field }) => (
-                  <Input {...field} type="time" className="w-32" />
-                )}
-              />
-            )}
-          </div>
-        ) : (
-          <div className="pl-6">
-            <Controller
-              control={control}
-              name={`passeggeri.${index}.presa_orario`}
-              defaultValue=""
-              render={({ field }) => (
-                <div className="space-y-1">
-                  <Input 
-                    {...field} 
-                    type="time" 
-                    className="w-32" 
-                    placeholder={orarioServizio || ''}
+            {isFirst ? (
+              <div className="space-y-2 pl-6">
+                <Controller
+                  control={control}
+                  name={`passeggeri.${index}.presa_usa_orario_servizio`}
+                  defaultValue={true}
+                  render={({ field }) => (
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`usa-orario-${index}`}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <Label htmlFor={`usa-orario-${index}`} className="font-normal text-sm cursor-pointer">
+                        Usa orario servizio ({orarioServizio || 'non impostato'})
+                      </Label>
+                    </div>
+                  )}
+                />
+                
+                {!passeggero.presa_usa_orario_servizio && (
+                  <Controller
+                    control={control}
+                    name={`passeggeri.${index}.presa_orario`}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <Input {...field} type="time" className="w-32" />
+                    )}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {field.value ? 'Orario personalizzato' : `Se vuoto, usa orario servizio (${orarioServizio || 'non impostato'})`}
-                  </p>
-                </div>
-              )}
-            />
-          </div>
+                )}
+              </div>
+            ) : (
+              <div className="pl-6">
+                <Controller
+                  control={control}
+                  name={`passeggeri.${index}.presa_orario`}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <div className="space-y-1">
+                      <Input 
+                        {...field} 
+                        type="time" 
+                        className="w-32" 
+                        placeholder={orarioServizio || ''}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {field.value ? 'Orario personalizzato' : `Se vuoto, usa orario servizio (${orarioServizio || 'non impostato'})`}
+                      </p>
+                    </div>
+                  )}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -360,7 +364,6 @@ export const PasseggeroPresaCard = ({
               value={field.value || 'personalizzato'} 
               onValueChange={(val) => {
                 field.onChange(val);
-                // Se "Stesso del primo", copia dati
                 if (val === 'primo_passeggero' && primoPasseggero) {
                   if (primoPasseggero.destinazione_tipo === 'personalizzato') {
                     setValue(`passeggeri.${index}.destinazione_indirizzo_custom`, primoPasseggero.destinazione_indirizzo_custom || '');
@@ -373,7 +376,6 @@ export const PasseggeroPresaCard = ({
                 <SelectValue placeholder="Seleziona destinazione" />
               </SelectTrigger>
               <SelectContent>
-                {/* Stesso del primo - solo per passeggeri successivi */}
                 {index > 0 && primoPasseggero && (
                   <SelectItem value="primo_passeggero">
                     <span className="flex flex-col items-start">
@@ -388,7 +390,6 @@ export const PasseggeroPresaCard = ({
                   </SelectItem>
                 )}
                 
-                {/* Indirizzo passeggero */}
                 {hasIndirizzoRubrica && (
                   <SelectItem value="passeggero">
                     <span className="flex flex-col items-start">
@@ -401,7 +402,6 @@ export const PasseggeroPresaCard = ({
                   </SelectItem>
                 )}
                 
-                {/* Personalizzato */}
                 <SelectItem value="personalizzato">
                   <span className="flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5" />
@@ -413,7 +413,6 @@ export const PasseggeroPresaCard = ({
           )}
         />
 
-        {/* Campi indirizzo personalizzato destinazione */}
         {passeggero.destinazione_tipo === 'personalizzato' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -441,7 +440,6 @@ export const PasseggeroPresaCard = ({
           </div>
         )}
 
-        {/* Preview per "Stesso del primo" */}
         {passeggero.destinazione_tipo === 'primo_passeggero' && primoPasseggero && (
           <div className="text-sm text-muted-foreground pl-4 border-l-2 border-primary/30">
             📍 {getIndirizzoDestinazionePrimo(primoPasseggero)}
