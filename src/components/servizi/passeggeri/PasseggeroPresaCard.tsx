@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronUp, ChevronDown, Trash2, MapPin, Clock, Navigation } from "lucide-react";
+import { ChevronUp, ChevronDown, Trash2, MapPin, Clock, Navigation, Users, Home } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,17 +30,19 @@ export interface PasseggeroPresaData {
   nome_cognome: string;
   nome?: string;
   cognome?: string;
+  indirizzo?: string;
+  localita?: string;
   indirizzo_rubrica?: string;
   localita_rubrica?: string;
   email?: string;
   telefono?: string;
   ordine: number;
-  presa_tipo: 'servizio' | 'passeggero' | 'personalizzato';
+  presa_tipo: 'servizio' | 'passeggero' | 'personalizzato' | 'primo_passeggero';
   presa_indirizzo_custom: string;
   presa_citta_custom: string;
   presa_orario: string;
   presa_usa_orario_servizio: boolean;
-  destinazione_tipo: 'servizio' | 'passeggero' | 'personalizzato';
+  destinazione_tipo: 'servizio' | 'passeggero' | 'personalizzato' | 'primo_passeggero';
   destinazione_indirizzo_custom: string;
   destinazione_citta_custom: string;
 }
@@ -57,7 +59,38 @@ interface PasseggeroPresaCardProps {
   cittaDestinazioneServizio?: string;
   isFirst: boolean;
   onRemove: () => void;
+  primoPasseggero?: PasseggeroPresaData;
 }
+
+// Helper: indirizzo presa del primo passeggero
+const getIndirizzoPresaPrimo = (primo: PasseggeroPresaData): string => {
+  if (primo.presa_tipo === 'personalizzato') {
+    return primo.presa_indirizzo_custom
+      ? [primo.presa_indirizzo_custom, primo.presa_citta_custom].filter(Boolean).join(', ')
+      : 'Non specificato';
+  }
+  if (primo.presa_tipo === 'passeggero') {
+    const addr = primo.indirizzo_rubrica || primo.indirizzo || '';
+    const loc = primo.localita_rubrica || primo.localita || '';
+    return addr ? [addr, loc].filter(Boolean).join(', ') : 'Non specificato';
+  }
+  return 'Non specificato';
+};
+
+// Helper: indirizzo destinazione del primo passeggero
+const getIndirizzoDestinazionePrimo = (primo: PasseggeroPresaData): string => {
+  if (primo.destinazione_tipo === 'personalizzato') {
+    return primo.destinazione_indirizzo_custom
+      ? [primo.destinazione_indirizzo_custom, primo.destinazione_citta_custom].filter(Boolean).join(', ')
+      : 'Non specificato';
+  }
+  if (primo.destinazione_tipo === 'passeggero') {
+    const addr = primo.indirizzo_rubrica || primo.indirizzo || '';
+    const loc = primo.localita_rubrica || primo.localita || '';
+    return addr ? [addr, loc].filter(Boolean).join(', ') : 'Non specificato';
+  }
+  return 'Non specificato';
+};
 
 export const PasseggeroPresaCard = ({
   index,
@@ -71,6 +104,7 @@ export const PasseggeroPresaCard = ({
   cittaDestinazioneServizio,
   isFirst,
   onRemove,
+  primoPasseggero,
 }: PasseggeroPresaCardProps) => {
   const { control, setValue } = useFormContext();
   const passeggero = useWatch({ control, name: `passeggeri.${index}` });
@@ -82,55 +116,34 @@ export const PasseggeroPresaCard = ({
   const nomeCompleto = `${nome} ${cognome}`.trim() || passeggero.nome_cognome || `Passeggero ${index + 1}`;
   const hasIndirizzoRubrica = Boolean(passeggero.indirizzo_rubrica || passeggero.indirizzo || passeggero.localita);
   const indirizzoRubricaDisplay = [passeggero.indirizzo || passeggero.indirizzo_rubrica, passeggero.localita || passeggero.localita_rubrica].filter(Boolean).join(', ');
-  const indirizzoServizioDisplay = [indirizzoServizio, cittaServizio].filter(Boolean).join(', ');
-  const destinazioneServizioDisplay = [destinazioneServizio, cittaDestinazioneServizio].filter(Boolean).join(', ');
+
+  const primoNome = primoPasseggero
+    ? (`${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim() || primoPasseggero.nome_cognome || 'Passeggero 1')
+    : 'Passeggero 1';
 
   return (
     <Card className="p-4 space-y-4">
       {/* Header con frecce su/giù */}
       <div className="flex items-center gap-3">
-        {/* Frecce su/giù */}
         {totalCount > 1 && (
           <div className="flex flex-col gap-0.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 p-0"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onMoveUp();
-              }}
-              disabled={index === 0}
-              title="Sposta su"
-            >
+            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 p-0"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMoveUp(); }}
+              disabled={index === 0} title="Sposta su">
               <ChevronUp className="h-4 w-4" />
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 p-0"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onMoveDown();
-              }}
-              disabled={index === totalCount - 1}
-              title="Sposta giù"
-            >
+            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 p-0"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMoveDown(); }}
+              disabled={index === totalCount - 1} title="Sposta giù">
               <ChevronDown className="h-4 w-4" />
             </Button>
           </div>
         )}
         
-        {/* Numero ordine */}
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex-shrink-0">
           {index + 1}
         </div>
         
-        {/* Nome passeggero */}
         <div className="flex-1 min-w-0">
           <div className="font-medium truncate">{nomeCompleto}</div>
           <div className="text-xs text-muted-foreground">
@@ -140,12 +153,7 @@ export const PasseggeroPresaCard = ({
         
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            >
+            <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
               <Trash2 className="h-4 w-4" />
             </Button>
           </AlertDialogTrigger>
@@ -176,24 +184,18 @@ export const PasseggeroPresaCard = ({
         <Controller
           control={control}
           name={`passeggeri.${index}.presa_tipo`}
-          defaultValue={hasIndirizzoRubrica ? "passeggero" : "servizio"}
+          defaultValue={hasIndirizzoRubrica ? "passeggero" : "personalizzato"}
           render={({ field }) => (
             <Select 
-              value={field.value || 'servizio'} 
+              value={field.value || 'personalizzato'} 
               onValueChange={(val) => {
                 field.onChange(val);
-                // Sincronizza primo passeggero con percorso principale
-                if (index === 0 && val === 'passeggero') {
-                  const indirizzoRubrica = passeggero?.indirizzo || passeggero?.indirizzo_rubrica || '';
-                  const localitaRubrica = passeggero?.localita || passeggero?.localita_rubrica || '';
-                  setValue('partenza_tipo', 'passeggero');
-                  setValue('partenza_passeggero_index', 0);
-                  setValue('citta_presa', localitaRubrica);
-                  setValue('indirizzo_presa', indirizzoRubrica);
-                  console.log('[PasseggeroPresaCard] ✅ Sincronizzato PRESA con passeggero:', {
-                    citta: localitaRubrica,
-                    indirizzo: indirizzoRubrica
-                  });
+                // Se "Stesso del primo", copia dati
+                if (val === 'primo_passeggero' && primoPasseggero) {
+                  if (primoPasseggero.presa_tipo === 'personalizzato') {
+                    setValue(`passeggeri.${index}.presa_indirizzo_custom`, primoPasseggero.presa_indirizzo_custom || '');
+                    setValue(`passeggeri.${index}.presa_citta_custom`, primoPasseggero.presa_citta_custom || '');
+                  }
                 }
               }}
             >
@@ -201,24 +203,40 @@ export const PasseggeroPresaCard = ({
                 <SelectValue placeholder="Seleziona punto di presa" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="servizio">
-                  <span className="flex flex-col items-start">
-                    <span>Partenza servizio</span>
-                    {indirizzoServizioDisplay && (
-                      <span className="text-xs text-muted-foreground">({indirizzoServizioDisplay})</span>
-                    )}
-                  </span>
-                </SelectItem>
+                {/* Stesso del primo - solo per passeggeri successivi */}
+                {index > 0 && primoPasseggero && (
+                  <SelectItem value="primo_passeggero">
+                    <span className="flex flex-col items-start">
+                      <span className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5" />
+                        Stesso del primo ({primoNome})
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {getIndirizzoPresaPrimo(primoPasseggero)}
+                      </span>
+                    </span>
+                  </SelectItem>
+                )}
+                
+                {/* Indirizzo passeggero dalla rubrica */}
                 {hasIndirizzoRubrica && (
                   <SelectItem value="passeggero">
                     <span className="flex flex-col items-start">
-                      <span>Indirizzo passeggero</span>
+                      <span className="flex items-center gap-1.5">
+                        <Home className="h-3.5 w-3.5" />
+                        Indirizzo passeggero
+                      </span>
                       <span className="text-xs text-muted-foreground">({indirizzoRubricaDisplay})</span>
                     </span>
                   </SelectItem>
                 )}
+                
+                {/* Personalizzato */}
                 <SelectItem value="personalizzato">
-                  Altro indirizzo...
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    Altro indirizzo...
+                  </span>
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -250,6 +268,13 @@ export const PasseggeroPresaCard = ({
                 )}
               />
             </div>
+          </div>
+        )}
+
+        {/* Preview per "Stesso del primo" */}
+        {passeggero.presa_tipo === 'primo_passeggero' && primoPasseggero && (
+          <div className="text-sm text-muted-foreground pl-4 border-l-2 border-primary/30">
+            📍 {getIndirizzoPresaPrimo(primoPasseggero)}
           </div>
         )}
 
@@ -319,24 +344,18 @@ export const PasseggeroPresaCard = ({
         <Controller
           control={control}
           name={`passeggeri.${index}.destinazione_tipo`}
-          defaultValue="servizio"
+          defaultValue="personalizzato"
           render={({ field }) => (
             <Select 
-              value={field.value || 'servizio'} 
+              value={field.value || 'personalizzato'} 
               onValueChange={(val) => {
                 field.onChange(val);
-                // Sincronizza primo passeggero con percorso principale
-                if (index === 0 && val === 'passeggero') {
-                  const indirizzoRubrica = passeggero?.indirizzo || passeggero?.indirizzo_rubrica || '';
-                  const localitaRubrica = passeggero?.localita || passeggero?.localita_rubrica || '';
-                  setValue('destinazione_tipo', 'passeggero');
-                  setValue('destinazione_passeggero_index', 0);
-                  setValue('citta_destinazione', localitaRubrica);
-                  setValue('indirizzo_destinazione', indirizzoRubrica);
-                  console.log('[PasseggeroPresaCard] ✅ Sincronizzato DESTINAZIONE con passeggero:', {
-                    citta: localitaRubrica,
-                    indirizzo: indirizzoRubrica
-                  });
+                // Se "Stesso del primo", copia dati
+                if (val === 'primo_passeggero' && primoPasseggero) {
+                  if (primoPasseggero.destinazione_tipo === 'personalizzato') {
+                    setValue(`passeggeri.${index}.destinazione_indirizzo_custom`, primoPasseggero.destinazione_indirizzo_custom || '');
+                    setValue(`passeggeri.${index}.destinazione_citta_custom`, primoPasseggero.destinazione_citta_custom || '');
+                  }
                 }
               }}
             >
@@ -344,24 +363,40 @@ export const PasseggeroPresaCard = ({
                 <SelectValue placeholder="Seleziona destinazione" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="servizio">
-                  <span className="flex flex-col items-start">
-                    <span>Destinazione servizio</span>
-                    {destinazioneServizioDisplay && (
-                      <span className="text-xs text-muted-foreground">({destinazioneServizioDisplay})</span>
-                    )}
-                  </span>
-                </SelectItem>
+                {/* Stesso del primo - solo per passeggeri successivi */}
+                {index > 0 && primoPasseggero && (
+                  <SelectItem value="primo_passeggero">
+                    <span className="flex flex-col items-start">
+                      <span className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5" />
+                        Stesso del primo ({primoNome})
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {getIndirizzoDestinazionePrimo(primoPasseggero)}
+                      </span>
+                    </span>
+                  </SelectItem>
+                )}
+                
+                {/* Indirizzo passeggero */}
                 {hasIndirizzoRubrica && (
                   <SelectItem value="passeggero">
                     <span className="flex flex-col items-start">
-                      <span>Indirizzo passeggero</span>
+                      <span className="flex items-center gap-1.5">
+                        <Home className="h-3.5 w-3.5" />
+                        Indirizzo passeggero
+                      </span>
                       <span className="text-xs text-muted-foreground">({indirizzoRubricaDisplay})</span>
                     </span>
                   </SelectItem>
                 )}
+                
+                {/* Personalizzato */}
                 <SelectItem value="personalizzato">
-                  Altro indirizzo...
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    Altro indirizzo...
+                  </span>
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -393,6 +428,13 @@ export const PasseggeroPresaCard = ({
                 )}
               />
             </div>
+          </div>
+        )}
+
+        {/* Preview per "Stesso del primo" */}
+        {passeggero.destinazione_tipo === 'primo_passeggero' && primoPasseggero && (
+          <div className="text-sm text-muted-foreground pl-4 border-l-2 border-primary/30">
+            📍 {getIndirizzoDestinazionePrimo(primoPasseggero)}
           </div>
         )}
       </div>
