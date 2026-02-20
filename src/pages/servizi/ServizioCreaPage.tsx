@@ -1093,7 +1093,10 @@ export const ServizioCreaPage = ({
                         ? (passeggeriForm[0].presa_citta_custom || null)
                         : (passeggeriForm[0].localita_rubrica || passeggeriForm[0].localita || null))
                     : null,
-            orario_presa_personalizzato: p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
+            orario_presa_personalizzato: 
+              p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
+                ? (passeggeriForm[0].presa_usa_orario_servizio ? null : (passeggeriForm[0].presa_orario || null))
+                : p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
             usa_destinazione_personalizzata: p.destinazione_tipo !== 'servizio' && p.destinazione_tipo !== 'primo_passeggero',
             destinazione_personalizzato:
               p.destinazione_tipo === 'personalizzato'
@@ -1265,7 +1268,10 @@ export const ServizioCreaPage = ({
                     ? (passeggeriForm[0].presa_citta_custom || null)
                     : (passeggeriForm[0].localita_rubrica || passeggeriForm[0].localita || null))
                 : null,
-        orario_presa_personalizzato: p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
+        orario_presa_personalizzato: 
+          p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
+            ? (passeggeriForm[0].presa_usa_orario_servizio ? null : (passeggeriForm[0].presa_orario || null))
+            : p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
         
         usa_destinazione_personalizzata: p.destinazione_tipo !== 'servizio' && p.destinazione_tipo !== 'primo_passeggero',
         destinazione_personalizzato:
