@@ -5,7 +5,7 @@ import { calculateServizioStato } from '@/utils/servizioValidation';
 export async function updateServizio({ servizio, passeggeri, email_notifiche }: UpdateServizioRequest) {
   try {
     // 1. Calcola stato automatico SOLO se in bozza (usa logica centralizzata)
-    const statoServizio = servizio.stato === 'bozza'
+    const statoServizio = (servizio.stato === 'bozza' || servizio.stato === 'richiesta_cliente')
       ? calculateServizioStato(servizio as any)
       : servizio.stato;
 
