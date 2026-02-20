@@ -2,10 +2,8 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { MobileInput } from "@/components/ui/mobile-input";
-import { Textarea } from "@/components/ui/textarea";
 import { MobileTextarea } from "@/components/ui/mobile-input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,14 +11,25 @@ import { fetchClientiPrivati } from "@/lib/api/clientiPrivati";
 import { createClientePrivato } from "@/lib/api/clientiPrivati/createClientePrivato";
 import { ServizioFormData } from "@/lib/types/servizi";
 import { Label } from "@/components/ui/label";
-import { User, UserPlus, Save, Loader2, AlertCircle } from "lucide-react";
+import { User, UserPlus, Save, Loader2, AlertCircle, Check, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 export function ClientePrivatoFields() {
   const form = useFormContext<ServizioFormData>();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
+  const [clientiOpen, setClientiOpen] = useState(false);
   
   const watchClientePrivatoId = form.watch('cliente_privato_id') as string | null | undefined;
   const watchNome = form.watch('cliente_privato_nome') as string;
@@ -98,9 +107,16 @@ export function ClientePrivatoFields() {
     }
   };
 
+  // Get display label for selected client
+  const getSelectedLabel = () => {
+    if (!watchClientePrivatoId) return "✨ Nuovo cliente";
+    const c = clientiPrivati?.find(c => c.id === watchClientePrivatoId);
+    return c ? `${c.nome} ${c.cognome}` : "Seleziona cliente...";
+  };
+
   return (
     <div className="space-y-6">
-      {/* SEZIONE 1: Selezione Cliente Esistente */}
+      {/* SEZIONE 1: Selezione Cliente Esistente - Combobox ricercabile */}
       {clientiPrivati && clientiPrivati.length > 0 && (
         <Card className="border-primary/20">
           <CardHeader className="pb-3">
@@ -113,32 +129,57 @@ export function ClientePrivatoFields() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <FormField
-              control={form.control}
-              name="cliente_privato_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="sr-only">Cliente Esistente</FormLabel>
-                  <Select 
-                    onValueChange={handleSelectCliente}
-                    value={(field.value as string) || "__new__"}
-                    disabled={isLoading}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-11">
-                        <SelectValue placeholder="Seleziona cliente dall'anagrafica" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="__new__">
-                        <div className="flex items-center gap-2">
-                          <UserPlus className="h-4 w-4" />
-                          <span>Nuovo cliente</span>
-                        </div>
-                      </SelectItem>
+            <Popover open={clientiOpen} onOpenChange={setClientiOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={clientiOpen}
+                  className="w-full justify-between h-11 font-normal"
+                  disabled={isLoading}
+                >
+                  {getSelectedLabel()}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Cerca per nome, cognome, email..." />
+                  <CommandList>
+                    <CommandEmpty>Nessun cliente trovato.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem
+                        value="__new__"
+                        onSelect={() => {
+                          handleSelectCliente("__new__");
+                          setClientiOpen(false);
+                        }}
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Nuovo cliente
+                        <Check
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            !watchClientePrivatoId ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
                       {clientiPrivati.map((cliente) => (
-                        <SelectItem key={cliente.id} value={cliente.id}>
-                          <div className="flex flex-col gap-1">
+                        <CommandItem
+                          key={cliente.id}
+                          value={`${cliente.nome} ${cliente.cognome} ${cliente.email || ''}`}
+                          onSelect={() => {
+                            handleSelectCliente(cliente.id);
+                            setClientiOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              watchClientePrivatoId === cliente.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex flex-col">
                             <span className="font-medium">{cliente.nome} {cliente.cognome}</span>
                             {(cliente.email || cliente.telefono) && (
                               <span className="text-xs text-muted-foreground">
@@ -148,14 +189,13 @@ export function ClientePrivatoFields() {
                               </span>
                             )}
                           </div>
-                        </SelectItem>
+                        </CommandItem>
                       ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </CardContent>
         </Card>
       )}
@@ -305,7 +345,7 @@ export function ClientePrivatoFields() {
             />
           </div>
 
-          {/* Indirizzo + Città (Grid) - Sempre visibili */}
+          {/* Indirizzo + Città (Grid) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -348,7 +388,7 @@ export function ClientePrivatoFields() {
             />
           </div>
 
-          {/* Note - Sempre visibili */}
+          {/* Note */}
           <FormField
             control={form.control}
             name="cliente_privato_note"
