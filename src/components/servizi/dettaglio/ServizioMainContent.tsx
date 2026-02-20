@@ -2,12 +2,38 @@ import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, User, Clock, Car } from "lucide-react";
+import { MapPin, User, Clock, Car, Flag, Navigation } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FinancialSection } from "./sections/FinancialSection";
 import { useUsers } from "@/hooks/useUsers";
 import { useAziende } from "@/hooks/useAziende";
 import { NoteCard } from "@/components/dipendente/servizi/dettaglio/NoteCard";
+
+// Helper: build grouped destination stops
+function getDestinazioniRaggruppate(
+  passeggeriOrdinati: PasseggeroConDettagli[],
+  servizio: Servizio
+) {
+  const destinazioniMap = new Map<string, { indirizzo: string; citta?: string; passeggeri: string[] }>();
+
+  passeggeriOrdinati.forEach((p) => {
+    const haDestPersonalizzata = p.usa_destinazione_personalizzata && p.destinazione_personalizzato;
+    const indirizzo = haDestPersonalizzata
+      ? p.destinazione_personalizzato!
+      : (p.indirizzo || servizio.indirizzo_destinazione);
+    const citta = haDestPersonalizzata
+      ? (p.localita_destinazione_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_destinazione)
+      : (p.localita || servizio.citta_destinazione);
+    const key = `${indirizzo}|${citta || ''}`.toLowerCase().trim();
+
+    if (!destinazioniMap.has(key)) {
+      destinazioniMap.set(key, { indirizzo: indirizzo || '', citta: citta || undefined, passeggeri: [] });
+    }
+    destinazioniMap.get(key)!.passeggeri.push(p.nome_cognome || 'Passeggero');
+  });
+
+  return Array.from(destinazioniMap.values());
+}
 
 interface ServizioMainContentProps {
   servizio: Servizio;
@@ -46,6 +72,11 @@ export function ServizioMainContent({
   );
   const primoPasseggero = passeggeriOrdinati[0];
 
+  // Destinazioni raggruppate
+  const destinazioni = passeggeriOrdinati.length > 0
+    ? getDestinazioniRaggruppate(passeggeriOrdinati, servizio)
+    : [{ indirizzo: servizio.indirizzo_destinazione, citta: servizio.citta_destinazione || undefined, passeggeri: [] as string[] }];
+
   return (
     <div className="grid grid-cols-2 gap-4">
       {/* Percorso */}
@@ -79,18 +110,17 @@ export function ServizioMainContent({
             </div>
           </div>
 
-          {/* Fermata intermedia - se presente (esclude primo passeggero già in partenza) */}
+          {/* Fermata intermedia presa - se presente (esclude primo passeggero già in partenza) */}
           {passeggeri
             .sort((a, b) => ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0))
-            .slice(1) // Escludi primo passeggero (già mostrato in partenza)
+            .slice(1)
             .some(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato) && (
             <div className="pl-6 border-l-2 border-muted space-y-2">
               {passeggeri
                 .sort((a, b) => ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0))
-                .slice(1) // Escludi primo passeggero
+                .slice(1)
                 .filter(p => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato)
                 .map((p, idx) => {
-                  // Fallback località: campo dedicato → località inline → località rubrica → città servizio
                   const cittaFermata = p.localita_presa_personalizzato || 
                     (p as any).localita_inline || 
                     p.localita || 
@@ -123,19 +153,35 @@ export function ServizioMainContent({
             </div>
           )}
 
-          {/* Arrivo */}
-          <div className="flex items-start gap-3">
-            <div className="mt-1 p-1.5 rounded-full bg-primary/10">
-              <MapPin className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs text-muted-foreground mb-0.5">Arrivo</div>
-              {servizio.citta_destinazione && (
-                <div className="font-semibold text-sm">{servizio.citta_destinazione}</div>
-              )}
-              <div className="font-medium text-sm">{servizio.indirizzo_destinazione}</div>
-            </div>
-          </div>
+          {/* Destinazioni - Tappe intermedie + Arrivo */}
+          {destinazioni.map((dest, index) => {
+            const isLast = index === destinazioni.length - 1;
+            return (
+              <div key={`dest-${index}`} className="flex items-start gap-3">
+                <div className={`mt-1 p-1.5 rounded-full ${isLast ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
+                  {isLast ? (
+                    <Flag className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
+                  ) : (
+                    <Navigation className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-muted-foreground mb-0.5">
+                    {isLast ? 'Arrivo' : `Tappa ${index + 1}`}
+                    {dest.passeggeri.length > 0 && (
+                      <span className="text-muted-foreground font-normal">
+                        {" - "}{dest.passeggeri.join(', ')}
+                      </span>
+                    )}
+                  </div>
+                  {dest.citta && (
+                    <div className="font-semibold text-sm">{dest.citta}</div>
+                  )}
+                  <div className="font-medium text-sm">{dest.indirizzo}</div>
+                </div>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 
