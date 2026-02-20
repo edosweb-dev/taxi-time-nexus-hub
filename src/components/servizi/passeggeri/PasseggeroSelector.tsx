@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, User, UserPlus, Search, MapPin, Mail, Phone, ChevronRight, Info } from 'lucide-react';
+import { Plus, User, UserPlus, Search, MapPin, Mail, Phone, ChevronRight, Info, Save, Loader2 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { usePasseggeri } from '@/hooks/usePasseggeri';
 import { Passeggero, PasseggeroFormData } from '@/lib/types/servizi';
@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MobileInput } from '@/components/ui/mobile-input';
 import { MobileButton } from '@/components/ui/mobile-button';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 interface PasseggeroSelectorProps {
   azienda_id?: string;
@@ -31,6 +33,7 @@ interface PasseggeroSelectorProps {
 export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPasseggeroSelect, clientePrivatoData }: PasseggeroSelectorProps) {
   const { data, isLoading: isLoadingPasseggeri } = usePasseggeri(azienda_id);
   const passeggeri = data?.passeggeri || [];
+  const queryClient = useQueryClient();
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [salvaInRubrica, setSalvaInRubrica] = useState(true);
@@ -44,6 +47,63 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
     indirizzo: '',
     email: '',
     telefono: '',
+  });
+
+  // Mutation per salvataggio immediato in rubrica
+  const salvaInRubricaMutation = useMutation({
+    mutationFn: async (passeggeroData: typeof newPasseggero) => {
+      if (!azienda_id) throw new Error("Azienda non selezionata");
+
+      const { data: nuovoPasseggero, error } = await supabase
+        .from('passeggeri')
+        .insert({
+          nome_cognome: `${passeggeroData.nome} ${passeggeroData.cognome}`.trim(),
+          nome: passeggeroData.nome,
+          cognome: passeggeroData.cognome,
+          email: passeggeroData.email || null,
+          telefono: passeggeroData.telefono || null,
+          localita: passeggeroData.localita || null,
+          indirizzo: passeggeroData.indirizzo || null,
+          azienda_id: azienda_id,
+          tipo: 'rubrica',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return nuovoPasseggero;
+    },
+    onSuccess: (nuovoPasseggero) => {
+      queryClient.invalidateQueries({ queryKey: ['passeggeri'] });
+
+      const hasIndirizzo = Boolean(nuovoPasseggero.indirizzo || nuovoPasseggero.localita);
+
+      onPasseggeroSelect({
+        id: nuovoPasseggero.id,
+        passeggero_id: nuovoPasseggero.id,
+        nome_cognome: nuovoPasseggero.nome_cognome,
+        nome: nuovoPasseggero.nome || '',
+        cognome: nuovoPasseggero.cognome || '',
+        localita: nuovoPasseggero.localita || '',
+        indirizzo: nuovoPasseggero.indirizzo || '',
+        indirizzo_rubrica: nuovoPasseggero.indirizzo || '',
+        localita_rubrica: nuovoPasseggero.localita || '',
+        email: nuovoPasseggero.email || '',
+        telefono: nuovoPasseggero.telefono || '',
+        is_existing: true,
+        salva_in_database: true,
+        presa_tipo: (hasIndirizzo ? 'passeggero' : 'personalizzato') as 'passeggero' | 'personalizzato' | 'servizio',
+        destinazione_tipo: 'personalizzato' as 'passeggero' | 'personalizzato' | 'servizio',
+        presa_usa_orario_servizio: true,
+      });
+
+      toast.success("✅ Passeggero salvato in rubrica e aggiunto al servizio");
+      setNewPasseggero({ nome: '', cognome: '', localita: '', indirizzo: '', email: '', telefono: '' });
+      setShowNewForm(false);
+    },
+    onError: (error: Error) => {
+      toast.error(`Errore salvataggio: ${error.message}`);
+    },
   });
   
 
@@ -492,31 +552,43 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
                 </div>
               </div>
               {tipo_cliente === 'azienda' && (
-              <div className="flex items-center space-x-2 pt-2 pb-2">
-                <Checkbox 
-                  id="salva-rubrica" 
-                  checked={salvaInRubrica}
-                  onCheckedChange={(checked) => setSalvaInRubrica(checked === true)}
-                />
-                <Label 
-                  htmlFor="salva-rubrica" 
-                  className="text-sm font-normal cursor-pointer"
-                >
-                  Salva passeggero in rubrica
-                </Label>
-              </div>
+                <div className="flex items-start gap-2 p-3 bg-muted/50 border rounded-lg">
+                  <Info className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    Usa <strong>"Salva in Rubrica"</strong> per salvare subito il passeggero e renderlo disponibile per tutti i servizi futuri, oppure <strong>"Aggiungi"</strong> per aggiungerlo solo a questo servizio.
+                  </p>
+                </div>
               )}
               <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                {tipo_cliente === 'azienda' && (
+                  <MobileButton
+                    type="button"
+                    variant="default"
+                    onClick={() => {
+                      if (!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()) return;
+                      salvaInRubricaMutation.mutate(newPasseggero);
+                    }}
+                    disabled={!newPasseggero.nome.trim() || !newPasseggero.cognome.trim() || salvaInRubricaMutation.isPending}
+                    fluid
+                    className="sm:flex-1 text-white"
+                  >
+                    {salvaInRubricaMutation.isPending ? (
+                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Salvataggio...</>
+                    ) : (
+                      <><Save className="h-4 w-4 mr-2" /> Salva in Rubrica</>
+                    )}
+                  </MobileButton>
+                )}
                 <MobileButton
                   type="button"
-                  variant="default"
+                  variant={tipo_cliente === 'azienda' ? 'outline' : 'default'}
                   onClick={handleCreateNew}
                   disabled={!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()}
                   fluid
-                  className="sm:flex-1 text-white"
+                  className={`sm:flex-1 ${tipo_cliente !== 'azienda' ? 'text-white' : ''}`}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi Passeggero
+                  {tipo_cliente === 'azienda' ? 'Aggiungi solo a questo servizio' : 'Aggiungi Passeggero'}
                 </MobileButton>
                 <MobileButton
                   type="button"
