@@ -283,74 +283,64 @@ export const PasseggeroPresaCard = ({
           </div>
         )}
 
-        {/* Orario presa - nascosto se "Stesso del primo" */}
-        {passeggero.presa_tipo === 'primo_passeggero' && primoPasseggero ? (
-          <div className="text-sm text-muted-foreground pl-4 border-l-2 border-primary/30 mt-2">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>
-                Orario: {primoPasseggero.presa_usa_orario_servizio 
-                  ? `${orarioServizio || 'non impostato'} (orario servizio)` 
-                  : primoPasseggero.presa_orario || 'Non specificato'}
-              </span>
-            </div>
+        {/* Orario presa - SEMPRE visibile */}
+        <div className="flex items-center gap-2 pt-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Orario presa</span>
+        </div>
+        
+        {isFirst ? (
+          <div className="space-y-2 pl-6">
+            <Controller
+              control={control}
+              name={`passeggeri.${index}.presa_usa_orario_servizio`}
+              defaultValue={true}
+              render={({ field }) => (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`usa-orario-${index}`}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <Label htmlFor={`usa-orario-${index}`} className="font-normal text-sm cursor-pointer">
+                    Usa orario servizio ({orarioServizio || 'non impostato'})
+                  </Label>
+                </div>
+              )}
+            />
+            
+            {!passeggero.presa_usa_orario_servizio && (
+              <Controller
+                control={control}
+                name={`passeggeri.${index}.presa_orario`}
+                defaultValue=""
+                render={({ field }) => (
+                  <Input {...field} type="time" className="w-32" />
+                )}
+              />
+            )}
           </div>
         ) : (
-          <>
-            <div className="flex items-center gap-2 pt-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Orario presa</span>
-            </div>
-            
-            {isFirst ? (
-              <div className="space-y-2 pl-6">
-                <Controller
-                  control={control}
-                  name={`passeggeri.${index}.presa_usa_orario_servizio`}
-                  defaultValue={true}
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`usa-orario-${index}`}
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <Label htmlFor={`usa-orario-${index}`} className="font-normal text-sm cursor-pointer">
-                        Usa orario servizio ({orarioServizio || 'non impostato'})
-                      </Label>
-                    </div>
-                  )}
-                />
-                
-                {!passeggero.presa_usa_orario_servizio && (
-                  <Controller
-                    control={control}
-                    name={`passeggeri.${index}.presa_orario`}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <Input {...field} type="time" className="w-32" />
-                    )}
+          <div className="pl-6">
+            <Controller
+              control={control}
+              name={`passeggeri.${index}.presa_orario`}
+              defaultValue=""
+              render={({ field }) => (
+                <div className="space-y-1">
+                  <Input 
+                    {...field} 
+                    type="time" 
+                    className="w-32" 
+                    placeholder={orarioServizio || ''}
                   />
-                )}
-              </div>
-            ) : (
-              <div className="pl-6">
-                <Controller
-                  control={control}
-                  name={`passeggeri.${index}.presa_orario`}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <div className="space-y-1">
-                      <Input {...field} type="time" className="w-32" required />
-                      <p className="text-xs text-muted-foreground">
-                        Orario obbligatorio per passeggeri successivi
-                      </p>
-                    </div>
-                  )}
-                />
-              </div>
-            )}
-          </>
+                  <p className="text-xs text-muted-foreground">
+                    {field.value ? 'Orario personalizzato' : `Se vuoto, usa orario servizio (${orarioServizio || 'non impostato'})`}
+                  </p>
+                </div>
+              )}
+            />
+          </div>
         )}
       </div>
 
