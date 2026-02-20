@@ -183,8 +183,13 @@ export function useServizi() {
         throw new Error('Servizio non trovato');
       }
       
-      console.log('[DEBUG useServizi] updateServizio - Servizio CORRENTE dal DB:', currentServizio);
-      console.log('[DEBUG useServizi] updateServizio - Stato CORRENTE:', currentServizio.stato);
+      console.log('[🔧 useServizi] === UPDATE SERVIZIO ===');
+      console.log('[🔧 useServizi] oldServizio dal DB:', {
+        id: currentServizio.id,
+        stato: currentServizio.stato,
+        metodo_pagamento: currentServizio.metodo_pagamento,
+      });
+      console.log('[🔧 useServizi] updates (data.servizio):', data.servizio);
       
       // Merge dati
       const mergedServizio = {
@@ -192,23 +197,32 @@ export function useServizi() {
         ...data.servizio
       };
       
-      console.log('[DEBUG useServizi] updateServizio - Servizio MERGED (current + update):', mergedServizio);
+      console.log('[🔧 useServizi] mergedServizio:', {
+        id: mergedServizio.id,
+        stato: mergedServizio.stato,
+        metodo_pagamento: mergedServizio.metodo_pagamento,
+        assegnato_a: mergedServizio.assegnato_a,
+        data_servizio: mergedServizio.data_servizio,
+        indirizzo_presa: mergedServizio.indirizzo_presa,
+        indirizzo_destinazione: mergedServizio.indirizzo_destinazione,
+        azienda_id: mergedServizio.azienda_id,
+      });
       
-      // ✨ CALCOLA NUOVO STATO solo se corrente è 'bozza'
+      // ✨ CALCOLA NUOVO STATO solo se corrente è 'bozza' o 'richiesta_cliente'
       const oldStato = currentServizio.stato as StatoServizio;
+      console.log('[🔧 useServizi] oldStato:', oldStato);
+      console.log('[🔧 useServizi] Condizione (bozza || richiesta_cliente):', 
+        oldStato === 'bozza' || oldStato === 'richiesta_cliente'
+      );
+      
       const newStato = (oldStato === 'bozza' || oldStato === 'richiesta_cliente') 
         ? calculateServizioStato(mergedServizio as any)
         : oldStato;
       
       const statoChanged = oldStato !== newStato;
       
-      console.log('[useServizi] State transition:', { oldStato, newStato, statoChanged });
-      console.log('[DEBUG useServizi] updateServizio - Calcolo stato:', {
-        oldStato,
-        isPrevStatoBozza: oldStato === 'bozza',
-        newStato,
-        statoChanged
-      });
+      console.log('[🔧 useServizi] newStato calcolato:', newStato);
+      console.log('[🔧 useServizi] statoChanged:', statoChanged);
       
       console.log('[DEBUG useServizi] updateServizio - Servizio FINALE per API:', {
         ...data.servizio,
