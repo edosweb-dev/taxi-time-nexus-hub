@@ -95,10 +95,24 @@ export function hasDriverAssigned(servizio: Partial<Servizio>): boolean {
  * @returns Stato calcolato
  */
 export function calculateServizioStato(servizio: Partial<Servizio>): StatoServizio {
+  console.log('[🔍 calculateServizioStato] === INIZIO ===');
+  console.log('[🔍 calculateServizioStato] INPUT servizio:', {
+    id: (servizio as any).id,
+    stato_corrente: servizio.stato,
+    metodo_pagamento: servizio.metodo_pagamento,
+    assegnato_a: servizio.assegnato_a,
+    data_servizio: servizio.data_servizio,
+    indirizzo_presa: servizio.indirizzo_presa,
+    indirizzo_destinazione: servizio.indirizzo_destinazione,
+    azienda_id: servizio.azienda_id,
+    tipo_cliente: servizio.tipo_cliente,
+  });
+
   // REGOLA 1: Non modificare stati avanzati (post-assegnazione)
   const statiBloccati: StatoServizio[] = ['completato', 'consuntivato', 'annullato', 'non_accettato'];
   
   if (servizio.stato && statiBloccati.includes(servizio.stato)) {
+    console.log('[🔍 calculateServizioStato] RETURN: stato bloccato →', servizio.stato);
     return servizio.stato;
   }
   
@@ -106,19 +120,27 @@ export function calculateServizioStato(servizio: Partial<Servizio>): StatoServiz
   const hasRequired = hasAllRequiredFields(servizio);
   const hasDriver = hasDriverAssigned(servizio);
 
+  console.log('[🔍 calculateServizioStato] Validazione:', {
+    hasAllRequiredFields: hasRequired,
+    hasDriverAssigned: hasDriver,
+    missingFields: getMissingFields(servizio),
+  });
+
   // REGOLA 3: Campi incompleti → rimane bozza
   if (!hasRequired) {
+    console.log('[🔍 calculateServizioStato] RETURN: campi incompleti → bozza');
     return 'bozza';
   }
   
-  
-  
   // REGOLA 4: Campi completi + conducente → assegnato
   if (hasDriver) {
+    console.log('[🔍 calculateServizioStato] RETURN: completo + conducente → assegnato');
     return 'assegnato';
   }
 
   // REGOLA 5: Campi completi senza conducente → da assegnare
+  console.log('[🔍 calculateServizioStato] RETURN: completo senza conducente → da_assegnare');
+  console.log('[🔍 calculateServizioStato] === FINE ===');
   return 'da_assegnare';
 }
 

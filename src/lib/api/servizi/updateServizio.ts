@@ -4,10 +4,23 @@ import { calculateServizioStato } from '@/utils/servizioValidation';
 
 export async function updateServizio({ servizio, passeggeri, email_notifiche }: UpdateServizioRequest) {
   try {
+    console.log('[💾 updateServizio.ts] === UPDATE API ===');
+    console.log('[💾 updateServizio.ts] servizio ricevuto:', {
+      id: servizio.id,
+      stato: servizio.stato,
+      metodo_pagamento: servizio.metodo_pagamento,
+      assegnato_a: servizio.assegnato_a,
+    });
+
     // 1. Calcola stato automatico SOLO se in bozza (usa logica centralizzata)
     const statoServizio = (servizio.stato === 'bozza' || servizio.stato === 'richiesta_cliente')
       ? calculateServizioStato(servizio as any)
       : servizio.stato;
+
+    console.log('[💾 updateServizio.ts] statoServizio calcolato:', statoServizio);
+    console.log('[💾 updateServizio.ts] Condizione (bozza || richiesta_cliente):', 
+      servizio.stato === 'bozza' || servizio.stato === 'richiesta_cliente'
+    );
 
     // 2. Aggiorna il servizio
     const { data: servizioData, error: servizioError } = await supabase
