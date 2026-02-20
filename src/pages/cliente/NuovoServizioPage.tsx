@@ -21,7 +21,8 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus } from 'lucide-react';
+import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus, Mail, Trash2 } from 'lucide-react';
+import { useEmailNotifiche } from '@/hooks/useEmailNotifiche';
 
 // Schema senza campi passeggero (gestiti via stato React)
 const formSchema = z.object({
@@ -53,6 +54,9 @@ export default function NuovoServizioPage() {
   // Dialog configurazione percorso
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [configDialogIndex, setConfigDialogIndex] = useState<number | null>(null);
+
+  // Email notifiche state
+  const [emailNotificheIds, setEmailNotificheIds] = useState<string[]>([]);
 
   // Usa profilo da useAuth (supporta impersonificazione)
   const { profile: authProfile } = useAuth();
@@ -95,6 +99,17 @@ export default function NuovoServizioPage() {
     },
     enabled: !!currentProfile?.azienda_id,
   });
+
+  // Email notifiche hook
+  const { emailNotifiche, createEmailNotifica, deleteEmailNotifica, isCreating: isCreatingEmail } = useEmailNotifiche(currentProfile?.azienda_id);
+
+  const handleEmailToggle = (emailId: string, checked: boolean) => {
+    if (checked) {
+      setEmailNotificheIds(prev => [...prev, emailId]);
+    } else {
+      setEmailNotificheIds(prev => prev.filter(id => id !== emailId));
+    }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -278,6 +293,24 @@ export default function NuovoServizioPage() {
 
         if (linkError) throw linkError;
         console.log("✅ Passeggero associato:", passeggeroId);
+      }
+
+      // STEP 3: Inserimento email notifiche
+      if (emailNotificheIds.length > 0) {
+        const emailData = emailNotificheIds.map(emailId => ({
+          servizio_id: servizio.id,
+          email_notifica_id: emailId,
+        }));
+        
+        const { error: emailError } = await supabase
+          .from("servizi_email_notifiche")
+          .insert(emailData);
+        
+        if (emailError) {
+          console.error("[NuovoServizioPage] Errore email notifiche:", emailError);
+        } else {
+          console.log("✅ Email notifiche collegate:", emailNotificheIds.length);
+        }
       }
 
       return servizio;
@@ -599,6 +632,54 @@ export default function NuovoServizioPage() {
                     )}
                   />
                 </div>
+
+                {/* SEZIONE: Email Notifiche */}
+                {currentProfile?.azienda_id && (
+                  <>
+                    <Separator />
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                          <Mail className="h-5 w-5 text-primary" />
+                          Email Notifiche
+                        </h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Seleziona le email che riceveranno la notifica quando il servizio viene confermato
+                      </p>
+
+                      {emailNotifiche.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground border rounded-lg">
+                          <Mail className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">Nessun indirizzo email configurato</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {emailNotifiche.map((email) => (
+                            <div key={email.id} className="flex items-center justify-between p-3 border rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <Checkbox
+                                  checked={emailNotificheIds.includes(email.id)}
+                                  onCheckedChange={(checked) => handleEmailToggle(email.id, checked as boolean)}
+                                />
+                                <div>
+                                  <div className="font-medium text-sm">{email.nome}</div>
+                                  <div className="text-xs text-muted-foreground">{email.email}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {emailNotificheIds.length > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {emailNotificheIds.length} email selezionat{emailNotificheIds.length === 1 ? 'a' : 'e'}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 {/* SUBMIT BUTTON */}
                 <Button
