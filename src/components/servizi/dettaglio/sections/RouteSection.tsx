@@ -20,10 +20,10 @@ function getDestinazioniRaggruppate(
     const haDestPersonalizzata = p.usa_destinazione_personalizzata && p.destinazione_personalizzato;
     const indirizzo = haDestPersonalizzata
       ? p.destinazione_personalizzato!
-      : (p.indirizzo || servizio.indirizzo_destinazione);
+      : servizio.indirizzo_destinazione;
     const citta = haDestPersonalizzata
       ? (p.localita_destinazione_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_destinazione)
-      : (p.localita || servizio.citta_destinazione);
+      : servizio.citta_destinazione;
     const key = `${indirizzo}|${citta || ''}`.toLowerCase().trim();
 
     if (!destinazioniMap.has(key)) {
