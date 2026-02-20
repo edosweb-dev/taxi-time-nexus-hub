@@ -29,9 +29,9 @@ const formSchema = z.object({
   data_servizio: z.string().min(1, "Data obbligatoria"),
   orario_servizio: z.string().min(1, "Orario obbligatorio"),
   citta_presa: z.string().optional(),
-  indirizzo_presa: z.string().min(1, "Indirizzo partenza obbligatorio"),
+  indirizzo_presa: z.string().optional().default(''),
   citta_destinazione: z.string().optional(),
-  indirizzo_destinazione: z.string().min(1, "Indirizzo arrivo obbligatorio"),
+  indirizzo_destinazione: z.string().optional().default(''),
   numero_commessa: z.string().optional(),
   note: z.string().optional(),
 });
@@ -146,9 +146,7 @@ export default function NuovoServizioPage() {
       _destinazione_tipo: 'servizio',
       _usa_orario_servizio: true,
     }]);
-    // Open config dialog for newly added passenger
-    setConfigDialogIndex(newIndex);
-    setConfigDialogOpen(true);
+    toast({ title: `✅ ${p.nome_cognome} aggiunto` });
   };
 
   // Aggiungi nuovo passeggero e apri config dialog
@@ -173,9 +171,7 @@ export default function NuovoServizioPage() {
     setNuovoTelefono('');
     setSalvaInRubrica(true);
     setShowNuovoDialog(false);
-    // Open config dialog
-    setConfigDialogIndex(newIndex);
-    setConfigDialogOpen(true);
+    toast({ title: `✅ ${nuovoNome.trim()} aggiunto` });
   };
 
   const rimuoviPasseggero = (index: number) => {
@@ -343,6 +339,33 @@ export default function NuovoServizioPage() {
       toast({ title: "Seleziona almeno un passeggero", variant: "destructive" });
       return;
     }
+
+    // Pre-popola indirizzi dal primo passeggero
+    if (passeggeriSelezionati.length > 0) {
+      const primo = passeggeriSelezionati[0];
+      
+      if (primo._presa_tipo === 'personalizzato') {
+        values.indirizzo_presa = primo.luogo_presa_personalizzato || '';
+        values.citta_presa = primo.localita_presa_personalizzato || undefined;
+      } else if (primo._presa_tipo === 'passeggero') {
+        values.indirizzo_presa = primo.indirizzo || '';
+        values.citta_presa = primo.localita || undefined;
+      }
+      
+      if (primo._destinazione_tipo === 'personalizzato') {
+        values.indirizzo_destinazione = primo.destinazione_personalizzato || '';
+        values.citta_destinazione = primo.localita_destinazione_personalizzato || undefined;
+      } else if (primo._destinazione_tipo === 'passeggero') {
+        values.indirizzo_destinazione = primo.indirizzo || '';
+        values.citta_destinazione = primo.localita || undefined;
+      }
+      
+      console.log('[Submit Cliente] Indirizzi popolati dal primo passeggero:', {
+        presa: values.indirizzo_presa,
+        destinazione: values.indirizzo_destinazione,
+      });
+    }
+
     createServizio.mutate(values);
   };
 
@@ -401,84 +424,6 @@ export default function NuovoServizioPage() {
                         </FormItem>
                       )}
                     />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* SEZIONE: Dove */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    Dove
-                  </h3>
-
-                  {/* Partenza */}
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-muted-foreground">Partenza</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="citta_presa"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Città</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Milano" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="indirizzo_presa"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Indirizzo di Presa *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Via Roma 123" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Destinazione */}
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-muted-foreground">Destinazione</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="citta_destinazione"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Città</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Ferno" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="indirizzo_destinazione"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Indirizzo di Destinazione *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Aeroporto Malpensa" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
                   </div>
                 </div>
 
