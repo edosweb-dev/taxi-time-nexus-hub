@@ -2,7 +2,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
@@ -15,11 +14,12 @@ import {
   CreditCard,
   FileText,
   MessageSquare,
-  Building,
-  Phone,
-  Mail,
   UserCircle,
   DollarSign,
+  Navigation,
+  Flag,
+  Phone,
+  Mail,
 } from "lucide-react";
 import { useServizioDetaglioCliente } from "@/hooks/useServizioDetaglioCliente";
 
@@ -135,29 +135,103 @@ const DettaglioServizio = () => {
 
               <Separator className="my-2" />
 
-              {/* Partenza */}
-              <div className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground mb-0.5">Partenza</p>
-                  <p className="font-medium text-sm break-words leading-tight">
-                    {servizio.indirizzo_presa}
-                    {servizio.citta_presa && <span className="text-muted-foreground">, {servizio.citta_presa}</span>}
-                  </p>
-                </div>
-              </div>
+              {/* Percorso con tappe */}
+              {(() => {
+                const passeggeriList = servizio.servizi_passeggeri || [];
+                const passeggeriOrdinati = [...passeggeriList].sort(
+                  (a: any, b: any) => (a.ordine_presa ?? 0) - (b.ordine_presa ?? 0)
+                );
+                const primoPasseggero = passeggeriOrdinati[0];
+                const fermateIntermedie = passeggeriOrdinati.slice(1);
 
-              {/* Destinazione */}
-              <div className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 text-red-600 mt-1 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground mb-0.5">Destinazione</p>
-                  <p className="font-medium text-sm break-words leading-tight">
-                    {servizio.indirizzo_destinazione}
-                    {servizio.citta_destinazione && <span className="text-muted-foreground">, {servizio.citta_destinazione}</span>}
-                  </p>
-                </div>
-              </div>
+                // Build destination stops grouped by unique address
+                const destinazioniMap = new Map<string, { indirizzo: string; citta?: string; passeggeri: string[] }>();
+                passeggeriOrdinati.forEach((sp: any) => {
+                  const p = sp.passeggeri;
+                  const haDestPers = sp.usa_destinazione_personalizzata && sp.destinazione_personalizzato;
+                  const indirizzo = haDestPers ? sp.destinazione_personalizzato : (p?.indirizzo || servizio.indirizzo_destinazione);
+                  const citta = haDestPers
+                    ? (sp.localita_destinazione_personalizzato || p?.localita || servizio.citta_destinazione)
+                    : (p?.localita || servizio.citta_destinazione);
+                  const key = `${indirizzo}|${citta || ''}`.toLowerCase().trim();
+                  if (!destinazioniMap.has(key)) {
+                    destinazioniMap.set(key, { indirizzo: indirizzo || '', citta: citta || undefined, passeggeri: [] });
+                  }
+                  destinazioniMap.get(key)!.passeggeri.push(p?.nome_cognome || 'Passeggero');
+                });
+                const destinazioni = passeggeriOrdinati.length > 0
+                  ? Array.from(destinazioniMap.values())
+                  : [{ indirizzo: servizio.indirizzo_destinazione, citta: servizio.citta_destinazione, passeggeri: [] as string[] }];
+
+                return (
+                  <div className="space-y-3">
+                    {/* Partenza */}
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-muted-foreground mb-0.5">
+                          Partenza
+                          {primoPasseggero?.passeggeri?.nome_cognome && (
+                            <span> - {primoPasseggero.passeggeri.nome_cognome}</span>
+                          )}
+                        </p>
+                        <p className="font-medium text-sm break-words leading-tight">
+                          {servizio.indirizzo_presa}
+                          {servizio.citta_presa && <span className="text-muted-foreground">, {servizio.citta_presa}</span>}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Fermate presa intermedie */}
+                    {fermateIntermedie
+                      .filter((sp: any) => sp.usa_indirizzo_personalizzato && sp.luogo_presa_personalizzato)
+                      .map((sp: any, idx: number) => {
+                        const p = sp.passeggeri;
+                        const citta = sp.localita_presa_personalizzato || p?.localita || servizio.citta_presa;
+                        return (
+                          <div key={`stop-${idx}`} className="flex items-start gap-2 pl-2 border-l-2 border-muted ml-2">
+                            <MapPin className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs text-muted-foreground mb-0.5">
+                                Fermata - {p?.nome_cognome || 'Passeggero'}
+                              </p>
+                              <p className="font-medium text-sm break-words leading-tight">
+                                {sp.luogo_presa_personalizzato}
+                                {citta && <span className="text-muted-foreground">, {citta}</span>}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                    {/* Destinazioni */}
+                    {destinazioni.map((dest, index) => {
+                      const isLast = index === destinazioni.length - 1;
+                      return (
+                        <div key={`dest-${index}`} className="flex items-start gap-2">
+                          {isLast ? (
+                            <Flag className="h-4 w-4 text-red-600 mt-1 flex-shrink-0" />
+                          ) : (
+                            <Navigation className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs text-muted-foreground mb-0.5">
+                              {isLast ? 'Arrivo' : `Tappa ${index + 1}`}
+                              {dest.passeggeri.length > 0 && (
+                                <span> - {dest.passeggeri.join(', ')}</span>
+                              )}
+                            </p>
+                            <p className="font-medium text-sm break-words leading-tight">
+                              {dest.indirizzo}
+                              {dest.citta && <span className="text-muted-foreground">, {dest.citta}</span>}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
 
               <Separator className="my-2" />
 
@@ -235,15 +309,9 @@ const DettaglioServizio = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {(() => {
-                console.log("[DettaglioServizio] Passeggeri data:", servizio.servizi_passeggeri);
-                return null;
-              })()}
-              
               {servizio.servizi_passeggeri && servizio.servizi_passeggeri.length > 0 ? (
                 <div className="space-y-2">
                   {servizio.servizi_passeggeri.map((sp: any, index: number) => {
-                    console.log(`[DettaglioServizio] Passeggero ${index}:`, sp);
                     const passeggero = sp.passeggeri;
                     
                     return (
