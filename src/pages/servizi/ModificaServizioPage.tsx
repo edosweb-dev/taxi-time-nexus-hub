@@ -30,11 +30,16 @@ export default function ModificaServizioPage() {
             indirizzo_inline,
             orario_presa_personalizzato,
             luogo_presa_personalizzato,
+            localita_presa_personalizzato,
             destinazione_personalizzato,
+            localita_destinazione_personalizzato,
             usa_indirizzo_personalizzato,
+            usa_destinazione_personalizzata,
             salva_in_database,
+            ordine_presa,
             passeggeri:passeggero_id(*)
-          )
+          ),
+          clienti_privati:cliente_privato_id(*)
         `)
         .eq('id', id)
         .single();
