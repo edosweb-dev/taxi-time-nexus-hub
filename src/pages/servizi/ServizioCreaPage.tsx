@@ -974,7 +974,7 @@ export const ServizioCreaPage = ({
 
       if (mode === 'edit') {
         // Stati che NON devono essere modificati automaticamente
-        const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato', 'richiesta_cliente'];
+        const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato'];
         const statoCorrente = initialData?.stato || "da_assegnare";
         
         if (statiBloccati.includes(statoCorrente)) {
