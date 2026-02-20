@@ -196,7 +196,7 @@ export function useServizi() {
       
       // ✨ CALCOLA NUOVO STATO solo se corrente è 'bozza'
       const oldStato = currentServizio.stato as StatoServizio;
-      const newStato = oldStato === 'bozza' 
+      const newStato = (oldStato === 'bozza' || oldStato === 'richiesta_cliente') 
         ? calculateServizioStato(mergedServizio as any)
         : oldStato;
       
