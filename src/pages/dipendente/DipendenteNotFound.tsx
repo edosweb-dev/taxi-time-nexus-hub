@@ -18,7 +18,7 @@ export default function DipendenteNotFound() {
           La pagina che stai cercando non esiste o è stata spostata.
         </p>
         <div className="flex gap-3 flex-wrap justify-center">
-          <Button onClick={() => navigate('/dipendente/dashboard')} className="min-h-[44px]">
+          <Button onClick={() => navigate('/dipendente/calendario')} className="min-h-[44px]">
             <Home className="mr-2 h-4 w-4" />
             Torna alla Dashboard
           </Button>

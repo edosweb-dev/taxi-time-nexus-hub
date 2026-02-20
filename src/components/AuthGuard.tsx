@@ -31,10 +31,10 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Special case: dipendente accessing /dashboard should be redirected to /dipendente/dashboard
+  // Special case: dipendente accessing /dashboard should be redirected to /dipendente/calendario
   if (profile?.role === 'dipendente' && location.pathname === '/dashboard') {
-    console.log('[AuthGuard] Dipendente accessing /dashboard, redirecting to /dipendente/dashboard');
-    return <Navigate to="/dipendente/dashboard" replace />;
+    console.log('[AuthGuard] Dipendente accessing /dashboard, redirecting to /dipendente/calendario');
+    return <Navigate to="/dipendente/calendario" replace />;
   }
 
   // Check if user role has access to this route
@@ -55,8 +55,8 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
       console.log('[AuthGuard] Redirecting client to client dashboard');
       return <Navigate to="/dashboard-cliente" replace />;
     } else if (profile.role === 'dipendente') {
-      console.log('[AuthGuard] Redirecting dipendente to dipendente dashboard');
-      return <Navigate to="/dipendente/dashboard" replace />;
+      console.log('[AuthGuard] Redirecting dipendente to dipendente calendario');
+      return <Navigate to="/dipendente/calendario" replace />;
     } else {
       console.log('[AuthGuard] Redirecting staff to main dashboard');
       return <Navigate to="/dashboard" replace />;

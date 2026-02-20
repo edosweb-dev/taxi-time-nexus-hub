@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { Home, Calendar, Clock, DollarSign, Euro, User, LogOut } from "lucide-react";
+import { Home, Calendar as CalendarIcon, Clock, DollarSign, Euro, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -25,8 +25,8 @@ export function DipendenteSidebar() {
   const { state } = useSidebar();
 
   const navItems = [
-    { title: 'Dashboard', href: '/dipendente/dashboard', icon: Home },
-    { title: 'Servizi Assegnati', href: '/dipendente/servizi-assegnati', icon: Calendar },
+    { title: 'Calendario', href: '/dipendente/calendario', icon: CalendarIcon },
+    { title: 'Servizi Assegnati', href: '/dipendente/servizi-assegnati', icon: CalendarIcon },
     { title: 'Turni', href: '/dipendente/turni', icon: Clock },
     { title: 'Spese', href: '/dipendente/spese', icon: DollarSign },
     { title: 'Stipendi', href: '/dipendente/stipendi', icon: Euro },

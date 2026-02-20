@@ -19,6 +19,7 @@ import ReportCliente from './pages/cliente/ReportCliente';
 
 // Dipendente Pages
 import DipendenteDashboard from './pages/dipendente/DipendenteDashboard';
+import CalendarioDashboardPage from './pages/dipendente/CalendarioDashboardPage';
 import ServiziAssegnatiPage from './pages/dipendente/ServiziAssegnatiPage';
 import CompletaServizioPage from './pages/dipendente/CompletaServizioPage';
 import DipendenteTurniPage from './pages/dipendente/TurniPage';
@@ -370,13 +371,19 @@ function App() {
                 {/* Dipendente Routes - Sezione Dedicata */}
                 <Route path="/dipendente" element={
                   <AuthGuard allowedRoles={['dipendente']}>
-                    <Navigate to="/dipendente/dashboard" replace />
+                    <Navigate to="/dipendente/calendario" replace />
+                  </AuthGuard>
+                } />
+
+                <Route path="/dipendente/calendario" element={
+                  <AuthGuard allowedRoles={['dipendente']}>
+                    <CalendarioDashboardPage />
                   </AuthGuard>
                 } />
 
                 <Route path="/dipendente/dashboard" element={
                   <AuthGuard allowedRoles={['dipendente']}>
-                    <DipendenteDashboard />
+                    <Navigate to="/dipendente/calendario" replace />
                   </AuthGuard>
                 } />
 
