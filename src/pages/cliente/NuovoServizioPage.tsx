@@ -167,6 +167,14 @@ export default function NuovoServizioPage() {
     setPasseggeriSelezionati(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleMovePasseggero = (fromIndex: number, direction: 'up' | 'down') => {
+    const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex < 0 || toIndex >= passeggeriSelezionati.length) return;
+    const newPasseggeri = [...passeggeriSelezionati];
+    [newPasseggeri[fromIndex], newPasseggeri[toIndex]] = [newPasseggeri[toIndex], newPasseggeri[fromIndex]];
+    setPasseggeriSelezionati(newPasseggeri);
+  };
+
   // Handle config dialog confirm
   const handleConfigConfirm = (config: PercorsoConfig) => {
     if (configDialogIndex === null) return;
@@ -462,11 +470,14 @@ export default function NuovoServizioPage() {
                             key={`${p.id || p.nome_cognome}-${index}`}
                             passeggero={p}
                             index={index}
+                            totalCount={passeggeriSelezionati.length}
                             onRemove={() => rimuoviPasseggero(index)}
                             onConfigura={() => {
                               setConfigDialogIndex(index);
                               setConfigDialogOpen(true);
                             }}
+                            onMoveUp={() => handleMovePasseggero(index, 'up')}
+                            onMoveDown={() => handleMovePasseggero(index, 'down')}
                             indirizzoPresaServizio={form.watch('indirizzo_presa') || ''}
                             cittaPresaServizio={form.watch('citta_presa') || ''}
                             indirizzoDestinazioneServizio={form.watch('indirizzo_destinazione') || ''}
