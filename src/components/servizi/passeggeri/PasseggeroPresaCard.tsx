@@ -121,6 +121,28 @@ export const PasseggeroPresaCard = ({
     ? (`${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim() || primoPasseggero.nome_cognome || 'Passeggero 1')
     : 'Passeggero 1';
 
+  // Resolve current passenger's pickup address for comparison
+  const resolvePresaAddress = (): string => {
+    const tipo = passeggero.presa_tipo;
+    if (tipo === 'primo_passeggero') {
+      return primoPasseggero ? getIndirizzoPresaPrimo(primoPasseggero) : '';
+    }
+    if (tipo === 'passeggero') {
+      const addr = passeggero.indirizzo_rubrica || passeggero.indirizzo || '';
+      const loc = passeggero.localita_rubrica || passeggero.localita || '';
+      return addr ? [addr, loc].filter(Boolean).join(', ') : '';
+    }
+    if (tipo === 'personalizzato') {
+      return [passeggero.presa_indirizzo_custom, passeggero.presa_citta_custom].filter(Boolean).join(', ');
+    }
+    return '';
+  };
+
+  const norm = (s: string) => s.toLowerCase().trim();
+  const primoPresaResolved = primoPasseggero ? norm(getIndirizzoPresaPrimo(primoPasseggero)) : '';
+  const currentPresaResolved = norm(resolvePresaAddress());
+  const showOrarioPresa = isFirst || !primoPresaResolved || currentPresaResolved !== primoPresaResolved;
+
   return (
     <Card className="p-4 space-y-4">
       {/* Header con frecce su/giù */}
@@ -284,7 +306,7 @@ export const PasseggeroPresaCard = ({
         )}
 
         {/* Orario presa - visibile solo se indirizzo diverso dal primo */}
-        {(isFirst || passeggero.presa_tipo !== 'primo_passeggero') && (
+        {showOrarioPresa && (
           <>
             <div className="flex items-center gap-2 pt-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
