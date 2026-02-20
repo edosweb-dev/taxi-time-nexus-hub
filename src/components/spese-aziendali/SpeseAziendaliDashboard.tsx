@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Users, ArrowUpDown, AlertCircle, Coins } from 'lucide-react';
+import { Plus, Users, ArrowUpDown, AlertCircle, Coins, Info } from 'lucide-react';
 import { NuovoMovimentoSheet } from './NuovoMovimentoSheet';
 import { IncassiDipendenteSheet } from './IncassiDipendenteSheet';
 import { PagamentiPendingDialog } from './PagamentiPendingDialog';
@@ -101,6 +101,25 @@ export function SpeseAziendaliDashboard() {
                 <h3 className="text-lg font-semibold">Pagamenti pending</h3>
                 <p className="text-sm text-muted-foreground">
                   {pendingCount > 0 ? `${pendingCount} pagamenti in sospeso` : 'Nessun pagamento in sospeso'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-dashed">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="p-3 bg-muted rounded-full">
+                <Info className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Come calcoliamo il saldo</h3>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Saldo = Incassi − Spese</strong>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Prelievi e versamenti soci sono movimenti interni (cassa ↔ wallet socio) e non impattano il saldo aziendale.
                 </p>
               </div>
             </div>
