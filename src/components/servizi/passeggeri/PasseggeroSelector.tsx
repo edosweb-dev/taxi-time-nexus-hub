@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, User, UserPlus, Search, MapPin, Mail, Phone, ChevronRight, Info } from 'lucide-react';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { usePasseggeri } from '@/hooks/usePasseggeri';
 import { Passeggero, PasseggeroFormData } from '@/lib/types/servizi';
 import { toast } from 'sonner';
@@ -43,6 +44,9 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [salvaInRubrica, setSalvaInRubrica] = useState(true);
+  const [tipoPasseggero, setTipoPasseggero] = useState<'cliente' | 'altro'>(
+    clientePrivatoData?.nome && clientePrivatoData?.cognome ? 'cliente' : 'altro'
+  );
   const [newPasseggero, setNewPasseggero] = useState({
     nome: '',
     cognome: '',
@@ -202,89 +206,147 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* PER PRIVATI: Selezione chiara "Chi è il passeggero?" */}
+        {/* PER PRIVATI: Toggle Group compatto */}
         {tipo_cliente === 'privato' && !showNewForm && (
           <div className="space-y-3">
             <p className="text-sm font-medium text-foreground">Chi è il passeggero?</p>
             
-            {/* Messaggio informativo se dati cliente non compilati */}
             {(!clientePrivatoData?.nome || !clientePrivatoData?.cognome) && (
-              <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-950/30 dark:border-blue-800">
-                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  Compila i <span className="font-semibold">dati del cliente</span> nella 
+              <div className="flex items-start gap-3 p-3 bg-muted/50 border rounded-lg">
+                <Info className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-muted-foreground">
+                  Compila i <span className="font-semibold text-foreground">dati del cliente</span> nella 
                   sezione sopra per poterli importare automaticamente come passeggero
                 </p>
               </div>
             )}
-            
-            {/* Opzione 1: Il cliente stesso (visibile solo se ha dati) */}
-            {clientePrivatoData?.nome && clientePrivatoData?.cognome && (
-              <Card 
-                className="cursor-pointer hover:border-primary transition-colors border"
-                onClick={handleSelectCliente}
-              >
-                <CardContent className="p-4 min-h-[56px]">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className="h-5 w-5 rounded-full border-2 border-muted-foreground mt-0.5 flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground">Il cliente stesso</p>
-                        <p className="text-sm text-primary font-medium mt-1">
-                          {clientePrivatoData.nome} {clientePrivatoData.cognome}
-                        </p>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                          {clientePrivatoData.email && (
-                            <span className="flex items-center gap-1">
-                              <Mail className="h-3 w-3" />
-                              <span className="truncate max-w-[150px]">{clientePrivatoData.email}</span>
-                            </span>
-                          )}
-                          {clientePrivatoData.telefono && (
-                            <span className="flex items-center gap-1">
-                              <Phone className="h-3 w-3" />
-                              {clientePrivatoData.telefono}
-                            </span>
-                          )}
-                        </div>
-                        {(clientePrivatoData.indirizzo || clientePrivatoData.citta) && (
-                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <MapPin className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">
-                              {clientePrivatoData.indirizzo}
-                              {clientePrivatoData.indirizzo && clientePrivatoData.citta && ', '}
-                              {clientePrivatoData.citta}
-                            </span>
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
-            {/* Opzione 2: Un'altra persona */}
-            <Card 
-              className="cursor-pointer hover:border-primary transition-colors border"
-              onClick={() => setShowNewForm(true)}
+
+            <ToggleGroup
+              type="single"
+              value={tipoPasseggero}
+              onValueChange={(value) => {
+                if (value) {
+                  setTipoPasseggero(value as 'cliente' | 'altro');
+                }
+              }}
+              className="w-full"
             >
-              <CardContent className="p-4 min-h-[56px]">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="h-5 w-5 rounded-full border-2 border-muted-foreground mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-foreground">Un'altra persona</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Aggiungi manualmente i dati del passeggero
-                      </p>
-                    </div>
+              {clientePrivatoData?.nome && clientePrivatoData?.cognome && (
+                <ToggleGroupItem
+                  value="cliente"
+                  className="flex-1 gap-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                >
+                  <User className="h-4 w-4" />
+                  Il cliente stesso
+                </ToggleGroupItem>
+              )}
+              <ToggleGroupItem
+                value="altro"
+                className="flex-1 gap-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                <UserPlus className="h-4 w-4" />
+                Altra persona
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            {/* Preview cliente selezionato */}
+            {tipoPasseggero === 'cliente' && clientePrivatoData?.nome && clientePrivatoData?.cognome && (
+              <div 
+                className="flex items-center justify-between p-3 border rounded-lg bg-muted/20 cursor-pointer hover:bg-muted/40 transition-colors"
+                onClick={handleSelectCliente}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span className="font-medium text-sm">{clientePrivatoData.nome} {clientePrivatoData.cognome}</span>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground ml-6">
+                    {clientePrivatoData.email && (
+                      <span className="flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {clientePrivatoData.email}
+                      </span>
+                    )}
+                    {clientePrivatoData.telefono && (
+                      <span className="flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        {clientePrivatoData.telefono}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+                <Plus className="h-4 w-4 text-primary flex-shrink-0 ml-2" />
+              </div>
+            )}
+
+            {/* Form nuova persona inline */}
+            {tipoPasseggero === 'altro' && (
+              <div className="border rounded-lg bg-muted/20 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <UserPlus className="h-4 w-4 text-muted-foreground" />
+                  Dati del nuovo passeggero
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="nome-privato" className="text-xs text-muted-foreground mb-1 block">Nome *</Label>
+                    <MobileInput
+                      id="nome-privato"
+                      placeholder="Nome"
+                      value={newPasseggero.nome}
+                      onChange={(e) => setNewPasseggero(prev => ({ ...prev, nome: e.target.value }))}
+                      className="bg-background"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="cognome-privato" className="text-xs text-muted-foreground mb-1 block">Cognome *</Label>
+                    <MobileInput
+                      id="cognome-privato"
+                      placeholder="Cognome"
+                      value={newPasseggero.cognome}
+                      onChange={(e) => setNewPasseggero(prev => ({ ...prev, cognome: e.target.value }))}
+                      className="bg-background"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email-privato" className="text-xs text-muted-foreground mb-1 block">Email</Label>
+                    <MobileInput
+                      id="email-privato"
+                      placeholder="email@esempio.com"
+                      type="email"
+                      value={newPasseggero.email}
+                      onChange={(e) => setNewPasseggero(prev => ({ ...prev, email: e.target.value }))}
+                      className="bg-background"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="telefono-privato" className="text-xs text-muted-foreground mb-1 block">Telefono</Label>
+                    <MobileInput
+                      id="telefono-privato"
+                      placeholder="+39 123 456 7890"
+                      type="tel"
+                      value={newPasseggero.telefono}
+                      onChange={(e) => setNewPasseggero(prev => ({ ...prev, telefono: e.target.value }))}
+                      className="bg-background"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                  <MobileButton
+                    type="button"
+                    variant="default"
+                    onClick={handleCreateNew}
+                    disabled={!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()}
+                    fluid
+                    className="sm:flex-1 text-white"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Aggiungi Passeggero
+                  </MobileButton>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
