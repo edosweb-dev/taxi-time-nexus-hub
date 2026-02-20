@@ -331,10 +331,15 @@ export const ServizioCreaPage = ({
               .sort((a: any, b: any) => (a.ordine_presa || 1) - (b.ordine_presa || 1))
               .map((sp: any, idx: number) => {
                 // Determina presa_tipo dal DB
-                let presaTipo: 'servizio' | 'passeggero' | 'personalizzato' = 'servizio';
+                // NOTA: 'servizio' non esiste più come opzione nel Select UI,
+                // quindi va mappato a 'passeggero' o 'personalizzato'
+                let presaTipo: 'passeggero' | 'personalizzato' = 'personalizzato';
                 if (sp.luogo_presa_personalizzato) {
                   presaTipo = 'personalizzato';
                 } else if (sp.usa_indirizzo_personalizzato && (sp.passeggeri?.indirizzo || sp.indirizzo_inline)) {
+                  presaTipo = 'passeggero';
+                } else if (!sp.usa_indirizzo_personalizzato && (sp.passeggeri?.indirizzo || sp.indirizzo_inline)) {
+                  // Era 'servizio' (usa indirizzo servizio) - mappiamo a 'passeggero' se ha indirizzo rubrica
                   presaTipo = 'passeggero';
                 }
                 
