@@ -96,7 +96,7 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
                   {servizio.orario_servizio}
                 </Badge>
                 <span className="text-xs text-muted-foreground font-medium uppercase">Partenza</span>
-                {primoPasseggero && (
+                {primoPasseggero && fermateIntermedie.length === 0 && (
                   <span className="text-sm font-semibold text-foreground">
                     - {primoPasseggero.nome_cognome}
                   </span>

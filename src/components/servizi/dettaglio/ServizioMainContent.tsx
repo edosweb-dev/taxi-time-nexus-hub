@@ -93,7 +93,7 @@ export function ServizioMainContent({
             <div className="flex-1 min-w-0">
               <div className="text-xs text-muted-foreground mb-0.5">
                 <span>Partenza</span>
-                {primoPasseggero && (
+                {primoPasseggero && passeggeriOrdinati.length === 1 && (
                   <span className="text-muted-foreground font-normal">
                     {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
                   </span>
