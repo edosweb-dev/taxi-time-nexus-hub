@@ -19,7 +19,7 @@ export function DipendenteMobileSidebar({ open, onClose }: DipendenteMobileSideb
     {
       title: 'Principale',
       items: [
-        { icon: Home, label: 'Dashboard', path: '/dipendente/dashboard' },
+        { icon: Home, label: 'Calendario', path: '/dipendente/calendario' },
         { icon: Calendar, label: 'Servizi Assegnati', path: '/dipendente/servizi-assegnati' },
         { icon: Clock, label: 'Turni', path: '/dipendente/turni' }
       ]

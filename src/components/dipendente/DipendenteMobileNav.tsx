@@ -14,7 +14,7 @@ export function DipendenteMobileNav() {
       id: 'dashboard',
       icon: Home,
       label: 'Home',
-      path: '/dipendente/dashboard'
+      path: '/dipendente/calendario'
     },
     {
       id: 'servizi',

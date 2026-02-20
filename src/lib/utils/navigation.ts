@@ -10,7 +10,7 @@ export function getDashboardRoute(role: UserRole): string {
       return '/dashboard';
     
     case 'dipendente':
-      return '/dipendente/dashboard';
+      return '/dipendente/calendario';
     
     case 'cliente':
       return '/dashboard-cliente';

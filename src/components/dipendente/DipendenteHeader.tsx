@@ -27,7 +27,7 @@ export function DipendenteHeader({ onMenuToggle }: DipendenteHeaderProps) {
           >
             <Menu className="w-5 h-5" />
           </Button>
-          <Link to="/dipendente/dashboard">
+          <Link to="/dipendente/calendario">
             <h1 className="text-lg font-bold text-primary-foreground leading-tight tracking-wide">TAXITIME</h1>
           </Link>
         </div>
