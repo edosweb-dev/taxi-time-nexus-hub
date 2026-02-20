@@ -13,16 +13,6 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MobileInput } from '@/components/ui/mobile-input';
 import { MobileButton } from '@/components/ui/mobile-button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 interface PasseggeroSelectorProps {
   azienda_id?: string;
@@ -56,27 +46,15 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
     telefono: '',
   });
   
-  // Dialog state per conferma aggiunta passeggero
-  const [pendingPasseggero, setPendingPasseggero] = useState<Passeggero | null>(null);
-  const [showConfigDialog, setShowConfigDialog] = useState(false);
 
   const handleSelectExisting = (passeggero: Passeggero) => {
-    console.log('[PasseggeroSelector] Opening dialog for:', passeggero.id);
-    setPendingPasseggero(passeggero);
-    setShowConfigDialog(true);
-  };
-
-  const handleConfirmAdd = (personalizzato: boolean) => {
-    if (!pendingPasseggero) return;
+    console.log('[PasseggeroSelector] Adding passenger directly:', passeggero.id);
     
-    console.log('[PasseggeroSelector] Confirming add, personalizzato:', personalizzato);
-    
-    // Estrai nome e cognome se non presenti
-    let nome = pendingPasseggero.nome;
-    let cognome = pendingPasseggero.cognome;
+    let nome = passeggero.nome;
+    let cognome = passeggero.cognome;
     
     if (!nome || !cognome) {
-      const nomeCognomeSplit = (pendingPasseggero.nome_cognome || '').trim().split(' ');
+      const nomeCognomeSplit = (passeggero.nome_cognome || '').trim().split(' ');
       if (nomeCognomeSplit.length >= 2) {
         nome = nome || nomeCognomeSplit[0];
         cognome = cognome || nomeCognomeSplit.slice(1).join(' ');
@@ -86,31 +64,32 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
       }
     }
 
+    const hasIndirizzo = Boolean(passeggero.indirizzo || passeggero.localita);
+    
     const passeggeroData = {
-      id: pendingPasseggero.id,
-      passeggero_id: pendingPasseggero.id,
-      nome_cognome: pendingPasseggero.nome_cognome || `${nome || ''} ${cognome || ''}`.trim(),
+      id: passeggero.id,
+      passeggero_id: passeggero.id,
+      nome_cognome: passeggero.nome_cognome || `${nome || ''} ${cognome || ''}`.trim(),
       nome: nome || '',
       cognome: cognome || '',
-      localita: pendingPasseggero.localita || '',
-      indirizzo: pendingPasseggero.indirizzo || '',
-      email: pendingPasseggero.email || '',
-      telefono: pendingPasseggero.telefono || '',
-      usa_indirizzo_personalizzato: personalizzato,
+      localita: passeggero.localita || '',
+      indirizzo: passeggero.indirizzo || '',
+      indirizzo_rubrica: passeggero.indirizzo || '',
+      localita_rubrica: passeggero.localita || '',
+      email: passeggero.email || '',
+      telefono: passeggero.telefono || '',
       is_existing: true,
       salva_in_database: true,
+      presa_tipo: (hasIndirizzo ? 'passeggero' : 'personalizzato') as 'passeggero' | 'personalizzato' | 'servizio',
+      destinazione_tipo: 'personalizzato' as 'passeggero' | 'personalizzato' | 'servizio',
+      presa_usa_orario_servizio: true,
     };
     
-    console.log('[PasseggeroSelector] Final data:', passeggeroData);
     onPasseggeroSelect(passeggeroData);
-    
-    // Toast di conferma visivo
     toast.success(`✅ ${passeggeroData.nome_cognome} aggiunto`);
-    
-    setShowConfigDialog(false);
-    setPendingPasseggero(null);
     setSearchTerm("");
   };
+
 
   const handleCreateNew = () => {
     console.log('[PasseggeroSelector] handleCreateNew called');
@@ -554,53 +533,6 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
         </div>
       </CardContent>
       
-      {/* Dialog conferma aggiunta passeggero */}
-      <AlertDialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
-        <AlertDialogContent className="max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Aggiungi passeggero
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-3">
-              <div className="text-foreground font-medium">
-                {pendingPasseggero?.nome_cognome}
-              </div>
-              {pendingPasseggero?.indirizzo && (
-                <div className="text-sm">
-                  📍 {pendingPasseggero.indirizzo}{pendingPasseggero.localita && `, ${pendingPasseggero.localita}`}
-                </div>
-              )}
-              <p>Vuoi personalizzare indirizzo o orario di presa?</p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-            <AlertDialogCancel 
-              onClick={() => {
-                setShowConfigDialog(false);
-                setPendingPasseggero(null);
-                setSearchTerm(""); // ✅ Pulisci campo ricerca anche su annulla
-              }}
-              className="w-full sm:w-auto min-h-[44px]"
-            >
-              Annulla
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => handleConfirmAdd(false)}
-              className="w-full sm:w-auto min-h-[44px]"
-            >
-              Usa dati servizio
-            </AlertDialogAction>
-            <AlertDialogAction
-              onClick={() => handleConfirmAdd(true)}
-              className="w-full sm:w-auto min-h-[44px] bg-primary"
-            >
-              Personalizza
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </Card>
   );
 }
