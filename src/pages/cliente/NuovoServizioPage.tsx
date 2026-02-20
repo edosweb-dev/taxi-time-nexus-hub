@@ -78,6 +78,25 @@ export default function NuovoServizioPage() {
     enabled: !!authProfile?.id,
   });
 
+  // Query provvigione azienda cliente
+  const { data: aziendaCliente } = useQuery({
+    queryKey: ['azienda-cliente-provvigione', currentProfile?.azienda_id],
+    queryFn: async () => {
+      if (!currentProfile?.azienda_id) return null;
+      const { data, error } = await supabase
+        .from('aziende')
+        .select('provvigione, provvigione_valore')
+        .eq('id', currentProfile.azienda_id)
+        .single();
+      if (error) {
+        console.error('Errore caricamento provvigione azienda:', error);
+        return null;
+      }
+      return data;
+    },
+    enabled: !!currentProfile?.azienda_id,
+  });
+
   // FIX #1: Query passeggeri per azienda_id (non created_by_referente_id)
   const { data: passeggeri = [], isLoading: isLoadingPasseggeri } = useQuery({
     queryKey: ["passeggeri-cliente", currentProfile?.azienda_id],
@@ -215,6 +234,7 @@ export default function NuovoServizioPage() {
           note: values.note || null,
           stato: "richiesta_cliente",
           metodo_pagamento: "Da definire",
+          applica_provvigione: aziendaCliente?.provvigione === true,
         })
         .select()
         .single();
