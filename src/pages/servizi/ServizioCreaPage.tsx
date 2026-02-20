@@ -332,23 +332,30 @@ export const ServizioCreaPage = ({
               .sort((a: any, b: any) => (a.ordine_presa || 1) - (b.ordine_presa || 1))
               .map((sp: any, idx: number) => {
                 // Determina presa_tipo dal DB
-                // NOTA: 'servizio' non esiste più come opzione nel Select UI,
-                // quindi va mappato a 'passeggero' o 'personalizzato'
+                // Usa usa_indirizzo_personalizzato come segnale primario
+                const hasRubricaAddr = !!(sp.passeggeri?.indirizzo || sp.indirizzo_inline);
+                // Verifica se luogo_presa è realmente personalizzato (non una copia dell'indirizzo servizio)
+                const hasRealCustomPresa = sp.luogo_presa_personalizzato 
+                  && sp.luogo_presa_personalizzato !== initialData.indirizzo_presa;
+                
                 let presaTipo: 'passeggero' | 'personalizzato' = 'personalizzato';
-                if (sp.luogo_presa_personalizzato) {
+                if (sp.usa_indirizzo_personalizzato && hasRealCustomPresa) {
+                  // Ha un indirizzo presa personalizzato reale (diverso dal servizio)
                   presaTipo = 'personalizzato';
-                } else if (sp.usa_indirizzo_personalizzato && (sp.passeggeri?.indirizzo || sp.indirizzo_inline)) {
-                  presaTipo = 'passeggero';
-                } else if (!sp.usa_indirizzo_personalizzato && (sp.passeggeri?.indirizzo || sp.indirizzo_inline)) {
-                  // Era 'servizio' (usa indirizzo servizio) - mappiamo a 'passeggero' se ha indirizzo rubrica
+                } else if (hasRubricaAddr) {
+                  // Ha indirizzo in rubrica → mostralo
                   presaTipo = 'passeggero';
                 }
+                // else: resta 'personalizzato' con campi vuoti
                 
                 // Determina destinazione_tipo dal DB
+                const hasRealCustomDest = sp.destinazione_personalizzato 
+                  && sp.destinazione_personalizzato !== initialData.indirizzo_destinazione;
+                
                 let destinazioneTipo: 'servizio' | 'passeggero' | 'personalizzato' = 'servizio';
-                if (sp.destinazione_personalizzato) {
+                if (sp.usa_destinazione_personalizzata && hasRealCustomDest) {
                   destinazioneTipo = 'personalizzato';
-                } else if (sp.usa_destinazione_personalizzata) {
+                } else if (sp.usa_destinazione_personalizzata && hasRubricaAddr) {
                   destinazioneTipo = 'passeggero';
                 }
 
@@ -364,19 +371,19 @@ export const ServizioCreaPage = ({
                   // Nuovi campi per prese intermedie
                   ordine: sp.ordine_presa || idx + 1,
                   presa_tipo: presaTipo,
-                  // ✅ FIX BUG #41: Leggi indirizzo e località dai campi separati
-                  presa_indirizzo_custom: presaTipo === 'personalizzato' 
+                  // ✅ FIX: Usa solo indirizzi realmente personalizzati (non copie del servizio)
+                  presa_indirizzo_custom: presaTipo === 'personalizzato' && hasRealCustomPresa
                     ? (sp.luogo_presa_personalizzato || '') 
                     : '',
-                  presa_citta_custom: presaTipo === 'personalizzato' 
+                  presa_citta_custom: presaTipo === 'personalizzato' && hasRealCustomPresa
                     ? (sp.localita_presa_personalizzato || '') 
                     : '',
                   presa_orario: sp.orario_presa_personalizzato ? sp.orario_presa_personalizzato.slice(0, 5) : '',
                   presa_usa_orario_servizio: idx === 0 && !sp.orario_presa_personalizzato,
                   destinazione_tipo: destinazioneTipo,
-                  // ✅ FIX BUG #41: Leggi indirizzo e località dai campi separati
-                  destinazione_indirizzo_custom: sp.destinazione_personalizzato || '',
-                  destinazione_citta_custom: sp.localita_destinazione_personalizzato || '',
+                  // ✅ FIX: Usa solo destinazioni realmente personalizzate
+                  destinazione_indirizzo_custom: hasRealCustomDest ? (sp.destinazione_personalizzato || '') : '',
+                  destinazione_citta_custom: hasRealCustomDest ? (sp.localita_destinazione_personalizzato || '') : '',
                   indirizzo_rubrica: sp.passeggeri?.indirizzo || sp.indirizzo_inline || '',
                   localita_rubrica: sp.passeggeri?.localita || sp.localita_inline || '',
                   
