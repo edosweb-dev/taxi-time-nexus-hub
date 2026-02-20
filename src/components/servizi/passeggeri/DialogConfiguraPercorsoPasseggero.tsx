@@ -169,25 +169,39 @@ export const DialogConfiguraPercorsoPasseggero = ({
               </ToggleGroup>
 
               {partenzaTipo === 'passeggero' && hasIndirizzo && (
-                <div className="space-y-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-900 flex items-center gap-2">
-                    <Home className="h-4 w-4 flex-shrink-0" />
-                    Indirizzo: <strong>{passeggeroIndirizzo}</strong>
-                  </p>
+                <div className="space-y-3 rounded-lg bg-primary/5 p-4 border border-primary/20">
+                  <div className="flex items-start gap-2 text-sm">
+                    <Home className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">{passeggeroIndirizzo}</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Indirizzo dalla rubrica</p>
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Orario di presa *</Label>
                     <Input type="time" value={orarioPresa} onChange={(e) => setOrarioPresa(e.target.value)} className="h-11 w-full sm:w-40 bg-background" />
+                    <p className="text-xs text-muted-foreground">Specifica quando prelevare il passeggero a questo indirizzo</p>
                   </div>
                 </div>
               )}
               {partenzaTipo === 'servizio' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-sm text-green-900">🚗 Usa: {presaServizioDisplay || "Non specificato"}</p>
+                <div className="rounded-lg bg-primary/5 p-4 border border-primary/20">
+                  <div className="flex items-start gap-2 text-sm">
+                    <Car className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">{presaServizioDisplay || "Non specificato"}</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Partenza del servizio</p>
+                    </div>
+                  </div>
                 </div>
               )}
               {partenzaTipo === 'personalizzato' && (
-                <div className="space-y-4 bg-amber-50/50 border border-amber-200 rounded-lg p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4">
+                <div className="space-y-3 rounded-lg bg-primary/5 p-4 border border-primary/20">
+                  <div className="flex items-start gap-2 text-sm mb-1">
+                    <MapPinned className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                    <span className="font-medium text-foreground">Indirizzo personalizzato</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-3">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Città *</Label>
                       <Input value={presaCitta} onChange={(e) => setPresaCitta(e.target.value)} placeholder="es. Milano" className="h-11 bg-background" />
@@ -237,18 +251,34 @@ export const DialogConfiguraPercorsoPasseggero = ({
               </ToggleGroup>
 
               {arrivoTipo === 'passeggero' && hasIndirizzo && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-900">📍 Usa: {passeggeroIndirizzo}</p>
+                <div className="rounded-lg bg-primary/5 p-4 border border-primary/20">
+                  <div className="flex items-start gap-2 text-sm">
+                    <Home className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">{passeggeroIndirizzo}</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Indirizzo dalla rubrica</p>
+                    </div>
+                  </div>
                 </div>
               )}
               {arrivoTipo === 'servizio' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-sm text-green-900">🏁 Usa: {destServizioDisplay || "Non specificato"}</p>
+                <div className="rounded-lg bg-primary/5 p-4 border border-primary/20">
+                  <div className="flex items-start gap-2 text-sm">
+                    <MapPinned className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">{destServizioDisplay || "Non specificato"}</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Destinazione del servizio</p>
+                    </div>
+                  </div>
                 </div>
               )}
               {arrivoTipo === 'personalizzato' && (
-                <div className="space-y-4 bg-amber-50/50 border border-amber-200 rounded-lg p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4">
+                <div className="space-y-3 rounded-lg bg-primary/5 p-4 border border-primary/20">
+                  <div className="flex items-start gap-2 text-sm mb-1">
+                    <MapPinned className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                    <span className="font-medium text-foreground">Indirizzo personalizzato</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-3">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Città *</Label>
                       <Input value={destCitta} onChange={(e) => setDestCitta(e.target.value)} placeholder="es. Milano" className="h-11 bg-background" />
