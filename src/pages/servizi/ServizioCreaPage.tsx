@@ -55,7 +55,7 @@ import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AziendaSelectField } from "@/components/servizi/AziendaSelectField";
 import { ReferenteSelectField } from '@/components/servizi/ReferenteSelectField';
 import { PasseggeroForm } from "@/components/servizi/passeggeri/PasseggeroForm";
-import { PercorsoSection } from "@/components/servizi/PercorsoSection";
+// PercorsoSection rimossa - indirizzi derivati dal primo passeggero
 import { calculateServizioStato } from '@/utils/servizioValidation';
 
 // Schema per modalità veloce - tipo cliente selezionabile
@@ -96,10 +96,6 @@ const servizioSchemaVeloce = z.object({
   passeggeri_ids: z.array(z.string()).default([]),
   passeggeri: z.array(z.any()).optional().default([]),
   email_notifiche_ids: z.array(z.string()).default([]),
-  partenza_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
-  partenza_passeggero_index: z.number().optional().nullable(),
-  destinazione_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
-  destinazione_passeggero_index: z.number().optional().nullable(),
 });
 
 // Schema validazione completo
@@ -148,14 +144,10 @@ const servizioSchemaCompleto = z.object({
   passeggeri: z.array(z.any()).optional().default([]),
   email_notifiche_ids: z.array(z.string()).default([]),
   note: z.string().optional().nullable(),
-  partenza_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
-  partenza_passeggero_index: z.number().optional().nullable(),
-  destinazione_tipo: z.enum(['personalizzato', 'passeggero']).default('personalizzato'),
   // Campi consuntivo (per edit mode servizi consuntivati)
   incasso_ricevuto: z.number().nullable().optional(),
   ore_sosta: z.number().nullable().optional(),
   km_totali: z.number().nullable().optional(),
-  destinazione_passeggero_index: z.number().optional().nullable(),
 }).refine((data) => {
   // Validation: se azienda → azienda_id required
   if (data.tipo_cliente === 'azienda') {
@@ -235,10 +227,6 @@ export const ServizioCreaPage = ({
       passeggeri_ids: [],
       passeggeri: [],
       email_notifiche_ids: [],
-      partenza_tipo: 'personalizzato',
-      partenza_passeggero_index: null,
-      destinazione_tipo: 'personalizzato',
-      destinazione_passeggero_index: null,
       // Campi consuntivo
       incasso_ricevuto: null,
       ore_sosta: null,
@@ -324,11 +312,6 @@ export const ServizioCreaPage = ({
             indirizzo_presa: initialData.indirizzo_presa || '',
             citta_destinazione: initialData.citta_destinazione || null,
             indirizzo_destinazione: initialData.indirizzo_destinazione || '',
-            // ✅ FIX: Imposta esplicitamente partenza/destinazione tipo per mostrare campi in modifica
-            partenza_tipo: 'personalizzato',
-            partenza_passeggero_index: null,
-            destinazione_tipo: 'personalizzato',
-            destinazione_passeggero_index: null,
             metodo_pagamento: initialData.metodo_pagamento || '',
             conducente_esterno: initialData.conducente_esterno || false,
             assegnato_a: initialData.assegnato_a || null,
@@ -1019,6 +1002,33 @@ export const ServizioCreaPage = ({
         });
       }
 
+      // ========== Popola indirizzi dal primo passeggero ==========
+      if (data.passeggeri && data.passeggeri.length > 0) {
+        const primo = data.passeggeri[0];
+        
+        if (primo.presa_tipo === 'personalizzato') {
+          data.indirizzo_presa = primo.presa_indirizzo_custom || data.indirizzo_presa || '';
+          data.citta_presa = primo.presa_citta_custom || data.citta_presa || null;
+        } else if (primo.presa_tipo === 'passeggero') {
+          data.indirizzo_presa = primo.indirizzo_rubrica || primo.indirizzo || data.indirizzo_presa || '';
+          data.citta_presa = primo.localita_rubrica || primo.localita || data.citta_presa || null;
+        }
+        
+        if (primo.destinazione_tipo === 'personalizzato') {
+          data.indirizzo_destinazione = primo.destinazione_indirizzo_custom || data.indirizzo_destinazione || '';
+          data.citta_destinazione = primo.destinazione_citta_custom || data.citta_destinazione || null;
+        } else if (primo.destinazione_tipo === 'passeggero') {
+          data.indirizzo_destinazione = primo.indirizzo_rubrica || primo.indirizzo || data.indirizzo_destinazione || '';
+          data.citta_destinazione = primo.localita_rubrica || primo.localita || data.citta_destinazione || null;
+        }
+        
+        console.log('[Submit] Indirizzi popolati dal primo passeggero:', {
+          presa: data.indirizzo_presa,
+          destinazione: data.indirizzo_destinazione,
+        });
+      }
+      // ==========================================================
+
       const servizioData = {
         tipo_cliente: data.tipo_cliente,
         created_by: user.id,
@@ -1603,17 +1613,7 @@ export const ServizioCreaPage = ({
             )}
           </Card>
 
-          {/* SEZIONE 2: Percorso - nascosto in modalità veloce */}
-          {!isVeloce && (
-          <Card className="w-full p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-base sm:text-lg font-semibold">Percorso</h2>
-            </div>
-            
-            <PercorsoSection />
-          </Card>
-          )}
+          {/* SEZIONE 2: Percorso - RIMOSSA: indirizzi derivati dal primo passeggero */}
 
           {/* SEZIONE 3: Passeggeri */}
           {!isVeloce && (
