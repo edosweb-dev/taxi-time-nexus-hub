@@ -202,6 +202,7 @@ export const ServizioCreaPage = ({
   const formMode = searchParams.get("mode") || "completo";
   const isVeloce = formMode === "veloce";
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(mode === 'edit');
   const [isPasseggeriOpen, setIsPasseggeriOpen] = useState(false);
   const [isEmailOpen, setIsEmailOpen] = useState(false);
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
@@ -275,6 +276,7 @@ export const ServizioCreaPage = ({
         conducente_esterno_id: initialData.conducente_esterno_id
       });
       const loadData = async () => {
+        setIsEditLoading(true);
         try {
           // ✅ Usa i passeggeri già fetchati da ModificaServizioPage
           const passeggeriData = initialData.servizi_passeggeri || [];
@@ -444,6 +446,8 @@ export const ServizioCreaPage = ({
           });
           
           toast.error('Errore nel caricamento dei dati del servizio');
+        } finally {
+          setIsEditLoading(false);
         }
       };
       
@@ -1412,7 +1416,16 @@ export const ServizioCreaPage = ({
       {/* Form */}
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="w-full sm:max-w-7xl">
-          <div className="w-full space-y-4 sm:space-y-6">
+          {isEditLoading && (
+            <div className="flex items-center gap-3 p-4 mb-4 rounded-lg border border-primary/30 bg-primary/5">
+              <Loader2 className="h-5 w-5 animate-spin text-primary flex-shrink-0" />
+              <div>
+                <p className="font-medium text-sm">Caricamento dati servizio...</p>
+                <p className="text-xs text-muted-foreground">Attendere il completamento prima di modificare</p>
+              </div>
+            </div>
+          )}
+          <fieldset disabled={isEditLoading} className="w-full space-y-4 sm:space-y-6">
           
           {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce */}
           {!isVeloce && (
@@ -2202,7 +2215,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-        </div>
+
+        </fieldset>
 
         {/* Footer Buttons - Sticky Mobile */}
         <div className="sticky inset-x-0 bottom-0 bg-background border-t mt-6 sm:mt-8 pt-3 sm:pt-6 pb-20 sm:pb-0 sm:relative sm:bg-transparent z-10 shadow-lg sm:shadow-none">
@@ -2210,11 +2224,13 @@ export const ServizioCreaPage = ({
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isEditLoading}
               className="w-full sm:w-auto min-w-[200px] order-1 sm:order-2"
               size="lg"
             >
-              {isVeloce 
+              {isEditLoading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Caricamento...</>
+              ) : isVeloce 
                 ? (isSubmitting ? "Salvataggio..." : "Salva bozza")
                 : isSubmitting 
                   ? (mode === 'edit' ? "Salvataggio..." : "Creazione...") 
