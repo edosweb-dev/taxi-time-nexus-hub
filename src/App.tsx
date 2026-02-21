@@ -63,6 +63,9 @@ import ProfilePage from './pages/ProfilePage';
 import AssistenzaPage from './pages/AssistenzaPage';
 import ReportPasseggeriPage from './pages/reports/ReportPasseggeriPage';
 import ReportSociPage from './pages/ReportSociPage';
+import ImpostazioniSmtpPage from './pages/admin/ImpostazioniSmtpPage';
+import ImpostazioniTemplateEmailPage from './pages/admin/ImpostazioniTemplateEmailPage';
+import LogEmailPage from './pages/admin/LogEmailPage';
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -159,6 +162,21 @@ function App() {
                 <Route path="/impostazioni" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ImpostazioniPage />
+                  </AuthGuard>
+                } />
+                <Route path="/admin/impostazioni/smtp" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <ImpostazioniSmtpPage />
+                  </AuthGuard>
+                } />
+                <Route path="/admin/impostazioni/template-email" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <ImpostazioniTemplateEmailPage />
+                  </AuthGuard>
+                } />
+                <Route path="/admin/log-email" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <LogEmailPage />
                   </AuthGuard>
                 } />
 

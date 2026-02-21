@@ -15,7 +15,9 @@ import {
   MessageCircle,
   Clock,
   UserCircle,
-  FileBarChart
+  FileBarChart,
+  Mail,
+  FileSearch
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -141,6 +143,24 @@ const navItems: NavItem[] = [
     icon: Settings,
     roles: ['admin', 'socio'],
   },
+  {
+    title: 'Config. SMTP',
+    href: '/admin/impostazioni/smtp',
+    icon: Settings,
+    roles: ['admin'],
+  },
+  {
+    title: 'Template Email',
+    href: '/admin/impostazioni/template-email',
+    icon: Mail,
+    roles: ['admin'],
+  },
+  {
+    title: 'Log Email',
+    href: '/admin/log-email',
+    icon: FileSearch,
+    roles: ['admin'],
+  },
 ];
 
 export function SidebarNavLinks() {
@@ -158,7 +178,7 @@ export function SidebarNavLinks() {
     main: filteredNavItems.filter(item => ['Dashboard', 'Servizi', 'Turni', 'Nuovo Servizio', 'Passeggeri', 'Report'].includes(item.title)),
     management: filteredNavItems.filter(item => ['Aziende', 'Privati', 'Utenti', 'Veicoli', 'Conducenti Esterni', 'Feedback'].includes(item.title)),
     reports: filteredNavItems.filter(item => ['Report Passeggeri', 'Report Soci'].includes(item.title)),
-    finance: filteredNavItems.filter(item => ['Stipendi', 'Spese Aziendali', 'Impostazioni'].includes(item.title))
+    finance: filteredNavItems.filter(item => ['Stipendi', 'Spese Aziendali', 'Impostazioni', 'Config. SMTP', 'Template Email', 'Log Email'].includes(item.title))
   };
 
   const renderNavGroup = (title: string, items: any[], isLast = false) => {

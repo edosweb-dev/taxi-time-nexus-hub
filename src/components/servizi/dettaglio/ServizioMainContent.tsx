@@ -2,12 +2,13 @@ import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, User, Clock, Car, Flag, Navigation } from "lucide-react";
+import { MapPin, User, Clock, Car, Flag, Navigation, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FinancialSection } from "./sections/FinancialSection";
 import { useUsers } from "@/hooks/useUsers";
 import { useAziende } from "@/hooks/useAziende";
 import { NoteCard } from "@/components/dipendente/servizi/dettaglio/NoteCard";
+import { EmailLogsTab } from "./EmailLogsTab";
 
 // Helper: build grouped destination stops
 function getDestinazioniRaggruppate(
@@ -322,6 +323,20 @@ export function ServizioMainContent({
                 Firma non ancora ricevuta
               </div>
             )}
+          </CardContent>
+        </Card>
+      )}
+      {/* Email Logs - solo admin/socio */}
+      {isAdminOrSocio && (
+        <Card className="col-span-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Email Inviate
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <EmailLogsTab servizioId={servizio.id} />
           </CardContent>
         </Card>
       )}

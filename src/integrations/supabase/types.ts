@@ -229,39 +229,66 @@ export type Database = {
           destinatario: string
           email_notifica_id: string | null
           error_message: string | null
+          event_type: string | null
           id: string
+          last_retry_at: string | null
           oggetto: string
+          recipient_email: string | null
           resend_id: string | null
+          retry_count: number | null
           sent_at: string | null
           servizio_id: string | null
+          smtp_message_id: string | null
+          smtp_response: string | null
           stato: string | null
+          status: string | null
+          subject: string | null
           template: string
+          template_slug: string | null
         }
         Insert: {
           created_at?: string | null
           destinatario: string
           email_notifica_id?: string | null
           error_message?: string | null
+          event_type?: string | null
           id?: string
+          last_retry_at?: string | null
           oggetto: string
+          recipient_email?: string | null
           resend_id?: string | null
+          retry_count?: number | null
           sent_at?: string | null
           servizio_id?: string | null
+          smtp_message_id?: string | null
+          smtp_response?: string | null
           stato?: string | null
+          status?: string | null
+          subject?: string | null
           template: string
+          template_slug?: string | null
         }
         Update: {
           created_at?: string | null
           destinatario?: string
           email_notifica_id?: string | null
           error_message?: string | null
+          event_type?: string | null
           id?: string
+          last_retry_at?: string | null
           oggetto?: string
+          recipient_email?: string | null
           resend_id?: string | null
+          retry_count?: number | null
           sent_at?: string | null
           servizio_id?: string | null
+          smtp_message_id?: string | null
+          smtp_response?: string | null
           stato?: string | null
+          status?: string | null
+          subject?: string | null
           template?: string
+          template_slug?: string | null
         }
         Relationships: [
           {
@@ -277,6 +304,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "servizi"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_logs_template_slug_fkey"
+            columns: ["template_slug"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["slug"]
           },
         ]
       }
@@ -330,6 +364,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_templates: {
+        Row: {
+          attivo: boolean | null
+          created_at: string | null
+          descrizione: string | null
+          html_body: string
+          id: string
+          nome: string
+          slug: string
+          subject: string
+          updated_at: string | null
+          variabili_disponibili: Json | null
+        }
+        Insert: {
+          attivo?: boolean | null
+          created_at?: string | null
+          descrizione?: string | null
+          html_body: string
+          id?: string
+          nome: string
+          slug: string
+          subject: string
+          updated_at?: string | null
+          variabili_disponibili?: Json | null
+        }
+        Update: {
+          attivo?: boolean | null
+          created_at?: string | null
+          descrizione?: string | null
+          html_body?: string
+          id?: string
+          nome?: string
+          slug?: string
+          subject?: string
+          updated_at?: string | null
+          variabili_disponibili?: Json | null
+        }
+        Relationships: []
       }
       feedback: {
         Row: {
@@ -387,11 +460,19 @@ export type Database = {
           aliquote_iva: Json | null
           created_at: string | null
           email: string | null
+          email_enabled: boolean | null
           id: string
           indirizzo_sede: string | null
           metodi_pagamento: Json | null
           nome_azienda: string
           partita_iva: string | null
+          smtp_from_email: string | null
+          smtp_from_name: string | null
+          smtp_host: string | null
+          smtp_password_encrypted: string | null
+          smtp_port: number | null
+          smtp_secure: boolean | null
+          smtp_user: string | null
           telefono: string | null
           updated_at: string | null
         }
@@ -399,11 +480,19 @@ export type Database = {
           aliquote_iva?: Json | null
           created_at?: string | null
           email?: string | null
+          email_enabled?: boolean | null
           id?: string
           indirizzo_sede?: string | null
           metodi_pagamento?: Json | null
           nome_azienda?: string
           partita_iva?: string | null
+          smtp_from_email?: string | null
+          smtp_from_name?: string | null
+          smtp_host?: string | null
+          smtp_password_encrypted?: string | null
+          smtp_port?: number | null
+          smtp_secure?: boolean | null
+          smtp_user?: string | null
           telefono?: string | null
           updated_at?: string | null
         }
@@ -411,11 +500,19 @@ export type Database = {
           aliquote_iva?: Json | null
           created_at?: string | null
           email?: string | null
+          email_enabled?: boolean | null
           id?: string
           indirizzo_sede?: string | null
           metodi_pagamento?: Json | null
           nome_azienda?: string
           partita_iva?: string | null
+          smtp_from_email?: string | null
+          smtp_from_name?: string | null
+          smtp_host?: string | null
+          smtp_password_encrypted?: string | null
+          smtp_port?: number | null
+          smtp_secure?: boolean | null
+          smtp_user?: string | null
           telefono?: string | null
           updated_at?: string | null
         }
@@ -1663,7 +1760,32 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      email_logs_summary: {
+        Row: {
+          failed_count: number | null
+          last_sent_at: string | null
+          sent_count: number | null
+          servizio_id: string | null
+          template_slug: string | null
+          total_emails: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_servizio_id_fkey"
+            columns: ["servizio_id"]
+            isOneToOne: false
+            referencedRelation: "servizi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_logs_template_slug_fkey"
+            columns: ["template_slug"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
     }
     Functions: {
       can_update_profile_role: {
@@ -1681,6 +1803,20 @@ export type Database = {
         }[]
       }
       get_primary_role: { Args: { _user_id: string }; Returns: string }
+      get_servizio_email_history: {
+        Args: { p_servizio_id: string }
+        Returns: {
+          error_message: string
+          log_id: string
+          recipient_email: string
+          retry_count: number
+          sent_at: string
+          smtp_response: string
+          status: string
+          template_attivo: boolean
+          template_nome: string
+        }[]
+      }
       get_user_role: { Args: { user_id: string }; Returns: string }
       get_user_role_and_azienda: {
         Args: { user_id: string }
