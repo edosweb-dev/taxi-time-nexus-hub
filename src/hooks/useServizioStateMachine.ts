@@ -11,6 +11,7 @@ import {
   updateServizio as apiUpdateServizio 
 } from '@/lib/api/servizi';
 import { sendNotification } from '@/hooks/useSendNotification';
+import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import type { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/types';
 import type { Servizio, StatoServizio } from '@/lib/types/servizi';
 
@@ -80,6 +81,11 @@ export function useServizioStateMachine() {
         toast.success('Servizio creato e assegnato!');
       } else {
         toast.success(`Servizio creato con stato: ${formatStatoLabel(servizio.stato)}`);
+      }
+      
+      // 📧 Email notifica creazione servizio
+      if (servizio.id) {
+        sendEmailNotification(servizio.id, 'servizio_creato');
       }
     },
     onError: (error: any) => {
@@ -217,9 +223,10 @@ export function useServizioStateMachine() {
       });
       toast.success('Servizio assegnato!');
       
-      // Invia notifica email ai destinatari configurati
+      // Invia notifica email ai destinatari configurati (legacy + SMTP)
       if (data?.id) {
         sendNotification(data.id, 'assegnato');
+        sendEmailNotification(data.id, 'servizio_assegnato');
       }
     },
     onError: (error: any) => {

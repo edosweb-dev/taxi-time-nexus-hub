@@ -81,8 +81,15 @@ export function useCompletaServizio() {
         setIsCompleting(false);
       }
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       toast.success('Servizio completato! ✅');
+      
+      // 📧 Email notifica completamento
+      if (variables.servizioId) {
+        import('@/lib/api/email/sendNotification').then(({ sendEmailNotification }) => {
+          sendEmailNotification(variables.servizioId, 'servizio_completato');
+        });
+      }
       
       // Invalidate all relevant queries
       queryClient.invalidateQueries({ queryKey: ['servizi-assegnati'] });

@@ -310,6 +310,13 @@ export default function NuovoServizioPage() {
       queryClient.invalidateQueries({ queryKey: ["servizi-cliente"] });
       queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente"] });
       
+      // 📧 Email notifica richiesta cliente
+      if (servizio?.id) {
+        import('@/lib/api/email/sendNotification').then(({ sendEmailNotification }) => {
+          sendEmailNotification(servizio.id, 'richiesta_cliente');
+        });
+      }
+      
       toast({
         title: "✅ Servizio richiesto",
         description: "Reindirizzamento alla conferma...",

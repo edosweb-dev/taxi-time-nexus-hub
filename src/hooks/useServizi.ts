@@ -5,6 +5,7 @@ import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
 import { sendNotification } from '@/hooks/useSendNotification';
+import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import { 
   calculateServizioStato, 
   getMissingFields,
@@ -88,6 +89,11 @@ export function useServizi() {
         toast.success(`Servizio creato con stato: ${formatStatoLabel(servizio.stato)}`);
       }
       
+      // 📧 Email notifica creazione servizio
+      if (servizio.id) {
+        sendEmailNotification(servizio.id, 'servizio_creato');
+      }
+      
       return servizio;
     },
     onError: (error: any) => {
@@ -116,9 +122,10 @@ export function useServizi() {
       });
       toast.success('Stato del servizio aggiornato con successo');
       
-      // Invia notifica email per annullamento
+      // Invia notifica email per annullamento (legacy + SMTP)
       if (stato === 'annullato' && servizio?.id) {
         sendNotification(servizio.id, 'annullato');
+        sendEmailNotification(servizio.id, 'servizio_annullato');
       }
     },
     onError: (error: any) => {
@@ -138,9 +145,10 @@ export function useServizi() {
       });
       toast.success('Servizio completato con successo');
       
-      // Invia notifica email per completamento
+      // Invia notifica email per completamento (legacy + SMTP)
       if (result?.data?.[0]?.id) {
         sendNotification(result.data[0].id, 'completato');
+        sendEmailNotification(result.data[0].id, 'servizio_completato');
       }
     },
     onError: (error: any) => {
@@ -151,7 +159,7 @@ export function useServizi() {
 
   const consuntivaServizioMutation = useMutation({
     mutationFn: consuntivaServizio,
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ 
         predicate: (query) => {
           const key = query.queryKey[0];
@@ -159,6 +167,11 @@ export function useServizi() {
         }
       });
       toast.success('Servizio consuntivato con successo');
+      
+      // 📧 Email notifica consuntivazione
+      if (result?.data?.[0]?.id) {
+        sendEmailNotification(result.data[0].id, 'servizio_consuntivato');
+      }
     },
     onError: (error: any) => {
       console.error('Error finalizing service:', error);
