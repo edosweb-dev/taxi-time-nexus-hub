@@ -1,466 +1,264 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
-interface NotificationRequest {
-  servizio_id: string;
-  tipo_evento: "assegnato" | "completato" | "annullato" | "richiesta";
-}
-
-interface EmailTemplate {
-  subject: string;
-  html: string;
-}
-
 serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    if (!RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY non configurata");
-    }
+    const { servizio_id, template_slug } = await req.json();
+    
+    console.log('[SEND-EMAIL] Start:', { servizio_id, template_slug });
 
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-    const { servizio_id, tipo_evento }: NotificationRequest = await req.json();
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { auth: { persistSession: false } }
+    );
 
-    console.log(`[send-notification] Invio notifica ${tipo_evento} per servizio ${servizio_id}`);
-
-    // 1. Fetch servizio con tutti i dettagli
-    const { data: servizio, error: servizioError } = await supabase
-      .from("servizi")
-      .select(`
-        *,
-        aziende:azienda_id(nome, email),
-        autista:assegnato_a(first_name, last_name, email)
-      `)
-      .eq("id", servizio_id)
+    // 1. FETCH CONFIG
+    const { data: config, error: configError } = await supabaseAdmin
+      .from('impostazioni')
+      .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
       .single();
 
-    if (servizioError || !servizio) {
-      throw new Error(`Servizio non trovato: ${servizioError?.message}`);
-    }
-
-    // 2. Costruisci lista destinatari automatica
-    const destinatariMap = new Map<string, { id: string | null; nome: string; email: string }>();
-
-    // 2a. Destinatario principale: referente o azienda
-    if (servizio.referente_id) {
-      // Fetch email referente
-      const { data: referente } = await supabase
-        .from("profiles")
-        .select("id, email, first_name, last_name")
-        .eq("id", servizio.referente_id)
-        .single();
-
-      if (referente?.email) {
-        const nomeReferente = `${referente.first_name || ""} ${referente.last_name || ""}`.trim() || "Referente";
-        destinatariMap.set(referente.email.toLowerCase(), {
-          id: null,
-          nome: nomeReferente,
-          email: referente.email,
-        });
-        console.log(`[send-notification] ✅ Aggiunto referente: ${referente.email}`);
-      }
-    } else if (servizio.aziende?.email) {
-      // Usa email azienda come fallback
-      destinatariMap.set(servizio.aziende.email.toLowerCase(), {
-        id: null,
-        nome: servizio.aziende.nome || "Azienda",
-        email: servizio.aziende.email,
+    if (configError) throw new Error(`Config error: ${configError.message}`);
+    if (!config.email_enabled) {
+      console.log('[SEND-EMAIL] Email disabled');
+      return new Response(JSON.stringify({ success: false, message: 'Email disabled' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
-      console.log(`[send-notification] ✅ Aggiunto azienda: ${servizio.aziende.email}`);
     }
 
-    // 2b. Aggiungi email passeggeri del servizio
-    const { data: serviziPasseggeri } = await supabase
-      .from("servizi_passeggeri")
-      .select("passeggero_id, email_inline")
-      .eq("servizio_id", servizio_id);
+    // 2. FETCH TEMPLATE
+    const { data: template, error: templateError } = await supabaseAdmin
+      .from('email_templates')
+      .select('*')
+      .eq('slug', template_slug)
+      .single();
 
-    if (serviziPasseggeri && serviziPasseggeri.length > 0) {
-      // Raccogli ID passeggeri validi
-      const passeggeroIds = serviziPasseggeri
-        .map((sp: any) => sp.passeggero_id)
-        .filter((id: any) => id);
-      
-      if (passeggeroIds.length > 0) {
-        const { data: passeggeri } = await supabase
-          .from("passeggeri")
-          .select("id, nome_cognome, email")
-          .in("id", passeggeroIds);
+    if (templateError) throw new Error(`Template error: ${templateError.message}`);
+    if (!template.attivo) {
+      console.log('[SEND-EMAIL] Template disabled:', template_slug);
+      return new Response(JSON.stringify({ success: false, message: 'Template disabled' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
-        passeggeri?.forEach((p: any) => {
-          if (p.email && !destinatariMap.has(p.email.toLowerCase())) {
-            destinatariMap.set(p.email.toLowerCase(), {
-              id: null,
-              nome: p.nome_cognome || "Passeggero",
-              email: p.email,
-            });
-            console.log(`[send-notification] ✅ Aggiunto passeggero: ${p.email}`);
-          }
-        });
-      }
+    // 3. FETCH SERVIZIO
+    const { data: servizio, error: servizioError } = await supabaseAdmin
+      .from('servizi')
+      .select(`
+        *,
+        aziende(*),
+        referente:profiles!servizi_assegnato_a_fkey(email, first_name, last_name),
+        autista:profiles!servizi_assegnato_a_fkey(email, first_name, last_name),
+        veicoli(*),
+        servizi_passeggeri(passeggeri(nome_cognome, email)),
+        servizi_email_notifiche(email_notifiche(email, nome))
+      `)
+      .eq('id', servizio_id)
+      .single();
 
-      // Aggiungi anche email inline dei passeggeri
-      serviziPasseggeri.forEach((sp: any) => {
-        if (sp.email_inline && !destinatariMap.has(sp.email_inline.toLowerCase())) {
-          destinatariMap.set(sp.email_inline.toLowerCase(), {
-            id: null,
-            nome: "Passeggero",
-            email: sp.email_inline,
+    if (servizioError) throw new Error(`Servizio error: ${servizioError.message}`);
+
+    // Fetch referente separately since there's no direct FK named servizi_referente_id_fkey
+    let referente = null;
+    if (servizio.referente_id) {
+      const { data: refData } = await supabaseAdmin
+        .from('profiles')
+        .select('email, first_name, last_name')
+        .eq('id', servizio.referente_id)
+        .single();
+      referente = refData;
+    }
+
+    // 4. BUILD RECIPIENTS
+    const recipients: { email: string; name: string }[] = [];
+    
+    if (referente?.email) {
+      recipients.push({
+        email: referente.email,
+        name: `${referente.first_name || ''} ${referente.last_name || ''}`.trim()
+      });
+    }
+
+    if (servizio.autista?.email && ['servizio_assegnato', 'servizio_completato'].includes(template_slug)) {
+      recipients.push({
+        email: servizio.autista.email,
+        name: `${servizio.autista.first_name || ''} ${servizio.autista.last_name || ''}`.trim()
+      });
+    }
+
+    if (servizio.servizi_passeggeri) {
+      servizio.servizi_passeggeri.forEach((sp: any) => {
+        if (sp.passeggeri?.email) {
+          recipients.push({
+            email: sp.passeggeri.email,
+            name: sp.passeggeri.nome_cognome
           });
-          console.log(`[send-notification] ✅ Aggiunto passeggero inline: ${sp.email_inline}`);
         }
       });
     }
 
-    // 2c. Aggiungi email notifiche aggiuntive (configurate manualmente)
-    const { data: emailLinks, error: emailError } = await supabase
-      .from("servizi_email_notifiche")
-      .select(`
-        email_notifiche:email_notifica_id(id, nome, email, attivo)
-      `)
-      .eq("servizio_id", servizio_id);
-
-    if (emailError) {
-      console.error("[send-notification] Errore fetch email notifiche:", emailError);
+    if (servizio.servizi_email_notifiche) {
+      servizio.servizi_email_notifiche.forEach((sen: any) => {
+        if (sen.email_notifiche?.email) {
+          recipients.push({
+            email: sen.email_notifiche.email,
+            name: sen.email_notifiche.nome
+          });
+        }
+      });
     }
 
-    emailLinks?.forEach((link: any) => {
-      const email = link.email_notifiche;
-      if (email?.attivo && email?.email && !destinatariMap.has(email.email.toLowerCase())) {
-        destinatariMap.set(email.email.toLowerCase(), {
-          id: email.id,
-          nome: email.nome || "Contatto",
-          email: email.email,
-        });
-        console.log(`[send-notification] ✅ Aggiunto email notifica: ${email.email}`);
+    const uniqueRecipients = Array.from(
+      new Map(recipients.map(r => [r.email.toLowerCase(), r])).values()
+    );
+
+    if (uniqueRecipients.length === 0) {
+      console.log('[SEND-EMAIL] No recipients');
+      return new Response(JSON.stringify({ success: false, message: 'No recipients' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    console.log('[SEND-EMAIL] Recipients:', uniqueRecipients.length);
+
+    // 5. BUILD EMAIL CONTENT
+    const variables: Record<string, string> = {
+      numero: servizio.numero_commessa || servizio.id_progressivo || servizio.id.split('-')[0].toUpperCase(),
+      azienda_nome: servizio.aziende?.nome || '',
+      data: new Date(servizio.data_servizio).toLocaleDateString('it-IT'),
+      ora: servizio.orario_servizio?.slice(0, 5) || '',
+      indirizzo_presa: servizio.indirizzo_presa || '',
+      citta_presa: servizio.citta_presa || '',
+      indirizzo_destinazione: servizio.indirizzo_destinazione || '',
+      citta_destinazione: servizio.citta_destinazione || '',
+      autista_nome: servizio.autista ? `${servizio.autista.first_name || ''} ${servizio.autista.last_name || ''}`.trim() : '',
+      veicolo: servizio.veicoli ? `${servizio.veicoli.modello} ${servizio.veicoli.targa}` : '',
+      note: servizio.note || '',
+      data_completamento: new Date().toLocaleDateString('it-IT'),
+      motivo: ''
+    };
+
+    let emailHtml = template.html_body;
+    let emailSubject = template.subject;
+    Object.keys(variables).forEach(key => {
+      const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+      emailHtml = emailHtml.replace(regex, variables[key]);
+      emailSubject = emailSubject.replace(regex, variables[key]);
+    });
+
+    // 6. CHECK SMTP CONFIG
+    if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
+      console.log('[SEND-EMAIL] SMTP not configured');
+      return new Response(JSON.stringify({ success: false, message: 'SMTP not configured' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 7. DECRYPT PASSWORD & CREATE SMTP CLIENT
+    const password = atob(config.smtp_password_encrypted);
+    
+    const smtp = new SMTPClient({
+      connection: {
+        hostname: config.smtp_host,
+        port: config.smtp_port,
+        tls: config.smtp_secure,
+        auth: {
+          username: config.smtp_user,
+          password: password
+        }
       }
     });
 
-    // Converti Map in array
-    const destinatari = Array.from(destinatariMap.values());
+    // 8. SEND EMAILS
+    const results = { sent: 0, failed: 0, total: uniqueRecipients.length };
+    const logs: any[] = [];
 
-    console.log(`[send-notification] Totale destinatari: ${destinatari.length}`);
+    for (let i = 0; i < uniqueRecipients.length; i++) {
+      const recipient = uniqueRecipients[i];
+      
+      const logEntry: Record<string, any> = {
+        servizio_id: servizio_id,
+        template_slug: template_slug,
+        template: template_slug,
+        recipient_email: recipient.email,
+        destinatario: recipient.email,
+        subject: emailSubject,
+        oggetto: emailSubject,
+        sent_at: new Date().toISOString(),
+        status: 'sent',
+        stato: 'sent',
+        error_message: null,
+        smtp_response: null,
+        smtp_message_id: null
+      };
 
-    if (destinatari.length === 0) {
-      console.log("[send-notification] Nessun destinatario configurato");
-      return new Response(
-        JSON.stringify({ success: true, message: "Nessun destinatario configurato", sent: 0 }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // 3. Genera template email
-    const template = generateEmailTemplate(servizio, tipo_evento);
-
-    // 4. Invia email a tutti i destinatari
-    let sentCount = 0;
-    let failedCount = 0;
-
-    for (const dest of destinatari) {
       try {
-        // Chiamata API Resend
-        const resendResponse = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "TaxiTime <noreply@taxitime.app>",
-            to: [dest.email],
-            subject: template.subject,
-            html: template.html,
-          }),
+        const sendResult = await smtp.send({
+          from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
+          to: [recipient.email],
+          subject: emailSubject,
+          html: emailHtml
         });
 
-        const resendData = await resendResponse.json();
+        results.sent++;
+        logEntry.smtp_message_id = sendResult?.messageId || null;
+        logEntry.smtp_response = 'OK';
+        console.log(`[SEND-EMAIL] ✅ Sent to ${recipient.email}`);
+        
+      } catch (error: any) {
+        results.failed++;
+        logEntry.status = 'failed';
+        logEntry.stato = 'failed';
+        logEntry.error_message = error.message;
+        logEntry.smtp_response = error.toString();
+        console.error(`[SEND-EMAIL] ❌ Failed to ${recipient.email}:`, error.message);
+      }
 
-        if (resendResponse.ok) {
-          // Log successo
-          await supabase.from("email_logs").insert({
-            servizio_id,
-            email_notifica_id: dest.id,
-            destinatario: dest.email,
-            oggetto: template.subject,
-            template: tipo_evento,
-            stato: "sent",
-            resend_id: resendData.id,
-            sent_at: new Date().toISOString(),
-          });
-          sentCount++;
-          console.log(`[send-notification] ✅ Email inviata a ${dest.email}`);
-        } else {
-          // Log errore
-          await supabase.from("email_logs").insert({
-            servizio_id,
-            email_notifica_id: dest.id,
-            destinatario: dest.email,
-            oggetto: template.subject,
-            template: tipo_evento,
-            stato: "failed",
-            error_message: resendData.message || JSON.stringify(resendData),
-          });
-          failedCount++;
-          console.error(`[send-notification] ❌ Errore invio a ${dest.email}:`, resendData);
-        }
-      } catch (emailError: any) {
-        // Log errore catch
-        await supabase.from("email_logs").insert({
-          servizio_id,
-          email_notifica_id: dest.id,
-          destinatario: dest.email,
-          oggetto: template.subject,
-          template: tipo_evento,
-          stato: "failed",
-          error_message: emailError.message,
-        });
-        failedCount++;
-        console.error(`[send-notification] ❌ Eccezione invio a ${dest.email}:`, emailError);
+      logs.push(logEntry);
+
+      // Rate limit: 100ms between sends
+      if (i < uniqueRecipients.length - 1) {
+        await new Promise(r => setTimeout(r, 100));
       }
     }
 
+    await smtp.close();
+
+    // 9. SAVE LOGS
+    if (logs.length > 0) {
+      const { error: logError } = await supabaseAdmin
+        .from('email_logs')
+        .insert(logs);
+
+      if (logError) {
+        console.error('[SEND-EMAIL] Log save error:', logError);
+      }
+    }
+
+    console.log('[SEND-EMAIL] Complete:', results);
+
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        sent: sentCount, 
-        failed: failedCount,
-        total: destinatari.length 
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ success: true, ...results }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error: any) {
-    console.error("[send-notification] Errore:", error);
+    console.error('[SEND-EMAIL] Error:', error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
-
-function generateEmailTemplate(servizio: any, tipo: string): EmailTemplate {
-  const numeroServizio = servizio.numero_commessa || servizio.id_progressivo || servizio.id;
-  const dataServizio = servizio.data_servizio 
-    ? new Date(servizio.data_servizio).toLocaleDateString("it-IT", { 
-        weekday: "long", 
-        year: "numeric", 
-        month: "long", 
-        day: "numeric" 
-      })
-    : "Data non specificata";
-  const orario = servizio.orario_servizio?.slice(0, 5) || "Orario non specificato";
-  const partenza = `${servizio.citta_presa || ""} - ${servizio.indirizzo_presa || ""}`.trim() || "Non specificata";
-  const destinazione = `${servizio.citta_destinazione || ""} - ${servizio.indirizzo_destinazione || ""}`.trim() || "Non specificata";
-  const azienda = servizio.aziende?.nome || "Cliente privato";
-  const autista = servizio.autista 
-    ? `${servizio.autista.first_name || ""} ${servizio.autista.last_name || ""}`.trim() 
-    : "Non assegnato";
-
-  const baseStyle = `
-    <style>
-      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-      .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-      .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); color: white; padding: 30px 20px; text-align: center; }
-      .header h1 { margin: 0 0 10px 0; font-size: 24px; }
-      .header h2 { margin: 0; font-size: 18px; font-weight: normal; opacity: 0.9; }
-      .content { padding: 30px 20px; }
-      .content p { margin: 0 0 15px 0; }
-      .detail-box { background: #f8f9fa; border-left: 4px solid #1e3a5f; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }
-      .detail-row { padding: 8px 0; border-bottom: 1px solid #eee; }
-      .detail-row:last-child { border-bottom: none; }
-      .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
-      .status-confirmed { color: #28a745; }
-      .status-completed { color: #17a2b8; }
-      .status-cancelled { color: #dc3545; }
-      .status-request { color: #ffc107; }
-    </style>
-  `;
-
-  const templates: Record<string, EmailTemplate> = {
-    assegnato: {
-      subject: `✅ Servizio Confermato - ${numeroServizio}`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        ${baseStyle}
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🚗 TaxiTime</h1>
-              <h2 class="status-confirmed">Servizio Confermato</h2>
-            </div>
-            <div class="content">
-              <p>Gentile Cliente,</p>
-              <p>Il servizio <strong>${numeroServizio}</strong> è stato <strong>CONFERMATO</strong> e assegnato.</p>
-              
-              <div class="detail-box">
-                <div class="detail-row">
-                  📅 <strong>Data:</strong> ${dataServizio}
-                </div>
-                <div class="detail-row">
-                  🕐 <strong>Orario:</strong> ${orario}
-                </div>
-                <div class="detail-row">
-                  📍 <strong>Partenza:</strong> ${partenza}
-                </div>
-                <div class="detail-row">
-                  🏁 <strong>Destinazione:</strong> ${destinazione}
-                </div>
-                <div class="detail-row">
-                  👤 <strong>Autista:</strong> ${autista}
-                </div>
-                <div class="detail-row">
-                  🏢 <strong>Cliente:</strong> ${azienda}
-                </div>
-              </div>
-              
-              <p>Per qualsiasi necessità, non esitate a contattarci.</p>
-            </div>
-            <div class="footer">
-              <p><strong>TaxiTime</strong> - Servizio NCC Professionale</p>
-              <p>Questa è un'email automatica, si prega di non rispondere.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-    },
-    completato: {
-      subject: `✅ Servizio Completato - ${numeroServizio}`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        ${baseStyle}
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🚗 TaxiTime</h1>
-              <h2 class="status-completed">Servizio Completato</h2>
-            </div>
-            <div class="content">
-              <p>Gentile Cliente,</p>
-              <p>Il servizio <strong>${numeroServizio}</strong> è stato <strong>COMPLETATO</strong> con successo.</p>
-              
-              <div class="detail-box">
-                <div class="detail-row">
-                  📅 <strong>Data:</strong> ${dataServizio}
-                </div>
-                <div class="detail-row">
-                  📍 <strong>Partenza:</strong> ${partenza}
-                </div>
-                <div class="detail-row">
-                  🏁 <strong>Destinazione:</strong> ${destinazione}
-                </div>
-              </div>
-              
-              <p>Grazie per aver scelto TaxiTime!</p>
-            </div>
-            <div class="footer">
-              <p><strong>TaxiTime</strong> - Servizio NCC Professionale</p>
-              <p>Questa è un'email automatica, si prega di non rispondere.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-    },
-    annullato: {
-      subject: `❌ Servizio Annullato - ${numeroServizio}`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        ${baseStyle}
-        <body>
-          <div class="container">
-            <div class="header" style="background: linear-gradient(135deg, #721c24 0%, #a94442 100%);">
-              <h1>🚗 TaxiTime</h1>
-              <h2>Servizio Annullato</h2>
-            </div>
-            <div class="content">
-              <p>Gentile Cliente,</p>
-              <p>Il servizio <strong>${numeroServizio}</strong> è stato <strong>ANNULLATO</strong>.</p>
-              
-              <div class="detail-box" style="border-left-color: #dc3545;">
-                <div class="detail-row">
-                  📅 <strong>Data prevista:</strong> ${dataServizio}
-                </div>
-                <div class="detail-row">
-                  📍 <strong>Partenza:</strong> ${partenza}
-                </div>
-                <div class="detail-row">
-                  🏁 <strong>Destinazione:</strong> ${destinazione}
-                </div>
-              </div>
-              
-              <p>Per qualsiasi chiarimento, non esitate a contattarci.</p>
-            </div>
-            <div class="footer">
-              <p><strong>TaxiTime</strong> - Servizio NCC Professionale</p>
-              <p>Questa è un'email automatica, si prega di non rispondere.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-    },
-    richiesta: {
-      subject: `📬 Nuova Richiesta Servizio - ${numeroServizio}`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        ${baseStyle}
-        <body>
-          <div class="container">
-            <div class="header" style="background: linear-gradient(135deg, #856404 0%, #b8860b 100%);">
-              <h1>🚗 TaxiTime</h1>
-              <h2>Nuova Richiesta</h2>
-            </div>
-            <div class="content">
-              <p>È stata ricevuta una <strong>NUOVA RICHIESTA</strong> di servizio.</p>
-              
-              <div class="detail-box" style="border-left-color: #ffc107;">
-                <div class="detail-row">
-                  📅 <strong>Data richiesta:</strong> ${dataServizio}
-                </div>
-                <div class="detail-row">
-                  🕐 <strong>Orario:</strong> ${orario}
-                </div>
-                <div class="detail-row">
-                  📍 <strong>Partenza:</strong> ${partenza}
-                </div>
-                <div class="detail-row">
-                  🏁 <strong>Destinazione:</strong> ${destinazione}
-                </div>
-                <div class="detail-row">
-                  🏢 <strong>Cliente:</strong> ${azienda}
-                </div>
-              </div>
-              
-              <p>Accedi al sistema per gestire la richiesta.</p>
-            </div>
-            <div class="footer">
-              <p><strong>TaxiTime</strong> - Servizio NCC Professionale</p>
-              <p>Questa è un'email automatica, si prega di non rispondere.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-    },
-  };
-
-  return templates[tipo] || templates.assegnato;
-}
