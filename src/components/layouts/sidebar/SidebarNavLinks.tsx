@@ -15,9 +15,7 @@ import {
   MessageCircle,
   Clock,
   UserCircle,
-  FileBarChart,
-  Mail,
-  FileSearch
+  FileBarChart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -142,24 +140,6 @@ const navItems: NavItem[] = [
     href: '/impostazioni',
     icon: Settings,
     roles: ['admin', 'socio'],
-  },
-  {
-    title: 'Config. SMTP',
-    href: '/admin/impostazioni/smtp',
-    icon: Settings,
-    roles: ['admin'],
-  },
-  {
-    title: 'Template Email',
-    href: '/admin/impostazioni/template-email',
-    icon: Mail,
-    roles: ['admin'],
-  },
-  {
-    title: 'Log Email',
-    href: '/admin/log-email',
-    icon: FileSearch,
-    roles: ['admin'],
   },
 ];
 

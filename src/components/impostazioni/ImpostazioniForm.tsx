@@ -10,8 +10,11 @@ import { MetodiPagamentoForm } from "./MetodiPagamentoForm";
 import { AliquoteIvaForm } from "./AliquoteIvaForm";
 import { PagamentiAziendali } from "./PagamentiAziendali";
 import { TariffeKmTab } from "./TariffeKmTab";
+import SmtpConfigForm from "./SmtpConfigForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save } from "lucide-react";
+import { Save, Mail, FileText, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ImpostazioniFormData, MetodoPagamentoOption, AliquotaIvaOption } from "@/lib/types/impostazioni";
 import { updateImpostazioni } from "@/lib/api/impostazioni/updateImpostazioni";
 import { toast } from "@/components/ui/use-toast";
@@ -142,7 +145,7 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
         <Tabs defaultValue="info" className="w-full">
           {/* Tabs ottimizzate per mobile - scrollabili orizzontalmente */}
-          <TabsList className={`w-full grid ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3'} gap-1 h-auto p-1`}>
+          <TabsList className={`w-full grid ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-3 md:grid-cols-6' : 'grid-cols-3'} gap-1 h-auto p-1`}>
             <TabsTrigger value="info" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <span className="hidden sm:inline">Informazioni Azienda</span>
               <span className="sm:hidden">Info</span>
@@ -162,9 +165,15 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
               </TabsTrigger>
             )}
             {profile?.role === 'admin' && (
-              <TabsTrigger value="pagamenti-aziendali" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground col-span-3 md:col-span-1">
+              <TabsTrigger value="pagamenti-aziendali" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <span className="hidden sm:inline">Pagamenti Aziendali</span>
                 <span className="sm:hidden">Pag. Aziendali</span>
+              </TabsTrigger>
+            )}
+            {(profile?.role === 'admin' || profile?.role === 'socio') && (
+              <TabsTrigger value="smtp" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <span className="hidden sm:inline">Email SMTP</span>
+                <span className="sm:hidden">SMTP</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -226,6 +235,55 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
           {profile?.role === 'admin' && (
             <TabsContent value="pagamenti-aziendali" className="mt-4">
               <PagamentiAziendali />
+            </TabsContent>
+          )}
+
+          {(profile?.role === 'admin' || profile?.role === 'socio') && (
+            <TabsContent value="smtp" className="mt-4">
+              <SmtpConfigForm />
+
+              {/* Links a pagine secondarie */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Template Email
+                    </CardTitle>
+                    <CardDescription>
+                      Gestisci i template delle email automatiche
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/impostazioni/template-email">
+                      <Button variant="outline" className="w-full">
+                        <FileText className="mr-2 h-4 w-4" />
+                        Gestisci Template
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Log Email
+                    </CardTitle>
+                    <CardDescription>
+                      Visualizza lo storico degli invii email
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/impostazioni/log-email">
+                      <Button variant="outline" className="w-full">
+                        <Search className="mr-2 h-4 w-4" />
+                        Visualizza Log
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
           )}
         </Tabs>

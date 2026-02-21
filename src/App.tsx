@@ -63,7 +63,6 @@ import ProfilePage from './pages/ProfilePage';
 import AssistenzaPage from './pages/AssistenzaPage';
 import ReportPasseggeriPage from './pages/reports/ReportPasseggeriPage';
 import ReportSociPage from './pages/ReportSociPage';
-import ImpostazioniSmtpPage from './pages/admin/ImpostazioniSmtpPage';
 import ImpostazioniTemplateEmailPage from './pages/admin/ImpostazioniTemplateEmailPage';
 import LogEmailPage from './pages/admin/LogEmailPage';
 
@@ -164,21 +163,20 @@ function App() {
                     <ImpostazioniPage />
                   </AuthGuard>
                 } />
-                <Route path="/admin/impostazioni/smtp" element={
-                  <AuthGuard allowedRoles={['admin', 'socio']}>
-                    <ImpostazioniSmtpPage />
-                  </AuthGuard>
-                } />
-                <Route path="/admin/impostazioni/template-email" element={
+                <Route path="/impostazioni/template-email" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <ImpostazioniTemplateEmailPage />
                   </AuthGuard>
                 } />
-                <Route path="/admin/log-email" element={
+                <Route path="/impostazioni/log-email" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <LogEmailPage />
                   </AuthGuard>
                 } />
+                {/* Redirect vecchie route admin email */}
+                <Route path="/admin/impostazioni/smtp" element={<Navigate to="/impostazioni" replace />} />
+                <Route path="/admin/impostazioni/template-email" element={<Navigate to="/impostazioni/template-email" replace />} />
+                <Route path="/admin/log-email" element={<Navigate to="/impostazioni/log-email" replace />} />
 
                 {/* Servizi Routes */}
                 <Route path="/servizi" element={
