@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Settings, Loader2, Mail, CheckCircle2, XCircle, Send } from "lucide-react";
+import { Settings, Loader2, Mail, CheckCircle2, XCircle, Send, X, Copy } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface SmtpConfig {
@@ -54,6 +54,8 @@ export default function SmtpConfigForm() {
   });
 
   const [testEmail, setTestEmail] = useState("");
+  const [testLogs, setTestLogs] = useState<string[]>([]);
+  const [showLogs, setShowLogs] = useState(false);
 
   useEffect(() => {
     if (impostazioni) {
@@ -112,6 +114,9 @@ export default function SmtpConfigForm() {
       const password = getPasswordForTest();
       if (!password) throw new Error("Password SMTP non configurata");
 
+      setTestLogs([]);
+      setShowLogs(true);
+
       const { data, error } = await supabase.functions.invoke("test-smtp-connection", {
         body: {
           smtp_host: config.smtp_host,
@@ -125,8 +130,20 @@ export default function SmtpConfigForm() {
         },
       });
 
-      if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || "Test fallito");
+      if (error) {
+        setTestLogs(["[ERROR] " + error.message]);
+        throw error;
+      }
+
+      if (!data?.success) {
+        setTestLogs(data?.logs || ["[ERROR] " + (data?.error || "Test fallito")]);
+        const errMsg = data?.suggestion
+          ? `${data.error}\n\n${data.suggestion}`
+          : data?.error || "Test fallito";
+        throw new Error(errMsg);
+      }
+
+      setTestLogs(data?.logs || []);
       return data;
     },
     onSuccess: (data) => {
@@ -140,6 +157,13 @@ export default function SmtpConfigForm() {
   const handlePortChange = (val: string) => {
     const port = parseInt(val, 10);
     setConfig((c) => ({ ...c, smtp_port: port, smtp_secure: port === 465 }));
+  };
+
+  const getLogLineClass = (log: string) => {
+    if (log.includes("[ERROR]") || log.includes("[DIAGNOSI]")) return "text-red-400";
+    if (log.includes("✓") || log.includes("SUCCESS")) return "text-green-400";
+    if (log.includes("[SUGGERIMENTO]")) return "text-yellow-400";
+    return "text-green-300/80";
   };
 
   if (isLoading) {
@@ -310,6 +334,60 @@ export default function SmtpConfigForm() {
           <p className="text-xs text-muted-foreground">
             Inserisci un indirizzo email e premi "Test Connessione" per verificare la configurazione
           </p>
+
+          {/* Log Output */}
+          {showLogs && testLogs.length > 0 && (
+            <Card className={`mt-4 border-2 ${testMutation.isSuccess ? 'border-green-500' : 'border-red-500'} bg-gray-950`}>
+              <CardHeader className="py-3 px-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-mono">
+                    {testMutation.isSuccess ? (
+                      <span className="flex items-center gap-2 text-green-400">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Test Completato con Successo
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2 text-red-400">
+                        <XCircle className="h-4 w-4" />
+                        Test Fallito
+                      </span>
+                    )}
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-gray-400 hover:text-white hover:bg-gray-800"
+                    onClick={() => setShowLogs(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 pt-0">
+                <div className="bg-black rounded-md p-3 font-mono text-xs leading-relaxed max-h-64 overflow-y-auto">
+                  {testLogs.map((log, idx) => (
+                    <div key={idx} className={getLogLineClass(log)}>
+                      {log}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-end mt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white hover:bg-gray-800 text-xs"
+                    onClick={() => {
+                      navigator.clipboard.writeText(testLogs.join('\n'));
+                      toast({ title: '📋 Log copiati negli appunti' });
+                    }}
+                  >
+                    <Copy className="mr-1 h-3 w-3" />
+                    Copia Log
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </CardContent>
       </Card>
 
