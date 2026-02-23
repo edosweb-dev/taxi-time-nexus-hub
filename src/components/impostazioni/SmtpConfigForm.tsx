@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Settings, Loader2, Mail, CheckCircle2, XCircle } from "lucide-react";
+import { Settings, Loader2, Mail, CheckCircle2, XCircle, Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface SmtpConfig {
@@ -53,6 +53,8 @@ export default function SmtpConfigForm() {
     email_enabled: true,
   });
 
+  const [testEmail, setTestEmail] = useState("");
+
   useEffect(() => {
     if (impostazioni) {
       setConfig({
@@ -67,6 +69,12 @@ export default function SmtpConfigForm() {
       });
     }
   }, [impostazioni]);
+
+  const getPasswordForTest = () => {
+    if (config.smtp_password) return config.smtp_password;
+    if (impostazioni?.smtp_password_encrypted) return atob(impostazioni.smtp_password_encrypted);
+    return "";
+  };
 
   const mutation = useMutation({
     mutationFn: async (cfg: SmtpConfig) => {
@@ -98,13 +106,40 @@ export default function SmtpConfigForm() {
     },
   });
 
+  const testMutation = useMutation({
+    mutationFn: async () => {
+      if (!testEmail) throw new Error("Inserisci email destinatario test");
+      const password = getPasswordForTest();
+      if (!password) throw new Error("Password SMTP non configurata");
+
+      const { data, error } = await supabase.functions.invoke("test-smtp-connection", {
+        body: {
+          smtp_host: config.smtp_host,
+          smtp_port: config.smtp_port,
+          smtp_secure: config.smtp_secure,
+          smtp_user: config.smtp_user,
+          smtp_password: password,
+          smtp_from_name: config.smtp_from_name,
+          smtp_from_email: config.smtp_from_email,
+          test_recipient: testEmail,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Test fallito");
+      return data;
+    },
+    onSuccess: (data) => {
+      toast({ title: "✅ Test connessione riuscito!", description: data.message });
+    },
+    onError: (err: Error) => {
+      toast({ title: "❌ Test connessione fallito", description: err.message, variant: "destructive" });
+    },
+  });
+
   const handlePortChange = (val: string) => {
     const port = parseInt(val, 10);
-    setConfig((c) => ({
-      ...c,
-      smtp_port: port,
-      smtp_secure: port === 465,
-    }));
+    setConfig((c) => ({ ...c, smtp_port: port, smtp_secure: port === 465 }));
   };
 
   if (isLoading) {
@@ -124,9 +159,7 @@ export default function SmtpConfigForm() {
             <Mail className="h-5 w-5" />
             Stato Email
           </CardTitle>
-          <CardDescription>
-            Abilita o disabilita l'invio di email dal sistema
-          </CardDescription>
+          <CardDescription>Abilita o disabilita l'invio di email dal sistema</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
@@ -159,9 +192,7 @@ export default function SmtpConfigForm() {
             <Settings className="h-5 w-5" />
             Configurazione Server SMTP
           </CardTitle>
-          <CardDescription>
-            Parametri di connessione al server di posta
-          </CardDescription>
+          <CardDescription>Parametri di connessione al server di posta</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -175,10 +206,7 @@ export default function SmtpConfigForm() {
             </div>
             <div className="space-y-2">
               <Label>Porta</Label>
-              <Select
-                value={String(config.smtp_port)}
-                onValueChange={handlePortChange}
-              >
+              <Select value={String(config.smtp_port)} onValueChange={handlePortChange}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -238,6 +266,50 @@ export default function SmtpConfigForm() {
             />
             <Label>Connessione sicura (SSL/TLS)</Label>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Test Connessione */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Send className="h-5 w-5" />
+            Test Connessione
+          </CardTitle>
+          <CardDescription>
+            Invia un'email di test per verificare che la configurazione SMTP funzioni correttamente
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex gap-3">
+            <Input
+              type="email"
+              placeholder="tua@email.com"
+              value={testEmail}
+              onChange={(e) => setTestEmail(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              variant="outline"
+              onClick={() => testMutation.mutate()}
+              disabled={testMutation.isPending || !testEmail || !config.smtp_host}
+            >
+              {testMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Invio test...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Test Connessione
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Inserisci un indirizzo email e premi "Test Connessione" per verificare la configurazione
+          </p>
         </CardContent>
       </Card>
 
