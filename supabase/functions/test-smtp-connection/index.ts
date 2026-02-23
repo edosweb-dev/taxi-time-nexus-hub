@@ -12,18 +12,38 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const logs: string[] = [];
+
   try {
     const { smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password, smtp_from_name, smtp_from_email, test_recipient } = await req.json();
 
-    console.log('[TEST-SMTP] Testing connection:', { host: smtp_host, port: smtp_port, user: smtp_user });
+    logs.push(`[1/6] Parametri ricevuti`);
+    logs.push(`  - Host: ${smtp_host}`);
+    logs.push(`  - Porta: ${smtp_port}`);
+    logs.push(`  - SSL/TLS: ${smtp_secure ? 'Sì' : 'No'}`);
+    logs.push(`  - Username: ${smtp_user}`);
+    logs.push(`  - Password: ${smtp_password ? '***' + smtp_password.slice(-4) : 'MANCANTE'}`);
+    logs.push(`  - From: ${smtp_from_name || 'TaxiTime'} <${smtp_from_email || smtp_user}>`);
+    logs.push(`  - Destinatario: ${test_recipient}`);
 
     if (!smtp_host || !smtp_port || !smtp_user || !smtp_password) {
-      throw new Error('Configurazione SMTP incompleta');
+      logs.push(`[ERROR] Configurazione incompleta`);
+      throw new Error('Configurazione SMTP incompleta: ' +
+        (!smtp_host ? 'Host mancante. ' : '') +
+        (!smtp_port ? 'Porta mancante. ' : '') +
+        (!smtp_user ? 'Username mancante. ' : '') +
+        (!smtp_password ? 'Password mancante. ' : '')
+      );
     }
+
     if (!test_recipient) {
+      logs.push(`[ERROR] Email destinatario mancante`);
       throw new Error('Email destinatario test richiesta');
     }
 
+    logs.push(`[2/6] Validazione completata ✓`);
+
+    logs.push(`[3/6] Creazione client SMTP...`);
     const smtp = new SMTPClient({
       connection: {
         hostname: smtp_host,
@@ -32,6 +52,7 @@ serve(async (req) => {
         auth: { username: smtp_user, password: smtp_password }
       }
     });
+    logs.push(`[3/6] Client SMTP creato ✓`);
 
     const testEmailHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
       <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;padding:24px;text-align:center">
@@ -51,25 +72,54 @@ serve(async (req) => {
       </div>
     </body></html>`;
 
-    await smtp.send({
+    logs.push(`[4/6] Tentativo invio email...`);
+    logs.push(`  - Da: ${smtp_from_name || 'TaxiTime'} <${smtp_from_email || smtp_user}>`);
+    logs.push(`  - A: ${test_recipient}`);
+
+    const sendResult = await smtp.send({
       from: `${smtp_from_name || 'TaxiTime'} <${smtp_from_email || smtp_user}>`,
       to: [test_recipient],
       subject: '✅ Test Connessione SMTP - TaxiTime',
       html: testEmailHtml
     });
 
-    await smtp.close();
+    logs.push(`[5/6] Email inviata ✓`);
 
-    console.log('[TEST-SMTP] ✅ Email test inviata con successo');
+    await smtp.close();
+    logs.push(`[6/6] Connessione chiusa ✓`);
+
+    console.log('[TEST-SMTP] SUCCESS\n' + logs.join('\n'));
 
     return new Response(
-      JSON.stringify({ success: true, message: `Email di test inviata a ${test_recipient}` }),
+      JSON.stringify({ success: true, message: `Email di test inviata a ${test_recipient}`, logs }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: any) {
-    console.error('[TEST-SMTP] ❌ Errore:', error);
+    logs.push(`[ERROR] ${error.message}`);
+
+    let suggestion = '';
+    if (error.message?.includes('authentication')) {
+      suggestion = '🔑 Errore autenticazione: Username o password errati';
+      logs.push(`[DIAGNOSI] Credenziali SMTP rifiutate dal server`);
+      logs.push(`[SUGGERIMENTO] Verifica username e password nel pannello del provider`);
+    } else if (error.message?.includes('timeout') || error.message?.includes('ETIMEDOUT') || error.message?.includes('TimedOut')) {
+      suggestion = '⏱️ Timeout connessione: Porta probabilmente bloccata';
+      logs.push(`[DIAGNOSI] Impossibile raggiungere il server SMTP`);
+      logs.push(`[SUGGERIMENTO] Prova porta 465 (SSL) invece di 587 (TLS)`);
+    } else if (error.message?.includes('ECONNREFUSED')) {
+      suggestion = '🚫 Connessione rifiutata: Host o porta errati';
+      logs.push(`[DIAGNOSI] Server SMTP non raggiungibile`);
+      logs.push(`[SUGGERIMENTO] Verifica host e porta nella configurazione`);
+    } else if (error.message?.includes('certificate') || error.message?.includes('SSL')) {
+      suggestion = '🔒 Errore certificato SSL/TLS';
+      logs.push(`[DIAGNOSI] Problema con certificato SSL`);
+      logs.push(`[SUGGERIMENTO] Verifica che porta e tipo SSL/TLS siano corretti`);
+    }
+
+    console.error('[TEST-SMTP] ERROR\n' + logs.join('\n'));
+
     return new Response(
-      JSON.stringify({ success: false, error: error.message || 'Errore durante il test SMTP' }),
+      JSON.stringify({ success: false, error: error.message, suggestion, logs }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
