@@ -35,6 +35,7 @@ import NuovoServizioClientePage from './pages/cliente/NuovoServizioPage';
 import ServizioConfermatoPage from './pages/cliente/ServizioConfermatoPage';
 import ServizioDetailPage from './pages/servizi/ServizioDetailPage';
 import EditServizioPage from './pages/servizi/EditServizioPage';
+import ServizioEditPageV2 from './pages/servizi/ServizioEditPageV2';
 import ModificaServizioPage from './pages/servizi/ModificaServizioPage';
 import RicercaServiziPage from './pages/servizi/RicercaServiziPage';
 import UsersPage from './pages/UsersPage';
@@ -215,6 +216,11 @@ function App() {
                 <Route path="/servizi/:id/edit" element={
                   <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
                     <EditServizioPage />
+                  </AuthGuard>
+                } />
+                <Route path="/servizi/:id/edit-v2" element={
+                  <AuthGuard allowedRoles={['admin', 'socio', 'dipendente']}>
+                    <ServizioEditPageV2 />
                   </AuthGuard>
                 } />
                 <Route path="/calendario-servizi" element={
