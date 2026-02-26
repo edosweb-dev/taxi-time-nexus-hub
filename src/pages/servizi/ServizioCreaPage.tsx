@@ -1466,7 +1466,10 @@ export const ServizioCreaPage = ({
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(async (data) => {
           // Pre-popola indirizzi dal primo passeggero PRIMA di onSubmit
-          if (data.passeggeri && data.passeggeri.length > 0) {
+          // ✅ FIX BUG3: In edit mode, NON sovrascrivere gli indirizzi del servizio
+          // che sono già stati caricati correttamente dal DB (form.reset linee 313-315).
+          // La derivazione da passeggero serve solo in creazione.
+          if (mode !== 'edit' && data.passeggeri && data.passeggeri.length > 0) {
             const primo = data.passeggeri[0];
             
             if (primo.presa_tipo === 'personalizzato') {
@@ -1486,6 +1489,11 @@ export const ServizioCreaPage = ({
             }
             
             console.log('[Pre-validation] Indirizzi popolati:', {
+              presa: data.indirizzo_presa,
+              destinazione: data.indirizzo_destinazione,
+            });
+          } else if (mode === 'edit') {
+            console.log('[Pre-validation] Edit mode: indirizzi preservati dal DB:', {
               presa: data.indirizzo_presa,
               destinazione: data.indirizzo_destinazione,
             });
