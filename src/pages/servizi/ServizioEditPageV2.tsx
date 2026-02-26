@@ -4,9 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useServizioForm } from '@/hooks/servizio/useServizioForm';
 import { useServizioSubmit } from '@/hooks/servizio/useServizioSubmit';
 import { MainLayout } from '@/components/layouts/MainLayout';
+import { ServizioFormFields } from '@/components/servizi/ServizioFormFields';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
 /**
@@ -170,51 +169,8 @@ export default function ServizioEditPageV2() {
 
         {/* Form */}
         <form onSubmit={form.handleSubmit(onSubmit)} className="bg-card border rounded-lg p-6 space-y-6">
-          {/* Indirizzo Partenza */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Indirizzo Partenza</label>
-            <Input
-              {...form.register('indirizzo_presa')}
-              placeholder="Indirizzo di partenza"
-            />
-            <p className="text-xs text-muted-foreground">
-              Valore attuale DB: {servizioData?.indirizzo_presa || '(vuoto)'}
-            </p>
-          </div>
-
-          {/* Indirizzo Destinazione */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Indirizzo Destinazione</label>
-            <Input
-              {...form.register('indirizzo_destinazione')}
-              placeholder="Indirizzo di destinazione"
-            />
-            <p className="text-xs text-muted-foreground">
-              Valore attuale DB: {servizioData?.indirizzo_destinazione || '(vuoto)'}
-            </p>
-          </div>
-
-          {/* Metodo Pagamento */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Metodo Pagamento</label>
-            <Input
-              {...form.register('metodo_pagamento')}
-              placeholder="Metodo di pagamento"
-            />
-            <p className="text-xs text-muted-foreground">
-              Valore attuale DB: {servizioData?.metodo_pagamento || '(vuoto)'}
-            </p>
-          </div>
-
-          {/* Note */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Note</label>
-            <Textarea
-              {...form.register('note')}
-              placeholder="Note aggiuntive..."
-              rows={3}
-            />
-          </div>
+          {/* ✅ Shared form fields component */}
+          <ServizioFormFields form={form} mode={mode} />
 
           {/* Debug Info */}
           <div className="bg-muted p-4 rounded-md border">
