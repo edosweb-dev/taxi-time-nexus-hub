@@ -68,7 +68,32 @@ export const useServizioForm = ({
       } as ServizioFormData;
     }
     
-    return initialData as ServizioFormData;
+    if (!initialData) {
+      console.warn('[useServizioForm] Edit mode but no initialData provided');
+      return {} as ServizioFormData;
+    }
+    
+    console.log('[useServizioForm] Mapping initialData to form:', {
+      indirizzo_presa: initialData.indirizzo_presa,
+      indirizzo_destinazione: initialData.indirizzo_destinazione,
+      metodo_pagamento: initialData.metodo_pagamento,
+    });
+    
+    return {
+      azienda_id: initialData.azienda_id || '',
+      data_servizio: initialData.data_servizio || '',
+      ora_servizio: initialData.orario_servizio || '',
+      indirizzo_presa: initialData.indirizzo_presa || '',
+      indirizzo_presa_lat: initialData.indirizzo_presa_lat || null,
+      indirizzo_presa_lng: initialData.indirizzo_presa_lng || null,
+      indirizzo_destinazione: initialData.indirizzo_destinazione || '',
+      indirizzo_destinazione_lat: initialData.indirizzo_destinazione_lat || null,
+      indirizzo_destinazione_lng: initialData.indirizzo_destinazione_lng || null,
+      metodo_pagamento: initialData.metodo_pagamento || '',
+      incasso_netto_previsto: initialData.incasso_netto_previsto || 0,
+      chilometri: initialData.km_totali || 0,
+      note: initialData.note || '',
+    } as ServizioFormData;
   }, [mode, initialData]);
   
   const form = useForm<ServizioFormData>({
@@ -82,6 +107,7 @@ export const useServizioForm = ({
     hasInitialData: !!initialData,
     shouldRender,
     defaultValues: form.formState.defaultValues,
+    actualFormValues: form.getValues(),
   });
   
   return {
