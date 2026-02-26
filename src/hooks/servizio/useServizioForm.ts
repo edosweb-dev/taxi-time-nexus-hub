@@ -1,5 +1,5 @@
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
@@ -109,7 +109,37 @@ export const useServizioForm = ({
     defaultValues: form.formState.defaultValues,
     actualFormValues: form.getValues(),
   });
-  
+
+  // ✅ FIX: Re-initialize form when data arrives in edit mode
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      console.log('[useServizioForm] 🔄 Data arrived, resetting form with:', {
+        indirizzo_presa: initialData.indirizzo_presa,
+        indirizzo_destinazione: initialData.indirizzo_destinazione,
+        metodo_pagamento: initialData.metodo_pagamento,
+      });
+
+      const formattedData = {
+        azienda_id: initialData.azienda_id || '',
+        data_servizio: initialData.data_servizio || '',
+        ora_servizio: initialData.orario_servizio || '',
+        indirizzo_presa: initialData.indirizzo_presa || '',
+        indirizzo_presa_lat: initialData.indirizzo_presa_lat || null,
+        indirizzo_presa_lng: initialData.indirizzo_presa_lng || null,
+        indirizzo_destinazione: initialData.indirizzo_destinazione || '',
+        indirizzo_destinazione_lat: initialData.indirizzo_destinazione_lat || null,
+        indirizzo_destinazione_lng: initialData.indirizzo_destinazione_lng || null,
+        metodo_pagamento: initialData.metodo_pagamento || '',
+        incasso_netto_previsto: initialData.incasso_netto_previsto || 0,
+        chilometri: initialData.km_totali || 0,
+        note: initialData.note || '',
+      };
+
+      form.reset(formattedData);
+      console.log('[useServizioForm] ✅ Form reset completed. New values:', form.getValues());
+    }
+  }, [mode, initialData, form]);
+
   return {
     form,
     shouldRender,
