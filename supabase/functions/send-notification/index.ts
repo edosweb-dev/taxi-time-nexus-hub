@@ -18,6 +18,14 @@ serve(async (req) => {
     
     console.log('[SEND-EMAIL] Start:', { servizio_id, template_slug });
 
+    if (!template_slug) {
+      console.warn('[SEND-EMAIL] No template_slug provided, skipping');
+      return new Response(
+        JSON.stringify({ success: false, message: 'No template_slug provided' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -28,9 +36,9 @@ serve(async (req) => {
     const { data: config, error: configError } = await supabaseAdmin
       .from('impostazioni')
       .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
-      .single();
+      .maybeSingle();
 
-    if (configError) throw new Error(`Config error: ${configError.message}`);
+    if (configError || !config) throw new Error(`Config error: ${configError?.message || 'No config found'}`);
     if (!config.email_enabled) {
       console.log('[SEND-EMAIL] Email disabled');
       return new Response(JSON.stringify({ success: false, message: 'Email disabled' }), {
@@ -43,9 +51,16 @@ serve(async (req) => {
       .from('email_templates')
       .select('*')
       .eq('slug', template_slug)
-      .single();
+      .maybeSingle();
 
     if (templateError) throw new Error(`Template error: ${templateError.message}`);
+    if (!template) {
+      console.warn('[SEND-EMAIL] No template found for slug:', template_slug);
+      return new Response(
+        JSON.stringify({ success: false, message: `No template found for: ${template_slug}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     if (!template.attivo) {
       console.log('[SEND-EMAIL] Template disabled:', template_slug);
       return new Response(JSON.stringify({ success: false, message: 'Template disabled' }), {
