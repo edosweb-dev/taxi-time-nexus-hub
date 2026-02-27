@@ -24,15 +24,13 @@ function hasValidRoute(servizio: Servizio): boolean {
   const presa = servizio.indirizzo_presa?.trim().toLowerCase() || '';
   const destinazione = servizio.indirizzo_destinazione?.trim().toLowerCase() || '';
   
-  const isPresaValid = presa && 
-    presa !== 'da definire' && 
-    presa !== 'da_definire' &&
-    presa.length > 3;
+  const isPresaValid = 
+    !presa || 
+    (presa !== 'da definire' && presa !== 'da_definire');
   
-  const isDestinazioneValid = destinazione && 
-    destinazione !== 'da definire' && 
-    destinazione !== 'da_definire' &&
-    destinazione.length > 3;
+  const isDestinazioneValid = 
+    !destinazione || 
+    (destinazione !== 'da definire' && destinazione !== 'da_definire');
   
   console.log('[AssignmentPopup] Route Validation:', {
     raw_presa: servizio.indirizzo_presa,
