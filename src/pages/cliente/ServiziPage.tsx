@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileText, ArrowLeft, MapPin, Calendar, Clock, User, CreditCard, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, FileText, ArrowLeft, MapPin, Calendar, Clock, User, CreditCard, X, ChevronLeft, ChevronRight, Circle, Users } from "lucide-react";
 import { useServiziCliente, StatoServizio, type FiltriServizi } from "@/hooks/useServiziCliente";
 import {
   Table,
@@ -268,13 +268,16 @@ const ServiziPage = () => {
                             <TableHead>Data/Ora</TableHead>
                             <TableHead>Commessa</TableHead>
                             <TableHead>Percorso</TableHead>
+                            <TableHead>Passeggeri</TableHead>
                             <TableHead>Stato</TableHead>
-                            <TableHead>Conducente</TableHead>
                             <TableHead className="text-right">Pagamento</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {servizi.map((servizio) => (
+                          {servizi.map((servizio) => {
+                            const passeggeri = servizio.servizi_passeggeri || [];
+                            const sorted = [...passeggeri].sort((a, b) => (a.ordine_presa || 0) - (b.ordine_presa || 0));
+                            return (
                             <TableRow
                               key={servizio.id}
                               className="cursor-pointer hover:bg-accent/50"
@@ -309,16 +312,30 @@ const ServiziPage = () => {
                                 )}
                               </TableCell>
 
-                              {/* Percorso */}
-                              <TableCell className="max-w-[300px]">
+                              {/* Percorso con fermate intermedie */}
+                              <TableCell className="max-w-[350px]">
                                 <div className="flex flex-col gap-1 text-sm">
+                                  {/* Partenza */}
                                   <div className="flex items-start gap-2">
                                     <MapPin className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
-                                    <span className="truncate">
+                                    <span className="truncate font-medium">
                                       {servizio.indirizzo_presa}
                                       {servizio.citta_presa && `, ${servizio.citta_presa}`}
                                     </span>
                                   </div>
+                                  {/* Fermate intermedie */}
+                                  {sorted
+                                    .filter((sp, i) => i > 0 && sp.usa_indirizzo_personalizzato && sp.luogo_presa_personalizzato)
+                                    .map((sp) => (
+                                      <div key={sp.id} className="flex items-start gap-2 ml-2">
+                                        <Circle className="h-2 w-2 text-muted-foreground mt-1 flex-shrink-0" />
+                                        <span className="truncate text-muted-foreground">
+                                          {sp.luogo_presa_personalizzato}
+                                          {sp.localita_presa_personalizzato && `, ${sp.localita_presa_personalizzato}`}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  {/* Destinazione */}
                                   <div className="flex items-start gap-2">
                                     <MapPin className="h-3 w-3 text-red-600 mt-0.5 flex-shrink-0" />
                                     <span className="truncate">
@@ -329,28 +346,26 @@ const ServiziPage = () => {
                                 </div>
                               </TableCell>
 
+                              {/* Passeggeri */}
+                              <TableCell>
+                                {sorted.length > 0 ? (
+                                  <div className="flex flex-col gap-0.5">
+                                    {sorted.map((sp, index) => (
+                                      <span key={sp.id} className="text-sm">
+                                        {index + 1}. {sp.passeggero?.nome_cognome || sp.nome_cognome_inline || 'N/A'}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">-</span>
+                                )}
+                              </TableCell>
+
                               {/* Stato */}
                               <TableCell>
                                 <Badge variant={getStatoBadgeVariant(servizio.stato)}>
                                   {getStatoLabel(servizio.stato)}
                                 </Badge>
-                              </TableCell>
-
-                              {/* Conducente */}
-                              <TableCell>
-                                {servizio.conducente ? (
-                                  <div className="flex items-center gap-2">
-                                    <User className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">
-                                      {servizio.conducente.first_name}{" "}
-                                      {servizio.conducente.last_name}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground text-sm">
-                                    Non assegnato
-                                  </span>
-                                )}
                               </TableCell>
 
                               {/* Pagamento */}
@@ -363,7 +378,8 @@ const ServiziPage = () => {
                                 </div>
                               </TableCell>
                             </TableRow>
-                          ))}
+                            );
+                          })}
                         </TableBody>
                       </Table>
                     </Card>
@@ -441,10 +457,10 @@ const ServiziPage = () => {
                                 {servizio.metodo_pagamento}
                               </Badge>
                             )}
-                            {servizio.conducente && (
+                            {(servizio.servizi_passeggeri?.length || 0) > 0 && (
                               <Badge variant="secondary" className="text-xs">
-                                <User className="h-3 w-3 mr-1" />
-                                {servizio.conducente.first_name} {servizio.conducente.last_name}
+                                <Users className="h-3 w-3 mr-1" />
+                                {servizio.servizi_passeggeri?.length} pass.
                               </Badge>
                             )}
                           </div>
