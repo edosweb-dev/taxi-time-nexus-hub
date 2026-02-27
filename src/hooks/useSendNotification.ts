@@ -29,7 +29,7 @@ export async function sendNotification(
     const { data, error } = await supabase.functions.invoke("send-notification", {
       body: { 
         servizio_id: servizioId, 
-        tipo_evento: tipoEvento 
+        template_slug: tipoEvento 
       },
     });
 
