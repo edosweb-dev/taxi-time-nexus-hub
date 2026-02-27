@@ -265,6 +265,7 @@ const ServiziPage = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
+                            <TableHead>ID</TableHead>
                             <TableHead>Data/Ora</TableHead>
                             <TableHead>Commessa</TableHead>
                             <TableHead>Percorso</TableHead>
@@ -283,6 +284,12 @@ const ServiziPage = () => {
                               className="cursor-pointer hover:bg-accent/50"
                               onClick={() => navigate(`/dashboard-cliente/servizi/${servizio.id}`)}
                             >
+                              {/* ID Servizio */}
+                              <TableCell>
+                                <span className="font-mono text-sm text-muted-foreground">
+                                  {servizio.id_progressivo || servizio.id.slice(0, 8)}
+                                </span>
+                              </TableCell>
                               {/* Data/Ora */}
                               <TableCell>
                                 <div className="flex flex-col">
