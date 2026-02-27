@@ -333,33 +333,51 @@ export const ServizioCreaPage = ({
             passeggeri: [...passeggeriData]
               .sort((a: any, b: any) => (a.ordine_presa || 1) - (b.ordine_presa || 1))
               .map((sp: any, idx: number) => {
-                // Determina presa_tipo dal DB
-                // Usa usa_indirizzo_personalizzato come segnale primario
-                const hasRubricaAddr = !!(sp.passeggeri?.indirizzo || sp.indirizzo_inline);
+                // ✅ FIX Bug #3: Derive presa_tipo comparing SERVICE address vs PASSENGER address
+                const passeggeroIndirizzo = (sp.passeggeri?.indirizzo || sp.indirizzo_inline || '').trim().toLowerCase();
+                const servicePresaAddr = (initialData.indirizzo_presa || '').trim().toLowerCase();
+                const serviceDestAddr = (initialData.indirizzo_destinazione || '').trim().toLowerCase();
+                const hasRubricaAddr = !!passeggeroIndirizzo;
+                
                 // Verifica se luogo_presa è realmente personalizzato (non una copia dell'indirizzo servizio)
                 const hasRealCustomPresa = sp.luogo_presa_personalizzato 
                   && sp.luogo_presa_personalizzato !== initialData.indirizzo_presa;
                 
+                // ✅ Derive presa_tipo: compare service address with passenger address
                 let presaTipo: 'passeggero' | 'personalizzato' = 'personalizzato';
                 if (sp.usa_indirizzo_personalizzato && hasRealCustomPresa) {
-                  // Ha un indirizzo presa personalizzato reale (diverso dal servizio)
                   presaTipo = 'personalizzato';
-                } else if (hasRubricaAddr) {
-                  // Ha indirizzo in rubrica → mostralo
+                } else if (hasRubricaAddr && servicePresaAddr === passeggeroIndirizzo) {
+                  // Service address MATCHES passenger address → show as "passeggero"
+                  presaTipo = 'passeggero';
+                } else if (hasRubricaAddr && servicePresaAddr.includes(passeggeroIndirizzo)) {
+                  presaTipo = 'passeggero';
+                } else if (hasRubricaAddr && passeggeroIndirizzo.includes(servicePresaAddr)) {
                   presaTipo = 'passeggero';
                 }
-                // else: resta 'personalizzato' con campi vuoti
+                // else: stays 'personalizzato' (service has different address like "Malpensa")
                 
-                // Determina destinazione_tipo dal DB
+                // ✅ Derive destinazione_tipo: compare service dest with passenger address
                 const hasRealCustomDest = sp.destinazione_personalizzato 
                   && sp.destinazione_personalizzato !== initialData.indirizzo_destinazione;
                 
                 let destinazioneTipo: 'servizio' | 'passeggero' | 'personalizzato' = 'servizio';
                 if (sp.usa_destinazione_personalizzata && hasRealCustomDest) {
                   destinazioneTipo = 'personalizzato';
-                } else if (sp.usa_destinazione_personalizzata && hasRubricaAddr) {
+                } else if (sp.usa_destinazione_personalizzata && hasRubricaAddr && serviceDestAddr === passeggeroIndirizzo) {
+                  destinazioneTipo = 'passeggero';
+                } else if (sp.usa_destinazione_personalizzata && hasRubricaAddr && (serviceDestAddr.includes(passeggeroIndirizzo) || passeggeroIndirizzo.includes(serviceDestAddr))) {
                   destinazioneTipo = 'passeggero';
                 }
+                
+                console.log(`[EDIT-DEBUG-FIX] Passenger ${idx + 1}:`, {
+                  passeggero_indirizzo: passeggeroIndirizzo,
+                  service_presa: servicePresaAddr,
+                  service_dest: serviceDestAddr,
+                  DB_usa_indirizzo: sp.usa_indirizzo_personalizzato,
+                  DERIVED_presa_tipo: presaTipo,
+                  DERIVED_destinazione_tipo: destinazioneTipo,
+                });
 
                 return {
                   id: sp.id,
