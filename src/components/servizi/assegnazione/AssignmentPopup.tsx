@@ -267,7 +267,7 @@ export function AssignmentPopup({
                     <SelectTrigger id="dipendente" className={`w-full ${isMobile ? 'h-12' : 'h-11'} text-sm bg-background`}>
                       <SelectValue placeholder="Seleziona dipendente..." />
                     </SelectTrigger>
-                    <SelectContent className="max-h-64 w-full">
+                    <SelectContent className="max-h-80 w-full overflow-y-auto">
                       {/* Available users first */}
                       {availableUsers.map((user) => (
                         <SelectItem key={user.id} value={user.id} className={`${isMobile ? 'py-3' : 'py-2.5'} hover:bg-accent/50 transition-colors`}>
