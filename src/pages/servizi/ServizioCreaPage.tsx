@@ -364,10 +364,15 @@ export const ServizioCreaPage = ({
                 let destinazioneTipo: 'servizio' | 'passeggero' | 'personalizzato' = 'servizio';
                 if (sp.usa_destinazione_personalizzata && hasRealCustomDest) {
                   destinazioneTipo = 'personalizzato';
-                } else if (sp.usa_destinazione_personalizzata && hasRubricaAddr && serviceDestAddr === passeggeroIndirizzo) {
+                } else if (hasRubricaAddr && serviceDestAddr === passeggeroIndirizzo) {
+                  // Passenger address matches service destination → "passeggero"
                   destinazioneTipo = 'passeggero';
-                } else if (sp.usa_destinazione_personalizzata && hasRubricaAddr && (serviceDestAddr.includes(passeggeroIndirizzo) || passeggeroIndirizzo.includes(serviceDestAddr))) {
+                } else if (hasRubricaAddr && (serviceDestAddr.includes(passeggeroIndirizzo) || passeggeroIndirizzo.includes(serviceDestAddr))) {
                   destinazioneTipo = 'passeggero';
+                } else if (serviceDestAddr && serviceDestAddr !== passeggeroIndirizzo) {
+                  // ✅ FIX: Pre-fix services have usa_destinazione_personalizzata=false but dest differs from passenger
+                  // Show as 'personalizzato' with service dest as fallback
+                  destinazioneTipo = 'personalizzato';
                 }
                 
                 console.log(`[EDIT-DEBUG-FIX] Passenger ${idx + 1}:`, {
