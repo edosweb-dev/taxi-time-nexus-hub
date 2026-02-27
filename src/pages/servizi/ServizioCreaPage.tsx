@@ -240,15 +240,17 @@ export const ServizioCreaPage = ({
   // Pre-popola form in edit mode
   useEffect(() => {
     // DEBUG: Log per capire il timing
-    console.log('[DEBUG form.reset]', {
+    console.log('[EDIT-DEBUG] ========================================');
+    console.log('[EDIT-DEBUG] useEffect[form.reset] TRIGGERED:', {
       mode,
       hasInitialData: !!initialData,
       servizioId,
-      initialDataIva: initialData?.iva,
-      initialDataConducenteEsterno: initialData?.conducente_esterno_id,
-      initialDataReferenteId: initialData?.referente_id,
-      initialDataAziendaId: initialData?.azienda_id
+      initialData_indirizzo_presa: initialData?.indirizzo_presa,
+      initialData_indirizzo_destinazione: initialData?.indirizzo_destinazione,
+      current_form_indirizzo_presa: form.getValues('indirizzo_presa'),
+      current_form_indirizzo_destinazione: form.getValues('indirizzo_destinazione'),
     });
+    console.log('[EDIT-DEBUG] ========================================');
 
     if (mode === 'edit' && initialData && servizioId) {
       // DEBUG IVA: Log dettagliato per capire il valore
@@ -406,14 +408,23 @@ export const ServizioCreaPage = ({
             km_totali: initialData.km_totali ?? null,
           });
           
-          console.log('[ServizioCreaPage] Form reset completato:', {
-            passeggeri_count: form.getValues('passeggeri')?.length,
-            passeggeri_data: form.getValues('passeggeri'),
-            referente_id_form_value: form.getValues('referente_id'),
-            referente_id_watch: form.watch('referente_id'),
-            azienda_id_form_value: form.getValues('azienda_id'),
-            all_form_values_keys: Object.keys(form.getValues())
+          console.log('[EDIT-DEBUG] ========================================');
+          console.log('[EDIT-DEBUG] ✅ form.reset() COMPLETED');
+          console.log('[EDIT-DEBUG] Form values AFTER reset:', {
+            indirizzo_presa: form.getValues('indirizzo_presa'),
+            indirizzo_destinazione: form.getValues('indirizzo_destinazione'),
+            citta_presa: form.getValues('citta_presa'),
+            citta_destinazione: form.getValues('citta_destinazione'),
           });
+          console.log('[EDIT-DEBUG] Passeggeri in form:', form.getValues('passeggeri')?.map((p: any, i: number) => ({
+            index: i,
+            nome: p.nome_cognome,
+            presa_tipo: p.presa_tipo,
+            destinazione_tipo: p.destinazione_tipo,
+            indirizzo_rubrica: p.indirizzo_rubrica,
+            presa_indirizzo_custom: p.presa_indirizzo_custom,
+          })));
+          console.log('[EDIT-DEBUG] ========================================');
           
           // ✅ Carica passeggeri temporanei da DB (se presenti)
           const tempPasseggeriDaDB = passeggeriData
@@ -516,6 +527,10 @@ export const ServizioCreaPage = ({
 
   useEffect(() => {
     if (!aziendaSelezionata) return;
+    console.log('[EDIT-DEBUG] useEffect[provvigione] triggered, addresses:', {
+      indirizzo_presa: form.getValues('indirizzo_presa'),
+      indirizzo_destinazione: form.getValues('indirizzo_destinazione'),
+    });
     if (aziendaSelezionata.provvigione === true) {
       form.setValue('applica_provvigione', true);
     } else {
@@ -556,8 +571,11 @@ export const ServizioCreaPage = ({
   // ✅ Imposta aliquota IVA di default quando le impostazioni sono caricate (solo in modalità creazione)
   useEffect(() => {
     if (mode === 'create' && aliquotaIvaDefault) {
+      console.log('[EDIT-DEBUG] useEffect[IVA-default] triggered (create only), addresses:', {
+        indirizzo_presa: form.getValues('indirizzo_presa'),
+        indirizzo_destinazione: form.getValues('indirizzo_destinazione'),
+      });
       const currentIva = form.getValues('iva');
-      // Applica default solo se IVA è 0 o non impostata
       if (currentIva === 0 || currentIva === null || currentIva === undefined) {
         form.setValue('iva', aliquotaIvaDefault, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
         console.log('[ServizioCreaPage] ✅ Applied default IVA on mount:', aliquotaIvaDefault);
@@ -721,6 +739,10 @@ export const ServizioCreaPage = ({
   // Auto-espandi sezione passeggeri su mobile se ci sono passeggeri disponibili
   useEffect(() => {
     if (Array.isArray(passeggeri) && passeggeri.length > 0) {
+      console.log('[EDIT-DEBUG] useEffect[auto-expand-passeggeri] triggered, addresses:', {
+        indirizzo_presa: form.getValues('indirizzo_presa'),
+        indirizzo_destinazione: form.getValues('indirizzo_destinazione'),
+      });
       setIsPasseggeriOpen(true);
     }
   }, [passeggeri]);
