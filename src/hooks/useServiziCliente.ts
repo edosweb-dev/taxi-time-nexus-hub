@@ -23,34 +23,20 @@ export const useServiziCliente = (
   filtri?: FiltriServizi,
   page: number = 1
 ) => {
-  // Fetch user profile with azienda_id
-  const { data: userProfile } = useQuery({
-    queryKey: ["user-profile-cliente"],
+  const { data: user } = useQuery({
+    queryKey: ["user"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, azienda_id")
-        .eq("id", user.id)
-        .single();
-      
-      if (error) {
-        console.error("Errore fetch profilo cliente:", error);
-        return null;
-      }
-      return data;
+      return user;
     },
   });
 
-  const aziendaId = userProfile?.azienda_id;
-  const userId = userProfile?.id;
+  const userId = user?.id;
 
   const { data: servizi, isLoading, error, refetch } = useQuery({
-    queryKey: ["servizi-cliente", aziendaId, statoFilter, filtri, page],
+    queryKey: ["servizi-cliente", userId, statoFilter, filtri, page],
     queryFn: async () => {
-      if (!aziendaId) return { data: [], count: 0 };
+      if (!userId) return { data: [], count: 0 };
 
       const from = (page - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -78,7 +64,7 @@ export const useServiziCliente = (
             last_name
           )
         `, { count: "exact" })
-        .eq("azienda_id", aziendaId)
+        .eq("referente_id", userId)
         .order("data_servizio", { ascending: false })
         .order("orario_servizio", { ascending: false })
         .range(from, to);
@@ -110,14 +96,14 @@ export const useServiziCliente = (
 
       return { data: data || [], count: count || 0 };
     },
-    enabled: !!aziendaId,
+    enabled: !!userId,
   });
 
   // Conta servizi per ogni stato (per badge tabs)
   const { data: counts } = useQuery({
-    queryKey: ["servizi-cliente-counts", aziendaId],
+    queryKey: ["servizi-cliente-counts", userId],
     queryFn: async () => {
-      if (!aziendaId) return null;
+      if (!userId) return null;
 
       const stati: StatoServizio[] = [
         "da_assegnare",
@@ -132,7 +118,7 @@ export const useServiziCliente = (
         const { count } = await supabase
           .from("servizi")
           .select("*", { count: "exact", head: true })
-          .eq("azienda_id", aziendaId)
+          .eq("referente_id", userId)
           .eq("stato", stato);
         
         return { stato, count: count || 0 };
@@ -145,7 +131,7 @@ export const useServiziCliente = (
         return acc;
       }, {} as Record<StatoServizio, number>);
     },
-    enabled: !!aziendaId,
+    enabled: !!userId,
   });
 
   const totalPages = Math.ceil((servizi?.count || 0) / ITEMS_PER_PAGE);

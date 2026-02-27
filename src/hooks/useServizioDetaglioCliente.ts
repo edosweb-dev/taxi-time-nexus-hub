@@ -27,18 +27,6 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
         return null;
       }
 
-      // Get user's azienda_id
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("azienda_id")
-        .eq("id", user.id)
-        .single();
-
-      if (!profile?.azienda_id) {
-        console.warn("[useServizioDetaglioCliente] No azienda_id for user");
-        return null;
-      }
-
       const { data, error } = await supabase
         .from("servizi")
         .select(`
@@ -77,7 +65,7 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
           )
         `)
         .eq("id", servizioId)
-        .eq("azienda_id", profile.azienda_id)
+        .eq("referente_id", user.id)
         .maybeSingle();
 
       if (error) {
@@ -98,13 +86,6 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
 
   // Access control: redirect se non autorizzato
   useEffect(() => {
-    // Condizioni per redirect:
-    // 1. Query completata (!isLoading)
-    // 2. User autenticato (user?.id)
-    // 3. servizioId valido
-    // 4. Nessun servizio trovato (!servizio)
-    // 5. Nessun errore (se errore, lascia che error boundary lo gestisca)
-    
     if (!isLoading && user?.id && servizioId && !servizio && !error) {
       console.warn("[useServizioDetaglioCliente] Access denied:", {
         servizioId,
@@ -112,7 +93,6 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
         reason: "Servizio not found or unauthorized",
       });
       
-      // Delay di 300ms per evitare race condition durante hydration
       const timer = setTimeout(() => {
         navigate("/dashboard-cliente/servizi");
       }, 300);
@@ -120,7 +100,6 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
       return () => clearTimeout(timer);
     }
     
-    // Log stato corrente per debug
     if (!isLoading) {
       console.log("[useServizioDetaglioCliente] Access check:", {
         isLoading,
