@@ -7,9 +7,10 @@ export interface Profile {
   last_name: string | null;
   role: UserRole;
   azienda_id?: string | null;
-  email?: string | null; // Added email field
-  telefono?: string | null; // Added phone field
-  color?: string | null; // Added color field for employee color coding
+  email?: string | null;
+  telefono?: string | null;
+  color?: string | null;
+  aziende?: { nome: string } | null;
 }
 
 export interface Session {
