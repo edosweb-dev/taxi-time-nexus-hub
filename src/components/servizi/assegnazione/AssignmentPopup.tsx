@@ -358,37 +358,39 @@ export function AssignmentPopup({
         )}
       </div>
       
-      {/* Action Footer - Fixed bottom */}
-      <div className={`sticky bottom-0 ${isMobile ? 'px-6 py-4' : 'px-6 py-4'} border-t bg-background`}>
-        <div className="flex gap-3 max-w-full">
-          <Button 
-            variant="outline" 
-            onClick={onClose} 
-            className={`flex-1 ${isMobile ? 'h-12 text-base' : 'h-11'} font-medium`}
-            disabled={isSubmitting}
-          >
-            Annulla
-          </Button>
-          <Button 
-            onClick={handleAssign}
-            disabled={isAssignDisabled}
-            className={`flex-1 ${isMobile ? 'h-12 text-base' : 'h-11'} font-semibold`}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Assegna...
-              </>
-            ) : (
-              <>
-                <Check className="h-4 w-4 mr-2" />
-                Assegna
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
     </>
+  );
+
+  const footer = (
+    <div className="px-6 py-4 border-t bg-background">
+      <div className="flex gap-3 max-w-full">
+        <Button 
+          variant="outline" 
+          onClick={onClose} 
+          className={`flex-1 ${isMobile ? 'h-12 text-base' : 'h-11'} font-medium`}
+          disabled={isSubmitting}
+        >
+          Annulla
+        </Button>
+        <Button 
+          onClick={handleAssign}
+          disabled={isAssignDisabled}
+          className={`flex-1 ${isMobile ? 'h-12 text-base' : 'h-11'} font-semibold`}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Assegna...
+            </>
+          ) : (
+            <>
+              <Check className="h-4 w-4 mr-2" />
+              Assegna
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
   );
 
   if (isMobile) {
@@ -407,6 +409,7 @@ export function AssignmentPopup({
           <div className="flex-1 overflow-y-auto px-6 py-6">
             {content}
           </div>
+          {footer}
         </SheetContent>
       </Sheet>
     );
@@ -414,16 +417,17 @@ export function AssignmentPopup({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 gap-0">
+      <DialogContent className="sm:max-w-md p-0 gap-0 flex flex-col max-h-[85vh]">
         <DialogHeader className="px-6 pt-6 pb-4 border-b space-y-2">
           <DialogTitle className="text-xl font-semibold">Assegna Servizio</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Seleziona il conducente e opzionalmente un veicolo
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[70vh] overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6">
           {content}
         </div>
+        {footer}
       </DialogContent>
     </Dialog>
   );
