@@ -90,7 +90,7 @@ export default function ServiziPage() {
   // Ricerca spostata su pagina dedicata /servizi/ricerca
 
   // Tab operativi = ordine ASC (urgenti/imminenti prima)
-  const OPERATIONAL_TABS = ['bozza', 'da_assegnare', 'assegnato', 'non_accettato'];
+  const OPERATIONAL_TABS = ['richiesta_cliente', 'bozza', 'da_assegnare', 'assegnato', 'non_accettato'];
 
   // Filter servizi by active tab + ordinamento differenziato
   const filteredServizi = useMemo(() => {
