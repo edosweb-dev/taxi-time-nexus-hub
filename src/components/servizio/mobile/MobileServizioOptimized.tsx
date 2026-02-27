@@ -502,7 +502,13 @@ export function MobileServizioOptimized({
           )}
 
           {/* Se nessuna CTA primaria, mostra placeholder per mantenere layout */}
-          {!canBeCompleted && !canBeConsuntivato && (canBeEdited || isAdmin) && (
+          {servizio.stato === 'da_assegnare' && isAdmin && (
+            <MobileButton variant="default" className="flex-1" onClick={onAssegna}>
+              <User className="h-5 w-5" />
+              Assegna Servizio
+            </MobileButton>
+          )}
+          {servizio.stato !== 'da_assegnare' && !canBeCompleted && !canBeConsuntivato && (canBeEdited || isAdmin) && (
             <div className="flex-1" />
           )}
 
