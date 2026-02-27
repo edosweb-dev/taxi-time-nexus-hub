@@ -1537,10 +1537,39 @@ export const ServizioCreaPage = ({
               destinazione: data.indirizzo_destinazione,
             });
           } else if (mode === 'edit') {
-            console.log('[Pre-validation] Edit mode: indirizzi preservati dal DB:', {
-              presa: data.indirizzo_presa,
-              destinazione: data.indirizzo_destinazione,
-            });
+            console.log('[Pre-validation] Edit mode - checking if addresses need derivation');
+            
+            if (data.passeggeri && data.passeggeri.length > 0) {
+              const primo = data.passeggeri[0];
+              
+              // Derive indirizzo_presa if empty
+              if (!data.indirizzo_presa || data.indirizzo_presa.trim() === '') {
+                if (primo.presa_tipo === 'passeggero') {
+                  data.indirizzo_presa = primo.indirizzo_rubrica || primo.indirizzo || '';
+                  data.citta_presa = primo.localita_rubrica || primo.localita || null;
+                } else if (primo.presa_tipo === 'personalizzato' || primo.presa_tipo === 'aeroporto') {
+                  data.indirizzo_presa = primo.presa_indirizzo_custom || '';
+                  data.citta_presa = primo.presa_citta_custom || null;
+                }
+                console.log('[Pre-validation] Edit - derived indirizzo_presa:', data.indirizzo_presa);
+              } else {
+                console.log('[Pre-validation] Edit - preserved indirizzo_presa from DB:', data.indirizzo_presa);
+              }
+              
+              // Derive indirizzo_destinazione if empty
+              if (!data.indirizzo_destinazione || data.indirizzo_destinazione.trim() === '') {
+                if (primo.destinazione_tipo === 'passeggero') {
+                  data.indirizzo_destinazione = primo.indirizzo_rubrica || primo.indirizzo || '';
+                  data.citta_destinazione = primo.localita_rubrica || primo.localita || null;
+                } else if (primo.destinazione_tipo === 'personalizzato' || primo.destinazione_tipo === 'aeroporto') {
+                  data.indirizzo_destinazione = primo.destinazione_indirizzo_custom || '';
+                  data.citta_destinazione = primo.destinazione_citta_custom || null;
+                }
+                console.log('[Pre-validation] Edit - derived indirizzo_destinazione:', data.indirizzo_destinazione);
+              } else {
+                console.log('[Pre-validation] Edit - preserved indirizzo_destinazione from DB:', data.indirizzo_destinazione);
+              }
+            }
           }
           
           await onSubmit(data);
