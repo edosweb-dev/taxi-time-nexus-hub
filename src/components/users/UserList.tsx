@@ -180,7 +180,7 @@ export function UserList({
                     {showEmailColumn && (
                       <TableHead className="font-semibold">Email</TableHead>
                     )}
-                    <TableHead className="font-semibold">Azienda</TableHead>
+                    
                     <TableHead className="text-right font-semibold w-[200px]">Azioni</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -245,16 +245,6 @@ export function UserList({
                         </TableCell>
                       )}
                       
-                      <TableCell>
-                        {user.azienda_id ? (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Building className="h-4 w-4 text-blue-500" />
-                            <span className="text-muted-foreground">Collegato</span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">Nessuna azienda</span>
-                        )}
-                      </TableCell>
                       
                        <TableCell className="text-right">
                          <div className="flex items-center justify-end gap-2">
