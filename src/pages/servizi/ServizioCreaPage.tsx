@@ -391,19 +391,23 @@ export const ServizioCreaPage = ({
                   // Nuovi campi per prese intermedie
                   ordine: sp.ordine_presa || idx + 1,
                   presa_tipo: presaTipo,
-                  // ✅ FIX: Usa solo indirizzi realmente personalizzati (non copie del servizio)
-                  presa_indirizzo_custom: presaTipo === 'personalizzato' && hasRealCustomPresa
-                    ? (sp.luogo_presa_personalizzato || '') 
+                  // ✅ FIX Bug#3: Populate custom fields - use real custom if available, else fall back to service address
+                  presa_indirizzo_custom: presaTipo === 'personalizzato' 
+                    ? (hasRealCustomPresa ? (sp.luogo_presa_personalizzato || '') : (initialData.indirizzo_presa || ''))
                     : '',
-                  presa_citta_custom: presaTipo === 'personalizzato' && hasRealCustomPresa
-                    ? (sp.localita_presa_personalizzato || '') 
+                  presa_citta_custom: presaTipo === 'personalizzato'
+                    ? (hasRealCustomPresa ? (sp.localita_presa_personalizzato || '') : (initialData.citta_presa || ''))
                     : '',
                   presa_orario: sp.orario_presa_personalizzato ? sp.orario_presa_personalizzato.slice(0, 5) : '',
                   presa_usa_orario_servizio: idx === 0 && !sp.orario_presa_personalizzato,
                   destinazione_tipo: destinazioneTipo,
-                  // ✅ FIX: Usa solo destinazioni realmente personalizzate
-                  destinazione_indirizzo_custom: hasRealCustomDest ? (sp.destinazione_personalizzato || '') : '',
-                  destinazione_citta_custom: hasRealCustomDest ? (sp.localita_destinazione_personalizzato || '') : '',
+                  // ✅ FIX Bug#3: Same for destination
+                  destinazione_indirizzo_custom: destinazioneTipo === 'personalizzato'
+                    ? (hasRealCustomDest ? (sp.destinazione_personalizzato || '') : (initialData.indirizzo_destinazione || ''))
+                    : '',
+                  destinazione_citta_custom: destinazioneTipo === 'personalizzato'
+                    ? (hasRealCustomDest ? (sp.localita_destinazione_personalizzato || '') : (initialData.citta_destinazione || ''))
+                    : '',
                   indirizzo_rubrica: sp.passeggeri?.indirizzo || sp.indirizzo_inline || '',
                   localita_rubrica: sp.passeggeri?.localita || sp.localita_inline || '',
                   
