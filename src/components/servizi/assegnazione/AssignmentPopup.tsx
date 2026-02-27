@@ -24,7 +24,6 @@ function hasValidRoute(servizio: Servizio): boolean {
   const presa = servizio.indirizzo_presa?.trim().toLowerCase() || '';
   const destinazione = servizio.indirizzo_destinazione?.trim().toLowerCase() || '';
   
-  // Controlla che entrambi gli indirizzi siano definiti e non siano placeholder
   const isPresaValid = presa && 
     presa !== 'da definire' && 
     presa !== 'da_definire' &&
@@ -35,7 +34,17 @@ function hasValidRoute(servizio: Servizio): boolean {
     destinazione !== 'da_definire' &&
     destinazione.length > 3;
   
-  return isPresaValid && isDestinazioneValid;
+  console.log('[AssignmentPopup] Route Validation:', {
+    raw_presa: servizio.indirizzo_presa,
+    raw_dest: servizio.indirizzo_destinazione,
+    processed_presa: presa,
+    processed_dest: destinazione,
+    isPresaValid,
+    isDestinazioneValid,
+    result: !!(isPresaValid && isDestinazioneValid),
+  });
+  
+  return !!(isPresaValid && isDestinazioneValid);
 }
 
 interface AssignmentPopupProps {
