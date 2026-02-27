@@ -25,6 +25,7 @@ interface UserListProps {
   selectedRole?: UserRole | 'all';
   onRoleChange?: (role: UserRole | 'all') => void;
   showEmailColumn?: boolean;
+  showAziendaColumn?: boolean;
   isDeleting?: boolean;
 }
 
@@ -78,6 +79,7 @@ export function UserList({
   selectedRole = 'all',
   onRoleChange,
   showEmailColumn = false,
+  showAziendaColumn = false,
   isDeleting = false
 }: UserListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -180,7 +182,9 @@ export function UserList({
                     {showEmailColumn && (
                       <TableHead className="font-semibold">Email</TableHead>
                     )}
-                    
+                    {showAziendaColumn && (
+                      <TableHead className="font-semibold">Azienda</TableHead>
+                    )}
                     <TableHead className="text-right font-semibold w-[200px]">Azioni</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -245,6 +249,18 @@ export function UserList({
                         </TableCell>
                       )}
                       
+                      {showAziendaColumn && (
+                        <TableCell>
+                          {user.aziende?.nome ? (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Building className="h-4 w-4 text-muted-foreground" />
+                              <span>{user.aziende.nome}</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Nessuna azienda</span>
+                          )}
+                        </TableCell>
+                      )}
                       
                        <TableCell className="text-right">
                          <div className="flex items-center justify-end gap-2">

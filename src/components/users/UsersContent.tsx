@@ -90,6 +90,7 @@ export function UsersContent({
             title="Clienti"
             description="Utenti clienti del sistema"
             showEmailColumn={true}
+            showAziendaColumn={true}
             isDeleting={isDeleting}
           />
         </TabsContent>

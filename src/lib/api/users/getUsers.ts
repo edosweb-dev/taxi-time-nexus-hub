@@ -10,7 +10,7 @@ export async function getUsers(): Promise<Profile[]> {
     // Query semplice senza join problematici
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('*, aziende:azienda_id(nome)')
       .order('last_name', { ascending: true });
 
     if (error) {
