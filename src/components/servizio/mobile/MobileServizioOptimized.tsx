@@ -263,60 +263,90 @@ export function MobileServizioOptimized({
             </div>
           </div>
 
-          {/* Fermate intermedie (esclude primo passeggero già in partenza) */}
-          {passeggeri
-            .sort((a: any, b: any) => ((a as any).ordine_presa || 0) - ((b as any).ordine_presa || 0))
-            .slice(1) // Escludi primo passeggero
-            .filter((p: any) => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato)
-            .map((passeggero: any, idx: number) => {
-              // Fallback località: campo dedicato → località inline → località rubrica → città servizio
-              const cittaFermata = passeggero.localita_presa_personalizzato || 
-                passeggero.localita_inline || 
-                passeggero.localita || 
-                servizio.citta_presa;
-              
-              return (
-                <div key={idx} className="flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground border-2 border-background shadow-sm" />
-                    <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
-                  </div>
-                  <div className="flex-1 pb-2">
-                    <div className="text-xs text-muted-foreground font-medium mb-1">
-                      Fermata - {passeggero.nome_cognome}
-                    </div>
-                    {passeggero.orario_presa_personalizzato && (
-                      <div className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
-                        <Clock className="h-3 w-3" />
-                        {formatTime(passeggero.orario_presa_personalizzato)}
-                      </div>
+          {/* Fermate intermedie - tutti i passeggeri tranne il primo */}
+          {passeggeriOrdinati.slice(1).map((passeggero: any, idx: number) => {
+            const hasCustomAddress = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
+            const indirizzo = hasCustomAddress
+              ? passeggero.luogo_presa_personalizzato
+              : servizio.indirizzo_presa;
+            const cittaFermata = hasCustomAddress
+              ? (passeggero.localita_presa_personalizzato || passeggero.localita_inline || passeggero.localita || servizio.citta_presa)
+              : servizio.citta_presa;
+
+            return (
+              <div key={idx} className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground border-2 border-background shadow-sm" />
+                  <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
+                </div>
+                <div className="flex-1 pb-2">
+                  <div className="text-xs text-muted-foreground font-medium mb-1">
+                    Fermata - {passeggero.nome_cognome}
+                    {!hasCustomAddress && (
+                      <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
                     )}
-                    <div className="text-sm">
-                      {cittaFermata && (
-                        <span className="font-semibold text-foreground">{cittaFermata}</span>
-                      )}
-                      {cittaFermata && passeggero.luogo_presa_personalizzato && " • "}
-                      <span className="text-muted-foreground">{passeggero.luogo_presa_personalizzato}</span>
+                  </div>
+                  {passeggero.orario_presa_personalizzato && (
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+                      <Clock className="h-3 w-3" />
+                      {formatTime(passeggero.orario_presa_personalizzato)}
                     </div>
+                  )}
+                  <div className="text-sm">
+                    {cittaFermata && (
+                      <span className="font-semibold text-foreground">{cittaFermata}</span>
+                    )}
+                    {cittaFermata && indirizzo && " • "}
+                    <span className="text-muted-foreground">{indirizzo}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Destinazioni raggruppate */}
+          {(() => {
+            const destinazioniMap = new Map<string, { indirizzo: string; citta?: string; passeggeri: string[] }>();
+            passeggeriOrdinati.forEach((p: any) => {
+              const hasDest = p.usa_destinazione_personalizzata && p.destinazione_personalizzato;
+              const ind = hasDest ? p.destinazione_personalizzato : servizio.indirizzo_destinazione;
+              const citta = hasDest
+                ? (p.localita_destinazione_personalizzato || p.localita_inline || p.localita || servizio.citta_destinazione)
+                : servizio.citta_destinazione;
+              const key = `${ind}|${citta || ''}`.toLowerCase().trim();
+              if (!destinazioniMap.has(key)) {
+                destinazioniMap.set(key, { indirizzo: ind || '', citta: citta || undefined, passeggeri: [] });
+              }
+              destinazioniMap.get(key)!.passeggeri.push(p.nome_cognome || 'Passeggero');
+            });
+            const destinazioni = Array.from(destinazioniMap.values());
+
+            return destinazioni.map((dest, index) => {
+              const isLast = index === destinazioni.length - 1;
+              return (
+                <div key={`dest-${index}`} className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className={`w-3 h-3 rounded-full border-2 border-background shadow-sm ${isLast ? 'bg-destructive' : 'bg-primary/60'}`} />
+                    {!isLast && <div className="w-0.5 flex-1 bg-border min-h-[40px]" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-muted-foreground font-medium mb-1">
+                      {isLast ? 'Arrivo' : `Tappa ${index + 1}`}
+                      {dest.passeggeri.length > 0 && (
+                        <span className="text-muted-foreground font-normal">
+                          {" - "}{dest.passeggeri.join(', ')}
+                        </span>
+                      )}
+                    </div>
+                    {dest.citta && (
+                      <div className="font-semibold text-sm">{dest.citta}</div>
+                    )}
+                    <div className="text-sm">{dest.indirizzo}</div>
                   </div>
                 </div>
               );
-            })}
-
-
-          {/* Arrivo */}
-          <div className="flex gap-3">
-            <div className="flex flex-col items-center">
-              <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm" />
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-muted-foreground font-medium mb-1">Arrivo</div>
-              {servizio.citta_destinazione && (
-                <div className="font-semibold text-sm">{servizio.citta_destinazione}</div>
-              )}
-              <div className="text-sm">{servizio.indirizzo_destinazione}</div>
-            </div>
-          </div>
+            });
+          })()}
         </div>
       </Card>
 
