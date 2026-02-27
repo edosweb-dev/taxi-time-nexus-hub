@@ -27,6 +27,18 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
         return null;
       }
 
+      // Get user's azienda_id
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("azienda_id")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile?.azienda_id) {
+        console.warn("[useServizioDetaglioCliente] No azienda_id for user");
+        return null;
+      }
+
       const { data, error } = await supabase
         .from("servizi")
         .select(`
@@ -65,7 +77,7 @@ export const useServizioDetaglioCliente = (servizioId: string) => {
           )
         `)
         .eq("id", servizioId)
-        .eq("referente_id", user.id)
+        .eq("azienda_id", profile.azienda_id)
         .maybeSingle();
 
       if (error) {

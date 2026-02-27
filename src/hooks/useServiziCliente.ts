@@ -23,20 +23,35 @@ export const useServiziCliente = (
   filtri?: FiltriServizi,
   page: number = 1
 ) => {
-  const { data: user } = useQuery({
-    queryKey: ["user"],
+  // Fetch user profile with azienda_id
+  const { data: userProfile } = useQuery({
+    queryKey: ["user-profile-cliente"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      return user;
+      if (!user) return null;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, azienda_id")
+        .eq("id", user.id)
+        .single();
+      
+      if (error) {
+        console.error("Errore fetch profilo cliente:", error);
+        return null;
+      }
+      return data;
     },
   });
 
-  const { data: servizi, isLoading, error, refetch } = useQuery({
-    queryKey: ["servizi-cliente", user?.id, statoFilter, filtri, page],
-    queryFn: async () => {
-      if (!user?.id) return { data: [], count: 0 };
+  const aziendaId = userProfile?.azienda_id;
+  const userId = userProfile?.id;
 
-      // Calcola offset per pagination
+  const { data: servizi, isLoading, error, refetch } = useQuery({
+    queryKey: ["servizi-cliente", aziendaId, statoFilter, filtri, page],
+    queryFn: async () => {
+      if (!aziendaId) return { data: [], count: 0 };
+
       const from = (page - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
@@ -63,12 +78,11 @@ export const useServiziCliente = (
             last_name
           )
         `, { count: "exact" })
-        .eq("referente_id", user.id)
+        .eq("azienda_id", aziendaId)
         .order("data_servizio", { ascending: false })
         .order("orario_servizio", { ascending: false })
         .range(from, to);
 
-      // Filtro per stato se specificato
       if (statoFilter) {
         query = query.eq("stato", statoFilter);
       }
@@ -96,14 +110,14 @@ export const useServiziCliente = (
 
       return { data: data || [], count: count || 0 };
     },
-    enabled: !!user?.id,
+    enabled: !!aziendaId,
   });
 
   // Conta servizi per ogni stato (per badge tabs)
   const { data: counts } = useQuery({
-    queryKey: ["servizi-cliente-counts", user?.id],
+    queryKey: ["servizi-cliente-counts", aziendaId],
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!aziendaId) return null;
 
       const stati: StatoServizio[] = [
         "da_assegnare",
@@ -118,7 +132,7 @@ export const useServiziCliente = (
         const { count } = await supabase
           .from("servizi")
           .select("*", { count: "exact", head: true })
-          .eq("referente_id", user.id)
+          .eq("azienda_id", aziendaId)
           .eq("stato", stato);
         
         return { stato, count: count || 0 };
@@ -131,7 +145,7 @@ export const useServiziCliente = (
         return acc;
       }, {} as Record<StatoServizio, number>);
     },
-    enabled: !!user?.id,
+    enabled: !!aziendaId,
   });
 
   const totalPages = Math.ceil((servizi?.count || 0) / ITEMS_PER_PAGE);
