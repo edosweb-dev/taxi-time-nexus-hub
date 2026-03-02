@@ -8,6 +8,185 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
+// ─── DYNAMIC EMAIL BUILDER ────────────────────────────────────────────────────
+
+type DynamicEmailTipo = 'richiesta_cliente' | 'conferma_presa_carico' | 'servizio_confermato';
+
+function buildCompleteEmailHTML(data: {
+  tipo: DynamicEmailTipo;
+  servizio: any;
+  passeggeri: any[];
+  referente: any;
+  azienda: any;
+  autista?: any;
+  veicolo?: any;
+}): { html: string; subject: string } {
+  const { tipo, servizio, passeggeri, referente, azienda, autista, veicolo } = data;
+
+  const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT', {
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+  });
+  const oraFormatted = servizio.orario_servizio?.slice(0, 5) || '';
+
+  const subjects: Record<DynamicEmailTipo, string> = {
+    'richiesta_cliente': `[TaxiTime] Richiesta Servizio - ${dataFormatted} ${oraFormatted}`,
+    'conferma_presa_carico': `[TaxiTime] CONFERMATO - Servizio ${dataFormatted} ${oraFormatted}`,
+    'servizio_confermato': `[TaxiTime] SERVIZIO CONFERMATO - ${dataFormatted} ${oraFormatted}`,
+  };
+
+  const headers: Record<DynamicEmailTipo, string> = {
+    'richiesta_cliente': '📋 RICHIESTA SERVIZIO',
+    'conferma_presa_carico': '✅ SERVIZIO PRESO IN CARICO',
+    'servizio_confermato': '✅ SERVIZIO CONFERMATO',
+  };
+
+  // Build passenger stops HTML
+  const passeggeriHtml = passeggeri.map((p: any, idx: number) => {
+    const orarioPresa = p.orario_presa_personalizzato || oraFormatted;
+    const indirizzoPresa = p.luogo_presa_personalizzato || p.indirizzo_inline || p.indirizzo || 'Indirizzo da definire';
+    const localitaPresa = p.localita_presa_personalizzato || p.localita_inline || p.localita || '';
+    const nomePax = p.nome_cognome_inline || p.nome_cognome || `${p.nome || ''} ${p.cognome || ''}`.trim() || 'Passeggero';
+    const email = p.email_inline || p.email || '';
+    const telefono = p.telefono_inline || p.telefono || '';
+
+    return `
+        <div class="route-step intermediate">
+          <div class="route-content">
+            <div class="route-name">🚶 FERMATA ${idx + 1}: ${escapeHtml(nomePax)}</div>
+            <div class="route-address">${escapeHtml(indirizzoPresa)}</div>
+            ${localitaPresa ? `<div class="route-address">${escapeHtml(localitaPresa)}</div>` : ''}
+            <div class="route-time">Orario previsto: ${escapeHtml(orarioPresa)}</div>
+            ${email ? `<div class="route-time">📧 ${escapeHtml(email)}</div>` : ''}
+            ${telefono ? `<div class="route-time">📱 ${escapeHtml(telefono)}</div>` : ''}
+          </div>
+        </div>`;
+  }).join('\n');
+
+  // Destination info - check passenger custom destinations
+  const lastPaxWithDest = [...passeggeri].reverse().find(
+    (p: any) => p.usa_destinazione_personalizzata && p.destinazione_personalizzato
+  );
+  const destAddress = lastPaxWithDest?.destinazione_personalizzato || servizio.indirizzo_destinazione || 'Destinazione da definire';
+  const destCity = lastPaxWithDest?.localita_destinazione_personalizzato || servizio.citta_destinazione || '';
+
+  // Operational details section
+  const operativeHtml = (veicolo || autista || servizio.km_totali) ? `
+      <div class="section">
+        <div class="section-title">🚗 Dettagli Operativi</div>
+        ${veicolo ? `<div class="info-row"><span class="info-label">Veicolo:</span><span class="info-value">${escapeHtml(veicolo.modello)} - ${escapeHtml(veicolo.targa)}</span></div>` : ''}
+        ${autista ? `<div class="info-row"><span class="info-label">Autista:</span><span class="info-value">${escapeHtml(autista.first_name || '')} ${escapeHtml(autista.last_name || '')}</span></div>` : ''}
+        ${servizio.km_totali ? `<div class="info-row"><span class="info-label">Km Totali:</span><span class="info-value">${servizio.km_totali} km</span></div>` : ''}
+      </div>` : '';
+
+  const refName = referente ? `${referente.first_name || ''} ${referente.last_name || ''}`.trim() : '';
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+    .container { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 24px; }
+    .header p { margin: 10px 0 0 0; opacity: 0.9; }
+    .content { padding: 30px; }
+    .section { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f0; }
+    .section:last-child { border-bottom: none; }
+    .section-title { font-size: 16px; font-weight: 600; color: #667eea; margin-bottom: 12px; }
+    .info-row { display: flex; padding: 8px 0; }
+    .info-label { font-weight: 600; min-width: 140px; color: #666; }
+    .info-value { color: #333; }
+    .route-step { display: flex; align-items: flex-start; margin: 15px 0; padding-left: 30px; position: relative; }
+    .route-step::before { content: ''; position: absolute; left: 0; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: #667eea; }
+    .route-step.start::before { background: #10b981; width: 12px; height: 12px; }
+    .route-step.end::before { background: #ef4444; width: 12px; height: 12px; }
+    .route-step.intermediate::before { background: #f59e0b; }
+    .route-content { margin-left: 15px; flex: 1; }
+    .route-name { font-weight: 600; color: #333; margin-bottom: 4px; }
+    .route-address { color: #666; font-size: 14px; line-height: 1.4; }
+    .route-time { color: #999; font-size: 13px; font-style: italic; margin-top: 4px; }
+    .highlight-box { background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea; margin: 15px 0; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 13px; color: #666; }
+    @media (max-width: 600px) { body { padding: 10px; } .content { padding: 20px 15px; } .info-row { flex-direction: column; } .info-label { min-width: auto; margin-bottom: 4px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>${headers[tipo]}</h1>
+      <p>${escapeHtml(dataFormatted)} alle ${escapeHtml(oraFormatted)}</p>
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <div class="section-title">👤 Cliente</div>
+        <div class="info-row"><span class="info-label">Azienda:</span><span class="info-value">${escapeHtml(azienda?.nome || '')}</span></div>
+        ${refName ? `<div class="info-row"><span class="info-label">Referente:</span><span class="info-value">${escapeHtml(refName)}</span></div>` : ''}
+        ${servizio.numero_commessa ? `<div class="info-row"><span class="info-label">N° Commessa:</span><span class="info-value">${escapeHtml(servizio.numero_commessa)}</span></div>` : ''}
+      </div>
+
+      <div class="section">
+        <div class="section-title">🗺️ Percorso Servizio</div>
+
+        <div class="route-step start">
+          <div class="route-content">
+            <div class="route-name">📍 PARTENZA</div>
+            <div class="route-address">${escapeHtml(servizio.indirizzo_presa || 'Indirizzo da definire')}</div>
+            ${servizio.citta_presa ? `<div class="route-address">${escapeHtml(servizio.citta_presa)}</div>` : ''}
+            <div class="route-time">Orario: ${escapeHtml(oraFormatted)}</div>
+          </div>
+        </div>
+
+${passeggeriHtml}
+
+        <div class="route-step end">
+          <div class="route-content">
+            <div class="route-name">🏁 DESTINAZIONE</div>
+            <div class="route-address">${escapeHtml(destAddress)}</div>
+            ${destCity ? `<div class="route-address">${escapeHtml(destCity)}</div>` : ''}
+          </div>
+        </div>
+      </div>
+
+${operativeHtml}
+
+      ${servizio.note ? `
+      <div class="section">
+        <div class="section-title">📝 Note Servizio</div>
+        <div class="highlight-box">${escapeHtml(servizio.note)}</div>
+      </div>` : ''}
+
+      ${tipo === 'conferma_presa_carico' ? `
+      <div class="highlight-box">
+        ✅ Servizio preso in carico da TaxiTime.<br>
+        Riceverai ulteriori aggiornamenti quando necessario.
+      </div>` : ''}
+    </div>
+
+    <div class="footer">
+      <p>Questa è una notifica automatica di TaxiTime</p>
+      <p>Per assistenza: info@taxitime.it</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  return { html, subject: subjects[tipo] };
+}
+
+function escapeHtml(text: string): string {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ─── MAIN HANDLER ─────────────────────────────────────────────────────────────
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -74,10 +253,12 @@ serve(async (req) => {
       .select(`
         *,
         aziende(*),
-        referente:profiles!servizi_assegnato_a_fkey(email, first_name, last_name),
         autista:profiles!servizi_assegnato_a_fkey(email, first_name, last_name),
         veicoli(*),
-        servizi_passeggeri(passeggeri(nome_cognome, email)),
+        servizi_passeggeri(
+          *,
+          passeggeri(nome_cognome, email, telefono, indirizzo, localita)
+        ),
         servizi_email_notifiche(email_notifiche(email, nome))
       `)
       .eq('id', servizio_id)
@@ -85,7 +266,7 @@ serve(async (req) => {
 
     if (servizioError) throw new Error(`Servizio error: ${servizioError.message}`);
 
-    // Fetch referente separately since there's no direct FK named servizi_referente_id_fkey
+    // Fetch referente separately
     let referente = null;
     if (servizio.referente_id) {
       const { data: refData } = await supabaseAdmin
@@ -115,10 +296,11 @@ serve(async (req) => {
 
     if (servizio.servizi_passeggeri) {
       servizio.servizi_passeggeri.forEach((sp: any) => {
-        if (sp.passeggeri?.email) {
+        const paxEmail = sp.email_inline || sp.passeggeri?.email;
+        if (paxEmail) {
           recipients.push({
-            email: sp.passeggeri.email,
-            name: sp.passeggeri.nome_cognome
+            email: paxEmail,
+            name: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || ''
           });
         }
       });
@@ -148,30 +330,87 @@ serve(async (req) => {
 
     console.log('[SEND-EMAIL] Recipients:', uniqueRecipients.length);
 
-    // 5. BUILD EMAIL CONTENT
-    const variables: Record<string, string> = {
-      numero: servizio.numero_commessa || servizio.id_progressivo || servizio.id.split('-')[0].toUpperCase(),
-      azienda_nome: servizio.aziende?.nome || '',
-      data: new Date(servizio.data_servizio).toLocaleDateString('it-IT'),
-      ora: servizio.orario_servizio?.slice(0, 5) || '',
-      indirizzo_presa: servizio.indirizzo_presa || '',
-      citta_presa: servizio.citta_presa || '',
-      indirizzo_destinazione: servizio.indirizzo_destinazione || '',
-      citta_destinazione: servizio.citta_destinazione || '',
-      autista_nome: servizio.autista ? `${servizio.autista.first_name || ''} ${servizio.autista.last_name || ''}`.trim() : '',
-      veicolo: servizio.veicoli ? `${servizio.veicoli.modello} ${servizio.veicoli.targa}` : '',
-      note: servizio.note || '',
-      data_completamento: new Date().toLocaleDateString('it-IT'),
-      motivo: ''
-    };
+    // 5. BUILD EMAIL CONTENT — DETECTION MODE
+    let emailHtml: string;
+    let emailSubject: string;
+    const isDynamicTemplate = template.slug.includes('completo');
 
-    let emailHtml = template.html_body;
-    let emailSubject = template.subject;
-    Object.keys(variables).forEach(key => {
-      const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-      emailHtml = emailHtml.replace(regex, variables[key]);
-      emailSubject = emailSubject.replace(regex, variables[key]);
-    });
+    if (isDynamicTemplate) {
+      // ── DYNAMIC MODE ──────────────────────────────────────────────
+      console.log(`[SEND-EMAIL] DYNAMIC mode for: ${template.slug}`);
+
+      let tipo: DynamicEmailTipo;
+      if (template.slug.includes('richiesta')) {
+        tipo = 'richiesta_cliente';
+      } else if (template.slug.includes('conferma_presa_carico')) {
+        tipo = 'conferma_presa_carico';
+      } else {
+        tipo = 'servizio_confermato';
+      }
+
+      // Build enriched passenger list from servizi_passeggeri join
+      const passeggeriConDati = (servizio.servizi_passeggeri || []).map((sp: any) => ({
+        nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
+        nome_cognome_inline: sp.nome_cognome_inline,
+        email: sp.passeggeri?.email || '',
+        email_inline: sp.email_inline,
+        telefono: sp.passeggeri?.telefono || '',
+        telefono_inline: sp.telefono_inline,
+        indirizzo: sp.passeggeri?.indirizzo || '',
+        indirizzo_inline: sp.indirizzo_inline,
+        localita: sp.passeggeri?.localita || '',
+        localita_inline: sp.localita_inline,
+        luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+        localita_presa_personalizzato: sp.localita_presa_personalizzato,
+        orario_presa_personalizzato: sp.orario_presa_personalizzato,
+        usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato,
+        usa_destinazione_personalizzata: sp.usa_destinazione_personalizzata,
+        destinazione_personalizzato: sp.destinazione_personalizzato,
+        localita_destinazione_personalizzato: sp.localita_destinazione_personalizzato,
+        ordine_presa: sp.ordine_presa,
+      })).sort((a: any, b: any) => (a.ordine_presa ?? 999) - (b.ordine_presa ?? 999));
+
+      const built = buildCompleteEmailHTML({
+        tipo,
+        servizio,
+        passeggeri: passeggeriConDati,
+        referente,
+        azienda: servizio.aziende,
+        autista: servizio.autista,
+        veicolo: servizio.veicoli,
+      });
+
+      emailHtml = built.html;
+      emailSubject = built.subject;
+
+    } else {
+      // ── LEGACY MODE ───────────────────────────────────────────────
+      console.log(`[SEND-EMAIL] LEGACY mode for: ${template.slug}`);
+
+      const variables: Record<string, string> = {
+        numero: servizio.numero_commessa || servizio.id_progressivo || servizio.id.split('-')[0].toUpperCase(),
+        azienda_nome: servizio.aziende?.nome || '',
+        data: new Date(servizio.data_servizio).toLocaleDateString('it-IT'),
+        ora: servizio.orario_servizio?.slice(0, 5) || '',
+        indirizzo_presa: servizio.indirizzo_presa || '',
+        citta_presa: servizio.citta_presa || '',
+        indirizzo_destinazione: servizio.indirizzo_destinazione || '',
+        citta_destinazione: servizio.citta_destinazione || '',
+        autista_nome: servizio.autista ? `${servizio.autista.first_name || ''} ${servizio.autista.last_name || ''}`.trim() : '',
+        veicolo: servizio.veicoli ? `${servizio.veicoli.modello} ${servizio.veicoli.targa}` : '',
+        note: servizio.note || '',
+        data_completamento: new Date().toLocaleDateString('it-IT'),
+        motivo: ''
+      };
+
+      emailHtml = template.html_body;
+      emailSubject = template.subject;
+      Object.keys(variables).forEach(key => {
+        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        emailHtml = emailHtml.replace(regex, variables[key]);
+        emailSubject = emailSubject.replace(regex, variables[key]);
+      });
+    }
 
     // 6. CHECK SMTP CONFIG
     if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
