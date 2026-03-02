@@ -39,6 +39,8 @@ import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPop
 import { FirmaCliente } from "@/components/servizi/FirmaCliente";
 import { useAuth } from "@/contexts/AuthContext";
 import { DeleteServizioDialog } from "@/components/servizi/dialogs";
+import { ConfermaPCaricoDialog } from "@/components/servizi/ConfermaPCaricoDialog";
+import { Badge } from "@/components/ui/badge";
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -96,8 +98,13 @@ export default function ServizioDetailPage() {
   const [showFirmaClienteDialog, setShowFirmaClienteDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rimuoviAssegnazioneDialogOpen, setRimuoviAssegnazioneDialogOpen] = useState(false);
-  
+  const [showConfermaPCar, setShowConfermaPCar] = useState(false);
+
   const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
+
+  // Flag per presa in carico: visibile solo per admin/socio su richieste clienti non completate
+  const showPresaInCarico = servizio?.is_richiesta_cliente && isAdmin &&
+    !['completato', 'consuntivato', 'annullato'].includes(servizio?.stato);
   const { deleteServizio, isDeleting } = useServizi();
   const { unassignServizio, isUnassigning } = useServizioStateMachine();
   
@@ -157,6 +164,24 @@ export default function ServizioDetailPage() {
         title="Dettaglio Servizio"
       >
         <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
+          {/* Badge + Pulsante Richiesta Cliente */}
+          {servizio?.is_richiesta_cliente && (
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-50">
+                📋 RICHIESTA CLIENTE
+              </Badge>
+              {showPresaInCarico && (
+                <Button
+                  size="sm"
+                  onClick={() => setShowConfermaPCar(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  ✅ Conferma Presa in Carico
+                </Button>
+              )}
+            </div>
+          )}
+
           <MobileServizioOptimized
             servizio={servizio}
             passeggeri={passeggeri}
@@ -240,6 +265,14 @@ export default function ServizioDetailPage() {
           }}
         />
 
+        {/* Dialog Conferma Presa in Carico - Mobile */}
+        <ConfermaPCaricoDialog
+          open={showConfermaPCar}
+          onOpenChange={setShowConfermaPCar}
+          servizioId={servizio.id}
+          onSuccess={refetch}
+        />
+
         {/* Dialog Conferma Rimozione Assegnazione */}
         <AlertDialog open={rimuoviAssegnazioneDialogOpen} onOpenChange={setRimuoviAssegnazioneDialogOpen}>
           <AlertDialogContent>
@@ -284,6 +317,23 @@ export default function ServizioDetailPage() {
     <Layout>
       {/* Desktop (≥1024px) - NEW Layout */}
       <div className="hidden lg:block">
+          {/* Badge + Pulsante Richiesta Cliente - Desktop */}
+          {servizio?.is_richiesta_cliente && (
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-50 text-sm px-3 py-1">
+                📋 RICHIESTA CLIENTE
+              </Badge>
+              {showPresaInCarico && (
+                <Button
+                  onClick={() => setShowConfermaPCar(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  ✅ Conferma Presa in Carico
+                </Button>
+              )}
+            </div>
+          )}
+
           <ServizioDetailDesktop
             servizio={servizio}
             passeggeri={passeggeri}
@@ -432,6 +482,14 @@ export default function ServizioDetailPage() {
             }
           }
         }}
+      />
+
+      {/* Dialog Conferma Presa in Carico - Desktop */}
+      <ConfermaPCaricoDialog
+        open={showConfermaPCar}
+        onOpenChange={setShowConfermaPCar}
+        servizioId={servizio.id}
+        onSuccess={refetch}
       />
 
       {/* Dialog Conferma Rimozione Assegnazione - Desktop */}
