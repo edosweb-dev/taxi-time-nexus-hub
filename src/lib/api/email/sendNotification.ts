@@ -6,7 +6,10 @@ export type EmailTemplateSlug =
   | 'servizio_completato' 
   | 'servizio_annullato' 
   | 'richiesta_cliente' 
-  | 'servizio_consuntivato';
+  | 'servizio_consuntivato'
+  | 'richiesta_cliente_completo'
+  | 'conferma_presa_carico_completo'
+  | 'servizio_confermato_completo';
 
 /**
  * Invia notifica email per un servizio tramite Edge Function SMTP.
