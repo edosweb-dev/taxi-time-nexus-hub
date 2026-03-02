@@ -313,7 +313,7 @@ export default function NuovoServizioPage() {
       // 📧 Email notifica richiesta cliente
       if (servizio?.id) {
         import('@/lib/api/email/sendNotification').then(({ sendEmailNotification }) => {
-          sendEmailNotification(servizio.id, 'richiesta_cliente');
+          sendEmailNotification(servizio.id, 'richiesta_cliente_completo');
         });
       }
       

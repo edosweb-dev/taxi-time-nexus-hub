@@ -85,7 +85,7 @@ export function useServizioStateMachine() {
       
       // 📧 Email notifica creazione servizio
       if (servizio.id) {
-        sendEmailNotification(servizio.id, 'servizio_creato');
+        sendEmailNotification(servizio.id, 'servizio_confermato_completo');
       }
     },
     onError: (error: any) => {
