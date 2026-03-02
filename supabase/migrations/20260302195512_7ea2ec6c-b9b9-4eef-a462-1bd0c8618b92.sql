@@ -1,0 +1,6 @@
+-- Insert 3 dynamic email templates
+INSERT INTO email_templates (slug, nome, descrizione, subject, html_body, variabili_disponibili, attivo)
+VALUES
+  ('richiesta_cliente_completo', 'Richiesta Cliente - Percorso Completo', 'Email con percorso dettagliato quando cliente inserisce richiesta. Mostra fermate intermedie, indirizzi e orari passeggeri.', '[TaxiTime] Richiesta Servizio', 'DYNAMIC_TEMPLATE', '"azienda_nome, data, ora, indirizzo_presa, citta_presa, indirizzo_destinazione, citta_destinazione, numero_commessa, passeggeri[], note"'::jsonb, true),
+  ('conferma_presa_carico_completo', 'Conferma Presa in Carico - Percorso Completo', 'Email quando TaxiTime prende in carico richiesta. Include percorso completo, veicolo, autista, numero commessa.', '[TaxiTime] CONFERMATO - Servizio', 'DYNAMIC_TEMPLATE', '"azienda_nome, referente_nome, data, ora, percorso_completo, passeggeri[], veicolo, autista_nome, km_totali, note"'::jsonb, true),
+  ('servizio_confermato_completo', 'Servizio Confermato - Percorso Completo', 'Email quando TaxiTime inserisce servizio completo. Dettagli operativi completi con fermate intermedie.', '[TaxiTime] SERVIZIO CONFERMATO', 'DYNAMIC_TEMPLATE', '"azienda_nome, referente_nome, data, ora, percorso_completo, passeggeri[], veicolo, autista_nome, km_totali, numero_commessa, note"'::jsonb, true);
