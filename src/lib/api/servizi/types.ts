@@ -33,6 +33,8 @@ export interface ServizioInput {
   incasso_ricevuto?: number | null;
   ore_sosta?: number | null;
   km_totali?: number | null;
+  // Flag richiesta cliente
+  is_richiesta_cliente?: boolean;
 }
 
 export interface CreateServizioRequest {
