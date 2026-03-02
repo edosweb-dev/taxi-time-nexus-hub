@@ -235,6 +235,7 @@ export default function NuovoServizioPage() {
           stato: "richiesta_cliente",
           metodo_pagamento: "Da definire",
           applica_provvigione: aziendaCliente?.provvigione === true,
+          is_richiesta_cliente: true,
         })
         .select()
         .single();

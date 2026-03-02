@@ -93,6 +93,7 @@ export async function createServizio(data: CreateServizioRequest): Promise<{ ser
         conducente_esterno_email: data.servizio.conducente_esterno_email,
         conducente_esterno_id: data.servizio.conducente_esterno_id,
         stato: statoServizio,
+        is_richiesta_cliente: data.servizio.is_richiesta_cliente || false,
         created_by: userId
       })
       .select()
