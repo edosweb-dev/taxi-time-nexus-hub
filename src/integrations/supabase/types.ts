@@ -933,6 +933,7 @@ export type Database = {
           incasso_ricevuto: number | null
           indirizzo_destinazione: string
           indirizzo_presa: string
+          is_richiesta_cliente: boolean | null
           iva: number | null
           km_totali: number | null
           metodo_pagamento: string
@@ -976,6 +977,7 @@ export type Database = {
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
           indirizzo_presa?: string
+          is_richiesta_cliente?: boolean | null
           iva?: number | null
           km_totali?: number | null
           metodo_pagamento: string
@@ -1019,6 +1021,7 @@ export type Database = {
           incasso_ricevuto?: number | null
           indirizzo_destinazione?: string
           indirizzo_presa?: string
+          is_richiesta_cliente?: boolean | null
           iva?: number | null
           km_totali?: number | null
           metodo_pagamento?: string
