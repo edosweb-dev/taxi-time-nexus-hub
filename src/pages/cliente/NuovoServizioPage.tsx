@@ -181,15 +181,19 @@ export default function NuovoServizioPage() {
       nome_cognome: nuovoNome.trim(),
       email: nuovoEmail || undefined,
       telefono: nuovoTelefono || undefined,
+      localita: nuovoCitta || undefined,
+      indirizzo: nuovoIndirizzo || undefined,
       isNew: true,
       isTemporary: !salvaInRubrica,
-      _presa_tipo: 'personalizzato',
+      _presa_tipo: nuovoIndirizzo ? 'passeggero' : 'personalizzato',
       _destinazione_tipo: 'personalizzato',
       _usa_orario_servizio: passeggeriSelezionati.length === 0,
     }]);
     setNuovoNome('');
     setNuovoEmail('');
     setNuovoTelefono('');
+    setNuovoCitta('');
+    setNuovoIndirizzo('');
     setSalvaInRubrica(true);
     setShowNuovoDialog(false);
     toast({ title: `✅ ${nuovoNome.trim()} aggiunto` });
