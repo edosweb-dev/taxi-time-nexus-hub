@@ -149,10 +149,10 @@ const DettaglioServizio = () => {
                 passeggeriOrdinati.forEach((sp: any) => {
                   const p = sp.passeggeri;
                   const haDestPers = sp.usa_destinazione_personalizzata && sp.destinazione_personalizzato;
-                  const indirizzo = haDestPers ? sp.destinazione_personalizzato : (p?.indirizzo || servizio.indirizzo_destinazione);
+                  const indirizzo = haDestPers ? sp.destinazione_personalizzato : servizio.indirizzo_destinazione;
                   const citta = haDestPers
-                    ? (sp.localita_destinazione_personalizzato || p?.localita || servizio.citta_destinazione)
-                    : (p?.localita || servizio.citta_destinazione);
+                    ? (sp.localita_destinazione_personalizzato || servizio.citta_destinazione)
+                    : servizio.citta_destinazione;
                   const key = `${indirizzo}|${citta || ''}`.toLowerCase().trim();
                   if (!destinazioniMap.has(key)) {
                     destinazioniMap.set(key, { indirizzo: indirizzo || '', citta: citta || undefined, passeggeri: [] });
