@@ -9,7 +9,9 @@ interface ConfermaPCaricoPayload {
   veicolo_id?: string;
   metodo_pagamento?: string;
   km_totali?: number;
+  incasso_netto_previsto?: number;
   incasso_previsto?: number;
+  iva?: number;
   note?: string;
 }
 
@@ -46,7 +48,9 @@ export function useConfermaPCar() {
       if (updateFields.veicolo_id) updateData.veicolo_id = updateFields.veicolo_id;
       if (updateFields.metodo_pagamento) updateData.metodo_pagamento = updateFields.metodo_pagamento;
       if (updateFields.km_totali != null) updateData.km_totali = updateFields.km_totali;
+      if (updateFields.incasso_netto_previsto != null) updateData.incasso_netto_previsto = updateFields.incasso_netto_previsto;
       if (updateFields.incasso_previsto != null) updateData.incasso_previsto = updateFields.incasso_previsto;
+      if (updateFields.iva != null) updateData.iva = updateFields.iva;
       if (updateFields.note) updateData.note = updateFields.note;
 
       // Stato: assegnato se autista selezionato, altrimenti da_assegnare

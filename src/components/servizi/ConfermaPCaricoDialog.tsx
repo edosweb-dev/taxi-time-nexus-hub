@@ -14,6 +14,7 @@ import { useConfermaPCar } from '@/hooks/useConfermaPCar';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
 import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { useImpostazioni } from '@/hooks/useImpostazioni';
+import { formatCurrency } from '@/components/servizi/utils/formatUtils';
 import { AlertTriangle } from 'lucide-react';
 
 interface ConfermaPCaricoDialogProps {
@@ -37,7 +38,7 @@ export function ConfermaPCaricoDialog({
   const [veicoloId, setVeicoloId] = useState('');
   const [metodoPagamento, setMetodoPagamento] = useState(metodoPagamentoIniziale || '');
   const [kmTotali, setKmTotali] = useState('');
-  const [incassoPrevisto, setIncassoPrevisto] = useState('');
+  const [incassoNetto, setIncassoNetto] = useState('');
   const [note, setNote] = useState('');
 
   const { mutate: conferma, isPending } = useConfermaPCar();
@@ -53,6 +54,27 @@ export function ConfermaPCaricoDialog({
     if (!assegnatoA) return null;
     return users.find(u => u.id === assegnatoA) || null;
   }, [assegnatoA, users]);
+
+  const calcoloIva = useMemo(() => {
+    const netto = parseFloat(incassoNetto) || 0;
+    if (!netto || !metodoPagamento || !impostazioni)
+      return { ivaApplicabile: false, percentuale: 0, ivaImporto: 0, totaleLordo: netto };
+
+    const metodo = impostazioni.metodi_pagamento?.find(
+      (m) => m.nome === metodoPagamento
+    );
+    if (!metodo?.iva_applicabile)
+      return { ivaApplicabile: false, percentuale: 0, ivaImporto: 0, totaleLordo: netto };
+
+    const aliquota = impostazioni.aliquote_iva?.find(
+      (a) => a.id === metodo.aliquota_iva
+    );
+    const percentuale = aliquota?.percentuale || 0;
+    const ivaImporto = netto * (percentuale / 100);
+    const totaleLordo = netto + ivaImporto;
+
+    return { ivaApplicabile: true, percentuale, ivaImporto, totaleLordo };
+  }, [incassoNetto, metodoPagamento, impostazioni]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -71,7 +93,9 @@ export function ConfermaPCaricoDialog({
         veicolo_id: veicoloId || undefined,
         metodo_pagamento: metodoPagamento || undefined,
         km_totali: kmTotali ? parseFloat(kmTotali) : undefined,
-        incasso_previsto: incassoPrevisto ? parseFloat(incassoPrevisto) : undefined,
+        incasso_netto_previsto: incassoNetto ? parseFloat(incassoNetto) : undefined,
+        incasso_previsto: incassoNetto ? calcoloIva.totaleLordo : undefined,
+        iva: incassoNetto ? calcoloIva.percentuale : undefined,
         note: note || undefined,
       },
       {
@@ -80,7 +104,7 @@ export function ConfermaPCaricoDialog({
           setVeicoloId('');
           setMetodoPagamento(metodoPagamentoIniziale || '');
           setKmTotali('');
-          setIncassoPrevisto('');
+          setIncassoNetto('');
           setNote('');
           onOpenChange(false);
           onSuccess?.();
@@ -169,15 +193,33 @@ export function ConfermaPCaricoDialog({
             />
           </div>
 
-          {/* Incasso Previsto */}
+          {/* Incasso Netto Previsto */}
           <div className="space-y-2">
-            <Label>Tariffa Prevista (opzionale)</Label>
+            <Label>Incasso Netto Previsto (opzionale)</Label>
             <Input
               type="number"
               placeholder="es. 250.00"
-              value={incassoPrevisto}
-              onChange={(e) => setIncassoPrevisto(e.target.value)}
+              value={incassoNetto}
+              onChange={(e) => setIncassoNetto(e.target.value)}
             />
+            {parseFloat(incassoNetto) > 0 && (
+              <div className="border-l-2 border-muted-foreground/30 pl-3 space-y-0.5">
+                {calcoloIva.ivaApplicabile ? (
+                  <>
+                    <p className="text-xs text-muted-foreground">
+                      IVA {calcoloIva.percentuale}%: {formatCurrency(calcoloIva.ivaImporto)}
+                    </p>
+                    <p className="text-xs font-medium text-foreground">
+                      Totale lordo: {formatCurrency(calcoloIva.totaleLordo)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    IVA: esente ({metodoPagamento || 'nessun metodo'})
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Note */}
