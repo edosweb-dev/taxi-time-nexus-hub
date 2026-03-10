@@ -37,6 +37,7 @@ const ServiziPage = () => {
 
   const tabs: Array<{ value: StatoServizio | "tutti"; label: string }> = [
     { value: "tutti", label: "Tutti" },
+    { value: "richiesta_cliente", label: "Richieste" },
     { value: "da_assegnare", label: "Da Assegnare" },
     { value: "assegnato", label: "Assegnati" },
     { value: "completato", label: "Completati" },
@@ -59,6 +60,8 @@ const ServiziPage = () => {
         return "default";
       case "assegnato":
         return "secondary";
+      case "richiesta_cliente":
+        return "outline";
       case "da_assegnare":
         return "outline";
       case "annullato":

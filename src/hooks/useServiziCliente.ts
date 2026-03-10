@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type StatoServizio = 
+  | "richiesta_cliente"
   | "da_assegnare" 
   | "assegnato" 
   | "completato" 
@@ -118,6 +119,7 @@ export const useServiziCliente = (
       if (!userId) return null;
 
       const stati: StatoServizio[] = [
+        "richiesta_cliente",
         "da_assegnare",
         "assegnato", 
         "completato",
@@ -157,6 +159,7 @@ export const useServiziCliente = (
     error,
     refetch,
     counts: counts || {
+      richiesta_cliente: 0,
       da_assegnare: 0,
       assegnato: 0,
       completato: 0,
