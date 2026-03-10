@@ -50,6 +50,8 @@ export function ServizioSidebar({
   onBack,
   onRimuoviAssegnazione,
   isRimuoviAssegnazioneLoading,
+  onConfermaPCar,
+  showPresaInCarico,
 }: ServizioSidebarProps) {
   return (
     <aside className="w-64 border-r bg-muted/30 sticky top-0 h-screen overflow-y-auto">
