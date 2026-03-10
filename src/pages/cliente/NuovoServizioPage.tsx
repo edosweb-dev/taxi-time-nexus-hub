@@ -48,6 +48,8 @@ export default function NuovoServizioPage() {
   const [nuovoNome, setNuovoNome] = useState('');
   const [nuovoEmail, setNuovoEmail] = useState('');
   const [nuovoTelefono, setNuovoTelefono] = useState('');
+  const [nuovoCitta, setNuovoCitta] = useState('');
+  const [nuovoIndirizzo, setNuovoIndirizzo] = useState('');
   const [salvaInRubrica, setSalvaInRubrica] = useState(true);
 
   // (Dialog configurazione percorso rimosso - ora inline)
