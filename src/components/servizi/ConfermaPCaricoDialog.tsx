@@ -254,7 +254,7 @@ export function ConfermaPCaricoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-4">
+      <DialogContent className="max-w-md w-[95vw] sm:w-full p-4">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
