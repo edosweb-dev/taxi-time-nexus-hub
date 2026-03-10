@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { DipendenteLayout } from "@/components/layouts/DipendenteLayout";
@@ -41,6 +41,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DeleteServizioDialog } from "@/components/servizi/dialogs";
 import { ConfermaPCaricoDialog } from "@/components/servizi/ConfermaPCaricoDialog";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -99,8 +111,45 @@ export default function ServizioDetailPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rimuoviAssegnazioneDialogOpen, setRimuoviAssegnazioneDialogOpen] = useState(false);
   const [showConfermaPCar, setShowConfermaPCar] = useState(false);
+  const [showModificaNote, setShowModificaNote] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  // Permesso modifica note: admin/socio su qualsiasi non annullato, dipendente assegnato su consuntivato
+  const canEditNote = 
+    (isAdmin && servizio?.stato !== 'annullato') ||
+    (profile?.role === 'dipendente' && 
+     servizio?.assegnato_a === profile?.id &&
+     servizio?.stato === 'consuntivato');
+
+  const handleOpenModificaNote = useCallback(() => {
+    setNoteText(servizio?.note || '');
+    setShowModificaNote(true);
+  }, [servizio?.note]);
+
+  const handleSaveNote = useCallback(async () => {
+    if (!servizio?.id) return;
+    setIsSavingNote(true);
+    try {
+      const { error } = await supabase
+        .from('servizi')
+        .update({ note: noteText || null })
+        .eq('id', servizio.id);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ['servizio-detail', id] });
+      queryClient.invalidateQueries({ queryKey: ['servizi-with-passeggeri'] });
+      toast({ title: '✅ Note aggiornate' });
+      setShowModificaNote(false);
+    } catch {
+      toast({ title: '❌ Errore salvataggio note', variant: 'destructive' });
+    } finally {
+      setIsSavingNote(false);
+    }
+  }, [servizio?.id, noteText, id, queryClient, toast]);
 
   // Flag per presa in carico: visibile solo per admin/socio su richieste clienti in stato richiesta_cliente
   const showPresaInCarico = servizio?.is_richiesta_cliente && isAdmin &&
@@ -204,6 +253,8 @@ export default function ServizioDetailPage() {
             isRimuoviAssegnazioneLoading={isUnassigning}
             onConfermaPCar={() => setShowConfermaPCar(true)}
             showPresaInCarico={showPresaInCarico}
+            canEditNote={canEditNote}
+            onModificaNote={handleOpenModificaNote}
           />
         </div>
 
@@ -299,6 +350,32 @@ export default function ServizioDetailPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Dialog Modifica Note - Mobile */}
+        <Dialog open={showModificaNote} onOpenChange={setShowModificaNote}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Modifica Note</DialogTitle>
+              <DialogDescription>
+                Modifica le note del servizio {servizio?.id_progressivo || ''}
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Inserisci note..."
+              rows={5}
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowModificaNote(false)} disabled={isSavingNote}>
+                Annulla
+              </Button>
+              <Button onClick={handleSaveNote} disabled={isSavingNote}>
+                {isSavingNote ? 'Salvataggio...' : 'Salva Note'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Layout>
     );
   }
@@ -356,6 +433,8 @@ export default function ServizioDetailPage() {
             isRimuoviAssegnazioneLoading={isUnassigning}
             onConfermaPCar={() => setShowConfermaPCar(true)}
             showPresaInCarico={showPresaInCarico}
+            canEditNote={canEditNote}
+            onModificaNote={handleOpenModificaNote}
           />
         </div>
 
@@ -514,6 +593,32 @@ export default function ServizioDetailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog Modifica Note */}
+      <Dialog open={showModificaNote} onOpenChange={setShowModificaNote}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Modifica Note</DialogTitle>
+            <DialogDescription>
+              Modifica le note del servizio {servizio?.id_progressivo || ''}
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            placeholder="Inserisci note..."
+            rows={5}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowModificaNote(false)} disabled={isSavingNote}>
+              Annulla
+            </Button>
+            <Button onClick={handleSaveNote} disabled={isSavingNote}>
+              {isSavingNote ? 'Salvataggio...' : 'Salva Note'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }

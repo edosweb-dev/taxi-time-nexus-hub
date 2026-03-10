@@ -29,6 +29,8 @@ interface ServizioSidebarProps {
   isRimuoviAssegnazioneLoading?: boolean;
   onConfermaPCar?: () => void;
   showPresaInCarico?: boolean;
+  canEditNote?: boolean;
+  onModificaNote?: () => void;
 }
 
 export function ServizioSidebar({
@@ -52,6 +54,8 @@ export function ServizioSidebar({
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
   showPresaInCarico,
+  canEditNote,
+  onModificaNote,
 }: ServizioSidebarProps) {
   return (
     <aside className="w-64 border-r bg-muted/30 sticky top-0 h-screen overflow-y-auto">
@@ -169,6 +173,13 @@ export function ServizioSidebar({
             <Button onClick={onEdit} className="w-full" size="sm" variant="outline">
               <Pencil className="mr-2 h-4 w-4" />
               Modifica
+            </Button>
+          )}
+
+          {canEditNote && onModificaNote && (
+            <Button onClick={onModificaNote} className="w-full" size="sm" variant="outline">
+              <FileText className="mr-2 h-4 w-4" />
+              Modifica Note
             </Button>
           )}
 

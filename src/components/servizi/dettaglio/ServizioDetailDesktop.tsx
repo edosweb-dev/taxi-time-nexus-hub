@@ -28,6 +28,8 @@ interface ServizioDetailDesktopProps {
   isRimuoviAssegnazioneLoading?: boolean;
   onConfermaPCar?: () => void;
   showPresaInCarico?: boolean;
+  canEditNote?: boolean;
+  onModificaNote?: () => void;
 }
 
 export function ServizioDetailDesktop({
@@ -54,6 +56,8 @@ export function ServizioDetailDesktop({
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
   showPresaInCarico,
+  canEditNote,
+  onModificaNote,
 }: ServizioDetailDesktopProps) {
   return (
     <div className="flex min-h-screen w-full">
@@ -79,6 +83,8 @@ export function ServizioDetailDesktop({
         isRimuoviAssegnazioneLoading={isRimuoviAssegnazioneLoading}
         onConfermaPCar={onConfermaPCar}
         showPresaInCarico={showPresaInCarico}
+        canEditNote={canEditNote}
+        onModificaNote={onModificaNote}
       />
 
       {/* Main Content */}

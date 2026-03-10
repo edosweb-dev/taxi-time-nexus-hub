@@ -58,6 +58,8 @@ interface MobileServizioOptimizedProps {
   isRimuoviAssegnazioneLoading?: boolean;
   onConfermaPCar?: () => void;
   showPresaInCarico?: boolean;
+  canEditNote?: boolean;
+  onModificaNote?: () => void;
 }
 
 export function MobileServizioOptimized({
@@ -87,6 +89,8 @@ export function MobileServizioOptimized({
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
   showPresaInCarico,
+  canEditNote,
+  onModificaNote,
 }: MobileServizioOptimizedProps) {
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -526,7 +530,7 @@ export function MobileServizioOptimized({
           )}
 
           {/* Menu Kebab — SEMPRE visibile */}
-          {(canBeEdited || isAdmin) && (
+          {(canBeEdited || isAdmin || canEditNote) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="h-12 w-12 shrink-0">
@@ -538,6 +542,12 @@ export function MobileServizioOptimized({
                   <DropdownMenuItem onClick={onModifica} className="gap-2">
                     <Pencil className="h-4 w-4" />
                     Modifica
+                  </DropdownMenuItem>
+                )}
+                {canEditNote && onModificaNote && (
+                  <DropdownMenuItem onClick={onModificaNote} className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Modifica Note
                   </DropdownMenuItem>
                 )}
                 {isAdmin && (
