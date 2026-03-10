@@ -482,77 +482,77 @@ export function MobileServizioOptimized({
       {/* Action Buttons - Fixed at bottom */}
       <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 z-40">
         <div className="flex items-center gap-3">
-          {/* CTA Presa in Carico */}
-          {showPresaInCarico && onConfermaPCar && (
-            <MobileButton
-              variant="default"
-              className="flex-1 bg-green-600 hover:bg-green-700"
+          {showPresaInCarico && onConfermaPCar ? (
+            /* Layout dedicato: solo CTA presa in carico full-width */
+            <Button
               onClick={onConfermaPCar}
+              className="flex-1 h-12 bg-green-600 hover:bg-green-700 text-white text-base"
             >
               ✅ Conferma Presa in Carico
-            </MobileButton>
-          )}
+            </Button>
+          ) : (
+            <>
+              {/* CTA Primaria: Completa o Consuntiva */}
+              {canBeCompleted && !canRequestSignature && (
+                <MobileButton
+                  variant="default"
+                  className="flex-1"
+                  onClick={onCompleta}
+                >
+                  <CheckCircle2 className="h-5 w-5" />
+                  Completa Servizio
+                </MobileButton>
+              )}
 
-          {/* CTA Primaria: Completa o Consuntiva */}
-          {canBeCompleted && !canRequestSignature && (
-            <MobileButton
-              variant="default"
-              className="flex-1"
-              onClick={onCompleta}
-            >
-              <CheckCircle2 className="h-5 w-5" />
-              Completa Servizio
-            </MobileButton>
-          )}
+              {canBeConsuntivato && (
+                <MobileButton
+                  variant="default"
+                  className="flex-1"
+                  onClick={onConsuntiva}
+                >
+                  <FileText className="h-5 w-5" />
+                  Consuntiva
+                </MobileButton>
+              )}
 
-          {canBeConsuntivato && (
-            <MobileButton
-              variant="default"
-              className="flex-1"
-              onClick={onConsuntiva}
-            >
-              <FileText className="h-5 w-5" />
-              Consuntiva
-            </MobileButton>
-          )}
+              {servizio.stato === 'da_assegnare' && isAdmin && (
+                <MobileButton variant="default" className="flex-1" onClick={onAssegna}>
+                  <User className="h-5 w-5" />
+                  Assegna Servizio
+                </MobileButton>
+              )}
+              {servizio.stato !== 'da_assegnare' && !canBeCompleted && !canBeConsuntivato && (canBeEdited || isAdmin) && (
+                <div className="flex-1" />
+              )}
 
-          {/* Se nessuna CTA primaria, mostra placeholder per mantenere layout */}
-          {servizio.stato === 'da_assegnare' && isAdmin && (
-            <MobileButton variant="default" className="flex-1" onClick={onAssegna}>
-              <User className="h-5 w-5" />
-              Assegna Servizio
-            </MobileButton>
-          )}
-          {servizio.stato !== 'da_assegnare' && !canBeCompleted && !canBeConsuntivato && (canBeEdited || isAdmin) && (
-            <div className="flex-1" />
-          )}
-
-          {/* Menu Kebab per azioni secondarie */}
-          {(canBeEdited || isAdmin) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-12 w-12 shrink-0">
-                  <MoreVertical className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {canBeEdited && (
-                  <DropdownMenuItem onClick={onModifica} className="gap-2">
-                    <Pencil className="h-4 w-4" />
-                    Modifica
-                  </DropdownMenuItem>
-                )}
-                {isAdmin && (
-                  <DropdownMenuItem 
-                    onClick={onElimina} 
-                    className="gap-2 text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Elimina
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              {/* Menu Kebab per azioni secondarie */}
+              {(canBeEdited || isAdmin) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-12 w-12 shrink-0">
+                      <MoreVertical className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {canBeEdited && (
+                      <DropdownMenuItem onClick={onModifica} className="gap-2">
+                        <Pencil className="h-4 w-4" />
+                        Modifica
+                      </DropdownMenuItem>
+                    )}
+                    {isAdmin && (
+                      <DropdownMenuItem 
+                        onClick={onElimina} 
+                        className="gap-2 text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Elimina
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </>
           )}
         </div>
       </div>
