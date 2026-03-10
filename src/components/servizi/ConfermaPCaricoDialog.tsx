@@ -55,6 +55,27 @@ export function ConfermaPCaricoDialog({
     return users.find(u => u.id === assegnatoA) || null;
   }, [assegnatoA, users]);
 
+  const calcoloIva = useMemo(() => {
+    const netto = parseFloat(incassoNetto) || 0;
+    if (!netto || !metodoPagamento || !impostazioni)
+      return { ivaApplicabile: false, percentuale: 0, ivaImporto: 0, totaleLordo: netto };
+
+    const metodo = impostazioni.metodi_pagamento?.find(
+      (m) => m.nome === metodoPagamento
+    );
+    if (!metodo?.iva_applicabile)
+      return { ivaApplicabile: false, percentuale: 0, ivaImporto: 0, totaleLordo: netto };
+
+    const aliquota = impostazioni.aliquote_iva?.find(
+      (a) => a.id === metodo.aliquota_iva
+    );
+    const percentuale = aliquota?.percentuale || 0;
+    const ivaImporto = netto * (percentuale / 100);
+    const totaleLordo = netto + ivaImporto;
+
+    return { ivaApplicabile: true, percentuale, ivaImporto, totaleLordo };
+  }, [incassoNetto, metodoPagamento, impostazioni]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Disponibile': return 'text-green-600';
