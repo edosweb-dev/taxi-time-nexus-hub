@@ -202,6 +202,8 @@ export default function ServizioDetailPage() {
             onFirmaCliente={() => setShowFirmaClienteDialog(true)}
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
+            onConfermaPCar={() => setShowConfermaPCar(true)}
+            showPresaInCarico={showPresaInCarico}
           />
         </div>
 
