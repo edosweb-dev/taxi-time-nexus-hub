@@ -104,7 +104,7 @@ export function ConfermaPCaricoDialog({
           setVeicoloId('');
           setMetodoPagamento(metodoPagamentoIniziale || '');
           setKmTotali('');
-          setIncassoPrevisto('');
+          setIncassoNetto('');
           setNote('');
           onOpenChange(false);
           onSuccess?.();
