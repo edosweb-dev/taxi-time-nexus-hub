@@ -32,7 +32,7 @@ export function useServizioDetail(id?: string) {
           *,
           aziende!left(id, nome, email, firma_digitale_attiva, partita_iva, created_at),
           veicoli!left(id, modello, targa, numero_posti),
-          assegnato:profiles!servizi_assegnato_a_fkey(first_name, last_name),
+          assegnato:profiles!servizi_assegnato_a_fkey(first_name, last_name, role),
           servizi_passeggeri!left(
             id,
             passeggero_id,
