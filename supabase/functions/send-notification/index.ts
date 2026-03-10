@@ -62,12 +62,44 @@ function buildCompleteEmailHTML(data: {
         </div>`;
   }).join('\n');
 
-  // Destination info - check passenger custom destinations
-  const lastPaxWithDest = [...passeggeri].reverse().find(
-    (p: any) => p.usa_destinazione_personalizzata && p.destinazione_personalizzato
-  );
-  const destAddress = lastPaxWithDest?.destinazione_personalizzato || servizio.indirizzo_destinazione || 'Destinazione da definire';
-  const destCity = lastPaxWithDest?.localita_destinazione_personalizzato || servizio.citta_destinazione || '';
+  // Build per-passenger destinations (same logic as DettaglioServizio.tsx)
+  const destinazioniHtml = (() => {
+    const destMap = new Map<string, { indirizzo: string; citta: string; passeggeri: string[] }>();
+
+    passeggeri.forEach((p: any) => {
+      const haDestPers = !!p.destinazione_personalizzato;
+      const indirizzo = haDestPers
+        ? p.destinazione_personalizzato
+        : (servizio.indirizzo_destinazione || 'Destinazione da definire');
+      const citta = haDestPers
+        ? (p.localita_destinazione_personalizzato || servizio.citta_destinazione || '')
+        : (servizio.citta_destinazione || '');
+      const nome = p.nome_cognome_inline || p.nome_cognome || 'Passeggero';
+
+      const key = `${(indirizzo || '').trim().toLowerCase()}|${(citta || '').trim().toLowerCase()}`;
+      if (!destMap.has(key)) {
+        destMap.set(key, { indirizzo: (indirizzo || '').trim(), citta: (citta || '').trim(), passeggeri: [] });
+      }
+      destMap.get(key)!.passeggeri.push(nome);
+    });
+
+    const entries = Array.from(destMap.values());
+    return entries.map((dest, idx) => {
+      const label = entries.length > 1 ? `🏁 DESTINAZIONE ${idx + 1}` : '🏁 DESTINAZIONE';
+      const paxList = dest.passeggeri.length > 0
+        ? `<div class="route-time">${dest.passeggeri.map((n: string) => escapeHtml(n)).join(', ')}</div>`
+        : '';
+      return `
+        <div class="route-step end">
+          <div class="route-content">
+            <div class="route-name">${label}</div>
+            <div class="route-address">${escapeHtml(dest.indirizzo)}</div>
+            ${dest.citta ? `<div class="route-address">${escapeHtml(dest.citta)}</div>` : ''}
+            ${paxList}
+          </div>
+        </div>`;
+    }).join('\n');
+  })();
 
   // Operational details section
   const operativeHtml = (veicolo || autista || servizio.km_totali) ? `
