@@ -641,6 +641,15 @@ export default function NuovoServizioPage() {
                           <Mail className="h-5 w-5 text-primary" />
                           Email Notifiche
                         </h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowNuovaEmailDialog(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Nuova Email
+                        </Button>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Seleziona le email che riceveranno la notifica quando il servizio viene confermato
