@@ -1663,10 +1663,28 @@ export const ServizioCreaPage = ({
               {watchTipoCliente === 'azienda' ? (
                 <>
               {/* Azienda */}
-              <AziendaSelectField />
+              {isClienteMode ? (
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="font-medium">Azienda</Label>
+                  <p className="text-sm font-medium py-2 px-3 bg-muted/50 rounded-md border">
+                    {aziende?.find(a => a.id === watchAziendaId)?.nome || 'Azienda'}
+                  </p>
+                </div>
+              ) : (
+                <AziendaSelectField />
+              )}
 
               {/* Referente */}
-              <ReferenteSelectField aziendaId={watchAziendaId || ''} />
+              {isClienteMode ? (
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="font-medium">Referente</Label>
+                  <p className="text-sm font-medium py-2 px-3 bg-muted/50 rounded-md border">
+                    {profile?.first_name} {profile?.last_name}
+                  </p>
+                </div>
+              ) : (
+                <ReferenteSelectField aziendaId={watchAziendaId || ''} />
+              )}
 
               {/* Data Servizio */}
               <div className="space-y-1.5 sm:space-y-2">
