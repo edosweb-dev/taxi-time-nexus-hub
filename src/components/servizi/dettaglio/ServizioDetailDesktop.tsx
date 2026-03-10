@@ -56,6 +56,8 @@ export function ServizioDetailDesktop({
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
   showPresaInCarico,
+  canEditNote,
+  onModificaNote,
 }: ServizioDetailDesktopProps) {
   return (
     <div className="flex min-h-screen w-full">
