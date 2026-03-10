@@ -1,5 +1,6 @@
 // ServizioCreaPage
 import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
