@@ -544,6 +544,12 @@ export function MobileServizioOptimized({
                     Modifica
                   </DropdownMenuItem>
                 )}
+                {canEditNote && onModificaNote && (
+                  <DropdownMenuItem onClick={onModificaNote} className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Modifica Note
+                  </DropdownMenuItem>
+                )}
                 {isAdmin && (
                   <DropdownMenuItem 
                     onClick={onElimina} 

@@ -176,6 +176,13 @@ export function ServizioSidebar({
             </Button>
           )}
 
+          {canEditNote && onModificaNote && (
+            <Button onClick={onModificaNote} className="w-full" size="sm" variant="outline">
+              <FileText className="mr-2 h-4 w-4" />
+              Modifica Note
+            </Button>
+          )}
+
           {servizio.stato === "da_assegnare" && isAdmin && (
             <Button onClick={onAssegna} className="w-full" size="sm" variant="outline">
               <UserPlus className="mr-2 h-4 w-4" />

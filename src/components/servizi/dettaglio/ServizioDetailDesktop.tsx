@@ -83,6 +83,8 @@ export function ServizioDetailDesktop({
         isRimuoviAssegnazioneLoading={isRimuoviAssegnazioneLoading}
         onConfermaPCar={onConfermaPCar}
         showPresaInCarico={showPresaInCarico}
+        canEditNote={canEditNote}
+        onModificaNote={onModificaNote}
       />
 
       {/* Main Content */}
