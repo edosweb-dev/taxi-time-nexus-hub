@@ -48,6 +48,8 @@ export default function NuovoServizioPage() {
   const [nuovoNome, setNuovoNome] = useState('');
   const [nuovoEmail, setNuovoEmail] = useState('');
   const [nuovoTelefono, setNuovoTelefono] = useState('');
+  const [nuovoCitta, setNuovoCitta] = useState('');
+  const [nuovoIndirizzo, setNuovoIndirizzo] = useState('');
   const [salvaInRubrica, setSalvaInRubrica] = useState(true);
 
   // (Dialog configurazione percorso rimosso - ora inline)
@@ -179,15 +181,19 @@ export default function NuovoServizioPage() {
       nome_cognome: nuovoNome.trim(),
       email: nuovoEmail || undefined,
       telefono: nuovoTelefono || undefined,
+      localita: nuovoCitta || undefined,
+      indirizzo: nuovoIndirizzo || undefined,
       isNew: true,
       isTemporary: !salvaInRubrica,
-      _presa_tipo: 'personalizzato',
+      _presa_tipo: nuovoIndirizzo ? 'passeggero' : 'personalizzato',
       _destinazione_tipo: 'personalizzato',
       _usa_orario_servizio: passeggeriSelezionati.length === 0,
     }]);
     setNuovoNome('');
     setNuovoEmail('');
     setNuovoTelefono('');
+    setNuovoCitta('');
+    setNuovoIndirizzo('');
     setSalvaInRubrica(true);
     setShowNuovoDialog(false);
     toast({ title: `✅ ${nuovoNome.trim()} aggiunto` });
@@ -259,6 +265,8 @@ export default function NuovoServizioPage() {
               nome_cognome: passeggero.nome_cognome,
               email: passeggero.email || null,
               telefono: passeggero.telefono || null,
+              localita: passeggero.localita || null,
+              indirizzo: passeggero.indirizzo || null,
               azienda_id: currentProfile.azienda_id,
               created_by_referente_id: user.id,
               tipo: passeggero.isTemporary ? 'guest' : 'rubrica',
@@ -799,6 +807,24 @@ export default function NuovoServizioPage() {
                   placeholder="+39 123 456 7890"
                   value={nuovoTelefono}
                   onChange={(e) => setNuovoTelefono(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Città</Label>
+                <Input
+                  placeholder="Milano"
+                  value={nuovoCitta}
+                  onChange={(e) => setNuovoCitta(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Via / Indirizzo</Label>
+                <Input
+                  placeholder="Via Roma 10"
+                  value={nuovoIndirizzo}
+                  onChange={(e) => setNuovoIndirizzo(e.target.value)}
                 />
               </div>
             </div>
