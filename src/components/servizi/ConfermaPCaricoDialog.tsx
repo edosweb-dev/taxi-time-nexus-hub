@@ -102,7 +102,7 @@ export function ConfermaPCaricoDialog({
     );
   };
 
-  const selectClassName = "block h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none";
+  const selectClassName = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -115,7 +115,7 @@ export function ConfermaPCaricoDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 overflow-hidden">
+        <div className="space-y-3">
           {/* Autista */}
           <div className="space-y-1.5">
             <Label>Autista (opzionale)</Label>
