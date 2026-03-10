@@ -320,7 +320,10 @@ serve(async (req) => {
       });
     }
 
-    if (servizio.servizi_passeggeri) {
+    // Passeggeri: escludi per richiesta_cliente
+    // I passeggeri ricevono email solo alla conferma TaxiTime
+    const excludePaxTemplates = ['richiesta_cliente', 'richiesta_cliente_completo'];
+    if (servizio.servizi_passeggeri && !excludePaxTemplates.includes(template_slug)) {
       servizio.servizi_passeggeri.forEach((sp: any) => {
         const paxEmail = sp.email_inline || sp.passeggeri?.email;
         if (paxEmail) {
