@@ -14,6 +14,7 @@ import { useConfermaPCar } from '@/hooks/useConfermaPCar';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
 import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { useImpostazioni } from '@/hooks/useImpostazioni';
+import { formatCurrency } from '@/components/servizi/utils/formatUtils';
 import { AlertTriangle } from 'lucide-react';
 
 interface ConfermaPCaricoDialogProps {
