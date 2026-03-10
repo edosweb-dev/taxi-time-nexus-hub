@@ -41,6 +41,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DeleteServizioDialog } from "@/components/servizi/dialogs";
 import { ConfermaPCaricoDialog } from "@/components/servizi/ConfermaPCaricoDialog";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function ServizioDetailPage() {
   const { id } = useParams<{ id: string }>();
