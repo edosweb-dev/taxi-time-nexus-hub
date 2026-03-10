@@ -684,6 +684,61 @@ export default function NuovoServizioPage() {
                           {emailNotificheIds.length} email selezionat{emailNotificheIds.length === 1 ? 'a' : 'e'}
                         </p>
                       )}
+
+                      {/* Dialog Nuova Email */}
+                      <Dialog open={showNuovaEmailDialog} onOpenChange={setShowNuovaEmailDialog}>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Aggiungi Indirizzo Email</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 py-2">
+                            <div className="space-y-2">
+                              <Label>Nome contatto</Label>
+                              <Input
+                                placeholder="Es. Ufficio operativo"
+                                value={nuovaEmailNome}
+                                onChange={(e) => setNuovaEmailNome(e.target.value)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Indirizzo Email</Label>
+                              <Input
+                                type="email"
+                                placeholder="operativo@azienda.com"
+                                value={nuovaEmailIndirizzo}
+                                onChange={(e) => setNuovaEmailIndirizzo(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setShowNuovaEmailDialog(false)}
+                            >
+                              Annulla
+                            </Button>
+                            <Button
+                              type="button"
+                              disabled={isCreatingEmail || !nuovaEmailNome || !nuovaEmailIndirizzo}
+                              onClick={() => {
+                                if (currentProfile?.azienda_id) {
+                                  createEmailNotifica({
+                                    nome: nuovaEmailNome,
+                                    email: nuovaEmailIndirizzo,
+                                    azienda_id: currentProfile.azienda_id,
+                                  });
+                                  setNuovaEmailNome('');
+                                  setNuovaEmailIndirizzo('');
+                                  setShowNuovaEmailDialog(false);
+                                }
+                              }}
+                            >
+                              {isCreatingEmail ? 'Salvataggio...' : 'Aggiungi'}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </>
                 )}
