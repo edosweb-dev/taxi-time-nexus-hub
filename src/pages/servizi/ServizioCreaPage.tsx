@@ -1489,12 +1489,12 @@ export const ServizioCreaPage = ({
       <div className="mb-4 sm:mb-6">
         <Button
           variant="ghost"
-          onClick={() => navigate("/servizi")}
+          onClick={() => isClienteMode ? navigate("/dashboard-cliente/servizi") : navigate("/servizi")}
           className="mb-3 sm:mb-4 -ml-2"
           size="sm"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
-          <span className="hidden sm:inline">Torna ai Servizi</span>
+          <span className="hidden sm:inline">{isClienteMode ? 'Torna ai Servizi' : 'Torna ai Servizi'}</span>
           <span className="sm:hidden">Indietro</span>
         </Button>
         
