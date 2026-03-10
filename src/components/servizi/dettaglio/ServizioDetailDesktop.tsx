@@ -26,6 +26,8 @@ interface ServizioDetailDesktopProps {
   backLabel?: string;
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
+  onConfermaPCar?: () => void;
+  showPresaInCarico?: boolean;
 }
 
 export function ServizioDetailDesktop({
@@ -50,6 +52,8 @@ export function ServizioDetailDesktop({
   backLabel,
   onRimuoviAssegnazione,
   isRimuoviAssegnazioneLoading,
+  onConfermaPCar,
+  showPresaInCarico,
 }: ServizioDetailDesktopProps) {
   return (
     <div className="flex min-h-screen w-full">
@@ -73,6 +77,8 @@ export function ServizioDetailDesktop({
         backLabel={backLabel}
         onRimuoviAssegnazione={onRimuoviAssegnazione}
         isRimuoviAssegnazioneLoading={isRimuoviAssegnazioneLoading}
+        onConfermaPCar={onConfermaPCar}
+        showPresaInCarico={showPresaInCarico}
       />
 
       {/* Main Content */}

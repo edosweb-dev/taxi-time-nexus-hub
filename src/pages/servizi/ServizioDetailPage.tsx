@@ -102,9 +102,9 @@ export default function ServizioDetailPage() {
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
 
-  // Flag per presa in carico: visibile solo per admin/socio su richieste clienti non completate
+  // Flag per presa in carico: visibile solo per admin/socio su richieste clienti in stato richiesta_cliente
   const showPresaInCarico = servizio?.is_richiesta_cliente && isAdmin &&
-    !['completato', 'consuntivato', 'annullato'].includes(servizio?.stato);
+    servizio?.stato === 'richiesta_cliente';
   const { deleteServizio, isDeleting } = useServizi();
   const { unassignServizio, isUnassigning } = useServizioStateMachine();
   
@@ -164,21 +164,12 @@ export default function ServizioDetailPage() {
         title="Dettaglio Servizio"
       >
         <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
-          {/* Badge + Pulsante Richiesta Cliente */}
+          {/* Badge Richiesta Cliente */}
           {servizio?.is_richiesta_cliente && (
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-50">
                 📋 RICHIESTA CLIENTE
               </Badge>
-              {showPresaInCarico && (
-                <Button
-                  size="sm"
-                  onClick={() => setShowConfermaPCar(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  ✅ Conferma Presa in Carico
-                </Button>
-              )}
             </div>
           )}
 
@@ -319,20 +310,12 @@ export default function ServizioDetailPage() {
     <Layout>
       {/* Desktop (≥1024px) - NEW Layout */}
       <div className="hidden lg:block">
-          {/* Badge + Pulsante Richiesta Cliente - Desktop */}
+          {/* Badge Richiesta Cliente - Desktop */}
           {servizio?.is_richiesta_cliente && (
             <div className="flex items-center gap-3 mb-4 flex-wrap">
               <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-50 text-sm px-3 py-1">
                 📋 RICHIESTA CLIENTE
               </Badge>
-              {showPresaInCarico && (
-                <Button
-                  onClick={() => setShowConfermaPCar(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  ✅ Conferma Presa in Carico
-                </Button>
-              )}
             </div>
           )}
 
@@ -369,6 +352,8 @@ export default function ServizioDetailPage() {
             backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
+            onConfermaPCar={() => setShowConfermaPCar(true)}
+            showPresaInCarico={showPresaInCarico}
           />
         </div>
 
