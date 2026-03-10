@@ -164,21 +164,12 @@ export default function ServizioDetailPage() {
         title="Dettaglio Servizio"
       >
         <div className="mobile-servizio-detail px-4 pb-32 sm:pb-8">
-          {/* Badge + Pulsante Richiesta Cliente */}
+          {/* Badge Richiesta Cliente */}
           {servizio?.is_richiesta_cliente && (
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-50">
                 📋 RICHIESTA CLIENTE
               </Badge>
-              {showPresaInCarico && (
-                <Button
-                  size="sm"
-                  onClick={() => setShowConfermaPCar(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  ✅ Conferma Presa in Carico
-                </Button>
-              )}
             </div>
           )}
 
