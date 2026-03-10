@@ -119,6 +119,7 @@ export const useServiziCliente = (
       if (!userId) return null;
 
       const stati: StatoServizio[] = [
+        "richiesta_cliente",
         "da_assegnare",
         "assegnato", 
         "completato",
