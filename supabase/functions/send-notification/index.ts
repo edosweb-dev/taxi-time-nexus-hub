@@ -492,7 +492,7 @@ serve(async (req) => {
           from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
           to: [recipient.email],
           subject: emailSubject,
-          html: emailHtml
+          html: minifiedHtml
         });
 
         results.sent++;
