@@ -496,6 +496,7 @@ export const ServizioCreaPage = ({
   const watchReferenteId = form.watch("referente_id");
 
 
+  const statiConAssegnazione = ['assegnato', 'completato', 'consuntivato'];
 
   const watchConducenteEsterno = form.watch("conducente_esterno");
   const watchMetodoPagamento = form.watch("metodo_pagamento");
