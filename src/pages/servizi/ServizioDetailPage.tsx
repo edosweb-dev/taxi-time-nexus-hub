@@ -350,6 +350,32 @@ export default function ServizioDetailPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Dialog Modifica Note - Mobile */}
+        <Dialog open={showModificaNote} onOpenChange={setShowModificaNote}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Modifica Note</DialogTitle>
+              <DialogDescription>
+                Modifica le note del servizio {servizio?.id_progressivo || ''}
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Inserisci note..."
+              rows={5}
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowModificaNote(false)} disabled={isSavingNote}>
+                Annulla
+              </Button>
+              <Button onClick={handleSaveNote} disabled={isSavingNote}>
+                {isSavingNote ? 'Salvataggio...' : 'Salva Note'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Layout>
     );
   }
