@@ -279,18 +279,46 @@ export default function NuovoServizioPage() {
           console.log("✅ Nuovo passeggero creato:", passeggeroId);
         }
 
+        // Deriva campi DB dai campi _presa_tipo / _destinazione_tipo della UI
+        let usa_indirizzo_personalizzato = false;
+        let luogo_presa_personalizzato: string | null = null;
+        let localita_presa_personalizzato: string | null = null;
+
+        if (passeggero._presa_tipo === 'personalizzato') {
+          usa_indirizzo_personalizzato = true;
+          luogo_presa_personalizzato = passeggero.luogo_presa_personalizzato || null;
+          localita_presa_personalizzato = passeggero.localita_presa_personalizzato || null;
+        } else if (passeggero._presa_tipo === 'passeggero') {
+          usa_indirizzo_personalizzato = true;
+          luogo_presa_personalizzato = passeggero.indirizzo || null;
+          localita_presa_personalizzato = passeggero.localita || null;
+        }
+        // 'servizio' / 'primo_passeggero' / undefined → false + null (eredita dal servizio)
+
+        let usa_destinazione_personalizzata = false;
+        let destinazione_personalizzato: string | null = null;
+        let localita_destinazione_personalizzato: string | null = null;
+
+        if (passeggero._destinazione_tipo === 'personalizzato') {
+          usa_destinazione_personalizzata = true;
+          destinazione_personalizzato = passeggero.destinazione_personalizzato || null;
+          localita_destinazione_personalizzato = passeggero.localita_destinazione_personalizzato || null;
+        }
+        // 'primo_passeggero' / 'passeggero' / undefined → false + null (eredita dal servizio)
+
         // Associa passeggero a servizio
         const { error: linkError } = await supabase
           .from("servizi_passeggeri")
           .insert({
             servizio_id: servizio.id,
             passeggero_id: passeggeroId,
-            usa_indirizzo_personalizzato: passeggero.usa_indirizzo_personalizzato || false,
-            luogo_presa_personalizzato: passeggero.luogo_presa_personalizzato || null,
-            localita_presa_personalizzato: passeggero.localita_presa_personalizzato || null,
+            usa_indirizzo_personalizzato,
+            luogo_presa_personalizzato,
+            localita_presa_personalizzato,
             orario_presa_personalizzato: passeggero.orario_presa_personalizzato || null,
-            destinazione_personalizzato: passeggero.destinazione_personalizzato || null,
-            localita_destinazione_personalizzato: passeggero.localita_destinazione_personalizzato || null,
+            destinazione_personalizzato,
+            localita_destinazione_personalizzato,
+            usa_destinazione_personalizzata,
             ordine_presa: pIdx + 1,
           });
 
