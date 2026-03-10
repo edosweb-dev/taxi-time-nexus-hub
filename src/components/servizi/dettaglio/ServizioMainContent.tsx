@@ -254,36 +254,70 @@ export function ServizioMainContent({
         </CardContent>
       </Card>
 
-      {/* Dati Operativi - KM e Ore Sosta per completati/consuntivati */}
-      {(servizio.stato === 'completato' || servizio.stato === 'consuntivato') && 
-        ((servizio.km_totali !== null && servizio.km_totali > 0) || 
-         (servizio.ore_sosta !== null && servizio.ore_sosta > 0)) && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Dati Operativi</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {servizio.km_totali !== null && servizio.km_totali > 0 && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Car className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">KM Totali</span>
-                </div>
-                <span className="font-medium">{servizio.km_totali} km</span>
-              </div>
-            )}
-            {servizio.ore_sosta !== null && servizio.ore_sosta > 0 && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Ore di Sosta</span>
-                </div>
-                <span className="font-medium">{servizio.ore_sosta}h</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* Dati Operativi - per completati/consuntivati */}
+      {(servizio.stato === 'completato' || servizio.stato === 'consuntivato') && (() => {
+        const ruoloAssegnato = (servizio as any)?.assegnato?.role;
+        const isDipendenteAssegnato = ruoloAssegnato === 'dipendente';
+        const hasDatiOperativi = 
+          Number(servizio.km_totali || 0) > 0 ||
+          Number(servizio.ore_sosta || 0) > 0 ||
+          Number((servizio as any).ore_effettive || 0) > 0;
+
+        if (!hasDatiOperativi) return null;
+
+        return (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Dati Operativi</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {isDipendenteAssegnato ? (
+                <>
+                  {Number((servizio as any).ore_effettive || 0) > 0 && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Ore lavorate</span>
+                      </div>
+                      <span className="font-medium">{(servizio as any).ore_effettive}h</span>
+                    </div>
+                  )}
+                  {Number(servizio.ore_sosta || 0) > 0 && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Ore fatturate al cliente</span>
+                      </div>
+                      <span className="font-medium">{servizio.ore_sosta}h</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {servizio.km_totali !== null && servizio.km_totali > 0 && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Car className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">KM Totali</span>
+                      </div>
+                      <span className="font-medium">{servizio.km_totali} km</span>
+                    </div>
+                  )}
+                  {servizio.ore_sosta !== null && servizio.ore_sosta > 0 && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Ore di Sosta</span>
+                      </div>
+                      <span className="font-medium">{servizio.ore_sosta}h</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Dettagli Economici */}
       <FinancialSection
