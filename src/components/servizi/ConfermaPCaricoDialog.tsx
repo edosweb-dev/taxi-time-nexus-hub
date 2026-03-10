@@ -115,7 +115,7 @@ export function ConfermaPCaricoDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3">
+        <div className="space-y-3 overflow-hidden">
           {/* Autista */}
           <div className="space-y-1.5">
             <Label>Autista (opzionale)</Label>
