@@ -1,5 +1,6 @@
 // ServizioCreaPage
 import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -191,6 +192,8 @@ export const ServizioCreaPage = ({
   onCancel
 }: ServizioCreaPageProps = {}) => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isClienteMode = profile?.role === 'cliente';
   const [searchParams] = useSearchParams();
   const formMode = searchParams.get("mode") || "completo";
   const isVeloce = formMode === "veloce";
@@ -1030,11 +1033,11 @@ export const ServizioCreaPage = ({
 
       if (mode === 'edit') {
         // Stati che NON devono essere modificati automaticamente
-        const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato'];
+        const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato', 'richiesta_cliente'];
         const statoCorrente = initialData?.stato || "da_assegnare";
         
         if (statiBloccati.includes(statoCorrente)) {
-          // Mantieni stati avanzati invariati
+          // Mantieni stati avanzati e richiesta_cliente invariati
           statoServizio = statoCorrente;
         } else {
           // Per stati "bozza", "da_assegnare", "assegnato": ricalcola in base all'autista
@@ -1082,6 +1085,9 @@ export const ServizioCreaPage = ({
 
       // Indirizzi già popolati nel wrapper handleSubmit
 
+      // Se cliente in edit mode, preserva i valori admin-only dall'initialData
+      const isClienteEdit = userProfile?.role === 'cliente' && mode === 'edit' && initialData;
+
       const servizioData = {
         tipo_cliente: data.tipo_cliente,
         created_by: user.id,
@@ -1102,23 +1108,30 @@ export const ServizioCreaPage = ({
         citta_presa: data.citta_presa || null,
         indirizzo_destinazione: data.indirizzo_destinazione,
         citta_destinazione: data.citta_destinazione || null,
-        metodo_pagamento: data.metodo_pagamento,
+        // Per clienti: preserva valori economici/assegnazione originali
+        metodo_pagamento: isClienteEdit ? initialData.metodo_pagamento : data.metodo_pagamento,
         stato: statoServizio,
-        assegnato_a: data.assegnato_a || null,
-        conducente_esterno: data.conducente_esterno,
-        conducente_esterno_id: data.conducente_esterno ? data.conducente_esterno_id : null,
-        veicolo_id: data.veicolo_id || null,
-        ore_effettive: data.ore_effettive ? parseFloat(data.ore_effettive) : null,
-        ore_fatturate: data.ore_fatturate ? parseFloat(data.ore_fatturate) : null,
+        assegnato_a: isClienteEdit ? (initialData.assegnato_a || null) : (data.assegnato_a || null),
+        conducente_esterno: isClienteEdit ? (initialData.conducente_esterno || false) : data.conducente_esterno,
+        conducente_esterno_id: isClienteEdit 
+          ? (initialData.conducente_esterno_id || null) 
+          : (data.conducente_esterno ? data.conducente_esterno_id : null),
+        veicolo_id: isClienteEdit ? (initialData.veicolo_id || null) : (data.veicolo_id || null),
+        ore_effettive: isClienteEdit ? (initialData.ore_effettive || null) : (data.ore_effettive ? parseFloat(data.ore_effettive) : null),
+        ore_fatturate: isClienteEdit ? (initialData.ore_fatturate || null) : (data.ore_fatturate ? parseFloat(data.ore_fatturate) : null),
         // Salva ENTRAMBI: netto (inserito dall'utente) e lordo (calcolato)
-        incasso_netto_previsto: data.incasso_previsto || null,
-        incasso_previsto: data.incasso_previsto 
-          ? Math.round(data.incasso_previsto * (1 + (data.iva ?? 0) / 100) * 100) / 100
-          : null,
+        incasso_netto_previsto: isClienteEdit ? (initialData.incasso_netto_previsto || null) : (data.incasso_previsto || null),
+        incasso_previsto: isClienteEdit 
+          ? (initialData.incasso_previsto || null) 
+          : (data.incasso_previsto 
+            ? Math.round(data.incasso_previsto * (1 + (data.iva ?? 0) / 100) * 100) / 100
+            : null),
         // Campo IVA: usa il valore calcolato dal form in base al metodo pagamento
-        iva: data.iva ?? 0,
-        applica_provvigione: data.applica_provvigione,
-        consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
+        iva: isClienteEdit ? (initialData.iva ?? 0) : (data.iva ?? 0),
+        applica_provvigione: isClienteEdit ? (initialData.applica_provvigione || false) : data.applica_provvigione,
+        consegna_contanti_a: isClienteEdit 
+          ? (initialData.consegna_contanti_a || null)
+          : (data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null),
         note: data.note || null,
         // Campi consuntivo (solo per servizi già consuntivati in edit mode)
         ...(mode === 'edit' && initialData?.stato === 'consuntivato' && {
@@ -1486,12 +1499,12 @@ export const ServizioCreaPage = ({
       <div className="mb-4 sm:mb-6">
         <Button
           variant="ghost"
-          onClick={() => navigate("/servizi")}
+          onClick={() => isClienteMode ? navigate("/dashboard-cliente/servizi") : navigate("/servizi")}
           className="mb-3 sm:mb-4 -ml-2"
           size="sm"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
-          <span className="hidden sm:inline">Torna ai Servizi</span>
+          <span className="hidden sm:inline">{isClienteMode ? 'Torna ai Servizi' : 'Torna ai Servizi'}</span>
           <span className="sm:hidden">Indietro</span>
         </Button>
         
@@ -1590,8 +1603,8 @@ export const ServizioCreaPage = ({
           )}
           <fieldset disabled={isEditLoading} className="w-full space-y-4 sm:space-y-6">
           
-          {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce */}
-          {!isVeloce && (
+          {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce e per clienti */}
+          {!isVeloce && !isClienteMode && (
           <Card className="w-full p-3 sm:p-4 md:p-6 bg-muted/30">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1660,10 +1673,28 @@ export const ServizioCreaPage = ({
               {watchTipoCliente === 'azienda' ? (
                 <>
               {/* Azienda */}
-              <AziendaSelectField />
+              {isClienteMode ? (
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="font-medium">Azienda</Label>
+                  <p className="text-sm font-medium py-2 px-3 bg-muted/50 rounded-md border">
+                    {aziende?.find(a => a.id === watchAziendaId)?.nome || 'Azienda'}
+                  </p>
+                </div>
+              ) : (
+                <AziendaSelectField />
+              )}
 
               {/* Referente */}
-              <ReferenteSelectField aziendaId={watchAziendaId || ''} />
+              {isClienteMode ? (
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="font-medium">Referente</Label>
+                  <p className="text-sm font-medium py-2 px-3 bg-muted/50 rounded-md border">
+                    {profile?.first_name} {profile?.last_name}
+                  </p>
+                </div>
+              ) : (
+                <ReferenteSelectField aziendaId={watchAziendaId || ''} />
+              )}
 
               {/* Data Servizio */}
               <div className="space-y-1.5 sm:space-y-2">
@@ -1798,8 +1829,8 @@ export const ServizioCreaPage = ({
             />
           )}
 
-          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce e per servizi consuntivati */}
-          {!isVeloce && !(mode === 'edit' && initialData?.stato === 'consuntivato') && (
+          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce, per servizi consuntivati e per clienti */}
+          {!isVeloce && !isClienteMode && !(mode === 'edit' && initialData?.stato === 'consuntivato') && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -1972,8 +2003,8 @@ export const ServizioCreaPage = ({
           </Card>
           )}
 
-          {/* SEZIONE 5: Assegnazione - nascosto in modalità veloce e in creazione (assegnazione solo via popup) */}
-          {!isVeloce && mode === 'edit' && (
+          {/* SEZIONE 5: Assegnazione - nascosto in modalità veloce, in creazione e per clienti */}
+          {!isVeloce && mode === 'edit' && !isClienteMode && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
