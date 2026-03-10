@@ -1085,6 +1085,9 @@ export const ServizioCreaPage = ({
 
       // Indirizzi già popolati nel wrapper handleSubmit
 
+      // Se cliente in edit mode, preserva i valori admin-only dall'initialData
+      const isClienteEdit = userProfile?.role === 'cliente' && mode === 'edit' && initialData;
+
       const servizioData = {
         tipo_cliente: data.tipo_cliente,
         created_by: user.id,
@@ -1105,23 +1108,30 @@ export const ServizioCreaPage = ({
         citta_presa: data.citta_presa || null,
         indirizzo_destinazione: data.indirizzo_destinazione,
         citta_destinazione: data.citta_destinazione || null,
-        metodo_pagamento: data.metodo_pagamento,
+        // Per clienti: preserva valori economici/assegnazione originali
+        metodo_pagamento: isClienteEdit ? initialData.metodo_pagamento : data.metodo_pagamento,
         stato: statoServizio,
-        assegnato_a: data.assegnato_a || null,
-        conducente_esterno: data.conducente_esterno,
-        conducente_esterno_id: data.conducente_esterno ? data.conducente_esterno_id : null,
-        veicolo_id: data.veicolo_id || null,
-        ore_effettive: data.ore_effettive ? parseFloat(data.ore_effettive) : null,
-        ore_fatturate: data.ore_fatturate ? parseFloat(data.ore_fatturate) : null,
+        assegnato_a: isClienteEdit ? (initialData.assegnato_a || null) : (data.assegnato_a || null),
+        conducente_esterno: isClienteEdit ? (initialData.conducente_esterno || false) : data.conducente_esterno,
+        conducente_esterno_id: isClienteEdit 
+          ? (initialData.conducente_esterno_id || null) 
+          : (data.conducente_esterno ? data.conducente_esterno_id : null),
+        veicolo_id: isClienteEdit ? (initialData.veicolo_id || null) : (data.veicolo_id || null),
+        ore_effettive: isClienteEdit ? (initialData.ore_effettive || null) : (data.ore_effettive ? parseFloat(data.ore_effettive) : null),
+        ore_fatturate: isClienteEdit ? (initialData.ore_fatturate || null) : (data.ore_fatturate ? parseFloat(data.ore_fatturate) : null),
         // Salva ENTRAMBI: netto (inserito dall'utente) e lordo (calcolato)
-        incasso_netto_previsto: data.incasso_previsto || null,
-        incasso_previsto: data.incasso_previsto 
-          ? Math.round(data.incasso_previsto * (1 + (data.iva ?? 0) / 100) * 100) / 100
-          : null,
+        incasso_netto_previsto: isClienteEdit ? (initialData.incasso_netto_previsto || null) : (data.incasso_previsto || null),
+        incasso_previsto: isClienteEdit 
+          ? (initialData.incasso_previsto || null) 
+          : (data.incasso_previsto 
+            ? Math.round(data.incasso_previsto * (1 + (data.iva ?? 0) / 100) * 100) / 100
+            : null),
         // Campo IVA: usa il valore calcolato dal form in base al metodo pagamento
-        iva: data.iva ?? 0,
-        applica_provvigione: data.applica_provvigione,
-        consegna_contanti_a: data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null,
+        iva: isClienteEdit ? (initialData.iva ?? 0) : (data.iva ?? 0),
+        applica_provvigione: isClienteEdit ? (initialData.applica_provvigione || false) : data.applica_provvigione,
+        consegna_contanti_a: isClienteEdit 
+          ? (initialData.consegna_contanti_a || null)
+          : (data.metodo_pagamento === "Contanti" ? data.consegna_contanti_a : null),
         note: data.note || null,
         // Campi consuntivo (solo per servizi già consuntivati in edit mode)
         ...(mode === 'edit' && initialData?.stato === 'consuntivato' && {
