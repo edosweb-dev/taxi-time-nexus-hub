@@ -56,6 +56,8 @@ interface MobileServizioOptimizedProps {
   onFirmaCliente: () => void;
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
+  onConfermaPCar?: () => void;
+  showPresaInCarico?: boolean;
 }
 
 export function MobileServizioOptimized({
