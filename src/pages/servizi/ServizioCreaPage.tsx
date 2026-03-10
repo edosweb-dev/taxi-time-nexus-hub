@@ -1033,11 +1033,11 @@ export const ServizioCreaPage = ({
 
       if (mode === 'edit') {
         // Stati che NON devono essere modificati automaticamente
-        const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato'];
+        const statiBloccati = ['completato', 'consuntivato', 'annullato', 'non_accettato', 'richiesta_cliente'];
         const statoCorrente = initialData?.stato || "da_assegnare";
         
         if (statiBloccati.includes(statoCorrente)) {
-          // Mantieni stati avanzati invariati
+          // Mantieni stati avanzati e richiesta_cliente invariati
           statoServizio = statoCorrente;
         } else {
           // Per stati "bozza", "da_assegnare", "assegnato": ricalcola in base all'autista
