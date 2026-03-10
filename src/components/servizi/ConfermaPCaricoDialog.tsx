@@ -93,7 +93,9 @@ export function ConfermaPCaricoDialog({
         veicolo_id: veicoloId || undefined,
         metodo_pagamento: metodoPagamento || undefined,
         km_totali: kmTotali ? parseFloat(kmTotali) : undefined,
-        incasso_previsto: incassoPrevisto ? parseFloat(incassoPrevisto) : undefined,
+        incasso_netto_previsto: incassoNetto ? parseFloat(incassoNetto) : undefined,
+        incasso_previsto: incassoNetto ? calcoloIva.totaleLordo : undefined,
+        iva: incassoNetto ? calcoloIva.percentuale : undefined,
         note: note || undefined,
       },
       {
