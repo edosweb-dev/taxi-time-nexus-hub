@@ -241,7 +241,7 @@ export function ConfermaPCaricoDialog({
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto p-4">
+        <SheetContent side="bottom" className="w-full max-h-[90vh] overflow-y-auto px-4 pb-4 pt-0">
           <SheetHeader className="pb-2">
             <SheetTitle>{title}</SheetTitle>
             <SheetDescription>{description}</SheetDescription>
