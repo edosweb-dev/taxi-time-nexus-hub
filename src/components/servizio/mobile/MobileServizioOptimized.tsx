@@ -480,6 +480,17 @@ export function MobileServizioOptimized({
       {/* Action Buttons - Fixed at bottom */}
       <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-4 z-40">
         <div className="flex items-center gap-3">
+          {/* CTA Presa in Carico */}
+          {showPresaInCarico && onConfermaPCar && (
+            <MobileButton
+              variant="default"
+              className="flex-1 bg-green-600 hover:bg-green-700"
+              onClick={onConfermaPCar}
+            >
+              ✅ Conferma Presa in Carico
+            </MobileButton>
+          )}
+
           {/* CTA Primaria: Completa o Consuntiva */}
           {canBeCompleted && !canRequestSignature && (
             <MobileButton
