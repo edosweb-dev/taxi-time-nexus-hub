@@ -352,6 +352,8 @@ export default function ServizioDetailPage() {
             backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
+            onConfermaPCar={() => setShowConfermaPCar(true)}
+            showPresaInCarico={showPresaInCarico}
           />
         </div>
 
