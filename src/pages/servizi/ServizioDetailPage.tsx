@@ -270,6 +270,8 @@ export default function ServizioDetailPage() {
           open={showConfermaPCar}
           onOpenChange={setShowConfermaPCar}
           servizioId={servizio.id}
+          dataServizio={servizio.data_servizio}
+          metodoPagamentoIniziale={servizio.metodo_pagamento}
           onSuccess={refetch}
         />
 
