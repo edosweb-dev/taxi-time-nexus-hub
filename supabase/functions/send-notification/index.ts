@@ -173,13 +173,7 @@ function buildCompleteEmailHTML(data: {
 
 ${passeggeriHtml}
 
-        <div class="route-step end">
-          <div class="route-content">
-            <div class="route-name">🏁 DESTINAZIONE</div>
-            <div class="route-address">${escapeHtml(destAddress)}</div>
-            ${destCity ? `<div class="route-address">${escapeHtml(destCity)}</div>` : ''}
-          </div>
-        </div>
+${destinazioniHtml}
       </div>
 
 ${operativeHtml}
