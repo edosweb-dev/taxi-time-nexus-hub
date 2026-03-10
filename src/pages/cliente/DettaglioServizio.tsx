@@ -97,9 +97,21 @@ const DettaglioServizio = () => {
             </div>
           </div>
 
-          <Badge variant={getStatoBadgeVariant(servizio.stato)} className="text-base px-4 py-2">
-            {getStatoLabel(servizio.stato)}
-          </Badge>
+          <div className="flex items-center gap-3">
+            {servizio.stato === 'richiesta_cliente' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/servizi/${servizio.id}/modifica`)}
+              >
+                <Pencil className="h-4 w-4 mr-1.5" />
+                Modifica
+              </Button>
+            )}
+            <Badge variant={getStatoBadgeVariant(servizio.stato)} className="text-base px-4 py-2">
+              {getStatoLabel(servizio.stato)}
+            </Badge>
+          </div>
         </div>
 
         {/* Layout a Blocchi */}
