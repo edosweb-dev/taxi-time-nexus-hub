@@ -198,13 +198,17 @@ export function useServizioDetail(id?: string) {
   const firmaDigitaleAttiva = servizio?.aziende?.firma_digitale_attiva || false;
   
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  const isCliente = profile?.role === 'cliente';
   
   // Admin e socio possono modificare anche servizi consuntivati (per correzioni)
   // Solo servizi annullati non sono modificabili
+  // Clienti possono modificare solo servizi in stato richiesta_cliente
   // Altri utenti possono modificare solo servizi da assegnare
   const canBeEdited = isAdminOrSocio 
     ? servizio?.stato !== "annullato"
-    : servizio?.stato === "da_assegnare";
+    : isCliente
+      ? servizio?.stato === 'richiesta_cliente'
+      : servizio?.stato === "da_assegnare";
     
   // Flag specifico per modifica campi consuntivo
   const canEditConsuntivo = isAdminOrSocio && servizio?.stato === "consuntivato";
