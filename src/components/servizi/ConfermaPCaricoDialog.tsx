@@ -193,15 +193,33 @@ export function ConfermaPCaricoDialog({
             />
           </div>
 
-          {/* Incasso Previsto */}
+          {/* Incasso Netto Previsto */}
           <div className="space-y-2">
-            <Label>Tariffa Prevista (opzionale)</Label>
+            <Label>Incasso Netto Previsto (opzionale)</Label>
             <Input
               type="number"
               placeholder="es. 250.00"
-              value={incassoPrevisto}
-              onChange={(e) => setIncassoPrevisto(e.target.value)}
+              value={incassoNetto}
+              onChange={(e) => setIncassoNetto(e.target.value)}
             />
+            {parseFloat(incassoNetto) > 0 && (
+              <div className="border-l-2 border-muted-foreground/30 pl-3 space-y-0.5">
+                {calcoloIva.ivaApplicabile ? (
+                  <>
+                    <p className="text-xs text-muted-foreground">
+                      IVA {calcoloIva.percentuale}%: {formatCurrency(calcoloIva.ivaImporto)}
+                    </p>
+                    <p className="text-xs font-medium text-foreground">
+                      Totale lordo: {formatCurrency(calcoloIva.totaleLordo)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    IVA: esente ({metodoPagamento || 'nessun metodo'})
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Note */}
