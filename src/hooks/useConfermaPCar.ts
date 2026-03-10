@@ -7,6 +7,7 @@ interface ConfermaPCaricoPayload {
   servizio_id: string;
   assegnato_a?: string;
   veicolo_id?: string;
+  metodo_pagamento?: string;
   km_totali?: number;
   incasso_previsto?: number;
   note?: string;
@@ -43,6 +44,7 @@ export function useConfermaPCar() {
       const updateData: Record<string, unknown> = {};
       if (updateFields.assegnato_a) updateData.assegnato_a = updateFields.assegnato_a;
       if (updateFields.veicolo_id) updateData.veicolo_id = updateFields.veicolo_id;
+      if (updateFields.metodo_pagamento) updateData.metodo_pagamento = updateFields.metodo_pagamento;
       if (updateFields.km_totali != null) updateData.km_totali = updateFields.km_totali;
       if (updateFields.incasso_previsto != null) updateData.incasso_previsto = updateFields.incasso_previsto;
       if (updateFields.note) updateData.note = updateFields.note;
