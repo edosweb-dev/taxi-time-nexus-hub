@@ -54,6 +54,8 @@ export function ServizioSidebar({
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
   showPresaInCarico,
+  canEditNote,
+  onModificaNote,
 }: ServizioSidebarProps) {
   return (
     <aside className="w-64 border-r bg-muted/30 sticky top-0 h-screen overflow-y-auto">
