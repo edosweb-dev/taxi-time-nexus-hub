@@ -111,7 +111,7 @@ export function ConfermaPCaricoDialog({
     );
   };
 
-  const selectClassName = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+  const selectClassName = "flex h-10 w-full max-w-full rounded-md border border-input bg-background px-3 py-2 text-sm truncate ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   const formContent = (
     <>
@@ -241,7 +241,7 @@ export function ConfermaPCaricoDialog({
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto p-4">
+        <SheetContent side="bottom" className="w-full max-h-[90vh] overflow-y-auto px-4 pb-4 pt-0">
           <SheetHeader className="pb-2">
             <SheetTitle>{title}</SheetTitle>
             <SheetDescription>{description}</SheetDescription>
@@ -254,7 +254,7 @@ export function ConfermaPCaricoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-4">
+      <DialogContent className="max-w-md w-[95vw] sm:w-full p-4">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
