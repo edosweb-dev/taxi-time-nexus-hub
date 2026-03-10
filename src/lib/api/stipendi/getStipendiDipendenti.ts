@@ -98,8 +98,8 @@ export async function getStipendiDipendenti(
         role: dipendente.role,
         stipendioFisso: Number(dipendente.stipendio_fisso) || 0,
         numeroServizi: serviziInfo.count,
-        oreLavorate: serviziInfo.oreTotali,
-        oreFatturate: serviziInfo.oreTotali,
+        oreLavorate: serviziInfo.oreLavorate,
+        oreFatturate: serviziInfo.oreFatturate,
         stipendioSalvato: stipendioEsistente ? {
           id: stipendioEsistente.id,
           stato: stipendioEsistente.stato,
