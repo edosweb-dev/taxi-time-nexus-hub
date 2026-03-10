@@ -89,6 +89,8 @@ export function MobileServizioOptimized({
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
   showPresaInCarico,
+  canEditNote,
+  onModificaNote,
 }: MobileServizioOptimizedProps) {
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
