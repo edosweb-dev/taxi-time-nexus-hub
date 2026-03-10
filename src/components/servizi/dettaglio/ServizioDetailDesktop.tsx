@@ -26,6 +26,8 @@ interface ServizioDetailDesktopProps {
   backLabel?: string;
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
+  onConfermaPCar?: () => void;
+  showPresaInCarico?: boolean;
 }
 
 export function ServizioDetailDesktop({
