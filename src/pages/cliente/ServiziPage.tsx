@@ -60,6 +60,8 @@ const ServiziPage = () => {
         return "default";
       case "assegnato":
         return "secondary";
+      case "richiesta_cliente":
+        return "outline";
       case "da_assegnare":
         return "outline";
       case "annullato":

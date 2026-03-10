@@ -159,6 +159,7 @@ export const useServiziCliente = (
     error,
     refetch,
     counts: counts || {
+      richiesta_cliente: 0,
       da_assegnare: 0,
       assegnato: 0,
       completato: 0,
