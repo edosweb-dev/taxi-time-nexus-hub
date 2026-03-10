@@ -58,6 +58,8 @@ interface MobileServizioOptimizedProps {
   isRimuoviAssegnazioneLoading?: boolean;
   onConfermaPCar?: () => void;
   showPresaInCarico?: boolean;
+  canEditNote?: boolean;
+  onModificaNote?: () => void;
 }
 
 export function MobileServizioOptimized({
