@@ -67,20 +67,21 @@ export async function getStipendiDipendenti(
     // 4. Ottieni i servizi per ogni dipendente nel mese
     const { data: serviziData, error: serviziError } = await supabase
       .from('servizi')
-      .select('assegnato_a, ore_sosta')
+      .select('assegnato_a, ore_sosta, ore_effettive')
       .in('assegnato_a', dipendenti.map(d => d.id))
       .gte('data_servizio', inizioMese)
       .lte('data_servizio', fineMese)
       .in('stato', ['consuntivato', 'fatturato', 'completato']);
 
     // 5. Aggrega i dati servizi per dipendente
-    const serviziPerDipendente = new Map<string, { count: number; oreTotali: number }>();
+    const serviziPerDipendente = new Map<string, { count: number; oreLavorate: number; oreFatturate: number }>();
     
     (serviziData || []).forEach(servizio => {
       if (servizio.assegnato_a) {
-        const current = serviziPerDipendente.get(servizio.assegnato_a) || { count: 0, oreTotali: 0 };
+        const current = serviziPerDipendente.get(servizio.assegnato_a) || { count: 0, oreLavorate: 0, oreFatturate: 0 };
         current.count += 1;
-        current.oreTotali += Number(servizio.ore_sosta || 0);
+        current.oreLavorate += Number(servizio.ore_effettive || 0);
+        current.oreFatturate += Number(servizio.ore_sosta || 0);
         serviziPerDipendente.set(servizio.assegnato_a, current);
       }
     });
@@ -88,7 +89,7 @@ export async function getStipendiDipendenti(
     // 6. Mappa i dipendenti con tutti i dati
     const risultati: StipendioManualeDipendente[] = dipendenti.map((dipendente) => {
       const stipendioEsistente = stipendiMap.get(dipendente.id);
-      const serviziInfo = serviziPerDipendente.get(dipendente.id) || { count: 0, oreTotali: 0 };
+      const serviziInfo = serviziPerDipendente.get(dipendente.id) || { count: 0, oreLavorate: 0, oreFatturate: 0 };
 
       return {
         userId: dipendente.id,
@@ -97,8 +98,8 @@ export async function getStipendiDipendenti(
         role: dipendente.role,
         stipendioFisso: Number(dipendente.stipendio_fisso) || 0,
         numeroServizi: serviziInfo.count,
-        oreLavorate: serviziInfo.oreTotali,
-        oreFatturate: serviziInfo.oreTotali,
+        oreLavorate: serviziInfo.oreLavorate,
+        oreFatturate: serviziInfo.oreFatturate,
         stipendioSalvato: stipendioEsistente ? {
           id: stipendioEsistente.id,
           stato: stipendioEsistente.stato,
