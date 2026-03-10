@@ -111,7 +111,7 @@ export function ConfermaPCaricoDialog({
     );
   };
 
-  const selectClassName = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+  const selectClassName = "flex h-10 w-full max-w-full rounded-md border border-input bg-background px-3 py-2 text-sm truncate ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   const formContent = (
     <>
