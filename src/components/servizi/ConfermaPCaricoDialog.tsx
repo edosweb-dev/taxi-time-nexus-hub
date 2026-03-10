@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,12 +12,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useConfermaPCar } from '@/hooks/useConfermaPCar';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
-import { useUsers } from '@/hooks/useUsers';
+import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
+import { useImpostazioni } from '@/hooks/useImpostazioni';
+import { AlertTriangle } from 'lucide-react';
 
 interface ConfermaPCaricoDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   servizioId: string;
+  dataServizio: string;
+  metodoPagamentoIniziale?: string;
   onSuccess?: () => void;
 }
 
@@ -25,22 +29,39 @@ export function ConfermaPCaricoDialog({
   open,
   onOpenChange,
   servizioId,
+  dataServizio,
+  metodoPagamentoIniziale,
   onSuccess,
 }: ConfermaPCaricoDialogProps) {
   const [assegnatoA, setAssegnatoA] = useState('');
   const [veicoloId, setVeicoloId] = useState('');
+  const [metodoPagamento, setMetodoPagamento] = useState(metodoPagamentoIniziale || '');
   const [kmTotali, setKmTotali] = useState('');
   const [incassoPrevisto, setIncassoPrevisto] = useState('');
   const [note, setNote] = useState('');
 
   const { mutate: conferma, isPending } = useConfermaPCar();
-  const { users } = useUsers();
+  const { users } = useAssignmentUsers(dataServizio, servizioId);
   const { veicoli } = useVeicoliAttivi();
+  const { impostazioni } = useImpostazioni();
 
-  // Filter to employees only (admin, socio, dipendente)
-  const autisti = (users || []).filter(
-    (u) => u.role === 'admin' || u.role === 'socio' || u.role === 'dipendente'
-  );
+  const metodiPagamento = useMemo(() => {
+    return (impostazioni?.metodi_pagamento || []).map(m => m.nome);
+  }, [impostazioni]);
+
+  const selectedUser = useMemo(() => {
+    if (!assegnatoA) return null;
+    return users.find(u => u.id === assegnatoA) || null;
+  }, [assegnatoA, users]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Disponibile': return 'text-green-600';
+      case 'In servizio': return 'text-orange-500';
+      case 'Turno assente': return 'text-red-500';
+      default: return 'text-muted-foreground';
+    }
+  };
 
   const handleSubmit = () => {
     conferma(
@@ -48,15 +69,16 @@ export function ConfermaPCaricoDialog({
         servizio_id: servizioId,
         assegnato_a: assegnatoA || undefined,
         veicolo_id: veicoloId || undefined,
+        metodo_pagamento: metodoPagamento || undefined,
         km_totali: kmTotali ? parseFloat(kmTotali) : undefined,
         incasso_previsto: incassoPrevisto ? parseFloat(incassoPrevisto) : undefined,
         note: note || undefined,
       },
       {
         onSuccess: () => {
-          // Reset form
           setAssegnatoA('');
           setVeicoloId('');
+          setMetodoPagamento(metodoPagamentoIniziale || '');
           setKmTotali('');
           setIncassoPrevisto('');
           setNote('');
@@ -88,12 +110,18 @@ export function ConfermaPCaricoDialog({
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">-- Assegna dopo --</option>
-              {autisti.map((user) => (
+              {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.first_name} {user.last_name}
+                  {user.first_name} {user.last_name} — {user.displayStatus}
                 </option>
               ))}
             </select>
+            {selectedUser && selectedUser.displayStatus === 'Turno assente' && (
+              <div className="flex items-center gap-2 rounded-md border border-yellow-300 bg-yellow-50 p-2 text-sm text-yellow-800 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-300">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>Questo autista non ha un turno programmato per questa data</span>
+              </div>
+            )}
           </div>
 
           {/* Veicolo */}
@@ -108,6 +136,23 @@ export function ConfermaPCaricoDialog({
               {(veicoli || []).map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.modello} - {v.targa}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Metodo di Pagamento */}
+          <div className="space-y-2">
+            <Label>Metodo di Pagamento (opzionale)</Label>
+            <select
+              value={metodoPagamento}
+              onChange={(e) => setMetodoPagamento(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="">-- Seleziona metodo --</option>
+              {metodiPagamento.map((m) => (
+                <option key={m} value={m}>
+                  {m}
                 </option>
               ))}
             </select>
