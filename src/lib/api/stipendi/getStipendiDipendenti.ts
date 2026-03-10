@@ -89,7 +89,7 @@ export async function getStipendiDipendenti(
     // 6. Mappa i dipendenti con tutti i dati
     const risultati: StipendioManualeDipendente[] = dipendenti.map((dipendente) => {
       const stipendioEsistente = stipendiMap.get(dipendente.id);
-      const serviziInfo = serviziPerDipendente.get(dipendente.id) || { count: 0, oreTotali: 0 };
+      const serviziInfo = serviziPerDipendente.get(dipendente.id) || { count: 0, oreLavorate: 0, oreFatturate: 0 };
 
       return {
         userId: dipendente.id,
