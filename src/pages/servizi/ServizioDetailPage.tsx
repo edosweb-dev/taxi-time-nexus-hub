@@ -102,9 +102,9 @@ export default function ServizioDetailPage() {
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
 
-  // Flag per presa in carico: visibile solo per admin/socio su richieste clienti non completate
+  // Flag per presa in carico: visibile solo per admin/socio su richieste clienti in stato richiesta_cliente
   const showPresaInCarico = servizio?.is_richiesta_cliente && isAdmin &&
-    !['completato', 'consuntivato', 'annullato'].includes(servizio?.stato);
+    servizio?.stato === 'richiesta_cliente';
   const { deleteServizio, isDeleting } = useServizi();
   const { unassignServizio, isUnassigning } = useServizioStateMachine();
   
