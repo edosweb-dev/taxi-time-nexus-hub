@@ -9,7 +9,9 @@ interface ConfermaPCaricoPayload {
   veicolo_id?: string;
   metodo_pagamento?: string;
   km_totali?: number;
+  incasso_netto_previsto?: number;
   incasso_previsto?: number;
+  iva?: number;
   note?: string;
 }
 
