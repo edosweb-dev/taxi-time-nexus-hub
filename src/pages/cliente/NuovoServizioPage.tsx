@@ -265,6 +265,8 @@ export default function NuovoServizioPage() {
               nome_cognome: passeggero.nome_cognome,
               email: passeggero.email || null,
               telefono: passeggero.telefono || null,
+              localita: passeggero.localita || null,
+              indirizzo: passeggero.indirizzo || null,
               azienda_id: currentProfile.azienda_id,
               created_by_referente_id: user.id,
               tipo: passeggero.isTemporary ? 'guest' : 'rubrica',
