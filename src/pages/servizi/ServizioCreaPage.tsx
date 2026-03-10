@@ -1819,8 +1819,8 @@ export const ServizioCreaPage = ({
             />
           )}
 
-          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce e per servizi consuntivati */}
-          {!isVeloce && !(mode === 'edit' && initialData?.stato === 'consuntivato') && (
+          {/* SEZIONE 4: Dettagli Economici - nascosto in modalità veloce, per servizi consuntivati e per clienti */}
+          {!isVeloce && !isClienteMode && !(mode === 'edit' && initialData?.stato === 'consuntivato') && (
           <Card className="w-full p-3 sm:p-4 md:p-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
