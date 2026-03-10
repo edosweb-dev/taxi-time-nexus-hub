@@ -43,8 +43,8 @@ function buildCompleteEmailHTML(data: {
   // Build passenger stops HTML
   const passeggeriHtml = passeggeri.map((p: any, idx: number) => {
     const orarioPresa = p.orario_presa_personalizzato || oraFormatted;
-    const indirizzoPresa = p.luogo_presa_personalizzato || p.indirizzo_inline || p.indirizzo || 'Indirizzo da definire';
-    const localitaPresa = p.localita_presa_personalizzato || p.localita_inline || p.localita || '';
+    const indirizzoPresa = (p.luogo_presa_personalizzato || p.indirizzo_inline || p.indirizzo || '').trim() || 'Indirizzo da definire';
+    const localitaPresa = (p.localita_presa_personalizzato || p.localita_inline || p.localita || '').trim();
     const nomePax = p.nome_cognome_inline || p.nome_cognome || `${p.nome || ''} ${p.cognome || ''}`.trim() || 'Passeggero';
     const email = p.email_inline || p.email || '';
     const telefono = p.telefono_inline || p.telefono || '';
@@ -62,12 +62,44 @@ function buildCompleteEmailHTML(data: {
         </div>`;
   }).join('\n');
 
-  // Destination info - check passenger custom destinations
-  const lastPaxWithDest = [...passeggeri].reverse().find(
-    (p: any) => p.usa_destinazione_personalizzata && p.destinazione_personalizzato
-  );
-  const destAddress = lastPaxWithDest?.destinazione_personalizzato || servizio.indirizzo_destinazione || 'Destinazione da definire';
-  const destCity = lastPaxWithDest?.localita_destinazione_personalizzato || servizio.citta_destinazione || '';
+  // Build per-passenger destinations (same logic as DettaglioServizio.tsx)
+  const destinazioniHtml = (() => {
+    const destMap = new Map<string, { indirizzo: string; citta: string; passeggeri: string[] }>();
+
+    passeggeri.forEach((p: any) => {
+      const haDestPers = !!p.destinazione_personalizzato;
+      const indirizzo = haDestPers
+        ? p.destinazione_personalizzato
+        : (servizio.indirizzo_destinazione || 'Destinazione da definire');
+      const citta = haDestPers
+        ? (p.localita_destinazione_personalizzato || servizio.citta_destinazione || '')
+        : (servizio.citta_destinazione || '');
+      const nome = p.nome_cognome_inline || p.nome_cognome || 'Passeggero';
+
+      const key = `${(indirizzo || '').trim().toLowerCase()}|${(citta || '').trim().toLowerCase()}`;
+      if (!destMap.has(key)) {
+        destMap.set(key, { indirizzo: (indirizzo || '').trim(), citta: (citta || '').trim(), passeggeri: [] });
+      }
+      destMap.get(key)!.passeggeri.push(nome);
+    });
+
+    const entries = Array.from(destMap.values());
+    return entries.map((dest, idx) => {
+      const label = entries.length > 1 ? `🏁 DESTINAZIONE ${idx + 1}` : '🏁 DESTINAZIONE';
+      const paxList = dest.passeggeri.length > 0
+        ? `<div class="route-time">${dest.passeggeri.map((n: string) => escapeHtml(n)).join(', ')}</div>`
+        : '';
+      return `
+        <div class="route-step end">
+          <div class="route-content">
+            <div class="route-name">${label}</div>
+            <div class="route-address">${escapeHtml(dest.indirizzo)}</div>
+            ${dest.citta ? `<div class="route-address">${escapeHtml(dest.citta)}</div>` : ''}
+            ${paxList}
+          </div>
+        </div>`;
+    }).join('\n');
+  })();
 
   // Operational details section
   const operativeHtml = (veicolo || autista || servizio.km_totali) ? `
@@ -141,13 +173,7 @@ function buildCompleteEmailHTML(data: {
 
 ${passeggeriHtml}
 
-        <div class="route-step end">
-          <div class="route-content">
-            <div class="route-name">🏁 DESTINAZIONE</div>
-            <div class="route-address">${escapeHtml(destAddress)}</div>
-            ${destCity ? `<div class="route-address">${escapeHtml(destCity)}</div>` : ''}
-          </div>
-        </div>
+${destinazioniHtml}
       </div>
 
 ${operativeHtml}
