@@ -1,26 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useReports } from "./useReports";
+import { useAuth } from "@/contexts/AuthContext";
 
 /**
  * Hook wrapper per clienti - filtra automaticamente i report per referente_id
- * Riutilizza la logica di useReports ma con auto-filter per sicurezza
+ * Usa useAuth() per supportare correttamente l'impersonificazione
  */
 export const useReportCliente = () => {
-  // Get current authenticated user
-  const { data: user } = useQuery({
-    queryKey: ["current-user"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      return user;
-    },
-  });
+  const { profile, user, loading } = useAuth();
 
-  // Get user profile with azienda info
-  const { data: profile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ["current-profile", user?.id],
+  // Get profile with azienda info (using impersonated profile id)
+  const { data: profileWithAzienda, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ["report-cliente-profile", profile?.id],
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!profile?.id) return null;
 
       const { data, error } = await supabase
         .from("profiles")
@@ -34,7 +28,7 @@ export const useReportCliente = () => {
             nome
           )
         `)
-        .eq("id", user.id)
+        .eq("id", profile.id)
         .single();
 
       if (error) {
@@ -44,19 +38,19 @@ export const useReportCliente = () => {
 
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!profile?.id,
   });
 
   // Use existing useReports hook with auto-filters for security
   const reportsHook = useReports({
-    referente_id: user?.id,        // Auto-filter: solo report del referente
-    azienda_id: profile?.azienda_id, // Auto-filter: solo report dell'azienda
+    referente_id: profile?.id,
+    azienda_id: profile?.azienda_id,
   });
 
   return {
     ...reportsHook,
-    profile,
+    profile: profileWithAzienda,
     user,
-    isLoadingProfile,
+    isLoadingProfile: loading || isLoadingProfile,
   };
 };
