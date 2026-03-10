@@ -111,8 +111,45 @@ export default function ServizioDetailPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rimuoviAssegnazioneDialogOpen, setRimuoviAssegnazioneDialogOpen] = useState(false);
   const [showConfermaPCar, setShowConfermaPCar] = useState(false);
+  const [showModificaNote, setShowModificaNote] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'socio';
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  // Permesso modifica note: admin/socio su qualsiasi non annullato, dipendente assegnato su consuntivato
+  const canEditNote = 
+    (isAdmin && servizio?.stato !== 'annullato') ||
+    (profile?.role === 'dipendente' && 
+     servizio?.assegnato_a === profile?.id &&
+     servizio?.stato === 'consuntivato');
+
+  const handleOpenModificaNote = useCallback(() => {
+    setNoteText(servizio?.note || '');
+    setShowModificaNote(true);
+  }, [servizio?.note]);
+
+  const handleSaveNote = useCallback(async () => {
+    if (!servizio?.id) return;
+    setIsSavingNote(true);
+    try {
+      const { error } = await supabase
+        .from('servizi')
+        .update({ note: noteText || null })
+        .eq('id', servizio.id);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ['servizio-detail', id] });
+      queryClient.invalidateQueries({ queryKey: ['servizi-with-passeggeri'] });
+      toast({ title: '✅ Note aggiornate' });
+      setShowModificaNote(false);
+    } catch {
+      toast({ title: '❌ Errore salvataggio note', variant: 'destructive' });
+    } finally {
+      setIsSavingNote(false);
+    }
+  }, [servizio?.id, noteText, id, queryClient, toast]);
 
   // Flag per presa in carico: visibile solo per admin/socio su richieste clienti in stato richiesta_cliente
   const showPresaInCarico = servizio?.is_richiesta_cliente && isAdmin &&
