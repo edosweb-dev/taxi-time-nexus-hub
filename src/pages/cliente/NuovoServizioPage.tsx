@@ -810,6 +810,24 @@ export default function NuovoServizioPage() {
                 />
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Città</Label>
+                <Input
+                  placeholder="Milano"
+                  value={nuovoCitta}
+                  onChange={(e) => setNuovoCitta(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Via / Indirizzo</Label>
+                <Input
+                  placeholder="Via Roma 10"
+                  value={nuovoIndirizzo}
+                  onChange={(e) => setNuovoIndirizzo(e.target.value)}
+                />
+              </div>
+            </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="salva-rubrica"
