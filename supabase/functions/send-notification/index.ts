@@ -43,8 +43,8 @@ function buildCompleteEmailHTML(data: {
   // Build passenger stops HTML
   const passeggeriHtml = passeggeri.map((p: any, idx: number) => {
     const orarioPresa = p.orario_presa_personalizzato || oraFormatted;
-    const indirizzoPresa = p.luogo_presa_personalizzato || p.indirizzo_inline || p.indirizzo || 'Indirizzo da definire';
-    const localitaPresa = p.localita_presa_personalizzato || p.localita_inline || p.localita || '';
+    const indirizzoPresa = (p.luogo_presa_personalizzato || p.indirizzo_inline || p.indirizzo || '').trim() || 'Indirizzo da definire';
+    const localitaPresa = (p.localita_presa_personalizzato || p.localita_inline || p.localita || '').trim();
     const nomePax = p.nome_cognome_inline || p.nome_cognome || `${p.nome || ''} ${p.cognome || ''}`.trim() || 'Passeggero';
     const email = p.email_inline || p.email || '';
     const telefono = p.telefono_inline || p.telefono || '';
