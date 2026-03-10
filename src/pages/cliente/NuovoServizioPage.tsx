@@ -54,6 +54,9 @@ export default function NuovoServizioPage() {
 
   // Email notifiche state
   const [emailNotificheIds, setEmailNotificheIds] = useState<string[]>([]);
+  const [showNuovaEmailDialog, setShowNuovaEmailDialog] = useState(false);
+  const [nuovaEmailNome, setNuovaEmailNome] = useState('');
+  const [nuovaEmailIndirizzo, setNuovaEmailIndirizzo] = useState('');
 
   // Usa profilo da useAuth (supporta impersonificazione)
   const { profile: authProfile } = useAuth();
