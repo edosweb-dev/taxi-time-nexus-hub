@@ -52,6 +52,8 @@ export function ServizioDetailDesktop({
   backLabel,
   onRimuoviAssegnazione,
   isRimuoviAssegnazioneLoading,
+  onConfermaPCar,
+  showPresaInCarico,
 }: ServizioDetailDesktopProps) {
   return (
     <div className="flex min-h-screen w-full">

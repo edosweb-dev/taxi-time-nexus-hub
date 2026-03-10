@@ -27,6 +27,8 @@ interface ServizioSidebarProps {
   veicoloModello?: string;
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
+  onConfermaPCar?: () => void;
+  showPresaInCarico?: boolean;
 }
 
 export function ServizioSidebar({
