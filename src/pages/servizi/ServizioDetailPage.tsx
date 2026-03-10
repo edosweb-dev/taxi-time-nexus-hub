@@ -407,6 +407,8 @@ export default function ServizioDetailPage() {
             isRimuoviAssegnazioneLoading={isUnassigning}
             onConfermaPCar={() => setShowConfermaPCar(true)}
             showPresaInCarico={showPresaInCarico}
+            canEditNote={canEditNote}
+            onModificaNote={handleOpenModificaNote}
           />
         </div>
 
