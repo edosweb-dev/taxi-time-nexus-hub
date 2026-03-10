@@ -38,7 +38,7 @@ export function ConfermaPCaricoDialog({
   const [veicoloId, setVeicoloId] = useState('');
   const [metodoPagamento, setMetodoPagamento] = useState(metodoPagamentoIniziale || '');
   const [kmTotali, setKmTotali] = useState('');
-  const [incassoPrevisto, setIncassoPrevisto] = useState('');
+  const [incassoNetto, setIncassoNetto] = useState('');
   const [note, setNote] = useState('');
 
   const { mutate: conferma, isPending } = useConfermaPCar();
