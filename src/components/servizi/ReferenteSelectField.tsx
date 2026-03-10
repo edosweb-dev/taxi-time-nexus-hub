@@ -41,7 +41,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
   const form = useFormContext();
   const queryClient = useQueryClient();
   const currentReferenteId = form.watch('referente_id');
-  const previousAziendaIdRef = useRef<string | null>(null);
+  const previousAziendaIdRef = useRef<string | null>(aziendaId || null);
   const isFirstRenderRef = useRef(true);
   const previousReferenteIdRef = useRef<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

@@ -121,6 +121,7 @@ export const useServizioForm = ({
 
       const formattedData = {
         azienda_id: initialData.azienda_id || '',
+        referente_id: initialData.referente_id || null,
         data_servizio: initialData.data_servizio || '',
         ora_servizio: initialData.orario_servizio || '',
         indirizzo_presa: initialData.indirizzo_presa || '',
