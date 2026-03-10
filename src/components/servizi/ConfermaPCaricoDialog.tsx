@@ -106,7 +106,7 @@ export function ConfermaPCaricoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>✅ Conferma Presa in Carico</DialogTitle>
           <DialogDescription>
