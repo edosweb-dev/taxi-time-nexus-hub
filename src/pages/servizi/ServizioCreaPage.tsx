@@ -1593,8 +1593,8 @@ export const ServizioCreaPage = ({
           )}
           <fieldset disabled={isEditLoading} className="w-full space-y-4 sm:space-y-6">
           
-          {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce */}
-          {!isVeloce && (
+          {/* SEZIONE 0: Tipo Cliente - nascosto in modalità veloce e per clienti */}
+          {!isVeloce && !isClienteMode && (
           <Card className="w-full p-3 sm:p-4 md:p-6 bg-muted/30">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
