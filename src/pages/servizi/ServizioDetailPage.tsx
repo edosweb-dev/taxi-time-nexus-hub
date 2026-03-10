@@ -310,20 +310,12 @@ export default function ServizioDetailPage() {
     <Layout>
       {/* Desktop (≥1024px) - NEW Layout */}
       <div className="hidden lg:block">
-          {/* Badge + Pulsante Richiesta Cliente - Desktop */}
+          {/* Badge Richiesta Cliente - Desktop */}
           {servizio?.is_richiesta_cliente && (
             <div className="flex items-center gap-3 mb-4 flex-wrap">
               <Badge variant="outline" className="border-amber-500 text-amber-700 bg-amber-50 text-sm px-3 py-1">
                 📋 RICHIESTA CLIENTE
               </Badge>
-              {showPresaInCarico && (
-                <Button
-                  onClick={() => setShowConfermaPCar(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  ✅ Conferma Presa in Carico
-                </Button>
-              )}
             </div>
           )}
 

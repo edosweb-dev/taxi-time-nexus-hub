@@ -77,6 +77,8 @@ export function ServizioDetailDesktop({
         backLabel={backLabel}
         onRimuoviAssegnazione={onRimuoviAssegnazione}
         isRimuoviAssegnazioneLoading={isRimuoviAssegnazioneLoading}
+        onConfermaPCar={onConfermaPCar}
+        showPresaInCarico={showPresaInCarico}
       />
 
       {/* Main Content */}

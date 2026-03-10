@@ -145,6 +145,12 @@ export function ServizioSidebar({
 
         {/* Azioni Primarie */}
         <div className="border-t pt-4 space-y-2">
+          {showPresaInCarico && onConfermaPCar && (
+            <Button onClick={onConfermaPCar} className="w-full bg-green-600 hover:bg-green-700" size="sm">
+              ✅ Conferma Presa in Carico
+            </Button>
+          )}
+
           {canBeCompleted && (
             <Button onClick={onCompleta} className="w-full" size="sm">
               <CheckCircle2 className="mr-2 h-4 w-4" />
