@@ -192,6 +192,8 @@ export const ServizioCreaPage = ({
   onCancel
 }: ServizioCreaPageProps = {}) => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isClienteMode = profile?.role === 'cliente';
   const [searchParams] = useSearchParams();
   const formMode = searchParams.get("mode") || "completo";
   const isVeloce = formMode === "veloce";
