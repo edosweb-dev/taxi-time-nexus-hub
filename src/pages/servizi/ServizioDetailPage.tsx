@@ -496,6 +496,7 @@ export default function ServizioDetailPage() {
               firmaDigitaleAttiva={firmaDigitaleAttiva}
               allPasseggeriSigned={allPasseggeriSigned}
               firmePasseggeri={firmePasseggeri}
+              isAdmin={isAdmin}
             />
           </div>
         </div>

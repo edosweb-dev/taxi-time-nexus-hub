@@ -47,6 +47,7 @@ export function ServizioTabs({
           firmaDigitaleAttiva={firmaDigitaleAttiva}
           allPasseggeriSigned={allPasseggeriSigned}
           firmePasseggeri={firmePasseggeri}
+          isAdmin={isAdmin}
         />
       </div>
     </div>
