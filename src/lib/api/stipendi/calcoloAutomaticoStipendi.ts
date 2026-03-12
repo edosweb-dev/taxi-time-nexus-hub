@@ -112,6 +112,7 @@ async function calcolaBaseKmPerServizi(
     
     totaleBaseKm += risultato.base;
     totaleOreAttesa += oreServizio;
+    totaleOreAttesaSocio += oreAttesaSocioServizio;
 
     const dettaglio = `${servizio.id_progressivo || servizio.id.slice(0,8)}: ${kmServizio}km → €${risultato.base.toFixed(2)} (${risultato.modalita})`;
     dettaglioServizi.push(dettaglio);
