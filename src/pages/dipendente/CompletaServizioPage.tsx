@@ -7,7 +7,10 @@ import { FirmaDigitaleCanvas, FirmaCanvasRef } from '@/components/dipendente/ser
 import { NoteCompletamento } from '@/components/dipendente/servizi/completamento/NoteCompletamento';
 import { ConfermaCompletamento } from '@/components/dipendente/servizi/completamento/ConfermaCompletamento';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, X } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, X, Clock, Coffee, MapPin } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import {
@@ -35,6 +38,9 @@ export default function CompletaServizioPage() {
   const [confermaError, setConfermaError] = useState('');
   const [isSignatureEmpty, setIsSignatureEmpty] = useState(true);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [oreEffettive, setOreEffettive] = useState<number | undefined>(undefined);
+  const [oreSosta, setOreSosta] = useState<number | undefined>(undefined);
+  const [kmTotali, setKmTotali] = useState<number | undefined>(undefined);
 
   // Check if service can be completed
   useEffect(() => {
@@ -119,6 +125,9 @@ export default function CompletaServizioPage() {
         servizioId: id,
         firmaDataURL,
         noteCompletamento: noteCompletamento || undefined,
+        ore_effettive: oreEffettive,
+        ore_sosta: oreSosta,
+        km_totali: kmTotali,
       });
 
       // Clear sessionStorage
@@ -190,6 +199,68 @@ export default function CompletaServizioPage() {
             value={noteCompletamento}
             onChange={setNoteCompletamento}
           />
+
+          {/* Dati Operativi */}
+          <Card className="p-4 border-dashed bg-muted/30">
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  DATI OPERATIVI
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Opzionali — l'amministratore potrà modificarli in fase di consuntivazione
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="ore-guida" className="text-xs flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> Ore di guida
+                  </Label>
+                  <Input
+                    id="ore-guida"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    placeholder="es. 2.5"
+                    value={oreEffettive ?? ''}
+                    onChange={(e) => setOreEffettive(e.target.value ? parseFloat(e.target.value) : undefined)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="ore-sosta" className="text-xs flex items-center gap-1">
+                    <Coffee className="h-3 w-3" /> Ore di sosta
+                  </Label>
+                  <Input
+                    id="ore-sosta"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    placeholder="es. 1.0"
+                    value={oreSosta ?? ''}
+                    onChange={(e) => setOreSosta(e.target.value ? parseFloat(e.target.value) : undefined)}
+                  />
+                </div>
+
+                <div className="space-y-1.5 col-span-2 lg:col-span-1">
+                  <Label htmlFor="km-percorsi" className="text-xs flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> Km percorsi
+                  </Label>
+                  <Input
+                    id="km-percorsi"
+                    type="number"
+                    step="1"
+                    min="0"
+                    placeholder="es. 45"
+                    value={kmTotali ?? ''}
+                    onChange={(e) => setKmTotali(e.target.value ? parseFloat(e.target.value) : undefined)}
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
 
           <ConfermaCompletamento
             checked={isConfirmed}

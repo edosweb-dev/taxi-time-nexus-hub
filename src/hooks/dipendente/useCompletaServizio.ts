@@ -9,6 +9,9 @@ interface CompletaServizioInput {
   servizioId: string;
   firmaDataURL: string;
   noteCompletamento?: string;
+  ore_effettive?: number;
+  ore_sosta?: number;
+  km_totali?: number;
 }
 
 export function useCompletaServizio() {
@@ -17,7 +20,7 @@ export function useCompletaServizio() {
   const [isCompleting, setIsCompleting] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: async ({ servizioId, firmaDataURL, noteCompletamento }: CompletaServizioInput) => {
+    mutationFn: async ({ servizioId, firmaDataURL, noteCompletamento, ore_effettive, ore_sosta, km_totali }: CompletaServizioInput) => {
       if (!profile?.id) throw new Error('User not authenticated');
 
       setIsCompleting(true);
@@ -60,10 +63,13 @@ export function useCompletaServizio() {
             firma_url: urlData.publicUrl,
             firma_timestamp: new Date().toISOString(),
             note: noteCompletamento || null,
+            ...(ore_effettive !== undefined && { ore_effettive }),
+            ...(ore_sosta !== undefined && { ore_sosta }),
+            ...(km_totali !== undefined && { km_totali }),
           })
           .eq('id', servizioId)
           .eq('assegnato_a', profile.id)
-          .eq('stato', 'assegnato') // Only complete if currently assigned
+          .eq('stato', 'assegnato')
           .select()
           .single();
 
