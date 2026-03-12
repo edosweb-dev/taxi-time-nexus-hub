@@ -19,7 +19,7 @@ export interface ReportPasseggeroRow {
   stato: string;
   consegnato_a_id: string | null;
   consegnato_a_nome: string | null;
-  ore_fatturate: number;
+  ore_sosta: number;
   note: string;
   numero_commessa?: string;
   firma_url?: string;
@@ -54,6 +54,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           incasso_previsto,
           incasso_ricevuto,
           stato,
+          ore_sosta,
           azienda_id,
           referente_id,
           consegna_contanti_a,
@@ -213,7 +214,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           stato: servizio.stato,
           consegnato_a_id: servizio.consegna_contanti_a,
           consegnato_a_nome: servizio.consegna_contanti_a ? consegnatariMap.get(servizio.consegna_contanti_a) || null : null,
-          ore_fatturate: servizio.ore_fatturate || 0,
+          ore_sosta: servizio.ore_sosta || 0,
           note: servizio.note || '',
           numero_commessa: servizio.numero_commessa || '',
           firma_url: servizio.firma_url || 

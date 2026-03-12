@@ -67,7 +67,7 @@ export const exportReportPasseggeri = (
       escapeCsvField(row.passeggeri_nomi || '-'),
       escapeCsvField(sanitizeForCsv(row.percorso)),
       escapeCsvField(row.importo.toFixed(2)),  // Senza simbolo €
-      escapeCsvField(row.ore_fatturate > 0 ? row.ore_fatturate.toString() : '-'),
+      escapeCsvField(row.ore_sosta > 0 ? row.ore_sosta.toString() : '-'),
       escapeCsvField(row.note || '-'),
     ];
 

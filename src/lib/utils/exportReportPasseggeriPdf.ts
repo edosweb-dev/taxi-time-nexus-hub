@@ -99,7 +99,7 @@ export const exportReportPasseggeriPdf = async (
       row.passeggeri_nomi || '-',
       sanitizePercorso(row.percorso),
       `€${row.importo.toFixed(2)}`,
-      row.ore_fatturate > 0 ? row.ore_fatturate.toString() : '-',
+      row.ore_sosta > 0 ? row.ore_sosta.toString() : '-',
       row.note || '-',
       row.stato
     ]),
@@ -132,7 +132,7 @@ export const exportReportPasseggeriPdf = async (
   // Footer totals
   let finalY = (doc as any).lastAutoTable.finalY + 8;
   const totaleImporto = data.reduce((sum, s) => sum + (s.importo || 0), 0);
-  const totaleOre = data.reduce((sum, s) => sum + (s.ore_fatturate || 0), 0);
+  const totaleOre = data.reduce((sum, s) => sum + (s.ore_sosta || 0), 0);
   const totalePasseggeri = data.reduce((sum, s) => sum + (s.num_passeggeri || 0), 0);
   
   doc.setFontSize(9);
