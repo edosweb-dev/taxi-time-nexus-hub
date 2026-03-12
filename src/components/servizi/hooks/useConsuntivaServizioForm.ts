@@ -43,6 +43,7 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     defaultValues: {
       ore_effettive: servizio.ore_effettive || undefined,
       ore_sosta: servizio.ore_sosta || undefined,
+      ore_attesa_socio: (servizio as any).ore_attesa_socio || undefined,
       incasso_ricevuto: defaultIncasso,
       km_totali: servizio.km_totali || undefined,
     },

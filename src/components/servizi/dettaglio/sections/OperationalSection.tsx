@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Car } from "lucide-react";
 import { Servizio } from "@/lib/types/servizi";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface OperationalSectionProps {
   servizio: Servizio;
@@ -12,10 +13,15 @@ export function OperationalSection({
   servizio,
   passeggeriCount,
 }: OperationalSectionProps) {
+  const { profile } = useAuth();
+  const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
+  const oreAttesaSocio = (servizio as any).ore_attesa_socio;
+
   const hasOperationalData = 
     servizio.ore_sosta !== null ||
     servizio.km_totali !== null ||
-    passeggeriCount > 0;
+    passeggeriCount > 0 ||
+    (isAdminOrSocio && oreAttesaSocio != null && oreAttesaSocio > 0);
 
   if (!hasOperationalData) {
     return (
@@ -62,6 +68,13 @@ export function OperationalSection({
             <div className="space-y-2">
               <div className="text-sm font-medium text-muted-foreground">Ore di sosta</div>
               <div className="text-base">{servizio.ore_sosta}h</div>
+            </div>
+          )}
+
+          {isAdminOrSocio && oreAttesaSocio != null && oreAttesaSocio > 0 && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-muted-foreground">Ore di attesa</div>
+              <div className="text-base">{oreAttesaSocio}h</div>
             </div>
           )}
         </div>
