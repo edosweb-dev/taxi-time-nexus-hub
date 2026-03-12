@@ -521,7 +521,7 @@ export default function StipendiDettaglioPage() {
                     <TableHead className="w-[80px]">Data</TableHead>
                     <TableHead>Azienda</TableHead>
                     <TableHead className="text-right w-[60px]">KM</TableHead>
-                    <TableHead className="text-right w-[60px]">Ore</TableHead>
+                    <TableHead className="text-right w-[60px]">Ore att.</TableHead>
                     <TableHead className="text-right w-[100px]">Comp. KM (+)</TableHead>
                     <TableHead className="text-right w-[100px]">Comp. Ore (+)</TableHead>
                     <TableHead className="text-right w-[100px]">Contanti (-)</TableHead>
