@@ -263,7 +263,7 @@ export async function getStipendiAutomaticiMese(
           const config = await fetchConfigurazioneStipendi(anno);
           if (config) {
             const baseConAumentoCorretta = Number((totaleBaseKm * config.coefficiente_aumento).toFixed(2));
-            const importoOreAttesaCorretto = Number((totaleOreAttesa * config.tariffa_oraria_attesa).toFixed(2));
+            const importoOreAttesaCorretto = Number((totaleOreAttesaSocio * config.tariffa_oraria_attesa).toFixed(2));
             const totaleLordoCorretto = Number((baseConAumentoCorretta + importoOreAttesaCorretto).toFixed(2));
             
             // Ricalcola netto con valori corretti (inclusi TUTTI i campi detrazioni)
