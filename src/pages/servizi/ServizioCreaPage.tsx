@@ -1144,7 +1144,7 @@ export const ServizioCreaPage = ({
         ...(mode === 'edit' && initialData?.stato === 'consuntivato' && {
           incasso_ricevuto: data.incasso_ricevuto,
           ore_sosta: data.ore_sosta,
-          ore_effettive: data.ore_effettive_consuntivo,
+          
           ore_attesa_socio: data.ore_attesa_socio,
           km_totali: data.km_totali,
         }),
