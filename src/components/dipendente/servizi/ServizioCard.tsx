@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, MapPin, Car, FileText, Eye, CheckCircle, UserRound } from "lucide-react";
+import { Building, MapPin, Car, FileText, Eye, UserRound } from "lucide-react";
 import { ServizioWithRelations } from "@/lib/api/dipendente/servizi";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
