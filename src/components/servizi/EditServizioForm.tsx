@@ -273,6 +273,50 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
                         </FormItem>
                       )}
                     />
+                    {/* Ore di Guida */}
+                    <FormField
+                      control={form.control}
+                      name="ore_effettive"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ore di guida</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.5"
+                              min="0"
+                              placeholder="es. 2.5"
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Ore Attesa Socio */}
+                    <FormField
+                      control={form.control}
+                      name="ore_attesa_socio"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ore attesa socio</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.5"
+                              min="0"
+                              placeholder="es. 1.5"
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     {/* KM Totali */}
                     <FormField
                       control={form.control}
