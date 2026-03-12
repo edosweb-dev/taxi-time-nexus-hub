@@ -37,6 +37,7 @@ export function ServizioInfoTab({
   firmaDigitaleAttiva,
   allPasseggeriSigned = false,
   firmePasseggeri = 0,
+  isAdmin = false,
 }: ServizioInfoTabProps) {
   return (
     <div className="space-y-4 md:space-y-6">
