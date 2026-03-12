@@ -13,7 +13,7 @@ interface ServizioCardProps {
   onClick?: () => void;
 }
 
-export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: ServizioCardProps) => {
+export const ServizioCard = ({ servizio, onViewDetails, onClick }: ServizioCardProps) => {
   const getStatoBadge = (stato: string) => {
     const configs: Record<string, { label: string; className: string; emoji: string }> = {
       assegnato: { 
