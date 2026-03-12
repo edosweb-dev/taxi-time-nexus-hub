@@ -9,6 +9,9 @@ interface CompletaServizioInput {
   servizioId: string;
   firmaDataURL: string;
   noteCompletamento?: string;
+  ore_effettive?: number;
+  ore_sosta?: number;
+  km_totali?: number;
 }
 
 export function useCompletaServizio() {
