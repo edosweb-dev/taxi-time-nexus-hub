@@ -96,6 +96,9 @@ export default function ServizioDetailPage() {
     firmePasseggeri,
   } = hookResult;
 
+  // 🔒 Dipendente non può consuntivare
+  const canBeConsuntivatoFiltered = isDipendente ? false : canBeConsuntivato;
+
   // 🔒 SECURITY: Dipendente può vedere solo servizi assegnati a lui
   if (isDipendente && servizio && servizio.assegnato_a !== profile?.id) {
     navigate('/dipendente/servizi-assegnati');
