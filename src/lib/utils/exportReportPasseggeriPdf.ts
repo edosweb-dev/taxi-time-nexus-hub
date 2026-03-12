@@ -91,7 +91,7 @@ export const exportReportPasseggeriPdf = async (
   // Table
   autoTable(doc, {
     startY: yPos + 8,
-    head: [['Referente', 'Data', 'N°', 'Passeggeri', 'Percorso', 'Importo', 'Ore', 'Note', 'Stato']],
+    head: [['Referente', 'Data', 'N°', 'Passeggeri', 'Percorso', 'Importo', 'Ore Fatturate', 'Note', 'Stato']],
     body: data.map(row => [
       row.referente_nome || '-',
       format(new Date(row.data_servizio), 'dd/MM/yyyy'),
