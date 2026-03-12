@@ -63,10 +63,13 @@ export function useCompletaServizio() {
             firma_url: urlData.publicUrl,
             firma_timestamp: new Date().toISOString(),
             note: noteCompletamento || null,
+            ...(ore_effettive !== undefined && { ore_effettive }),
+            ...(ore_sosta !== undefined && { ore_sosta }),
+            ...(km_totali !== undefined && { km_totali }),
           })
           .eq('id', servizioId)
           .eq('assegnato_a', profile.id)
-          .eq('stato', 'assegnato') // Only complete if currently assigned
+          .eq('stato', 'assegnato')
           .select()
           .single();
 
