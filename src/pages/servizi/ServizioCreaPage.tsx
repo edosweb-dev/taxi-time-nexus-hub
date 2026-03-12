@@ -149,7 +149,7 @@ const servizioSchemaCompleto = z.object({
   // Campi consuntivo (per edit mode servizi consuntivati)
   incasso_ricevuto: z.number().nullable().optional(),
   ore_sosta: z.number().nullable().optional(),
-  ore_effettive_consuntivo: z.number().nullable().optional(),
+  
   ore_attesa_socio: z.number().nullable().optional(),
   km_totali: z.number().nullable().optional(),
 }).refine((data) => {
@@ -236,7 +236,7 @@ export const ServizioCreaPage = ({
       // Campi consuntivo
       incasso_ricevuto: null,
       ore_sosta: null,
-      ore_effettive_consuntivo: null,
+      
       ore_attesa_socio: null,
       km_totali: null,
     },
@@ -439,7 +439,7 @@ export const ServizioCreaPage = ({
             // Campi consuntivo
             incasso_ricevuto: initialData.incasso_ricevuto ?? null,
             ore_sosta: initialData.ore_sosta ?? null,
-            ore_effettive_consuntivo: initialData.ore_effettive ?? null,
+            
             ore_attesa_socio: initialData.ore_attesa_socio ?? null,
             km_totali: initialData.km_totali ?? null,
           });
@@ -1144,7 +1144,7 @@ export const ServizioCreaPage = ({
         ...(mode === 'edit' && initialData?.stato === 'consuntivato' && {
           incasso_ricevuto: data.incasso_ricevuto,
           ore_sosta: data.ore_sosta,
-          ore_effettive: data.ore_effettive_consuntivo,
+          
           ore_attesa_socio: data.ore_attesa_socio,
           km_totali: data.km_totali,
         }),
@@ -2381,29 +2381,7 @@ export const ServizioCreaPage = ({
                   />
                 </div>
                 
-                {/* Ore di guida */}
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="ore_effettive_consuntivo" className="font-medium">
-                    Ore di guida
-                  </Label>
-                  <Controller
-                    name="ore_effettive_consuntivo"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Input
-                        id="ore_effettive_consuntivo"
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        placeholder="es. 2.5"
-                        className="text-base"
-                        value={field.value ?? ''}
-                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
-                      />
-                    )}
-                  />
-                </div>
-                
+
                 {/* Ore attesa socio */}
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="ore_attesa_socio" className="font-medium">
