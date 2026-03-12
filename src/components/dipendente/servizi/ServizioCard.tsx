@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 interface ServizioCardProps {
   servizio: ServizioWithRelations;
   onViewDetails: (id: string) => void;
-  onCompleta?: (id: string) => void;
   onClick?: () => void;
 }
 
