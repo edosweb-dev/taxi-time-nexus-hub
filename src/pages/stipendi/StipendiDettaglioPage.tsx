@@ -556,7 +556,7 @@ export default function StipendiDettaglioPage() {
                           {servizio.aziende?.nome || '-'}
                         </TableCell>
                         <TableCell className="text-right text-sm">{km.toFixed(0)} km</TableCell>
-                        <TableCell className="text-right text-sm">{ore.toFixed(1)}h</TableCell>
+                        <TableCell className="text-right text-sm">{oreAttSocio.toFixed(1)}h</TableCell>
                         <TableCell className="text-right font-medium text-primary">
                           +€{compensoKm.toFixed(2)}
                         </TableCell>
