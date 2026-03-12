@@ -73,8 +73,6 @@ export default function ServiziAssegnatiPage() {
                   key={servizio.id}
                   servizio={servizio}
                   onDettagli={() => navigate(`/servizi/${servizio.id}`)}
-                  onCompleta={() => navigate(`/dipendente/servizi-assegnati/${servizio.id}/completa`)}
-                  showCompleteButton
                 />
               ))
             )}
@@ -94,7 +92,6 @@ export default function ServiziAssegnatiPage() {
                   key={servizio.id}
                   servizio={servizio}
                   onDettagli={() => navigate(`/servizi/${servizio.id}`)}
-                  showCompleteButton={false}
                 />
               ))
             )}
@@ -111,13 +108,9 @@ export default function ServiziAssegnatiPage() {
 function ServizioCard({
   servizio,
   onDettagli,
-  onCompleta,
-  showCompleteButton
 }: {
   servizio: ServizioWithRelations;
   onDettagli: () => void;
-  onCompleta?: () => void;
-  showCompleteButton: boolean;
 }) {
   const getStatoBadge = (stato: string) => {
     const configs: Record<string, { label: string; className: string; icon: LucideIcon }> = {
