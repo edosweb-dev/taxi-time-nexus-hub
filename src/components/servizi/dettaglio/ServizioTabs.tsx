@@ -31,6 +31,7 @@ export function ServizioTabs({
   firmaDigitaleAttiva,
   allPasseggeriSigned = false,
   firmePasseggeri = 0,
+  isAdmin = false,
 }: ServizioTabsProps) {
   return (
     <div className="bg-card border rounded-lg overflow-hidden">
