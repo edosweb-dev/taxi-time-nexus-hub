@@ -236,7 +236,7 @@ export const ServizioCreaPage = ({
       // Campi consuntivo
       incasso_ricevuto: null,
       ore_sosta: null,
-      ore_effettive_consuntivo: null,
+      
       ore_attesa_socio: null,
       km_totali: null,
     },
