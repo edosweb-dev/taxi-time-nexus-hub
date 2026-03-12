@@ -92,7 +92,6 @@ export default function ServiziAssegnatiPage() {
                   key={servizio.id}
                   servizio={servizio}
                   onDettagli={() => navigate(`/servizi/${servizio.id}`)}
-                  showCompleteButton={false}
                 />
               ))
             )}
