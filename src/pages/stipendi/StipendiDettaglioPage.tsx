@@ -495,7 +495,7 @@ export default function StipendiDettaglioPage() {
               <p className="text-sm text-muted-foreground">Km totali</p>
             </div>
             <div>
-              <p className="text-2xl font-bold">{totaleOreSosta.toFixed(1)}h</p>
+              <p className="text-2xl font-bold">{totaleOreAttesaSocio.toFixed(1)}h</p>
               <p className="text-sm text-muted-foreground">Ore attesa</p>
             </div>
             <div>
