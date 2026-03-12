@@ -108,13 +108,9 @@ export default function ServiziAssegnatiPage() {
 function ServizioCard({
   servizio,
   onDettagli,
-  onCompleta,
-  showCompleteButton
 }: {
   servizio: ServizioWithRelations;
   onDettagli: () => void;
-  onCompleta?: () => void;
-  showCompleteButton: boolean;
 }) {
   const getStatoBadge = (stato: string) => {
     const configs: Record<string, { label: string; className: string; icon: LucideIcon }> = {
