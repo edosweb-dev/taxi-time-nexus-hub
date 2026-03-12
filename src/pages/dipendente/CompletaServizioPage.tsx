@@ -38,6 +38,9 @@ export default function CompletaServizioPage() {
   const [confermaError, setConfermaError] = useState('');
   const [isSignatureEmpty, setIsSignatureEmpty] = useState(true);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [oreEffettive, setOreEffettive] = useState<number | undefined>(undefined);
+  const [oreSosta, setOreSosta] = useState<number | undefined>(undefined);
+  const [kmTotali, setKmTotali] = useState<number | undefined>(undefined);
 
   // Check if service can be completed
   useEffect(() => {
