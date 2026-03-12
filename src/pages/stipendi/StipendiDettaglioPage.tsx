@@ -72,6 +72,7 @@ export default function StipendiDettaglioPage() {
           km_totali,
           ore_sosta,
           ore_effettive,
+          ore_attesa_socio,
           stato,
           aziende(nome)
         `)
@@ -212,6 +213,7 @@ export default function StipendiDettaglioPage() {
   // Totali dai servizi
   const totaleKm = servizi?.reduce((sum, s) => sum + (Number(s.km_totali) || 0), 0) || 0;
   const totaleOreSosta = servizi?.reduce((sum, s) => sum + (Number(s.ore_sosta) || 0), 0) || 0;
+  const totaleOreAttesaSocio = servizi?.reduce((sum, s) => sum + (Number(s.ore_attesa_socio) || 0), 0) || 0;
   const totaleIncasso = servizi?.reduce((sum, s) => 
     sum + (Number(s.incasso_ricevuto) || Number(s.incasso_previsto) || 0), 0
   ) || 0;
@@ -244,8 +246,8 @@ export default function StipendiDettaglioPage() {
   // 2. Base con aumento
   const baseConAumento = baseKm * coefficienteAumento;
 
-  // 3. Importo ore sosta
-  const importoOreSosta = totaleOreSosta * tariffaOrariaAttesa;
+  // 3. Importo ore attesa socio (usa ore_attesa_socio per il calcolo stipendio)
+  const importoOreSosta = totaleOreAttesaSocio * tariffaOrariaAttesa;
 
   // 4. Totale lordo
   const totaleLordo = baseConAumento + importoOreSosta;
@@ -281,16 +283,16 @@ export default function StipendiDettaglioPage() {
     }
   };
 
-  const calcolaCompensoOreSosta = (ore: number): number => {
-    return ore * tariffaOrariaAttesa;
+  const calcolaCompensoOreAttesaSocio = (oreAttesaSocio: number): number => {
+    return oreAttesaSocio * tariffaOrariaAttesa;
   };
 
   // Calcola totali dai servizi con compensi dettagliati
   const totaliServizi = servizi?.reduce((acc, servizio) => {
     const km = Number(servizio.km_totali) || 0;
-    const ore = Number(servizio.ore_sosta) || 0;
+    const oreAttSocio = Number(servizio.ore_attesa_socio) || 0;
     const compensoKm = calcolaCompensoKmServizio(km);
-    const compensoOre = calcolaCompensoOreSosta(ore);
+    const compensoOre = calcolaCompensoOreAttesaSocio(oreAttSocio);
     const incasso = Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0;
     const contanti = servizio.metodo_pagamento === 'Contanti' ? incasso : 0;
 
@@ -341,7 +343,7 @@ export default function StipendiDettaglioPage() {
       // Prepara i dati calcolati
       const stipendioData = {
         totale_km: totaleKm,
-        totale_ore_attesa: totaleOreSosta,
+        totale_ore_attesa: totaleOreAttesaSocio,
         base_calcolo: baseKm,
         coefficiente_applicato: coefficienteAumento,
         totale_lordo: totaleLordo,
@@ -493,7 +495,7 @@ export default function StipendiDettaglioPage() {
               <p className="text-sm text-muted-foreground">Km totali</p>
             </div>
             <div>
-              <p className="text-2xl font-bold">{totaleOreSosta.toFixed(1)}h</p>
+              <p className="text-2xl font-bold">{totaleOreAttesaSocio.toFixed(1)}h</p>
               <p className="text-sm text-muted-foreground">Ore attesa</p>
             </div>
             <div>
@@ -519,7 +521,7 @@ export default function StipendiDettaglioPage() {
                     <TableHead className="w-[80px]">Data</TableHead>
                     <TableHead>Azienda</TableHead>
                     <TableHead className="text-right w-[60px]">KM</TableHead>
-                    <TableHead className="text-right w-[60px]">Ore</TableHead>
+                    <TableHead className="text-right w-[60px]">Ore att.</TableHead>
                     <TableHead className="text-right w-[100px]">Comp. KM (+)</TableHead>
                     <TableHead className="text-right w-[100px]">Comp. Ore (+)</TableHead>
                     <TableHead className="text-right w-[100px]">Contanti (-)</TableHead>
@@ -529,9 +531,9 @@ export default function StipendiDettaglioPage() {
                 <TableBody>
                   {servizi.map((servizio) => {
                     const km = Number(servizio.km_totali) || 0;
-                    const ore = Number(servizio.ore_sosta) || 0;
+                    const oreAttSocio = Number(servizio.ore_attesa_socio) || 0;
                     const compensoKm = calcolaCompensoKmServizio(km);
-                    const compensoOre = calcolaCompensoOreSosta(ore);
+                    const compensoOre = calcolaCompensoOreAttesaSocio(oreAttSocio);
                     const incasso = Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0;
                     const contanti = servizio.metodo_pagamento === 'Contanti' ? incasso : 0;
                     const totaleServizio = compensoKm + compensoOre - contanti;
@@ -554,7 +556,7 @@ export default function StipendiDettaglioPage() {
                           {servizio.aziende?.nome || '-'}
                         </TableCell>
                         <TableCell className="text-right text-sm">{km.toFixed(0)} km</TableCell>
-                        <TableCell className="text-right text-sm">{ore.toFixed(1)}h</TableCell>
+                        <TableCell className="text-right text-sm">{oreAttSocio.toFixed(1)}h</TableCell>
                         <TableCell className="text-right font-medium text-primary">
                           +€{compensoKm.toFixed(2)}
                         </TableCell>
@@ -615,10 +617,10 @@ export default function StipendiDettaglioPage() {
                   <span className="text-sm">Compensi KM servizi</span>
                   <span className="font-bold text-primary">+€{totaliServizi.compensiKm.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
-                  <span className="text-sm">Compensi Ore sosta</span>
-                  <span className="font-bold text-primary">+€{totaliServizi.compensiOre.toFixed(2)}</span>
-                </div>
+                 <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
+                   <span className="text-sm">Compensi Ore attesa socio</span>
+                   <span className="font-bold text-primary">+€{totaliServizi.compensiOre.toFixed(2)}</span>
+                 </div>
                 <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                   <span className="text-sm">Spese personali approvate</span>
                   <span className="font-bold text-primary">+€{totaleSpesePersonali.toFixed(2)}</span>

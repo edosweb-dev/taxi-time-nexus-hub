@@ -42,7 +42,7 @@ async function fetchServiziMese(userId: string, mese: number, anno: number) {
 
   const { data: servizi, error } = await supabase
     .from('servizi')
-    .select('id, km_totali, ore_sosta, data_servizio, id_progressivo')
+    .select('id, km_totali, ore_sosta, ore_attesa_socio, data_servizio, id_progressivo')
     .eq('assegnato_a', userId)
     .in('stato', ['completato', 'consuntivato'])
     .gte('data_servizio', startDate)
@@ -58,7 +58,7 @@ async function fetchServiziMese(userId: string, mese: number, anno: number) {
   if (servizi && servizi.length > 0) {
     console.log(`[fetchServiziMese] Trovati ${servizi.length} servizi:`);
     servizi.forEach(s => {
-      console.log(`  - ${s.id_progressivo || s.id}: ${s.data_servizio} | ${s.km_totali}km | ${s.ore_sosta}h`);
+      console.log(`  - ${s.id_progressivo || s.id}: ${s.data_servizio} | ${s.km_totali}km | sosta:${s.ore_sosta}h | attesa_socio:${s.ore_attesa_socio}h`);
     });
   } else {
     console.log(`[fetchServiziMese] Nessun servizio trovato per ${mese}/${anno}`);
@@ -72,9 +72,9 @@ async function fetchServiziMese(userId: string, mese: number, anno: number) {
  * poi somma i risultati
  */
 async function calcolaBaseKmPerServizi(
-  servizi: Array<{ id: string; km_totali: number | null; ore_sosta: number | null; data_servizio: string; id_progressivo?: string }>,
+  servizi: Array<{ id: string; km_totali: number | null; ore_sosta: number | null; ore_attesa_socio: number | null; data_servizio: string; id_progressivo?: string }>,
   anno: number
-): Promise<{ totaleBaseKm: number; totaleOreAttesa: number; dettaglioServizi: string[] }> {
+): Promise<{ totaleBaseKm: number; totaleOreAttesa: number; totaleOreAttesaSocio: number; dettaglioServizi: string[] }> {
   // Fetch configurazione e tariffe una sola volta
   const [config, tariffeKm] = await Promise.all([
     fetchConfigurazioneStipendi(anno),
@@ -98,18 +98,21 @@ async function calcolaBaseKmPerServizi(
 
   let totaleBaseKm = 0;
   let totaleOreAttesa = 0;
+  let totaleOreAttesaSocio = 0;
   const dettaglioServizi: string[] = [];
 
   // Calcola per OGNI servizio singolarmente
   for (const servizio of servizi) {
     const kmServizio = Number(servizio.km_totali) || 0;
     const oreServizio = Number(servizio.ore_sosta) || 0;
+    const oreAttesaSocioServizio = Number(servizio.ore_attesa_socio) || 0;
 
     // Calcola base KM per QUESTO servizio
     const risultato = calcolaBaseKmSingoloServizio(kmServizio, tariffeKm, config);
     
     totaleBaseKm += risultato.base;
     totaleOreAttesa += oreServizio;
+    totaleOreAttesaSocio += oreAttesaSocioServizio;
 
     const dettaglio = `${servizio.id_progressivo || servizio.id.slice(0,8)}: ${kmServizio}km → €${risultato.base.toFixed(2)} (${risultato.modalita})`;
     dettaglioServizi.push(dettaglio);
@@ -117,11 +120,12 @@ async function calcolaBaseKmPerServizi(
     console.log(`[calcolaBaseKmPerServizi] Servizio ${servizio.id_progressivo || servizio.id.slice(0,8)}: ${risultato.dettaglio}`);
   }
 
-  console.log(`[calcolaBaseKmPerServizi] TOTALE: €${totaleBaseKm.toFixed(2)} base, ${totaleOreAttesa}h attesa`);
+  console.log(`[calcolaBaseKmPerServizi] TOTALE: €${totaleBaseKm.toFixed(2)} base, ${totaleOreAttesa}h sosta, ${totaleOreAttesaSocio}h attesa socio`);
 
   return {
     totaleBaseKm: Number(totaleBaseKm.toFixed(2)),
     totaleOreAttesa,
+    totaleOreAttesaSocio,
     dettaglioServizi
   };
 }
@@ -236,7 +240,7 @@ export async function getStipendiAutomaticiMese(
           }
 
           // LOGICA NORMALE: Calcola per singolo servizio (soci CON servizi)
-          const { totaleBaseKm, totaleOreAttesa, dettaglioServizi } = await calcolaBaseKmPerServizi(servizi, anno);
+          const { totaleBaseKm, totaleOreAttesa, totaleOreAttesaSocio, dettaglioServizi } = await calcolaBaseKmPerServizi(servizi, anno);
 
           console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}:`);
           console.log(`  - ${numeroServizi} servizi, ${kmTotali} km totali`);
@@ -250,8 +254,8 @@ export async function getStipendiAutomaticiMese(
             userId: user.id,
             mese,
             anno,
-            km: kmTotali, // Per riferimento
-            oreAttesa: totaleOreAttesa,
+            km: kmTotali,
+            oreAttesa: totaleOreAttesaSocio, // Usa ore_attesa_socio per il calcolo stipendio
           });
 
           // Sovrascriviamo la baseKm con quella calcolata per singolo servizio
@@ -259,7 +263,7 @@ export async function getStipendiAutomaticiMese(
           const config = await fetchConfigurazioneStipendi(anno);
           if (config) {
             const baseConAumentoCorretta = Number((totaleBaseKm * config.coefficiente_aumento).toFixed(2));
-            const importoOreAttesaCorretto = Number((totaleOreAttesa * config.tariffa_oraria_attesa).toFixed(2));
+            const importoOreAttesaCorretto = Number((totaleOreAttesaSocio * config.tariffa_oraria_attesa).toFixed(2));
             const totaleLordoCorretto = Number((baseConAumentoCorretta + importoOreAttesaCorretto).toFixed(2));
             
             // Ricalcola netto con valori corretti (inclusi TUTTI i campi detrazioni)
@@ -293,7 +297,7 @@ export async function getStipendiAutomaticiMese(
             role: user.role,
             numeroServizi,
             kmTotali,
-            oreAttesa: totaleOreAttesa,
+            oreAttesa: totaleOreAttesaSocio,
             calcoloCompleto,
             stipendioEsistente,
             hasStipendioSalvato: !!stipendioEsistente,
