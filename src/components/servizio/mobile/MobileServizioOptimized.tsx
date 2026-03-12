@@ -386,6 +386,7 @@ export function MobileServizioOptimized({
         azienda={azienda}
         getUserName={getUserName}
         formatCurrency={formatCurrency}
+        isAdmin={isAdmin}
       />
 
       {/* Note Card - Bug #19 fix */}

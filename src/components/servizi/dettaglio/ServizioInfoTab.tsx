@@ -130,6 +130,7 @@ export function ServizioInfoTab({
           azienda={getAzienda?.(servizio.azienda_id)}
           getUserName={getUserName}
           formatCurrency={formatCurrency}
+          isAdmin={isAdmin}
         />
       </div>
       
