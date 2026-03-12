@@ -4,8 +4,9 @@ import { supabase } from '@/lib/supabase';
 interface ConsuntivaServizioParams {
   id: string;
   incasso_ricevuto?: number;
-  ore_effettive?: number;  // Ore lavorate (dipendenti)
-  ore_sosta?: number;      // Ore fatturate/sosta
+  ore_effettive?: number;
+  ore_sosta?: number;
+  ore_attesa_socio?: number;
   consegna_contanti_a?: string;
   km_totali?: number;
 }
