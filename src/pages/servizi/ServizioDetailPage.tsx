@@ -96,6 +96,9 @@ export default function ServizioDetailPage() {
     firmePasseggeri,
   } = hookResult;
 
+  // 🔒 Dipendente non può consuntivare
+  const canBeConsuntivatoFiltered = isDipendente ? false : canBeConsuntivato;
+
   // 🔒 SECURITY: Dipendente può vedere solo servizi assegnati a lui
   if (isDipendente && servizio && servizio.assegnato_a !== profile?.id) {
     navigate('/dipendente/servizi-assegnati');
@@ -201,7 +204,7 @@ export default function ServizioDetailPage() {
   };
 
   // Check if there are any actions available for mobile menu
-  const hasMobileActions = canBeEdited || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
+  const hasMobileActions = canBeEdited || canBeConsuntivatoFiltered || (servizio.stato === 'da_assegnare' && isAdmin);
 
   // Get vehicle model - priorità all'hook, fallback alla ricerca
   const veicoloModello = veicoloModelloFromHook || veicoli.find(v => v.id === servizio?.veicolo_id)?.modello;
@@ -233,7 +236,7 @@ export default function ServizioDetailPage() {
             firmaDigitaleAttiva={firmaDigitaleAttiva}
             canBeEdited={canBeEdited}
             canBeCompleted={canBeCompleted}
-            canBeConsuntivato={canBeConsuntivato}
+            canBeConsuntivato={canBeConsuntivatoFiltered}
             canRequestSignature={canRequestSignature}
             isAdmin={isAdmin}
             servizioIndex={servizioIndex}
@@ -404,7 +407,7 @@ export default function ServizioDetailPage() {
             users={users}
             canBeEdited={canBeEdited}
             canBeCompleted={canBeCompleted}
-            canBeConsuntivato={canBeConsuntivato}
+            canBeConsuntivato={canBeConsuntivatoFiltered}
             isAdmin={isAdmin}
             getAziendaName={getAziendaName}
             getUserName={getUserName}
@@ -447,7 +450,7 @@ export default function ServizioDetailPage() {
               servizio={servizio}
               canBeEdited={canBeEdited}
               canBeCompleted={canBeCompleted}
-              canBeConsuntivato={canBeConsuntivato}
+              canBeConsuntivato={canBeConsuntivatoFiltered}
               allServizi={allServizi || []}
               onCompleta={() => setCompletaDialogOpen(true)}
               onConsuntiva={() => setConsuntivaDialogOpen(true)}
