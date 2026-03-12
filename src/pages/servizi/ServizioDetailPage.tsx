@@ -407,7 +407,7 @@ export default function ServizioDetailPage() {
             users={users}
             canBeEdited={canBeEdited}
             canBeCompleted={canBeCompleted}
-            canBeConsuntivato={canBeConsuntivato}
+            canBeConsuntivato={canBeConsuntivatoFiltered}
             isAdmin={isAdmin}
             getAziendaName={getAziendaName}
             getUserName={getUserName}
