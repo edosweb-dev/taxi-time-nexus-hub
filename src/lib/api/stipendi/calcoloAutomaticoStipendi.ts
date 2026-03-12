@@ -58,7 +58,7 @@ async function fetchServiziMese(userId: string, mese: number, anno: number) {
   if (servizi && servizi.length > 0) {
     console.log(`[fetchServiziMese] Trovati ${servizi.length} servizi:`);
     servizi.forEach(s => {
-      console.log(`  - ${s.id_progressivo || s.id}: ${s.data_servizio} | ${s.km_totali}km | ${s.ore_sosta}h`);
+      console.log(`  - ${s.id_progressivo || s.id}: ${s.data_servizio} | ${s.km_totali}km | sosta:${s.ore_sosta}h | attesa_socio:${s.ore_attesa_socio}h`);
     });
   } else {
     console.log(`[fetchServiziMese] Nessun servizio trovato per ${mese}/${anno}`);
