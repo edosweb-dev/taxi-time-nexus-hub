@@ -204,7 +204,7 @@ export default function ServizioDetailPage() {
   };
 
   // Check if there are any actions available for mobile menu
-  const hasMobileActions = canBeEdited || canBeConsuntivato || (servizio.stato === 'da_assegnare' && isAdmin);
+  const hasMobileActions = canBeEdited || canBeConsuntivatoFiltered || (servizio.stato === 'da_assegnare' && isAdmin);
 
   // Get vehicle model - priorità all'hook, fallback alla ricerca
   const veicoloModello = veicoloModelloFromHook || veicoli.find(v => v.id === servizio?.veicolo_id)?.modello;
