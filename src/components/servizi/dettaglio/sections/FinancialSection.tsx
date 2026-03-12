@@ -14,6 +14,7 @@ interface FinancialSectionProps {
   azienda?: Azienda;
   getUserName: (users: Profile[], userId?: string) => string | null;
   formatCurrency: (value?: number) => string;
+  isAdmin?: boolean;
 }
 
 export function FinancialSection({
