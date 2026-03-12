@@ -17,6 +17,7 @@ interface ServizioTabsProps {
   firmaDigitaleAttiva: boolean;
   allPasseggeriSigned?: boolean;
   firmePasseggeri?: number;
+  isAdmin?: boolean;
 }
 
 export function ServizioTabs({
