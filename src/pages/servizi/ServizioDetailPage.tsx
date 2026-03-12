@@ -450,7 +450,7 @@ export default function ServizioDetailPage() {
               servizio={servizio}
               canBeEdited={canBeEdited}
               canBeCompleted={canBeCompleted}
-              canBeConsuntivato={canBeConsuntivato}
+              canBeConsuntivato={canBeConsuntivatoFiltered}
               allServizi={allServizi || []}
               onCompleta={() => setCompletaDialogOpen(true)}
               onConsuntiva={() => setConsuntivaDialogOpen(true)}
