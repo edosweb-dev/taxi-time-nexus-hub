@@ -125,6 +125,9 @@ export default function CompletaServizioPage() {
         servizioId: id,
         firmaDataURL,
         noteCompletamento: noteCompletamento || undefined,
+        ore_effettive: oreEffettive,
+        ore_sosta: oreSosta,
+        km_totali: kmTotali,
       });
 
       // Clear sessionStorage
