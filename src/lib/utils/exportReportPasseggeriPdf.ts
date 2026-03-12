@@ -99,7 +99,7 @@ export const exportReportPasseggeriPdf = async (
       row.passeggeri_nomi || '-',
       sanitizePercorso(row.percorso),
       `€${row.importo.toFixed(2)}`,
-      row.ore_fatturate > 0 ? row.ore_fatturate.toString() : '-',
+      row.ore_sosta > 0 ? row.ore_sosta.toString() : '-',
       row.note || '-',
       row.stato
     ]),
