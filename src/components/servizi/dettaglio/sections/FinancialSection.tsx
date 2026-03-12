@@ -23,7 +23,9 @@ export function FinancialSection({
   azienda,
   getUserName,
   formatCurrency,
+  isAdmin = false,
 }: FinancialSectionProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
   // ✅ OPZIONE A: IVA STORICA - Usa sempre il valore salvato nel DB al momento della creazione
   const ivaPercentage = Number(servizio.iva ?? 10); // Fallback 10% se null (non se 0!)
   const metodoHaIva = ivaPercentage > 0;
