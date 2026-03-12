@@ -116,6 +116,8 @@ export function useServizioForm() {
       // Campi consuntivo (null di default)
       incasso_ricevuto: null,
       ore_sosta: null,
+      ore_effettive: null,
+      ore_attesa_socio: null,
       km_totali: null,
     },
   });
