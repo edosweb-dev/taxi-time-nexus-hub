@@ -19,7 +19,7 @@ export interface ReportPasseggeroRow {
   stato: string;
   consegnato_a_id: string | null;
   consegnato_a_nome: string | null;
-  ore_fatturate: number;
+  ore_sosta: number;
   note: string;
   numero_commessa?: string;
   firma_url?: string;
