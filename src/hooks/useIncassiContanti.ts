@@ -48,11 +48,6 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
           assegnato:profiles!servizi_assegnato_a_fkey (
             first_name,
             last_name
-          ),
-          consegnato:profiles!servizi_consegna_contanti_a_fkey (
-            id,
-            first_name,
-            last_name
           )
         `)
         .eq('metodo_pagamento', 'Contanti')
@@ -61,6 +56,21 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
         .order('data_servizio', { ascending: false });
 
       if (error) throw error;
+
+      // Fetch consegnato profiles separately (no FK exists for consegna_contanti_a)
+      const consegnaIds = [...new Set((data || []).map(s => s.consegna_contanti_a).filter(Boolean))];
+      let consegnatiMap: Record<string, { id: string; first_name: string | null; last_name: string | null }> = {};
+      
+      if (consegnaIds.length > 0) {
+        const { data: consegnati } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name')
+          .in('id', consegnaIds);
+        
+        if (consegnati) {
+          consegnatiMap = Object.fromEntries(consegnati.map(c => [c.id, c]));
+        }
+      }
 
       // Trasforma i dati
       const incassi: IncassoContante[] = (data || []).map((servizio: any) => {
