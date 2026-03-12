@@ -36,7 +36,7 @@ export function AgendaDay({ date, servizi, onClose, onServizioClick, onCompleta,
               key={servizio.id}
               servizio={servizio}
               onViewDetails={onServizioClick}
-              onCompleta={onCompleta}
+              
             />
           ))}
         </div>
