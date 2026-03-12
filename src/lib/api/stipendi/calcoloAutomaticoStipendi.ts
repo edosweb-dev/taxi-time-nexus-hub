@@ -72,9 +72,9 @@ async function fetchServiziMese(userId: string, mese: number, anno: number) {
  * poi somma i risultati
  */
 async function calcolaBaseKmPerServizi(
-  servizi: Array<{ id: string; km_totali: number | null; ore_sosta: number | null; data_servizio: string; id_progressivo?: string }>,
+  servizi: Array<{ id: string; km_totali: number | null; ore_sosta: number | null; ore_attesa_socio: number | null; data_servizio: string; id_progressivo?: string }>,
   anno: number
-): Promise<{ totaleBaseKm: number; totaleOreAttesa: number; dettaglioServizi: string[] }> {
+): Promise<{ totaleBaseKm: number; totaleOreAttesa: number; totaleOreAttesaSocio: number; dettaglioServizi: string[] }> {
   // Fetch configurazione e tariffe una sola volta
   const [config, tariffeKm] = await Promise.all([
     fetchConfigurazioneStipendi(anno),
