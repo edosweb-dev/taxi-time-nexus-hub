@@ -212,6 +212,30 @@ export function ConsuntivaServizioForm({
                 />
                 <FormField
                   control={form.control}
+                  name="ore_effettive"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ore di guida</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          placeholder="es. 2.5"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Ore effettive di guida durante il servizio
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="km_totali"
                   render={({ field }) => (
                     <FormItem>
