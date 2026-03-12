@@ -236,7 +236,7 @@ export default function ServizioDetailPage() {
             firmaDigitaleAttiva={firmaDigitaleAttiva}
             canBeEdited={canBeEdited}
             canBeCompleted={canBeCompleted}
-            canBeConsuntivato={canBeConsuntivato}
+            canBeConsuntivato={canBeConsuntivatoFiltered}
             canRequestSignature={canRequestSignature}
             isAdmin={isAdmin}
             servizioIndex={servizioIndex}
