@@ -240,7 +240,7 @@ export async function getStipendiAutomaticiMese(
           }
 
           // LOGICA NORMALE: Calcola per singolo servizio (soci CON servizi)
-          const { totaleBaseKm, totaleOreAttesa, dettaglioServizi } = await calcolaBaseKmPerServizi(servizi, anno);
+          const { totaleBaseKm, totaleOreAttesa, totaleOreAttesaSocio, dettaglioServizi } = await calcolaBaseKmPerServizi(servizi, anno);
 
           console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}:`);
           console.log(`  - ${numeroServizi} servizi, ${kmTotali} km totali`);
