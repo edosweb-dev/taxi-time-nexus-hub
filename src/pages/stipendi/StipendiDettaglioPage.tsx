@@ -246,8 +246,8 @@ export default function StipendiDettaglioPage() {
   // 2. Base con aumento
   const baseConAumento = baseKm * coefficienteAumento;
 
-  // 3. Importo ore sosta
-  const importoOreSosta = totaleOreSosta * tariffaOrariaAttesa;
+  // 3. Importo ore attesa socio (usa ore_attesa_socio per il calcolo stipendio)
+  const importoOreSosta = totaleOreAttesaSocio * tariffaOrariaAttesa;
 
   // 4. Totale lordo
   const totaleLordo = baseConAumento + importoOreSosta;
