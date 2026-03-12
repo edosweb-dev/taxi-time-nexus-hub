@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, MapPin, Car, FileText, Eye, CheckCircle, UserRound } from "lucide-react";
+import { Building, MapPin, Car, FileText, Eye, UserRound } from "lucide-react";
 import { ServizioWithRelations } from "@/lib/api/dipendente/servizi";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
@@ -10,11 +10,10 @@ import { cn } from "@/lib/utils";
 interface ServizioCardProps {
   servizio: ServizioWithRelations;
   onViewDetails: (id: string) => void;
-  onCompleta?: (id: string) => void;
   onClick?: () => void;
 }
 
-export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: ServizioCardProps) => {
+export const ServizioCard = ({ servizio, onViewDetails, onClick }: ServizioCardProps) => {
   const getStatoBadge = (stato: string) => {
     const configs: Record<string, { label: string; className: string; emoji: string }> = {
       assegnato: { 
@@ -175,18 +174,6 @@ export const ServizioCard = ({ servizio, onViewDetails, onCompleta, onClick }: S
             <Eye className="h-4 w-4 lg:mr-2" />
             <span className="hidden lg:inline">Dettagli</span>
           </Button>
-          
-          {servizio.stato === 'assegnato' && onCompleta && (
-            <Button
-              variant="default"
-              size="sm"
-              className="flex-1 lg:w-full"
-              onClick={() => onCompleta(servizio.id)}
-            >
-              <CheckCircle className="h-4 w-4 lg:mr-2" />
-              <span className="hidden lg:inline">Completa</span>
-            </Button>
-          )}
         </div>
       </div>
     </Card>

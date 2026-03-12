@@ -118,7 +118,7 @@ export const ServiziElencoView = ({
                   key={servizio.id}
                   servizio={servizio}
                   onViewDetails={onViewDetails}
-                  onCompleta={onCompleta}
+                  
                   onClick={onCardClick ? () => onCardClick(servizio.id) : undefined}
                 />
               ))}
