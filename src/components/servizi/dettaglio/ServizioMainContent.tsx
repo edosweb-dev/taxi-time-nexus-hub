@@ -326,6 +326,7 @@ export function ServizioMainContent({
         azienda={azienda}
         getUserName={getUserName}
         formatCurrency={formatCurrency}
+        isAdmin={profile?.role === 'admin'}
       />
 
       {/* Note */}
