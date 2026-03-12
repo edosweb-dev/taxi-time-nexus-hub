@@ -54,6 +54,7 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
           incasso_previsto,
           incasso_ricevuto,
           stato,
+          ore_sosta,
           azienda_id,
           referente_id,
           consegna_contanti_a,
