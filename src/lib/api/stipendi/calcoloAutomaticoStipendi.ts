@@ -42,7 +42,7 @@ async function fetchServiziMese(userId: string, mese: number, anno: number) {
 
   const { data: servizi, error } = await supabase
     .from('servizi')
-    .select('id, km_totali, ore_sosta, data_servizio, id_progressivo')
+    .select('id, km_totali, ore_sosta, ore_attesa_socio, data_servizio, id_progressivo')
     .eq('assegnato_a', userId)
     .in('stato', ['completato', 'consuntivato'])
     .gte('data_servizio', startDate)
