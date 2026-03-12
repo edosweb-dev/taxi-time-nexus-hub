@@ -297,7 +297,7 @@ export async function getStipendiAutomaticiMese(
             role: user.role,
             numeroServizi,
             kmTotali,
-            oreAttesa: totaleOreAttesa,
+            oreAttesa: totaleOreAttesaSocio,
             calcoloCompleto,
             stipendioEsistente,
             hasStipendioSalvato: !!stipendioEsistente,

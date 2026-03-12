@@ -343,7 +343,7 @@ export default function StipendiDettaglioPage() {
       // Prepara i dati calcolati
       const stipendioData = {
         totale_km: totaleKm,
-        totale_ore_attesa: totaleOreSosta,
+        totale_ore_attesa: totaleOreAttesaSocio,
         base_calcolo: baseKm,
         coefficiente_applicato: coefficienteAumento,
         totale_lordo: totaleLordo,
