@@ -132,7 +132,7 @@ export const exportReportPasseggeriPdf = async (
   // Footer totals
   let finalY = (doc as any).lastAutoTable.finalY + 8;
   const totaleImporto = data.reduce((sum, s) => sum + (s.importo || 0), 0);
-  const totaleOre = data.reduce((sum, s) => sum + (s.ore_fatturate || 0), 0);
+  const totaleOre = data.reduce((sum, s) => sum + (s.ore_sosta || 0), 0);
   const totalePasseggeri = data.reduce((sum, s) => sum + (s.num_passeggeri || 0), 0);
   
   doc.setFontSize(9);
