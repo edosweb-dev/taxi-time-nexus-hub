@@ -120,11 +120,12 @@ async function calcolaBaseKmPerServizi(
     console.log(`[calcolaBaseKmPerServizi] Servizio ${servizio.id_progressivo || servizio.id.slice(0,8)}: ${risultato.dettaglio}`);
   }
 
-  console.log(`[calcolaBaseKmPerServizi] TOTALE: €${totaleBaseKm.toFixed(2)} base, ${totaleOreAttesa}h attesa`);
+  console.log(`[calcolaBaseKmPerServizi] TOTALE: €${totaleBaseKm.toFixed(2)} base, ${totaleOreAttesa}h sosta, ${totaleOreAttesaSocio}h attesa socio`);
 
   return {
     totaleBaseKm: Number(totaleBaseKm.toFixed(2)),
     totaleOreAttesa,
+    totaleOreAttesaSocio,
     dettaglioServizi
   };
 }
