@@ -98,12 +98,14 @@ async function calcolaBaseKmPerServizi(
 
   let totaleBaseKm = 0;
   let totaleOreAttesa = 0;
+  let totaleOreAttesaSocio = 0;
   const dettaglioServizi: string[] = [];
 
   // Calcola per OGNI servizio singolarmente
   for (const servizio of servizi) {
     const kmServizio = Number(servizio.km_totali) || 0;
     const oreServizio = Number(servizio.ore_sosta) || 0;
+    const oreAttesaSocioServizio = Number(servizio.ore_attesa_socio) || 0;
 
     // Calcola base KM per QUESTO servizio
     const risultato = calcolaBaseKmSingoloServizio(kmServizio, tariffeKm, config);
