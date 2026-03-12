@@ -71,6 +71,7 @@ export function ConsuntivaServizioSheet({
         incasso_ricevuto: data.incasso_ricevuto,
         ore_effettive: data.ore_effettive,
         ore_sosta: data.ore_sosta,
+        ore_attesa_socio: data.ore_attesa_socio,
         consegna_contanti_a: servizio?.metodo_pagamento === 'Contanti' ? data.consegna_contanti_a : undefined,
         km_totali: data.km_totali,
       });
