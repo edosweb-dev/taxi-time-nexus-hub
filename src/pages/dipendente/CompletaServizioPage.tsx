@@ -7,7 +7,10 @@ import { FirmaDigitaleCanvas, FirmaCanvasRef } from '@/components/dipendente/ser
 import { NoteCompletamento } from '@/components/dipendente/servizi/completamento/NoteCompletamento';
 import { ConfermaCompletamento } from '@/components/dipendente/servizi/completamento/ConfermaCompletamento';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, X } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, X, Clock, Coffee, MapPin } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import {

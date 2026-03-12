@@ -20,7 +20,7 @@ export function useCompletaServizio() {
   const [isCompleting, setIsCompleting] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: async ({ servizioId, firmaDataURL, noteCompletamento }: CompletaServizioInput) => {
+    mutationFn: async ({ servizioId, firmaDataURL, noteCompletamento, ore_effettive, ore_sosta, km_totali }: CompletaServizioInput) => {
       if (!profile?.id) throw new Error('User not authenticated');
 
       setIsCompleting(true);
