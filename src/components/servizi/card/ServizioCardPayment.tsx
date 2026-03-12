@@ -24,6 +24,11 @@ export const ServizioCardPayment = ({ servizio, passeggeriCount, users, azienda 
             {servizio.metodo_pagamento === 'Contanti' && servizio.consegna_contanti_a && users.length > 0 && (
               <> → {getUserName(users, servizio.consegna_contanti_a) || "Utente sconosciuto"}</>
             )}
+            {servizio.metodo_pagamento === 'Contanti' && !servizio.consegna_contanti_a && (
+              <span className="ml-1 text-amber-700 dark:text-amber-400 font-medium">
+                — Incasso non consegnato
+              </span>
+            )}
           </div>
         </div>
       </div>

@@ -201,12 +201,50 @@ export function FinancialSection({
         )}
         
         {/* Responsabile Contanti */}
-        {servizio.metodo_pagamento === 'Contanti' && servizio.consegna_contanti_a && (
+        {servizio.metodo_pagamento === 'Contanti' && (
           <div className="space-y-2 border-t pt-3">
             <div className="text-sm font-medium text-muted-foreground">Responsabile contanti</div>
-            <div className="text-base">
-              {getUserName(users, servizio.consegna_contanti_a) || "Operatore non trovato"}
-            </div>
+            {servizio.consegna_contanti_a ? (
+              <div className="flex items-center gap-2">
+                <span className="text-base">
+                  {getUserName(users, servizio.consegna_contanti_a) || "Operatore non trovato"}
+                </span>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    title="Modifica responsabile"
+                    onClick={() => setDialogOpen(true)}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Badge className="bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-100">
+                  INCASSO NON CONSEGNATO
+                </Badge>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    title="Assegna responsabile"
+                    onClick={() => setDialogOpen(true)}
+                  >
+                    <UserPlus className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            )}
+            <AssegnaResponsabileIncassoDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              servizioId={servizio.id}
+              currentResponsabileId={servizio.consegna_contanti_a}
+            />
           </div>
         )}
         
