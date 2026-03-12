@@ -254,8 +254,8 @@ export async function getStipendiAutomaticiMese(
             userId: user.id,
             mese,
             anno,
-            km: kmTotali, // Per riferimento
-            oreAttesa: totaleOreAttesa,
+            km: kmTotali,
+            oreAttesa: totaleOreAttesaSocio, // Usa ore_attesa_socio per il calcolo stipendio
           });
 
           // Sovrascriviamo la baseKm con quella calcolata per singolo servizio
