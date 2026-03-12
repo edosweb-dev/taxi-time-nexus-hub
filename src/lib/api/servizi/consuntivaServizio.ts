@@ -16,6 +16,7 @@ export async function consuntivaServizio({
   incasso_ricevuto,
   ore_effettive,
   ore_sosta,
+  ore_attesa_socio,
   consegna_contanti_a,
   km_totali,
 }: ConsuntivaServizioParams) {
@@ -27,6 +28,7 @@ export async function consuntivaServizio({
         incasso_ricevuto,
         ore_effettive,
         ore_sosta,
+        ore_attesa_socio,
         consegna_contanti_a,
         km_totali,
       })
