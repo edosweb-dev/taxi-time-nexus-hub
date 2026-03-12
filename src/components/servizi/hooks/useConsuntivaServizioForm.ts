@@ -20,6 +20,7 @@ export const consuntivaServizioSchema = z.object({
     .number()
     .min(0, { message: "Le ore devono essere maggiori di 0" })
     .optional(),
+  ore_attesa_socio: z.number().min(0).optional(),
   consegna_contanti_a: z.string().optional(),
   km_totali: z.number().min(0).optional(),
 });
@@ -42,6 +43,7 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
     defaultValues: {
       ore_effettive: servizio.ore_effettive || undefined,
       ore_sosta: servizio.ore_sosta || undefined,
+      ore_attesa_socio: (servizio as any).ore_attesa_socio || undefined,
       incasso_ricevuto: defaultIncasso,
       km_totali: servizio.km_totali || undefined,
     },

@@ -159,7 +159,7 @@ export function ConsuntivaServizioForm({
               </div>
             )}
 
-            {/* Per SOCI/ADMIN: Ore di sosta + Km percorsi */}
+            {/* Per SOCI/ADMIN: Ore di sosta + Ore di attesa + Km percorsi */}
             {isAssegnatoToSocio && (
               <div className="space-y-4">
                 <FormField
@@ -181,6 +181,30 @@ export function ConsuntivaServizioForm({
                       </FormControl>
                       <FormDescription className="text-xs">
                         Ore di attesa durante il servizio
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="ore_attesa_socio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ore di attesa</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          placeholder="0"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Ore di attesa del socio (per calcolo stipendio)
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

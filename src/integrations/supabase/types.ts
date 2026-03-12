@@ -940,6 +940,7 @@ export type Database = {
           note: string | null
           numero_commessa: string | null
           orario_servizio: string
+          ore_attesa_socio: number | null
           ore_effettive: number | null
           ore_fatturate: number | null
           ore_finali: number | null
@@ -984,6 +985,7 @@ export type Database = {
           note?: string | null
           numero_commessa?: string | null
           orario_servizio?: string
+          ore_attesa_socio?: number | null
           ore_effettive?: number | null
           ore_fatturate?: number | null
           ore_finali?: number | null
@@ -1028,6 +1030,7 @@ export type Database = {
           note?: string | null
           numero_commessa?: string | null
           orario_servizio?: string
+          ore_attesa_socio?: number | null
           ore_effettive?: number | null
           ore_fatturate?: number | null
           ore_finali?: number | null
