@@ -75,7 +75,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
         label: format(new Date(monthKey + '-01'), 'MMMM yyyy', { locale: it }),
         rows,
         totaleImporto: rows.reduce((sum, r) => sum + (r.importo || 0), 0),
-        totaleOre: rows.reduce((sum, r) => sum + (r.ore_fatturate || 0), 0),
+        totaleOre: rows.reduce((sum, r) => sum + (r.ore_sosta || 0), 0),
         totalePasseggeri: rows.reduce((sum, r) => sum + (r.num_passeggeri || 0), 0),
       }));
   }, [data, hasActiveFilters]);
