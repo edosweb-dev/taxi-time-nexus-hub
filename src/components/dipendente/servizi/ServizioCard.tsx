@@ -174,18 +174,6 @@ export const ServizioCard = ({ servizio, onViewDetails, onClick }: ServizioCardP
             <Eye className="h-4 w-4 lg:mr-2" />
             <span className="hidden lg:inline">Dettagli</span>
           </Button>
-          
-          {servizio.stato === 'assegnato' && onCompleta && (
-            <Button
-              variant="default"
-              size="sm"
-              className="flex-1 lg:w-full"
-              onClick={() => onCompleta(servizio.id)}
-            >
-              <CheckCircle className="h-4 w-4 lg:mr-2" />
-              <span className="hidden lg:inline">Completa</span>
-            </Button>
-          )}
         </div>
       </div>
     </Card>
