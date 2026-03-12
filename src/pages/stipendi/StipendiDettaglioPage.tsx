@@ -72,6 +72,7 @@ export default function StipendiDettaglioPage() {
           km_totali,
           ore_sosta,
           ore_effettive,
+          ore_attesa_socio,
           stato,
           aziende(nome)
         `)
