@@ -205,16 +205,10 @@ function ServizioCard({
 
         {/* Actions */}
         <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
-          {showCompleteButton && onCompleta && (
-            <Button size="lg" className="flex-1 h-12 text-base font-semibold" onClick={onCompleta}>
-              <CheckCircle className="h-5 w-5 mr-2" />
-              Completa
-            </Button>
-          )}
           <Button
             variant="outline"
             size="lg"
-            className={cn('h-12 text-base font-semibold', showCompleteButton ? 'flex-1' : 'w-full')}
+            className="h-12 text-base font-semibold w-full"
             onClick={onDettagli}
           >
             <Eye className="h-5 w-5 mr-2" />
