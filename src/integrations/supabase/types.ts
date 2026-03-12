@@ -947,6 +947,7 @@ export type Database = {
           ore_lavorate: number | null
           ore_sosta: number | null
           ore_sosta_fatturate: number | null
+          ore_sosta_socio: number | null
           referente_id: string | null
           stato: string
           tipo_cliente: string | null
@@ -992,6 +993,7 @@ export type Database = {
           ore_lavorate?: number | null
           ore_sosta?: number | null
           ore_sosta_fatturate?: number | null
+          ore_sosta_socio?: number | null
           referente_id?: string | null
           stato?: string
           tipo_cliente?: string | null
@@ -1037,6 +1039,7 @@ export type Database = {
           ore_lavorate?: number | null
           ore_sosta?: number | null
           ore_sosta_fatturate?: number | null
+          ore_sosta_socio?: number | null
           referente_id?: string | null
           stato?: string
           tipo_cliente?: string | null
