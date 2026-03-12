@@ -92,6 +92,8 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         // Campi consuntivo (per servizi già consuntivati)
         incasso_ricevuto: servizio.incasso_ricevuto ?? null,
         ore_sosta: servizio.ore_sosta ?? null,
+        ore_effettive: servizio.ore_effettive ?? null,
+        ore_attesa_socio: (servizio as any).ore_attesa_socio ?? null,
         km_totali: servizio.km_totali ?? null,
         passeggeri: passeggeri.map(p => ({
           id: p.id,
