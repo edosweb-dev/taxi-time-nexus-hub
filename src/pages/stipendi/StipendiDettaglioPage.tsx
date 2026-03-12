@@ -213,6 +213,7 @@ export default function StipendiDettaglioPage() {
   // Totali dai servizi
   const totaleKm = servizi?.reduce((sum, s) => sum + (Number(s.km_totali) || 0), 0) || 0;
   const totaleOreSosta = servizi?.reduce((sum, s) => sum + (Number(s.ore_sosta) || 0), 0) || 0;
+  const totaleOreAttesaSocio = servizi?.reduce((sum, s) => sum + (Number(s.ore_attesa_socio) || 0), 0) || 0;
   const totaleIncasso = servizi?.reduce((sum, s) => 
     sum + (Number(s.incasso_ricevuto) || Number(s.incasso_previsto) || 0), 0
   ) || 0;
