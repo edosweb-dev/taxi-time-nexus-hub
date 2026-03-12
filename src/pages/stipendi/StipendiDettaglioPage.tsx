@@ -531,9 +531,9 @@ export default function StipendiDettaglioPage() {
                 <TableBody>
                   {servizi.map((servizio) => {
                     const km = Number(servizio.km_totali) || 0;
-                    const ore = Number(servizio.ore_sosta) || 0;
+                    const oreAttSocio = Number(servizio.ore_attesa_socio) || 0;
                     const compensoKm = calcolaCompensoKmServizio(km);
-                    const compensoOre = calcolaCompensoOreSosta(ore);
+                    const compensoOre = calcolaCompensoOreAttesaSocio(oreAttSocio);
                     const incasso = Number(servizio.incasso_ricevuto) || Number(servizio.incasso_previsto) || 0;
                     const contanti = servizio.metodo_pagamento === 'Contanti' ? incasso : 0;
                     const totaleServizio = compensoKm + compensoOre - contanti;
