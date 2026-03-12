@@ -92,6 +92,8 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         // Campi consuntivo (per servizi già consuntivati)
         incasso_ricevuto: servizio.incasso_ricevuto ?? null,
         ore_sosta: servizio.ore_sosta ?? null,
+        ore_effettive: servizio.ore_effettive ?? null,
+        ore_attesa_socio: (servizio as any).ore_attesa_socio ?? null,
         km_totali: servizio.km_totali ?? null,
         passeggeri: passeggeri.map(p => ({
           id: p.id,
@@ -147,6 +149,8 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
           // Campi consuntivo (per servizi già consuntivati)
           incasso_ricevuto: values.incasso_ricevuto,
           ore_sosta: values.ore_sosta,
+          ore_effettive: values.ore_effettive,
+          ore_attesa_socio: values.ore_attesa_socio,
           km_totali: values.km_totali,
         },
         passeggeri: values.passeggeri.map((p: any) => ({
@@ -260,6 +264,50 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
                               type="number"
                               step="0.5"
                               placeholder="0"
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Ore di Guida */}
+                    <FormField
+                      control={form.control}
+                      name="ore_effettive"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ore di guida</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.5"
+                              min="0"
+                              placeholder="es. 2.5"
+                              {...field}
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Ore Attesa Socio */}
+                    <FormField
+                      control={form.control}
+                      name="ore_attesa_socio"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ore attesa socio</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.5"
+                              min="0"
+                              placeholder="es. 1.5"
                               {...field}
                               value={field.value ?? ''}
                               onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}

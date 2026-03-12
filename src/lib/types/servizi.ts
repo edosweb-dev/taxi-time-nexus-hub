@@ -160,6 +160,8 @@ export interface ServizioFormData {
   // Campi consuntivo (per modifica servizi già consuntivati)
   incasso_ricevuto?: number | null;
   ore_sosta?: number | null;
+  ore_effettive?: number | null;
+  ore_attesa_socio?: number | null;
   km_totali?: number | null;
 }
 
