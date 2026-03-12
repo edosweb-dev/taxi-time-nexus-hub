@@ -283,8 +283,8 @@ export default function StipendiDettaglioPage() {
     }
   };
 
-  const calcolaCompensoOreSosta = (ore: number): number => {
-    return ore * tariffaOrariaAttesa;
+  const calcolaCompensoOreAttesaSocio = (oreAttesaSocio: number): number => {
+    return oreAttesaSocio * tariffaOrariaAttesa;
   };
 
   // Calcola totali dai servizi con compensi dettagliati
