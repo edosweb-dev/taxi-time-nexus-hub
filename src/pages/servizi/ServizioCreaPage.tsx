@@ -2381,6 +2381,52 @@ export const ServizioCreaPage = ({
                   />
                 </div>
                 
+                {/* Ore di guida */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_effettive_consuntivo" className="font-medium">
+                    Ore di guida
+                  </Label>
+                  <Controller
+                    name="ore_effettive_consuntivo"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        id="ore_effettive_consuntivo"
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="es. 2.5"
+                        className="text-base"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                      />
+                    )}
+                  />
+                </div>
+                
+                {/* Ore attesa socio */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_attesa_socio" className="font-medium">
+                    Ore attesa socio
+                  </Label>
+                  <Controller
+                    name="ore_attesa_socio"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        id="ore_attesa_socio"
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="es. 1.5"
+                        className="text-base"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                      />
+                    )}
+                  />
+                </div>
+                
                 {/* KM Totali */}
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="km_totali" className="font-medium">
