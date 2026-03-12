@@ -17,6 +17,7 @@ interface ServizioTabsProps {
   firmaDigitaleAttiva: boolean;
   allPasseggeriSigned?: boolean;
   firmePasseggeri?: number;
+  isAdmin?: boolean;
 }
 
 export function ServizioTabs({
@@ -30,6 +31,7 @@ export function ServizioTabs({
   firmaDigitaleAttiva,
   allPasseggeriSigned = false,
   firmePasseggeri = 0,
+  isAdmin = false,
 }: ServizioTabsProps) {
   return (
     <div className="bg-card border rounded-lg overflow-hidden">
@@ -45,6 +47,7 @@ export function ServizioTabs({
           firmaDigitaleAttiva={firmaDigitaleAttiva}
           allPasseggeriSigned={allPasseggeriSigned}
           firmePasseggeri={firmePasseggeri}
+          isAdmin={isAdmin}
         />
       </div>
     </div>

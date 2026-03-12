@@ -23,6 +23,7 @@ interface ServizioInfoTabProps {
   firmaDigitaleAttiva: boolean;
   allPasseggeriSigned?: boolean;
   firmePasseggeri?: number;
+  isAdmin?: boolean;
 }
 
 export function ServizioInfoTab({
@@ -36,6 +37,7 @@ export function ServizioInfoTab({
   firmaDigitaleAttiva,
   allPasseggeriSigned = false,
   firmePasseggeri = 0,
+  isAdmin = false,
 }: ServizioInfoTabProps) {
   return (
     <div className="space-y-4 md:space-y-6">
@@ -128,6 +130,7 @@ export function ServizioInfoTab({
           azienda={getAzienda?.(servizio.azienda_id)}
           getUserName={getUserName}
           formatCurrency={formatCurrency}
+          isAdmin={isAdmin}
         />
       </div>
       
