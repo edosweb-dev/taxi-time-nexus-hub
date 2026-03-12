@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { UserPlus, Pencil } from "lucide-react";
 import { Profile, Azienda } from "@/lib/types";
+import { AssegnaResponsabileIncassoDialog } from "../AssegnaResponsabileIncassoDialog";
 import { Servizio } from "@/lib/types/servizi";
 
 interface FinancialSectionProps {
