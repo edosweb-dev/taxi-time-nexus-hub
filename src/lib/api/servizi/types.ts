@@ -32,7 +32,6 @@ export interface ServizioInput {
   // Campi consuntivo (per correzioni post-consuntivazione)
   incasso_ricevuto?: number | null;
   ore_sosta?: number | null;
-  ore_effettive?: number | null;
   ore_attesa_socio?: number | null;
   km_totali?: number | null;
   // Flag richiesta cliente
