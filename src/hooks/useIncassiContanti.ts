@@ -75,7 +75,7 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
       // Trasforma i dati
       const incassi: IncassoContante[] = (data || []).map((servizio: any) => {
         const assegnatoProfile = servizio.assegnato;
-        const consegnatoProfile = servizio.consegnato;
+        const consegnatoProfile = servizio.consegna_contanti_a ? consegnatiMap[servizio.consegna_contanti_a] : null;
         const azienda = servizio.aziende;
 
         // Per clienti privati, recuperiamo il nome dal campo inline
