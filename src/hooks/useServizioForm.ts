@@ -45,6 +45,8 @@ export const servizioFormSchema = z.object({
   // Campi consuntivo (per modifica servizi già consuntivati)
   incasso_ricevuto: z.number().nullable().optional(),
   ore_sosta: z.number().nullable().optional(),
+  ore_effettive: z.number().nullable().optional(),
+  ore_attesa_socio: z.number().nullable().optional(),
   km_totali: z.number().nullable().optional(),
   passeggeri: z.array(
     z.object({
