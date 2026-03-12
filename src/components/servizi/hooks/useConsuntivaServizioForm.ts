@@ -20,6 +20,7 @@ export const consuntivaServizioSchema = z.object({
     .number()
     .min(0, { message: "Le ore devono essere maggiori di 0" })
     .optional(),
+  ore_attesa_socio: z.number().min(0).optional(),
   consegna_contanti_a: z.string().optional(),
   km_totali: z.number().min(0).optional(),
 });
