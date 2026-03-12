@@ -48,7 +48,7 @@ export const exportReportPasseggeri = (
     'Passeggeri',
     'Percorso',
     'Importo',
-    'Ore Attesa',
+    'Ore Fatturate',
     'Note',
   ];
 
