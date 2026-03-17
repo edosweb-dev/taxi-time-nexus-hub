@@ -148,6 +148,8 @@ export const useSpeseAziendali = () => {
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
       toast({
         title: "Movimento aggiornato",
         description: "Il movimento è stato aggiornato con successo.",
