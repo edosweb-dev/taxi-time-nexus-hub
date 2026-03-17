@@ -439,7 +439,6 @@ export const ServizioCreaPage = ({
             // Campi consuntivo
             incasso_ricevuto: initialData.incasso_ricevuto ?? null,
             ore_sosta: initialData.ore_sosta ?? null,
-            
             ore_attesa_socio: initialData.ore_attesa_socio ?? null,
             km_totali: initialData.km_totali ?? null,
           });
@@ -2305,7 +2304,7 @@ export const ServizioCreaPage = ({
             </p>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
                 {/* Metodo Pagamento */}
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="metodo_pagamento_consuntivo" className="font-medium">
@@ -2400,6 +2399,29 @@ export const ServizioCreaPage = ({
                         className="text-base"
                         value={field.value ?? ''}
                         onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                      />
+                    )}
+                  />
+                </div>
+
+                {/* Ore guida dipendente */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="ore_effettive" className="font-medium">
+                    Ore guida dipendente
+                  </Label>
+                  <Controller
+                    name="ore_effettive"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        id="ore_effettive"
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="0"
+                        className="text-base"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value || null)}
                       />
                     )}
                   />
