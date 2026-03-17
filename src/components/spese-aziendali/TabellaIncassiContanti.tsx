@@ -234,34 +234,32 @@ export function TabellaIncassiContanti() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-2">
-              <Label htmlFor="dataInizio">
+              <Label>
                 <Calendar className="h-4 w-4 inline mr-2" />
                 Data Inizio
               </Label>
-              <Input
-                id="dataInizio"
-                type="date"
+              <DatePickerField
                 value={dataInizio}
-                onChange={(e) => {
-                  setDataInizio(e.target.value);
+                onChange={(date) => {
+                  setDataInizio(date);
                   setCurrentPage(1);
                 }}
+                placeholder="Data inizio"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dataFine">
+              <Label>
                 <Calendar className="h-4 w-4 inline mr-2" />
                 Data Fine
               </Label>
-              <Input
-                id="dataFine"
-                type="date"
+              <DatePickerField
                 value={dataFine}
-                onChange={(e) => {
-                  setDataFine(e.target.value);
+                onChange={(date) => {
+                  setDataFine(date);
                   setCurrentPage(1);
                 }}
+                placeholder="Data fine"
               />
             </div>
 
