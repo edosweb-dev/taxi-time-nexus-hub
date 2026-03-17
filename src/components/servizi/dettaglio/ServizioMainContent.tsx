@@ -116,10 +116,10 @@ export function ServizioMainContent({
                   </span>
                 )}
               </div>
-              {servizio.citta_presa && (
-                <div className="font-semibold text-sm">{servizio.citta_presa}</div>
+              {partenza.citta && (
+                <div className="font-semibold text-sm">{partenza.citta}</div>
               )}
-              <div className="font-medium text-sm">{servizio.indirizzo_presa}</div>
+              <div className="font-medium text-sm">{partenza.via}</div>
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {formatTime(servizio.orario_servizio)}
