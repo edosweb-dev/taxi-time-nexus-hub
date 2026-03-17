@@ -8,6 +8,7 @@ interface IncassoContante {
   azienda_nome: string | null;
   cliente_privato_nome: string | null;
   assegnato_a_nome: string | null;
+  assegnato_role: string | null;
   consegnato_a_nome: string | null;
   consegnato_a_id: string | null;
   incasso_ricevuto: number | null;
