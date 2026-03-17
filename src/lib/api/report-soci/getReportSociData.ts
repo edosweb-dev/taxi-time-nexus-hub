@@ -161,7 +161,7 @@ export async function getReportSociData(
         ) || 0;
 
         // Calcola totale del mese
-        const totaleMese = riporto + stipendio + versamenti - prelievi - speseEffettuate - incassiDaDipendenti - incassiPersonali;
+        const totaleMese = riporto + stipendio + versamenti + speseEffettuate - prelievi - incassiDaDipendenti - incassiPersonali;
 
         return {
           userId: socio.id,
