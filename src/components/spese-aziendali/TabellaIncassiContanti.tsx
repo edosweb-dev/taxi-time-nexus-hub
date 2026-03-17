@@ -159,7 +159,7 @@ export function TabellaIncassiContanti() {
     );
   }
 
-  const incassiMancanti = datiProcessati.filter(i => !i.consegnato_a_id);
+  const incassiMancanti = datiProcessati.filter(i => !i.consegnato_a_id && i.assegnato_role === 'dipendente');
 
   return (
     <div className="space-y-6">
@@ -376,11 +376,13 @@ export function TabellaIncassiContanti() {
                             <Badge variant="default" className="bg-primary">
                               {incasso.consegnato_a_nome}
                             </Badge>
-                          ) : (
+                          ) : incasso.assegnato_role === 'dipendente' ? (
                             <Badge variant="destructive">
                               <AlertCircle className="h-3 w-3 mr-1" />
                               Non consegnato
                             </Badge>
+                          ) : (
+                            <Badge variant="outline">N/A</Badge>
                           )}
                         </TableCell>
                         <TableCell>

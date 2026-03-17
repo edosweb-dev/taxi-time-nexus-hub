@@ -8,6 +8,7 @@ interface IncassoContante {
   azienda_nome: string | null;
   cliente_privato_nome: string | null;
   assegnato_a_nome: string | null;
+  assegnato_role: string | null;
   consegnato_a_nome: string | null;
   consegnato_a_id: string | null;
   incasso_ricevuto: number | null;
@@ -47,7 +48,8 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
           ),
           assegnato:profiles!servizi_assegnato_a_fkey (
             first_name,
-            last_name
+            last_name,
+            role
           )
         `)
         .eq('metodo_pagamento', 'Contanti')
@@ -95,6 +97,7 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
           assegnato_a_nome: assegnatoProfile
             ? `${assegnatoProfile.first_name || ''} ${assegnatoProfile.last_name || ''}`.trim()
             : null,
+          assegnato_role: assegnatoProfile?.role || null,
           consegnato_a_nome: consegnatoProfile
             ? `${consegnatoProfile.first_name || ''} ${consegnatoProfile.last_name || ''}`.trim()
             : null,
