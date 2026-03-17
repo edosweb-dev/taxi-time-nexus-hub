@@ -93,7 +93,7 @@ export function NuovaTariffaDialog({ anno }: NuovaTariffaDialogProps) {
                 placeholder="es. 22.50"
                 value={importo}
                 onChange={(e) => setImporto(e.target.value)}
-                min="0.01"
+                min="0"
                 required
               />
             </div>
