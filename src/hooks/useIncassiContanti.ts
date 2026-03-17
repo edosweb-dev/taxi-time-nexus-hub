@@ -97,6 +97,7 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
           assegnato_a_nome: assegnatoProfile
             ? `${assegnatoProfile.first_name || ''} ${assegnatoProfile.last_name || ''}`.trim()
             : null,
+          assegnato_role: assegnatoProfile?.role || null,
           consegnato_a_nome: consegnatoProfile
             ? `${consegnatoProfile.first_name || ''} ${consegnatoProfile.last_name || ''}`.trim()
             : null,
