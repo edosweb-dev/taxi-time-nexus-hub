@@ -70,7 +70,7 @@ export async function getReportSociData(
 
         for (const servizio of (serviziMese || [])) {
           const km = Number(servizio.km_totali) || 0;
-          const ore = Number(servizio.ore_sosta) || 0;
+          const ore = Number(servizio.ore_attesa_socio) || 0;
           
           if (config && tariffe.length > 0) {
             const risultato = calcolaBaseKmSingoloServizio(km, tariffe, config);
