@@ -124,6 +124,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
                   <TableCell className="text-right">{formatCurrency(row.stipendio)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.prelievi)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.speseEffettuate)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(row.versamenti)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.incassiDaDipendenti)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.incassiPersonali)}</TableCell>
                   <TableCell className={`text-right font-bold ${getTotaleMeseClass(row.totaleMese)}`}>
