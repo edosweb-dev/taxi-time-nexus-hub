@@ -42,6 +42,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
       stipendio: acc.stipendio + row.stipendio,
       prelievi: acc.prelievi + row.prelievi,
       speseEffettuate: acc.speseEffettuate + row.speseEffettuate,
+      versamenti: acc.versamenti + row.versamenti,
       incassiDaDipendenti: acc.incassiDaDipendenti + row.incassiDaDipendenti,
       incassiPersonali: acc.incassiPersonali + row.incassiPersonali,
       totaleMese: acc.totaleMese + row.totaleMese,
