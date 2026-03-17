@@ -109,6 +109,8 @@ export const useSpeseAziendali = () => {
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
       toast({
         title: "Movimento registrato",
         description: "Il movimento è stato registrato con successo.",
@@ -146,6 +148,8 @@ export const useSpeseAziendali = () => {
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
       toast({
         title: "Movimento aggiornato",
         description: "Il movimento è stato aggiornato con successo.",
@@ -179,6 +183,8 @@ export const useSpeseAziendali = () => {
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
       toast({
         title: "Movimento eliminato",
         description: "Il movimento è stato eliminato con successo.",
@@ -207,6 +213,8 @@ export const useSpeseAziendali = () => {
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
       toast({
         title: "Stato aggiornato",
         description: "Lo stato del pagamento è stato aggiornato.",
