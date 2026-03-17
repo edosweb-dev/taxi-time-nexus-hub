@@ -284,7 +284,7 @@ export function TabellaStipendAutomatici({
           <div className="flex flex-col">
             {stipendio.role === 'admin' || stipendio.role === 'socio' ? (
               <Link 
-                to={`/utenti/${stipendio.userId}/stipendio`}
+                to={`/utenti/${stipendio.userId}/stipendio${mese && anno ? `?mese=${mese}&anno=${anno}` : ''}`}
                 className="text-primary hover:underline font-medium"
               >
                 {stipendio.firstName} {stipendio.lastName}
