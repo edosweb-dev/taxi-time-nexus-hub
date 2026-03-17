@@ -66,6 +66,8 @@ import ReportPasseggeriPage from './pages/reports/ReportPasseggeriPage';
 import ReportSociPage from './pages/ReportSociPage';
 import ImpostazioniTemplateEmailPage from './pages/admin/ImpostazioniTemplateEmailPage';
 import LogEmailPage from './pages/admin/LogEmailPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import RecuperaPasswordPage from './pages/RecuperaPasswordPage';
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -105,6 +107,8 @@ function App() {
                   {/* Public Routes */}
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/assistenza" element={<AssistenzaPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/recupera-password" element={<RecuperaPasswordPage />} />
 
                   {/* Index Route - handles role-based redirections */}
                   <Route path="/" element={<Index />} />

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,42 +20,43 @@ export default function ResetPasswordPage() {
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   
   useEffect(() => {
-    // Verifica se abbiamo un token di reset valido
-    const verifyResetToken = async () => {
-      const token = searchParams.get('token');
-      const type = searchParams.get('type');
-      
-      if (!token || type !== 'recovery') {
-        console.log('[ResetPassword] Token mancante o tipo non valido');
-        setIsValidToken(false);
-        return;
-      }
-      
-      try {
-        // Verifica il token con Supabase
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: 'recovery'
-        });
-        
-        if (error) {
-          console.error('[ResetPassword] Errore verifica token:', error);
-          setIsValidToken(false);
-        } else {
-          console.log('[ResetPassword] Token valido, utente autenticato');
-          setIsValidToken(true);
-        }
-      } catch (error) {
-        console.error('[ResetPassword] Errore durante verifica token:', error);
-        setIsValidToken(false);
-      }
-    };
+    let timeoutId: ReturnType<typeof setTimeout>;
     
-    verifyResetToken();
-  }, [searchParams]);
+    // Check if there's already an active session (PASSWORD_RECOVERY event may have fired before mount)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        console.log('[ResetPassword] Sessione attiva trovata, token valido');
+        setIsValidToken(true);
+      } else {
+        // No session yet — wait for PASSWORD_RECOVERY event with a timeout
+        timeoutId = setTimeout(() => {
+          setIsValidToken((current) => {
+            if (current === null) {
+              console.log('[ResetPassword] Timeout: nessun evento PASSWORD_RECOVERY ricevuto');
+              return false;
+            }
+            return current;
+          });
+        }, 5000);
+      }
+    });
+    
+    // Listen for PASSWORD_RECOVERY event
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('[ResetPassword] PASSWORD_RECOVERY event ricevuto, token valido');
+        clearTimeout(timeoutId);
+        setIsValidToken(true);
+      }
+    });
+    
+    return () => {
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
+  }, []);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
