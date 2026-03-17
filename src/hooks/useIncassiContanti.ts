@@ -48,7 +48,8 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
           ),
           assegnato:profiles!servizi_assegnato_a_fkey (
             first_name,
-            last_name
+            last_name,
+            role
           )
         `)
         .eq('metodo_pagamento', 'Contanti')
