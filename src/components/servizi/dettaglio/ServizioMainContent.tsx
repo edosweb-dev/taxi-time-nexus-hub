@@ -73,6 +73,22 @@ export function ServizioMainContent({
   );
   const primoPasseggero = passeggeriOrdinati[0];
 
+  const partenza = (() => {
+    if (
+      primoPasseggero?.usa_indirizzo_personalizzato &&
+      primoPasseggero?.luogo_presa_personalizzato
+    ) {
+      return {
+        via: primoPasseggero.luogo_presa_personalizzato,
+        citta: primoPasseggero.localita_presa_personalizzato || primoPasseggero.localita || servizio.citta_presa,
+      };
+    }
+    return {
+      via: servizio.indirizzo_presa,
+      citta: servizio.citta_presa,
+    };
+  })();
+
   // Destinazioni raggruppate
   const destinazioni = passeggeriOrdinati.length > 0
     ? getDestinazioniRaggruppate(passeggeriOrdinati, servizio)
@@ -100,10 +116,10 @@ export function ServizioMainContent({
                   </span>
                 )}
               </div>
-              {servizio.citta_presa && (
-                <div className="font-semibold text-sm">{servizio.citta_presa}</div>
+              {partenza.citta && (
+                <div className="font-semibold text-sm">{partenza.citta}</div>
               )}
-              <div className="font-medium text-sm">{servizio.indirizzo_presa}</div>
+              <div className="font-medium text-sm">{partenza.via}</div>
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {formatTime(servizio.orario_servizio)}
