@@ -42,6 +42,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
       stipendio: acc.stipendio + row.stipendio,
       prelievi: acc.prelievi + row.prelievi,
       speseEffettuate: acc.speseEffettuate + row.speseEffettuate,
+      versamenti: acc.versamenti + row.versamenti,
       incassiDaDipendenti: acc.incassiDaDipendenti + row.incassiDaDipendenti,
       incassiPersonali: acc.incassiPersonali + row.incassiPersonali,
       totaleMese: acc.totaleMese + row.totaleMese,
@@ -52,6 +53,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
       stipendio: 0,
       prelievi: 0,
       speseEffettuate: 0,
+      versamenti: 0,
       incassiDaDipendenti: 0,
       incassiPersonali: 0,
       totaleMese: 0,
@@ -106,6 +108,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
                 <TableHead className="text-right min-w-[100px]">Stipendio</TableHead>
                 <TableHead className="text-right min-w-[100px]">Prelievi</TableHead>
                 <TableHead className="text-right min-w-[100px]">Spese</TableHead>
+                <TableHead className="text-right min-w-[110px]">Versamenti</TableHead>
                 <TableHead className="text-right min-w-[120px]">Incassi Dip.</TableHead>
                 <TableHead className="text-right min-w-[120px]">Incassi Pers.</TableHead>
                 <TableHead className="text-right min-w-[120px] font-bold">Totale Mese</TableHead>
@@ -121,6 +124,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
                   <TableCell className="text-right">{formatCurrency(row.stipendio)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.prelievi)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.speseEffettuate)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(row.versamenti)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.incassiDaDipendenti)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.incassiPersonali)}</TableCell>
                   <TableCell className={`text-right font-bold ${getTotaleMeseClass(row.totaleMese)}`}>
@@ -156,6 +160,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
                   <TableCell className="text-right font-bold">{formatCurrency(totals.stipendio)}</TableCell>
                   <TableCell className="text-right font-bold">{formatCurrency(totals.prelievi)}</TableCell>
                   <TableCell className="text-right font-bold">{formatCurrency(totals.speseEffettuate)}</TableCell>
+                  <TableCell className="text-right font-bold">{formatCurrency(totals.versamenti)}</TableCell>
                   <TableCell className="text-right font-bold">{formatCurrency(totals.incassiDaDipendenti)}</TableCell>
                   <TableCell className="text-right font-bold">{formatCurrency(totals.incassiPersonali)}</TableCell>
                   <TableCell className="text-right font-bold">{formatCurrency(totals.totaleMese)}</TableCell>
