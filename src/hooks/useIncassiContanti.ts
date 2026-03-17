@@ -135,6 +135,7 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
   return {
     incassi: data || [],
     isLoading,
+    isFetching,
     error,
     stats,
     uniqueSoci,
