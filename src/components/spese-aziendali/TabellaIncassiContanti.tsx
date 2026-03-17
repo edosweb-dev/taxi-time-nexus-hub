@@ -36,6 +36,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { useIncassiContanti } from '@/hooks/useIncassiContanti';
+import { DatePickerField } from '@/components/ui/date-picker-field';
 import { Badge } from '@/components/ui/badge';
 import { 
   Eye, 
