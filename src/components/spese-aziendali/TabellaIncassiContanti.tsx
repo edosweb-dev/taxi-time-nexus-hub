@@ -71,8 +71,8 @@ export function TabellaIncassiContanti() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const { incassi, isLoading, uniqueSoci, stats } = useIncassiContanti({
-    dataInizio,
-    dataFine,
+    dataInizio: dataInizioStr,
+    dataFine: dataFineStr,
   });
 
   // Filtra e ordina dati
