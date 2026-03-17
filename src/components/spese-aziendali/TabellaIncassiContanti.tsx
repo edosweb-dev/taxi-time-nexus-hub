@@ -159,7 +159,7 @@ export function TabellaIncassiContanti() {
     );
   }
 
-  const incassiMancanti = datiProcessati.filter(i => !i.consegnato_a_id);
+  const incassiMancanti = datiProcessati.filter(i => !i.consegnato_a_id && i.assegnato_role === 'dipendente');
 
   return (
     <div className="space-y-6">
