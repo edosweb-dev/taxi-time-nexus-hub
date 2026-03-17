@@ -172,6 +172,7 @@ export async function getReportSociData(
           stipendio,
           prelievi,
           speseEffettuate,
+          versamenti,
           incassiDaDipendenti,
           incassiPersonali,
           totaleMese,

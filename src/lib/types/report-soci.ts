@@ -9,6 +9,7 @@ export interface ReportSocioRow {
   stipendio: number;
   prelievi: number;
   speseEffettuate: number;
+  versamenti: number;
   incassiDaDipendenti: number;
   incassiPersonali: number;
   
