@@ -266,15 +266,12 @@ export function LoginForm() {
 
           {/* Links section - Compact */}
           <div className="text-center pt-2 border-t border-border/50">
-            <RecuperaPasswordDialog>
-              <button 
-                type="button" 
-                className="text-primary hover:text-primary/80 text-sm font-medium py-2 px-3 min-h-[44px]"
-                disabled={isAuthenticating}
-              >
-                Password dimenticata?
-              </button>
-            </RecuperaPasswordDialog>
+            <Link 
+              to="/recupera-password"
+              className="text-primary hover:text-primary/80 text-sm font-medium py-2 px-3 min-h-[44px] inline-block"
+            >
+              Password dimenticata?
+            </Link>
           </div>
 
         </form>
