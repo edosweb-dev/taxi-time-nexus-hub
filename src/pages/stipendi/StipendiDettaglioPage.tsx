@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,10 +25,11 @@ export default function StipendiDettaglioPage() {
   const queryClient = useQueryClient();
   const [isRecalculating, setIsRecalculating] = useState(false);
 
-  // Mese e anno correnti
+  // Mese e anno da query string (fallback a mese corrente)
+  const [searchParams] = useSearchParams();
   const now = new Date();
-  const meseCorrente = now.getMonth() + 1;
-  const annoCorrente = now.getFullYear();
+  const meseCorrente = Number(searchParams.get('mese')) || (now.getMonth() + 1);
+  const annoCorrente = Number(searchParams.get('anno')) || now.getFullYear();
   
   // Calcolo date sicuro senza problemi timezone
   const primoGiornoMese = `${annoCorrente}-${String(meseCorrente).padStart(2, '0')}-01`;
