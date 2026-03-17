@@ -58,7 +58,7 @@ export async function getReportSociData(
         // Fetch servizi del socio nel mese (consuntivati/completati)
         const { data: serviziMese } = await supabase
           .from('servizi')
-          .select('km_totali, ore_sosta')
+          .select('km_totali, ore_sosta, ore_attesa_socio')
           .eq('assegnato_a', socio.id)
           .in('stato', ['completato', 'consuntivato'])
           .gte('data_servizio', dataInizio)
