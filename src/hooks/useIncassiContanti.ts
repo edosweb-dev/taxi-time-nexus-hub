@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface IncassoContante {
@@ -27,7 +27,7 @@ interface IncassiStats {
 }
 
 export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiParams) {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ['incassi-contanti', dataInizio, dataFine],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -110,7 +110,8 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
 
       return incassi;
     },
-    staleTime: 1000 * 60 * 2, // 2 minuti
+    staleTime: 1000 * 60 * 2,
+    placeholderData: keepPreviousData,
   });
 
   // Calcola statistiche
@@ -134,6 +135,7 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
   return {
     incassi: data || [],
     isLoading,
+    isFetching,
     error,
     stats,
     uniqueSoci,
