@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { it } from 'date-fns/locale';
 import {
   Table,
@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -36,6 +36,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { useIncassiContanti } from '@/hooks/useIncassiContanti';
+import { DatePickerField } from '@/components/ui/date-picker-field';
 import { Badge } from '@/components/ui/badge';
 import { 
   Eye, 
@@ -56,12 +57,11 @@ export function TabellaIncassiContanti() {
   const oggi = new Date();
   
   // Filtri
-  const [dataInizio, setDataInizio] = useState(
-    format(startOfMonth(oggi), 'yyyy-MM-dd')
-  );
-  const [dataFine, setDataFine] = useState(
-    format(endOfMonth(oggi), 'yyyy-MM-dd')
-  );
+  const [dataInizio, setDataInizio] = useState<Date | undefined>(startOfMonth(oggi));
+  const [dataFine, setDataFine] = useState<Date | undefined>(endOfMonth(oggi));
+
+  const dataInizioStr = dataInizio ? format(dataInizio, 'yyyy-MM-dd') : '';
+  const dataFineStr = dataFine ? format(dataFine, 'yyyy-MM-dd') : '';
   const [consegnatoA, setConsegnatoA] = useState<string>('tutti');
   const [statoServizio, setStatoServizio] = useState<string>('tutti');
   
@@ -71,8 +71,8 @@ export function TabellaIncassiContanti() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const { incassi, isLoading, uniqueSoci, stats } = useIncassiContanti({
-    dataInizio,
-    dataFine,
+    dataInizio: dataInizioStr,
+    dataFine: dataFineStr,
   });
 
   // Filtra e ordina dati
@@ -234,34 +234,32 @@ export function TabellaIncassiContanti() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-2">
-              <Label htmlFor="dataInizio">
+              <Label>
                 <Calendar className="h-4 w-4 inline mr-2" />
                 Data Inizio
               </Label>
-              <Input
-                id="dataInizio"
-                type="date"
+              <DatePickerField
                 value={dataInizio}
-                onChange={(e) => {
-                  setDataInizio(e.target.value);
+                onChange={(date) => {
+                  setDataInizio(date);
                   setCurrentPage(1);
                 }}
+                placeholder="Data inizio"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dataFine">
+              <Label>
                 <Calendar className="h-4 w-4 inline mr-2" />
                 Data Fine
               </Label>
-              <Input
-                id="dataFine"
-                type="date"
+              <DatePickerField
                 value={dataFine}
-                onChange={(e) => {
-                  setDataFine(e.target.value);
+                onChange={(date) => {
+                  setDataFine(date);
                   setCurrentPage(1);
                 }}
+                placeholder="Data fine"
               />
             </div>
 
