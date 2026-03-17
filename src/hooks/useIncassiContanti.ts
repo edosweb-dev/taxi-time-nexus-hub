@@ -27,7 +27,7 @@ interface IncassiStats {
 }
 
 export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiParams) {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ['incassi-contanti', dataInizio, dataFine],
     queryFn: async () => {
       const { data, error } = await supabase
