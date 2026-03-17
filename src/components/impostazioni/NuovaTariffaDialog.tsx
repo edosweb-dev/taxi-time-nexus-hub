@@ -31,8 +31,8 @@ export function NuovaTariffaDialog({ anno }: NuovaTariffaDialogProps) {
     const kmValue = parseInt(km);
     const importoValue = parseFloat(importo);
     
-    if (isNaN(kmValue) || kmValue < 1) return;
-    if (isNaN(importoValue) || importoValue <= 0) return;
+    if (isNaN(kmValue) || kmValue < 0) return;
+    if (isNaN(importoValue) || importoValue < 0) return;
 
     await createMutation.mutateAsync({
       anno,
