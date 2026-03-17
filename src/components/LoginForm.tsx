@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { LogIn, HelpCircle, Eye, EyeOff } from 'lucide-react';
+import { LogIn, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
-import { RecuperaPasswordDialog } from './RecuperaPasswordDialog';
 
 export function LoginForm() {
   // Login state
@@ -267,15 +266,12 @@ export function LoginForm() {
 
           {/* Links section - Compact */}
           <div className="text-center pt-2 border-t border-border/50">
-            <RecuperaPasswordDialog>
-              <button 
-                type="button" 
-                className="text-primary hover:text-primary/80 text-sm font-medium py-2 px-3 min-h-[44px]"
-                disabled={isAuthenticating}
-              >
-                Password dimenticata?
-              </button>
-            </RecuperaPasswordDialog>
+            <Link 
+              to="/recupera-password"
+              className="text-primary hover:text-primary/80 text-sm font-medium py-2 px-3 min-h-[44px] inline-block"
+            >
+              Password dimenticata?
+            </Link>
           </div>
 
         </form>
