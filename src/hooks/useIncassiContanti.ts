@@ -110,7 +110,8 @@ export function useIncassiContanti({ dataInizio, dataFine }: UseIncassiContantiP
 
       return incassi;
     },
-    staleTime: 1000 * 60 * 2, // 2 minuti
+    staleTime: 1000 * 60 * 2,
+    placeholderData: keepPreviousData,
   });
 
   // Calcola statistiche
