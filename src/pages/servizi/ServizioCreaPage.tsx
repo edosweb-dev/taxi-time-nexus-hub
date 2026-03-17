@@ -2305,7 +2305,7 @@ export const ServizioCreaPage = ({
             </p>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
                 {/* Metodo Pagamento */}
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="metodo_pagamento_consuntivo" className="font-medium">
