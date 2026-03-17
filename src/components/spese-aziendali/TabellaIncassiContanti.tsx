@@ -381,8 +381,13 @@ export function TabellaIncassiContanti() {
                               <AlertCircle className="h-3 w-3 mr-1" />
                               Non consegnato
                             </Badge>
+                          ) : incasso.stato === 'consuntivato' || incasso.stato === 'fatturato' ? (
+                            <Badge variant="outline" 
+                                   style={{backgroundColor:'#f0fdf4', color:'#16a34a', borderColor:'#bbf7d0'}}>
+                              Incasso diretto
+                            </Badge>
                           ) : (
-                            <Badge variant="outline">N/A</Badge>
+                            <span style={{color:'#9ca3af'}}>—</span>
                           )}
                         </TableCell>
                         <TableCell>
