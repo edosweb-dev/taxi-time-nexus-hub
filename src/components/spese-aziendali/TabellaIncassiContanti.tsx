@@ -57,12 +57,11 @@ export function TabellaIncassiContanti() {
   const oggi = new Date();
   
   // Filtri
-  const [dataInizio, setDataInizio] = useState(
-    format(startOfMonth(oggi), 'yyyy-MM-dd')
-  );
-  const [dataFine, setDataFine] = useState(
-    format(endOfMonth(oggi), 'yyyy-MM-dd')
-  );
+  const [dataInizio, setDataInizio] = useState<Date | undefined>(startOfMonth(oggi));
+  const [dataFine, setDataFine] = useState<Date | undefined>(endOfMonth(oggi));
+
+  const dataInizioStr = dataInizio ? format(dataInizio, 'yyyy-MM-dd') : '';
+  const dataFineStr = dataFine ? format(dataFine, 'yyyy-MM-dd') : '';
   const [consegnatoA, setConsegnatoA] = useState<string>('tutti');
   const [statoServizio, setStatoServizio] = useState<string>('tutti');
   
