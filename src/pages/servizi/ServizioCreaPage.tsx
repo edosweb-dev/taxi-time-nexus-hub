@@ -2421,7 +2421,7 @@ export const ServizioCreaPage = ({
                         placeholder="0"
                         className="text-base"
                         value={field.value ?? ''}
-                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                        onChange={(e) => field.onChange(e.target.value || null)}
                       />
                     )}
                   />
