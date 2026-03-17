@@ -53,6 +53,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
       stipendio: 0,
       prelievi: 0,
       speseEffettuate: 0,
+      versamenti: 0,
       incassiDaDipendenti: 0,
       incassiPersonali: 0,
       totaleMese: 0,
