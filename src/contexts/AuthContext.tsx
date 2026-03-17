@@ -92,6 +92,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
         
+        // Handle PASSWORD_RECOVERY: redirect to reset-password page
+        if (event === 'PASSWORD_RECOVERY') {
+          console.log('[AuthContext] PASSWORD_RECOVERY event detected, redirecting to /reset-password');
+          window.location.href = '/reset-password';
+          return;
+        }
+        
         // Don't update auth state for other events if we're impersonating
         if (isImpersonating) {
           return;

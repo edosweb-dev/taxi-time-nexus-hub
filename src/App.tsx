@@ -107,6 +107,8 @@ function App() {
                   {/* Public Routes */}
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/assistenza" element={<AssistenzaPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/recupera-password" element={<RecuperaPasswordPage />} />
 
                   {/* Index Route - handles role-based redirections */}
                   <Route path="/" element={<Index />} />
