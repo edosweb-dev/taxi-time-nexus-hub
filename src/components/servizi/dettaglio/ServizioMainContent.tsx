@@ -73,6 +73,22 @@ export function ServizioMainContent({
   );
   const primoPasseggero = passeggeriOrdinati[0];
 
+  const partenza = (() => {
+    if (
+      primoPasseggero?.usa_indirizzo_personalizzato &&
+      primoPasseggero?.luogo_presa_personalizzato
+    ) {
+      return {
+        via: primoPasseggero.luogo_presa_personalizzato,
+        citta: primoPasseggero.localita_presa_personalizzato || primoPasseggero.localita || servizio.citta_presa,
+      };
+    }
+    return {
+      via: servizio.indirizzo_presa,
+      citta: servizio.citta_presa,
+    };
+  })();
+
   // Destinazioni raggruppate
   const destinazioni = passeggeriOrdinati.length > 0
     ? getDestinazioniRaggruppate(passeggeriOrdinati, servizio)
