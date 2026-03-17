@@ -108,6 +108,7 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
                 <TableHead className="text-right min-w-[100px]">Stipendio</TableHead>
                 <TableHead className="text-right min-w-[100px]">Prelievi</TableHead>
                 <TableHead className="text-right min-w-[100px]">Spese</TableHead>
+                <TableHead className="text-right min-w-[110px]">Versamenti</TableHead>
                 <TableHead className="text-right min-w-[120px]">Incassi Dip.</TableHead>
                 <TableHead className="text-right min-w-[120px]">Incassi Pers.</TableHead>
                 <TableHead className="text-right min-w-[120px] font-bold">Totale Mese</TableHead>
