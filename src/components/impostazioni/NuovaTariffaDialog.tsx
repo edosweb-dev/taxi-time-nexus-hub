@@ -79,7 +79,7 @@ export function NuovaTariffaDialog({ anno }: NuovaTariffaDialogProps) {
                 placeholder="es. 25"
                 value={km}
                 onChange={(e) => setKm(e.target.value)}
-                min="1"
+                min="0"
                 required
               />
             </div>
