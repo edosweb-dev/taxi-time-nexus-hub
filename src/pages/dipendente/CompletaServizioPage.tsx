@@ -71,7 +71,7 @@ export default function CompletaServizioPage() {
     if (!isSignatureEmpty) {
       setShowExitDialog(true);
     } else {
-      navigate(`/dipendente/servizi-assegnati/${id}`);
+      navigate(`/servizi/${id}`);
     }
   };
 
