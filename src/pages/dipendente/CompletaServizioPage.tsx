@@ -134,7 +134,7 @@ export default function CompletaServizioPage() {
       sessionStorage.removeItem(`note-completamento-${id}`);
 
       // Navigate to detail
-      navigate(`/dipendente/servizi-assegnati/${id}`);
+      navigate(`/servizi/${id}`);
     } catch (error) {
       console.error('Error completing service:', error);
     }

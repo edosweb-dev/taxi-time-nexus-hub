@@ -194,7 +194,7 @@ export default function DipendenteDashboard() {
                   <Card 
                     key={servizio.id}
                     className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => navigate(`/dipendente/servizi-assegnati/${servizio.id}`)}
+                    onClick={() => navigate(`/servizi/${servizio.id}`)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
