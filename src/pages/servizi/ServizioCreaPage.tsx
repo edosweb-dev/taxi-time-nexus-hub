@@ -233,10 +233,17 @@ export const ServizioCreaPage = ({
       passeggeri_ids: [],
       passeggeri: [],
       email_notifiche_ids: [],
+      // Campi assegnazione
+      assegnato_a: null,
+      conducente_esterno_id: null,
+      veicolo_id: null,
+      consegna_contanti_a: null,
+      numero_commessa: '',
       // Campi consuntivo
       incasso_ricevuto: null,
       ore_sosta: null,
-      
+      ore_effettive: null,
+      ore_fatturate: null,
       ore_attesa_socio: null,
       km_totali: null,
     },
