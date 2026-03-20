@@ -46,7 +46,7 @@ export default function CompletaServizioPage() {
   useEffect(() => {
     if (!isLoading && servizio && servizio.stato !== 'assegnato') {
       toast.error('Questo servizio non può essere completato');
-      navigate(`/dipendente/servizi-assegnati/${id}`);
+      navigate(`/servizi/${id}`);
     }
   }, [servizio, isLoading, id, navigate]);
 
@@ -71,7 +71,7 @@ export default function CompletaServizioPage() {
     if (!isSignatureEmpty) {
       setShowExitDialog(true);
     } else {
-      navigate(`/dipendente/servizi-assegnati/${id}`);
+      navigate(`/servizi/${id}`);
     }
   };
 
@@ -134,7 +134,7 @@ export default function CompletaServizioPage() {
       sessionStorage.removeItem(`note-completamento-${id}`);
 
       // Navigate to detail
-      navigate(`/dipendente/servizi-assegnati/${id}`);
+      navigate(`/servizi/${id}`);
     } catch (error) {
       console.error('Error completing service:', error);
     }
