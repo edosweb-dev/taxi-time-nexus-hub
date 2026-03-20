@@ -265,6 +265,7 @@ export default function StipendiDettaglioPage() {
 
   // Funzioni helper per calcolo compenso singolo servizio
   const calcolaCompensoKmServizio = (km: number): number => {
+    if (km <= 0) return 0;
     if (km <= 200) {
       // Arrotondamento
       let kmArr = km;
