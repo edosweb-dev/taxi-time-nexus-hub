@@ -228,7 +228,10 @@ export default function StipendiDettaglioPage() {
   let baseKm = 0;
   let kmArrotondati = totaleKm;
   
-  if (totaleKm <= 200) {
+  if (totaleKm <= 0) {
+    kmArrotondati = 0;
+    baseKm = 0;
+  } else if (totaleKm <= 200) {
     // Arrotondamento KM
     if (totaleKm > 12) {
       kmArrotondati = Math.round(totaleKm / 5) * 5;
@@ -262,6 +265,7 @@ export default function StipendiDettaglioPage() {
 
   // Funzioni helper per calcolo compenso singolo servizio
   const calcolaCompensoKmServizio = (km: number): number => {
+    if (km <= 0) return 0;
     if (km <= 200) {
       // Arrotondamento
       let kmArr = km;
