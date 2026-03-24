@@ -35,7 +35,6 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
     return '';
   };
 
-  // Calcola totali footer
   const totals = data?.reduce(
     (acc, row) => ({
       riporto: acc.riporto + row.riporto,
@@ -93,6 +92,8 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
     );
   }
 
+  const stickyCol = "sticky left-0 z-10 bg-background";
+
   return (
     <Card>
       <CardHeader>
@@ -100,42 +101,42 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="text-xs">
             <TableHeader>
               <TableRow>
-                <TableHead className="min-w-[150px]">Socio</TableHead>
-                <TableHead className="text-right min-w-[100px]">Riporto</TableHead>
-                <TableHead className="text-right min-w-[100px]">Stipendio</TableHead>
-                <TableHead className="text-right min-w-[100px]">Prelievi</TableHead>
-                <TableHead className="text-right min-w-[100px]">Spese</TableHead>
-                <TableHead className="text-right min-w-[110px]">Versamenti</TableHead>
-                <TableHead className="text-right min-w-[120px]">Incassi Dip.</TableHead>
-                <TableHead className="text-right min-w-[120px]">Incassi Pers.</TableHead>
-                <TableHead className="text-right min-w-[120px] font-bold">Totale Mese</TableHead>
-                <TableHead className="text-center min-w-[100px]">Totale %</TableHead>
-                <TableHead className="text-right min-w-[120px]">Incrementale</TableHead>
+                <TableHead className={`min-w-[120px] p-2 px-3 ${stickyCol}`}>Socio</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3 hidden lg:table-cell">Riporto</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3">Stipendio</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3">Prelievi</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3">Spese</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3">Versam.</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3">Inc. Dip.</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3">Inc. Pers.</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3 font-bold">Tot. Mese</TableHead>
+                <TableHead className="text-center min-w-[70px] p-2 px-3">Totale %</TableHead>
+                <TableHead className="text-right min-w-[85px] p-2 px-3 hidden lg:table-cell">Increm.</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.map((row) => (
                 <TableRow key={row.userId}>
-                  <TableCell className="font-medium">{row.fullName}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.riporto)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.stipendio)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.prelievi)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.speseEffettuate)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.versamenti)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.incassiDaDipendenti)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(row.incassiPersonali)}</TableCell>
-                  <TableCell className={`text-right font-bold ${getTotaleMeseClass(row.totaleMese)}`}>
+                  <TableCell className={`font-medium p-2 px-3 ${stickyCol}`}>{row.fullName}</TableCell>
+                  <TableCell className="text-right p-2 px-3 hidden lg:table-cell">{formatCurrency(row.riporto)}</TableCell>
+                  <TableCell className="text-right p-2 px-3">{formatCurrency(row.stipendio)}</TableCell>
+                  <TableCell className="text-right p-2 px-3">{formatCurrency(row.prelievi)}</TableCell>
+                  <TableCell className="text-right p-2 px-3">{formatCurrency(row.speseEffettuate)}</TableCell>
+                  <TableCell className="text-right p-2 px-3">{formatCurrency(row.versamenti)}</TableCell>
+                  <TableCell className="text-right p-2 px-3">{formatCurrency(row.incassiDaDipendenti)}</TableCell>
+                  <TableCell className="text-right p-2 px-3">{formatCurrency(row.incassiPersonali)}</TableCell>
+                  <TableCell className={`text-right font-bold p-2 px-3 ${getTotaleMeseClass(row.totaleMese)}`}>
                     {formatCurrency(row.totaleMese)}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center p-2 px-3">
                     <Badge variant={getPercentageBadgeVariant(row.totalePercentuale)}>
                       {formatPercentage(row.totalePercentuale)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right p-2 px-3 hidden lg:table-cell">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -155,17 +156,17 @@ export function TabellaDatiSoci({ data, isLoading }: TabellaDatiSociProps) {
             {totals && (
               <TableFooter>
                 <TableRow>
-                  <TableCell className="font-bold">TOTALI</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.riporto)}</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.stipendio)}</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.prelievi)}</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.speseEffettuate)}</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.versamenti)}</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.incassiDaDipendenti)}</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.incassiPersonali)}</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.totaleMese)}</TableCell>
-                  <TableCell className="text-center font-bold">100%</TableCell>
-                  <TableCell className="text-right font-bold">{formatCurrency(totals.incrementaleStipendi)}</TableCell>
+                  <TableCell className={`font-bold p-2 px-3 ${stickyCol}`}>TOTALI</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3 hidden lg:table-cell">{formatCurrency(totals.riporto)}</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3">{formatCurrency(totals.stipendio)}</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3">{formatCurrency(totals.prelievi)}</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3">{formatCurrency(totals.speseEffettuate)}</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3">{formatCurrency(totals.versamenti)}</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3">{formatCurrency(totals.incassiDaDipendenti)}</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3">{formatCurrency(totals.incassiPersonali)}</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3">{formatCurrency(totals.totaleMese)}</TableCell>
+                  <TableCell className="text-center font-bold p-2 px-3">100%</TableCell>
+                  <TableCell className="text-right font-bold p-2 px-3 hidden lg:table-cell">{formatCurrency(totals.incrementaleStipendi)}</TableCell>
                 </TableRow>
               </TableFooter>
             )}
