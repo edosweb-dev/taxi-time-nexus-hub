@@ -15,6 +15,7 @@ import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { MovimentoFormData } from '@/lib/types/spese-aziendali';
+import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 const parseLocalDate = (dateStr: string): Date => {
