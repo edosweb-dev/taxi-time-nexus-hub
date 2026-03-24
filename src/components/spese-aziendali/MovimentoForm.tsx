@@ -15,7 +15,13 @@ import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { MovimentoFormData } from '@/lib/types/spese-aziendali';
+import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+
+const parseLocalDate = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
 
 const formSchema = z.object({
   data_movimento: z.string(),
@@ -123,8 +129,8 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
               <FormLabel>Data movimento</FormLabel>
               <FormControl>
                 <DatePickerField
-                  value={field.value ? new Date(field.value) : undefined}
-                  onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                  value={field.value ? parseLocalDate(field.value) : undefined}
+                  onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
                   placeholder="Seleziona data"
                   disabledDates={(date) => date > new Date() || date < new Date("1900-01-01")}
                 />

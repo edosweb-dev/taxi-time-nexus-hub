@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { format } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,11 @@ import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
 import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+
+const parseLocalDate = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
 
 const formSchema = z.object({
   data_movimento: z.string(),
@@ -119,8 +125,8 @@ export function ModificaMovimentoDialog({ open, onOpenChange, movimento }: Modif
                   <FormLabel>Data</FormLabel>
                   <FormControl>
                     <DatePickerField
-                      value={field.value ? new Date(field.value) : undefined}
-                      onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                    value={field.value ? parseLocalDate(field.value) : undefined}
+                      onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
                       placeholder="Seleziona data"
                     />
                   </FormControl>
