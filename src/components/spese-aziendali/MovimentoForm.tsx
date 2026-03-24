@@ -128,8 +128,8 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
               <FormLabel>Data movimento</FormLabel>
               <FormControl>
                 <DatePickerField
-                  value={field.value ? new Date(field.value) : undefined}
-                  onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                  value={field.value ? parseLocalDate(field.value) : undefined}
+                  onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
                   placeholder="Seleziona data"
                   disabledDates={(date) => date > new Date() || date < new Date("1900-01-01")}
                 />
