@@ -1,7 +1,7 @@
 
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import {
   Breadcrumb,
   BreadcrumbItem,
