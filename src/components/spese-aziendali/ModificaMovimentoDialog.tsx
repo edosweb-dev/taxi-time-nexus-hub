@@ -21,6 +21,11 @@ import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 
+const parseLocalDate = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 const formSchema = z.object({
   data_movimento: z.string(),
   importo: z.number().positive('L\'importo deve essere positivo'),
