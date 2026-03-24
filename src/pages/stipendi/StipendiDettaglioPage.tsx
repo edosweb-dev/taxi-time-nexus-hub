@@ -422,7 +422,7 @@ export default function StipendiDettaglioPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/stipendi')}
+          onClick={() => navigate(`/stipendi?mese=${meseCorrente}&anno=${annoCorrente}`)}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Indietro

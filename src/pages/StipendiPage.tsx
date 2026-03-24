@@ -1,7 +1,7 @@
 
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -37,8 +37,13 @@ export default function StipendiPage() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
+  const [searchParams] = useSearchParams();
+  const [selectedMonth, setSelectedMonth] = useState(
+    searchParams.get('mese') ? parseInt(searchParams.get('mese')!) : currentDate.getMonth() + 1
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    searchParams.get('anno') ? parseInt(searchParams.get('anno')!) : currentDate.getFullYear()
+  );
   const [selectedStipendioSocio, setSelectedStipendioSocio] = useState<StipendiAutomaticoUtente | null>(null);
   const [selectedStipendiodiPendente, setSelectedStipendiodiPendente] = useState<StipendioManualeDipendente | null>(null);
   const [isRecalculatingAll, setIsRecalculatingAll] = useState(false);
