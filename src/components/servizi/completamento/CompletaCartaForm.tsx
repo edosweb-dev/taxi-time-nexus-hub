@@ -15,8 +15,7 @@ import { DollarSign } from "lucide-react";
 
 const formSchema = z.object({
   incasso_ricevuto: z.coerce.number()
-    .min(0.01, "Importo deve essere maggiore di 0")
-    .positive("Importo deve essere un numero positivo"),
+    .min(0, "Importo non può essere negativo"),
 });
 
 interface CompletaCartaFormProps {

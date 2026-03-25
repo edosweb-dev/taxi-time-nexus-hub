@@ -23,8 +23,7 @@ export function getCompletaServizioSchema(metodoPagamento?: string | null) {
     // Incasso richiesto SOLO per metodi che richiedono gestione
     incasso_ricevuto: richiedeIncasso
       ? z.coerce.number()
-          .min(0.01, "Importo deve essere maggiore di 0")
-          .positive("Importo deve essere un numero positivo")
+          .min(0, "Importo non può essere negativo")
       : z.coerce.number().optional(),
     // consegna_contanti_a gestito in fase di consuntivazione
   });
