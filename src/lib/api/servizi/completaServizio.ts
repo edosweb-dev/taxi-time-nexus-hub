@@ -21,7 +21,7 @@ export async function completaServizio({
     
     // Validazione condizionale basata sul tipo di pagamento
     if (tipoPagamento === TipoPagamento.CONTANTI_UBER || tipoPagamento === TipoPagamento.CARTA) {
-      if (!incasso_ricevuto || incasso_ricevuto <= 0) {
+      if (incasso_ricevuto === undefined || incasso_ricevuto === null) {
         throw new Error(
           `Incasso ricevuto obbligatorio per pagamenti con ${metodo_pagamento}`
         );
