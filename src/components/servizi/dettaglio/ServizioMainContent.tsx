@@ -153,7 +153,6 @@ export function ServizioMainContent({
           </div>
         </CardContent>
       </Card>
-      </Card>
 
       {/* Percorso */}
       <Card>
