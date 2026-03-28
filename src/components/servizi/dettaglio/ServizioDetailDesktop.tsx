@@ -94,6 +94,10 @@ export function ServizioDetailDesktop({
           passeggeri={passeggeri}
           formatCurrency={formatCurrency}
           firmaDigitaleAttiva={firmaDigitaleAttiva}
+          aziendaNome={getAziendaName(servizio.azienda_id)}
+          referenteNome={getUserName(users, servizio.referente_id) || undefined}
+          autistaNome={getUserName(users, servizio.assegnato_a) || undefined}
+          veicoloModello={veicoloModello}
         />
       </main>
     </div>

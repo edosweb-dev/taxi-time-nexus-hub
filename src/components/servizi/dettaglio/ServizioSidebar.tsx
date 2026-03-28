@@ -88,64 +88,6 @@ export function ServizioSidebar({
           </div>
         </div>
 
-        <div className="border-t pt-4 space-y-3">
-          {/* Cliente: Azienda o Privato */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              {servizio.tipo_cliente === 'privato' ? (
-                <User className="h-3.5 w-3.5" />
-              ) : (
-                <Building2 className="h-3.5 w-3.5" />
-              )}
-              <span>{servizio.tipo_cliente === 'privato' ? 'Cliente privato' : 'Azienda'}</span>
-            </div>
-            <div className="text-sm font-medium truncate">
-              {servizio.tipo_cliente === 'privato' 
-                ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || '—'
-                : getAziendaName(servizio.azienda_id)
-              }
-            </div>
-          </div>
-
-          {/* Referente */}
-          {servizio.referente_id && (
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <User className="h-3.5 w-3.5" />
-                <span>Referente</span>
-              </div>
-              <div className="text-sm font-medium truncate">
-                {getUserName(users, servizio.referente_id) || "—"}
-              </div>
-            </div>
-          )}
-
-          {/* Assegnato a */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <User className="h-3.5 w-3.5" />
-              <span>Assegnato a</span>
-            </div>
-            <div className="text-sm font-medium">
-              {servizio.conducente_esterno 
-                ? servizio.conducente_esterno_nome || "Conducente esterno"
-                : getUserName(users, servizio.assegnato_a) || "Non assegnato"}
-            </div>
-          </div>
-
-          {/* Veicolo */}
-          {veicoloModello && (
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Car className="h-3.5 w-3.5" />
-                <span>Veicolo</span>
-              </div>
-              <div className="text-sm font-medium truncate">
-                {veicoloModello}
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Azioni Primarie */}
         <div className="border-t pt-4 space-y-2">
@@ -190,18 +132,6 @@ export function ServizioSidebar({
             </Button>
           )}
 
-          {/* Modifica Assegnazione - Solo se assegnato e admin/socio */}
-          {servizio.stato === "assegnato" && isAdmin && (
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              size="sm"
-              onClick={onAssegna}
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Modifica Assegnazione
-            </Button>
-          )}
 
           {/* Rimuovi Assegnazione - Solo se assegnato e admin/socio */}
           {servizio.stato === "assegnato" && isAdmin && onRimuoviAssegnazione && (
