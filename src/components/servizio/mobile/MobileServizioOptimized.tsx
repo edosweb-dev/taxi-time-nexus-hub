@@ -551,6 +551,12 @@ export function MobileServizioOptimized({
                     Modifica Note
                   </DropdownMenuItem>
                 )}
+                {servizio.stato === 'assegnato' && isAdmin && (
+                  <DropdownMenuItem onClick={onAssegna} className="gap-2">
+                    <Pencil className="h-4 w-4" />
+                    Modifica Assegnazione
+                  </DropdownMenuItem>
+                )}
                 {isAdmin && (
                   <DropdownMenuItem 
                     onClick={onElimina} 
