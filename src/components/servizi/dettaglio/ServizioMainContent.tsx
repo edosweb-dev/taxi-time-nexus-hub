@@ -108,8 +108,8 @@ export function ServizioMainContent({
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {/* Card Info Servizio */}
-      <Card className="col-span-2">
+      {/* RIGA 1 SX - Info Servizio */}
+      <Card>
         <CardContent className="p-4">
           <div className="grid grid-cols-2 gap-x-6 gap-y-3">
             <div className="space-y-0.5">
@@ -150,114 +150,7 @@ export function ServizioMainContent({
         </CardContent>
       </Card>
 
-      {/* Percorso */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Percorso</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {/* Partenza */}
-          <div className="flex items-start gap-3">
-            <div className="mt-1 p-1.5 rounded-full bg-primary/10">
-              <MapPin className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs text-muted-foreground mb-0.5">
-                <span>Partenza</span>
-                {primoPasseggero && passeggeriOrdinati.length === 1 && (
-                  <span className="text-muted-foreground font-normal">
-                    {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
-                  </span>
-                )}
-              </div>
-              {partenza.citta && (
-                <div className="font-semibold text-sm">{partenza.citta}</div>
-              )}
-              <div className="font-medium text-sm">{partenza.via}</div>
-              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {formatTime(servizio.orario_servizio)}
-              </div>
-            </div>
-          </div>
-
-          {/* Fermate intermedie - tutti i passeggeri tranne il primo */}
-          {passeggeriOrdinati.slice(1).length > 0 && (
-            <div className="pl-6 border-l-2 border-muted space-y-2">
-              {passeggeriOrdinati.slice(1).map((p, idx) => {
-                const hasCustomAddress = p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato;
-                const indirizzo = hasCustomAddress
-                  ? p.luogo_presa_personalizzato
-                  : servizio.indirizzo_presa;
-                const cittaFermata = hasCustomAddress
-                  ? (p.localita_presa_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_presa)
-                  : servizio.citta_presa;
-
-                return (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="mt-1 p-1.5 rounded-full bg-muted">
-                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-muted-foreground mb-0.5">
-                        Fermata - {p.nome_cognome}
-                        {!hasCustomAddress && (
-                          <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
-                        )}
-                      </div>
-                      <div className="text-sm">
-                        {cittaFermata && (
-                          <span className="font-semibold text-foreground">{cittaFermata}</span>
-                        )}
-                        {cittaFermata && indirizzo && " • "}
-                        <span className="text-muted-foreground">{indirizzo}</span>
-                      </div>
-                      {p.orario_presa_personalizzato && (
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {formatTime(p.orario_presa_personalizzato)}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Destinazioni - Tappe intermedie + Arrivo */}
-          {destinazioni.map((dest, index) => {
-            const isLast = index === destinazioni.length - 1;
-            return (
-              <div key={`dest-${index}`} className="flex items-start gap-3">
-                <div className={`mt-1 p-1.5 rounded-full ${isLast ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
-                  {isLast ? (
-                    <Flag className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
-                  ) : (
-                    <Navigation className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-muted-foreground mb-0.5">
-                    {isLast ? 'Arrivo' : `Tappa ${index + 1}`}
-                    {dest.passeggeri.length > 0 && (
-                      <span className="text-muted-foreground font-normal">
-                        {" - "}{dest.passeggeri.join(', ')}
-                      </span>
-                    )}
-                  </div>
-                  {dest.citta && (
-                    <div className="font-semibold text-sm">{dest.citta}</div>
-                  )}
-                  <div className="font-medium text-sm">{dest.indirizzo}</div>
-                </div>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-
-      {/* Passeggeri */}
+      {/* RIGA 1 DX - Passeggeri */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Passeggeri ({passeggeri.length})</CardTitle>
@@ -324,72 +217,226 @@ export function ServizioMainContent({
         </CardContent>
       </Card>
 
-      {/* Dati Operativi - per completati/consuntivati */}
-      {(servizio.stato === 'completato' || servizio.stato === 'consuntivato') && (() => {
-        const ruoloAssegnato = (servizio as any)?.assegnato?.role;
-        const isDipendenteAssegnato = ruoloAssegnato === 'dipendente';
-        const hasDatiOperativi = 
-          Number(servizio.km_totali || 0) > 0 ||
-          Number(servizio.ore_sosta || 0) > 0 ||
-          Number((servizio as any).ore_effettive || 0) > 0;
+      {/* RIGA 2 SX - Percorso */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Percorso</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* Partenza */}
+          <div className="flex items-start gap-3">
+            <div className="mt-1 p-1.5 rounded-full bg-primary/10">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-muted-foreground mb-0.5">
+                <span>Partenza</span>
+                {primoPasseggero && passeggeriOrdinati.length === 1 && (
+                  <span className="text-muted-foreground font-normal">
+                    {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
+                  </span>
+                )}
+              </div>
+              {partenza.citta && (
+                <div className="font-semibold text-sm">{partenza.citta}</div>
+              )}
+              <div className="font-medium text-sm">{partenza.via}</div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {formatTime(servizio.orario_servizio)}
+              </div>
+            </div>
+          </div>
 
-        if (!hasDatiOperativi) return null;
+          {/* Fermate intermedie */}
+          {passeggeriOrdinati.slice(1).length > 0 && (
+            <div className="pl-6 border-l-2 border-muted space-y-2">
+              {passeggeriOrdinati.slice(1).map((p, idx) => {
+                const hasCustomAddress = p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato;
+                const indirizzo = hasCustomAddress
+                  ? p.luogo_presa_personalizzato
+                  : servizio.indirizzo_presa;
+                const cittaFermata = hasCustomAddress
+                  ? (p.localita_presa_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_presa)
+                  : servizio.citta_presa;
 
-        return (
+                return (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="mt-1 p-1.5 rounded-full bg-muted">
+                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-muted-foreground mb-0.5">
+                        Fermata - {p.nome_cognome}
+                        {!hasCustomAddress && (
+                          <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
+                        )}
+                      </div>
+                      <div className="text-sm">
+                        {cittaFermata && (
+                          <span className="font-semibold text-foreground">{cittaFermata}</span>
+                        )}
+                        {cittaFermata && indirizzo && " • "}
+                        <span className="text-muted-foreground">{indirizzo}</span>
+                      </div>
+                      {p.orario_presa_personalizzato && (
+                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatTime(p.orario_presa_personalizzato)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Destinazioni */}
+          {destinazioni.map((dest, index) => {
+            const isLast = index === destinazioni.length - 1;
+            return (
+              <div key={`dest-${index}`} className="flex items-start gap-3">
+                <div className={`mt-1 p-1.5 rounded-full ${isLast ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
+                  {isLast ? (
+                    <Flag className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
+                  ) : (
+                    <Navigation className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-muted-foreground mb-0.5">
+                    {isLast ? 'Arrivo' : `Tappa ${index + 1}`}
+                    {dest.passeggeri.length > 0 && (
+                      <span className="text-muted-foreground font-normal">
+                        {" - "}{dest.passeggeri.join(', ')}
+                      </span>
+                    )}
+                  </div>
+                  {dest.citta && (
+                    <div className="font-semibold text-sm">{dest.citta}</div>
+                  )}
+                  <div className="font-medium text-sm">{dest.indirizzo}</div>
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      {/* RIGA 2 DX - Note */}
+      <div className="flex flex-col gap-4">
+        {servizio.note ? (
+          <NoteCard note={servizio.note} />
+        ) : (
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Dati Operativi</CardTitle>
+              <CardTitle className="text-base">Note</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {isDipendenteAssegnato ? (
-                <>
-                  {Number((servizio as any).ore_effettive || 0) > 0 && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Ore lavorate</span>
+            <CardContent>
+              <div className="text-sm text-muted-foreground text-center py-4">
+                Nessuna nota
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Dati Operativi - per completati/consuntivati */}
+        {(servizio.stato === 'completato' || servizio.stato === 'consuntivato') && (() => {
+          const ruoloAssegnato = (servizio as any)?.assegnato?.role;
+          const isDipendenteAssegnato = ruoloAssegnato === 'dipendente';
+          const hasDatiOperativi = 
+            Number(servizio.km_totali || 0) > 0 ||
+            Number(servizio.ore_sosta || 0) > 0 ||
+            Number((servizio as any).ore_effettive || 0) > 0;
+
+          if (!hasDatiOperativi) return null;
+
+          return (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Dati Operativi</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {isDipendenteAssegnato ? (
+                  <>
+                    {Number((servizio as any).ore_effettive || 0) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Ore lavorate</span>
+                        </div>
+                        <span className="font-medium">{(servizio as any).ore_effettive}h</span>
                       </div>
-                      <span className="font-medium">{(servizio as any).ore_effettive}h</span>
+                    )}
+                    {Number(servizio.ore_sosta || 0) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Ore fatturate al cliente</span>
+                        </div>
+                        <span className="font-medium">{servizio.ore_sosta}h</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {servizio.km_totali !== null && servizio.km_totali > 0 && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Car className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">KM Totali</span>
+                        </div>
+                        <span className="font-medium">{servizio.km_totali} km</span>
+                      </div>
+                    )}
+                    {servizio.ore_sosta !== null && servizio.ore_sosta > 0 && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Ore di Sosta</span>
+                        </div>
+                        <span className="font-medium">{servizio.ore_sosta}h</span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
+
+        {/* Firma Cliente */}
+        {firmaDigitaleAttiva && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Firma Cliente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {servizio.firma_url ? (
+                <div className="border rounded-lg p-4 bg-muted/30">
+                  <img 
+                    src={servizio.firma_url} 
+                    alt="Firma cliente" 
+                    className="max-h-32 mx-auto"
+                  />
+                  {servizio.firma_timestamp && (
+                    <div className="text-xs text-muted-foreground text-center mt-2">
+                      Firmato il {new Date(servizio.firma_timestamp).toLocaleString("it-IT")}
                     </div>
                   )}
-                  {Number(servizio.ore_sosta || 0) > 0 && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Ore fatturate al cliente</span>
-                      </div>
-                      <span className="font-medium">{servizio.ore_sosta}h</span>
-                    </div>
-                  )}
-                </>
+                </div>
               ) : (
-                <>
-                  {servizio.km_totali !== null && servizio.km_totali > 0 && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">KM Totali</span>
-                      </div>
-                      <span className="font-medium">{servizio.km_totali} km</span>
-                    </div>
-                  )}
-                  {servizio.ore_sosta !== null && servizio.ore_sosta > 0 && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Ore di Sosta</span>
-                      </div>
-                      <span className="font-medium">{servizio.ore_sosta}h</span>
-                    </div>
-                  )}
-                </>
+                <div className="text-sm text-muted-foreground text-center py-8">
+                  Firma non ancora ricevuta
+                </div>
               )}
             </CardContent>
           </Card>
-        );
-      })()}
+        )}
+      </div>
 
-      {/* Dettagli Economici */}
+      {/* RIGA 3 SX - Dettagli Economici */}
       <FinancialSection
         servizio={servizio}
         users={users || []}
@@ -399,42 +446,9 @@ export function ServizioMainContent({
         isAdmin={profile?.role === 'admin'}
       />
 
-      {/* Note */}
-      {servizio.note && (
-        <NoteCard note={servizio.note} />
-      )}
-
-      {/* Firma Cliente - solo se firma digitale attiva */}
-      {firmaDigitaleAttiva && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Firma Cliente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {servizio.firma_url ? (
-              <div className="border rounded-lg p-4 bg-muted/30">
-                <img 
-                  src={servizio.firma_url} 
-                  alt="Firma cliente" 
-                  className="max-h-32 mx-auto"
-                />
-                {servizio.firma_timestamp && (
-                  <div className="text-xs text-muted-foreground text-center mt-2">
-                    Firmato il {new Date(servizio.firma_timestamp).toLocaleString("it-IT")}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground text-center py-8">
-                Firma non ancora ricevuta
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-      {/* Email Logs - solo admin/socio */}
+      {/* RIGA 3 DX - Email Inviate */}
       {isAdminOrSocio && (
-        <Card className="col-span-2">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Mail className="h-4 w-4" />
