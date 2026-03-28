@@ -107,7 +107,7 @@ export function ServizioMainContent({
     : aziendaNome || '—';
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 items-start">
       {/* RIGA 1 SX - Info Servizio */}
       <Card>
         <CardContent className="p-4">
