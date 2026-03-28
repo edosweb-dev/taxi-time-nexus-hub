@@ -1549,6 +1549,7 @@ export const ServizioCreaPage = ({
           if (mode !== 'edit' && data.passeggeri && data.passeggeri.length > 0) {
             const primo = data.passeggeri[0];
             
+            // Presa: dal PRIMO passeggero (primo pick-up)
             if (primo.presa_tipo === 'personalizzato') {
               data.indirizzo_presa = primo.presa_indirizzo_custom || '';
               data.citta_presa = primo.presa_citta_custom || null;
@@ -1557,12 +1558,18 @@ export const ServizioCreaPage = ({
               data.citta_presa = primo.localita_rubrica || primo.localita || null;
             }
             
-            if (primo.destinazione_tipo === 'personalizzato') {
-              data.indirizzo_destinazione = primo.destinazione_indirizzo_custom || '';
-              data.citta_destinazione = primo.destinazione_citta_custom || null;
-            } else if (primo.destinazione_tipo === 'passeggero') {
-              data.indirizzo_destinazione = primo.indirizzo_rubrica || primo.indirizzo || '';
-              data.citta_destinazione = primo.localita_rubrica || primo.localita || null;
+            // Destinazione: dall'ULTIMO passeggero (ultima fermata)
+            const passeggeriOrdinati = [...data.passeggeri].sort(
+              (a, b) => (a.ordine_presa ?? 0) - (b.ordine_presa ?? 0)
+            );
+            const ultimo = passeggeriOrdinati[passeggeriOrdinati.length - 1];
+            
+            if (ultimo.destinazione_tipo === 'personalizzato') {
+              data.indirizzo_destinazione = ultimo.destinazione_indirizzo_custom || '';
+              data.citta_destinazione = ultimo.destinazione_citta_custom || null;
+            } else if (ultimo.destinazione_tipo === 'passeggero') {
+              data.indirizzo_destinazione = ultimo.indirizzo_rubrica || ultimo.indirizzo || '';
+              data.citta_destinazione = ultimo.localita_rubrica || ultimo.localita || null;
             }
             
             console.log('[Pre-validation] Indirizzi popolati:', {
@@ -1589,16 +1596,20 @@ export const ServizioCreaPage = ({
                 console.log('[Pre-validation] Edit - preserved indirizzo_presa from DB:', data.indirizzo_presa);
               }
               
-              // Derive indirizzo_destinazione if empty
+              // Derive indirizzo_destinazione if empty — dall'ULTIMO passeggero
               if (!data.indirizzo_destinazione || data.indirizzo_destinazione.trim() === '') {
-                if (primo.destinazione_tipo === 'passeggero') {
-                  data.indirizzo_destinazione = primo.indirizzo_rubrica || primo.indirizzo || '';
-                  data.citta_destinazione = primo.localita_rubrica || primo.localita || null;
-                } else if (primo.destinazione_tipo === 'personalizzato' || primo.destinazione_tipo === 'aeroporto') {
-                  data.indirizzo_destinazione = primo.destinazione_indirizzo_custom || '';
-                  data.citta_destinazione = primo.destinazione_citta_custom || null;
+                const passeggeriOrdinati = [...data.passeggeri].sort(
+                  (a, b) => (a.ordine_presa ?? 0) - (b.ordine_presa ?? 0)
+                );
+                const ultimo = passeggeriOrdinati[passeggeriOrdinati.length - 1];
+                if (ultimo.destinazione_tipo === 'passeggero') {
+                  data.indirizzo_destinazione = ultimo.indirizzo_rubrica || ultimo.indirizzo || '';
+                  data.citta_destinazione = ultimo.localita_rubrica || ultimo.localita || null;
+                } else if (ultimo.destinazione_tipo === 'personalizzato' || ultimo.destinazione_tipo === 'aeroporto') {
+                  data.indirizzo_destinazione = ultimo.destinazione_indirizzo_custom || '';
+                  data.citta_destinazione = ultimo.destinazione_citta_custom || null;
                 }
-                console.log('[Pre-validation] Edit - derived indirizzo_destinazione:', data.indirizzo_destinazione);
+                console.log('[Pre-validation] Edit - derived indirizzo_destinazione from ultimo:', data.indirizzo_destinazione);
               } else {
                 console.log('[Pre-validation] Edit - preserved indirizzo_destinazione from DB:', data.indirizzo_destinazione);
               }
