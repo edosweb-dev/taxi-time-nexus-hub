@@ -102,8 +102,54 @@ export function ServizioMainContent({
     ? getDestinazioniRaggruppate(passeggeriOrdinati, servizio)
     : [{ indirizzo: servizio.indirizzo_destinazione, citta: servizio.citta_destinazione || undefined, passeggeri: [] as string[] }];
 
+  const clienteLabel = servizio.tipo_cliente === 'privato'
+    ? `${servizio.cliente_privato_nome || ''} ${servizio.cliente_privato_cognome || ''}`.trim() || '—'
+    : aziendaNome || '—';
+
   return (
     <div className="grid grid-cols-2 gap-4">
+      {/* Info Grid */}
+      <Card className="col-span-2">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+            <div className="space-y-0.5">
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Building2 className="h-3.5 w-3.5" />
+                {servizio.tipo_cliente === 'privato' ? 'Cliente privato' : 'Azienda'}
+              </div>
+              <div className="text-sm font-medium">{clienteLabel}</div>
+            </div>
+            <div className="space-y-0.5">
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5" />
+                Assegnato a
+              </div>
+              <div className="text-sm font-medium">
+                {servizio.conducente_esterno
+                  ? servizio.conducente_esterno_nome || 'Conducente esterno'
+                  : autistaNome || '—'}
+              </div>
+            </div>
+            {referenteNome && (
+              <div className="space-y-0.5">
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5" />
+                  Referente
+                </div>
+                <div className="text-sm font-medium">{referenteNome}</div>
+              </div>
+            )}
+            <div className="space-y-0.5">
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Car className="h-3.5 w-3.5" />
+                Veicolo
+              </div>
+              <div className="text-sm font-medium">{veicoloModello || '—'}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Percorso */}
       <Card>
         <CardHeader className="pb-3">
