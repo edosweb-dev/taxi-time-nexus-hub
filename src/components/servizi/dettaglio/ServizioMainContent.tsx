@@ -41,6 +41,10 @@ interface ServizioMainContentProps {
   passeggeri: PasseggeroConDettagli[];
   formatCurrency: (value?: number | null) => string;
   firmaDigitaleAttiva: boolean;
+  aziendaNome?: string;
+  referenteNome?: string;
+  autistaNome?: string;
+  veicoloModello?: string;
 }
 
 export function ServizioMainContent({
@@ -48,6 +52,10 @@ export function ServizioMainContent({
   passeggeri,
   formatCurrency,
   firmaDigitaleAttiva,
+  aziendaNome,
+  referenteNome,
+  autistaNome,
+  veicoloModello,
 }: ServizioMainContentProps) {
   const { profile } = useAuth();
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
