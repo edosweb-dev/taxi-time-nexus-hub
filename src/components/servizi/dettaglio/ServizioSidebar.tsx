@@ -132,18 +132,6 @@ export function ServizioSidebar({
             </Button>
           )}
 
-          {/* Modifica Assegnazione - Solo se assegnato e admin/socio */}
-          {servizio.stato === "assegnato" && isAdmin && (
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              size="sm"
-              onClick={onAssegna}
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Modifica Assegnazione
-            </Button>
-          )}
 
           {/* Rimuovi Assegnazione - Solo se assegnato e admin/socio */}
           {servizio.stato === "assegnato" && isAdmin && onRimuoviAssegnazione && (
