@@ -108,224 +108,238 @@ export function ServizioMainContent({
 
   return (
     <div className="grid grid-cols-2 gap-4 items-start">
-      {/* RIGA 1 SX - Info Servizio */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-            <div className="space-y-0.5">
-              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Building2 className="h-3.5 w-3.5" />
-                {servizio.tipo_cliente === 'privato' ? 'Cliente privato' : 'Azienda'}
+      {/* COLONNA SINISTRA */}
+      <div className="flex flex-col gap-4">
+        {/* Info Servizio */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+              <div className="space-y-0.5">
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Building2 className="h-3.5 w-3.5" />
+                  {servizio.tipo_cliente === 'privato' ? 'Cliente privato' : 'Azienda'}
+                </div>
+                <div className="text-sm font-medium">{clienteLabel}</div>
               </div>
-              <div className="text-sm font-medium">{clienteLabel}</div>
-            </div>
-            <div className="space-y-0.5">
-              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5" />
-                Assegnato a
-              </div>
-              <div className="text-sm font-medium">
-                {servizio.conducente_esterno
-                  ? servizio.conducente_esterno_nome || 'Conducente esterno'
-                  : autistaNome || '—'}
-              </div>
-            </div>
-            {referenteNome && (
               <div className="space-y-0.5">
                 <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5" />
-                  Referente
+                  Assegnato a
                 </div>
-                <div className="text-sm font-medium">{referenteNome}</div>
+                <div className="text-sm font-medium">
+                  {servizio.conducente_esterno
+                    ? servizio.conducente_esterno_nome || 'Conducente esterno'
+                    : autistaNome || '—'}
+                </div>
+              </div>
+              {referenteNome && (
+                <div className="space-y-0.5">
+                  <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5" />
+                    Referente
+                  </div>
+                  <div className="text-sm font-medium">{referenteNome}</div>
+                </div>
+              )}
+              <div className="space-y-0.5">
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Car className="h-3.5 w-3.5" />
+                  Veicolo
+                </div>
+                <div className="text-sm font-medium">{veicoloModello || '—'}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Percorso */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Percorso</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* Partenza */}
+            <div className="flex items-start gap-3">
+              <div className="mt-1 p-1.5 rounded-full bg-primary/10">
+                <MapPin className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-muted-foreground mb-0.5">
+                  <span>Partenza</span>
+                  {primoPasseggero && passeggeriOrdinati.length === 1 && (
+                    <span className="text-muted-foreground font-normal">
+                      {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
+                    </span>
+                  )}
+                </div>
+                {partenza.citta && (
+                  <div className="font-semibold text-sm">{partenza.citta}</div>
+                )}
+                <div className="font-medium text-sm">{partenza.via}</div>
+                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {formatTime(servizio.orario_servizio)}
+                </div>
+              </div>
+            </div>
+
+            {/* Fermate intermedie */}
+            {passeggeriOrdinati.slice(1).length > 0 && (
+              <div className="pl-6 border-l-2 border-muted space-y-2">
+                {passeggeriOrdinati.slice(1).map((p, idx) => {
+                  const hasCustomAddress = p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato;
+                  const indirizzo = hasCustomAddress
+                    ? p.luogo_presa_personalizzato
+                    : servizio.indirizzo_presa;
+                  const cittaFermata = hasCustomAddress
+                    ? (p.localita_presa_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_presa)
+                    : servizio.citta_presa;
+
+                  return (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="mt-1 p-1.5 rounded-full bg-muted">
+                        <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs text-muted-foreground mb-0.5">
+                          Fermata - {p.nome_cognome}
+                          {!hasCustomAddress && (
+                            <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
+                          )}
+                        </div>
+                        <div className="text-sm">
+                          {cittaFermata && (
+                            <span className="font-semibold text-foreground">{cittaFermata}</span>
+                          )}
+                          {cittaFermata && indirizzo && " • "}
+                          <span className="text-muted-foreground">{indirizzo}</span>
+                        </div>
+                        {p.orario_presa_personalizzato && (
+                          <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatTime(p.orario_presa_personalizzato)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
-            <div className="space-y-0.5">
-              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Car className="h-3.5 w-3.5" />
-                Veicolo
-              </div>
-              <div className="text-sm font-medium">{veicoloModello || '—'}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* RIGA 1 DX - Passeggeri */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Passeggeri ({passeggeri.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {passeggeri.length > 0 ? (
-            <div className="space-y-2">
-              {passeggeri.map((passeggero, index) => {
-                const isTemporary = (passeggero as any).tipo === 'temporaneo';
-                return (
-                  <div
-                    key={passeggero.id || index}
-                    className={`p-3 rounded-lg border flex items-start gap-2 ${
-                      isTemporary ? 'bg-blue-50/50' : 'bg-muted/30'
-                    }`}
-                  >
-                    <div className={`p-1.5 rounded-full mt-0.5 ${
-                      isTemporary ? 'bg-blue-100' : 'bg-primary/10'
-                    }`}>
-                      <User className={`h-3.5 w-3.5 ${
-                        isTemporary ? 'text-blue-700' : 'text-primary'
-                      }`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="font-medium text-sm">
-                          {passeggero.nome_cognome}
-                        </div>
-                        {isTemporary ? (
-                          <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-800 rounded">
-                            Ospite
-                          </span>
-                        ) : (
-                          <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-800 rounded">
-                            Rubrica
-                          </span>
-                        )}
-                      </div>
-                      {passeggero.email && (
-                        <div className="text-xs text-muted-foreground truncate">
-                          📧 {passeggero.email}
-                        </div>
-                      )}
-                      {passeggero.telefono && (
-                        <div className="text-xs text-muted-foreground">
-                          📱 {passeggero.telefono}
-                        </div>
-                      )}
-                      {(passeggero.localita || passeggero.indirizzo) && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          📍 {passeggero.localita}{passeggero.localita && passeggero.indirizzo && ', '}{passeggero.indirizzo}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground text-center py-4">
-              Nessun passeggero
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* RIGA 2 SX - Percorso */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Percorso</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {/* Partenza */}
-          <div className="flex items-start gap-3">
-            <div className="mt-1 p-1.5 rounded-full bg-primary/10">
-              <MapPin className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs text-muted-foreground mb-0.5">
-                <span>Partenza</span>
-                {primoPasseggero && passeggeriOrdinati.length === 1 && (
-                  <span className="text-muted-foreground font-normal">
-                    {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
-                  </span>
-                )}
-              </div>
-              {partenza.citta && (
-                <div className="font-semibold text-sm">{partenza.citta}</div>
-              )}
-              <div className="font-medium text-sm">{partenza.via}</div>
-              <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {formatTime(servizio.orario_servizio)}
-              </div>
-            </div>
-          </div>
-
-          {/* Fermate intermedie */}
-          {passeggeriOrdinati.slice(1).length > 0 && (
-            <div className="pl-6 border-l-2 border-muted space-y-2">
-              {passeggeriOrdinati.slice(1).map((p, idx) => {
-                const hasCustomAddress = p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato;
-                const indirizzo = hasCustomAddress
-                  ? p.luogo_presa_personalizzato
-                  : servizio.indirizzo_presa;
-                const cittaFermata = hasCustomAddress
-                  ? (p.localita_presa_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_presa)
-                  : servizio.citta_presa;
-
-                return (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="mt-1 p-1.5 rounded-full bg-muted">
-                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-muted-foreground mb-0.5">
-                        Fermata - {p.nome_cognome}
-                        {!hasCustomAddress && (
-                          <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
-                        )}
-                      </div>
-                      <div className="text-sm">
-                        {cittaFermata && (
-                          <span className="font-semibold text-foreground">{cittaFermata}</span>
-                        )}
-                        {cittaFermata && indirizzo && " • "}
-                        <span className="text-muted-foreground">{indirizzo}</span>
-                      </div>
-                      {p.orario_presa_personalizzato && (
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {formatTime(p.orario_presa_personalizzato)}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Destinazioni */}
-          {destinazioni.map((dest, index) => {
-            const isLast = index === destinazioni.length - 1;
-            return (
-              <div key={`dest-${index}`} className="flex items-start gap-3">
-                <div className={`mt-1 p-1.5 rounded-full ${isLast ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
-                  {isLast ? (
-                    <Flag className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
-                  ) : (
-                    <Navigation className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-muted-foreground mb-0.5">
-                    {isLast ? 'Arrivo' : `Tappa ${index + 1}`}
-                    {dest.passeggeri.length > 0 && (
-                      <span className="text-muted-foreground font-normal">
-                        {" - "}{dest.passeggeri.join(', ')}
-                      </span>
+            {/* Destinazioni */}
+            {destinazioni.map((dest, index) => {
+              const isLast = index === destinazioni.length - 1;
+              return (
+                <div key={`dest-${index}`} className="flex items-start gap-3">
+                  <div className={`mt-1 p-1.5 rounded-full ${isLast ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
+                    {isLast ? (
+                      <Flag className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
+                    ) : (
+                      <Navigation className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     )}
                   </div>
-                  {dest.citta && (
-                    <div className="font-semibold text-sm">{dest.citta}</div>
-                  )}
-                  <div className="font-medium text-sm">{dest.indirizzo}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-muted-foreground mb-0.5">
+                      {isLast ? 'Arrivo' : `Tappa ${index + 1}`}
+                      {dest.passeggeri.length > 0 && (
+                        <span className="text-muted-foreground font-normal">
+                          {" - "}{dest.passeggeri.join(', ')}
+                        </span>
+                      )}
+                    </div>
+                    {dest.citta && (
+                      <div className="font-semibold text-sm">{dest.citta}</div>
+                    )}
+                    <div className="font-medium text-sm">{dest.indirizzo}</div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+              );
+            })}
+          </CardContent>
+        </Card>
 
-      {/* RIGA 2 DX - Note */}
+        {/* Informazioni Finanziarie */}
+        <FinancialSection
+          servizio={servizio}
+          users={users || []}
+          azienda={azienda}
+          getUserName={getUserName}
+          formatCurrency={formatCurrency}
+          isAdmin={profile?.role === 'admin'}
+        />
+      </div>
+
+      {/* COLONNA DESTRA */}
       <div className="flex flex-col gap-4">
+        {/* Passeggeri */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Passeggeri ({passeggeri.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {passeggeri.length > 0 ? (
+              <div className="space-y-2">
+                {passeggeri.map((passeggero, index) => {
+                  const isTemporary = (passeggero as any).tipo === 'temporaneo';
+                  return (
+                    <div
+                      key={passeggero.id || index}
+                      className={`p-3 rounded-lg border flex items-start gap-2 ${
+                        isTemporary ? 'bg-blue-50/50' : 'bg-muted/30'
+                      }`}
+                    >
+                      <div className={`p-1.5 rounded-full mt-0.5 ${
+                        isTemporary ? 'bg-blue-100' : 'bg-primary/10'
+                      }`}>
+                        <User className={`h-3.5 w-3.5 ${
+                          isTemporary ? 'text-blue-700' : 'text-primary'
+                        }`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="font-medium text-sm">
+                            {passeggero.nome_cognome}
+                          </div>
+                          {isTemporary ? (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-800 rounded">
+                              Ospite
+                            </span>
+                          ) : (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-800 rounded">
+                              Rubrica
+                            </span>
+                          )}
+                        </div>
+                        {passeggero.email && (
+                          <div className="text-xs text-muted-foreground truncate">
+                            📧 {passeggero.email}
+                          </div>
+                        )}
+                        {passeggero.telefono && (
+                          <div className="text-xs text-muted-foreground">
+                            📱 {passeggero.telefono}
+                          </div>
+                        )}
+                        {(passeggero.localita || passeggero.indirizzo) && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            📍 {passeggero.localita}{passeggero.localita && passeggero.indirizzo && ', '}{passeggero.indirizzo}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground text-center py-4">
+                Nessun passeggero
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Note */}
         {servizio.note ? (
           <NoteCard note={servizio.note} />
         ) : (
@@ -434,32 +448,22 @@ export function ServizioMainContent({
             </CardContent>
           </Card>
         )}
+
+        {/* Email Inviate */}
+        {isAdminOrSocio && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Email Inviate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <EmailLogsTab servizioId={servizio.id} />
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* RIGA 3 SX - Dettagli Economici */}
-      <FinancialSection
-        servizio={servizio}
-        users={users || []}
-        azienda={azienda}
-        getUserName={getUserName}
-        formatCurrency={formatCurrency}
-        isAdmin={profile?.role === 'admin'}
-      />
-
-      {/* RIGA 3 DX - Email Inviate */}
-      {isAdminOrSocio && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Email Inviate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EmailLogsTab servizioId={servizio.id} />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
