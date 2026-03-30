@@ -7,6 +7,7 @@ import { MobileClientiPrivatiList } from '@/components/clienti/mobile-first/Mobi
 import { DeleteClientePrivatoDialog } from '@/components/clienti/DeleteClientePrivatoDialog';
 import { CreateClientePrivatoDialog } from '@/components/clienti/CreateClientePrivatoDialog';
 import { EditClientePrivatoDialog } from '@/components/clienti/EditClientePrivatoDialog';
+import { ViewClientePrivatoDialog } from '@/components/clienti/ViewClientePrivatoDialog';
 import { fetchClientiPrivati, deleteClientePrivato } from '@/lib/api/clientiPrivati';
 import { ClientePrivato } from '@/lib/types/servizi';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -28,6 +29,7 @@ export default function ClientiPrivatiPage() {
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<ClientePrivato | null>(null);
+  const [viewingCliente, setViewingCliente] = useState<ClientePrivato | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<ClientePrivato | null>(null);
 
@@ -41,8 +43,7 @@ export default function ClientiPrivatiPage() {
   };
 
   const handleViewCliente = (cliente: ClientePrivato) => {
-    // TODO: Implementare pagina dettaglio cliente
-    toast.info('Dettaglio cliente in arrivo');
+    setViewingCliente(cliente);
   };
 
   const handleEditCliente = (cliente: ClientePrivato) => {
@@ -101,6 +102,19 @@ export default function ClientiPrivatiPage() {
               onDelete={handleDeleteCliente}
               onView={handleViewCliente}
               onAddCliente={handleAddCliente}
+            />
+          )}
+
+          {viewingCliente && (
+            <ViewClientePrivatoDialog
+              open={!!viewingCliente}
+              onOpenChange={(open) => !open && setViewingCliente(null)}
+              cliente={viewingCliente}
+              onEdit={() => {
+                const cliente = viewingCliente;
+                setViewingCliente(null);
+                setEditingCliente(cliente);
+              }}
             />
           )}
 
