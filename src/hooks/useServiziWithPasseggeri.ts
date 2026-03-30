@@ -60,6 +60,10 @@ export const useServiziWithPasseggeri = () => {
           servizio_id,
           passeggero_id,
           nome_cognome_inline,
+          destinazione_personalizzato,
+          localita_destinazione_personalizzato,
+          luogo_presa_personalizzato,
+          localita_presa_personalizzato,
           passeggeri:passeggero_id (
             id,
             nome_cognome
