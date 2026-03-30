@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 // DropdownMenu rimosso - sostituito con icone dirette con tooltip
-import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, CheckCircle, XCircle, FileText, Eye, UserPlus, UserRound } from "lucide-react";
+import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, CheckCircle, XCircle, FileText, Eye, UserPlus, UserRound, X } from "lucide-react";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
@@ -53,6 +54,7 @@ export default function ServiziPage() {
   const [showModal, setShowModal] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [servizioToDelete, setServizioToDelete] = useState<string | null>(null);
+  const [dataFiltro, setDataFiltro] = useState<Date | undefined>(undefined);
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -94,9 +96,15 @@ export default function ServiziPage() {
 
   // Filter servizi by active tab + ordinamento differenziato
   const filteredServizi = useMemo(() => {
-    const filtered = servizi.filter(
+    let filtered = servizi.filter(
       (s: ServizioWithPasseggeri) => s.stato === activeTab
     );
+
+    // Filtro per data specifica (BUG-59)
+    if (dataFiltro) {
+      const target = format(dataFiltro, 'yyyy-MM-dd');
+      filtered = filtered.filter(s => s.data_servizio === target);
+    }
     
     // Ordinamento differenziato per tipo tab
     const isOperationalTab = OPERATIONAL_TABS.includes(activeTab);
@@ -106,14 +114,12 @@ export default function ServiziPage() {
       const dateB = new Date(`${b.data_servizio}T${b.orario_servizio || '00:00'}`);
       
       if (isOperationalTab) {
-        // ASC: servizi imminenti prima (date più vicine prima)
         return dateA.getTime() - dateB.getTime();
       } else {
-        // DESC: servizi più recenti prima (storico)
         return dateB.getTime() - dateA.getTime();
       }
     });
-  }, [servizi, activeTab]);
+  }, [servizi, activeTab, dataFiltro]);
 
   const getStatusColor = (stato: string) => {
     const colors: Record<string, string> = {
@@ -304,8 +310,8 @@ export default function ServiziPage() {
           </Button>
         </div>
 
-        {/* Bottone Cerca */}
-        <div className="mb-4">
+        {/* Toolbar: Cerca + Filtro Data */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
           <Button 
             variant="outline" 
             onClick={() => navigate('/servizi/ricerca')}
@@ -314,6 +320,18 @@ export default function ServiziPage() {
             <Search className="h-4 w-4" />
             Cerca
           </Button>
+          <DatePickerField
+            value={dataFiltro}
+            onChange={setDataFiltro}
+            placeholder="Filtra per data"
+            className="w-full sm:w-[220px]"
+          />
+          {dataFiltro && (
+            <Badge variant="secondary" className="gap-1 px-3 py-1.5 text-sm cursor-pointer hover:bg-secondary/80" onClick={() => setDataFiltro(undefined)}>
+              Data: {format(dataFiltro, 'dd/MM/yyyy', { locale: it })}
+              <X className="h-3 w-3" />
+            </Badge>
+          )}
         </div>
 
         {/* Tabs Responsive con Sfondo Desktop */}
