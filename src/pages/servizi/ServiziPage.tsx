@@ -54,6 +54,7 @@ export default function ServiziPage() {
   const [showModal, setShowModal] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [servizioToDelete, setServizioToDelete] = useState<string | null>(null);
+  const [dataFiltro, setDataFiltro] = useState<Date | undefined>(undefined);
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
