@@ -7,6 +7,7 @@ import { MobileClientiPrivatiList } from '@/components/clienti/mobile-first/Mobi
 import { DeleteClientePrivatoDialog } from '@/components/clienti/DeleteClientePrivatoDialog';
 import { CreateClientePrivatoDialog } from '@/components/clienti/CreateClientePrivatoDialog';
 import { EditClientePrivatoDialog } from '@/components/clienti/EditClientePrivatoDialog';
+import { ViewClientePrivatoDialog } from '@/components/clienti/ViewClientePrivatoDialog';
 import { fetchClientiPrivati, deleteClientePrivato } from '@/lib/api/clientiPrivati';
 import { ClientePrivato } from '@/lib/types/servizi';
 import { useIsMobile } from '@/hooks/use-mobile';
