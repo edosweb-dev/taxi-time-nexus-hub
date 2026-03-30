@@ -84,18 +84,16 @@ export const useServiziWithPasseggeri = () => {
 
         // Crea array passeggeri includendo entrambi i tipi
         const passeggeri = servizioPasseggeri.map(p => {
+          const base = {
+            destinazione_personalizzato: p.destinazione_personalizzato,
+            localita_destinazione_personalizzato: p.localita_destinazione_personalizzato,
+            luogo_presa_personalizzato: p.luogo_presa_personalizzato,
+            localita_presa_personalizzato: p.localita_presa_personalizzato,
+          };
           if (p.passeggeri) {
-            // Passeggero permanente (da rubrica)
-            return {
-              id: p.passeggeri.id,
-              nome_cognome: p.passeggeri.nome_cognome
-            };
+            return { ...base, id: p.passeggeri.id, nome_cognome: p.passeggeri.nome_cognome };
           } else {
-            // Passeggero temporaneo (inline)
-            return {
-              id: p.passeggero_id || `temp-${p.servizio_id}`,
-              nome_cognome: p.nome_cognome_inline || 'N/A'
-            };
+            return { ...base, id: p.passeggero_id || `temp-${p.servizio_id}`, nome_cognome: p.nome_cognome_inline || 'N/A' };
           }
         });
 
