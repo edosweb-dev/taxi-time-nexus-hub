@@ -2,9 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Servizio } from '@/lib/types/servizi';
 
-interface PasseggeroInfo {
+export interface PasseggeroInfo {
   id: string;
   nome_cognome: string;
+  destinazione_personalizzato?: string | null;
+  localita_destinazione_personalizzato?: string | null;
+  luogo_presa_personalizzato?: string | null;
+  localita_presa_personalizzato?: string | null;
 }
 
 export interface ServizioWithPasseggeri extends Servizio {
