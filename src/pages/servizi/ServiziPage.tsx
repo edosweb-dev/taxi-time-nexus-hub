@@ -310,8 +310,8 @@ export default function ServiziPage() {
           </Button>
         </div>
 
-        {/* Bottone Cerca */}
-        <div className="mb-4">
+        {/* Toolbar: Cerca + Filtro Data */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
           <Button 
             variant="outline" 
             onClick={() => navigate('/servizi/ricerca')}
@@ -320,6 +320,18 @@ export default function ServiziPage() {
             <Search className="h-4 w-4" />
             Cerca
           </Button>
+          <DatePickerField
+            value={dataFiltro}
+            onChange={setDataFiltro}
+            placeholder="Filtra per data"
+            className="w-full sm:w-[220px]"
+          />
+          {dataFiltro && (
+            <Badge variant="secondary" className="gap-1 px-3 py-1.5 text-sm cursor-pointer hover:bg-secondary/80" onClick={() => setDataFiltro(undefined)}>
+              Data: {format(dataFiltro, 'dd/MM/yyyy', { locale: it })}
+              <X className="h-3 w-3" />
+            </Badge>
+          )}
         </div>
 
         {/* Tabs Responsive con Sfondo Desktop */}
