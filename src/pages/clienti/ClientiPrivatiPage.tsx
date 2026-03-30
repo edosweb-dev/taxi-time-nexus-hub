@@ -105,6 +105,19 @@ export default function ClientiPrivatiPage() {
             />
           )}
 
+          {viewingCliente && (
+            <ViewClientePrivatoDialog
+              open={!!viewingCliente}
+              onOpenChange={(open) => !open && setViewingCliente(null)}
+              cliente={viewingCliente}
+              onEdit={() => {
+                const cliente = viewingCliente;
+                setViewingCliente(null);
+                setEditingCliente(cliente);
+              }}
+            />
+          )}
+
           <CreateClientePrivatoDialog
             open={isCreateDialogOpen}
             onOpenChange={setIsCreateDialogOpen}
