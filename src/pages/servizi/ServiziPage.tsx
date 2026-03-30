@@ -96,9 +96,15 @@ export default function ServiziPage() {
 
   // Filter servizi by active tab + ordinamento differenziato
   const filteredServizi = useMemo(() => {
-    const filtered = servizi.filter(
+    let filtered = servizi.filter(
       (s: ServizioWithPasseggeri) => s.stato === activeTab
     );
+
+    // Filtro per data specifica (BUG-59)
+    if (dataFiltro) {
+      const target = format(dataFiltro, 'yyyy-MM-dd');
+      filtered = filtered.filter(s => s.data_servizio === target);
+    }
     
     // Ordinamento differenziato per tipo tab
     const isOperationalTab = OPERATIONAL_TABS.includes(activeTab);
@@ -108,14 +114,12 @@ export default function ServiziPage() {
       const dateB = new Date(`${b.data_servizio}T${b.orario_servizio || '00:00'}`);
       
       if (isOperationalTab) {
-        // ASC: servizi imminenti prima (date più vicine prima)
         return dateA.getTime() - dateB.getTime();
       } else {
-        // DESC: servizi più recenti prima (storico)
         return dateB.getTime() - dateA.getTime();
       }
     });
-  }, [servizi, activeTab]);
+  }, [servizi, activeTab, dataFiltro]);
 
   const getStatusColor = (stato: string) => {
     const colors: Record<string, string> = {
