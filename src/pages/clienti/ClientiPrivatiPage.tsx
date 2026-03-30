@@ -43,8 +43,7 @@ export default function ClientiPrivatiPage() {
   };
 
   const handleViewCliente = (cliente: ClientePrivato) => {
-    // TODO: Implementare pagina dettaglio cliente
-    toast.info('Dettaglio cliente in arrivo');
+    setViewingCliente(cliente);
   };
 
   const handleEditCliente = (cliente: ClientePrivato) => {
