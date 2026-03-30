@@ -70,6 +70,13 @@ export default function RicercaServiziPage() {
           (p) => p.nome_cognome?.toLowerCase() || ""
         ).join(" ") || "";
 
+        const passeggeriTappe = servizio.passeggeri?.some(p =>
+          p.destinazione_personalizzato?.toLowerCase().includes(searchLower) ||
+          p.localita_destinazione_personalizzato?.toLowerCase().includes(searchLower) ||
+          p.luogo_presa_personalizzato?.toLowerCase().includes(searchLower) ||
+          p.localita_presa_personalizzato?.toLowerCase().includes(searchLower)
+        ) || false;
+
         return (
           servizio.numero_commessa?.toLowerCase().includes(searchLower) ||
           servizio.id_progressivo?.toLowerCase().includes(searchLower) ||
@@ -79,7 +86,8 @@ export default function RicercaServiziPage() {
           servizio.citta_destinazione?.toLowerCase().includes(searchLower) ||
           aziendaNome.includes(searchLower) ||
           clientePrivatoFull.includes(searchLower) ||
-          passeggeriNomi.includes(searchLower)
+          passeggeriNomi.includes(searchLower) ||
+          passeggeriTappe
         );
       });
     }

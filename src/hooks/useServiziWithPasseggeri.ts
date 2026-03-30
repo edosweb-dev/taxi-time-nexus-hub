@@ -2,9 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Servizio } from '@/lib/types/servizi';
 
-interface PasseggeroInfo {
+export interface PasseggeroInfo {
   id: string;
   nome_cognome: string;
+  destinazione_personalizzato?: string | null;
+  localita_destinazione_personalizzato?: string | null;
+  luogo_presa_personalizzato?: string | null;
+  localita_presa_personalizzato?: string | null;
 }
 
 export interface ServizioWithPasseggeri extends Servizio {
@@ -56,6 +60,10 @@ export const useServiziWithPasseggeri = () => {
           servizio_id,
           passeggero_id,
           nome_cognome_inline,
+          destinazione_personalizzato,
+          localita_destinazione_personalizzato,
+          luogo_presa_personalizzato,
+          localita_presa_personalizzato,
           passeggeri:passeggero_id (
             id,
             nome_cognome
@@ -76,18 +84,16 @@ export const useServiziWithPasseggeri = () => {
 
         // Crea array passeggeri includendo entrambi i tipi
         const passeggeri = servizioPasseggeri.map(p => {
+          const base = {
+            destinazione_personalizzato: p.destinazione_personalizzato,
+            localita_destinazione_personalizzato: p.localita_destinazione_personalizzato,
+            luogo_presa_personalizzato: p.luogo_presa_personalizzato,
+            localita_presa_personalizzato: p.localita_presa_personalizzato,
+          };
           if (p.passeggeri) {
-            // Passeggero permanente (da rubrica)
-            return {
-              id: p.passeggeri.id,
-              nome_cognome: p.passeggeri.nome_cognome
-            };
+            return { ...base, id: p.passeggeri.id, nome_cognome: p.passeggeri.nome_cognome };
           } else {
-            // Passeggero temporaneo (inline)
-            return {
-              id: p.passeggero_id || `temp-${p.servizio_id}`,
-              nome_cognome: p.nome_cognome_inline || 'N/A'
-            };
+            return { ...base, id: p.passeggero_id || `temp-${p.servizio_id}`, nome_cognome: p.nome_cognome_inline || 'N/A' };
           }
         });
 
