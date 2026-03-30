@@ -29,6 +29,7 @@ export default function ClientiPrivatiPage() {
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<ClientePrivato | null>(null);
+  const [viewingCliente, setViewingCliente] = useState<ClientePrivato | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<ClientePrivato | null>(null);
 
