@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 // DropdownMenu rimosso - sostituito con icone dirette con tooltip
-import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, CheckCircle, XCircle, FileText, Eye, UserPlus, UserRound } from "lucide-react";
+import { Plus, Calendar, MapPin, Loader2, Search, Filter, Users, CheckCircle, XCircle, FileText, Eye, UserPlus, UserRound, X } from "lucide-react";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
