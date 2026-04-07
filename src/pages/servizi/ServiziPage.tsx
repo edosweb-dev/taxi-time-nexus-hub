@@ -55,6 +55,7 @@ export default function ServiziPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [servizioToDelete, setServizioToDelete] = useState<string | null>(null);
   const [dataFiltro, setDataFiltro] = useState<Date | undefined>(undefined);
+  const [idFiltro, setIdFiltro] = useState('');
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -105,6 +106,14 @@ export default function ServiziPage() {
       const target = format(dataFiltro, 'yyyy-MM-dd');
       filtered = filtered.filter(s => s.data_servizio === target);
     }
+
+    // Filtro per ID progressivo
+    if (idFiltro.trim()) {
+      const term = idFiltro.trim().toLowerCase();
+      filtered = filtered.filter(s => 
+        s.id_progressivo?.toLowerCase().includes(term)
+      );
+    }
     
     // Ordinamento differenziato per tipo tab
     const isOperationalTab = OPERATIONAL_TABS.includes(activeTab);
@@ -119,7 +128,7 @@ export default function ServiziPage() {
         return dateB.getTime() - dateA.getTime();
       }
     });
-  }, [servizi, activeTab, dataFiltro]);
+  }, [servizi, activeTab, dataFiltro, idFiltro]);
 
   const getStatusColor = (stato: string) => {
     const colors: Record<string, string> = {
@@ -320,6 +329,15 @@ export default function ServiziPage() {
             <Search className="h-4 w-4" />
             Cerca
           </Button>
+          <div className="relative w-full sm:w-[180px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={idFiltro}
+              onChange={(e) => setIdFiltro(e.target.value)}
+              placeholder="Cerca per ID..."
+              className="pl-9"
+            />
+          </div>
           <DatePickerField
             value={dataFiltro}
             onChange={setDataFiltro}
