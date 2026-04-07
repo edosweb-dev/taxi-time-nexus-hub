@@ -1,57 +1,17 @@
 
 
-## Fix: Back button in ServizioDetailPage should preserve URL filters
+## Piano: Ottimizzazione mobile clienti privati
 
-### Problem
-The back button navigates explicitly to `/servizi` (or `/servizi?tab=X`), discarding `?data=` and `?id=` filter params that now live in the URL.
+### Modifiche — 2 file
 
-### Changes — 2 files
+#### 1. `src/components/clienti/EditClientePrivatoDialog.tsx`
+Convertire da Dialog a Sheet, stesso pattern già usato in `ViewClientePrivatoDialog`:
+- Sostituire `Dialog`/`DialogContent`/`DialogHeader`/`DialogTitle` con `Sheet`/`SheetContent`/`SheetHeader`/`SheetTitle`
+- Importare `useIsMobile` per condizionare `side="bottom"` (mobile) vs `side="right"` (desktop)
+- Mobile: `rounded-t-2xl max-h-[85vh] overflow-y-auto p-4 pb-6`
+- Desktop: `w-full sm:max-w-md overflow-y-auto`
+- Grid form fields: `grid-cols-1` su mobile, `grid-cols-2` su desktop
 
-#### 1. `src/pages/servizi/ServizioDetailPage.tsx`
-**Line 426-432** — Desktop sidebar `onBack` callback:
-```
-// BEFORE
-onBack={() => {
-  if (isFromReport && reportFilters) {
-    navigate('/report-passeggeri', { state: { filters: reportFilters } });
-  } else {
-    const backUrl = isDipendente ? '/dipendente/servizi-assegnati' : (fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
-    navigate(backUrl);
-  }
-}}
-
-// AFTER
-onBack={() => {
-  if (isFromReport && reportFilters) {
-    navigate('/report-passeggeri', { state: { filters: reportFilters } });
-  } else {
-    navigate(-1);
-  }
-}}
-```
-
-**Lines 306 and 551** — Post-delete `navigate('/servizi')`: These stay unchanged. After deleting a service, navigating to a clean `/servizi` is correct (the deleted service no longer exists in the filtered view).
-
-#### 2. `src/components/servizi/dettaglio/ServizioHeader.tsx`
-**Line 55** — Tablet back button:
-```
-// BEFORE
-onClick={() => navigate("/servizi")}
-
-// AFTER
-onClick={() => navigate(-1)}
-```
-
-### What is NOT changed
-- Post-delete navigations (correct to go to clean list)
-- Edit/create navigations (`/servizi/:id/modifica`)
-- `ServiziPage.tsx` (already fixed)
-- Dipendente redirect (security, line 104)
-- Mobile layout (no separate back button)
-
-### Acceptance criteria
-- Set date filter → enter service detail → click back button → filters preserved
-- Tab preserved via browser history (no longer needs `fromTab` state for this path)
-- Report back navigation still works (explicit path preserved)
-- Delete still navigates to clean `/servizi`
+#### 2. `src/components/clienti/mobile-first/MobileClientiPrivatiList.tsx`
+Rimuovere il pulsante "Dettagli" dalla sezione azioni di ogni card (righe 101-108). Lasciare solo "Modifica" e il bottone elimina.
 
