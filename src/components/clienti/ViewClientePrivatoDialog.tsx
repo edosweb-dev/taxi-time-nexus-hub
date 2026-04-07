@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ClientePrivato } from "@/lib/types/servizi";
 import { Mail, Phone, MapPin, StickyNote } from "lucide-react";
@@ -12,15 +12,15 @@ interface ViewClientePrivatoDialogProps {
 
 export function ViewClientePrivatoDialog({ open, onOpenChange, cliente, onEdit }: ViewClientePrivatoDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{cliente.cognome} {cliente.nome}</DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>{cliente.cognome} {cliente.nome}</SheetTitle>
+        </SheetHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6 py-6">
           {(cliente.email || cliente.telefono) && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground">Contatti</h4>
               {cliente.email && (
                 <div className="flex items-center gap-2 text-sm">
@@ -38,7 +38,7 @@ export function ViewClientePrivatoDialog({ open, onOpenChange, cliente, onEdit }
           )}
 
           {(cliente.indirizzo || cliente.citta) && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground">Indirizzo</h4>
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
@@ -48,7 +48,7 @@ export function ViewClientePrivatoDialog({ open, onOpenChange, cliente, onEdit }
           )}
 
           {cliente.note && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground">Note</h4>
               <div className="flex items-start gap-2 text-sm">
                 <StickyNote className="h-4 w-4 text-muted-foreground mt-0.5" />
@@ -62,11 +62,11 @@ export function ViewClientePrivatoDialog({ open, onOpenChange, cliente, onEdit }
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Chiudi</Button>
-          <Button onClick={onEdit}>Modifica</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <SheetFooter className="flex-row gap-2 sm:flex-row">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">Chiudi</Button>
+          <Button onClick={onEdit} className="flex-1">Modifica</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }
