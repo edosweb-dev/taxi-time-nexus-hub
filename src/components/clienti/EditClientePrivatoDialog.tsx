@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateClientePrivato } from "@/lib/api/clientiPrivati";
 import { ClientePrivato } from "@/lib/types/servizi";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const clienteSchema = z.object({
   nome: z.string().min(1, "Nome obbligatorio"),
@@ -29,6 +30,7 @@ interface EditClientePrivatoDialogProps {
 
 export function EditClientePrivatoDialog({ open, onOpenChange, cliente }: EditClientePrivatoDialogProps) {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   
   const form = useForm({
     resolver: zodResolver(clienteSchema),
@@ -56,14 +58,21 @@ export function EditClientePrivatoDialog({ open, onOpenChange, cliente }: EditCl
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Modifica Cliente</DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={
+          isMobile
+            ? "rounded-t-2xl max-h-[85vh] overflow-y-auto p-4 pb-6"
+            : "w-full sm:max-w-md overflow-y-auto"
+        }
+      >
+        <SheetHeader className={isMobile ? "pb-2" : ""}>
+          <SheetTitle className="text-left">Modifica Cliente</SheetTitle>
+        </SheetHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => update(data))} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit((data) => update(data))} className={isMobile ? "space-y-3 py-2" : "space-y-4 py-4"}>
+            <div className={isMobile ? "space-y-3" : "grid grid-cols-2 gap-4"}>
               <FormField control={form.control} name="nome" render={({ field }) => (
                 <FormItem><FormLabel>Nome *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
@@ -71,7 +80,7 @@ export function EditClientePrivatoDialog({ open, onOpenChange, cliente }: EditCl
                 <FormItem><FormLabel>Cognome *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className={isMobile ? "space-y-3" : "grid grid-cols-2 gap-4"}>
               <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
@@ -88,13 +97,13 @@ export function EditClientePrivatoDialog({ open, onOpenChange, cliente }: EditCl
             <FormField control={form.control} name="note" render={({ field }) => (
               <FormItem><FormLabel>Note</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl></FormItem>
             )} />
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annulla</Button>
-              <Button type="submit" disabled={isPending}>{isPending ? "Salvataggio..." : "Salva"}</Button>
-            </div>
+            <SheetFooter className="flex-row gap-2 sm:flex-row pt-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">Annulla</Button>
+              <Button type="submit" disabled={isPending} className="flex-1">{isPending ? "Salvataggio..." : "Salva"}</Button>
+            </SheetFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
