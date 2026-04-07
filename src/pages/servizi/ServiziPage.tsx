@@ -128,7 +128,7 @@ export default function ServiziPage() {
         return dateB.getTime() - dateA.getTime();
       }
     });
-  }, [servizi, activeTab, dataFiltro]);
+  }, [servizi, activeTab, dataFiltro, idFiltro]);
 
   const getStatusColor = (stato: string) => {
     const colors: Record<string, string> = {
