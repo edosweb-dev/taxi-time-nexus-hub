@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { ClientePrivato } from '@/lib/types/servizi';
 import {
   Table,
@@ -78,13 +78,6 @@ export function DesktopClientiPrivatiList({
                     <TableCell>{cliente.citta || '-'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => onView(cliente)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
