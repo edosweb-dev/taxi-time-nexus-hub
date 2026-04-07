@@ -42,8 +42,15 @@ export default function ServiziPage() {
   const { users = [] } = useUsers();
   
   const activeTab = searchParams.get('tab') || 'bozza';
+  const dataFiltroRaw = searchParams.get('data');
+  const dataFiltro = dataFiltroRaw ? new Date(dataFiltroRaw + 'T00:00:00') : undefined;
+  const idFiltro = searchParams.get('id') ?? '';
+
   const handleTabChange = (newTab: string) => {
-    setSearchParams({ tab: newTab }, { replace: true });
+    setSearchParams(prev => {
+      prev.set('tab', newTab);
+      return prev;
+    }, { replace: true });
   };
   const navigateToDetail = (servizioId: string) => {
     navigate(`/servizi/${servizioId}`, { state: { fromTab: activeTab } });
@@ -54,8 +61,6 @@ export default function ServiziPage() {
   const [showModal, setShowModal] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [servizioToDelete, setServizioToDelete] = useState<string | null>(null);
-  const [dataFiltro, setDataFiltro] = useState<Date | undefined>(undefined);
-  const [idFiltro, setIdFiltro] = useState('');
   
   // Check if user is admin or socio
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
@@ -335,19 +340,32 @@ export default function ServiziPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               value={idFiltro}
-              onChange={(e) => setIdFiltro(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchParams(prev => {
+                  if (value) { prev.set('id', value); } else { prev.delete('id'); }
+                  return prev;
+                }, { replace: true });
+              }}
               placeholder="Cerca per ID..."
               className="pl-9"
             />
           </div>
           <DatePickerField
             value={dataFiltro}
-            onChange={setDataFiltro}
+            onChange={(value) => {
+              setSearchParams(prev => {
+                if (value) { prev.set('data', format(value, 'yyyy-MM-dd')); } else { prev.delete('data'); }
+                return prev;
+              }, { replace: true });
+            }}
             placeholder="Filtra per data"
             className="w-full sm:w-[220px]"
           />
           {dataFiltro && (
-            <Badge variant="secondary" className="gap-1 px-3 py-1.5 text-sm cursor-pointer hover:bg-secondary/80" onClick={() => setDataFiltro(undefined)}>
+            <Badge variant="secondary" className="gap-1 px-3 py-1.5 text-sm cursor-pointer hover:bg-secondary/80" onClick={() => {
+              setSearchParams(prev => { prev.delete('data'); return prev; }, { replace: true });
+            }}>
               Data: {format(dataFiltro, 'dd/MM/yyyy', { locale: it })}
               <X className="h-3 w-3" />
             </Badge>
