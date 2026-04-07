@@ -106,6 +106,14 @@ export default function ServiziPage() {
       const target = format(dataFiltro, 'yyyy-MM-dd');
       filtered = filtered.filter(s => s.data_servizio === target);
     }
+
+    // Filtro per ID progressivo
+    if (idFiltro.trim()) {
+      const term = idFiltro.trim().toLowerCase();
+      filtered = filtered.filter(s => 
+        s.id_progressivo?.toLowerCase().includes(term)
+      );
+    }
     
     // Ordinamento differenziato per tipo tab
     const isOperationalTab = OPERATIONAL_TABS.includes(activeTab);
