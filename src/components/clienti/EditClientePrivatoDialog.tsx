@@ -72,7 +72,7 @@ export function EditClientePrivatoDialog({ open, onOpenChange, cliente }: EditCl
         </SheetHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => update(data))} className={isMobile ? "space-y-3 py-2" : "space-y-4 py-4"}>
-            <div className={isMobile ? "space-y-3" : "grid grid-cols-2 gap-4"}>
+            <div className="grid grid-cols-2 gap-3">
               <FormField control={form.control} name="nome" render={({ field }) => (
                 <FormItem><FormLabel>Nome *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
@@ -80,7 +80,7 @@ export function EditClientePrivatoDialog({ open, onOpenChange, cliente }: EditCl
                 <FormItem><FormLabel>Cognome *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
-            <div className={isMobile ? "space-y-3" : "grid grid-cols-2 gap-4"}>
+            <div className="grid grid-cols-2 gap-3">
               <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
@@ -88,12 +88,14 @@ export function EditClientePrivatoDialog({ open, onOpenChange, cliente }: EditCl
                 <FormItem><FormLabel>Telefono</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
               )} />
             </div>
-            <FormField control={form.control} name="indirizzo" render={({ field }) => (
-              <FormItem><FormLabel>Indirizzo</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-            )} />
-            <FormField control={form.control} name="citta" render={({ field }) => (
-              <FormItem><FormLabel>Città</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-            )} />
+            <div className="grid grid-cols-2 gap-3">
+              <FormField control={form.control} name="indirizzo" render={({ field }) => (
+                <FormItem><FormLabel>Indirizzo</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+              )} />
+              <FormField control={form.control} name="citta" render={({ field }) => (
+                <FormItem><FormLabel>Città</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+              )} />
+            </div>
             <FormField control={form.control} name="note" render={({ field }) => (
               <FormItem><FormLabel>Note</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl></FormItem>
             )} />
