@@ -329,6 +329,15 @@ export default function ServiziPage() {
             <Search className="h-4 w-4" />
             Cerca
           </Button>
+          <div className="relative w-full sm:w-[180px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={idFiltro}
+              onChange={(e) => setIdFiltro(e.target.value)}
+              placeholder="Cerca per ID..."
+              className="pl-9"
+            />
+          </div>
           <DatePickerField
             value={dataFiltro}
             onChange={setDataFiltro}
