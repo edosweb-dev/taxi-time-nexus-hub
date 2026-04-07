@@ -259,8 +259,8 @@ export async function calcolaStipendioCompleto(
       detrazioni.totaleVersamenti -          // ✅ AGGIUNGI versamenti (riducono debito socio)
       detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
       detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti
-      detrazioni.incassiServiziContanti -    // ✅ SOTTRAI incassi servizi contanti
-      detrazioni.riportoMesePrecedente       // ✅ ± riporto mese precedente
+      detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti
+      detrazioni.riportoMesePrecedente       // ✅ AGGIUNGI riporto mese precedente (credito/debito portato avanti)
     ).toFixed(2));
 
     console.log('[CALCOLO] 💳 Breakdown netto:', {
