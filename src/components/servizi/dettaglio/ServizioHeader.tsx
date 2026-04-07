@@ -52,7 +52,7 @@ export function ServizioHeader({
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate("/servizi")} 
+            onClick={() => navigate(-1)} 
             className="text-muted-foreground hover:text-foreground self-start"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
