@@ -427,8 +427,7 @@ export default function ServizioDetailPage() {
               if (isFromReport && reportFilters) {
                 navigate('/report-passeggeri', { state: { filters: reportFilters } });
               } else {
-                const backUrl = isDipendente ? '/dipendente/servizi-assegnati' : (fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
-                navigate(backUrl);
+                navigate(-1);
               }
             }}
             backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
