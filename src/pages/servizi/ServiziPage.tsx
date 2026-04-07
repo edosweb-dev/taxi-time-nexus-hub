@@ -42,8 +42,15 @@ export default function ServiziPage() {
   const { users = [] } = useUsers();
   
   const activeTab = searchParams.get('tab') || 'bozza';
+  const dataFiltroRaw = searchParams.get('data');
+  const dataFiltro = dataFiltroRaw ? new Date(dataFiltroRaw + 'T00:00:00') : undefined;
+  const idFiltro = searchParams.get('id') ?? '';
+
   const handleTabChange = (newTab: string) => {
-    setSearchParams({ tab: newTab }, { replace: true });
+    setSearchParams(prev => {
+      prev.set('tab', newTab);
+      return prev;
+    }, { replace: true });
   };
   const navigateToDetail = (servizioId: string) => {
     navigate(`/servizi/${servizioId}`, { state: { fromTab: activeTab } });
