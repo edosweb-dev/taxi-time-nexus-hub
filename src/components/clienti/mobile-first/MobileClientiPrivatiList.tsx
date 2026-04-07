@@ -100,15 +100,6 @@ export function MobileClientiPrivatiList({
                       variant="outline"
                       size="sm"
                       className="flex-1"
-                      onClick={() => onView(cliente)}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Dettagli
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
                       onClick={() => onEdit(cliente)}
                     >
                       <Pencil className="h-4 w-4 mr-1" />
