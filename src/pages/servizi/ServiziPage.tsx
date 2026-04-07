@@ -353,12 +353,19 @@ export default function ServiziPage() {
           </div>
           <DatePickerField
             value={dataFiltro}
-            onChange={setDataFiltro}
+            onChange={(value) => {
+              setSearchParams(prev => {
+                if (value) { prev.set('data', format(value, 'yyyy-MM-dd')); } else { prev.delete('data'); }
+                return prev;
+              }, { replace: true });
+            }}
             placeholder="Filtra per data"
             className="w-full sm:w-[220px]"
           />
           {dataFiltro && (
-            <Badge variant="secondary" className="gap-1 px-3 py-1.5 text-sm cursor-pointer hover:bg-secondary/80" onClick={() => setDataFiltro(undefined)}>
+            <Badge variant="secondary" className="gap-1 px-3 py-1.5 text-sm cursor-pointer hover:bg-secondary/80" onClick={() => {
+              setSearchParams(prev => { prev.delete('data'); return prev; }, { replace: true });
+            }}>
               Data: {format(dataFiltro, 'dd/MM/yyyy', { locale: it })}
               <X className="h-3 w-3" />
             </Badge>
