@@ -97,22 +97,24 @@ export default function ServiziPage() {
 
   // Filter servizi by active tab + ordinamento differenziato
   const filteredServizi = useMemo(() => {
-    let filtered = servizi.filter(
-      (s: ServizioWithPasseggeri) => s.stato === activeTab
-    );
+    let filtered: ServizioWithPasseggeri[];
 
-    // Filtro per data specifica (BUG-59)
-    if (dataFiltro) {
-      const target = format(dataFiltro, 'yyyy-MM-dd');
-      filtered = filtered.filter(s => s.data_servizio === target);
-    }
-
-    // Filtro per ID progressivo
+    // Se c'è filtro ID, cerca su TUTTI gli stati
     if (idFiltro.trim()) {
       const term = idFiltro.trim().toLowerCase();
-      filtered = filtered.filter(s => 
+      filtered = servizi.filter(s => 
         s.id_progressivo?.toLowerCase().includes(term)
       );
+    } else {
+      filtered = servizi.filter(
+        (s: ServizioWithPasseggeri) => s.stato === activeTab
+      );
+
+      // Filtro per data specifica (BUG-59)
+      if (dataFiltro) {
+        const target = format(dataFiltro, 'yyyy-MM-dd');
+        filtered = filtered.filter(s => s.data_servizio === target);
+      }
     }
     
     // Ordinamento differenziato per tipo tab
