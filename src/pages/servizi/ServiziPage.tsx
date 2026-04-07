@@ -340,7 +340,13 @@ export default function ServiziPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               value={idFiltro}
-              onChange={(e) => setIdFiltro(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchParams(prev => {
+                  if (value) { prev.set('id', value); } else { prev.delete('id'); }
+                  return prev;
+                }, { replace: true });
+              }}
               placeholder="Cerca per ID..."
               className="pl-9"
             />
