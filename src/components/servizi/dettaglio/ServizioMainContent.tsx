@@ -9,6 +9,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { useAziende } from "@/hooks/useAziende";
 import { NoteCard } from "@/components/dipendente/servizi/dettaglio/NoteCard";
 import { EmailLogsTab } from "./EmailLogsTab";
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 
 // Helper: build grouped destination stops
 function getDestinazioniRaggruppate(

@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CardDescription } from "@/components/ui/card";
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 
 const ServiziPage = () => {
   const navigate = useNavigate();

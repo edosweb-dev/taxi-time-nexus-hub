@@ -8,6 +8,7 @@ import { useVeicoli } from '@/hooks/useVeicoli';
 import { useServizioWorkflow, getPriorityStyles, type SectionPriority } from '@/hooks/useServizioWorkflow';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatoServizio } from '@/lib/types/servizi';
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 
 interface MobileServizioSectionsProps {
   servizio: any;

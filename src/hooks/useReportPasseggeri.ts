@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { hasRealCustomAddress } from '@/lib/utils/percorsoUtils';
 
 export interface ReportPasseggeroRow {
   servizio_id: string;

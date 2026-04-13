@@ -23,6 +23,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { useServizioDetaglioCliente } from "@/hooks/useServizioDetaglioCliente";
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 
 const DettaglioServizio = () => {
   const { id } = useParams<{ id: string }>();

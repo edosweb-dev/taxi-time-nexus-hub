@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StatoServizio } from '@/lib/types/servizi';
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 
 interface MobileServizioHeroProps {
   servizio: {
