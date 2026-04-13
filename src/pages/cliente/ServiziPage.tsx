@@ -336,7 +336,7 @@ const ServiziPage = () => {
                                   </div>
                                   {/* Fermate intermedie */}
                                   {sorted
-                                    .filter((sp, i) => i > 0 && hasRealCustomAddress(sp, servizio))
+                                    .filter((sp) => hasRealCustomAddress(sp, servizio))
                                     .map((sp) => (
                                       <div key={sp.id} className="flex items-start gap-2 ml-2">
                                         <Circle className="h-2 w-2 text-muted-foreground mt-1 flex-shrink-0" />
