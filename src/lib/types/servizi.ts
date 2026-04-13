@@ -121,6 +121,8 @@ export interface PasseggeroConDettagli extends Passeggero {
   usa_destinazione_personalizzata?: boolean; // ✅ FIX BUG #41
   ordine_presa?: number; // ✅ FIX BUG #41
   tipo?: 'permanente' | 'temporaneo';
+  firma_url?: string | null;
+  firma_timestamp?: string | null;
 }
 
 export interface ServizioFormData {

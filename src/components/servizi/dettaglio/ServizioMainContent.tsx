@@ -421,33 +421,69 @@ export function ServizioMainContent({
         })()}
 
         {/* Firma Cliente */}
-        {firmaDigitaleAttiva && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Firma Cliente</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {servizio.firma_url ? (
-                <div className="border rounded-lg p-4 bg-muted/30">
-                  <img 
-                    src={servizio.firma_url} 
-                    alt="Firma cliente" 
-                    className="max-h-32 mx-auto"
-                  />
-                  {servizio.firma_timestamp && (
-                    <div className="text-xs text-muted-foreground text-center mt-2">
-                      Firmato il {new Date(servizio.firma_timestamp).toLocaleString("it-IT")}
-                    </div>
+        {firmaDigitaleAttiva && (() => {
+          const passeggeriConFirma = passeggeri.filter(p => p.firma_url);
+          const totalPasseggeri = passeggeri.length;
+
+          return (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span>Firma Cliente</span>
+                  {passeggeriConFirma.length > 0 && (
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                      passeggeriConFirma.length === totalPasseggeri
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                    }`}>
+                      {passeggeriConFirma.length === totalPasseggeri
+                        ? 'Tutti firmati'
+                        : `${passeggeriConFirma.length} su ${totalPasseggeri} firmati`}
+                    </span>
                   )}
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground text-center py-8">
-                  Firma non ancora ricevuta
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {passeggeriConFirma.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {passeggeriConFirma.map((p) => (
+                      <div key={p.id} className="border rounded-lg p-3 bg-muted/30">
+                        <div className="text-xs font-medium mb-2 truncate">{p.nome_cognome}</div>
+                        <img
+                          src={p.firma_url!}
+                          alt={`Firma ${p.nome_cognome}`}
+                          className="max-h-24 mx-auto"
+                        />
+                        {p.firma_timestamp && (
+                          <div className="text-[10px] text-muted-foreground text-center mt-2">
+                            {new Date(p.firma_timestamp).toLocaleString("it-IT")}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : servizio.firma_url ? (
+                  <div className="border rounded-lg p-4 bg-muted/30">
+                    <img
+                      src={servizio.firma_url}
+                      alt="Firma cliente"
+                      className="max-h-32 mx-auto"
+                    />
+                    {servizio.firma_timestamp && (
+                      <div className="text-xs text-muted-foreground text-center mt-2">
+                        Firmato il {new Date(servizio.firma_timestamp).toLocaleString("it-IT")}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground text-center py-8">
+                    Firma non ancora ricevuta
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Email Inviate */}
         {isAdminOrSocio && (

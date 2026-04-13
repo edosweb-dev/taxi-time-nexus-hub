@@ -87,6 +87,8 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
           destinazione_personalizzato: item.destinazione_personalizzato,
           usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
           tipo: 'permanente' as const,
+          firma_url: item.firma_url,
+          firma_timestamp: item.firma_timestamp,
         };
       } 
       // CASO 2: Passeggero temporaneo (ospite, dati inline)
@@ -103,6 +105,8 @@ export async function getServizioById(id: string): Promise<{ servizio: Servizio 
           destinazione_personalizzato: item.destinazione_personalizzato,
           usa_indirizzo_personalizzato: item.usa_indirizzo_personalizzato,
           tipo: 'temporaneo' as const,
+          firma_url: item.firma_url,
+          firma_timestamp: item.firma_timestamp,
           azienda_id: null as any,
           created_by_referente_id: null as any,
           created_at: null,
