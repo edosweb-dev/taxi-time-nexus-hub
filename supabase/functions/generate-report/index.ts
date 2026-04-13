@@ -16,19 +16,20 @@ interface ReportData {
 
 interface ServizioData {
   id: string
+  id_progressivo?: string
   data_servizio: string
   orario_servizio: string
+  stato: string
   indirizzo_presa: string
   indirizzo_destinazione: string
   citta_presa?: string
   citta_destinazione?: string
   numero_commessa?: string
-  ore_sosta?: number
+  ore_fatturate?: number
   firma_url?: string
   incasso_previsto?: number
   incasso_ricevuto?: number
   iva?: number
-  note?: string
   conducente_esterno_nome?: string
   veicolo_targa?: string
   veicolo_modello?: string
@@ -63,7 +64,6 @@ serve(async (req) => {
     console.log('📋 Parametri ricevuti:', requestData)
 
     // 1. Fetch azienda info
-    console.log('🏢 Recupero informazioni azienda...')
     const { data: azienda, error: aziendaError } = await supabaseClient
       .from('aziende')
       .select('nome, firma_digitale_attiva')
@@ -71,13 +71,10 @@ serve(async (req) => {
       .single()
 
     if (aziendaError || !azienda) {
-      console.error('❌ Errore azienda:', aziendaError)
       throw new Error('Azienda non trovata')
     }
-    console.log('✅ Azienda trovata:', azienda.nome)
 
-    // 2. Query servizi semplificata (senza JOIN complessi)
-    console.log('🔍 Ricerca servizi...')
+    // 2. Query servizi
     let query = supabaseClient
       .from('servizi')
       .select('*')
@@ -92,14 +89,12 @@ serve(async (req) => {
 
     const { data: servizi, error: serviziError } = await query
     if (serviziError) {
-      console.error('❌ Errore query servizi:', serviziError)
       throw new Error(`Errore nel recupero servizi: ${serviziError.message}`)
     }
 
     console.log(`📊 Servizi trovati: ${servizi?.length || 0}`)
 
     if (!servizi || servizi.length === 0) {
-      console.log('📝 Nessun servizio trovato, genero report vuoto')
       const emptyPdfBuffer = await generateEmptyPDF(azienda, requestData)
       
       const fileName = `report_vuoto_${requestData.azienda_id}_${Date.now()}.pdf`
@@ -110,12 +105,7 @@ serve(async (req) => {
           upsert: true
         })
 
-      if (uploadError) {
-        console.error('❌ Errore upload PDF vuoto:', uploadError)
-        throw new Error(`Errore upload PDF: ${uploadError.message}`)
-      }
-
-      console.log('✅ PDF vuoto caricato:', uploadData.path)
+      if (uploadError) throw new Error(`Errore upload PDF: ${uploadError.message}`)
 
       const { data: reportData, error: reportError } = await supabaseClient
         .from('reports')
@@ -137,101 +127,69 @@ serve(async (req) => {
         .select()
         .single()
 
-      if (reportError) {
-        console.error('❌ Errore salvataggio report vuoto:', reportError)
-        throw new Error(`Errore salvataggio report: ${reportError.message}`)
-      }
+      if (reportError) throw new Error(`Errore salvataggio report: ${reportError.message}`)
 
-      console.log('✅ Report vuoto salvato con successo')
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          report: reportData,
-          message: 'Report vuoto generato (nessun servizio nel periodo)'
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200 
-        }
+        JSON.stringify({ success: true, report: reportData, message: 'Report vuoto generato (nessun servizio nel periodo)' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }
 
-    // 3. Enrichment dei dati con lookup manuali
+    // 3. Enrichment dei dati
     console.log('🔄 Arricchimento dati servizi...')
     const enrichedServizi: ServizioData[] = []
 
+    // Batch fetch all needed profiles, veicoli, passeggeri
+    const assigneeIds = [...new Set(servizi.map(s => s.assegnato_a).filter(Boolean))]
+    const referenteIds = [...new Set(servizi.map(s => s.referente_id).filter(Boolean))]
+    const veicoloIds = [...new Set(servizi.map(s => s.veicolo_id).filter(Boolean))]
+    const allProfileIds = [...new Set([...assigneeIds, ...referenteIds])]
+    const servizioIds = servizi.map(s => s.id)
+
+    const [profilesRes, veicoliRes, passeggeriRes] = await Promise.all([
+      allProfileIds.length > 0
+        ? supabaseClient.from('profiles').select('id, first_name, last_name').in('id', allProfileIds)
+        : { data: [] },
+      veicoloIds.length > 0
+        ? supabaseClient.from('veicoli').select('id, targa, modello').in('id', veicoloIds)
+        : { data: [] },
+      supabaseClient.from('servizi_passeggeri')
+        .select('servizio_id, passeggeri:passeggero_id(nome_cognome), nome_cognome_inline')
+        .in('servizio_id', servizioIds),
+    ])
+
+    const profilesMap = new Map((profilesRes.data || []).map(p => [p.id, `${p.first_name || ''} ${p.last_name || ''}`.trim()]))
+    const veicoliMap = new Map((veicoliRes.data || []).map(v => [v.id, { targa: v.targa, modello: v.modello }]))
+
+    // Group passeggeri by servizio_id
+    const passeggeriMap = new Map<string, string[]>()
+    for (const sp of (passeggeriRes.data || [])) {
+      const nome = (sp as any).passeggeri?.nome_cognome || (sp as any).nome_cognome_inline || ''
+      if (nome) {
+        if (!passeggeriMap.has(sp.servizio_id)) passeggeriMap.set(sp.servizio_id, [])
+        passeggeriMap.get(sp.servizio_id)!.push(nome)
+      }
+    }
+
     for (const servizio of servizi) {
-      const enrichedServizio: ServizioData = { ...servizio }
-
-      // Lookup referente
-      if (servizio.referente_id) {
-        const { data: referente } = await supabaseClient
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', servizio.referente_id)
-          .single()
-        
-        if (referente) {
-          enrichedServizio.referente_nome = `${referente.first_name || ''} ${referente.last_name || ''}`.trim()
-        }
-      }
-
-      // Lookup assegnato
-      if (servizio.assegnato_a) {
-        const { data: assegnato } = await supabaseClient
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', servizio.assegnato_a)
-          .single()
-        
-        if (assegnato) {
-          enrichedServizio.assegnato_nome = `${assegnato.first_name || ''} ${assegnato.last_name || ''}`.trim()
-        }
-      }
-
-      // Lookup veicolo
-      if (servizio.veicolo_id) {
-        const { data: veicolo } = await supabaseClient
-          .from('veicoli')
-          .select('targa, modello')
-          .eq('id', servizio.veicolo_id)
-          .single()
-        
-        if (veicolo) {
-          enrichedServizio.veicolo_targa = veicolo.targa
-          enrichedServizio.veicolo_modello = veicolo.modello
-        }
-      }
-
-      // Lookup passeggeri
-      const { data: serviziPasseggeri } = await supabaseClient
-        .from('servizi_passeggeri')
-        .select(`
-          passeggeri:passeggero_id (
-            nome_cognome
-          )
-        `)
-        .eq('servizio_id', servizio.id)
-
-      if (serviziPasseggeri) {
-        enrichedServizio.passeggeri_nomi = serviziPasseggeri
-          .map(sp => sp.passeggeri?.nome_cognome)
-          .filter(Boolean)
-      }
-
-      enrichedServizi.push(enrichedServizio)
+      const veicolo = servizio.veicolo_id ? veicoliMap.get(servizio.veicolo_id) : null
+      enrichedServizi.push({
+        ...servizio,
+        referente_nome: servizio.referente_id ? (profilesMap.get(servizio.referente_id) || '') : '',
+        assegnato_nome: servizio.assegnato_a ? (profilesMap.get(servizio.assegnato_a) || '') : '',
+        veicolo_targa: veicolo?.targa || '',
+        veicolo_modello: veicolo?.modello || '',
+        passeggeri_nomi: passeggeriMap.get(servizio.id) || [],
+      })
     }
 
     console.log('✅ Dati arricchiti completati')
 
-    // 4. Generate PDF with enriched data
-    console.log('📄 Generazione PDF...')
+    // 4. Generate PDF
     const pdfBuffer = await generatePDF(enrichedServizi, azienda, requestData)
 
-    // 5. Upload PDF to storage
+    // 5. Upload PDF
     const fileName = `report_${requestData.azienda_id}_${Date.now()}.pdf`
-    console.log('⬆️ Upload PDF:', fileName)
-    
     const { data: uploadData, error: uploadError } = await supabaseClient.storage
       .from('report_aziende')
       .upload(fileName, pdfBuffer, {
@@ -239,18 +197,16 @@ serve(async (req) => {
         upsert: true
       })
 
-    if (uploadError) {
-      console.error('❌ Errore upload PDF:', uploadError)
-      throw new Error(`Errore upload PDF: ${uploadError.message}`)
-    }
+    if (uploadError) throw new Error(`Errore upload PDF: ${uploadError.message}`)
 
-    console.log('✅ PDF caricato:', uploadData.path)
+    // 6. Calculate totals
+    const totaleImporti = enrichedServizi.reduce((sum, s) => {
+      return sum + (s.incasso_ricevuto || s.incasso_previsto || 0)
+    }, 0)
 
-    // 6. Calculate totals using historical IVA from each service
     const { totaleImponibile, totaleIva } = enrichedServizi.reduce((acc, s) => {
-      const ivaPercentuale = Number(s.iva ?? 10) // Usa ?? per non trattare 0 come falsy
+      const ivaPercentuale = Number(s.iva ?? 10)
       const importo = s.incasso_ricevuto || s.incasso_previsto || 0
-      // Scorporo IVA: Netto = Lordo / (1 + aliquota/100)
       const netto = importo / (1 + ivaPercentuale / 100)
       const iva = importo - netto
       return {
@@ -260,9 +216,7 @@ serve(async (req) => {
     }, { totaleImponibile: 0, totaleIva: 0 })
     const totaleDocumento = totaleImponibile + totaleIva
 
-    console.log('💰 Totali calcolati:', { totaleImponibile, totaleIva, totaleDocumento })
-
-    // 7. Save report to database
+    // 7. Save report
     const { data: reportData, error: reportError } = await supabaseClient
       .from('reports')
       .insert({
@@ -283,49 +237,29 @@ serve(async (req) => {
       .select()
       .single()
 
-    if (reportError) {
-      console.error('❌ Errore salvataggio report:', reportError)
-      throw new Error(`Errore salvataggio report: ${reportError.message}`)
-    }
+    if (reportError) throw new Error(`Errore salvataggio report: ${reportError.message}`)
 
-    console.log('✅ Report salvato con successo:', reportData.id)
-    console.log('=== FINE GENERAZIONE REPORT ===')
+    console.log('✅ Report salvato:', reportData.id)
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        report: reportData,
-        message: 'Report generato con successo'
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
+      JSON.stringify({ success: true, report: reportData, message: 'Report generato con successo' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
 
   } catch (error) {
     console.error('💥 ERRORE GENERALE:', error)
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Errore durante la generazione del report',
-        success: false 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
-      }
+      JSON.stringify({ error: error.message || 'Errore durante la generazione del report', success: false }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
 })
 
 async function generateEmptyPDF(azienda: any, requestData: ReportData): Promise<Uint8Array> {
   const { jsPDF } = await import('https://esm.sh/jspdf@2.5.1')
-  
-  // PDF in formato orizzontale (landscape)
   const pdf = new jsPDF('landscape', 'mm', 'a4')
   pdf.setFont('helvetica')
   
-  // Header
   pdf.setFontSize(18)
   pdf.text('REPORT SERVIZI', 20, 20)
   
@@ -333,20 +267,27 @@ async function generateEmptyPDF(azienda: any, requestData: ReportData): Promise<
   pdf.text(`Azienda: ${azienda.nome}`, 20, 35)
   pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 45)
   
-  // Empty message
   pdf.setFontSize(14)
   pdf.text('NESSUN SERVIZIO TROVATO', 20, 70)
-  
   pdf.setFontSize(10)
   pdf.text('Nessun servizio trovato nel periodo selezionato.', 20, 85)
   
   return new Uint8Array(pdf.output('arraybuffer'))
 }
 
+function getStatoLabel(stato: string): string {
+  switch (stato) {
+    case 'da_assegnare': return 'Da Assegnare'
+    case 'assegnato': return 'Assegnato'
+    case 'completato': return 'Completato'
+    case 'consuntivato': return 'Consuntivato'
+    default: return stato
+  }
+}
+
 async function generatePDF(servizi: ServizioData[], azienda: any, requestData: ReportData): Promise<Uint8Array> {
   const { jsPDF } = await import('https://esm.sh/jspdf@2.5.1')
   
-  // PDF in formato orizzontale (landscape)
   const pdf = new jsPDF('landscape', 'mm', 'a4')
   pdf.setFont('helvetica')
   
@@ -360,118 +301,100 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
   pdf.setFontSize(10)
   pdf.text(`Azienda: ${azienda.nome}`, 20, 30)
   pdf.text(`Periodo: ${requestData.data_inizio} - ${requestData.data_fine}`, 20, 36)
-  pdf.text(`Firma Digitale: ${azienda.firma_digitale_attiva ? 'Attiva' : 'Non Attiva'}`, 20, 42)
   
-  // Calculate totals using historical IVA from each service
+  // Totals in header
+  const totaleImporti = servizi.reduce((sum, s) => sum + (s.incasso_ricevuto || s.incasso_previsto || 0), 0)
   const { totaleImponibile, totaleIva } = servizi.reduce((acc, s) => {
-    const ivaPercentuale = Number(s.iva ?? 10) // Usa ?? per non trattare 0 come falsy
+    const ivaPerc = Number(s.iva ?? 10)
     const importo = s.incasso_ricevuto || s.incasso_previsto || 0
-    // Scorporo IVA: Netto = Lordo / (1 + aliquota/100)
-    const netto = importo / (1 + ivaPercentuale / 100)
-    const iva = importo - netto
-    return {
-      totaleImponibile: acc.totaleImponibile + netto,
-      totaleIva: acc.totaleIva + iva
-    }
+    const netto = importo / (1 + ivaPerc / 100)
+    return { totaleImponibile: acc.totaleImponibile + netto, totaleIva: acc.totaleIva + (importo - netto) }
   }, { totaleImponibile: 0, totaleIva: 0 })
   const totaleDocumento = totaleImponibile + totaleIva
   
   pdf.text(`Servizi: ${servizi.length}`, 200, 30)
-  pdf.text(`Netto: €${totaleImponibile.toFixed(2)}`, 200, 36)
-  pdf.text(`IVA: €${totaleIva.toFixed(2)}`, 200, 42)
-  pdf.text(`Totale: €${totaleDocumento.toFixed(2)}`, 200, 48)
+  pdf.text(`Netto: EUR ${totaleImponibile.toFixed(2)}`, 200, 36)
+  pdf.text(`IVA: EUR ${totaleIva.toFixed(2)}`, 200, 42)
+  pdf.text(`Totale: EUR ${totaleDocumento.toFixed(2)}`, 200, 48)
   
-  // Table header - configurazione colonne
-  let yPosition = 60
+  // Table columns definition
+  let yPosition = 58
   const rowHeight = 6
-  const fontSize = 8
+  const fontSize = 7
   pdf.setFontSize(fontSize)
   
-  // Definisci le colonne e le loro larghezze
   const columns = [
-    { label: 'ID', x: 20, width: 15 },
-    { label: 'Data', x: 35, width: 20 },
-    { label: 'Orario', x: 55, width: 15 },
-    { label: 'Passeggeri', x: 70, width: 38 },
-    { label: 'Partenza', x: 108, width: 32 },
-    { label: 'Destinazione', x: 140, width: 32 },
-    { label: 'Commessa', x: 172, width: 16 },
-    { label: 'Ore Sosta', x: 188, width: 14 },
-    { label: 'Veicolo', x: 202, width: 24 },
-    { label: 'Note', x: 226, width: 24 }
+    { label: 'ID', x: 5, width: 22 },
+    { label: 'Data', x: 27, width: 18 },
+    { label: 'Orario', x: 45, width: 13 },
+    { label: 'Stato', x: 58, width: 20 },
+    { label: 'Passeggeri', x: 78, width: 35 },
+    { label: 'Partenza', x: 113, width: 30 },
+    { label: 'Destinazione', x: 143, width: 30 },
+    { label: 'Autista', x: 173, width: 25 },
+    { label: 'Veicolo', x: 198, width: 25 },
+    { label: 'Commessa', x: 223, width: 18 },
+    { label: 'Ore', x: 241, width: 10 },
+    { label: 'Importo', x: 251, width: 22 },
   ]
   
-  // Se firma digitale attiva, aggiungi colonna firma
+  // Add Firma column if active
   if (azienda.firma_digitale_attiva) {
-    columns.push({ label: 'Firma', x: 250, width: 20 })
+    columns.push({ label: 'Firma', x: 273, width: 15 })
   }
   
-  // Disegna header della tabella
-  pdf.setFontSize(8)
-  pdf.setFont('helvetica', 'bold')
-  columns.forEach(col => {
-    pdf.text(col.label, col.x, yPosition)
-  })
+  const drawTableHeader = (y: number) => {
+    pdf.setFontSize(7)
+    pdf.setFont('helvetica', 'bold')
+    columns.forEach(col => pdf.text(col.label, col.x, y))
+    pdf.line(5, y + 2, pageWidth - 5, y + 2)
+    pdf.setFont('helvetica', 'normal')
+    return y + 7
+  }
   
-  // Linea sotto l'header
-  pdf.line(20, yPosition + 2, pageWidth - 20, yPosition + 2)
+  yPosition = drawTableHeader(yPosition)
   
-  // Dati dei servizi
-  pdf.setFont('helvetica', 'normal')
-  yPosition += 8
+  const truncateText = (text: string, maxChars: number) => {
+    return text.length > maxChars ? text.substring(0, maxChars - 2) + '..' : text
+  }
   
-  servizi.forEach((servizio, index) => {
-    // Controlla se serve una nuova pagina
-    if (yPosition > pageHeight - 30) {
+  servizi.forEach((servizio) => {
+    // Check for new page
+    if (yPosition > pageHeight - 25) {
       pdf.addPage('landscape')
-      yPosition = 30
-      
-      // Ripeti header su nuova pagina
-      pdf.setFont('helvetica', 'bold')
-      columns.forEach(col => {
-        pdf.text(col.label, col.x, yPosition)
-      })
-      pdf.line(20, yPosition + 2, pageWidth - 20, yPosition + 2)
-      pdf.setFont('helvetica', 'normal')
-      yPosition += 8
+      yPosition = 20
+      yPosition = drawTableHeader(yPosition)
     }
     
-    // Preparazione dati
     const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT')
-    const orarioFormatted = servizio.orario_servizio
     const passeggeriText = (servizio.passeggeri_nomi || []).join(', ')
-    const veicoloText = servizio.veicolo_targa ? `${servizio.veicolo_targa} ${servizio.veicolo_modello || ''}`.trim() : ''
-    const commessaText = servizio.numero_commessa || ''
-    const oreSostaText = servizio.ore_sosta ? `${servizio.ore_sosta}h` : '-'
-    const noteText = servizio.note || ''
-    const cittaPresa = (servizio as any).citta_presa || 'N/A'
-    const cittaDest = (servizio as any).citta_destinazione || 'N/A'
+    const veicoloText = servizio.veicolo_targa ? `${servizio.veicolo_modello || ''} ${servizio.veicolo_targa}`.trim() : ''
+    const importo = servizio.incasso_ricevuto ?? servizio.incasso_previsto
+    const importoText = importo != null 
+      ? `EUR ${importo.toFixed(2)}${servizio.incasso_ricevuto == null ? '*' : ''}` 
+      : '-'
+    const partenza = servizio.citta_presa || servizio.indirizzo_presa || ''
+    const destinazione = servizio.citta_destinazione || servizio.indirizzo_destinazione || ''
     
-    // Truncate text to fit columns
-    const truncateText = (text: string, maxLength: number) => {
-      return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text
-    }
-    
-    // Scrivi i dati nelle colonne
     const rowData = [
-      servizio.id.substring(0, 8),
+      servizio.id_progressivo || servizio.id.substring(0, 8),
       dataFormatted,
-      orarioFormatted,
+      servizio.orario_servizio,
+      getStatoLabel(servizio.stato),
       truncateText(passeggeriText, 25),
-      truncateText(cittaPresa, 20),
-      truncateText(cittaDest, 20),
-      truncateText(commessaText, 15),
-      oreSostaText,
+      truncateText(partenza, 22),
+      truncateText(destinazione, 22),
+      truncateText(servizio.assegnato_nome || '', 18),
       truncateText(veicoloText, 18),
-      truncateText(noteText, 18)
+      truncateText(servizio.numero_commessa || '', 14),
+      servizio.ore_fatturate != null ? `${servizio.ore_fatturate}` : '-',
+      importoText,
     ]
     
-    // Se firma digitale attiva, aggiungi status firma
     if (azienda.firma_digitale_attiva) {
-      rowData.push(servizio.firma_url ? '✓' : '✗')
+      rowData.push(servizio.firma_url ? 'Si' : 'No')
     }
     
-    // Scrivi ogni cella
     columns.forEach((col, colIndex) => {
       if (rowData[colIndex]) {
         pdf.text(rowData[colIndex], col.x, yPosition)
@@ -481,26 +404,35 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     yPosition += rowHeight
   })
   
-  // Totali finali nella parte bassa della pagina
-  yPosition = Math.max(yPosition + 20, pageHeight - 40)
+  // Legend for * symbol
+  yPosition += 4
+  if (yPosition > pageHeight - 20) {
+    pdf.addPage('landscape')
+    yPosition = 20
+  }
+  pdf.setFontSize(7)
+  pdf.setFont('helvetica', 'italic')
+  pdf.text('* = importo previsto (non ancora consuntivato)', 5, yPosition)
+  pdf.setFont('helvetica', 'normal')
   
+  // Totals at bottom
+  yPosition += 8
   pdf.setFont('helvetica', 'bold')
   pdf.setFontSize(10)
   
   const totalsX = pageWidth - 100
   pdf.text('TOTALI:', totalsX, yPosition)
-  pdf.text(`Netto: €${totaleImponibile.toFixed(2)}`, totalsX, yPosition + 8)
-  pdf.text(`IVA: €${totaleIva.toFixed(2)}`, totalsX, yPosition + 16)
-  pdf.text(`TOTALE: €${totaleDocumento.toFixed(2)}`, totalsX, yPosition + 24)
-  
-  // Linea sopra il totale
+  pdf.text(`Netto: EUR ${totaleImponibile.toFixed(2)}`, totalsX, yPosition + 8)
+  pdf.text(`IVA: EUR ${totaleIva.toFixed(2)}`, totalsX, yPosition + 16)
   pdf.line(totalsX, yPosition + 20, totalsX + 60, yPosition + 20)
+  pdf.text(`TOTALE: EUR ${totaleDocumento.toFixed(2)}`, totalsX, yPosition + 26)
   
-  // Footer con numero pagina
+  // Footer with page numbers
   const totalPages = pdf.internal.getNumberOfPages()
   for (let i = 1; i <= totalPages; i++) {
     pdf.setPage(i)
     pdf.setFontSize(8)
+    pdf.setFont('helvetica', 'normal')
     pdf.text(`Pagina ${i} di ${totalPages}`, pageWidth - 40, pageHeight - 10)
   }
   
