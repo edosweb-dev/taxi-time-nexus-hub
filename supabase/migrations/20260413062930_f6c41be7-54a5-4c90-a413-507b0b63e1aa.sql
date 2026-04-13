@@ -1,0 +1,1 @@
+ALTER TABLE public.impostazioni ADD COLUMN email_notifiche_admin jsonb DEFAULT '[]'::jsonb;
