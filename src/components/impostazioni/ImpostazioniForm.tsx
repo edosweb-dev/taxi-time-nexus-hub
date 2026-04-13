@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { InfoAziendaForm } from "./InfoAziendaForm";
 import { MetodiPagamentoForm } from "./MetodiPagamentoForm";
 import { AliquoteIvaForm } from "./AliquoteIvaForm";
+import { EmailNotificheAdminForm } from "./EmailNotificheAdminForm";
 import { PagamentiAziendali } from "./PagamentiAziendali";
 import { TariffeKmTab } from "./TariffeKmTab";
 import SmtpConfigForm from "./SmtpConfigForm";
@@ -45,6 +46,7 @@ const formSchema = z.object({
       is_default: z.boolean().optional(),
     })
   ),
+  email_notifiche_admin: z.array(z.string().email()).optional().default([]),
   id: z.string().optional(),
 });
 
@@ -90,6 +92,7 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       indirizzo_sede: initialData.indirizzo_sede || "",
       metodi_pagamento: initialData.metodi_pagamento || [],
       aliquote_iva: initialData.aliquote_iva || [],
+      email_notifiche_admin: initialData.email_notifiche_admin || [],
     },
   });
 
@@ -100,10 +103,10 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       // Ensure all objects have the required properties with proper types
       const formattedData = {
         ...data,
-        // Make sure ID exists for the update operation
         id: data.id,
         metodi_pagamento: ensureMetodiPagamentoIds(data.metodi_pagamento),
         aliquote_iva: ensureAliquoteIvaIds(data.aliquote_iva),
+        email_notifiche_admin: data.email_notifiche_admin || [],
       };
       
       // Check if we have an ID for the update
@@ -145,7 +148,7 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
         <Tabs defaultValue="info" className="w-full">
           {/* Tabs ottimizzate per mobile - scrollabili orizzontalmente */}
-          <TabsList className={`w-full grid ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-3 md:grid-cols-6' : 'grid-cols-3'} gap-1 h-auto p-1`}>
+          <TabsList className={`w-full grid ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-4 md:grid-cols-7' : 'grid-cols-3'} gap-1 h-auto p-1`}>
             <TabsTrigger value="info" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <span className="hidden sm:inline">Informazioni Azienda</span>
               <span className="sm:hidden">Info</span>
@@ -158,6 +161,12 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
               <span className="hidden sm:inline">Aliquote IVA</span>
               <span className="sm:hidden">IVA</span>
             </TabsTrigger>
+            {profile?.role === 'admin' && (
+              <TabsTrigger value="notifiche-admin" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <span className="hidden sm:inline">Notifiche Admin</span>
+                <span className="sm:hidden">Notifiche</span>
+              </TabsTrigger>
+            )}
             {(profile?.role === 'admin' || profile?.role === 'socio') && (
               <TabsTrigger value="tariffe-km" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <span className="hidden sm:inline">Tariffe KM</span>
@@ -225,6 +234,21 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
               )}
             />
           </TabsContent>
+
+          {profile?.role === 'admin' && (
+            <TabsContent value="notifiche-admin" className="mt-4">
+              <FormField
+                control={form.control}
+                name="email_notifiche_admin"
+                render={({ field }) => (
+                  <EmailNotificheAdminForm
+                    emails={field.value || []}
+                    onChange={(emails) => field.onChange(emails)}
+                  />
+                )}
+              />
+            </TabsContent>
+          )}
 
           {(profile?.role === 'admin' || profile?.role === 'socio') && (
             <TabsContent value="tariffe-km" className="mt-4">

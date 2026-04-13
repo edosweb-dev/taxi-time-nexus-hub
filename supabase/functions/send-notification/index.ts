@@ -240,7 +240,7 @@ serve(async (req) => {
     // 1. FETCH CONFIG
     const { data: config, error: configError } = await supabaseAdmin
       .from('impostazioni')
-      .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
+      .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled, email_notifiche_admin')
       .maybeSingle();
 
     if (configError || !config) throw new Error(`Config error: ${configError?.message || 'No config found'}`);
@@ -344,6 +344,18 @@ serve(async (req) => {
           });
         }
       });
+    }
+
+    // Aggiungi email admin per richieste cliente
+    const isRichiestaCliente = ['richiesta_cliente', 'richiesta_cliente_completo'].includes(template_slug);
+    if (isRichiestaCliente && config.email_notifiche_admin) {
+      const adminEmails = Array.isArray(config.email_notifiche_admin) ? config.email_notifiche_admin : [];
+      adminEmails.forEach((email: string) => {
+        if (email && typeof email === 'string') {
+          recipients.push({ email, name: 'Admin' });
+        }
+      });
+      console.log('[SEND-EMAIL] Added admin notification emails:', adminEmails.length);
     }
 
     const uniqueRecipients = Array.from(

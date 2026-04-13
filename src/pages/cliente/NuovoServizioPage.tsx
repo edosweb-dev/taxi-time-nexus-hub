@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PasseggeroClienteCard, PasseggeroClienteData } from '@/components/servizi/passeggeri/PasseggeroClienteCard';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -123,6 +123,13 @@ export default function NuovoServizioPage() {
 
   // Email notifiche hook
   const { emailNotifiche, createEmailNotifica, deleteEmailNotifica, isCreating: isCreatingEmail } = useEmailNotifiche(currentProfile?.azienda_id);
+
+  // Pre-seleziona tutte le email notifiche attive dell'azienda
+  useEffect(() => {
+    if (emailNotifiche.length > 0 && emailNotificheIds.length === 0) {
+      setEmailNotificheIds(emailNotifiche.map(e => e.id));
+    }
+  }, [emailNotifiche]);
 
   const handleEmailToggle = (emailId: string, checked: boolean) => {
     if (checked) {
