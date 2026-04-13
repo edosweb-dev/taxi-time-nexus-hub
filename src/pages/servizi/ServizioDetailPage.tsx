@@ -163,7 +163,7 @@ export default function ServizioDetailPage() {
   const canRequestSignature = 
     servizio?.stato === 'assegnato' && 
     firmaDigitaleAttiva && 
-    !servizio?.firma_url &&
+    !allPasseggeriSigned &&
     (profile?.role === 'admin' || 
      profile?.role === 'socio' || 
      servizio?.assegnato_a === profile?.id);
