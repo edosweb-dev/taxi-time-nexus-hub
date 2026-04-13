@@ -3,7 +3,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +13,7 @@ import { toast } from "@/components/ui/sonner";
 import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Info } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   incasso_ricevuto: z.coerce.number()
@@ -35,6 +35,7 @@ export function CompletaContantiUberForm({
   users,
   onComplete,
 }: CompletaContantiUberFormProps) {
+  const isMobile = useIsMobile();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,7 +45,6 @@ export function CompletaContantiUberForm({
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      // 🔍 DEBUG LOG per tracciare dati completamento Contanti/Uber
       console.log('📊 [CompletaContantiUberForm] Submit data:', {
         metodo_pagamento: servizio.metodo_pagamento,
         incasso_previsto: servizio.incasso_previsto,
@@ -52,11 +52,9 @@ export function CompletaContantiUberForm({
         totale_previsto: totalePrevisto,
       });
       
-      // VALIDAZIONE: Check firma cliente/passeggeri se obbligatoria
       if (servizio?.aziende?.firma_digitale_attiva) {
         const firmaCheck = await checkAllPasseggeriSigned(servizio.id);
         
-        // Se ci sono passeggeri, controlla che tutti abbiano firmato
         if (firmaCheck.totalPasseggeri > 0 && !firmaCheck.allSigned) {
           toast.error("Firme passeggeri mancanti", {
             description: `${firmaCheck.firmati}/${firmaCheck.totalPasseggeri} passeggeri hanno firmato`
@@ -64,7 +62,6 @@ export function CompletaContantiUberForm({
           return;
         }
         
-        // Fallback per servizi senza passeggeri (usa firma singola)
         if (firmaCheck.totalPasseggeri === 0 && !servizio?.firma_url) {
           toast.error("Firma cliente mancante", {
             description: "Richiedi prima la firma del cliente prima di completare il servizio."
@@ -95,7 +92,20 @@ export function CompletaContantiUberForm({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[500px] overflow-y-auto">
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={
+          isMobile
+            ? "rounded-t-2xl max-h-[85vh] overflow-y-auto px-6 pb-8"
+            : "sm:max-w-[500px] overflow-y-auto"
+        }
+      >
+        {isMobile && (
+          <div className="flex justify-center pt-2 pb-4">
+            <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+          </div>
+        )}
+
         <SheetHeader>
           <SheetTitle>Completa Servizio - {servizio.metodo_pagamento}</SheetTitle>
         </SheetHeader>
@@ -103,7 +113,6 @@ export function CompletaContantiUberForm({
         <div className="mt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Alert: Pagamento SENZA IVA */}
               <Alert className="border-primary/20 bg-primary/5">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
@@ -113,7 +122,6 @@ export function CompletaContantiUberForm({
                 </AlertDescription>
               </Alert>
               
-              {/* Totale previsto (SENZA IVA) */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Totale previsto</label>
                 <Input 
@@ -123,7 +131,6 @@ export function CompletaContantiUberForm({
                 />
               </div>
               
-              {/* Incasso ricevuto */}
               <FormField
                 control={form.control}
                 name="incasso_ricevuto"
