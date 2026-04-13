@@ -24,6 +24,7 @@ import { FinancialSection } from '@/components/servizi/dettaglio/sections/Financ
 import { useAziende } from '@/hooks/useAziende';
 import { PasseggeriCard } from '@/components/dipendente/servizi/dettaglio/PasseggeriCard';
 import { NoteCard } from '@/components/dipendente/servizi/dettaglio/NoteCard';
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -273,11 +274,11 @@ export function MobileServizioOptimized({
 
           {/* Fermate intermedie - tutti i passeggeri tranne il primo */}
           {passeggeriOrdinati.slice(1).map((passeggero: any, idx: number) => {
-            const hasCustomAddress = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
-            const indirizzo = hasCustomAddress
+            const customAddress = hasRealCustomAddress(passeggero, servizio);
+            const indirizzo = customAddress
               ? passeggero.luogo_presa_personalizzato
               : servizio.indirizzo_presa;
-            const cittaFermata = hasCustomAddress
+            const cittaFermata = customAddress
               ? (passeggero.localita_presa_personalizzato || passeggero.localita_inline || passeggero.localita || servizio.citta_presa)
               : servizio.citta_presa;
 
@@ -290,7 +291,7 @@ export function MobileServizioOptimized({
                 <div className="flex-1 pb-2">
                   <div className="text-xs text-muted-foreground font-medium mb-1">
                     Fermata - {passeggero.nome_cognome}
-                    {!hasCustomAddress && (
+                    {!customAddress && (
                       <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
                     )}
                   </div>

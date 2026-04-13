@@ -8,6 +8,7 @@ import { useVeicoli } from '@/hooks/useVeicoli';
 import { useServizioWorkflow, getPriorityStyles, type SectionPriority } from '@/hooks/useServizioWorkflow';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatoServizio } from '@/lib/types/servizi';
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 
 interface MobileServizioSectionsProps {
   servizio: any;
@@ -169,12 +170,12 @@ export function MobileServizioSections({
           </div>
 
           {/* Fermate intermedie */}
-          {passeggeri && passeggeri.some((p: any) => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato) && (
+          {passeggeri && passeggeri.some((p: any) => hasRealCustomAddress(p, servizio)) && (
             <div className="detail-row full-width">
               <span className="detail-label">Fermate intermedie</span>
               <div className="space-y-2">
                 {passeggeri
-                  .filter((p: any) => p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato)
+                  .filter((p: any) => hasRealCustomAddress(p, servizio))
                   .map((p: any, idx: number) => (
                     <div key={idx} className="detail-value text-sm">
                       <div className="font-medium text-muted-foreground">{p.nome_cognome}</div>

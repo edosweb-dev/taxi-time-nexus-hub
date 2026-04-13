@@ -23,6 +23,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { useServizioDetaglioCliente } from "@/hooks/useServizioDetaglioCliente";
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 
 const DettaglioServizio = () => {
   const { id } = useParams<{ id: string }>();
@@ -197,7 +198,7 @@ const DettaglioServizio = () => {
 
                     {/* Fermate presa intermedie */}
                     {fermateIntermedie
-                      .filter((sp: any) => sp.usa_indirizzo_personalizzato && sp.luogo_presa_personalizzato)
+                      .filter((sp: any) => hasRealCustomAddress(sp, servizio))
                       .map((sp: any, idx: number) => {
                         const p = sp.passeggeri;
                         const citta = sp.localita_presa_personalizzato || p?.localita || servizio.citta_presa;
