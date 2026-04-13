@@ -13,8 +13,17 @@ export function hasRealCustomAddress(
 ): boolean {
   if (!passeggero.usa_indirizzo_personalizzato || !passeggero.luogo_presa_personalizzato) return false;
 
-  return normalize(passeggero.luogo_presa_personalizzato) !== normalize(servizio.indirizzo_presa)
-    || normalize(passeggero.localita_presa_personalizzato) !== normalize(servizio.citta_presa);
+  const serviceSet = [
+    normalize(servizio.indirizzo_presa),
+    normalize(servizio.citta_presa)
+  ].filter(Boolean).sort().join('|');
+
+  const passeggeroSet = [
+    normalize(passeggero.luogo_presa_personalizzato),
+    normalize(passeggero.localita_presa_personalizzato)
+  ].filter(Boolean).sort().join('|');
+
+  return serviceSet !== passeggeroSet;
 }
 
 export function hasRealCustomDestination(
@@ -30,6 +39,15 @@ export function hasRealCustomDestination(
 ): boolean {
   if (!passeggero.usa_destinazione_personalizzata || !passeggero.destinazione_personalizzato) return false;
 
-  return normalize(passeggero.destinazione_personalizzato) !== normalize(servizio.indirizzo_destinazione)
-    || normalize(passeggero.localita_destinazione_personalizzato) !== normalize(servizio.citta_destinazione);
+  const serviceSet = [
+    normalize(servizio.indirizzo_destinazione),
+    normalize(servizio.citta_destinazione)
+  ].filter(Boolean).sort().join('|');
+
+  const passeggeroSet = [
+    normalize(passeggero.destinazione_personalizzato),
+    normalize(passeggero.localita_destinazione_personalizzato)
+  ].filter(Boolean).sort().join('|');
+
+  return serviceSet !== passeggeroSet;
 }
