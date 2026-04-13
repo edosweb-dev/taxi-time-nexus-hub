@@ -255,9 +255,9 @@ export function MobileServizioOptimized({
             <div className="flex-1 pb-2">
               <div className="text-xs text-muted-foreground font-medium mb-1">
                 <span>Partenza</span>
-                {primoPasseggero && (
+                {passeggeriOrdinati.filter((p: any) => !hasRealCustomAddress(p, servizio)).length > 0 && (
                   <span className="font-normal">
-                    {" - "}{primoPasseggero.nome_cognome || `${primoPasseggero.nome || ''} ${primoPasseggero.cognome || ''}`.trim()}
+                    {" - "}{passeggeriOrdinati.filter((p: any) => !hasRealCustomAddress(p, servizio)).map((p: any) => p.nome_cognome || `${p.nome || ''} ${p.cognome || ''}`.trim()).join(', ')}
                   </span>
                 )}
               </div>
@@ -272,15 +272,10 @@ export function MobileServizioOptimized({
             </div>
           </div>
 
-          {/* Fermate intermedie - tutti i passeggeri tranne il primo */}
-          {passeggeriOrdinati.slice(1).map((passeggero: any, idx: number) => {
-            const customAddress = hasRealCustomAddress(passeggero, servizio);
-            const indirizzo = customAddress
-              ? passeggero.luogo_presa_personalizzato
-              : servizio.indirizzo_presa;
-            const cittaFermata = customAddress
-              ? (passeggero.localita_presa_personalizzato || passeggero.localita_inline || passeggero.localita || servizio.citta_presa)
-              : servizio.citta_presa;
+          {/* Fermate intermedie - solo indirizzi diversi */}
+          {passeggeriOrdinati.filter((p: any) => hasRealCustomAddress(p, servizio)).map((passeggero: any, idx: number) => {
+            const indirizzo = passeggero.luogo_presa_personalizzato;
+            const cittaFermata = passeggero.localita_presa_personalizzato || passeggero.localita_inline || passeggero.localita || servizio.citta_presa;
 
             return (
               <div key={idx} className="flex gap-3">
@@ -291,9 +286,6 @@ export function MobileServizioOptimized({
                 <div className="flex-1 pb-2">
                   <div className="text-xs text-muted-foreground font-medium mb-1">
                     Fermata - {passeggero.nome_cognome}
-                    {!customAddress && (
-                      <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
-                    )}
                   </div>
                   {passeggero.orario_presa_personalizzato && (
                     <div className="text-xs text-muted-foreground flex items-center gap-1 mb-1">

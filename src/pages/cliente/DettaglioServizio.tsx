@@ -155,8 +155,8 @@ const DettaglioServizio = () => {
                 const passeggeriOrdinati = [...passeggeriList].sort(
                   (a: any, b: any) => (a.ordine_presa ?? 0) - (b.ordine_presa ?? 0)
                 );
-                const primoPasseggero = passeggeriOrdinati[0];
-                const fermateIntermedie = passeggeriOrdinati.slice(1);
+                const passeggeriPartenza = passeggeriOrdinati.filter((p: any) => !hasRealCustomAddress(p, servizio));
+                const fermateIntermedie = passeggeriOrdinati.filter((p: any) => hasRealCustomAddress(p, servizio));
 
                 // Build destination stops grouped by unique address
                 const destinazioniMap = new Map<string, { indirizzo: string; citta?: string; passeggeri: string[] }>();
@@ -185,8 +185,8 @@ const DettaglioServizio = () => {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-muted-foreground mb-0.5">
                           Partenza
-                          {primoPasseggero?.passeggeri?.nome_cognome && passeggeriOrdinati.length === 1 && (
-                            <span> - {primoPasseggero.passeggeri.nome_cognome}</span>
+                          {passeggeriPartenza.length > 0 && (
+                            <span> - {passeggeriPartenza.map((sp: any) => sp.passeggeri?.nome_cognome || 'Passeggero').join(', ')}</span>
                           )}
                         </p>
                         <p className="font-medium text-sm break-words leading-tight">
@@ -198,7 +198,6 @@ const DettaglioServizio = () => {
 
                     {/* Fermate presa intermedie */}
                     {fermateIntermedie
-                      .filter((sp: any) => hasRealCustomAddress(sp, servizio))
                       .map((sp: any, idx: number) => {
                         const p = sp.passeggeri;
                         const citta = sp.localita_presa_personalizzato || p?.localita || servizio.citta_presa;

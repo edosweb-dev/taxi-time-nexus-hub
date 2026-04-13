@@ -47,10 +47,10 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
     return orarioA.localeCompare(orarioB);
   });
 
-  // Primo passeggero = partenza
-  const primoPasseggero = passeggeriOrdinati[0];
-  // Passeggeri successivi = fermate intermedie
-  const fermateIntermedie = passeggeriOrdinati.slice(1);
+  // Passeggeri alla partenza (stesso indirizzo del servizio)
+  const passeggeriPartenza = passeggeriOrdinati.filter(p => !hasRealCustomAddress(p, servizio));
+  // Fermate intermedie (indirizzo genuinamente diverso)
+  const fermateIntermedie = passeggeriOrdinati.filter(p => hasRealCustomAddress(p, servizio));
 
   // Destinazioni raggruppate
   const destinazioni = passeggeriOrdinati.length > 0
@@ -97,9 +97,9 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
                   {servizio.orario_servizio}
                 </Badge>
                 <span className="text-xs text-muted-foreground font-medium uppercase">Partenza</span>
-                {primoPasseggero && fermateIntermedie.length === 0 && (
+                {passeggeriPartenza.length > 0 && (
                   <span className="text-sm font-semibold text-foreground">
-                    - {primoPasseggero.nome_cognome}
+                    - {passeggeriPartenza.map(p => p.nome_cognome).join(', ')}
                   </span>
                 )}
               </div>
