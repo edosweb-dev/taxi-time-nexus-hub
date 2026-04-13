@@ -58,19 +58,8 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
     : [{ indirizzo: servizio.indirizzo_destinazione, citta: servizio.citta_destinazione || undefined, passeggeri: [] as string[] }];
   const hasMultipleDestinations = destinazioni.length > 1;
 
-  // Calcola indirizzo partenza
-  const getIndirizzoPartenza = () => {
-    if (primoPasseggero) {
-      if (primoPasseggero.usa_indirizzo_personalizzato && primoPasseggero.luogo_presa_personalizzato) {
-        const via = primoPasseggero.luogo_presa_personalizzato;
-        const citta = primoPasseggero.localita_presa_personalizzato;
-        return { via, citta };
-      }
-    }
-    return { via: servizio.indirizzo_presa, citta: servizio.citta_presa };
-  };
-
-  const partenza = getIndirizzoPartenza();
+  // Indirizzo partenza = sempre indirizzo del servizio (passeggeriPartenza hanno lo stesso)
+  const partenza = { via: servizio.indirizzo_presa, citta: servizio.citta_presa };
 
   return (
     <Card>
