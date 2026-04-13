@@ -94,14 +94,9 @@ const ReportCliente = () => {
 
     try {
       // Costruisci data_inizio (primo giorno del mese)
-      const dataInizio = new Date(selectedAnno, selectedMese - 1, 1)
-        .toISOString()
-        .split("T")[0];
-
-      // Costruisci data_fine (ultimo giorno del mese)
-      const dataFine = new Date(selectedAnno, selectedMese, 0)
-        .toISOString()
-        .split("T")[0];
+      const dataInizio = `${selectedAnno}-${String(selectedMese).padStart(2, '0')}-01`;
+      const lastDay = new Date(selectedAnno, selectedMese, 0).getDate();
+      const dataFine = `${selectedAnno}-${String(selectedMese).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
       generateReport({
         azienda_id: profile.azienda_id,
@@ -294,9 +289,9 @@ const ReportCliente = () => {
                 </TableHeader>
                 <TableBody>
                   {reportsFiltrati.map((report) => {
-                    const dataInizio = new Date(report.data_inizio);
-                    const anno = dataInizio.getFullYear();
-                    const mese = dataInizio.getMonth() + 1;
+                    const [annoStr, meseStr] = report.data_inizio.split('-');
+                    const anno = parseInt(annoStr);
+                    const mese = parseInt(meseStr);
                     const periodo = `${getMeseNome(mese)} ${anno}`;
 
                     return (
