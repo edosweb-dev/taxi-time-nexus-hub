@@ -15,7 +15,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
             <div className="text-center">
               <div className="mb-1">
                 <img
-                  src="/lovable-uploads/f9301fdf-4c2b-4c27-938e-04f6b32870f2.png" 
+                  src="/images/auth-logo.png"
                   alt="Taxitime Logo" 
                   className="h-24 sm:h-28 w-auto mx-auto object-contain"
                   onError={(e) => {

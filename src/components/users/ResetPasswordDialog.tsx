@@ -45,7 +45,7 @@ export function ResetPasswordDialog({
       const { data: { session } } = await supabase.auth.getSession();
       
       const response = await fetch(
-        `https://iczxhmzwjopfdvbxwzjs.supabase.co/functions/v1/update-user-password`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-user-password`,
         {
           method: 'POST',
           headers: {

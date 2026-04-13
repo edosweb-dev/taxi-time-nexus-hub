@@ -15,7 +15,7 @@ export async function createReferente(userData: UserFormData) {
     }
     
     // Chiamata all'API esistente via endpoint Edge Function di Supabase
-    const response = await fetch('https://iczxhmzwjopfdvbxwzjs.supabase.co/functions/v1/create-user', {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

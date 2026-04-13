@@ -35,7 +35,11 @@ serve(async (req) => {
     }
 
     // Build the reset link using the site URL and token hash
-    const siteUrl = email_data.site_url || email_data.redirect_to || "https://taxi-time.lovable.app";
+    const siteUrl =
+      email_data.site_url ||
+      email_data.redirect_to ||
+      Deno.env.get("SITE_URL") ||
+      "https://taxitime-staging.vercel.app";
     const resetLink = `${siteUrl}/reset-password#access_token=${email_data.token_hash}&type=recovery`;
 
     console.log("[send-reset-password-email] Sending to:", user.email);

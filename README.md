@@ -1,73 +1,84 @@
-# Welcome to your Lovable project
+# TaxiTime Nexus Hub
 
-## Project info
+Gestionale completo per aziende di taxi/NCC: prenotazione servizi, gestione passeggeri, turni dipendenti, calcolo stipendi, flussi di cassa e report.
 
-**URL**: https://lovable.dev/projects/314949cb-cbda-482d-a13d-ae812a0bf046
+## Stack
 
-## How can I edit this code?
+- **Frontend:** Vite + React 18 + TypeScript
+- **UI:** Tailwind CSS + shadcn/ui (Radix)
+- **State:** TanStack React Query + Context API
+- **Forms:** React Hook Form + Zod
+- **Backend:** Supabase (Postgres, Auth, Storage, Edge Functions)
+- **Email:** Resend
+- **Deploy:** Vercel
 
-There are several ways of editing your application.
+## Setup locale
 
-**Use Lovable**
+Requisiti: Node.js >= 20, npm.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/314949cb-cbda-482d-a13d-ae812a0bf046) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+git clone https://github.com/edosweb-dev/taxi-time-nexus-hub.git
+cd taxi-time-nexus-hub
+cp .env.example .env
+# Inserisci i valori reali in .env (vedi sezione Environment Variables)
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+App disponibile su `http://localhost:8080`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment Variables
 
-**Use GitHub Codespaces**
+Valori obbligatori in `.env` (NON committare il file):
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Variabile | Descrizione |
+|-----------|-------------|
+| `VITE_SUPABASE_URL` | URL del progetto Supabase |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Anon/publishable key Supabase |
+| `VITE_SUPABASE_PROJECT_ID` | Project ID Supabase |
 
-## What technologies are used for this project?
+I valori si trovano su [supabase.com/dashboard → Project Settings → API](https://supabase.com/dashboard).
 
-This project is built with:
+Su Vercel vanno configurati tramite `vercel env add` oppure dalla dashboard del progetto.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Script
 
-## How can I deploy this project?
+| Comando | Descrizione |
+|---------|-------------|
+| `npm run dev` | Dev server su :8080 |
+| `npm run build` | Build produzione in `dist/` |
+| `npm run build:dev` | Build in modalità development |
+| `npm run preview` | Preview del build |
+| `npm run lint` | ESLint |
 
-Simply open [Lovable](https://lovable.dev/projects/314949cb-cbda-482d-a13d-ae812a0bf046) and click on Share -> Publish.
+## Struttura
 
-## Can I connect a custom domain to my Lovable project?
+```
+src/
+├── components/        # UI components (shadcn + custom)
+├── contexts/          # AuthContext, LayoutContext, ShiftContext
+├── hooks/             # Custom hooks (React Query)
+├── integrations/      # Supabase client e types generati
+├── lib/               # Utilities, API, supabase client
+├── pages/             # Pagine (routing in App.tsx)
+└── styles/            # CSS globali
+supabase/
+├── functions/         # Edge Functions (Deno)
+└── migrations/        # Migrazioni SQL
+```
 
-Yes, you can!
+## Ruoli utente
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+`admin`, `socio`, `dipendente`, `cliente` — isolamento dati via Row Level Security.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Deploy
+
+Push su `main` → deploy automatico su Vercel (produzione).
+Push su altri branch → preview deployment.
+
+## Sicurezza
+
+- `.env` **NON** deve essere committato
+- Tutte le credenziali devono passare da env vars
+- I `console.log` sono automaticamente rimossi in build di produzione (`esbuild.drop`)
+- RLS attivo su tutte le tabelle Supabase
