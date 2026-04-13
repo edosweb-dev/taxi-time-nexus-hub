@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, FileText, ArrowLeft, MapPin, Calendar, Clock, User, CreditCard, X, ChevronLeft, ChevronRight, Circle, Users } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useServiziCliente, StatoServizio, type FiltriServizi } from "@/hooks/useServiziCliente";
 import {
   Table,
@@ -323,36 +324,22 @@ const ServiziPage = () => {
                                 )}
                               </TableCell>
 
-                              {/* Percorso con fermate intermedie */}
-                              <TableCell className="max-w-[350px]">
-                                <div className="flex flex-col gap-1 text-sm">
-                                  {/* Partenza */}
-                                  <div className="flex items-start gap-2">
-                                    <MapPin className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
-                                    <span className="truncate font-medium">
-                                      {servizio.indirizzo_presa}
-                                      {servizio.citta_presa && `, ${servizio.citta_presa}`}
-                                    </span>
+                              {/* Percorso */}
+                              <TableCell>
+                                <div>
+                                  <div className="text-sm">
+                                    <span className="text-muted-foreground">Da: </span>
+                                    <span className="font-semibold">{servizio.citta_presa}</span>
+                                    {servizio.indirizzo_presa && (
+                                      <span className="text-muted-foreground"> - {servizio.indirizzo_presa}</span>
+                                    )}
                                   </div>
-                                  {/* Fermate intermedie */}
-                                  {sorted
-                                    .filter((sp) => hasRealCustomAddress(sp, servizio))
-                                    .map((sp) => (
-                                      <div key={sp.id} className="flex items-start gap-2 ml-2">
-                                        <Circle className="h-2 w-2 text-muted-foreground mt-1 flex-shrink-0" />
-                                        <span className="truncate text-muted-foreground">
-                                          {sp.luogo_presa_personalizzato}
-                                          {sp.localita_presa_personalizzato && `, ${sp.localita_presa_personalizzato}`}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  {/* Destinazione */}
-                                  <div className="flex items-start gap-2">
-                                    <MapPin className="h-3 w-3 text-red-600 mt-0.5 flex-shrink-0" />
-                                    <span className="truncate">
-                                      {servizio.indirizzo_destinazione}
-                                      {servizio.citta_destinazione && `, ${servizio.citta_destinazione}`}
-                                    </span>
+                                  <div className="text-sm">
+                                    <span className="text-muted-foreground">A: </span>
+                                    <span className="font-semibold">{servizio.citta_destinazione}</span>
+                                    {servizio.indirizzo_destinazione && (
+                                      <span className="text-muted-foreground"> - {servizio.indirizzo_destinazione}</span>
+                                    )}
                                   </div>
                                 </div>
                               </TableCell>
@@ -360,13 +347,23 @@ const ServiziPage = () => {
                               {/* Passeggeri */}
                               <TableCell>
                                 {sorted.length > 0 ? (
-                                  <div className="flex flex-col gap-0.5">
-                                    {sorted.map((sp, index) => (
-                                      <span key={sp.id} className="text-sm">
-                                        {index + 1}. {sp.passeggero?.nome_cognome || sp.nome_cognome_inline || 'N/A'}
-                                      </span>
-                                    ))}
-                                  </div>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div className="flex items-center gap-1 cursor-default">
+                                          <Users className="h-4 w-4 text-muted-foreground" />
+                                          <span className="text-sm">{sorted.length}</span>
+                                        </div>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <div className="text-sm space-y-1">
+                                          {sorted.map((sp) => (
+                                            <div key={sp.id}>{sp.passeggero?.nome_cognome || sp.nome_cognome_inline || 'N/A'}</div>
+                                          ))}
+                                        </div>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
                                 ) : (
                                   <span className="text-muted-foreground text-sm">-</span>
                                 )}
