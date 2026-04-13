@@ -346,9 +346,9 @@ const ReportCliente = () => {
             {/* Cards Mobile */}
             <div className="md:hidden space-y-4">
               {reportsFiltrati.map((report) => {
-                const dataInizio = new Date(report.data_inizio);
-                const anno = dataInizio.getFullYear();
-                const mese = dataInizio.getMonth() + 1;
+                const [annoStr, meseStr] = report.data_inizio.split('-');
+                const anno = parseInt(annoStr);
+                const mese = parseInt(meseStr);
                 const periodo = `${getMeseNome(mese)} ${anno}`;
 
                 return (
