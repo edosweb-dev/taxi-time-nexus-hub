@@ -117,7 +117,7 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
           {/* FERMATE INTERMEDIE PRESA - Passeggeri dal 2° in poi */}
           {fermateIntermedie.map((passeggero, index) => {
             const orarioPresa = passeggero.orario_presa_personalizzato || servizio.orario_servizio;
-            const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
+            const haPresaPersonalizzata = hasRealCustomAddress(passeggero, servizio);
             
             const viaFermata = haPresaPersonalizzata 
               ? passeggero.luogo_presa_personalizzato 

@@ -175,12 +175,11 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
         );
         
         for (const sp of passeggeriOrdinati) {
-          if (sp.usa_indirizzo_personalizzato && sp.luogo_presa_personalizzato) {
+          if (hasRealCustomAddress(sp, servizio)) {
             const localita = sp.localita_presa_personalizzato || '';
             const tappa = localita 
               ? `${sp.luogo_presa_personalizzato}, ${localita}`
               : sp.luogo_presa_personalizzato;
-            // Avoid duplicating partenza/destinazione
             if (tappa !== partenza) {
               tappe.push(tappa);
             }

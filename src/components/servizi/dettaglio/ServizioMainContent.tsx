@@ -187,11 +187,11 @@ export function ServizioMainContent({
             {passeggeriOrdinati.slice(1).length > 0 && (
               <div className="pl-6 border-l-2 border-muted space-y-2">
                 {passeggeriOrdinati.slice(1).map((p, idx) => {
-                  const hasCustomAddress = p.usa_indirizzo_personalizzato && p.luogo_presa_personalizzato;
-                  const indirizzo = hasCustomAddress
+                  const customAddress = hasRealCustomAddress(p, servizio);
+                  const indirizzo = customAddress
                     ? p.luogo_presa_personalizzato
                     : servizio.indirizzo_presa;
-                  const cittaFermata = hasCustomAddress
+                  const cittaFermata = customAddress
                     ? (p.localita_presa_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_presa)
                     : servizio.citta_presa;
 
@@ -203,7 +203,7 @@ export function ServizioMainContent({
                       <div className="flex-1 min-w-0">
                         <div className="text-xs text-muted-foreground mb-0.5">
                           Fermata - {p.nome_cognome}
-                          {!hasCustomAddress && (
+                          {!customAddress && (
                             <span className="text-muted-foreground/60 ml-1">(stesso punto partenza)</span>
                           )}
                         </div>
