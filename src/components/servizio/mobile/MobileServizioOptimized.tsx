@@ -24,6 +24,7 @@ import { FinancialSection } from '@/components/servizi/dettaglio/sections/Financ
 import { useAziende } from '@/hooks/useAziende';
 import { PasseggeriCard } from '@/components/dipendente/servizi/dettaglio/PasseggeriCard';
 import { NoteCard } from '@/components/dipendente/servizi/dettaglio/NoteCard';
+import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,

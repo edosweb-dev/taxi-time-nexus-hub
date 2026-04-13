@@ -124,7 +124,7 @@ export function MobileServizioHero({ servizio, passeggeri = [], isAdmin = false,
           </div>
 
           {/* Fermate intermedie - se presenti */}
-          {passeggeri.filter(p => hasRealCustomAddress(p, servizio)).map((passeggero, idx) => (
+          {passeggeri.filter(p => hasRealCustomAddress(p, { indirizzo_presa: servizio.pickup.indirizzo, citta_presa: servizio.pickup.citta })).map((passeggero, idx) => (
             <div key={idx} className="flex gap-3">
               <div className="flex flex-col items-center">
                 <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground border-2 border-background shadow-sm" />
