@@ -389,6 +389,14 @@ export default function NuovoServizioPage() {
       return;
     }
 
+    // Alert non bloccante se nessuna email notifica selezionata
+    if (emailNotificheIds.length === 0) {
+      toast({
+        title: "⚠️ Nessuna email notifica selezionata",
+        description: "Non hai indicato a quale email ricevere gli aggiornamenti sul servizio. Puoi procedere ma non riceverai notifiche.",
+      });
+    }
+
     // Pre-popola indirizzi dal primo passeggero
     if (passeggeriSelezionati.length > 0) {
       const primo = passeggeriSelezionati[0];
