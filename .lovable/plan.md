@@ -1,17 +1,29 @@
 
 
-## Piano: Ottimizzazione mobile clienti privati
+## BUG-64: Notifiche email nuova richiesta servizio cliente — COMPLETATO
 
-### Modifiche — 2 file
+### Modifiche effettuate
 
-#### 1. `src/components/clienti/EditClientePrivatoDialog.tsx`
-Convertire da Dialog a Sheet, stesso pattern già usato in `ViewClientePrivatoDialog`:
-- Sostituire `Dialog`/`DialogContent`/`DialogHeader`/`DialogTitle` con `Sheet`/`SheetContent`/`SheetHeader`/`SheetTitle`
-- Importare `useIsMobile` per condizionare `side="bottom"` (mobile) vs `side="right"` (desktop)
-- Mobile: `rounded-t-2xl max-h-[85vh] overflow-y-auto p-4 pb-6`
-- Desktop: `w-full sm:max-w-md overflow-y-auto`
-- Grid form fields: `grid-cols-1` su mobile, `grid-cols-2` su desktop
+#### 1. Migration DB
+- Aggiunta colonna `email_notifiche_admin` (jsonb, default `[]`) a `impostazioni`
 
-#### 2. `src/components/clienti/mobile-first/MobileClientiPrivatiList.tsx`
-Rimuovere il pulsante "Dettagli" dalla sezione azioni di ogni card (righe 101-108). Lasciare solo "Modifica" e il bottone elimina.
+#### 2. Tipi TypeScript (`src/lib/types/impostazioni.ts`)
+- Aggiunto `email_notifiche_admin: string[]` a `Impostazioni` e `ImpostazioniFormData`
 
+#### 3. API Impostazioni
+- `getImpostazioni.ts` — parsing del nuovo campo jsonb → `string[]`
+- `updateImpostazioni.ts` — validazione Zod + salvataggio del campo
+
+#### 4. UI Impostazioni admin
+- Nuovo componente `EmailNotificheAdminForm.tsx`
+- Nuovo tab "Notifiche Admin" in `ImpostazioniForm.tsx` (visibile solo per admin)
+
+#### 5. Edge Function `send-notification`
+- Carica `email_notifiche_admin` dalla config
+- Per template `richiesta_cliente*`, aggiunge queste email come destinatari
+
+#### 6. Pre-selezione email in `NuovoServizioPage.tsx`
+- `useEffect` che pre-seleziona tutte le email notifiche dell'azienda
+
+#### 7. Alert mancanza email
+- Toast non bloccante se `emailNotificheIds.length === 0` al submit

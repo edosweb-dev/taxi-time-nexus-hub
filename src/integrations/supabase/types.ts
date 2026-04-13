@@ -461,6 +461,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           email_enabled: boolean | null
+          email_notifiche_admin: Json | null
           id: string
           indirizzo_sede: string | null
           metodi_pagamento: Json | null
@@ -481,6 +482,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           email_enabled?: boolean | null
+          email_notifiche_admin?: Json | null
           id?: string
           indirizzo_sede?: string | null
           metodi_pagamento?: Json | null
@@ -501,6 +503,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           email_enabled?: boolean | null
+          email_notifiche_admin?: Json | null
           id?: string
           indirizzo_sede?: string | null
           metodi_pagamento?: Json | null

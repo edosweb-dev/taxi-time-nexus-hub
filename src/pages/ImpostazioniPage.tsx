@@ -29,6 +29,7 @@ export default function ImpostazioniPage() {
     email: impostazioni?.email || '',
     metodi_pagamento: impostazioni?.metodi_pagamento || [],
     aliquote_iva: impostazioni?.aliquote_iva || [],
+    email_notifiche_admin: impostazioni?.email_notifiche_admin || [],
   };
 
   return (

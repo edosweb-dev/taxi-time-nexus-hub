@@ -24,6 +24,7 @@ export interface Impostazioni {
   email?: string;
   metodi_pagamento: MetodoPagamentoOption[];
   aliquote_iva: AliquotaIvaOption[];
+  email_notifiche_admin: string[];
   created_at: string;
   updated_at: string;
 }
@@ -37,4 +38,5 @@ export interface ImpostazioniFormData {
   email?: string;
   metodi_pagamento: MetodoPagamentoOption[];
   aliquote_iva: AliquotaIvaOption[];
+  email_notifiche_admin: string[];
 }
