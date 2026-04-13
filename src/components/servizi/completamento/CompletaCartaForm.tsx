@@ -12,6 +12,7 @@ import { checkAllPasseggeriSigned } from "@/lib/api/servizi/firmaPasseggero";
 import { toast } from "@/components/ui/sonner";
 import { Servizio } from "@/lib/types/servizi";
 import { DollarSign } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   incasso_ricevuto: z.coerce.number()
@@ -31,12 +32,9 @@ export function CompletaCartaForm({
   servizio,
   onComplete,
 }: CompletaCartaFormProps) {
-  const ivaPercentuale = servizio.iva ?? 10; // ✅ Default 10%, usa ?? per non trattare 0 come falsy
+  const isMobile = useIsMobile();
+  const ivaPercentuale = servizio.iva ?? 10;
   
-  // ✅ SEMANTICA CORRETTA:
-  // - incasso_previsto = LORDO (totale IVA inclusa, salvato in fase di creazione)
-  // - incasso_ricevuto = LORDO (totale effettivo, inserito in completamento)
-  // Scorporiamo l'IVA dal LORDO per visualizzazione
   const totalePrevisto = servizio.incasso_previsto || 0;
   const imponibile = ivaPercentuale > 0 
     ? totalePrevisto / (1 + ivaPercentuale / 100) 
@@ -46,14 +44,12 @@ export function CompletaCartaForm({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      // ✅ Pre-compila con LORDO calcolato (il totale che l'operatore dovrebbe ricevere)
       incasso_ricevuto: totalePrevisto,
     },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      // 🔍 DEBUG LOG per tracciare dati completamento Carta
       console.log('📊 [CompletaCartaForm] Submit data:', {
         metodo_pagamento: servizio.metodo_pagamento,
         incasso_previsto: servizio.incasso_previsto,
@@ -62,11 +58,9 @@ export function CompletaCartaForm({
         totale_previsto_calculated: totalePrevisto,
       });
       
-      // VALIDAZIONE: Check firma cliente/passeggeri se obbligatoria
       if (servizio?.aziende?.firma_digitale_attiva) {
         const firmaCheck = await checkAllPasseggeriSigned(servizio.id);
         
-        // Se ci sono passeggeri, controlla che tutti abbiano firmato
         if (firmaCheck.totalPasseggeri > 0 && !firmaCheck.allSigned) {
           toast.error("Firme passeggeri mancanti", {
             description: `${firmaCheck.firmati}/${firmaCheck.totalPasseggeri} passeggeri hanno firmato`
@@ -74,7 +68,6 @@ export function CompletaCartaForm({
           return;
         }
         
-        // Fallback per servizi senza passeggeri (usa firma singola)
         if (firmaCheck.totalPasseggeri === 0 && !servizio?.firma_url) {
           toast.error("Firma cliente mancante", {
             description: "Richiedi prima la firma del cliente prima di completare il servizio."
@@ -87,7 +80,6 @@ export function CompletaCartaForm({
         id: servizio.id,
         metodo_pagamento: servizio.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
-        // NO consegna_contanti_a per Carta
       });
 
       if (result.error) {
@@ -112,7 +104,20 @@ export function CompletaCartaForm({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[500px] overflow-y-auto">
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={
+          isMobile
+            ? "rounded-t-2xl max-h-[85vh] overflow-y-auto px-6 pb-8"
+            : "sm:max-w-[500px] overflow-y-auto"
+        }
+      >
+        {isMobile && (
+          <div className="flex justify-center pt-2 pb-4">
+            <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+          </div>
+        )}
+
         <SheetHeader>
           <SheetTitle>Completa Servizio - Carta</SheetTitle>
         </SheetHeader>
@@ -120,7 +125,6 @@ export function CompletaCartaForm({
         <div className="mt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Alert: Pagamento CON IVA */}
               <Alert className="border-primary/20 bg-primary/5">
                 <DollarSign className="h-4 w-4" />
                 <AlertDescription>
@@ -130,7 +134,6 @@ export function CompletaCartaForm({
                 </AlertDescription>
               </Alert>
               
-              {/* Dettaglio calcolo IVA */}
               <div className="space-y-2 rounded-lg border bg-muted/50 p-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Imponibile:</span>
@@ -146,7 +149,6 @@ export function CompletaCartaForm({
                 </div>
               </div>
               
-              {/* Incasso ricevuto */}
               <FormField
                 control={form.control}
                 name="incasso_ricevuto"

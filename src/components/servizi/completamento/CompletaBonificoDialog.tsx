@@ -1,18 +1,11 @@
 import React, { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { completaServizio } from "@/lib/api/servizi";
 import { checkAllPasseggeriSigned } from "@/lib/api/servizi/firmaPasseggero";
 import { toast } from "@/components/ui/sonner";
 import { Servizio } from "@/lib/types/servizi";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CompletaBonificoDialogProps {
   open: boolean;
@@ -28,6 +21,7 @@ export function CompletaBonificoDialog({
   onComplete,
 }: CompletaBonificoDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const isMobile = useIsMobile();
 
   async function handleCompleta() {
     try {
@@ -57,7 +51,6 @@ export function CompletaBonificoDialog({
       const result = await completaServizio({
         id: servizio.id,
         metodo_pagamento: servizio.metodo_pagamento,
-        // NO incasso_ricevuto, NO consegna_contanti_a
       });
 
       if (result.error) {
@@ -77,11 +70,25 @@ export function CompletaBonificoDialog({
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Completa Servizio</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={
+          isMobile
+            ? "rounded-t-2xl max-h-[85vh] overflow-y-auto px-6 pb-8"
+            : "sm:max-w-[500px] overflow-y-auto"
+        }
+      >
+        {/* Handle bar mobile */}
+        {isMobile && (
+          <div className="flex justify-center pt-2 pb-4">
+            <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+          </div>
+        )}
+
+        <SheetHeader>
+          <SheetTitle>Completa Servizio</SheetTitle>
+          <SheetDescription className="space-y-2">
             <div>
               Metodo di pagamento: <strong>{servizio.metodo_pagamento}</strong>
             </div>
@@ -90,16 +97,18 @@ export function CompletaBonificoDialog({
               <br />
               Non è necessario inserire alcun dato.
             </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Annulla</AlertDialogCancel>
-          <AlertDialogAction onClick={handleCompleta} disabled={isLoading}>
+          </SheetDescription>
+        </SheetHeader>
+
+        <SheetFooter className="mt-6 flex-col-reverse sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading} className="w-full sm:w-auto">
+            Annulla
+          </Button>
+          <Button onClick={handleCompleta} disabled={isLoading} className="w-full sm:w-auto">
             {isLoading ? "Completamento..." : "Completa Servizio"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }
