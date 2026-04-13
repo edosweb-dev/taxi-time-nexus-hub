@@ -310,6 +310,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const stopImpersonation = async () => {
     console.log('[AuthContext] Stopping impersonation...');
     
+    // Update session_end in impersonation log before clearing state
+    try {
+      if (originalAdminId && user?.id) {
+        const { data: logEntry } = await supabase
+          .from('admin_impersonation_log')
+          .select('id')
+          .eq('admin_user_id', originalAdminId)
+          .eq('target_user_id', user.id)
+          .is('session_end', null)
+          .order('session_start', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (logEntry) {
+          await supabase
+            .from('admin_impersonation_log')
+            .update({ session_end: new Date().toISOString() })
+            .eq('id', logEntry.id);
+          console.log('[AuthContext] Impersonation log session_end updated');
+        }
+      }
+    } catch (error) {
+      console.error('Errore aggiornamento log impersonificazione:', error);
+    }
+    
     // Clear impersonation state
     setIsImpersonating(false);
     setOriginalAdminId(null);
