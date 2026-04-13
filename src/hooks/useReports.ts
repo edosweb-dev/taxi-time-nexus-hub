@@ -203,7 +203,7 @@ export function useAvailableMonths(aziendaId: string, referenteId?: string) {
         .from('servizi')
         .select('data_servizio')
         .eq('azienda_id', aziendaId)
-        .eq('stato', 'consuntivato');
+        .in('stato', ['da_assegnare', 'assegnato', 'completato', 'consuntivato']);
 
       if (referenteId) {
         query = query.eq('referente_id', referenteId);

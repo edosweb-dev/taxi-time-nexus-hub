@@ -82,7 +82,7 @@ serve(async (req) => {
       .from('servizi')
       .select('*')
       .eq('azienda_id', requestData.azienda_id)
-      .eq('stato', 'consuntivato')
+      .in('stato', ['da_assegnare', 'assegnato', 'completato', 'consuntivato'])
       .gte('data_servizio', requestData.data_inizio)
       .lte('data_servizio', requestData.data_fine)
 
@@ -338,7 +338,7 @@ async function generateEmptyPDF(azienda: any, requestData: ReportData): Promise<
   pdf.text('NESSUN SERVIZIO TROVATO', 20, 70)
   
   pdf.setFontSize(10)
-  pdf.text('Non sono stati trovati servizi consuntivati per il periodo selezionato.', 20, 85)
+  pdf.text('Nessun servizio trovato nel periodo selezionato.', 20, 85)
   
   return new Uint8Array(pdf.output('arraybuffer'))
 }
