@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, FileText, ArrowLeft, MapPin, Calendar, Clock, User, CreditCard, X, ChevronLeft, ChevronRight, Circle, Users } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useServiziCliente, StatoServizio, type FiltriServizi } from "@/hooks/useServiziCliente";
 import {
   Table,
