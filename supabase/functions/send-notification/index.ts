@@ -219,7 +219,93 @@ serve(async (req) => {
   }
 
   try {
-    const { servizio_id, template_slug } = await req.json();
+    const body = await req.json();
+    const { servizio_id, template_slug, test_mode, test_emails } = body;
+
+    // ── TEST MODE ─────────────────────────────────────────────────────
+    if (test_mode === true) {
+      console.log('[SEND-EMAIL] TEST MODE for emails:', test_emails);
+
+      if (!Array.isArray(test_emails) || test_emails.length === 0) {
+        return new Response(
+          JSON.stringify({ success: false, message: 'No test_emails provided' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const supabaseAdmin = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        { auth: { persistSession: false } }
+      );
+
+      const { data: config, error: configError } = await supabaseAdmin
+        .from('impostazioni')
+        .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
+        .maybeSingle();
+
+      if (configError || !config) throw new Error(`Config error: ${configError?.message || 'No config found'}`);
+      if (!config.email_enabled) {
+        return new Response(JSON.stringify({ success: false, message: 'Email disabled' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
+        return new Response(JSON.stringify({ success: false, message: 'SMTP not configured' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      const password = atob(config.smtp_password_encrypted);
+      const smtp = new SMTPClient({
+        connection: {
+          hostname: config.smtp_host,
+          port: config.smtp_port,
+          tls: config.smtp_secure,
+          auth: { username: config.smtp_user, password }
+        }
+      });
+
+      const testHtml = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px 20px;text-align:center;border-radius:10px 10px 0 0;">
+<h1 style="margin:0;">✅ Test Notifiche TaxiTime</h1>
+</div>
+<div style="background:white;padding:30px;border:1px solid #eee;border-radius:0 0 10px 10px;">
+<p style="font-size:16px;color:#333;">Questo è un messaggio di test.</p>
+<p style="font-size:14px;color:#666;">Le notifiche email sono configurate correttamente.<br>
+Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richiesta di servizio.</p>
+<p style="font-size:12px;color:#999;margin-top:30px;">Inviato il ${new Date().toLocaleString('it-IT')} — TaxiTime</p>
+</div></body></html>`;
+
+      const testSubject = '✅ Test notifiche TaxiTime';
+      let sent = 0;
+      let failed = 0;
+
+      for (const email of test_emails) {
+        try {
+          await smtp.send({
+            from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
+            to: [email],
+            subject: testSubject,
+            html: testHtml
+          });
+          sent++;
+          console.log(`[SEND-EMAIL] ✅ Test sent to ${email}`);
+        } catch (err: any) {
+          failed++;
+          console.error(`[SEND-EMAIL] ❌ Test failed to ${email}:`, err.message);
+        }
+      }
+
+      await smtp.close();
+
+      return new Response(
+        JSON.stringify({ success: true, sent, failed, total: test_emails.length }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    // ── END TEST MODE ─────────────────────────────────────────────────
     
     console.log('[SEND-EMAIL] Start:', { servizio_id, template_slug });
 

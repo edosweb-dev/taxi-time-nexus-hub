@@ -1,8 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Mail, X, AlertTriangle } from "lucide-react";
+import { Mail, X, AlertTriangle, Send, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface EmailNotificheAdminFormProps {
   emails: string[];
@@ -12,6 +15,7 @@ interface EmailNotificheAdminFormProps {
 export function EmailNotificheAdminForm({ emails, onChange }: EmailNotificheAdminFormProps) {
   const [inputValue, setInputValue] = useState("");
   const [errore, setErrore] = useState("");
+  const [invioInCorso, setInvioInCorso] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -54,6 +58,31 @@ export function EmailNotificheAdminForm({ emails, onChange }: EmailNotificheAdmi
     const pasted = e.clipboardData.getData("text");
     const parts = pasted.split(/[,;\s]+/).filter(Boolean);
     parts.forEach(aggiungiEmail);
+  };
+
+  const inviaEmailTest = async () => {
+    setInvioInCorso(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-notification', {
+        body: {
+          test_mode: true,
+          test_emails: emails,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(`Email di test inviata a ${data.sent || emails.length} indirizzi`);
+      } else {
+        toast.error(data?.message || "Errore nell'invio. Verifica configurazione SMTP.");
+      }
+    } catch (err: any) {
+      console.error('[TEST-EMAIL] Error:', err);
+      toast.error("Errore nell'invio. Verifica configurazione SMTP.");
+    } finally {
+      setInvioInCorso(false);
+    }
   };
 
   return (
@@ -125,6 +154,22 @@ export function EmailNotificheAdminForm({ emails, onChange }: EmailNotificheAdmi
         {errore && (
           <p className="text-sm text-destructive">{errore}</p>
         )}
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={emails.length === 0 || invioInCorso}
+          onClick={inviaEmailTest}
+          className="mt-2"
+        >
+          {invioInCorso ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4 mr-2" />
+          )}
+          {invioInCorso ? "Invio in corso..." : "📧 Invia email di test"}
+        </Button>
       </CardContent>
     </Card>
   );
