@@ -54,11 +54,17 @@ export async function getImpostazioni(): Promise<Impostazioni | null> {
       ? ensureAliquoteIvaIds(aliquote_raw as any[])
       : [];
 
+    const emailNotificheAdmin_raw = (data as any).email_notifiche_admin as unknown;
+    const emailNotificheAdmin = Array.isArray(emailNotificheAdmin_raw)
+      ? (emailNotificheAdmin_raw as string[])
+      : [];
+
     // Return properly typed data
     return {
       ...data,
       metodi_pagamento: metodi,
       aliquote_iva: aliquote,
+      email_notifiche_admin: emailNotificheAdmin,
     } as Impostazioni;
   } catch (error) {
     console.error("Unexpected error fetching impostazioni:", error);

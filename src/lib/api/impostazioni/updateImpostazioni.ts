@@ -32,6 +32,7 @@ const impostazioniUpdateSchema = z.object({
   email: z.string().email().max(255).optional(),
   metodi_pagamento: z.array(metodoPagamentoSchema).max(50, "Cannot have more than 50 payment methods"),
   aliquote_iva: z.array(aliquotaIvaSchema).max(20, "Cannot have more than 20 VAT rates"),
+  email_notifiche_admin: z.array(z.string().email()).max(20, "Cannot have more than 20 admin notification emails").optional(),
 });
 
 export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): Promise<Impostazioni | null> {
@@ -74,12 +75,14 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
     // Process and normalize the data (already validated)
     const processedMetodi = validatedData.metodi_pagamento ? ensureMetodiPagamentoIds(validatedData.metodi_pagamento) : [];
     const processedAliquote = validatedData.aliquote_iva ? ensureAliquoteIvaIds(validatedData.aliquote_iva) : [];
+    const processedEmailAdmin = validatedData.email_notifiche_admin || [];
 
     // Convert to format suitable for the database
     const dataToUpdate: Record<string, any> = {
       ...validatedData,
       metodi_pagamento: processedMetodi as unknown as Json,
       aliquote_iva: processedAliquote as unknown as Json,
+      email_notifiche_admin: processedEmailAdmin as unknown as Json,
     };
 
     const { data: updatedData, error } = await supabase
@@ -109,11 +112,17 @@ export async function updateImpostazioni(data: Partial<ImpostazioniFormData>): P
       ? ensureAliquoteIvaIds(aliquote_raw as any[])
       : [];
 
+    const emailNotificheAdmin_raw = (updatedData as any).email_notifiche_admin as unknown;
+    const emailNotificheAdmin = Array.isArray(emailNotificheAdmin_raw)
+      ? (emailNotificheAdmin_raw as string[])
+      : [];
+
     // Return properly typed data
     return {
       ...updatedData,
       metodi_pagamento: metodi,
       aliquote_iva: aliquote,
+      email_notifiche_admin: emailNotificheAdmin,
     } as Impostazioni;
   } catch (error) {
     console.error("Unexpected error updating impostazioni:", error);
