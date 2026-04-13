@@ -43,7 +43,6 @@ export const useReportCliente = () => {
 
   // Use existing useReports hook with auto-filters for security
   const reportsHook = useReports({
-    referente_id: profile?.id,
     azienda_id: profile?.azienda_id,
   });
 
