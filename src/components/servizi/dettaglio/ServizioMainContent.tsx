@@ -445,7 +445,7 @@ export function ServizioMainContent({
               </CardHeader>
               <CardContent>
                 {passeggeriConFirma.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-3">
                     {passeggeriConFirma.map((p) => (
                       <div key={p.id} className="border rounded-lg p-3 bg-muted/30">
                         <div className="text-xs font-medium mb-2 truncate">{p.nome_cognome}</div>
