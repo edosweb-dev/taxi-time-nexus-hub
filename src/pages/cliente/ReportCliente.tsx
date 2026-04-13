@@ -335,13 +335,10 @@ const ReportCliente = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="min-w-[120px]">ID</TableHead>
-                  <TableHead className="min-w-[90px]">Data</TableHead>
-                  <TableHead className="min-w-[70px]">Orario</TableHead>
+                  <TableHead className="min-w-[110px]">Data e Orario</TableHead>
                   <TableHead className="min-w-[110px]">Stato</TableHead>
                   <TableHead className="min-w-[80px]">Passeggeri</TableHead>
                   <TableHead className="min-w-[200px]">Percorso</TableHead>
-                  <TableHead className="min-w-[120px]">Autista</TableHead>
-                  <TableHead className="min-w-[130px]">Veicolo</TableHead>
                   <TableHead className="min-w-[100px]">Commessa</TableHead>
                   <TableHead className="min-w-[60px] text-right">Ore</TableHead>
                   <TableHead className="min-w-[100px] text-right">Importo</TableHead>
@@ -353,10 +350,14 @@ const ReportCliente = () => {
                     <TableCell className="font-mono text-xs">
                       {servizio.id_progressivo || servizio.id.substring(0, 8)}
                     </TableCell>
-                    <TableCell className="text-sm">
-                      {new Date(servizio.data_servizio).toLocaleDateString("it-IT")}
+                    <TableCell>
+                      <div className="text-sm font-medium">
+                        {new Date(servizio.data_servizio).toLocaleDateString("it-IT")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {servizio.orario_servizio}
+                      </div>
                     </TableCell>
-                    <TableCell className="text-sm">{servizio.orario_servizio}</TableCell>
                     <TableCell>{getServizioStatoBadge(servizio.stato)}</TableCell>
                     <TableCell>
                       {servizio.passeggeri_nomi.length > 0 ? (
@@ -398,12 +399,6 @@ const ReportCliente = () => {
                           )}
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {servizio.assegnato_nome || <span className="text-muted-foreground">-</span>}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {servizio.veicolo_info || <span className="text-muted-foreground">-</span>}
                     </TableCell>
                     <TableCell className="text-sm">
                       {servizio.numero_commessa || <span className="text-muted-foreground">-</span>}
