@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { MapPin, Clock, User, Navigation, Flag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
-import { hasRealCustomDestination } from "@/lib/utils/percorsoUtils";
+import { hasRealCustomAddress, hasRealCustomDestination } from "@/lib/utils/percorsoUtils";
 
 interface RouteSectionProps {
   servizio: Servizio;
