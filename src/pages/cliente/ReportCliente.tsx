@@ -30,6 +30,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ArrowLeft,
   Plus,
   Download,
@@ -40,6 +46,7 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
+  Users,
 } from "lucide-react";
 import { useReportCliente } from "@/hooks/useReportCliente";
 import { useToast } from "@/hooks/use-toast";
@@ -331,9 +338,8 @@ const ReportCliente = () => {
                   <TableHead className="min-w-[90px]">Data</TableHead>
                   <TableHead className="min-w-[70px]">Orario</TableHead>
                   <TableHead className="min-w-[110px]">Stato</TableHead>
-                  <TableHead className="min-w-[150px]">Passeggeri</TableHead>
-                  <TableHead className="min-w-[150px]">Partenza</TableHead>
-                  <TableHead className="min-w-[150px]">Destinazione</TableHead>
+                  <TableHead className="min-w-[80px]">Passeggeri</TableHead>
+                  <TableHead className="min-w-[200px]">Percorso</TableHead>
                   <TableHead className="min-w-[120px]">Autista</TableHead>
                   <TableHead className="min-w-[130px]">Veicolo</TableHead>
                   <TableHead className="min-w-[100px]">Commessa</TableHead>
@@ -352,16 +358,46 @@ const ReportCliente = () => {
                     </TableCell>
                     <TableCell className="text-sm">{servizio.orario_servizio}</TableCell>
                     <TableCell>{getServizioStatoBadge(servizio.stato)}</TableCell>
-                    <TableCell className="text-sm">
-                      {servizio.passeggeri_nomi.length > 0
-                        ? servizio.passeggeri_nomi.join(", ")
-                        : <span className="text-muted-foreground">-</span>}
+                    <TableCell>
+                      {servizio.passeggeri_nomi.length > 0 ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1 cursor-default">
+                                <Users className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">{servizio.passeggeri_nomi.length}</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <div className="text-sm space-y-1">
+                                {servizio.passeggeri_nomi.map((nome, i) => (
+                                  <div key={i}>{nome}</div>
+                                ))}
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">-</span>
+                      )}
                     </TableCell>
-                    <TableCell className="text-sm">
-                      {servizio.citta_presa || servizio.indirizzo_presa || "-"}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {servizio.citta_destinazione || servizio.indirizzo_destinazione || "-"}
+                    <TableCell>
+                      <div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">Da: </span>
+                          <span className="font-semibold">{servizio.citta_presa}</span>
+                          {servizio.indirizzo_presa && (
+                            <span className="text-muted-foreground"> - {servizio.indirizzo_presa}</span>
+                          )}
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">A: </span>
+                          <span className="font-semibold">{servizio.citta_destinazione}</span>
+                          {servizio.indirizzo_destinazione && (
+                            <span className="text-muted-foreground"> - {servizio.indirizzo_destinazione}</span>
+                          )}
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm">
                       {servizio.assegnato_nome || <span className="text-muted-foreground">-</span>}
