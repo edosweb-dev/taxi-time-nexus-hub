@@ -145,7 +145,14 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.error("Validation errors:", errors);
+          toast({
+            title: "Errore di validazione",
+            description: "Verifica i campi obbligatori nelle altre sezioni.",
+            variant: "destructive",
+          });
+        })} className="space-y-4 md:space-y-6">
         <Tabs defaultValue="info" className="w-full">
           {/* Tabs ottimizzate per mobile - scrollabili orizzontalmente */}
           <TabsList className={`w-full grid ${(profile?.role === 'admin' || profile?.role === 'socio') ? 'grid-cols-4 md:grid-cols-7' : 'grid-cols-3'} gap-1 h-auto p-1`}>
