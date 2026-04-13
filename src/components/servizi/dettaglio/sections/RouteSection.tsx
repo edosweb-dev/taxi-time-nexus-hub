@@ -4,6 +4,7 @@ import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { MapPin, Clock, User, Navigation, Flag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { hasRealCustomAddress } from "@/lib/utils/percorsoUtils";
+import { hasRealCustomDestination } from "@/lib/utils/percorsoUtils";
 
 interface RouteSectionProps {
   servizio: Servizio;
@@ -159,7 +160,7 @@ export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
                     )}
                   </div>
                   
-                  {passeggero.usa_destinazione_personalizzata && passeggero.destinazione_personalizzato && (
+                  {hasRealCustomDestination(passeggero, servizio) && (
                     <div className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-500 mt-1.5">
                       <Navigation className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
                       <span>
