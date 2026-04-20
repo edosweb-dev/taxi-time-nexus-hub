@@ -18,31 +18,34 @@ import { useVeicoliAttivi } from '@/hooks/useVeicoli';
 import { sendNotification } from '@/hooks/useSendNotification';
 
 /**
- * Verifica se un servizio ha un percorso valido definito
+ * Verifica se un servizio ha un percorso valido definito.
+ * Usa la stessa logica di `isFieldValid` in servizioValidation.ts per
+ * riconoscere correttamente campi vuoti/null/placeholder.
  */
 function hasValidRoute(servizio: Servizio): boolean {
-  const presa = servizio.indirizzo_presa?.trim().toLowerCase() || '';
-  const destinazione = servizio.indirizzo_destinazione?.trim().toLowerCase() || '';
-  
-  const isPresaValid = 
-    !presa || 
-    (presa !== 'da definire' && presa !== 'da_definire');
-  
-  const isDestinazioneValid = 
-    !destinazione || 
-    (destinazione !== 'da definire' && destinazione !== 'da_definire');
-  
+  // Placeholder che NON sono indirizzi reali
+  const PLACEHOLDER_VALUES = ['Da definire', 'da definire', '', ' ', 'undefined', 'null'];
+
+  const isFieldValid = (value: string | null | undefined): boolean => {
+    if (!value) return false; // null, undefined, stringa vuota
+    const trimmed = String(value).trim();
+    if (!trimmed) return false; // solo spazi
+    if (PLACEHOLDER_VALUES.includes(trimmed)) return false; // placeholder
+    return true;
+  };
+
+  const isPresaValid = isFieldValid(servizio.indirizzo_presa);
+  const isDestinazioneValid = isFieldValid(servizio.indirizzo_destinazione);
+
   console.log('[AssignmentPopup] Route Validation:', {
     raw_presa: servizio.indirizzo_presa,
     raw_dest: servizio.indirizzo_destinazione,
-    processed_presa: presa,
-    processed_dest: destinazione,
     isPresaValid,
     isDestinazioneValid,
-    result: !!(isPresaValid && isDestinazioneValid),
+    result: isPresaValid && isDestinazioneValid,
   });
-  
-  return !!(isPresaValid && isDestinazioneValid);
+
+  return isPresaValid && isDestinazioneValid;
 }
 
 interface AssignmentPopupProps {
