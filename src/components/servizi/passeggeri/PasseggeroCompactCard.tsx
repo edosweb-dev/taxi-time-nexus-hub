@@ -155,7 +155,7 @@ export const PasseggeroCompactCard = ({
         </div>
       )}
       
-      {passeggero.usa_indirizzo_personalizzato && passeggero.destinazione_personalizzato && (
+      {passeggero.destinazione_personalizzato && (
         <div className="flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-500">
           <MapPinned className="h-3.5 w-3.5 flex-shrink-0" />
           <span className="truncate">Dest: {passeggero.destinazione_personalizzato}</span>
