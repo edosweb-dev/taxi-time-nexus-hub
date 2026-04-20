@@ -12,7 +12,9 @@ import {
   FileText,
   Pencil,
   Trash2,
-  MoreVertical
+  MoreVertical,
+  Navigation,
+  Home
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -249,7 +251,9 @@ export function MobileServizioOptimized({
           {/* Partenza */}
           <div className="flex gap-3">
             <div className="flex flex-col items-center">
-              <div className="w-3 h-3 rounded-full bg-chart-1 border-2 border-background shadow-sm" />
+              <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-sm">
+                <Navigation className="h-3.5 w-3.5 text-primary-foreground -rotate-45" />
+              </div>
               <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
             </div>
             <div className="flex-1 pb-2">
@@ -280,7 +284,9 @@ export function MobileServizioOptimized({
             return (
               <div key={idx} className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground border-2 border-background shadow-sm" />
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shadow-sm">
+                    <Navigation className="h-3 w-3 text-muted-foreground -rotate-45" />
+                  </div>
                   <div className="w-0.5 flex-1 bg-border min-h-[40px]" />
                 </div>
                 <div className="flex-1 pb-2">
@@ -329,7 +335,13 @@ export function MobileServizioOptimized({
               return (
                 <div key={`dest-${index}`} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <div className={`w-3 h-3 rounded-full border-2 border-background shadow-sm ${isLast ? 'bg-destructive' : 'bg-primary/60'}`} />
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center shadow-sm ${isLast ? 'bg-green-500 dark:bg-green-600' : 'bg-blue-500 dark:bg-blue-600'}`}>
+                      {isLast ? (
+                        <Home className="h-3.5 w-3.5 text-white" />
+                      ) : (
+                        <Navigation className="h-3.5 w-3.5 text-white -rotate-45" />
+                      )}
+                    </div>
                     {!isLast && <div className="w-0.5 flex-1 bg-border min-h-[40px]" />}
                   </div>
                   <div className="flex-1">
