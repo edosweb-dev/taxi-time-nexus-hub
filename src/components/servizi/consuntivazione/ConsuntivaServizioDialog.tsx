@@ -66,6 +66,18 @@ export function ConsuntivaServizioDialog({
 
   async function onSubmit(data: ConsuntivaServizioFormData) {
     try {
+      // Guard: servizio cash assegnato a dipendente richiede il responsabile incasso
+      if (
+        servizio?.metodo_pagamento === 'Contanti' &&
+        servizio.assegnato?.role === 'dipendente' &&
+        !data.consegna_contanti_a
+      ) {
+        toast.error(
+          'Seleziona il responsabile incasso contanti: senza questo dato i contanti non potranno essere riconciliati con lo stipendio del socio.'
+        );
+        return;
+      }
+
       const result = await consuntivaServizio({
         id: servizioId,
         incasso_ricevuto: data.incasso_ricevuto,

@@ -78,7 +78,9 @@ export function ConsuntivaServizioForm({
             name="consegna_contanti_a"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Consegna contanti a</FormLabel>
+                <FormLabel>
+                  Consegna contanti a <span className="text-destructive">*</span>
+                </FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -96,6 +98,9 @@ export function ConsuntivaServizioForm({
                     ))}
                   </SelectContent>
                 </Select>
+                <FormDescription className="text-xs text-destructive">
+                  Obbligatorio: indica il socio che ha ricevuto i contanti dal dipendente.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
