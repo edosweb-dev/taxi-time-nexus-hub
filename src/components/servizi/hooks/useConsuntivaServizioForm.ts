@@ -46,6 +46,7 @@ export function useConsuntivaServizioForm(servizio: Servizio, onSubmit: (data: C
       ore_attesa_socio: (servizio as any).ore_attesa_socio || undefined,
       incasso_ricevuto: defaultIncasso,
       km_totali: servizio.km_totali || undefined,
+      consegna_contanti_a: servizio.consegna_contanti_a || undefined,
     },
   });
   
