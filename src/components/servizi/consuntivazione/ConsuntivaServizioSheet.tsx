@@ -6,7 +6,7 @@ import { ConsuntivaServizioForm } from "./ConsuntivaServizioForm";
 import { consuntivaServizio } from "@/lib/api/servizi";
 import { Profile } from "@/lib/types";
 import { ConsuntivaServizioFormData } from "../hooks/useConsuntivaServizioForm";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ConsuntivaServizioSheetProps {
