@@ -37,7 +37,9 @@ export function hasRealCustomDestination(
     citta_destinazione?: string | null;
   }
 ): boolean {
-  if (!passeggero.usa_destinazione_personalizzata || !passeggero.destinazione_personalizzato) return false;
+  // ⚠️ Non ci fidiamo solo del flag (può essere incoerente sui dati legacy):
+  // se il testo della destinazione personalizzata manca, NON è custom.
+  if (!passeggero.destinazione_personalizzato) return false;
 
   const serviceSet = [
     normalize(servizio.indirizzo_destinazione),
