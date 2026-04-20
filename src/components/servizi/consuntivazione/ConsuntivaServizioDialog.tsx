@@ -31,6 +31,7 @@ export function ConsuntivaServizioDialog({
   onComplete,
 }: ConsuntivaServizioDialogProps) {
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
+  const queryClient = useQueryClient();
 
   // Fetch servizio REALE dal database
   const { data: servizio, isLoading } = useQuery({

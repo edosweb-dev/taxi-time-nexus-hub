@@ -31,6 +31,7 @@ export function ConsuntivaServizioSheet({
   onComplete,
 }: ConsuntivaServizioSheetProps) {
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
+  const queryClient = useQueryClient();
 
   // ✅ Fetch servizio reale dal database invece di usare mock
   const { data: servizio, isLoading } = useQuery({
