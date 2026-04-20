@@ -19,7 +19,9 @@ function getDestinazioniRaggruppate(
   const destinazioniMap = new Map<string, { indirizzo: string; citta?: string; passeggeri: string[] }>();
 
   passeggeriOrdinati.forEach((p) => {
-    const haDestPersonalizzata = p.usa_destinazione_personalizzata && p.destinazione_personalizzato;
+    // ⚠️ Non ci fidiamo solo del flag (può essere incoerente sui dati legacy):
+    // se il testo della destinazione personalizzata esiste, lo usiamo comunque.
+    const haDestPersonalizzata = !!p.destinazione_personalizzato;
     const indirizzo = haDestPersonalizzata
       ? p.destinazione_personalizzato!
       : servizio.indirizzo_destinazione;
