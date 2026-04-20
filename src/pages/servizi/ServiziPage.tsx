@@ -238,18 +238,26 @@ export default function ServiziPage() {
                 <span>{servizio.indirizzo_presa}</span>
               )}
             </p>
-            <p className="text-xs">
-              <span className="text-muted-foreground">A:</span>{' '}
-              {servizio.citta_destinazione && (
-                <>
-                  <span className="font-bold">{servizio.citta_destinazione}</span>
-                  {servizio.indirizzo_destinazione && <span> - {servizio.indirizzo_destinazione}</span>}
-                </>
-              )}
-              {!servizio.citta_destinazione && servizio.indirizzo_destinazione && (
-                <span>{servizio.indirizzo_destinazione}</span>
-              )}
-            </p>
+            {(() => {
+              const fallbackIndirizzo = servizio.passeggeri?.[0]?.destinazione_personalizzato;
+              const fallbackCitta = servizio.passeggeri?.[0]?.localita_destinazione_personalizzato;
+              const cittaShow = servizio.citta_destinazione || fallbackCitta;
+              const indirizzoShow = servizio.indirizzo_destinazione || fallbackIndirizzo;
+              return (
+                <p className="text-xs">
+                  <span className="text-muted-foreground">A:</span>{' '}
+                  {cittaShow && (
+                    <>
+                      <span className="font-bold">{cittaShow}</span>
+                      {indirizzoShow && <span> - {indirizzoShow}</span>}
+                    </>
+                  )}
+                  {!cittaShow && indirizzoShow && (
+                    <span>{indirizzoShow}</span>
+                  )}
+                </p>
+              );
+            })()}
           </div>
         </div>
 
@@ -911,15 +919,25 @@ export default function ServiziPage() {
                                 <div className="flex items-center gap-1">
                                   <span className="text-muted-foreground flex-shrink-0">A:</span>
                                   <div className="flex-1 min-w-0 truncate">
-                                    {servizio.citta_destinazione && (
-                                      <>
-                                        <span className="font-bold">{servizio.citta_destinazione}</span>
-                                        {servizio.indirizzo_destinazione && <span> - {servizio.indirizzo_destinazione}</span>}
-                                      </>
-                                    )}
-                                    {!servizio.citta_destinazione && servizio.indirizzo_destinazione && (
-                                      <span>{servizio.indirizzo_destinazione}</span>
-                                    )}
+                                {(() => {
+                                  const fallbackIndirizzo = servizio.passeggeri?.[0]?.destinazione_personalizzato;
+                                  const fallbackCitta = servizio.passeggeri?.[0]?.localita_destinazione_personalizzato;
+                                  const cittaShow = servizio.citta_destinazione || fallbackCitta;
+                                  const indirizzoShow = servizio.indirizzo_destinazione || fallbackIndirizzo;
+                                  return (
+                                    <>
+                                      {cittaShow && (
+                                        <>
+                                          <span className="font-bold">{cittaShow}</span>
+                                          {indirizzoShow && <span> - {indirizzoShow}</span>}
+                                        </>
+                                      )}
+                                      {!cittaShow && indirizzoShow && (
+                                        <span>{indirizzoShow}</span>
+                                      )}
+                                    </>
+                                  );
+                                })()}
                                   </div>
                                 </div>
                               </div>
