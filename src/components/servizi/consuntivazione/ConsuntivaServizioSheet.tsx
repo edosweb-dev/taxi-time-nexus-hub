@@ -98,6 +98,12 @@ export function ConsuntivaServizioSheet({
       }
 
       toast.success("Servizio consuntivato con successo");
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        },
+      });
       onOpenChange(false);
       onComplete();
     } catch (error: any) {
