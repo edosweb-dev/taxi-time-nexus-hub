@@ -2,7 +2,7 @@ import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, User, Clock, Car, Flag, Navigation, Mail, Building2 } from "lucide-react";
+import { MapPin, User, Clock, Car, Flag, Navigation, Mail, Building2, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FinancialSection } from "./sections/FinancialSection";
 import { useUsers } from "@/hooks/useUsers";
@@ -164,7 +164,7 @@ export function ServizioMainContent({
             {/* Partenza */}
             <div className="flex items-start gap-3">
               <div className="mt-1 p-1.5 rounded-full bg-primary/10">
-                <MapPin className="h-4 w-4 text-primary" />
+                <Navigation className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-muted-foreground mb-0.5">
@@ -196,7 +196,7 @@ export function ServizioMainContent({
                   return (
                     <div key={idx} className="flex items-start gap-3">
                       <div className="mt-1 p-1.5 rounded-full bg-muted">
-                        <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                        <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs text-muted-foreground mb-0.5">
