@@ -6,7 +6,7 @@ import { ConsuntivaServizioForm } from "./ConsuntivaServizioForm";
 import { consuntivaServizio } from "@/lib/api/servizi";
 import { Profile } from "@/lib/types";
 import { ConsuntivaServizioFormData } from "../hooks/useConsuntivaServizioForm";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ConsuntivaServizioSheetProps {
@@ -31,6 +31,7 @@ export function ConsuntivaServizioSheet({
   onComplete,
 }: ConsuntivaServizioSheetProps) {
   const [adminUsers, setAdminUsers] = useState<{ id: string; name: string }[]>([]);
+  const queryClient = useQueryClient();
 
   // ✅ Fetch servizio reale dal database invece di usare mock
   const { data: servizio, isLoading } = useQuery({
@@ -97,6 +98,12 @@ export function ConsuntivaServizioSheet({
       }
 
       toast.success("Servizio consuntivato con successo");
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return key === 'servizi' || key === 'servizio' || key === 'servizi-with-passeggeri';
+        },
+      });
       onOpenChange(false);
       onComplete();
     } catch (error: any) {
