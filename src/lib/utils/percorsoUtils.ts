@@ -11,7 +11,9 @@ export function hasRealCustomAddress(
     citta_presa?: string | null;
   }
 ): boolean {
-  if (!passeggero.usa_indirizzo_personalizzato || !passeggero.luogo_presa_personalizzato) return false;
+  // ⚠️ Non ci fidiamo solo del flag (può essere incoerente sui dati legacy):
+  // se il testo del luogo di presa manca, NON è custom.
+  if (!passeggero.luogo_presa_personalizzato) return false;
 
   const serviceSet = [
     normalize(servizio.indirizzo_presa),

@@ -91,7 +91,7 @@ export function ServizioInfoTab({
             <div className="space-y-2 md:space-y-3 max-h-48 md:max-h-64 overflow-y-auto">
               {passeggeri.map((passeggero: any, index: number) => {
                 const orarioPresa = passeggero.orario_presa_personalizzato || servizio.orario_servizio;
-                const haPresaPersonalizzata = passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato;
+                const haPresaPersonalizzata = !!passeggero.luogo_presa_personalizzato;
                 
                 return (
                   <div key={passeggero.id} className="bg-muted/30 rounded-lg p-3 animate-fade-in">
