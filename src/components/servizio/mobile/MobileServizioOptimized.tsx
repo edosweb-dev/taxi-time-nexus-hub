@@ -309,7 +309,9 @@ export function MobileServizioOptimized({
           {(() => {
             const destinazioniMap = new Map<string, { indirizzo: string; citta?: string; passeggeri: string[] }>();
             passeggeriOrdinati.forEach((p: any) => {
-              const hasDest = p.usa_destinazione_personalizzata && p.destinazione_personalizzato;
+              // ⚠️ Non ci fidiamo solo del flag (può essere incoerente sui dati legacy):
+              // se il testo della destinazione personalizzata esiste, lo usiamo comunque.
+              const hasDest = !!p.destinazione_personalizzato;
               const ind = hasDest ? p.destinazione_personalizzato : servizio.indirizzo_destinazione;
               const citta = hasDest
                 ? (p.localita_destinazione_personalizzato || p.localita_inline || p.localita || servizio.citta_destinazione)
