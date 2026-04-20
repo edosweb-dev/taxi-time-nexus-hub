@@ -212,12 +212,12 @@ export function FinancialSection({
                 {isAdmin && (
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    title="Modifica responsabile"
+                    size="sm"
                     onClick={() => setDialogOpen(true)}
+                    className="gap-2 text-muted-foreground hover:text-foreground"
                   >
                     <Pencil className="h-3.5 w-3.5" />
+                    Modifica
                   </Button>
                 )}
               </div>
@@ -228,13 +228,13 @@ export function FinancialSection({
                 </Badge>
                 {isAdmin && (
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    title="Assegna responsabile"
+                    variant="outline"
+                    size="sm"
                     onClick={() => setDialogOpen(true)}
+                    className="gap-2"
                   >
-                    <UserPlus className="h-3.5 w-3.5" />
+                    <UserPlus className="h-4 w-4" />
+                    Consegna incasso
                   </Button>
                 )}
               </div>
