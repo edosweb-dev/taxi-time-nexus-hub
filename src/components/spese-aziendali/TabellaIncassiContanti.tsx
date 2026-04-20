@@ -124,7 +124,8 @@ export function TabellaIncassiContanti() {
       'Cliente',
       'Assegnato a',
       'Consegnato a',
-      'Stato'
+      'Stato',
+      'Importo (€)'
     ];
     
     const rows = datiProcessati.map(incasso => [
@@ -133,7 +134,8 @@ export function TabellaIncassiContanti() {
       incasso.azienda_nome || incasso.cliente_privato_nome || '-',
       incasso.assegnato_a_nome || '-',
       incasso.consegnato_a_nome || 'NON CONSEGNATO',
-      incasso.stato
+      incasso.stato,
+      ((incasso.incasso_ricevuto ?? incasso.incasso_previsto) ?? 0).toFixed(2)
     ]);
 
     const csv = [headers, ...rows]
@@ -351,6 +353,17 @@ export function TabellaIncassiContanti() {
                       <TableHead>Assegnato a</TableHead>
                       <TableHead className="font-semibold">Consegna</TableHead>
                       <TableHead>Stato</TableHead>
+                      <TableHead className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleSort('importo')}
+                          className="h-8 px-2"
+                        >
+                          Importo
+                          <ArrowUpDown className="ml-2 h-3 w-3" />
+                        </Button>
+                      </TableHead>
                       <TableHead className="text-right">Azioni</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -392,6 +405,9 @@ export function TabellaIncassiContanti() {
                           <Badge variant="outline">
                             {incasso.stato}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">
+                          €{((incasso.incasso_ricevuto ?? incasso.incasso_previsto) ?? 0).toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
