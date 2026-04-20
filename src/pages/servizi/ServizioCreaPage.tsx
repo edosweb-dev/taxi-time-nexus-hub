@@ -364,9 +364,9 @@ export const ServizioCreaPage = ({
                 } else if (hasRubricaAddr && servicePresaAddr === passeggeroIndirizzo) {
                   // Service address MATCHES passenger address → show as "passeggero"
                   presaTipo = 'passeggero';
-                } else if (hasRubricaAddr && servicePresaAddr.includes(passeggeroIndirizzo)) {
+                } else if (hasRubricaAddr && servicePresaAddr && passeggeroIndirizzo && servicePresaAddr.includes(passeggeroIndirizzo)) {
                   presaTipo = 'passeggero';
-                } else if (hasRubricaAddr && passeggeroIndirizzo.includes(servicePresaAddr)) {
+                } else if (hasRubricaAddr && servicePresaAddr && passeggeroIndirizzo && passeggeroIndirizzo.includes(servicePresaAddr)) {
                   presaTipo = 'passeggero';
                 }
                 // else: stays 'personalizzato' (service has different address like "Malpensa")
@@ -381,7 +381,7 @@ export const ServizioCreaPage = ({
                 } else if (hasRubricaAddr && serviceDestAddr === passeggeroIndirizzo) {
                   // Passenger address matches service destination → "passeggero"
                   destinazioneTipo = 'passeggero';
-                } else if (hasRubricaAddr && (serviceDestAddr.includes(passeggeroIndirizzo) || passeggeroIndirizzo.includes(serviceDestAddr))) {
+                } else if (hasRubricaAddr && serviceDestAddr && passeggeroIndirizzo && (serviceDestAddr.includes(passeggeroIndirizzo) || passeggeroIndirizzo.includes(serviceDestAddr))) {
                   destinazioneTipo = 'passeggero';
                 } else if (serviceDestAddr && serviceDestAddr !== passeggeroIndirizzo) {
                   // ✅ FIX: Pre-fix services have usa_destinazione_personalizzata=false but dest differs from passenger
