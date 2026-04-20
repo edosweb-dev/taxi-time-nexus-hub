@@ -2,7 +2,7 @@ import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, User, Clock, Car, Flag, Navigation, Mail, Building2, UserPlus } from "lucide-react";
+import { MapPin, User, Clock, Car, Flag, Navigation, Mail, Building2, UserPlus, UserMinus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FinancialSection } from "./sections/FinancialSection";
 import { useUsers } from "@/hooks/useUsers";
@@ -231,7 +231,7 @@ export function ServizioMainContent({
                     {isLast ? (
                       <Flag className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
                     ) : (
-                      <Navigation className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <UserMinus className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
