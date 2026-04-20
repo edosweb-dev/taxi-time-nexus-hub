@@ -1168,63 +1168,71 @@ export const ServizioCreaPage = ({
         const passeggeriCompleti = [];
         
         if (passeggeriForm.length > 0) {
-          const passeggeriToInsert = passeggeriForm.map((p, idx) => ({
-            servizio_id: servizioId,
-            passeggero_id: p.passeggero_id || null,
-            nome_cognome_inline: p.nome_cognome || null,
-            email_inline: p.email || null,
-            telefono_inline: p.telefono || null,
-            localita_inline: p.localita || null,
-            indirizzo_inline: p.indirizzo || null,
-            salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
-            ordine_presa: p.ordine || (idx + 1),
-            usa_indirizzo_personalizzato: p.presa_tipo !== 'servizio' && p.presa_tipo !== 'primo_passeggero',
-            luogo_presa_personalizzato: 
-              p.presa_tipo === 'personalizzato' 
+          const passeggeriToInsert = passeggeriForm.map((p, idx) => {
+            const primo = passeggeriForm[0];
+            const luogoPresaPers =
+              p.presa_tipo === 'personalizzato'
                 ? (p.presa_indirizzo_custom || null)
-                : p.presa_tipo === 'passeggero' 
+                : p.presa_tipo === 'passeggero'
                   ? (p.indirizzo_rubrica || p.indirizzo || null)
-                  : p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
-                    ? (passeggeriForm[0].presa_tipo === 'personalizzato' 
-                        ? (passeggeriForm[0].presa_indirizzo_custom || null)
-                        : (passeggeriForm[0].indirizzo_rubrica || passeggeriForm[0].indirizzo || null))
-                    : null,
-            localita_presa_personalizzato:
+                  : p.presa_tipo === 'primo_passeggero' && primo
+                    ? (primo.presa_tipo === 'personalizzato'
+                        ? (primo.presa_indirizzo_custom || null)
+                        : (primo.indirizzo_rubrica || primo.indirizzo || null))
+                    : null;
+            const localitaPresaPers =
               p.presa_tipo === 'personalizzato'
                 ? (p.presa_citta_custom || null)
                 : p.presa_tipo === 'passeggero'
                   ? (p.localita_rubrica || p.localita || null)
-                  : p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
-                    ? (passeggeriForm[0].presa_tipo === 'personalizzato'
-                        ? (passeggeriForm[0].presa_citta_custom || null)
-                        : (passeggeriForm[0].localita_rubrica || passeggeriForm[0].localita || null))
-                    : null,
-            orario_presa_personalizzato: 
-              p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
-                ? (passeggeriForm[0].presa_usa_orario_servizio ? null : (passeggeriForm[0].presa_orario || null))
-                : p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
-            usa_destinazione_personalizzata: p.destinazione_tipo !== 'servizio' && p.destinazione_tipo !== 'primo_passeggero',
-            destinazione_personalizzato:
+                  : p.presa_tipo === 'primo_passeggero' && primo
+                    ? (primo.presa_tipo === 'personalizzato'
+                        ? (primo.presa_citta_custom || null)
+                        : (primo.localita_rubrica || primo.localita || null))
+                    : null;
+            const destinazionePers =
               p.destinazione_tipo === 'personalizzato'
                 ? (p.destinazione_indirizzo_custom || null)
                 : p.destinazione_tipo === 'passeggero'
                   ? (p.indirizzo_rubrica || p.indirizzo || null)
-                  : p.destinazione_tipo === 'primo_passeggero' && passeggeriForm[0]
-                    ? (passeggeriForm[0].destinazione_tipo === 'personalizzato'
-                        ? (passeggeriForm[0].destinazione_indirizzo_custom || null)
-                        : (passeggeriForm[0].indirizzo_rubrica || passeggeriForm[0].indirizzo || null))
-                    : null,
-            localita_destinazione_personalizzato:
+                  : p.destinazione_tipo === 'primo_passeggero' && primo
+                    ? (primo.destinazione_tipo === 'personalizzato'
+                        ? (primo.destinazione_indirizzo_custom || null)
+                        : (primo.indirizzo_rubrica || primo.indirizzo || null))
+                    : null;
+            const localitaDestinazionePers =
               p.destinazione_tipo === 'personalizzato'
                 ? (p.destinazione_citta_custom || null)
                 : p.destinazione_tipo === 'passeggero'
                   ? (p.localita_rubrica || p.localita || null)
-                  : p.destinazione_tipo === 'primo_passeggero' && passeggeriForm[0]
-                    ? (passeggeriForm[0].destinazione_tipo === 'personalizzato'
-                        ? (passeggeriForm[0].destinazione_citta_custom || null)
-                        : (passeggeriForm[0].localita_rubrica || passeggeriForm[0].localita || null))
-                    : null,
-          }));
+                  : p.destinazione_tipo === 'primo_passeggero' && primo
+                    ? (primo.destinazione_tipo === 'personalizzato'
+                        ? (primo.destinazione_citta_custom || null)
+                        : (primo.localita_rubrica || primo.localita || null))
+                    : null;
+            return {
+              servizio_id: servizioId,
+              passeggero_id: p.passeggero_id || null,
+              nome_cognome_inline: p.nome_cognome || null,
+              email_inline: p.email || null,
+              telefono_inline: p.telefono || null,
+              localita_inline: p.localita || null,
+              indirizzo_inline: p.indirizzo || null,
+              salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
+              ordine_presa: p.ordine || (idx + 1),
+              // ✅ Flag sempre coerenti con la presenza del testo (no più record legacy incoerenti)
+              usa_indirizzo_personalizzato: !!luogoPresaPers,
+              luogo_presa_personalizzato: luogoPresaPers,
+              localita_presa_personalizzato: localitaPresaPers,
+              orario_presa_personalizzato:
+                p.presa_tipo === 'primo_passeggero' && primo
+                  ? (primo.presa_usa_orario_servizio ? null : (primo.presa_orario || null))
+                  : p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
+              usa_destinazione_personalizzata: !!destinazionePers,
+              destinazione_personalizzato: destinazionePers,
+              localita_destinazione_personalizzato: localitaDestinazionePers,
+            };
+          });
           
           passeggeriCompleti.push(...passeggeriToInsert);
         }
@@ -1339,69 +1347,70 @@ export const ServizioCreaPage = ({
         // Mappa passeggeri dal form a formato insert
         if (passeggeriForm.length > 0) {
           const passeggeriToInsert = passeggeriForm.map((p, idx) => {
-      const passeggeroData = {
-        servizio_id: servizio.id,
-        passeggero_id: p.id || null,
-        nome_cognome_inline: p.nome_cognome || null,
-        email_inline: p.email || null,
-        telefono_inline: p.telefono || null,
-        localita_inline: p.localita || null,
-        indirizzo_inline: p.indirizzo || null,
-        
-        // ✅ FIX: usa il flag dal form, non solo presenza ID
-        salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
-        
-        // Campi presa intermedia
-        ordine_presa: p.ordine || (idx + 1),
-        usa_indirizzo_personalizzato: p.presa_tipo !== 'servizio' && p.presa_tipo !== 'primo_passeggero',
-        luogo_presa_personalizzato: 
-          p.presa_tipo === 'personalizzato' 
-            ? (p.presa_indirizzo_custom || null)
-            : p.presa_tipo === 'passeggero' 
-              ? (p.indirizzo_rubrica || p.indirizzo || null)
-              : p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
-                ? (passeggeriForm[0].presa_tipo === 'personalizzato'
-                    ? (passeggeriForm[0].presa_indirizzo_custom || null)
-                    : (passeggeriForm[0].indirizzo_rubrica || passeggeriForm[0].indirizzo || null))
-                : null,
-        localita_presa_personalizzato:
-          p.presa_tipo === 'personalizzato'
-            ? (p.presa_citta_custom || null)
-            : p.presa_tipo === 'passeggero'
-              ? (p.localita_rubrica || p.localita || null)
-              : p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
-                ? (passeggeriForm[0].presa_tipo === 'personalizzato'
-                    ? (passeggeriForm[0].presa_citta_custom || null)
-                    : (passeggeriForm[0].localita_rubrica || passeggeriForm[0].localita || null))
-                : null,
-        orario_presa_personalizzato: 
-          p.presa_tipo === 'primo_passeggero' && passeggeriForm[0]
-            ? (passeggeriForm[0].presa_usa_orario_servizio ? null : (passeggeriForm[0].presa_orario || null))
-            : p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
-        
-        usa_destinazione_personalizzata: p.destinazione_tipo !== 'servizio' && p.destinazione_tipo !== 'primo_passeggero',
-        destinazione_personalizzato:
-          p.destinazione_tipo === 'personalizzato'
-            ? (p.destinazione_indirizzo_custom || null)
-            : p.destinazione_tipo === 'passeggero'
-              ? (p.indirizzo_rubrica || p.indirizzo || null)
-              : p.destinazione_tipo === 'primo_passeggero' && passeggeriForm[0]
-                ? (passeggeriForm[0].destinazione_tipo === 'personalizzato'
-                    ? (passeggeriForm[0].destinazione_indirizzo_custom || null)
-                    : (passeggeriForm[0].indirizzo_rubrica || passeggeriForm[0].indirizzo || null))
-                : null,
-        localita_destinazione_personalizzato:
-          p.destinazione_tipo === 'personalizzato'
-            ? (p.destinazione_citta_custom || null)
-            : p.destinazione_tipo === 'passeggero'
-              ? (p.localita_rubrica || p.localita || null)
-              : p.destinazione_tipo === 'primo_passeggero' && passeggeriForm[0]
-                ? (passeggeriForm[0].destinazione_tipo === 'personalizzato'
-                    ? (passeggeriForm[0].destinazione_citta_custom || null)
-                    : (passeggeriForm[0].localita_rubrica || passeggeriForm[0].localita || null))
-                : null,
-      };
-            
+            const primo = passeggeriForm[0];
+            const luogoPresaPers =
+              p.presa_tipo === 'personalizzato'
+                ? (p.presa_indirizzo_custom || null)
+                : p.presa_tipo === 'passeggero'
+                  ? (p.indirizzo_rubrica || p.indirizzo || null)
+                  : p.presa_tipo === 'primo_passeggero' && primo
+                    ? (primo.presa_tipo === 'personalizzato'
+                        ? (primo.presa_indirizzo_custom || null)
+                        : (primo.indirizzo_rubrica || primo.indirizzo || null))
+                    : null;
+            const localitaPresaPers =
+              p.presa_tipo === 'personalizzato'
+                ? (p.presa_citta_custom || null)
+                : p.presa_tipo === 'passeggero'
+                  ? (p.localita_rubrica || p.localita || null)
+                  : p.presa_tipo === 'primo_passeggero' && primo
+                    ? (primo.presa_tipo === 'personalizzato'
+                        ? (primo.presa_citta_custom || null)
+                        : (primo.localita_rubrica || primo.localita || null))
+                    : null;
+            const destinazionePers =
+              p.destinazione_tipo === 'personalizzato'
+                ? (p.destinazione_indirizzo_custom || null)
+                : p.destinazione_tipo === 'passeggero'
+                  ? (p.indirizzo_rubrica || p.indirizzo || null)
+                  : p.destinazione_tipo === 'primo_passeggero' && primo
+                    ? (primo.destinazione_tipo === 'personalizzato'
+                        ? (primo.destinazione_indirizzo_custom || null)
+                        : (primo.indirizzo_rubrica || primo.indirizzo || null))
+                    : null;
+            const localitaDestinazionePers =
+              p.destinazione_tipo === 'personalizzato'
+                ? (p.destinazione_citta_custom || null)
+                : p.destinazione_tipo === 'passeggero'
+                  ? (p.localita_rubrica || p.localita || null)
+                  : p.destinazione_tipo === 'primo_passeggero' && primo
+                    ? (primo.destinazione_tipo === 'personalizzato'
+                        ? (primo.destinazione_citta_custom || null)
+                        : (primo.localita_rubrica || primo.localita || null))
+                    : null;
+            const passeggeroData = {
+              servizio_id: servizio.id,
+              passeggero_id: p.id || null,
+              nome_cognome_inline: p.nome_cognome || null,
+              email_inline: p.email || null,
+              telefono_inline: p.telefono || null,
+              localita_inline: p.localita || null,
+              indirizzo_inline: p.indirizzo || null,
+              salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
+              ordine_presa: p.ordine || (idx + 1),
+              // ✅ Flag sempre coerenti con la presenza del testo (no più record legacy incoerenti)
+              usa_indirizzo_personalizzato: !!luogoPresaPers,
+              luogo_presa_personalizzato: luogoPresaPers,
+              localita_presa_personalizzato: localitaPresaPers,
+              orario_presa_personalizzato:
+                p.presa_tipo === 'primo_passeggero' && primo
+                  ? (primo.presa_usa_orario_servizio ? null : (primo.presa_orario || null))
+                  : p.presa_usa_orario_servizio ? null : (p.presa_orario || null),
+              usa_destinazione_personalizzata: !!destinazionePers,
+              destinazione_personalizzato: destinazionePers,
+              localita_destinazione_personalizzato: localitaDestinazionePers,
+            };
+
             return passeggeroData;
           });
           
