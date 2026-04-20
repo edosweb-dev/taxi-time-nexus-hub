@@ -62,10 +62,10 @@ export const PasseggeroViewCard = ({
             <div>
               <div className="text-sm font-medium">Luogo di presa:</div>
               <div className="text-sm">
-                {passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato
+                {passeggero.luogo_presa_personalizzato
                   ? passeggero.luogo_presa_personalizzato
                   : servizioPresa}
-                {passeggero.usa_indirizzo_personalizzato && passeggero.luogo_presa_personalizzato && (
+                {passeggero.luogo_presa_personalizzato && (
                   <span className="text-xs text-muted-foreground ml-1">(intermedio)</span>
                 )}
               </div>
