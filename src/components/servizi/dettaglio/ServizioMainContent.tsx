@@ -231,7 +231,7 @@ export function ServizioMainContent({
                     {isLast ? (
                       <Home className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
                     ) : (
-                      <Home className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <Navigation className="h-4 w-4 text-blue-600 dark:text-blue-400 -rotate-45" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
