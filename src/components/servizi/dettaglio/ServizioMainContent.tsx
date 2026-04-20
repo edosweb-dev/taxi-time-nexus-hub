@@ -2,7 +2,7 @@ import React from "react";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, User, Clock, Car, Flag, Navigation, Mail, Building2, UserPlus, UserMinus } from "lucide-react";
+import { MapPin, User, Clock, Car, Navigation, Mail, Building2, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FinancialSection } from "./sections/FinancialSection";
 import { useUsers } from "@/hooks/useUsers";
@@ -164,7 +164,7 @@ export function ServizioMainContent({
             {/* Partenza */}
             <div className="flex items-start gap-3">
               <div className="mt-1 p-1.5 rounded-full bg-primary/10">
-                <Navigation className="h-4 w-4 text-primary" />
+                <Navigation className="h-4 w-4 text-primary -rotate-45" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-muted-foreground mb-0.5">
@@ -196,7 +196,7 @@ export function ServizioMainContent({
                   return (
                     <div key={idx} className="flex items-start gap-3">
                       <div className="mt-1 p-1.5 rounded-full bg-muted">
-                        <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Navigation className="h-3.5 w-3.5 text-muted-foreground -rotate-45" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs text-muted-foreground mb-0.5">
@@ -229,9 +229,9 @@ export function ServizioMainContent({
                 <div key={`dest-${index}`} className="flex items-start gap-3">
                   <div className={`mt-1 p-1.5 rounded-full ${isLast ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
                     {isLast ? (
-                      <Flag className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
+                      <Home className={`h-4 w-4 ${isLast && destinazioni.length === 1 ? 'text-primary' : 'text-green-600 dark:text-green-400'}`} />
                     ) : (
-                      <UserMinus className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <Home className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
