@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Minus, ArrowDownLeft, Pencil, Trash2 } from 'lucide-react';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
+import { useIncassiContanti } from '@/hooks/useIncassiContanti';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
