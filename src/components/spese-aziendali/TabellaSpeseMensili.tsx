@@ -145,10 +145,6 @@ export function TabellaSpeseMensili() {
       { spese: 0, incassi: 0, prelievi: 0, versamenti: 0 }
     );
 
-  const totalePending = movimentiMese
-    .filter(m => m.tipo === 'pending')
-    .reduce((sum, m) => sum + Number(m.importo), 0);
-
   const incassiServizi = incassiMeseStats?.totaleIncassi ?? 0;
   const incassiTotali = totaliMese.incassi + incassiServizi;
   const saldo = incassiTotali - totaliMese.spese;
@@ -200,7 +196,7 @@ export function TabellaSpeseMensili() {
       </CardHeader>
       <CardContent>
         {/* Statistiche del mese */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="text-center p-3 bg-red-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Spese</p>
             <p className="text-lg font-bold text-red-600">{formatCurrency(totaliMese.spese)}</p>
@@ -216,10 +212,6 @@ export function TabellaSpeseMensili() {
           <div className="text-center p-3 bg-purple-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Versamenti</p>
             <p className="text-lg font-bold text-purple-600">{formatCurrency(totaliMese.versamenti)}</p>
-          </div>
-          <div className="text-center p-3 bg-yellow-50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Pending Dipendenti</p>
-            <p className="text-lg font-bold text-yellow-600">{formatCurrency(totalePending)}</p>
           </div>
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Saldo</p>
