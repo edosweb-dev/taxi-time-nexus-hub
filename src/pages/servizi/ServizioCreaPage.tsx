@@ -1161,11 +1161,23 @@ export const ServizioCreaPage = ({
         if (servizioError) throw servizioError;
 
         // ✅ FIX: Gestisci passeggeri per TUTTI i tipi cliente (non solo aziende)
-        await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
-        
         // ✅ FIX Bug #56: Usa data.passeggeri (popolato dal form) invece di data.passeggeri_ids
         const passeggeriForm = data.passeggeri || [];
         const passeggeriCompleti = [];
+
+        // ✅ FB-08: Validazione PRE-DELETE per non perdere passeggeri esistenti
+        // se l'INSERT fallirebbe per CHECK constraint check_temporary_passenger
+        for (const p of passeggeriForm) {
+          const hasId = !!p.passeggero_id;
+          const hasNome = !!(p.nome_cognome && p.nome_cognome.trim());
+          if (!hasId && !hasNome) {
+            throw new Error(
+              `Passeggero senza dati: ogni passeggero deve avere un nome (per i temporanei) o essere selezionato dalla rubrica. Modifica annullata, dati passeggeri preservati.`
+            );
+          }
+        }
+
+        await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
         
         if (passeggeriForm.length > 0) {
           const passeggeriToInsert = passeggeriForm.map((p, idx) => {
