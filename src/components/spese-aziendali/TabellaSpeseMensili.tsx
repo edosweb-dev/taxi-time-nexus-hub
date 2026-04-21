@@ -31,6 +31,11 @@ export function TabellaSpeseMensili() {
   const startDate = startOfMonth(selectedMonth);
   const endDate = endOfMonth(selectedMonth);
 
+  const { stats: incassiContantiStats } = useIncassiContanti({
+    dataInizio: format(startDate, 'yyyy-MM-dd'),
+    dataFine: format(endDate, 'yyyy-MM-dd'),
+  });
+
   // Filtra movimenti per il mese selezionato
   const movimentiMese = movimentiCompleti.filter(movimento => {
     const dataMovimento = new Date(movimento.data);
