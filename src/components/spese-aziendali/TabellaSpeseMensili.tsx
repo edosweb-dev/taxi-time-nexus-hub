@@ -149,7 +149,9 @@ export function TabellaSpeseMensili() {
     .filter(m => m.tipo === 'pending')
     .reduce((sum, m) => sum + Number(m.importo), 0);
 
-  const saldo = totaliMese.incassi - totaliMese.spese;
+  const incassiContanti = incassiContantiStats?.totaleIncassi ?? 0;
+  const incassiTotali = totaliMese.incassi + incassiContanti;
+  const saldo = incassiTotali - totaliMese.spese;
 
   const previousMonth = () => {
     setSelectedMonth(subMonths(selectedMonth, 1));
