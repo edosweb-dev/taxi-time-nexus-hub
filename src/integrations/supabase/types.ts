@@ -1122,42 +1122,6 @@ export type Database = {
           },
         ]
       }
-      servizi_ore_backup_final: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          ore_effettive: number | null
-          ore_fatturate: number | null
-          ore_finali: number | null
-          ore_lavorate: number | null
-          ore_sosta: number | null
-          ore_sosta_fatturate: number | null
-          stato: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          ore_effettive?: number | null
-          ore_fatturate?: number | null
-          ore_finali?: number | null
-          ore_lavorate?: number | null
-          ore_sosta?: number | null
-          ore_sosta_fatturate?: number | null
-          stato?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          ore_effettive?: number | null
-          ore_fatturate?: number | null
-          ore_finali?: number | null
-          ore_lavorate?: number | null
-          ore_sosta?: number | null
-          ore_sosta_fatturate?: number | null
-          stato?: string | null
-        }
-        Relationships: []
-      }
       servizi_passeggeri: {
         Row: {
           created_at: string
@@ -1772,32 +1736,7 @@ export type Database = {
       }
     }
     Views: {
-      email_logs_summary: {
-        Row: {
-          failed_count: number | null
-          last_sent_at: string | null
-          sent_count: number | null
-          servizio_id: string | null
-          template_slug: string | null
-          total_emails: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "email_logs_servizio_id_fkey"
-            columns: ["servizio_id"]
-            isOneToOne: false
-            referencedRelation: "servizi"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_logs_template_slug_fkey"
-            columns: ["template_slug"]
-            isOneToOne: false
-            referencedRelation: "email_templates"
-            referencedColumns: ["slug"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       can_update_profile_role: {
