@@ -207,7 +207,7 @@ export function TabellaSpeseMensili() {
           </div>
           <div className="text-center p-3 bg-green-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Incassi</p>
-            <p className="text-lg font-bold text-green-600">{formatCurrency(totaliMese.incassi)}</p>
+            <p className="text-lg font-bold text-green-600">{formatCurrency(incassiTotali)}</p>
           </div>
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Prelievi</p>
