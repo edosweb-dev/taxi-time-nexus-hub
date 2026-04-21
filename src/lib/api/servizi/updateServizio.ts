@@ -104,7 +104,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
 
             if (passeggeroError) {
               console.error('[updateServizio] Error creating passeggero:', passeggeroError);
-              continue;
+              throw new Error(`Errore nel salvare il passeggero "${passeggeroData.nome_cognome || 'senza nome'}" nella rubrica: ${passeggeroError.message}`);
             }
 
             passeggeroId = newPasseggero.id;
@@ -133,7 +133,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
 
             if (updatePasseggeroError) {
               console.error('[updateServizio] Error updating passeggero:', updatePasseggeroError);
-              continue;
+              throw new Error(`Errore nell'aggiornare il passeggero "${passeggeroData.nome_cognome || 'senza nome'}": ${updatePasseggeroError.message}`);
             }
           }
         }
@@ -170,6 +170,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
 
         if (collegiamentoError) {
           console.error('[updateServizio] Error creating servizio-passeggero link:', collegiamentoError);
+          throw new Error(`Errore nel collegare il passeggero "${passeggeroData.nome_cognome || 'senza nome'}" al servizio: ${collegiamentoError.message}`);
         }
       }
     }
@@ -181,7 +182,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
       .eq('servizio_id', servizio.id);
 
     if (deleteEmailError) {
-      console.error('Error deleting existing email notifications:', deleteEmailError);
+      console.warn('[updateServizio] Warning: failed to delete existing email notifications (non-critical, continuing):', deleteEmailError);
     }
 
     if (email_notifiche && email_notifiche.length > 0) {
@@ -195,7 +196,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
         .insert(emailNotificheData);
 
       if (emailError) {
-        console.error('Error creating email notifications:', emailError);
+        console.warn('[updateServizio] Warning: failed to create email notifications (non-critical, servizio saved):', emailError);
       }
     }
 
