@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Minus, ArrowDownLeft, Pencil, Trash2 } from 'lucide-react';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
-import { useIncassiContanti } from '@/hooks/useIncassiContanti';
+import { useIncassiMese } from '@/hooks/useIncassiMese';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -31,7 +31,7 @@ export function TabellaSpeseMensili() {
   const startDate = startOfMonth(selectedMonth);
   const endDate = endOfMonth(selectedMonth);
 
-  const { stats: incassiContantiStats } = useIncassiContanti({
+  const { stats: incassiMeseStats } = useIncassiMese({
     dataInizio: format(startDate, 'yyyy-MM-dd'),
     dataFine: format(endDate, 'yyyy-MM-dd'),
   });
@@ -149,8 +149,8 @@ export function TabellaSpeseMensili() {
     .filter(m => m.tipo === 'pending')
     .reduce((sum, m) => sum + Number(m.importo), 0);
 
-  const incassiContanti = incassiContantiStats?.totaleIncassi ?? 0;
-  const incassiTotali = totaliMese.incassi + incassiContanti;
+  const incassiServizi = incassiMeseStats?.totaleIncassi ?? 0;
+  const incassiTotali = totaliMese.incassi + incassiServizi;
   const saldo = incassiTotali - totaliMese.spese;
 
   const previousMonth = () => {
