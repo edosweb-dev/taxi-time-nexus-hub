@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Users, ArrowUpDown, AlertCircle, Coins, Info } from 'lucide-react';
+import { Plus, Users, ArrowUpDown, AlertCircle, Coins, Info, CreditCard } from 'lucide-react';
 import { NuovoMovimentoSheet } from './NuovoMovimentoSheet';
 import { IncassiDipendenteSheet } from './IncassiDipendenteSheet';
 import { PagamentiPendingDialog } from './PagamentiPendingDialog';
@@ -81,6 +81,20 @@ export function SpeseAziendaliDashboard() {
               <div>
                 <h3 className="text-lg font-semibold">Incassi Contanti</h3>
                 <p className="text-sm text-muted-foreground">Servizi in contanti</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/spese-aziendali/incassi-carta')}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="p-3 bg-purple-100 rounded-full">
+                <CreditCard className="h-8 w-8 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Incassi Carta</h3>
+                <p className="text-sm text-muted-foreground">Servizi pagati con carta</p>
               </div>
             </div>
           </CardContent>
