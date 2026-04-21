@@ -12,14 +12,15 @@ export function useIncassiMese({ dataInizio, dataFine }: UseIncassiMeseParams) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('servizi')
-        .select('incasso_ricevuto, incasso_previsto, stato, metodo_pagamento')
+        .select('incasso_ricevuto')
+        .in('stato', ['completato', 'consuntivato'])
         .gte('data_servizio', dataInizio)
         .lte('data_servizio', dataFine);
 
       if (error) throw error;
 
       const totaleIncassi = (data || []).reduce(
-        (sum, s) => sum + Number(s.incasso_ricevuto ?? s.incasso_previsto ?? 0),
+        (sum, s) => sum + Number(s.incasso_ricevuto ?? 0),
         0
       );
       return { totaleIncassi, numeroServizi: (data || []).length };
