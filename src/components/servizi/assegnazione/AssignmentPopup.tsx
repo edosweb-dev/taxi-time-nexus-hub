@@ -87,37 +87,45 @@ export function AssignmentPopup({
   } = useAssignmentUsers(servizio.data_servizio, servizio.id);
   
   const { veicoli: veicoliAttivi } = useVeicoliAttivi();
-  
-  // Verifica se il percorso è valido
-  const hasRoute = hasValidRoute(servizio);
-  
-  console.log('[AssignmentPopup] Popup opened for service:', {
-    id: servizio.id,
-    data_servizio: servizio.data_servizio,
-    stato: servizio.stato,
-    availableCount: availableUsers.length,
-    unavailableCount: unavailableUsers.length,
-    hasShiftsConfigured,
-    hasRoute,
-    indirizzo_presa: servizio.indirizzo_presa,
-    indirizzo_destinazione: servizio.indirizzo_destinazione
-  });
+
+  // Carica i passeggeri per validare il percorso anche con indirizzi custom
+  const { data: passeggeriRoute } = useServizioPasseggeriRoute(servizio.id, open);
+
+  // Verifica se il percorso è valido (servizio + fallback passeggeri)
+  const hasRoute = useMemo(
+    () => hasValidRoute(servizio, passeggeriRoute || []),
+    [
+      servizio.indirizzo_presa,
+      servizio.indirizzo_destinazione,
+      passeggeriRoute,
+    ]
+  );
+
+  if (import.meta.env.DEV) {
+    console.log('[AssignmentPopup] state:', {
+      id: servizio.id,
+      hasRoute,
+      passeggeriCount: passeggeriRoute?.length ?? 0,
+      availableCount: availableUsers.length,
+    });
+  }
+
+  // Estrai i campi per dipendenze stabili
+  const servizioId = servizio.id;
+  const initialConducenteEsterno = servizio.conducente_esterno;
+  const initialConducenteEsternoId = servizio.conducente_esterno_id;
+  const initialAssegnatoA = servizio.assegnato_a;
+  const initialVeicoloId = servizio.veicolo_id;
 
   // Reset form when popup opens
   useEffect(() => {
     if (open) {
-      setTipoConducente(servizio.conducente_esterno ? 'esterno' : 'dipendente');
-      setSelectedConducenteEsternoId(servizio.conducente_esterno_id || '');
-      setSelectedDipendente(servizio.assegnato_a || '');
-      setSelectedVeicolo(servizio.veicolo_id || '');
-      console.log('[AssignmentPopup] Form reset with existing values:', {
-        tipoConducente: servizio.conducente_esterno ? 'esterno' : 'dipendente',
-        conducenteEsternoId: servizio.conducente_esterno_id,
-        assegnatoA: servizio.assegnato_a,
-        veicoloId: servizio.veicolo_id
-      });
+      setTipoConducente(initialConducenteEsterno ? 'esterno' : 'dipendente');
+      setSelectedConducenteEsternoId(initialConducenteEsternoId || '');
+      setSelectedDipendente(initialAssegnatoA || '');
+      setSelectedVeicolo(initialVeicoloId || '');
     }
-  }, [open, servizio]);
+  }, [open, servizioId, initialConducenteEsterno, initialConducenteEsternoId, initialAssegnatoA, initialVeicoloId]);
 
   // Handle error state
   useEffect(() => {
