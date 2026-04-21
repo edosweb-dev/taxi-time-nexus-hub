@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
@@ -16,34 +16,42 @@ import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
 import { sendNotification } from '@/hooks/useSendNotification';
+import { useServizioPasseggeriRoute } from '@/hooks/useServizioPasseggeriRoute';
+
+const PLACEHOLDER_VALUES = new Set(['', 'da definire', 'da_definire', 'undefined', 'null']);
+
+function isAddressValid(value: string | null | undefined): boolean {
+  if (!value) return false;
+  const trimmed = String(value).trim().toLowerCase();
+  if (!trimmed) return false;
+  return !PLACEHOLDER_VALUES.has(trimmed);
+}
+
+interface PasseggeroRouteInfo {
+  luogo_presa_personalizzato: string | null;
+  destinazione_personalizzato: string | null;
+  passeggero: { indirizzo: string | null } | null;
+}
 
 /**
- * Verifica se un servizio ha un percorso valido definito.
- * Usa la stessa logica di `isFieldValid` in servizioValidation.ts per
- * riconoscere correttamente campi vuoti/null/placeholder.
+ * Verifica se un servizio ha un percorso valido considerando anche gli
+ * indirizzi personalizzati a livello passeggero (presa/destinazione).
  */
-function hasValidRoute(servizio: Servizio): boolean {
-  // Placeholder che NON sono indirizzi reali
-  const PLACEHOLDER_VALUES = ['Da definire', 'da definire', '', ' ', 'undefined', 'null'];
+function hasValidRoute(
+  servizio: Pick<Servizio, 'indirizzo_presa' | 'indirizzo_destinazione'>,
+  passeggeri: PasseggeroRouteInfo[]
+): boolean {
+  const isPresaValid =
+    isAddressValid(servizio.indirizzo_presa) ||
+    passeggeri.some(
+      (p) => isAddressValid(p.luogo_presa_personalizzato) || isAddressValid(p.passeggero?.indirizzo)
+    );
 
-  const isFieldValid = (value: string | null | undefined): boolean => {
-    if (!value) return false; // null, undefined, stringa vuota
-    const trimmed = String(value).trim();
-    if (!trimmed) return false; // solo spazi
-    if (PLACEHOLDER_VALUES.includes(trimmed)) return false; // placeholder
-    return true;
-  };
-
-  const isPresaValid = isFieldValid(servizio.indirizzo_presa);
-  const isDestinazioneValid = isFieldValid(servizio.indirizzo_destinazione);
-
-  console.log('[AssignmentPopup] Route Validation:', {
-    raw_presa: servizio.indirizzo_presa,
-    raw_dest: servizio.indirizzo_destinazione,
-    isPresaValid,
-    isDestinazioneValid,
-    result: isPresaValid && isDestinazioneValid,
-  });
+  const isDestinazioneValid =
+    isAddressValid(servizio.indirizzo_destinazione) ||
+    passeggeri.some(
+      (p) => isAddressValid(p.destinazione_personalizzato) || isAddressValid(p.passeggero?.indirizzo)
+    );
 
   return isPresaValid && isDestinazioneValid;
 }
