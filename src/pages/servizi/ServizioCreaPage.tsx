@@ -1161,11 +1161,23 @@ export const ServizioCreaPage = ({
         if (servizioError) throw servizioError;
 
         // ✅ FIX: Gestisci passeggeri per TUTTI i tipi cliente (non solo aziende)
-        await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
-        
         // ✅ FIX Bug #56: Usa data.passeggeri (popolato dal form) invece di data.passeggeri_ids
         const passeggeriForm = data.passeggeri || [];
         const passeggeriCompleti = [];
+
+        // ✅ FB-08: Validazione PRE-DELETE per non perdere passeggeri esistenti
+        // se l'INSERT fallirebbe per CHECK constraint check_temporary_passenger
+        for (const p of passeggeriForm) {
+          const hasId = !!p.passeggero_id;
+          const hasNome = !!(p.nome_cognome && p.nome_cognome.trim());
+          if (!hasId && !hasNome) {
+            throw new Error(
+              `Passeggero senza dati: ogni passeggero deve avere un nome (per i temporanei) o essere selezionato dalla rubrica. Modifica annullata, dati passeggeri preservati.`
+            );
+          }
+        }
+
+        await supabase.from("servizi_passeggeri").delete().eq('servizio_id', servizioId);
         
         if (passeggeriForm.length > 0) {
           const passeggeriToInsert = passeggeriForm.map((p, idx) => {
@@ -1210,15 +1222,19 @@ export const ServizioCreaPage = ({
                         ? (primo.destinazione_citta_custom || null)
                         : (primo.localita_rubrica || primo.localita || null))
                     : null;
+            // ✅ FB-08: normalizza salva_in_database in base alla presenza di passeggero_id
+            // per soddisfare il CHECK constraint check_temporary_passenger
+            const passeggeroId = p.passeggero_id || null;
+            const isPermanente = !!passeggeroId;
             return {
               servizio_id: servizioId,
-              passeggero_id: p.passeggero_id || null,
-              nome_cognome_inline: p.nome_cognome || null,
+              passeggero_id: passeggeroId,
+              nome_cognome_inline: p.nome_cognome?.trim() || null,
               email_inline: p.email || null,
               telefono_inline: p.telefono || null,
               localita_inline: p.localita || null,
               indirizzo_inline: p.indirizzo || null,
-              salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
+              salva_in_database: isPermanente,
               ordine_presa: p.ordine || (idx + 1),
               // ✅ Flag sempre coerenti con la presenza del testo (no più record legacy incoerenti)
               usa_indirizzo_personalizzato: !!luogoPresaPers,
@@ -1311,7 +1327,18 @@ export const ServizioCreaPage = ({
         }
         
         const passeggeriCompleti = [];
-        
+
+        // ✅ FB-08: Validazione PRE-INSERT per non avere passeggeri orfani
+        for (const p of passeggeriForm) {
+          const hasId = !!(p.id || p.passeggero_id);
+          const hasNome = !!(p.nome_cognome && p.nome_cognome.trim());
+          if (!hasId && !hasNome) {
+            throw new Error(
+              `Passeggero senza dati: ogni passeggero deve avere un nome o essere selezionato dalla rubrica.`
+            );
+          }
+        }
+
         // ✅ FIX: Crea passeggeri nella tabella 'passeggeri' se checkbox "Salva in rubrica" è attiva
         for (const p of passeggeriForm) {
           if (!p.is_existing && !p.id && p.salva_in_database) {
@@ -1388,15 +1415,18 @@ export const ServizioCreaPage = ({
                         ? (primo.destinazione_citta_custom || null)
                         : (primo.localita_rubrica || primo.localita || null))
                     : null;
+            // ✅ FB-08: normalizza salva_in_database per soddisfare CHECK constraint
+            const passeggeroId = p.id || null;
+            const isPermanente = !!passeggeroId;
             const passeggeroData = {
               servizio_id: servizio.id,
-              passeggero_id: p.id || null,
-              nome_cognome_inline: p.nome_cognome || null,
+              passeggero_id: passeggeroId,
+              nome_cognome_inline: p.nome_cognome?.trim() || null,
               email_inline: p.email || null,
               telefono_inline: p.telefono || null,
               localita_inline: p.localita || null,
               indirizzo_inline: p.indirizzo || null,
-              salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
+              salva_in_database: isPermanente,
               ordine_presa: p.ordine || (idx + 1),
               // ✅ Flag sempre coerenti con la presenza del testo (no più record legacy incoerenti)
               usa_indirizzo_personalizzato: !!luogoPresaPers,
