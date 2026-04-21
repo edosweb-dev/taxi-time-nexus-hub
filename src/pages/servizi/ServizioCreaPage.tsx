@@ -1327,7 +1327,18 @@ export const ServizioCreaPage = ({
         }
         
         const passeggeriCompleti = [];
-        
+
+        // ✅ FB-08: Validazione PRE-INSERT per non avere passeggeri orfani
+        for (const p of passeggeriForm) {
+          const hasId = !!(p.id || p.passeggero_id);
+          const hasNome = !!(p.nome_cognome && p.nome_cognome.trim());
+          if (!hasId && !hasNome) {
+            throw new Error(
+              `Passeggero senza dati: ogni passeggero deve avere un nome o essere selezionato dalla rubrica.`
+            );
+          }
+        }
+
         // ✅ FIX: Crea passeggeri nella tabella 'passeggeri' se checkbox "Salva in rubrica" è attiva
         for (const p of passeggeriForm) {
           if (!p.is_existing && !p.id && p.salva_in_database) {
