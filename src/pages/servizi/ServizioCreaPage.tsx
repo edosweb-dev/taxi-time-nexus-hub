@@ -1222,15 +1222,19 @@ export const ServizioCreaPage = ({
                         ? (primo.destinazione_citta_custom || null)
                         : (primo.localita_rubrica || primo.localita || null))
                     : null;
+            // ✅ FB-08: normalizza salva_in_database in base alla presenza di passeggero_id
+            // per soddisfare il CHECK constraint check_temporary_passenger
+            const passeggeroId = p.passeggero_id || null;
+            const isPermanente = !!passeggeroId;
             return {
               servizio_id: servizioId,
-              passeggero_id: p.passeggero_id || null,
-              nome_cognome_inline: p.nome_cognome || null,
+              passeggero_id: passeggeroId,
+              nome_cognome_inline: p.nome_cognome?.trim() || null,
               email_inline: p.email || null,
               telefono_inline: p.telefono || null,
               localita_inline: p.localita || null,
               indirizzo_inline: p.indirizzo || null,
-              salva_in_database: Boolean(p.salva_in_database ?? !!p.id),
+              salva_in_database: isPermanente,
               ordine_presa: p.ordine || (idx + 1),
               // ✅ Flag sempre coerenti con la presenza del testo (no più record legacy incoerenti)
               usa_indirizzo_personalizzato: !!luogoPresaPers,
