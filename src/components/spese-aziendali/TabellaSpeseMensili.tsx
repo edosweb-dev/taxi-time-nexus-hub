@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Minus, ArrowDownLeft, Pencil, Trash2 } from 'lucide-react';
 import { useSpeseAziendali } from '@/hooks/useSpeseAziendali';
+import { useIncassiContanti } from '@/hooks/useIncassiContanti';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -29,6 +30,11 @@ export function TabellaSpeseMensili() {
 
   const startDate = startOfMonth(selectedMonth);
   const endDate = endOfMonth(selectedMonth);
+
+  const { stats: incassiContantiStats } = useIncassiContanti({
+    dataInizio: format(startDate, 'yyyy-MM-dd'),
+    dataFine: format(endDate, 'yyyy-MM-dd'),
+  });
 
   // Filtra movimenti per il mese selezionato
   const movimentiMese = movimentiCompleti.filter(movimento => {
@@ -143,7 +149,9 @@ export function TabellaSpeseMensili() {
     .filter(m => m.tipo === 'pending')
     .reduce((sum, m) => sum + Number(m.importo), 0);
 
-  const saldo = totaliMese.incassi - totaliMese.spese;
+  const incassiContanti = incassiContantiStats?.totaleIncassi ?? 0;
+  const incassiTotali = totaliMese.incassi + incassiContanti;
+  const saldo = incassiTotali - totaliMese.spese;
 
   const previousMonth = () => {
     setSelectedMonth(subMonths(selectedMonth, 1));
@@ -199,7 +207,7 @@ export function TabellaSpeseMensili() {
           </div>
           <div className="text-center p-3 bg-green-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Incassi</p>
-            <p className="text-lg font-bold text-green-600">{formatCurrency(totaliMese.incassi)}</p>
+            <p className="text-lg font-bold text-green-600">{formatCurrency(incassiTotali)}</p>
           </div>
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Prelievi</p>
