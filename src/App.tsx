@@ -49,6 +49,7 @@ import StipendiDettaglioPage from './pages/stipendi/StipendiDettaglioPage';
 import MobileServiziPage from './pages/servizi/MobileServiziPage';
 import SpeseAziendaliPage from './pages/SpeseAziendaliPage';
 import IncassiContantiPage from './pages/IncassiContantiPage';
+import IncassiCartaPage from './pages/IncassiCartaPage';
 import CalendarioPage from './pages/CalendarioPage';
 import ReportPage from './pages/ReportPage';
 import CalendarioTurniPage from './pages/CalendarioTurniPage';
@@ -355,6 +356,11 @@ function App() {
                 <Route path="/spese-aziendali/incassi-contanti" element={
                   <AuthGuard allowedRoles={['admin', 'socio']}>
                     <IncassiContantiPage />
+                  </AuthGuard>
+                } />
+                <Route path="/spese-aziendali/incassi-carta" element={
+                  <AuthGuard allowedRoles={['admin', 'socio']}>
+                    <IncassiCartaPage />
                   </AuthGuard>
                 } />
                 
