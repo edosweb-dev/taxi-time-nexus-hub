@@ -180,8 +180,9 @@ export function CompletaContantiUberForm({
               {showConsegnaField && (
                 <FormField
                   control={form.control}
-                  name="consegna_contanti_a" as any
-                  render={({ field }: { field: any }) => (
+                  // @ts-ignore - campo condizionale non nel tipo base
+                  name="consegna_contanti_a"
+                  render={({ field }) => (
                     <FormItem>
                       <FormLabel>Consegna contanti a</FormLabel>
                       <Select
