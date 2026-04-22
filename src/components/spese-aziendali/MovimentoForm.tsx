@@ -87,11 +87,13 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
       socio_id: undefined,
       note: '',
       is_pending: false,
+      _prelievo_mode: 'puro',
     },
   });
 
   const tipoCausale = form.watch('tipo_causale');
   const tipologia = form.watch('tipologia');
+  const prelievoMode = form.watch('_prelievo_mode');
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const formData: MovimentoFormData = {
