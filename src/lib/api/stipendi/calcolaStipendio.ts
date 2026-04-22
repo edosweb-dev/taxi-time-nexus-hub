@@ -206,6 +206,7 @@ export async function getDetrazioniStipendio(
     totaleSpesePersonali,
     totalePrelievi,
     totaleVersamenti,
+    totaleSpeseAnticipate,
     incassiDaDipendenti,
     incassiServiziContanti,
     riportoMesePrecedente
