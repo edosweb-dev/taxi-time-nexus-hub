@@ -1616,42 +1616,48 @@ export const ServizioCreaPage = ({
               destinazione: data.indirizzo_destinazione,
             });
           } else if (mode === 'edit') {
-            console.log('[Pre-validation] Edit mode - checking if addresses need derivation');
-            
+            console.log('[Pre-validation] Edit mode - re-deriving addresses/cities from passeggeri');
+
             if (data.passeggeri && data.passeggeri.length > 0) {
               const primo = data.passeggeri[0];
-              
-              // Derive indirizzo_presa if empty
-              if (!data.indirizzo_presa || data.indirizzo_presa.trim() === '') {
-                if (primo.presa_tipo === 'passeggero') {
-                  data.indirizzo_presa = primo.indirizzo_rubrica || primo.indirizzo || '';
-                  data.citta_presa = primo.localita_rubrica || primo.localita || null;
-                } else if (primo.presa_tipo === 'personalizzato' || primo.presa_tipo === 'aeroporto') {
-                  data.indirizzo_presa = primo.presa_indirizzo_custom || '';
-                  data.citta_presa = primo.presa_citta_custom || null;
+
+              // PRESA: deriva sempre da primo passeggero quando il tipo è personalizzato/passeggero,
+              // così le modifiche a presa_citta_custom / presa_indirizzo_custom vengono ripropagate.
+              if (primo.presa_tipo === 'personalizzato' || primo.presa_tipo === 'aeroporto') {
+                if (primo.presa_indirizzo_custom) {
+                  data.indirizzo_presa = primo.presa_indirizzo_custom;
                 }
-                console.log('[Pre-validation] Edit - derived indirizzo_presa:', data.indirizzo_presa);
-              } else {
-                console.log('[Pre-validation] Edit - preserved indirizzo_presa from DB:', data.indirizzo_presa);
+                data.citta_presa = primo.presa_citta_custom || null;
+              } else if (primo.presa_tipo === 'passeggero') {
+                const indPass = primo.indirizzo_rubrica || primo.indirizzo || '';
+                if (indPass) data.indirizzo_presa = indPass;
+                data.citta_presa = primo.localita_rubrica || primo.localita || null;
               }
-              
-              // Derive indirizzo_destinazione if empty — dall'ULTIMO passeggero
-              if (!data.indirizzo_destinazione || data.indirizzo_destinazione.trim() === '') {
-                const passeggeriOrdinati = [...data.passeggeri].sort(
-                  (a, b) => (a.ordine_presa ?? 0) - (b.ordine_presa ?? 0)
-                );
-                const ultimo = passeggeriOrdinati[passeggeriOrdinati.length - 1];
-                if (ultimo.destinazione_tipo === 'passeggero') {
-                  data.indirizzo_destinazione = ultimo.indirizzo_rubrica || ultimo.indirizzo || '';
-                  data.citta_destinazione = ultimo.localita_rubrica || ultimo.localita || null;
-                } else if (ultimo.destinazione_tipo === 'personalizzato' || ultimo.destinazione_tipo === 'aeroporto') {
-                  data.indirizzo_destinazione = ultimo.destinazione_indirizzo_custom || '';
-                  data.citta_destinazione = ultimo.destinazione_citta_custom || null;
+              console.log('[Pre-validation] Edit - presa derived:', {
+                indirizzo_presa: data.indirizzo_presa,
+                citta_presa: data.citta_presa,
+              });
+
+              // DESTINAZIONE: deriva sempre dall'ultimo passeggero (per ordine_presa)
+              const passeggeriOrdinati = [...data.passeggeri].sort(
+                (a, b) => (a.ordine_presa ?? 0) - (b.ordine_presa ?? 0)
+              );
+              const ultimo = passeggeriOrdinati[passeggeriOrdinati.length - 1];
+
+              if (ultimo.destinazione_tipo === 'personalizzato' || ultimo.destinazione_tipo === 'aeroporto') {
+                if (ultimo.destinazione_indirizzo_custom) {
+                  data.indirizzo_destinazione = ultimo.destinazione_indirizzo_custom;
                 }
-                console.log('[Pre-validation] Edit - derived indirizzo_destinazione from ultimo:', data.indirizzo_destinazione);
-              } else {
-                console.log('[Pre-validation] Edit - preserved indirizzo_destinazione from DB:', data.indirizzo_destinazione);
+                data.citta_destinazione = ultimo.destinazione_citta_custom || null;
+              } else if (ultimo.destinazione_tipo === 'passeggero') {
+                const indDest = ultimo.indirizzo_rubrica || ultimo.indirizzo || '';
+                if (indDest) data.indirizzo_destinazione = indDest;
+                data.citta_destinazione = ultimo.localita_rubrica || ultimo.localita || null;
               }
+              console.log('[Pre-validation] Edit - destinazione derived:', {
+                indirizzo_destinazione: data.indirizzo_destinazione,
+                citta_destinazione: data.citta_destinazione,
+              });
             }
           }
           
