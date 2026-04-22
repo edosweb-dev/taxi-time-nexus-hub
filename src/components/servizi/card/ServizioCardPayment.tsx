@@ -21,14 +21,26 @@ export const ServizioCardPayment = ({ servizio, passeggeriCount, users, azienda 
           <div className="font-medium">Metodo pagamento</div>
           <div className="text-muted-foreground">
             {servizio.metodo_pagamento}
-            {servizio.metodo_pagamento === 'Contanti' && servizio.consegna_contanti_a && users.length > 0 && (
-              <> → {getUserName(users, servizio.consegna_contanti_a) || "Utente sconosciuto"}</>
-            )}
-            {servizio.metodo_pagamento === 'Contanti' && !servizio.consegna_contanti_a && (
-              <span className="ml-1 text-amber-700 dark:text-amber-400 font-medium">
-                — Incasso non consegnato
-              </span>
-            )}
+            {servizio.metodo_pagamento === 'Contanti' && users.length > 0 && (() => {
+              const consegnatoId = servizio.consegna_contanti_a || null;
+              const assegnato = users.find((u) => u.id === servizio.assegnato_a);
+              const conducenteIsSocioAdmin = !!assegnato && (assegnato.role === 'admin' || assegnato.role === 'socio');
+              const isConducenteEsterno = servizio.conducente_esterno === true;
+
+              if (consegnatoId) {
+                return <> → {getUserName(users, consegnatoId) || "Utente sconosciuto"}</>;
+              }
+
+              if (conducenteIsSocioAdmin && !isConducenteEsterno && servizio.assegnato_a) {
+                return <> → {getUserName(users, servizio.assegnato_a) || "Utente sconosciuto"}</>;
+              }
+
+              return (
+                <span className="ml-1 text-amber-700 dark:text-amber-400 font-medium">
+                  — Incasso non consegnato
+                </span>
+              );
+            })()}
           </div>
         </div>
       </div>
