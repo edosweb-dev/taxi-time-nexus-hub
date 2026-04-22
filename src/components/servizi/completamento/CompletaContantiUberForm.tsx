@@ -92,11 +92,15 @@ export function CompletaContantiUberForm({
         }
       }
 
+      const consegnaFinale = showConsegnaField
+        ? (data as any).consegna_contanti_a
+        : servizio.assegnato_a;
+
       const result = await completaServizio({
         id: servizio.id,
         metodo_pagamento: servizio.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
-        consegna_contanti_a: data.consegna_contanti_a,
+        consegna_contanti_a: consegnaFinale,
       });
 
       if (result.error) {
@@ -173,33 +177,35 @@ export function CompletaContantiUberForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="consegna_contanti_a"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Consegna contanti a</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || undefined}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona responsabile incasso" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {responsabiliIncasso.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u.first_name} {u.last_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {showConsegnaField && (
+                <FormField
+                  control={form.control}
+                  name="consegna_contanti_a"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Consegna contanti a</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || undefined}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona responsabile incasso" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {responsabiliIncasso.map((u) => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.first_name} {u.last_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             
               <Button
                 type="submit" 
