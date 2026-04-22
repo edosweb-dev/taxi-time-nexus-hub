@@ -16,12 +16,6 @@ import { Profile } from "@/lib/types";
 import { Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const formSchema = z.object({
-  incasso_ricevuto: z.coerce.number()
-    .min(0, "Importo non può essere negativo"),
-  consegna_contanti_a: z.string().uuid("Seleziona a chi vanno consegnati i contanti"),
-});
-
 interface CompletaContantiUberFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -39,22 +33,44 @@ export function CompletaContantiUberForm({
 }: CompletaContantiUberFormProps) {
   const isMobile = useIsMobile();
 
+  // Determina il ruolo del conducente assegnato
+  const assegnato = users.find((u) => u.id === servizio.assegnato_a);
+  const isConducenteSocioOrAdmin =
+    assegnato?.role === 'admin' || assegnato?.role === 'socio';
+  const isConducenteEsterno = servizio.conducente_esterno === true;
+  
+  // Mostra il campo solo se: non è socio/admin, o è esterno, o non c'è assegnazione
+  const showConsegnaField = !isConducenteSocioOrAdmin || isConducenteEsterno || !servizio.assegnato_a;
+
+  // Schema Zod condizionale
+  const baseSchema = z.object({
+    incasso_ricevuto: z.coerce.number().min(0, "Importo non può essere negativo"),
+  });
+  
+  const fullSchema = baseSchema.extend({
+    consegna_contanti_a: z.string().uuid("Seleziona a chi vanno consegnati i contanti"),
+  });
+  
+  const formSchema = showConsegnaField ? fullSchema : baseSchema;
+
   const responsabiliIncasso = users.filter(
     (u) => u.role === "admin" || u.role === "socio"
   );
 
-  const assegnato = users.find((u) => u.id === servizio.assegnato_a);
   const defaultConsegna =
     assegnato && (assegnato.role === "socio" || assegnato.role === "admin")
       ? servizio.assegnato_a ?? ""
       : "";
 
+  // Default values condizionali
+  const defaultValues: any = { incasso_ricevuto: servizio.incasso_previsto || 0 };
+  if (showConsegnaField) {
+    defaultValues.consegna_contanti_a = defaultConsegna;
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      incasso_ricevuto: servizio.incasso_previsto || 0,
-      consegna_contanti_a: defaultConsegna,
-    },
+    defaultValues,
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
@@ -77,11 +93,15 @@ export function CompletaContantiUberForm({
         }
       }
 
+      const consegnaFinale = showConsegnaField
+        ? (data as any).consegna_contanti_a
+        : servizio.assegnato_a;
+
       const result = await completaServizio({
         id: servizio.id,
         metodo_pagamento: servizio.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
-        consegna_contanti_a: data.consegna_contanti_a,
+        consegna_contanti_a: consegnaFinale,
       });
 
       if (result.error) {
@@ -158,33 +178,36 @@ export function CompletaContantiUberForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="consegna_contanti_a"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Consegna contanti a</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || undefined}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona responsabile incasso" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {responsabiliIncasso.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u.first_name} {u.last_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {showConsegnaField && (
+                <FormField
+                  control={form.control}
+                  // @ts-ignore - campo condizionale non nel tipo base
+                  name="consegna_contanti_a"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Consegna contanti a</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={typeof field.value === 'string' ? field.value : undefined}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona responsabile incasso" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {responsabiliIncasso.map((u) => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.first_name} {u.last_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             
               <Button
                 type="submit" 
