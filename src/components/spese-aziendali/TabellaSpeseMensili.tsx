@@ -207,14 +207,6 @@ export function TabellaSpeseMensili() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="text-center p-3 bg-red-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Spese</p>
-            <p className="text-lg font-bold text-red-600">{formatCurrency(totaliMese.spese)}</p>
-          </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Incassi</p>
-            <p className="text-lg font-bold text-green-600">{formatCurrency(incassiTotali)}</p>
-          </div>
-          <div className="text-center p-3 bg-red-50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Spese</p>
             <p className="text-lg font-bold text-red-600">{formatCurrency(speseNette)}</p>
             {totaliMese.prelieviScorporo > 0 && (
               <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
