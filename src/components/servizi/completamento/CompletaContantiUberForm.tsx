@@ -180,7 +180,7 @@ export function CompletaContantiUberForm({
               {showConsegnaField && (
                 <FormField
                   control={form.control}
-                  name={"consegna_contanti_a" as const}
+                  name={"consegna_contanti_a" as "incasso_ricevuto"}
                   render={({ field }: { field: any }) => (
                     <FormItem>
                       <FormLabel>Consegna contanti a</FormLabel>
