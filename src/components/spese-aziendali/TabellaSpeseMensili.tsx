@@ -213,9 +213,22 @@ export function TabellaSpeseMensili() {
             <p className="text-sm text-muted-foreground">Incassi</p>
             <p className="text-lg font-bold text-green-600">{formatCurrency(incassiTotali)}</p>
           </div>
+          <div className="text-center p-3 bg-red-50 rounded-lg">
+            <p className="text-sm text-muted-foreground">Spese</p>
+            <p className="text-lg font-bold text-red-600">{formatCurrency(speseNette)}</p>
+            {totaliMese.prelieviScorporo > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
+                di cui scorporato ai soci: {formatCurrency(totaliMese.prelieviScorporo)}
+              </p>
+            )}
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded-lg">
+            <p className="text-sm text-muted-foreground">Incassi</p>
+            <p className="text-lg font-bold text-green-600">{formatCurrency(incassiTotali)}</p>
+          </div>
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Prelievi</p>
-            <p className="text-lg font-bold text-blue-600">{formatCurrency(totaliMese.prelievi)}</p>
+            <p className="text-lg font-bold text-blue-600">{formatCurrency(totalePrelievi)}</p>
           </div>
           <div className="text-center p-3 bg-purple-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Versamenti</p>
