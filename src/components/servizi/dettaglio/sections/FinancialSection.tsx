@@ -201,52 +201,67 @@ export function FinancialSection({
         )}
         
         {/* Responsabile Contanti */}
-        {servizio.metodo_pagamento === 'Contanti' && (
-          <div className="space-y-2 border-t pt-3">
-            <div className="text-sm font-medium text-muted-foreground">Responsabile contanti</div>
-            {servizio.consegna_contanti_a ? (
-              <div className="flex items-center gap-2">
-                <span className="text-base">
-                  {getUserName(users, servizio.consegna_contanti_a) || "Operatore non trovato"}
-                </span>
-                {isAdmin && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setDialogOpen(true)}
-                    className="gap-2 text-muted-foreground hover:text-foreground"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Modifica
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Badge className="bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-100">
-                  INCASSO NON CONSEGNATO
-                </Badge>
-                {isAdmin && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setDialogOpen(true)}
-                    className="gap-2"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Consegna incasso
-                  </Button>
-                )}
-              </div>
-            )}
-            <AssegnaResponsabileIncassoDialog
-              open={dialogOpen}
-              onOpenChange={setDialogOpen}
-              servizioId={servizio.id}
-              currentResponsabileId={servizio.consegna_contanti_a}
-            />
-          </div>
-        )}
+        {servizio.metodo_pagamento === 'Contanti' && (() => {
+          const consegnatoId = servizio.consegna_contanti_a || null;
+          const assegnato = users.find((u) => u.id === servizio.assegnato_a);
+          const conducenteIsSocioAdmin = !!assegnato && (assegnato.role === 'admin' || assegnato.role === 'socio');
+          const isConducenteEsterno = servizio.conducente_esterno === true;
+
+          // Implicito: conducente socio/admin (non esterno) senza consegna esplicita
+          const implicitId =
+            !consegnatoId && conducenteIsSocioAdmin && !isConducenteEsterno && servizio.assegnato_a
+              ? servizio.assegnato_a
+              : null;
+
+          const responsabileId = consegnatoId || implicitId;
+
+          return (
+            <div className="space-y-2 border-t pt-3">
+              <div className="text-sm font-medium text-muted-foreground">Responsabile contanti</div>
+              {responsabileId ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-base">
+                    {getUserName(users, responsabileId) || "Operatore non trovato"}
+                  </span>
+                  {isAdmin && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setDialogOpen(true)}
+                      className="gap-2 text-muted-foreground hover:text-foreground"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Modifica
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-100">
+                    INCASSO NON CONSEGNATO
+                  </Badge>
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDialogOpen(true)}
+                      className="gap-2"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Consegna incasso
+                    </Button>
+                  )}
+                </div>
+              )}
+              <AssegnaResponsabileIncassoDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                servizioId={servizio.id}
+                currentResponsabileId={servizio.consegna_contanti_a}
+              />
+            </div>
+          );
+        })()}
         
         {/* Provvigione */}
         {azienda?.provvigione && (
