@@ -238,6 +238,81 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
           />
         )}
 
+        {tipologia === 'prelievo' && (
+          <>
+            <FormField
+              control={form.control}
+              name="_prelievo_mode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo di prelievo</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      value={field.value || 'puro'}
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        if (val === 'puro') {
+                          form.setValue('tipo_causale', 'generica');
+                        } else if (val === 'scorporo' && form.getValues('tipo_causale') === 'generica') {
+                          form.setValue('tipo_causale', undefined as any);
+                        }
+                      }}
+                      className="gap-3"
+                    >
+                      <div className="flex items-start gap-3 rounded-md border p-3">
+                        <RadioGroupItem value="puro" id="prelievo_puro" className="mt-1" />
+                        <Label htmlFor="prelievo_puro" className="font-medium cursor-pointer leading-tight">
+                          Prelievo puro di cassa
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-3 rounded-md border p-3">
+                        <RadioGroupItem value="scorporo" id="prelievo_scorporo" className="mt-1" />
+                        <Label htmlFor="prelievo_scorporo" className="font-medium cursor-pointer leading-tight">
+                          Scorporo di spesa aziendale a carico del socio
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <div className="text-xs text-muted-foreground mt-2 space-y-1">
+                    <p><strong>Prelievo puro</strong>: il socio preleva contanti dal cassetto aziendale (es. anticipo stipendio). Non modifica il totale spese aziendali del mese.</p>
+                    <p><strong>Scorporo di spesa</strong>: il socio ha usato risorse aziendali (carta, telepass, ecc.) per uso personale. L'importo viene abbattuto dal totale spese aziendali del mese e addebitato al socio.</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {prelievoMode === 'scorporo' && (
+              <FormField
+                control={form.control}
+                name="tipo_causale"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categoria della spesa scorporata *</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value && field.value !== 'generica' ? field.value : ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona categoria" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="f24">F24 (Tasse/Contributi)</SelectItem>
+                        <SelectItem value="pagamento_fornitori">Pagamento Fornitori</SelectItem>
+                        <SelectItem value="spese_gestione">Spese di Gestione</SelectItem>
+                        <SelectItem value="multe">Multe</SelectItem>
+                        <SelectItem value="fattura_conducenti_esterni">Fattura Conducenti Esterni</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </>
+        )}
+
         {(tipologia === 'prelievo' || tipologia === 'versamento' || tipologia === 'spesa') && (
           <FormField
             control={form.control}
@@ -279,7 +354,7 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
                     ? "L'azienda paga per conto del socio (es. F24, cellulare, ristorante). Sarà SOTTRATTO dallo stipendio." 
                     : tipologia === 'versamento'
                     ? "Il socio paga per conto dell'azienda con soldi propri. Sarà AGGIUNTO allo stipendio."
-                    : "Spesa aziendale generica. Se associata a un socio, apparirà nel suo report."}
+                    : "Spesa aziendale generica. Se associata a un socio, significa che il socio l'ha pagata di tasca propria (es. contanti): l'importo sarà accreditato sul suo stipendio come rimborso."}
                 </div>
                 <FormMessage />
               </FormItem>
