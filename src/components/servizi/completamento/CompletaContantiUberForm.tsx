@@ -16,12 +16,6 @@ import { Profile } from "@/lib/types";
 import { Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const formSchema = z.object({
-  incasso_ricevuto: z.coerce.number()
-    .min(0, "Importo non può essere negativo"),
-  consegna_contanti_a: z.string().uuid("Seleziona a chi vanno consegnati i contanti"),
-});
-
 interface CompletaContantiUberFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -39,22 +33,43 @@ export function CompletaContantiUberForm({
 }: CompletaContantiUberFormProps) {
   const isMobile = useIsMobile();
 
+  // Determina il ruolo del conducente assegnato
+  const assegnato = users.find((u) => u.id === servizio.assegnato_a);
+  const isConducenteSocioOrAdmin =
+    assegnato?.role === 'admin' || assegnato?.role === 'socio';
+  const isConducenteEsterno = servizio.conducente_esterno === true;
+  
+  // Mostra il campo solo se: non è socio/admin, o è esterno, o non c'è assegnazione
+  const showConsegnaField = !isConducenteSocioOrAdmin || isConducenteEsterno || !servizio.assegnato_a;
+
+  // Schema Zod condizionale
+  const formSchema = showConsegnaField
+    ? z.object({
+        incasso_ricevuto: z.coerce.number().min(0, "Importo non può essere negativo"),
+        consegna_contanti_a: z.string().uuid("Seleziona a chi vanno consegnati i contanti"),
+      })
+    : z.object({
+        incasso_ricevuto: z.coerce.number().min(0, "Importo non può essere negativo"),
+      });
+
   const responsabiliIncasso = users.filter(
     (u) => u.role === "admin" || u.role === "socio"
   );
 
-  const assegnato = users.find((u) => u.id === servizio.assegnato_a);
   const defaultConsegna =
     assegnato && (assegnato.role === "socio" || assegnato.role === "admin")
       ? servizio.assegnato_a ?? ""
       : "";
 
+  // Default values condizionali
+  const defaultValues: any = { incasso_ricevuto: servizio.incasso_previsto || 0 };
+  if (showConsegnaField) {
+    defaultValues.consegna_contanti_a = defaultConsegna;
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      incasso_ricevuto: servizio.incasso_previsto || 0,
-      consegna_contanti_a: defaultConsegna,
-    },
+    defaultValues,
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
