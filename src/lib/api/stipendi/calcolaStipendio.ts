@@ -276,7 +276,8 @@ export async function calcolaStipendioCompleto(
     const totaleNetto = Number((
       totaleLordo +                          // Base lordo (KM + ore attesa con aumento)
       detrazioni.totaleSpesePersonali +      // ✅ AGGIUNGI rimborsi spese
-      detrazioni.totaleVersamenti -          // ✅ AGGIUNGI versamenti (riducono debito socio)
+      detrazioni.totaleVersamenti +          // ✅ AGGIUNGI versamenti (riducono debito socio)
+      detrazioni.totaleSpeseAnticipate -     // ✅ AGGIUNGI spese aziendali anticipate dal socio (rimborso)
       detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
       detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti
       detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti
@@ -287,6 +288,7 @@ export async function calcolaStipendioCompleto(
       totaleLordo,
       spesePersonali: `+${detrazioni.totaleSpesePersonali}`,
       versamenti: `+${detrazioni.totaleVersamenti}`,
+      speseAnticipate: `+${detrazioni.totaleSpeseAnticipate}`,
       prelievi: `-${detrazioni.totalePrelievi}`,
       incassiDipendenti: `-${detrazioni.incassiDaDipendenti}`,
       incassiServizi: `-${detrazioni.incassiServiziContanti}`,
