@@ -35,6 +35,7 @@ const formSchema = z.object({
   socio_id: z.string().uuid().optional(),
   note: z.string().optional(),
   is_pending: z.boolean().default(false),
+  _prelievo_mode: z.enum(['puro', 'scorporo']).optional(),
 }).refine(
   (data) => (data.tipologia !== 'prelievo' && data.tipologia !== 'versamento') || data.socio_id,
   { message: "Seleziona un socio", path: ["socio_id"] }
