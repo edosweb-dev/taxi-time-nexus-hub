@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,6 +19,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const formSchema = z.object({
   incasso_ricevuto: z.coerce.number()
     .min(0, "Importo non può essere negativo"),
+  consegna_contanti_a: z.string().uuid("Seleziona a chi vanno consegnati i contanti"),
 });
 
 interface CompletaContantiUberFormProps {
@@ -36,22 +38,27 @@ export function CompletaContantiUberForm({
   onComplete,
 }: CompletaContantiUberFormProps) {
   const isMobile = useIsMobile();
-  const form = useForm({
+
+  const responsabiliIncasso = users.filter(
+    (u) => u.role === "admin" || u.role === "socio"
+  );
+
+  const assegnato = users.find((u) => u.id === servizio.assegnato_a);
+  const defaultConsegna =
+    assegnato && (assegnato.role === "socio" || assegnato.role === "admin")
+      ? servizio.assegnato_a ?? ""
+      : "";
+
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       incasso_ricevuto: servizio.incasso_previsto || 0,
+      consegna_contanti_a: defaultConsegna,
     },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      console.log('📊 [CompletaContantiUberForm] Submit data:', {
-        metodo_pagamento: servizio.metodo_pagamento,
-        incasso_previsto: servizio.incasso_previsto,
-        incasso_ricevuto_input: data.incasso_ricevuto,
-        totale_previsto: totalePrevisto,
-      });
-      
       if (servizio?.aziende?.firma_digitale_attiva) {
         const firmaCheck = await checkAllPasseggeriSigned(servizio.id);
         
@@ -74,6 +81,7 @@ export function CompletaContantiUberForm({
         id: servizio.id,
         metodo_pagamento: servizio.metodo_pagamento,
         incasso_ricevuto: data.incasso_ricevuto,
+        consegna_contanti_a: data.consegna_contanti_a,
       });
 
       if (result.error) {
@@ -147,10 +155,38 @@ export function CompletaContantiUberForm({
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-              )}
-            />
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="consegna_contanti_a"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Consegna contanti a</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || undefined}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona responsabile incasso" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {responsabiliIncasso.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.first_name} {u.last_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             
-            <Button
+              <Button
                 type="submit" 
                 className="w-full"
                 disabled={form.formState.isSubmitting}

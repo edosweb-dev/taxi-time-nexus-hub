@@ -36,11 +36,12 @@ export async function completaServizio({
     };
 
     // Aggiungi campi incasso SOLO se metodo lo richiede (escludi Bonifico)
-    if (tipoPagamento !== TipoPagamento.DIRETTO_AZIENDA) {
+    if (tipoPagamento === TipoPagamento.CONTANTI_UBER) {
+      updateData.incasso_ricevuto = incasso_ricevuto;
+      updateData.consegna_contanti_a = consegna_contanti_a || null;
+    } else if (tipoPagamento === TipoPagamento.CARTA) {
       updateData.incasso_ricevuto = incasso_ricevuto;
     }
-    
-    // consegna_contanti_a gestito solo in fase di consuntivazione
     // Per bonifici: incasso_ricevuto rimane NULL (popolato in consuntivazione)
 
     const { data, error } = await supabase
