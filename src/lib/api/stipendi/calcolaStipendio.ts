@@ -16,6 +16,7 @@ export interface DetrazioniStipendio {
   totaleSpesePersonali: number;
   totalePrelievi: number;
   totaleVersamenti: number;
+  totaleSpeseAnticipate: number;
   incassiDaDipendenti: number;
   incassiServiziContanti: number;
   riportoMesePrecedente: number;
