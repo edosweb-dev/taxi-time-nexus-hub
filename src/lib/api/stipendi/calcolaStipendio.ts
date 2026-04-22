@@ -16,6 +16,7 @@ export interface DetrazioniStipendio {
   totaleSpesePersonali: number;
   totalePrelievi: number;
   totaleVersamenti: number;
+  totaleSpeseAnticipate: number;
   incassiDaDipendenti: number;
   incassiServiziContanti: number;
   riportoMesePrecedente: number;
@@ -129,6 +130,24 @@ export async function getDetrazioniStipendio(
     throw errorVersamenti;
   }
   
+  // Recupera spese aziendali anticipate dal socio di tasca (tipologia='spesa' + socio_id)
+  const { data: speseAnticipate, error: errorSpeseAnticipate } = await supabase
+    .from('spese_aziendali')
+    .select('importo')
+    .eq('socio_id', userId)
+    .eq('tipologia', 'spesa')
+    .gte('data_movimento', startDate)
+    .lte('data_movimento', endDate);
+
+  if (errorSpeseAnticipate) {
+    console.error('[getDetrazioniStipendio] Errore recupero spese anticipate:', errorSpeseAnticipate);
+    throw errorSpeseAnticipate;
+  }
+
+  const totaleSpeseAnticipate = speseAnticipate?.reduce(
+    (sum, s) => sum + Number(s.importo), 0
+  ) || 0;
+
   // Recupera incassi da dipendenti (contanti consegnati al socio da servizi di altri)
   const { data: serviziConContanti, error: errorIncassi } = await supabase
     .from('servizi')
@@ -187,6 +206,7 @@ export async function getDetrazioniStipendio(
     totaleSpesePersonali,
     totalePrelievi,
     totaleVersamenti,
+    totaleSpeseAnticipate,
     incassiDaDipendenti,
     incassiServiziContanti,
     riportoMesePrecedente
@@ -256,7 +276,8 @@ export async function calcolaStipendioCompleto(
     const totaleNetto = Number((
       totaleLordo +                          // Base lordo (KM + ore attesa con aumento)
       detrazioni.totaleSpesePersonali +      // ✅ AGGIUNGI rimborsi spese
-      detrazioni.totaleVersamenti -          // ✅ AGGIUNGI versamenti (riducono debito socio)
+      detrazioni.totaleVersamenti +          // ✅ AGGIUNGI versamenti (riducono debito socio)
+      detrazioni.totaleSpeseAnticipate -     // ✅ AGGIUNGI spese aziendali anticipate dal socio (rimborso)
       detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
       detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti
       detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti
@@ -267,6 +288,7 @@ export async function calcolaStipendioCompleto(
       totaleLordo,
       spesePersonali: `+${detrazioni.totaleSpesePersonali}`,
       versamenti: `+${detrazioni.totaleVersamenti}`,
+      speseAnticipate: `+${detrazioni.totaleSpeseAnticipate}`,
       prelievi: `-${detrazioni.totalePrelievi}`,
       incassiDipendenti: `-${detrazioni.incassiDaDipendenti}`,
       incassiServizi: `-${detrazioni.incassiServiziContanti}`,
