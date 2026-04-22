@@ -68,7 +68,7 @@ SelectScrollDownButton.displayName =
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => (
+>(({ className, children, position = "popper", onCloseAutoFocus, ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
@@ -79,6 +79,21 @@ const SelectContent = React.forwardRef<
         className
       )}
       position={position}
+      onCloseAutoFocus={(event) => {
+        // Delega prima eventuali handler custom passati dal chiamante
+        onCloseAutoFocus?.(event);
+        if (event.defaultPrevented) return;
+        // Forziamo il rientro del focus sul trigger via aria-controls,
+        // così il successivo Tab parte dal trigger e avanza al campo dopo.
+        event.preventDefault();
+        const contentId = (event.currentTarget as HTMLElement)?.id;
+        if (contentId) {
+          const trigger = document.querySelector<HTMLElement>(
+            `[aria-controls="${contentId}"]`
+          );
+          trigger?.focus();
+        }
+      }}
       {...props}
     >
       <SelectScrollUpButton />
