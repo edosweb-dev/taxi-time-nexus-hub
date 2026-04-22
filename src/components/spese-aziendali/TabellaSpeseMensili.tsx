@@ -126,28 +126,36 @@ export function TabellaSpeseMensili() {
     .filter(m => m.tipo === 'aziendale') // Escludi pending dai totali
     .reduce(
       (acc, movimento) => {
+        const importo = Number(movimento.importo);
         switch (movimento.tipologia) {
           case 'spesa':
-            acc.spese += Number(movimento.importo);
+            acc.spese += importo;
             break;
           case 'incasso':
-            acc.incassi += Number(movimento.importo);
+            acc.incassi += importo;
             break;
           case 'prelievo':
-            acc.prelievi += Number(movimento.importo);
+            if (movimento.tipo_causale && movimento.tipo_causale !== 'generica') {
+              acc.prelieviScorporo += importo;
+            } else {
+              acc.prelieviPuri += importo;
+            }
             break;
           case 'versamento':
-            acc.versamenti += Number(movimento.importo);
+            acc.versamenti += importo;
             break;
         }
         return acc;
       },
-      { spese: 0, incassi: 0, prelievi: 0, versamenti: 0 }
+      { spese: 0, incassi: 0, prelieviPuri: 0, prelieviScorporo: 0, versamenti: 0 }
     );
+
+  const speseNette = totaliMese.spese - totaliMese.prelieviScorporo;
+  const totalePrelievi = totaliMese.prelieviPuri + totaliMese.prelieviScorporo;
 
   const incassiServizi = incassiMeseStats?.totaleIncassi ?? 0;
   const incassiTotali = totaliMese.incassi + incassiServizi;
-  const saldo = incassiTotali - totaliMese.spese;
+  const saldo = incassiTotali - speseNette;
 
   const previousMonth = () => {
     setSelectedMonth(subMonths(selectedMonth, 1));
