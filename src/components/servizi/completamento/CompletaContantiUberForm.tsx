@@ -188,7 +188,7 @@ export function CompletaContantiUberForm({
                       <FormLabel>Consegna contanti a</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value || undefined}
+                        value={typeof field.value === 'string' ? field.value : undefined}
                       >
                         <FormControl>
                           <SelectTrigger>
