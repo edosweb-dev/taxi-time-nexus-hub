@@ -1953,7 +1953,6 @@ export const ServizioCreaPage = ({
                       control={form.control}
                       render={({ field }) => (
                         <Select 
-                          key={`iva-select-${field.value}`}
                           onValueChange={(value) => field.onChange(Number(value))} 
                           value={field.value !== null && field.value !== undefined ? String(field.value) : undefined}
                         >
