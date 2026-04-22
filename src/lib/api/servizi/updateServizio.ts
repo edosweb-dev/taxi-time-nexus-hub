@@ -142,10 +142,14 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
         const collegamentoData: any = {
           servizio_id: servizio.id,
           passeggero_id: passeggeroId, // può essere null se salva_in_database = false
+          ordine_presa: (passeggeroData as any).ordine ?? (passeggeroData as any).ordine_presa ?? null,
           orario_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.orario_presa_personalizzato : null,
           luogo_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.luogo_presa_personalizzato : null,
-          destinazione_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? passeggeroData.destinazione_personalizzato : null,
+          localita_presa_personalizzato: passeggeroData.usa_indirizzo_personalizzato ? (passeggeroData as any).localita_presa_personalizzato ?? null : null,
           usa_indirizzo_personalizzato: passeggeroData.usa_indirizzo_personalizzato || false,
+          destinazione_personalizzato: (passeggeroData as any).usa_destinazione_personalizzata ? passeggeroData.destinazione_personalizzato : null,
+          localita_destinazione_personalizzato: (passeggeroData as any).usa_destinazione_personalizzata ? (passeggeroData as any).localita_destinazione_personalizzato ?? null : null,
+          usa_destinazione_personalizzata: (passeggeroData as any).usa_destinazione_personalizzata || false,
           salva_in_database: salvaInDatabase,
         };
 
