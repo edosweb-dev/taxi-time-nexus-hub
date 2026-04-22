@@ -43,14 +43,15 @@ export function CompletaContantiUberForm({
   const showConsegnaField = !isConducenteSocioOrAdmin || isConducenteEsterno || !servizio.assegnato_a;
 
   // Schema Zod condizionale
-  const formSchema = showConsegnaField
-    ? z.object({
-        incasso_ricevuto: z.coerce.number().min(0, "Importo non può essere negativo"),
-        consegna_contanti_a: z.string().uuid("Seleziona a chi vanno consegnati i contanti"),
-      })
-    : z.object({
-        incasso_ricevuto: z.coerce.number().min(0, "Importo non può essere negativo"),
-      });
+  const baseSchema = z.object({
+    incasso_ricevuto: z.coerce.number().min(0, "Importo non può essere negativo"),
+  });
+  
+  const fullSchema = baseSchema.extend({
+    consegna_contanti_a: z.string().uuid("Seleziona a chi vanno consegnati i contanti"),
+  });
+  
+  const formSchema = showConsegnaField ? fullSchema : baseSchema;
 
   const responsabiliIncasso = users.filter(
     (u) => u.role === "admin" || u.role === "socio"
