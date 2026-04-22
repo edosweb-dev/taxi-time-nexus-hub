@@ -130,6 +130,24 @@ export async function getDetrazioniStipendio(
     throw errorVersamenti;
   }
   
+  // Recupera spese aziendali anticipate dal socio di tasca (tipologia='spesa' + socio_id)
+  const { data: speseAnticipate, error: errorSpeseAnticipate } = await supabase
+    .from('spese_aziendali')
+    .select('importo')
+    .eq('socio_id', userId)
+    .eq('tipologia', 'spesa')
+    .gte('data_movimento', startDate)
+    .lte('data_movimento', endDate);
+
+  if (errorSpeseAnticipate) {
+    console.error('[getDetrazioniStipendio] Errore recupero spese anticipate:', errorSpeseAnticipate);
+    throw errorSpeseAnticipate;
+  }
+
+  const totaleSpeseAnticipate = speseAnticipate?.reduce(
+    (sum, s) => sum + Number(s.importo), 0
+  ) || 0;
+
   // Recupera incassi da dipendenti (contanti consegnati al socio da servizi di altri)
   const { data: serviziConContanti, error: errorIncassi } = await supabase
     .from('servizi')
