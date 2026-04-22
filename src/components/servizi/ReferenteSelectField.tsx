@@ -342,7 +342,7 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
                   }, 0);
                 }}
                 value={selectValue}
-                disabled={isLoading}
+                disabled={isLoading || referenti.length === 0}
               >
               <FormControl className="flex-1">
                 <SelectTrigger className="h-10">
