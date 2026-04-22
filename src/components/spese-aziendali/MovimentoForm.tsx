@@ -38,6 +38,15 @@ const formSchema = z.object({
 }).refine(
   (data) => (data.tipologia !== 'prelievo' && data.tipologia !== 'versamento') || data.socio_id,
   { message: "Seleziona un socio", path: ["socio_id"] }
+).refine(
+  (data) => {
+    // Se prelievo + scorporo, tipo_causale deve essere diverso da 'generica'
+    if (data.tipologia === 'prelievo' && (data as any)._prelievo_mode === 'scorporo') {
+      return data.tipo_causale && data.tipo_causale !== 'generica';
+    }
+    return true;
+  },
+  { message: "Seleziona la categoria della spesa scorporata", path: ["tipo_causale"] }
 );
 
 interface MovimentoFormProps {
