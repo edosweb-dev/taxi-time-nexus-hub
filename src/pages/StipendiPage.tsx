@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Clock, RefreshCw, Loader2, History } from 'lucide-react';
+import { Clock, Loader2, History } from 'lucide-react';
 
 import { 
   StipendiHeader,
