@@ -60,7 +60,7 @@ async function getIncassiPersonali(
     .eq('metodo_pagamento', 'Contanti')
     .gte('data_servizio', startDate)
     .lte('data_servizio', endDate)
-    .in('stato', ['completato', 'consuntivato']);
+    .eq('stato', 'consuntivato');
 
   if (error) {
     console.error('[getIncassiPersonali] Error:', error);
