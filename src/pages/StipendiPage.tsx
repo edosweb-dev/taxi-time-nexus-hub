@@ -46,7 +46,6 @@ export default function StipendiPage() {
   );
   const [selectedStipendioSocio, setSelectedStipendioSocio] = useState<StipendiAutomaticoUtente | null>(null);
   const [selectedStipendiodiPendente, setSelectedStipendiodiPendente] = useState<StipendioManualeDipendente | null>(null);
-  const [isRecalculatingAll, setIsRecalculatingAll] = useState(false);
   const [isRealigningAnno, setIsRealigningAnno] = useState(false);
 
   // Verifica accesso solo per admin e soci
