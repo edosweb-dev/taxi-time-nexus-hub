@@ -167,13 +167,20 @@ export const useSpeseAziendali = () => {
       }
       return result;
     },
-    onSuccess: () => {
+    onSuccess: async (result) => {
+      await triggerCascadeForMovimento({
+        socio_id: (result as any)?.socio_id,
+        data_movimento: (result as any)?.data_movimento,
+      });
+
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
+      queryClient.invalidateQueries({ queryKey: ['report-soci'] });
       toast({
         title: "Movimento registrato",
         description: "Il movimento è stato registrato con successo.",
@@ -193,7 +200,13 @@ export const useSpeseAziendali = () => {
   const updateMovimento = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<MovimentoFormData> }) => {
       console.log('[useSpeseAziendali] Updating movimento:', id, data);
-      
+
+      const { data: oldRecord } = await supabase
+        .from('spese_aziendali')
+        .select('socio_id, data_movimento')
+        .eq('id', id)
+        .maybeSingle();
+
       const { data: result, error } = await supabase
         .from('spese_aziendali')
         .update(data)
@@ -205,14 +218,23 @@ export const useSpeseAziendali = () => {
         console.error('[useSpeseAziendali] Update error:', error);
         throw error;
       }
-      return result;
+      return { result, oldRecord };
     },
-    onSuccess: () => {
+    onSuccess: async ({ result, oldRecord }) => {
+      await triggerCascadeForMovimento({
+        socio_id: (result as any)?.socio_id,
+        data_movimento: (result as any)?.data_movimento,
+        oldSocioId: oldRecord?.socio_id,
+        oldDataMovimento: oldRecord?.data_movimento,
+      });
+
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
+      queryClient.invalidateQueries({ queryKey: ['report-soci'] });
       toast({
         title: "Movimento aggiornato",
         description: "Il movimento è stato aggiornato con successo.",
@@ -230,7 +252,13 @@ export const useSpeseAziendali = () => {
   const deleteMovimento = useMutation({
     mutationFn: async (id: string) => {
       console.log('[useSpeseAziendali] Deleting movimento:', id);
-      
+
+      const { data: oldRecord } = await supabase
+        .from('spese_aziendali')
+        .select('socio_id, data_movimento')
+        .eq('id', id)
+        .maybeSingle();
+
       const { error } = await supabase
         .from('spese_aziendali')
         .delete()
@@ -240,14 +268,22 @@ export const useSpeseAziendali = () => {
         console.error('[useSpeseAziendali] Delete error:', error);
         throw error;
       }
+      return { oldRecord };
     },
-    onSuccess: () => {
+    onSuccess: async ({ oldRecord }) => {
+      await triggerCascadeForMovimento({
+        oldSocioId: oldRecord?.socio_id,
+        oldDataMovimento: oldRecord?.data_movimento,
+      });
+
       queryClient.invalidateQueries({ queryKey: ['spese-aziendali'] });
       queryClient.invalidateQueries({ queryKey: ['movimenti-completi'] });
       queryClient.invalidateQueries({ queryKey: ['pending-count'] });
       queryClient.invalidateQueries({ queryKey: ['totali-mese'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi-dipendenti'] });
+      queryClient.invalidateQueries({ queryKey: ['report-soci'] });
       toast({
         title: "Movimento eliminato",
         description: "Il movimento è stato eliminato con successo.",
