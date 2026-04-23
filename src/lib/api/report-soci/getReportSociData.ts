@@ -25,8 +25,9 @@ export async function getReportSociData(
     }
 
     // 2. Calcola date range per il mese selezionato
-    const dataInizio = new Date(anno, mese - 1, 1).toISOString().split('T')[0];
-    const dataFine = new Date(anno, mese, 0).toISOString().split('T')[0];
+    const dataInizio = `${anno}-${String(mese).padStart(2, '0')}-01`;
+    const lastDay = new Date(anno, mese, 0).getDate();
+    const dataFine = `${anno}-${String(mese).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
     // 3. Per ogni socio, calcola tutte le metriche
     const rows: ReportSocioRow[] = await Promise.all(
