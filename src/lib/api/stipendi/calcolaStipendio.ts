@@ -44,14 +44,14 @@ export interface CalcoloStipendioCompleto {
 }
 
 /**
- * Recupera incassi da servizi contanti per admin/soci
+ * Recupera incassi personali da servizi contanti per admin/soci
  */
-async function getIncassiServiziContanti(
+async function getIncassiPersonali(
   userId: string,
   startDate: string,
   endDate: string
 ): Promise<number> {
-  console.log(`[getIncassiServiziContanti] Fetching per user ${userId} da ${startDate} a ${endDate}`);
+  console.log(`[getIncassiPersonali] Fetching per user ${userId} da ${startDate} a ${endDate}`);
   
   const { data: servizi, error } = await supabase
     .from('servizi')
@@ -63,7 +63,7 @@ async function getIncassiServiziContanti(
     .in('stato', ['completato', 'consuntivato']);
 
   if (error) {
-    console.error('[getIncassiServiziContanti] Error:', error);
+    console.error('[getIncassiPersonali] Error:', error);
     throw error;
   }
 
@@ -71,7 +71,7 @@ async function getIncassiServiziContanti(
     sum + Number(s.incasso_ricevuto || s.incasso_previsto || 0), 0
   ) || 0;
 
-  console.log(`[getIncassiServiziContanti] Totale: €${totale}`);
+  console.log(`[getIncassiPersonali] Totale: €${totale}`);
   return totale;
 }
 
@@ -89,7 +89,7 @@ export async function getDetrazioniStipendio(
   const lastDay = new Date(anno, mese, 0).getDate();
   const endDate = `${anno}-${String(mese).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
   
-  // Recupera spese personali del mese
+  // Recupera spese personali del mese (da spese_dipendenti, rimborso dipendente)
   const { data: spesePersonali, error: errorSpese } = await supabase
     .from('spese_dipendenti')
     .select('importo')
@@ -117,7 +117,7 @@ export async function getDetrazioniStipendio(
     throw errorPrelievi;
   }
 
-  // NUOVO: Recupera versamenti del mese (movimenti aziendali di tipo versamento)
+  // Recupera versamenti del mese (movimenti aziendali di tipo versamento)
   const { data: versamenti, error: errorVersamenti } = await supabase
     .from('spese_aziendali')
     .select('importo')
@@ -132,7 +132,7 @@ export async function getDetrazioniStipendio(
   }
   
   // Recupera spese aziendali anticipate dal socio di tasca (tipologia='spesa' + socio_id)
-  const { data: speseAnticipate, error: errorSpeseAnticipate } = await supabase
+  const { data: speseSocio, error: errorSpeseSocio } = await supabase
     .from('spese_aziendali')
     .select('importo')
     .eq('socio_id', userId)
@@ -140,12 +140,12 @@ export async function getDetrazioniStipendio(
     .gte('data_movimento', startDate)
     .lte('data_movimento', endDate);
 
-  if (errorSpeseAnticipate) {
-    console.error('[getDetrazioniStipendio] Errore recupero spese anticipate:', errorSpeseAnticipate);
-    throw errorSpeseAnticipate;
+  if (errorSpeseSocio) {
+    console.error('[getDetrazioniStipendio] Errore recupero spese socio:', errorSpeseSocio);
+    throw errorSpeseSocio;
   }
 
-  const totaleSpeseAnticipate = speseAnticipate?.reduce(
+  const totaleSpeseSocio = speseSocio?.reduce(
     (sum, s) => sum + Number(s.importo), 0
   ) || 0;
 
@@ -170,8 +170,8 @@ export async function getDetrazioniStipendio(
     0
   ) || 0;
   
-  // Calcola incassi da servizi contanti personali
-  const incassiServiziContanti = await getIncassiServiziContanti(
+  // Calcola incassi personali da servizi contanti (servizi assegnati al socio stesso)
+  const incassiPersonali = await getIncassiPersonali(
     userId,
     startDate,
     endDate
@@ -205,11 +205,12 @@ export async function getDetrazioniStipendio(
   
   const detrazioni: DetrazioniStipendio = {
     totaleSpesePersonali,
+    totaleSpeseSocio,
     totalePrelievi,
     totaleVersamenti,
-    totaleSpeseAnticipate,
+    totaleSpeseAnticipate: totaleSpeseSocio, // alias retrocompat
     incassiDaDipendenti,
-    incassiServiziContanti,
+    incassiPersonali,
     riportoMesePrecedente
   };
   
@@ -273,27 +274,28 @@ export async function calcolaStipendioCompleto(
     console.log('[CALCOLO] 📋 Detrazioni:', detrazioni);
     
     // 7. Calcola totale netto
-    // Formula: versamenti aumentano il netto (socio restituisce denaro all'azienda)
+    // Formula allineata a modello cliente (Excel) e a getReportSociData.ts
+    // netto = lordo + riporto + spese_dip + spese_socio + versamenti - prelievi - incassi_dip - incassi_personali
     const totaleNetto = Number((
-      totaleLordo +                          // Base lordo (KM + ore attesa con aumento)
-      detrazioni.totaleSpesePersonali +      // ✅ AGGIUNGI rimborsi spese
-      detrazioni.totaleVersamenti +          // ✅ AGGIUNGI versamenti (riducono debito socio)
-      detrazioni.totaleSpeseAnticipate -     // ✅ AGGIUNGI spese aziendali anticipate dal socio (rimborso)
-      detrazioni.totalePrelievi -            // ✅ SOTTRAI prelievi
-      detrazioni.incassiDaDipendenti -       // ✅ SOTTRAI incassi da dipendenti
-      detrazioni.incassiServiziContanti +    // ✅ SOTTRAI incassi servizi contanti
-      detrazioni.riportoMesePrecedente       // ✅ AGGIUNGI riporto mese precedente (credito/debito portato avanti)
+      totaleLordo +
+      detrazioni.riportoMesePrecedente +    // ✓ SOMMA riporto
+      detrazioni.totaleSpesePersonali +     // rimborso spese dipendente
+      detrazioni.totaleSpeseSocio +         // anticipo socio (spese_aziendali tipo='spesa')
+      detrazioni.totaleVersamenti -         // versamento riduce debito socio
+      detrazioni.totalePrelievi -           // prelievo aumenta debito socio
+      detrazioni.incassiDaDipendenti -      // contanti da servizi di altri
+      detrazioni.incassiPersonali           // contanti da servizi propri
     ).toFixed(2));
 
     console.log('[CALCOLO] 💳 Breakdown netto:', {
       totaleLordo,
+      riporto: `${detrazioni.riportoMesePrecedente >= 0 ? '+' : ''}${detrazioni.riportoMesePrecedente}`,
       spesePersonali: `+${detrazioni.totaleSpesePersonali}`,
+      speseSocio: `+${detrazioni.totaleSpeseSocio}`,
       versamenti: `+${detrazioni.totaleVersamenti}`,
-      speseAnticipate: `+${detrazioni.totaleSpeseAnticipate}`,
       prelievi: `-${detrazioni.totalePrelievi}`,
       incassiDipendenti: `-${detrazioni.incassiDaDipendenti}`,
-      incassiServizi: `-${detrazioni.incassiServiziContanti}`,
-      riporto: `${detrazioni.riportoMesePrecedente >= 0 ? '+' : ''}${detrazioni.riportoMesePrecedente}`,
+      incassiPersonali: `-${detrazioni.incassiPersonali}`,
       risultato: totaleNetto
     });
     
