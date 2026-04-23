@@ -97,13 +97,14 @@ const calcolaNetto = (stipendio: StipendiAutomaticoUtente): number => {
   const entratePositive = 
     calc.totaleLordo +
     detr.totaleSpesePersonali +
+    detr.totaleSpeseSocio +
     detr.totaleVersamenti +
     (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
   
   const usciteTotali = 
     detr.totalePrelievi +
     detr.incassiDaDipendenti +
-    detr.incassiServiziContanti +
+    detr.incassiPersonali +
     (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
   
   return entratePositive - usciteTotali;
