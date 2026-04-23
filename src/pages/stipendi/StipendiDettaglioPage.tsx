@@ -187,7 +187,22 @@ export default function StipendiDettaglioPage() {
     enabled: !!userId,
   });
 
-  // Query 9: Riporto mese precedente
+  // Query 8b: Spese anticipate dal socio (spese_aziendali tipologia='spesa' + socio_id)
+  const { data: speseSocio } = useQuery({
+    queryKey: ['spese-socio', userId, meseCorrente, annoCorrente],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('spese_aziendali')
+        .select('importo')
+        .eq('socio_id', userId)
+        .eq('tipologia', 'spesa')
+        .gte('data_movimento', primoGiornoMese)
+        .lte('data_movimento', ultimoGiornoMese);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId,
+  });
   const { data: riportoMesePrecedente } = useQuery({
     queryKey: ['riporto-stipendio', userId, meseCorrente - 1, annoCorrente],
     queryFn: async () => {
