@@ -17,7 +17,7 @@ import { DialogConfermaStipendio } from './DialogConfermaStipendio';
 import { useConfermaStipendio } from '@/hooks/useStipendi';
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ricalcolaESalvaStipendio } from '@/lib/api/stipendi/ricalcolaStipendio';
+import { ricalcolaStipendioConCascata } from '@/lib/api/stipendi/ricalcolaStipendio';
 import { toast } from '@/components/ui/sonner';
 
 interface TabellaStipendAutomaticiProps {
@@ -188,15 +188,11 @@ export function TabellaStipendAutomatici({
 
     setRecalculatingUserId(stipendio.userId);
     try {
-      const result = await ricalcolaESalvaStipendio(stipendio.userId, mese, anno);
-      
-      if (result.success) {
-        toast.success(`Stipendio ricalcolato: €${result.totaleNetto?.toFixed(2)}`);
-        queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
-        queryClient.invalidateQueries({ queryKey: ['stipendi'] });
-      } else {
-        toast.error(result.error || 'Errore durante il ricalcolo');
-      }
+      await ricalcolaStipendioConCascata(stipendio.userId, mese, anno);
+      toast.success('Stipendio ricalcolato e propagato ai mesi successivi');
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      queryClient.invalidateQueries({ queryKey: ['report-soci'] });
     } catch (error) {
       console.error('[handleRicalcola] Error:', error);
       toast.error('Errore durante il ricalcolo dello stipendio');
