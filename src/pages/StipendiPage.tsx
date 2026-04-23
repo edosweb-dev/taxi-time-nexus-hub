@@ -30,7 +30,7 @@ import { StipendiAutomaticoUtente } from '@/lib/api/stipendi/calcoloAutomaticoSt
 import { StipendioManualeDipendente } from '@/lib/api/stipendi/getStipendiDipendenti';
 import { toast } from 'sonner';
 import { createStipendio } from '@/lib/api/stipendi/createStipendio';
-import { ricalcolaTuttiStipendiMese } from '@/lib/api/stipendi/ricalcolaStipendio';
+import { ricalcolaTuttiStipendiCascata } from '@/lib/api/stipendi/ricalcolaStipendio';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function StipendiPage() {
@@ -103,17 +103,18 @@ export default function StipendiPage() {
   const handleRicalcolaTutti = async () => {
     setIsRecalculatingAll(true);
     try {
-      const result = await ricalcolaTuttiStipendiMese(selectedMonth, selectedYear);
-      
-      if (result.errors === 0) {
-        toast.success(`${result.success} stipendi ricalcolati con successo`);
+      const result = await ricalcolaTuttiStipendiCascata(selectedMonth, selectedYear);
+
+      if (result.errori === 0) {
+        toast.success(`${result.successi} stipendi ricalcolati e propagati ai mesi successivi`);
       } else {
-        toast.warning(`${result.success} ricalcolati, ${result.errors} errori`);
+        toast.warning(`${result.successi} ricalcolati, ${result.errori} errori`);
       }
-      
+
       // Refresh data
       queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      queryClient.invalidateQueries({ queryKey: ['report-soci'] });
       refetchSoci();
     } catch (error) {
       console.error('[handleRicalcolaTutti] Error:', error);
