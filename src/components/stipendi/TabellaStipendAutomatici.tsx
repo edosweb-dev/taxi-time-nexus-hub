@@ -235,7 +235,6 @@ export function TabellaStipendAutomatici({
     // SEMPRE usare calcoloCompleto se disponibile (calcolato on-the-fly)
     let entratePositive = 0;
     let usciteTotali = 0;
-    let incassiPersonali = 0;
     
     if (stipendio.calcoloCompleto) {
       const calc = stipendio.calcoloCompleto;
@@ -255,9 +254,6 @@ export function TabellaStipendAutomatici({
         detr.incassiDaDipendenti +
         detr.incassiPersonali +
         (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
-      
-      // Incassi personali = contanti incassati dai servizi propri
-      incassiPersonali = detr.incassiPersonali || 0;
     }
 
     // Calcolo diretto: Netto = Entrate - Uscite
@@ -310,9 +306,6 @@ export function TabellaStipendAutomatici({
         </TableCell>
         <TableCell className="text-right font-medium text-destructive">
           {hasCalcoloValido ? formatCurrency(usciteTotali) : '-'}
-        </TableCell>
-        <TableCell className="text-right hidden lg:table-cell text-orange-600">
-          {hasCalcoloValido ? formatCurrency(incassiPersonali) : '-'}
         </TableCell>
         <TableCell className={cn(
           "text-right font-semibold",
@@ -421,7 +414,7 @@ export function TabellaStipendAutomatici({
             <TableHead className="text-right hidden md:table-cell">Ore</TableHead>
             <TableHead className="text-right">Entrate</TableHead>
             <TableHead className="text-right">Uscite</TableHead>
-            <TableHead className="text-right hidden lg:table-cell">Incassi Pers.</TableHead>
+            
             <TableHead 
               className="text-right cursor-pointer hover:bg-muted/50 select-none"
               onClick={() => handleSort('netto')}
