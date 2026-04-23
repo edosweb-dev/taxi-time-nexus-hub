@@ -326,11 +326,12 @@ export default function StipendiDettaglioPage() {
   }, { compensiKm: 0, compensiOre: 0, contanti: 0, totale: 0 }) || 
   { compensiKm: 0, compensiOre: 0, contanti: 0, totale: 0 };
 
-  // Calcola totali entrate e uscite
+  // Calcola totali entrate e uscite (formula allineata: + speseSocio)
   const totaleEntrate = 
     totaliServizi.compensiKm + 
     totaliServizi.compensiOre + 
     totaleSpesePersonali + 
+    totaleSpeseSocio +
     totaleVersamenti +
     (riporto > 0 ? riporto : 0);
 
@@ -362,13 +363,15 @@ export default function StipendiDettaglioPage() {
       if (fetchError) throw fetchError;
 
       // Prepara i dati calcolati
+      // NOTE: stipendi.totale_spese rappresenta gli ANTICIPI socio (spese_aziendali tipo='spesa'),
+      // non i rimborsi dipendente (spese_dipendenti). Vedi spec batch fix calcolo stipendio.
       const stipendioData = {
         totale_km: totaleKm,
         totale_ore_attesa: totaleOreAttesaSocio,
         base_calcolo: baseKm,
         coefficiente_applicato: coefficienteAumento,
         totale_lordo: totaleLordo,
-        totale_spese: totaleSpesePersonali,
+        totale_spese: totaleSpeseSocio,
         totale_prelievi: totalePrelievi,
         incassi_da_dipendenti: totaleIncassiDipendenti + totaliServizi.contanti,
         riporto_mese_precedente: riporto,
