@@ -599,6 +599,10 @@ export default function StipendiDettaglioPage() {
                   <span className="font-bold text-primary">+€{totaleVersamenti.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
+                  <span className="text-sm">Spese anticipate socio</span>
+                  <span className="font-bold text-primary">+€{totaleSpeseSocio.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
                   <span className="text-sm">Riporto mese precedente</span>
                   <span className={`font-bold ${riporto >= 0 ? 'text-primary' : 'text-muted-foreground'}`}>
                     {riporto >= 0 ? '+' : ''}€{riporto.toFixed(2)}
