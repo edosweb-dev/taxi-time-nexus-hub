@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Clock, RefreshCw, Loader2 } from 'lucide-react';
+import { Clock, RefreshCw, Loader2, History } from 'lucide-react';
 
 import { 
   StipendiHeader,
@@ -47,6 +47,7 @@ export default function StipendiPage() {
   const [selectedStipendioSocio, setSelectedStipendioSocio] = useState<StipendiAutomaticoUtente | null>(null);
   const [selectedStipendiodiPendente, setSelectedStipendiodiPendente] = useState<StipendioManualeDipendente | null>(null);
   const [isRecalculatingAll, setIsRecalculatingAll] = useState(false);
+  const [isRealigningAnno, setIsRealigningAnno] = useState(false);
 
   // Verifica accesso solo per admin e soci
   if (profile && !['admin', 'socio'].includes(profile.role)) {
@@ -124,6 +125,33 @@ export default function StipendiPage() {
     }
   };
 
+  const handleRiallineaAnno = async () => {
+    const conferma = window.confirm(
+      `Questa operazione ricalcolerà tutti gli stipendi dell'anno ${selectedYear} per tutti i soci. Gli stipendi in stato 'confermato' o 'pagato' non verranno modificati. Continuare?`
+    );
+    if (!conferma) return;
+
+    setIsRealigningAnno(true);
+    try {
+      const result = await ricalcolaTuttiStipendiCascata(1, selectedYear);
+      if (result.errori === 0) {
+        toast.success(`Storico anno ${selectedYear} riallineato: ${result.successi} soci`);
+      } else {
+        toast.warning(`${result.successi} riallineati, ${result.errori} errori. Vedi console.`);
+        console.warn('[handleRiallineaAnno] Dettagli errori:', result.dettagli.filter(d => !d.ok));
+      }
+      queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
+      queryClient.invalidateQueries({ queryKey: ['stipendi'] });
+      queryClient.invalidateQueries({ queryKey: ['report-soci'] });
+      refetchSoci();
+    } catch (error) {
+      console.error('[handleRiallineaAnno] Error:', error);
+      toast.error('Errore durante il riallineamento dello storico');
+    } finally {
+      setIsRealigningAnno(false);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -154,6 +182,20 @@ export default function StipendiPage() {
                 Ricalcola Tutti
               </Button>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRiallineaAnno}
+              disabled={isRealigningAnno}
+              title={`Ricalcola tutti gli stipendi dell'anno ${selectedYear} da gennaio a oggi, per tutti i soci.`}
+            >
+              {isRealigningAnno ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <History className="h-4 w-4 mr-2" />
+              )}
+              Riallinea storico anno
+            </Button>
             <StipendiGuida />
           </div>
         </div>
