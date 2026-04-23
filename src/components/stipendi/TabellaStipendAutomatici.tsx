@@ -245,22 +245,23 @@ export function TabellaStipendAutomatici({
       const calc = stipendio.calcoloCompleto;
       const detr = calc.detrazioni;
       
-      // ENTRATE = lordo + spese personali + versamenti + riporto positivo
+      // ENTRATE = lordo + spese personali + spese socio + versamenti + riporto positivo
       entratePositive = 
         calc.totaleLordo +
         detr.totaleSpesePersonali +
+        detr.totaleSpeseSocio +
         detr.totaleVersamenti +
         (detr.riportoMesePrecedente > 0 ? detr.riportoMesePrecedente : 0);
       
-      // USCITE = prelievi + incassi dipendenti + contanti servizi + riporto negativo
+      // USCITE = prelievi + incassi dipendenti + incassi personali + riporto negativo
       usciteTotali = 
         detr.totalePrelievi +
         detr.incassiDaDipendenti +
-        detr.incassiServiziContanti +
+        detr.incassiPersonali +
         (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : 0);
       
-      // Incassi personali = contanti incassati dai servizi
-      incassiPersonali = detr.incassiServiziContanti || 0;
+      // Incassi personali = contanti incassati dai servizi propri
+      incassiPersonali = detr.incassiPersonali || 0;
     }
 
     // Calcolo diretto: Netto = Entrate - Uscite
