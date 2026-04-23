@@ -3,6 +3,69 @@ import { supabase } from '@/lib/supabase';
 import { SpesaAziendale, MovimentoFormData, TotaliMese } from '@/lib/types/spese-aziendali';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { ricalcolaStipendioConCascata } from '@/lib/api/stipendi/ricalcolaStipendio';
+
+/**
+ * Estrae mese (1-12) e anno da una stringa data YYYY-MM-DD senza usare Date()
+ * (per evitare shift di timezone).
+ */
+function parseMeseAnnoFromDateString(dataStr: string): { mese: number; anno: number } | null {
+  if (!dataStr) return null;
+  const parts = dataStr.split('-');
+  if (parts.length < 3) return null;
+  const anno = parseInt(parts[0], 10);
+  const mese = parseInt(parts[1], 10);
+  if (!anno || !mese) return null;
+  return { mese, anno };
+}
+
+/**
+ * Trigger cascade ricalcolo per un movimento mutato.
+ * Chiamare con i dati post-mutazione (e opzionalmente pre-mutazione per gestire spostamenti).
+ */
+async function triggerCascadeForMovimento(params: {
+  socio_id?: string | null;
+  data_movimento?: string | null;
+  oldSocioId?: string | null;
+  oldDataMovimento?: string | null;
+}) {
+  const { socio_id, data_movimento, oldSocioId, oldDataMovimento } = params;
+
+  // Set per evitare doppi ricalcoli sulla stessa coppia (socio, mese, anno)
+  const targets = new Set<string>();
+  const tasks: Array<{ userId: string; mese: number; anno: number }> = [];
+
+  if (socio_id && data_movimento) {
+    const parsed = parseMeseAnnoFromDateString(data_movimento);
+    if (parsed) {
+      const key = `${socio_id}-${parsed.mese}-${parsed.anno}`;
+      if (!targets.has(key)) {
+        targets.add(key);
+        tasks.push({ userId: socio_id, mese: parsed.mese, anno: parsed.anno });
+      }
+    }
+  }
+
+  if (oldSocioId && oldDataMovimento) {
+    const parsedOld = parseMeseAnnoFromDateString(oldDataMovimento);
+    if (parsedOld) {
+      const key = `${oldSocioId}-${parsedOld.mese}-${parsedOld.anno}`;
+      if (!targets.has(key)) {
+        targets.add(key);
+        tasks.push({ userId: oldSocioId, mese: parsedOld.mese, anno: parsedOld.anno });
+      }
+    }
+  }
+
+  for (const t of tasks) {
+    try {
+      await ricalcolaStipendioConCascata(t.userId, t.mese, t.anno);
+    } catch (err) {
+      console.error('[triggerCascadeForMovimento] Errore cascata:', err);
+    }
+  }
+}
+
 
 export const useSpeseAziendali = () => {
   const queryClient = useQueryClient();
