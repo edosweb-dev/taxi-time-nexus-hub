@@ -273,6 +273,7 @@ export default function StipendiDettaglioPage() {
 
   // 5. Detrazioni/Addizioni
   const totaleSpesePersonali = spesePersonali?.reduce((sum, s) => sum + Number(s.importo), 0) || 0;
+  const totaleSpeseSocio = speseSocio?.reduce((sum, s) => sum + Number(s.importo), 0) || 0;
   const totalePrelievi = prelievi?.reduce((sum, p) => sum + Number(p.importo), 0) || 0;
   const totaleIncassiDipendenti = incassiDipendenti?.reduce((sum, i) => sum + Number(i.incasso_ricevuto), 0) || 0;
   const totaleVersamenti = versamenti?.reduce((sum, v) => sum + Number(v.importo), 0) || 0;
