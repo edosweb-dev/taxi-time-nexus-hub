@@ -19,7 +19,7 @@ export async function ricalcolaStipendioMese(
   // Fetch servizi del mese
   const { data: servizi, error: serviziError } = await supabase
     .from('servizi')
-    .select('km_totali, ore_sosta, ore_attesa_socio')
+    .select('km_totali, ore_attesa_socio')
     .eq('assegnato_a', userId)
     .in('stato', ['completato', 'consuntivato'])
     .gte('data_servizio', startDate)
@@ -34,7 +34,7 @@ export async function ricalcolaStipendioMese(
   let oreAttesaTotali = 0;
   for (const s of servizi || []) {
     kmTotali += Number(s.km_totali) || 0;
-    oreAttesaTotali += Number(s.ore_sosta) || 0;
+    oreAttesaTotali += Number(s.ore_attesa_socio) || 0;
   }
 
   // Verifica esistenza e stato stipendio
