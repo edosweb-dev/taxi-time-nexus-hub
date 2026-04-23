@@ -142,34 +142,19 @@ export default function StipendiPage() {
           </div>
           
           <div className="flex gap-3 items-center">
-            {countBozza > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRicalcolaTutti}
-                disabled={isRecalculatingAll}
-              >
-                {isRecalculatingAll ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                )}
-                Ricalcola Tutti
-              </Button>
-            )}
             <Button
               variant="outline"
               size="sm"
               onClick={handleRiallineaAnno}
               disabled={isRealigningAnno}
-              title={`Ricalcola tutti gli stipendi dell'anno ${selectedYear} da gennaio a oggi, per tutti i soci.`}
+              title={`Ricalcola tutti gli stipendi dell'anno ${selectedYear} da gennaio al mese corrente, per tutti i soci.`}
             >
               {isRealigningAnno ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <History className="h-4 w-4 mr-2" />
               )}
-              Riallinea storico anno
+              Ricalcola stipendi anno
             </Button>
             <StipendiGuida />
           </div>
