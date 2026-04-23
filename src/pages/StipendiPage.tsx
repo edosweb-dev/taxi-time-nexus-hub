@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Clock, RefreshCw, Loader2 } from 'lucide-react';
+import { Clock, RefreshCw, Loader2, History } from 'lucide-react';
 
 import { 
   StipendiHeader,
@@ -47,6 +47,7 @@ export default function StipendiPage() {
   const [selectedStipendioSocio, setSelectedStipendioSocio] = useState<StipendiAutomaticoUtente | null>(null);
   const [selectedStipendiodiPendente, setSelectedStipendiodiPendente] = useState<StipendioManualeDipendente | null>(null);
   const [isRecalculatingAll, setIsRecalculatingAll] = useState(false);
+  const [isRealigningAnno, setIsRealigningAnno] = useState(false);
 
   // Verifica accesso solo per admin e soci
   if (profile && !['admin', 'socio'].includes(profile.role)) {
