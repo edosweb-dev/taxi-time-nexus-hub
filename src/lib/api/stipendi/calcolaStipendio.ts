@@ -14,11 +14,12 @@ export interface CalcoloStipendioParams {
 
 export interface DetrazioniStipendio {
   totaleSpesePersonali: number;
+  totaleSpeseSocio: number;
   totalePrelievi: number;
   totaleVersamenti: number;
   totaleSpeseAnticipate: number;
   incassiDaDipendenti: number;
-  incassiServiziContanti: number;
+  incassiPersonali: number;
   riportoMesePrecedente: number;
 }
 
