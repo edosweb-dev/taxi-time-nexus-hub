@@ -54,21 +54,35 @@ export function CalcoloPreviewSection({
                   
                   {calcolo.detrazioni && (
                     <>
-                      <div className="flex justify-between text-red-600">
-                        <span>Spese:</span>
-                        <span>-€{calcolo.detrazioni.totaleSpesePersonali.toFixed(2)}</span>
+                      <div className="flex justify-between text-green-600">
+                        <span>Spese personali:</span>
+                        <span>+€{calcolo.detrazioni.totaleSpesePersonali.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-green-600">
+                        <span>Spese socio (anticipate):</span>
+                        <span>+€{calcolo.detrazioni.totaleSpeseSocio.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-green-600">
+                        <span>Versamenti:</span>
+                        <span>+€{calcolo.detrazioni.totaleVersamenti.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-red-600">
                         <span>Prelievi:</span>
                         <span>-€{calcolo.detrazioni.totalePrelievi.toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between text-green-600">
-                        <span>Incassi:</span>
-                        <span>+€{calcolo.detrazioni.incassiDaDipendenti.toFixed(2)}</span>
+                      <div className="flex justify-between text-red-600">
+                        <span>Incassi dipendenti:</span>
+                        <span>-€{calcolo.detrazioni.incassiDaDipendenti.toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between text-green-600">
-                        <span>Riporto:</span>
-                        <span>+€{calcolo.detrazioni.riportoMesePrecedente.toFixed(2)}</span>
+                      <div className="flex justify-between text-red-600">
+                        <span>Incassi personali:</span>
+                        <span>-€{calcolo.detrazioni.incassiPersonali.toFixed(2)}</span>
+                      </div>
+                      <div className={`flex justify-between ${calcolo.detrazioni.riportoMesePrecedente >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <span>Riporto mese prec.:</span>
+                        <span>
+                          {calcolo.detrazioni.riportoMesePrecedente >= 0 ? '+' : ''}€{calcolo.detrazioni.riportoMesePrecedente.toFixed(2)}
+                        </span>
                       </div>
                       <div className="border-t pt-2 flex justify-between font-bold text-lg">
                         <span>= NETTO:</span>
