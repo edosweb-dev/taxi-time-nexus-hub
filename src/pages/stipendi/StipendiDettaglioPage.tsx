@@ -187,7 +187,22 @@ export default function StipendiDettaglioPage() {
     enabled: !!userId,
   });
 
-  // Query 9: Riporto mese precedente
+  // Query 8b: Spese anticipate dal socio (spese_aziendali tipologia='spesa' + socio_id)
+  const { data: speseSocio } = useQuery({
+    queryKey: ['spese-socio', userId, meseCorrente, annoCorrente],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('spese_aziendali')
+        .select('importo')
+        .eq('socio_id', userId)
+        .eq('tipologia', 'spesa')
+        .gte('data_movimento', primoGiornoMese)
+        .lte('data_movimento', ultimoGiornoMese);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId,
+  });
   const { data: riportoMesePrecedente } = useQuery({
     queryKey: ['riporto-stipendio', userId, meseCorrente - 1, annoCorrente],
     queryFn: async () => {
@@ -258,6 +273,7 @@ export default function StipendiDettaglioPage() {
 
   // 5. Detrazioni/Addizioni
   const totaleSpesePersonali = spesePersonali?.reduce((sum, s) => sum + Number(s.importo), 0) || 0;
+  const totaleSpeseSocio = speseSocio?.reduce((sum, s) => sum + Number(s.importo), 0) || 0;
   const totalePrelievi = prelievi?.reduce((sum, p) => sum + Number(p.importo), 0) || 0;
   const totaleIncassiDipendenti = incassiDipendenti?.reduce((sum, i) => sum + Number(i.incasso_ricevuto), 0) || 0;
   const totaleVersamenti = versamenti?.reduce((sum, v) => sum + Number(v.importo), 0) || 0;
@@ -310,11 +326,12 @@ export default function StipendiDettaglioPage() {
   }, { compensiKm: 0, compensiOre: 0, contanti: 0, totale: 0 }) || 
   { compensiKm: 0, compensiOre: 0, contanti: 0, totale: 0 };
 
-  // Calcola totali entrate e uscite
+  // Calcola totali entrate e uscite (formula allineata: + speseSocio)
   const totaleEntrate = 
     totaliServizi.compensiKm + 
     totaliServizi.compensiOre + 
     totaleSpesePersonali + 
+    totaleSpeseSocio +
     totaleVersamenti +
     (riporto > 0 ? riporto : 0);
 
@@ -346,13 +363,15 @@ export default function StipendiDettaglioPage() {
       if (fetchError) throw fetchError;
 
       // Prepara i dati calcolati
+      // NOTE: stipendi.totale_spese rappresenta gli ANTICIPI socio (spese_aziendali tipo='spesa'),
+      // non i rimborsi dipendente (spese_dipendenti). Vedi spec batch fix calcolo stipendio.
       const stipendioData = {
         totale_km: totaleKm,
         totale_ore_attesa: totaleOreAttesaSocio,
         base_calcolo: baseKm,
         coefficiente_applicato: coefficienteAumento,
         totale_lordo: totaleLordo,
-        totale_spese: totaleSpesePersonali,
+        totale_spese: totaleSpeseSocio,
         totale_prelievi: totalePrelievi,
         incassi_da_dipendenti: totaleIncassiDipendenti + totaliServizi.contanti,
         riporto_mese_precedente: riporto,

@@ -205,16 +205,17 @@ export async function getStipendiAutomaticiMese(
               oreAttesa: 0,
             });
 
-            // Ricalcola netto con lordo = 0 ma detrazioni corrette
+            // Ricalcola netto con lordo = 0 ma detrazioni corrette (allineato a formula cliente)
             const detr = calcoloCompleto.detrazioni;
             const totaleNettoCorretto = Number((
               0 + // totaleLordo = 0
+              detr.riportoMesePrecedente +
               detr.totaleSpesePersonali +
+              detr.totaleSpeseSocio +
               detr.totaleVersamenti -
               detr.totalePrelievi -
               detr.incassiDaDipendenti -
-              detr.incassiServiziContanti -
-              (detr.riportoMesePrecedente < 0 ? Math.abs(detr.riportoMesePrecedente) : -detr.riportoMesePrecedente)
+              detr.incassiPersonali
             ).toFixed(2));
 
             // Aggiorna i valori per lordo = 0
@@ -266,16 +267,17 @@ export async function getStipendiAutomaticiMese(
             const importoOreAttesaCorretto = Number((totaleOreAttesaSocio * config.tariffa_oraria_attesa).toFixed(2));
             const totaleLordoCorretto = Number((baseConAumentoCorretta + importoOreAttesaCorretto).toFixed(2));
             
-            // Ricalcola netto con valori corretti (inclusi TUTTI i campi detrazioni)
+            // Ricalcola netto con valori corretti (formula allineata: + riporto)
             const detr = calcoloCompleto.detrazioni;
             const totaleNettoCorretto = Number((
               totaleLordoCorretto +
+              detr.riportoMesePrecedente +
               detr.totaleSpesePersonali +
+              detr.totaleSpeseSocio +
               detr.totaleVersamenti -
               detr.totalePrelievi -
               detr.incassiDaDipendenti -
-              detr.incassiServiziContanti -
-              detr.riportoMesePrecedente
+              detr.incassiPersonali
             ).toFixed(2));
 
             // Aggiorna i valori nel risultato
