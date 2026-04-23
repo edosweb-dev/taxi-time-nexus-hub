@@ -345,78 +345,23 @@ export default function StipendiDettaglioPage() {
 
   const isLoading = isLoadingUtente || isLoadingServizi;
 
-  // Funzione per ricalcolare e salvare lo stipendio nel database
+  // Funzione per ricalcolare e salvare lo stipendio (con cascata sui mesi successivi)
   const handleRecalculate = async () => {
     if (!userId) return;
-    
+
     setIsRecalculating(true);
     try {
-      // Verifica se esiste già uno stipendio per questo mese
-      const { data: existingStipendio, error: fetchError } = await supabase
-        .from('stipendi')
-        .select('id, stato')
-        .eq('user_id', userId)
-        .eq('mese', meseCorrente)
-        .eq('anno', annoCorrente)
-        .maybeSingle();
+      // Single source of truth: ricalcolaStipendioConCascata.
+      // Ricalcola il mese corrente e propaga il riporto a tutti i mesi successivi
+      // dell'anno solare (fino al mese corrente reale).
+      const { ricalcolaStipendioConCascata } = await import('@/lib/api/stipendi/ricalcolaStipendio');
+      await ricalcolaStipendioConCascata(userId, meseCorrente, annoCorrente);
 
-      if (fetchError) throw fetchError;
-
-      // Prepara i dati calcolati
-      // NOTE: stipendi.totale_spese rappresenta gli ANTICIPI socio (spese_aziendali tipo='spesa'),
-      // non i rimborsi dipendente (spese_dipendenti). Vedi spec batch fix calcolo stipendio.
-      const stipendioData = {
-        totale_km: totaleKm,
-        totale_ore_attesa: totaleOreAttesaSocio,
-        base_calcolo: baseKm,
-        coefficiente_applicato: coefficienteAumento,
-        totale_lordo: totaleLordo,
-        totale_spese: totaleSpeseSocio,
-        totale_prelievi: totalePrelievi,
-        incassi_da_dipendenti: totaleIncassiDipendenti + totaliServizi.contanti,
-        riporto_mese_precedente: riporto,
-        totale_netto: totaleNetto,
-        updated_at: new Date().toISOString(),
-      };
-
-      if (existingStipendio) {
-        // Aggiorna lo stipendio esistente (solo se in bozza)
-        if (existingStipendio.stato !== 'bozza') {
-          toast.error('Non è possibile ricalcolare uno stipendio già confermato');
-          return;
-        }
-
-        const { error: updateError } = await supabase
-          .from('stipendi')
-          .update(stipendioData)
-          .eq('id', existingStipendio.id);
-
-        if (updateError) throw updateError;
-      } else {
-        // Crea un nuovo stipendio
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Utente non autenticato');
-
-        const { error: insertError } = await supabase
-          .from('stipendi')
-          .insert({
-            ...stipendioData,
-            user_id: userId,
-            mese: meseCorrente,
-            anno: annoCorrente,
-            tipo_calcolo: 'socio',
-            stato: 'bozza',
-            created_by: user.id,
-          });
-
-        if (insertError) throw insertError;
-      }
-
-      // Invalida le query per refresh
       queryClient.invalidateQueries({ queryKey: ['stipendi'] });
       queryClient.invalidateQueries({ queryKey: ['stipendi-automatici'] });
-      
-      toast.success('Stipendio ricalcolato e salvato con successo');
+      queryClient.invalidateQueries({ queryKey: ['report-soci'] });
+
+      toast.success('Stipendio ricalcolato e propagato ai mesi successivi');
     } catch (error) {
       console.error('[handleRecalculate] Error:', error);
       toast.error('Errore durante il ricalcolo dello stipendio');
