@@ -523,23 +523,34 @@ serve(async (req) => {
           .from('servizi')
           .select(`
             *,
-            aziende:azienda_id (id, nome),
-            referente:referente_id (id, first_name, last_name, email),
-            autista:assegnato_a (id, first_name, last_name, email),
-            veicoli:veicolo_id (id, modello, targa),
-            servizi_passeggeri (
+            aziende(*),
+            autista:profiles!servizi_assegnato_a_fkey(id, email, first_name, last_name),
+            veicoli(*),
+            servizi_passeggeri(
               *,
-              passeggeri:passeggero_id (id, nome_cognome, email, telefono, indirizzo, localita)
+              passeggeri(id, nome_cognome, email, telefono, indirizzo, localita)
             )
           `)
           .eq('id', servizio_id)
           .single();
 
         if (servizioError || !servizio) {
+          console.error('[SEND-EMAIL] Test mode servizio error:', servizioError);
           return new Response(
-            JSON.stringify({ success: false, message: `Servizio not found: ${servizio_id}` }),
+            JSON.stringify({ success: false, message: `Servizio not found: ${servizio_id}`, error: servizioError?.message }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
+        }
+
+        // Fetch referente separately (come nel main flow)
+        let testReferente: any = null;
+        if (servizio.referente_id) {
+          const { data: refData } = await supabaseAdmin
+            .from('profiles')
+            .select('id, email, first_name, last_name')
+            .eq('id', servizio.referente_id)
+            .single();
+          testReferente = refData;
         }
 
         const { data: smtpCfg } = await supabaseAdmin
