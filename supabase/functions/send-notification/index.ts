@@ -73,6 +73,33 @@ function replaceVariables(template: string, vars: Record<string, string>): strin
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? '');
 }
 
+function normalizeSubjectAscii(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\u2026/g, '...')
+    .replace(/[^\x00-\x7F]/g, '');
+}
+
+function htmlToPlainText(html: string): string {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|tr|h\d)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 async function fetchEmailConfig(supabase: any): Promise<EmailConfig> {
   const { data } = await supabase
     .from('email_config')
@@ -585,9 +612,11 @@ serve(async (req) => {
         };
 
         const rendered = renderUnifiedEmail(template as TemplateRecord, renderContext, emailConfig);
-        const subject = `[TEST] ${rendered.subject}`;
+        const subject = normalizeSubjectAscii(`[TEST] ${rendered.subject}`);
+        const plainText = htmlToPlainText(rendered.html);
 
         const password = atob(smtpCfg.smtp_password_encrypted);
+
         const smtp = new SMTPClient({
           connection: {
             hostname: smtpCfg.smtp_host,
@@ -605,6 +634,7 @@ serve(async (req) => {
               from: `${smtpCfg.smtp_from_name || 'TaxiTime'} <${smtpCfg.smtp_from_email || smtpCfg.smtp_user}>`,
               to: [email],
               subject,
+              content: plainText,
               html: rendered.html,
             });
             sent++;
@@ -890,7 +920,8 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     );
 
     const emailHtml: string = rendered.html;
-    const emailSubject: string = rendered.subject;
+    const emailSubject: string = normalizeSubjectAscii(rendered.subject);
+    const emailPlainText: string = htmlToPlainText(emailHtml);
 
     // 6. CHECK SMTP CONFIG
     if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
@@ -946,6 +977,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
           from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
           to: [recipient.email],
           subject: emailSubject,
+          content: emailPlainText,
           html: minifiedHtml
         });
 
