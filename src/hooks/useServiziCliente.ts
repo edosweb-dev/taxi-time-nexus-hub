@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export type StatoServizio = 
   | "richiesta_cliente"
@@ -24,15 +25,8 @@ export const useServiziCliente = (
   filtri?: FiltriServizi,
   page: number = 1
 ) => {
-  const { data: user } = useQuery({
-    queryKey: ["user"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      return user;
-    },
-  });
-
-  const userId = user?.id;
+  const { profile } = useAuth();
+  const userId = profile?.id;
 
   const { data: servizi, isLoading, error, refetch } = useQuery({
     queryKey: ["servizi-cliente", userId, statoFilter, filtri, page],
