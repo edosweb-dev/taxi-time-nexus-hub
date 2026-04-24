@@ -39,7 +39,7 @@ import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPop
 import { FirmaCliente } from "@/components/servizi/FirmaCliente";
 import { useAuth } from "@/contexts/AuthContext";
 import { DeleteServizioDialog } from "@/components/servizi/dialogs";
-import { ConfermaPCaricoDialog } from "@/components/servizi/ConfermaPCaricoDialog";
+import { useConfermaPCar } from "@/hooks/useConfermaPCar";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -113,7 +113,7 @@ export default function ServizioDetailPage() {
   const [showFirmaClienteDialog, setShowFirmaClienteDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rimuoviAssegnazioneDialogOpen, setRimuoviAssegnazioneDialogOpen] = useState(false);
-  const [showConfermaPCar, setShowConfermaPCar] = useState(false);
+  const confermaPCarMutation = useConfermaPCar();
   const [showModificaNote, setShowModificaNote] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [isSavingNote, setIsSavingNote] = useState(false);
@@ -254,7 +254,7 @@ export default function ServizioDetailPage() {
             onFirmaCliente={() => setShowFirmaClienteDialog(true)}
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
-            onConfermaPCar={() => setShowConfermaPCar(true)}
+            onConfermaPCar={() => confermaPCarMutation.mutate({ servizio_id: servizio.id })}
             showPresaInCarico={showPresaInCarico}
             canEditNote={canEditNote}
             onModificaNote={handleOpenModificaNote}
@@ -310,16 +310,6 @@ export default function ServizioDetailPage() {
               }
             }
           }}
-        />
-
-        {/* Dialog Conferma Presa in Carico - Mobile */}
-        <ConfermaPCaricoDialog
-          open={showConfermaPCar}
-          onOpenChange={setShowConfermaPCar}
-          servizioId={servizio.id}
-          dataServizio={servizio.data_servizio}
-          metodoPagamentoIniziale={servizio.metodo_pagamento}
-          onSuccess={refetch}
         />
 
         {/* Dialog Conferma Rimozione Assegnazione */}
@@ -435,7 +425,7 @@ export default function ServizioDetailPage() {
             backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
-            onConfermaPCar={() => setShowConfermaPCar(true)}
+            onConfermaPCar={() => confermaPCarMutation.mutate({ servizio_id: servizio.id })}
             showPresaInCarico={showPresaInCarico}
             canEditNote={canEditNote}
             onModificaNote={handleOpenModificaNote}
@@ -555,16 +545,6 @@ export default function ServizioDetailPage() {
             }
           }
         }}
-      />
-
-      {/* Dialog Conferma Presa in Carico - Desktop */}
-      <ConfermaPCaricoDialog
-        open={showConfermaPCar}
-        onOpenChange={setShowConfermaPCar}
-        servizioId={servizio.id}
-        dataServizio={servizio.data_servizio}
-        metodoPagamentoIniziale={servizio.metodo_pagamento}
-        onSuccess={refetch}
       />
 
       {/* Dialog Conferma Rimozione Assegnazione - Desktop */}
