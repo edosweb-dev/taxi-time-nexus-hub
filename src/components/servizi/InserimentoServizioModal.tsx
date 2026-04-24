@@ -8,9 +8,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 type InserimentoServizioModalProps = {
   open: boolean;
   onClose: () => void;
+  returnSearch?: string;
 };
 
-export const InserimentoServizioModal = ({ open, onClose }: InserimentoServizioModalProps) => {
+export const InserimentoServizioModal = ({ open, onClose, returnSearch }: InserimentoServizioModalProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -19,12 +20,12 @@ export const InserimentoServizioModal = ({ open, onClose }: InserimentoServizioM
   console.log('🔍 Window width:', window.innerWidth);
 
   const handleVeloce = () => {
-    navigate("/servizi/crea?mode=veloce");
+    navigate("/servizi/crea?mode=veloce", { state: { returnSearch } });
     onClose();
   };
 
   const handleCompleto = () => {
-    navigate("/servizi/crea");
+    navigate("/servizi/crea", { state: { returnSearch } });
     onClose();
   };
 
