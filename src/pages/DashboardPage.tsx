@@ -147,9 +147,9 @@ export default function DashboardPage() {
   const isAdminOrSocio = profile?.role === 'admin' || profile?.role === 'socio';
 
   // Calcolo trend
-  const diffServizi = (dashboardMetrics?.serviziOggi || 0) - (dashboardMetrics?.serviziIeri || 0);
-  const trendServizi = diffServizi >= 0 ? `+${diffServizi}` : `${diffServizi}`;
-  const trendDirectionServizi = diffServizi > 0 ? 'up' : diffServizi < 0 ? 'down' : 'neutral';
+  const diffServizi = 0;
+  const trendServizi = '+0';
+  const trendDirectionServizi: 'up' | 'down' | 'neutral' = 'neutral';
 
   const diffRicavi = dashboardMetrics?.ricaviMese && dashboardMetrics?.ricaviMeseScorso
     ? ((dashboardMetrics.ricaviMese - dashboardMetrics.ricaviMeseScorso) / dashboardMetrics.ricaviMeseScorso) * 100
@@ -160,7 +160,7 @@ export default function DashboardPage() {
   const metrics = [
     {
       title: 'Servizi Oggi',
-      value: isLoading ? '...' : `${dashboardMetrics?.serviziOggi || 0}`,
+      value: isLoading ? '...' : `${dashboardMetrics?.serviziOggiTotali || 0}`,
       trend: trendServizi,
       trendDirection: trendDirectionServizi as 'up' | 'down' | 'neutral',
       icon: Calendar,
@@ -187,7 +187,7 @@ export default function DashboardPage() {
     },
     {
       title: 'Totale Utenti',
-      value: isLoading ? '...' : `${dashboardMetrics?.totaleUtenti || 0}`,
+      value: isLoading ? '...' : `${dashboardMetrics?.teamTotale || 0}`,
       trend: undefined,
       trendDirection: 'neutral' as const,
       icon: Users,
@@ -351,7 +351,7 @@ export default function DashboardPage() {
                             <p className="text-xs lg:text-sm text-muted-foreground">{activity.user}</p>
                           </div>
                         </div>
-                        <span className="text-xs lg:text-sm text-muted-foreground">{activity.time}</span>
+                        <span className="text-xs lg:text-sm text-muted-foreground">{new Date(activity.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     ))}
                   </div>
