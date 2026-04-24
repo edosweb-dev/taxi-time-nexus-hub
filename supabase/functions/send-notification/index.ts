@@ -100,6 +100,15 @@ function htmlToPlainText(html: string): string {
     .trim();
 }
 
+function minifyHtml(html: string): string {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\n/g, '')
+    .replace(/>\s+</g, '><')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 async function fetchEmailConfig(supabase: any): Promise<EmailConfig> {
   const { data } = await supabase
     .from('email_config')
