@@ -603,7 +603,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     // 2. FETCH TEMPLATE
     const { data: template, error: templateError } = await supabaseAdmin
       .from('email_templates')
-      .select('*')
+      .select('slug, nome, subject, html_body, attivo, titolo, intro, chiusura, colore_header')
       .eq('slug', template_slug)
       .maybeSingle();
 
@@ -621,6 +621,9 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+
+    // 2b. FETCH EMAIL CONFIG (firma, footer, logo)
+    const emailConfig = await fetchEmailConfig(supabaseAdmin);
 
     // 3. FETCH SERVIZIO
     const { data: servizio, error: servizioError } = await supabaseAdmin
