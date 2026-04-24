@@ -130,19 +130,20 @@ const ReportCliente = () => {
 
   // Query servizi for expanded report
   const { data: serviziDettaglio, isLoading: isLoadingServizi } = useQuery({
-    queryKey: ["report-servizi-dettaglio", expandedReportId],
+    queryKey: ["report-servizi-dettaglio", expandedReportId, profile?.id],
     queryFn: async (): Promise<ServizioDettaglio[]> => {
-      if (!expandedReportId) return [];
+      if (!expandedReportId || !profile?.id) return [];
       
       // Find the report to get date range and azienda_id
       const report = reports?.find(r => r.id === expandedReportId);
       if (!report) return [];
 
-      // Fetch servizi for this period/azienda
+      // Fetch servizi for this period/azienda + referente loggato
       const { data: servizi, error } = await supabase
         .from("servizi")
         .select("id, id_progressivo, data_servizio, orario_servizio, stato, indirizzo_presa, indirizzo_destinazione, citta_presa, citta_destinazione, numero_commessa, ore_fatturate, incasso_previsto, incasso_ricevuto, assegnato_a, veicolo_id")
         .eq("azienda_id", report.azienda_id)
+        .eq("referente_id", profile.id)
         .in("stato", ["da_assegnare", "assegnato", "completato", "consuntivato"])
         .gte("data_servizio", report.data_inizio)
         .lte("data_servizio", report.data_fine)
@@ -202,7 +203,7 @@ const ReportCliente = () => {
         passeggeri_nomi: passeggeriMap.get(s.id) || [],
       }));
     },
-    enabled: !!expandedReportId && !!reports?.length,
+    enabled: !!expandedReportId && !!reports?.length && !!profile?.id,
   });
 
   // Genera report: Anno+Mese → data_inizio/data_fine
@@ -225,6 +226,7 @@ const ReportCliente = () => {
 
       generateReport({
         azienda_id: profile.azienda_id,
+        referente_id: profile.id,
         data_inizio: dataInizio,
         data_fine: dataFine,
       });
