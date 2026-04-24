@@ -194,6 +194,9 @@ export const ServizioCreaPage = ({
   onCancel
 }: ServizioCreaPageProps = {}) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnSearch = (location.state as { returnSearch?: string } | null)?.returnSearch;
+  const returnPath = returnSearch ? `/servizi?${returnSearch}` : `/servizi?tab=da_assegnare`;
   const { profile } = useAuth();
   const isClienteMode = profile?.role === 'cliente';
   const [searchParams] = useSearchParams();
@@ -1489,7 +1492,7 @@ export const ServizioCreaPage = ({
       if (onSuccess) {
         onSuccess();
       } else {
-        navigate("/servizi");
+        navigate(returnPath);
       }
     } catch (error: any) {
       let errorMessage = mode === 'edit' ? "Errore nell'aggiornamento" : "Errore nella creazione";
@@ -1506,7 +1509,7 @@ export const ServizioCreaPage = ({
 
   const handleCancel = () => {
     if (onCancel) onCancel();
-    else navigate("/servizi");
+    else navigate(returnPath);
   };
 
   // Handler per errori di validazione - mostra toast con campi mancanti
