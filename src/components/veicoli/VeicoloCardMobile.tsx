@@ -23,7 +23,7 @@ export function VeicoloCardMobile({ veicolo, onEdit, onDelete }: VeicoloCardMobi
               "px-2 py-0.5 text-xs font-semibold rounded-md",
               veicolo.attivo 
                 ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400" 
-                : "bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400"
+                : "bg-gray-50 text-muted-foreground border-gray-200 dark:bg-gray-900/30 dark:text-muted-foreground"
             )}
           >
             {veicolo.attivo ? 'ATTIVO' : 'INATTIVO'}

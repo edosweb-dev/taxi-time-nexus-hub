@@ -28,7 +28,7 @@ export function ShiftStatsCard({ stats, onClick, isSelected = false }: ShiftStat
     if (stats.total_hours >= 160) return 'text-green-600';
     if (stats.total_hours >= 120) return 'text-blue-600';
     if (stats.total_hours >= 80) return 'text-amber-600';
-    return 'text-gray-600';
+    return 'text-muted-foreground';
   };
 
   return (

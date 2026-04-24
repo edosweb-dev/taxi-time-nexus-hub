@@ -293,7 +293,7 @@ export function InfoTab({
           {referenti.length === 0 ? (
             <div className="text-center py-6">
               <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                <Users className="h-6 w-6 text-gray-400" />
+                <Users className="h-6 w-6 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">
                 Nessun referente associato a questa azienda
@@ -395,7 +395,7 @@ export function InfoTab({
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className={`p-1 rounded-full ${azienda.firma_digitale_attiva ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                  <div className={`p-1 rounded-full ${azienda.firma_digitale_attiva ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-muted-foreground'}`}>
                     {azienda.firma_digitale_attiva ? (
                       <CheckCircle className="h-4 w-4" />
                     ) : (

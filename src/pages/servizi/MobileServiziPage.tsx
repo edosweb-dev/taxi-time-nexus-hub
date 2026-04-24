@@ -144,7 +144,7 @@ export default function MobileServiziPage() {
       {/* Ricerca e filtri */}
       <div className="sticky top-16 z-40 bg-white border-b px-3 py-2 space-y-2">
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <Input
             placeholder="Cerca..."
             value={searchText}
@@ -167,7 +167,7 @@ export default function MobileServiziPage() {
               className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
                 selectedStatus === status.key
                   ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700'
+                  : 'bg-gray-100 text-foreground'
               }`}
             >
               {status.label} ({statusCounts[status.key as keyof typeof statusCounts] || 0})
@@ -180,7 +180,7 @@ export default function MobileServiziPage() {
       <div className="px-2 py-2 pb-20 space-y-2">
         {filteredServizi.length === 0 ? (
           <Card className="mx-1">
-            <CardContent className="p-4 text-center text-gray-500 text-sm">
+            <CardContent className="p-4 text-center text-muted-foreground text-sm">
               {searchText ? 'Nessun servizio trovato' : 'Nessun servizio disponibile'}
             </CardContent>
           </Card>
@@ -195,10 +195,10 @@ export default function MobileServiziPage() {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm mb-0.5">
+                    <div className="font-semibold text-foreground text-sm mb-0.5">
                       {servizio.numero_commessa || `#${servizio.id.slice(0, 6)}`}
                     </div>
-                    <div className="text-xs text-gray-500 truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       {getAziendaNome(servizio.azienda_id)}
                     </div>
                   </div>
@@ -206,7 +206,7 @@ export default function MobileServiziPage() {
                 </div>
 
                 {/* Data e ora */}
-                <div className="flex items-center gap-3 mb-2 text-xs text-gray-600">
+                <div className="flex items-center gap-3 mb-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     <span>{format(new Date(servizio.data_servizio), 'dd/MM', { locale: it })}</span>
@@ -221,13 +221,13 @@ export default function MobileServiziPage() {
                 <div className="space-y-1 mb-2">
                   <div className="flex items-start gap-1">
                     <MapPin className="h-3 w-3 mt-0.5 text-green-600 flex-shrink-0" />
-                    <span className="text-xs text-gray-700 line-clamp-1 leading-tight">
+                    <span className="text-xs text-foreground line-clamp-1 leading-tight">
                       {servizio.indirizzo_presa}
                     </span>
                   </div>
                   <div className="flex items-start gap-1">
                     <MapPin className="h-3 w-3 mt-0.5 text-red-600 flex-shrink-0" />
-                    <span className="text-xs text-gray-700 line-clamp-1 leading-tight">
+                    <span className="text-xs text-foreground line-clamp-1 leading-tight">
                       {servizio.indirizzo_destinazione}
                     </span>
                   </div>
@@ -236,7 +236,7 @@ export default function MobileServiziPage() {
                 {/* Footer */}
                 {servizio.assegnato_a && (
                   <div className="pt-1 border-t border-gray-100">
-                    <div className="text-xs text-gray-600 truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       Assegnato: {users.find(u => u.id === servizio.assegnato_a)?.first_name || 'N/A'}
                     </div>
                   </div>

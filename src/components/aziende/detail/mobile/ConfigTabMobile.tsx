@@ -16,7 +16,7 @@ export function ConfigTabMobile({ azienda }: ConfigTabMobileProps) {
             <div className={`p-2.5 rounded-lg flex-shrink-0 ${
               azienda.firma_digitale_attiva 
                 ? 'bg-green-100 text-green-600' 
-                : 'bg-gray-100 text-gray-400'
+                : 'bg-gray-100 text-muted-foreground'
             }`}>
               <FileCheck className="h-5 w-5" />
             </div>
@@ -46,7 +46,7 @@ export function ConfigTabMobile({ azienda }: ConfigTabMobileProps) {
             <div className={`p-2.5 rounded-lg flex-shrink-0 ${
               azienda.provvigione 
                 ? 'bg-blue-100 text-blue-600' 
-                : 'bg-gray-100 text-gray-400'
+                : 'bg-gray-100 text-muted-foreground'
             }`}>
               <CreditCard className="h-5 w-5" />
             </div>

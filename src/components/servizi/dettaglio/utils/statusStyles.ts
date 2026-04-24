@@ -9,7 +9,7 @@ export const STATUS_STYLES = {
   },
   bozza: { 
     bg: 'bg-gray-100', 
-    text: 'text-gray-700', 
+    text: 'text-foreground', 
     border: 'border-gray-300',
     icon: '⚪',
   },
@@ -45,7 +45,7 @@ export const STATUS_STYLES = {
   },
   non_accettato: { 
     bg: 'bg-slate-100', 
-    text: 'text-slate-800', 
+    text: 'text-foreground', 
     border: 'border-slate-300',
     icon: '⚫',
   },

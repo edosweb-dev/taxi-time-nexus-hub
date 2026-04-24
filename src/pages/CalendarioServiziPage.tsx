@@ -108,7 +108,7 @@ export default function CalendarioServiziPage() {
       case 'annullato': return 'bg-red-500/20 text-red-700 border-red-500/30';
       case 'non_accettato': return 'bg-orange-500/20 text-orange-700 border-orange-500/30';
       case 'consuntivato': return 'bg-purple-500/20 text-purple-700 border-purple-500/30';
-      default: return 'bg-gray-500/20 text-gray-700 border-gray-500/30';
+      default: return 'bg-gray-500/20 text-foreground border-gray-500/30';
     }
   };
 

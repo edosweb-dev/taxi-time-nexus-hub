@@ -174,7 +174,7 @@ export default function FeedbackPage() {
             { key: 'nuovo', label: 'Nuovi', color: 'text-red-600' },
             { key: 'in_lavorazione', label: 'In Lavorazione', color: 'text-blue-600' },
             { key: 'risolto', label: 'Risolti', color: 'text-green-600' },
-            { key: 'chiuso', label: 'Chiusi', color: 'text-gray-600' },
+            { key: 'chiuso', label: 'Chiusi', color: 'text-muted-foreground' },
           ].map(({ key, label, color }) => (
             <Card key={key}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

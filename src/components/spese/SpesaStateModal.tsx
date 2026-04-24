@@ -64,7 +64,7 @@ export function SpesaStateModal({
       case 'in_revisione':
         return 'text-blue-600';
       default:
-        return 'text-gray-600';
+        return 'text-muted-foreground';
     }
   };
 
@@ -79,7 +79,7 @@ export function SpesaStateModal({
 
         <div className="space-y-4">
           <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Spesa:</p>
+            <p className="text-sm text-muted-foreground mb-1">Spesa:</p>
             <p className="font-medium">{spesa.causale}</p>
             <p className="text-lg font-bold text-primary mt-2">
               €{Number(spesa.importo).toLocaleString('it-IT', { minimumFractionDigits: 2 })}

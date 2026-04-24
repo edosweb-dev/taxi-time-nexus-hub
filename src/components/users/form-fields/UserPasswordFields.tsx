@@ -60,7 +60,7 @@ export function UserPasswordFields({ control, isEditing }: UserPasswordFieldsPro
                     }}
                     title="Genera password casuale"
                   >
-                    <Shuffle className="h-4 w-4 text-gray-400" />
+                    <Shuffle className="h-4 w-4 text-muted-foreground" />
                   </Button>
                   <Button
                     type="button"
@@ -70,9 +70,9 @@ export function UserPasswordFields({ control, isEditing }: UserPasswordFieldsPro
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-4 w-4 text-muted-foreground" />
                     )}
                   </Button>
                 </div>
