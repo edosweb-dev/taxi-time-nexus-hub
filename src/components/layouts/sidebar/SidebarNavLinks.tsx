@@ -15,7 +15,8 @@ import {
   MessageCircle,
   Clock,
   UserCircle,
-  FileBarChart
+  FileBarChart,
+  Mail
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -61,6 +62,12 @@ const navItems: NavItem[] = [
     title: 'Passeggeri',
     href: '/dashboard-cliente/passeggeri',
     icon: Users,
+    roles: ['cliente'],
+  },
+  {
+    title: 'Email Notifiche',
+    href: '/dashboard-cliente/email-notifiche',
+    icon: Mail,
     roles: ['cliente'],
   },
   {
