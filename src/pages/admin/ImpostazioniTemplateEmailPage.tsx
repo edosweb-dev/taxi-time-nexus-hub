@@ -36,7 +36,14 @@ interface EmailTemplate {
 export default function ImpostazioniTemplateEmailPage() {
   const queryClient = useQueryClient();
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
-  const [editForm, setEditForm] = useState({ subject: "", html_body: "", attivo: true });
+  const [editForm, setEditForm] = useState({
+    subject: "",
+    titolo: "",
+    intro: "",
+    chiusura: "",
+    colore_header: "#3b82f6",
+    attivo: true,
+  });
   const [previewTab, setPreviewTab] = useState("editor");
 
   const { data: templates, isLoading } = useQuery({
