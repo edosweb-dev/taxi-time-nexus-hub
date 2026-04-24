@@ -223,6 +223,41 @@ export type Database = {
         }
         Relationships: []
       }
+      email_config: {
+        Row: {
+          contatti_footer: string
+          firma: string
+          id: number
+          logo_url: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contatti_footer?: string
+          firma?: string
+          id?: number
+          logo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contatti_footer?: string
+          firma?: string
+          id?: number
+          logo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_config_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_logs: {
         Row: {
           created_at: string | null
@@ -368,37 +403,49 @@ export type Database = {
       email_templates: {
         Row: {
           attivo: boolean | null
+          chiusura: string | null
+          colore_header: string | null
           created_at: string | null
           descrizione: string | null
           html_body: string
           id: string
+          intro: string | null
           nome: string
           slug: string
           subject: string
+          titolo: string | null
           updated_at: string | null
           variabili_disponibili: Json | null
         }
         Insert: {
           attivo?: boolean | null
+          chiusura?: string | null
+          colore_header?: string | null
           created_at?: string | null
           descrizione?: string | null
           html_body: string
           id?: string
+          intro?: string | null
           nome: string
           slug: string
           subject: string
+          titolo?: string | null
           updated_at?: string | null
           variabili_disponibili?: Json | null
         }
         Update: {
           attivo?: boolean | null
+          chiusura?: string | null
+          colore_header?: string | null
           created_at?: string | null
           descrizione?: string | null
           html_body?: string
           id?: string
+          intro?: string | null
           nome?: string
           slug?: string
           subject?: string
+          titolo?: string | null
           updated_at?: string | null
           variabili_disponibili?: Json | null
         }
