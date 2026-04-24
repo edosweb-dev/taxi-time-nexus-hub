@@ -86,6 +86,191 @@ async function fetchEmailConfig(supabase: any): Promise<EmailConfig> {
   };
 }
 
+// ─── UNIFIED RENDER HELPERS (Batch 2b) ────────────────────────────────────────
+// Definiti ma non ancora invocati dalla dispatch principale.
+
+function renderSectionDataOra(vars: Record<string, string>): string {
+  if (!vars.data && !vars.ora) return '';
+  return `
+    <div class="section">
+      <div class="section-title">📅 Data e Ora</div>
+      <div class="info-row">
+        <span class="info-value">${escapeHtml(vars.data)} — ${escapeHtml(vars.ora)}</span>
+      </div>
+    </div>`;
+}
+
+function renderSectionCommessa(vars: Record<string, string>): string {
+  if (!vars.numero_commessa) return '';
+  return `
+    <div class="section">
+      <div class="info-row">
+        <span class="info-label">📋 Commessa:</span>
+        <span class="info-value">${escapeHtml(vars.numero_commessa)}</span>
+      </div>
+    </div>`;
+}
+
+function renderSectionPercorsoSemplice(vars: Record<string, string>): string {
+  const presa = [vars.indirizzo_presa, vars.citta_presa].filter(Boolean).join(', ');
+  const dest = [vars.indirizzo_destinazione, vars.citta_destinazione].filter(Boolean).join(', ');
+  if (!presa && !dest) return '';
+  return `
+    <div class="section">
+      <div class="section-title">📍 Percorso</div>
+      ${presa ? `<div class="info-row"><span class="info-label">Presa:</span><span class="info-value">${escapeHtml(presa)}</span></div>` : ''}
+      ${dest ? `<div class="info-row"><span class="info-label">Destinazione:</span><span class="info-value">${escapeHtml(dest)}</span></div>` : ''}
+    </div>`;
+}
+
+function renderSectionPasseggeri(passeggeri: any[], vars: Record<string, string>): string {
+  if (!passeggeri || passeggeri.length === 0) return '';
+  const rows = passeggeri.map((p, idx) => {
+    const nome = p.nome_cognome_inline || p.nome_cognome || 'Passeggero';
+    const indirizzo = (p.luogo_presa_personalizzato || p.indirizzo || '').trim();
+    const localita = (p.localita_presa_personalizzato || p.localita || '').trim();
+    const orario = p.orario_presa_personalizzato || vars.ora;
+    return `
+      <div class="route-step">
+        <div class="route-content">
+          <div class="route-name">🚶 ${idx + 1}. ${escapeHtml(nome)}</div>
+          ${indirizzo ? `<div class="route-address">${escapeHtml(indirizzo)}${localita ? ', ' + escapeHtml(localita) : ''}</div>` : ''}
+          ${orario ? `<div class="route-time">Orario: ${escapeHtml(orario)}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('\n');
+  return `<div class="section"><div class="section-title">🚶 Passeggeri (${passeggeri.length})</div>${rows}</div>`;
+}
+
+function renderSectionDestinazioni(passeggeri: any[], servizio: any): string {
+  if (!passeggeri || passeggeri.length === 0) return '';
+  const destMap = new Map<string, { indirizzo: string; citta: string; passeggeri: string[] }>();
+  passeggeri.forEach((p: any) => {
+    const haDest = !!p.destinazione_personalizzato;
+    const indirizzo = haDest ? p.destinazione_personalizzato : (servizio.indirizzo_destinazione || '');
+    const citta = haDest ? (p.localita_destinazione_personalizzato || servizio.citta_destinazione || '') : (servizio.citta_destinazione || '');
+    const nome = p.nome_cognome_inline || p.nome_cognome || 'Passeggero';
+    const key = `${(indirizzo || '').trim().toLowerCase()}|${(citta || '').trim().toLowerCase()}`;
+    if (!destMap.has(key)) destMap.set(key, { indirizzo: (indirizzo || '').trim(), citta: (citta || '').trim(), passeggeri: [] });
+    destMap.get(key)!.passeggeri.push(nome);
+  });
+  const entries = Array.from(destMap.values()).filter(d => d.indirizzo || d.citta);
+  if (entries.length === 0) return '';
+  const rows = entries.map((dest, idx) => {
+    const label = entries.length > 1 ? `🏁 Destinazione ${idx + 1}` : '🏁 Destinazione';
+    const paxList = dest.passeggeri.length > 0 ? `<div class="route-time">${dest.passeggeri.map(escapeHtml).join(', ')}</div>` : '';
+    return `
+      <div class="route-step end">
+        <div class="route-content">
+          <div class="route-name">${label}</div>
+          <div class="route-address">${escapeHtml(dest.indirizzo)}${dest.citta ? ', ' + escapeHtml(dest.citta) : ''}</div>
+          ${paxList}
+        </div>
+      </div>`;
+  }).join('\n');
+  return `<div class="section">${rows}</div>`;
+}
+
+function renderSectionVeicoloAutista(vars: Record<string, string>, servizio: any): string {
+  const hasVeicolo = !!vars.veicolo;
+  const hasAutista = !!vars.autista_nome;
+  const hasKm = !!(servizio.km_totali);
+  if (!hasVeicolo && !hasAutista && !hasKm) return '';
+  return `
+    <div class="section">
+      <div class="section-title">🚗 Dettagli Operativi</div>
+      ${hasVeicolo ? `<div class="info-row"><span class="info-label">Veicolo:</span><span class="info-value">${escapeHtml(vars.veicolo)}</span></div>` : ''}
+      ${hasAutista ? `<div class="info-row"><span class="info-label">Autista:</span><span class="info-value">${escapeHtml(vars.autista_nome)}</span></div>` : ''}
+      ${hasKm ? `<div class="info-row"><span class="info-label">Km Totali:</span><span class="info-value">${servizio.km_totali} km</span></div>` : ''}
+    </div>`;
+}
+
+function renderSectionConsuntivo(vars: Record<string, string>): string {
+  if (!vars.incasso && !vars.iva) return '';
+  return `
+    <div class="section">
+      <div class="section-title">💰 Consuntivo</div>
+      ${vars.incasso ? `<div class="info-row"><span class="info-label">Incasso:</span><span class="info-value">€${escapeHtml(vars.incasso)}</span></div>` : ''}
+      ${vars.iva ? `<div class="info-row"><span class="info-label">IVA:</span><span class="info-value">${escapeHtml(vars.iva)}%</span></div>` : ''}
+    </div>`;
+}
+
+function renderSectionNote(vars: Record<string, string>): string {
+  if (!vars.note) return '';
+  return `
+    <div class="section">
+      <div class="section-title">📝 Note</div>
+      <div class="note-text">${escapeHtml(vars.note)}</div>
+    </div>`;
+}
+
+function renderUnifiedLayout(data: {
+  colore_header: string;
+  titolo: string;
+  intro: string;
+  sections: string[];
+  chiusura: string;
+  config: EmailConfig;
+}): string {
+  const { colore_header, titolo, intro, sections, chiusura, config } = data;
+  const sectionsHtml = sections.filter(s => s && s.trim()).join('\n');
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f3f4f6;color:#111827}
+.container{max-width:600px;margin:0 auto;background:#fff}
+.header{background:${colore_header};color:#fff;padding:24px;text-align:center}
+.header h1{margin:0;font-size:20px;font-weight:600}
+.body{padding:24px}
+.intro{font-size:15px;line-height:1.6;color:#111827;margin-bottom:20px}
+.section{margin:16px 0;padding:12px;background:#f9fafb;border-radius:8px;border-left:3px solid ${colore_header}}
+.section-title{font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px}
+.info-row{display:flex;gap:8px;padding:4px 0;font-size:14px}
+.info-label{font-weight:600;color:#6b7280;min-width:120px}
+.info-value{color:#111827;flex:1}
+.route-step{padding:8px 0;border-bottom:1px solid #e5e7eb}
+.route-step:last-child{border-bottom:none}
+.route-name{font-weight:600;font-size:14px;color:#111827}
+.route-address{font-size:13px;color:#4b5563;margin-top:2px}
+.route-time{font-size:12px;color:#6b7280;margin-top:2px}
+.note-text{font-size:14px;color:#374151;white-space:pre-wrap}
+.chiusura{font-size:14px;line-height:1.6;color:#374151;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb}
+.footer{padding:16px 24px;background:#f9fafb;font-size:12px;color:#6b7280;text-align:center;border-top:1px solid #e5e7eb}
+.firma{margin-top:16px;font-size:14px;color:#6b7280;font-style:italic}
+</style></head>
+<body><div class="container">
+<div class="header">${config.logo_url ? `<img src="${escapeHtml(config.logo_url)}" alt="TaxiTime" style="height:32px;margin-bottom:8px"><br>` : ''}<h1>${escapeHtml(titolo)}</h1></div>
+<div class="body">
+  <div class="intro">${escapeHtml(intro).replace(/\n/g,'<br>')}</div>
+  ${sectionsHtml}
+  <div class="chiusura">${escapeHtml(chiusura).replace(/\n/g,'<br>')}</div>
+  <div class="firma">${escapeHtml(config.firma)}</div>
+</div>
+<div class="footer">${escapeHtml(config.contatti_footer)}</div>
+</div></body></html>`;
+}
+
+function renderUnifiedEmail(template: TemplateRecord, ctx: RenderContext, config: EmailConfig): { subject: string; html: string } {
+  const vars = buildVariables(ctx);
+  const subject = replaceVariables(template.subject, vars);
+  const titolo = replaceVariables(template.titolo || template.slug, vars);
+  const intro = replaceVariables(template.intro || '', vars);
+  const chiusura = replaceVariables(template.chiusura || '', vars);
+  const colore_header = template.colore_header || '#3b82f6';
+  const sections: string[] = [
+    renderSectionDataOra(vars),
+    renderSectionCommessa(vars),
+    renderSectionPercorsoSemplice(vars),
+    renderSectionPasseggeri(ctx.passeggeri, vars),
+    renderSectionDestinazioni(ctx.passeggeri, ctx.servizio),
+    renderSectionVeicoloAutista(vars, ctx.servizio),
+    renderSectionConsuntivo(vars),
+    renderSectionNote(vars),
+  ];
+  const html = renderUnifiedLayout({ colore_header, titolo, intro, sections, chiusura, config });
+  return { subject, html };
+}
+
 // ─── DYNAMIC EMAIL BUILDER ────────────────────────────────────────────────────
 
 type DynamicEmailTipo = 'richiesta_cliente' | 'conferma_presa_carico' | 'servizio_confermato';
