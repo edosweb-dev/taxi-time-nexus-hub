@@ -89,25 +89,25 @@ async function fetchEmailConfig(supabase: any): Promise<EmailConfig> {
 // ─── UNIFIED RENDER HELPERS (Batch 2b) ────────────────────────────────────────
 // Definiti ma non ancora invocati dalla dispatch principale.
 
+const SECTION_STYLE = `margin:16px 0;padding:14px 16px;background:#f9fafb;border-radius:8px;border-left:3px solid #e5e7eb;`;
+const SECTION_TITLE_STYLE = `font-size:12px;font-weight:600;color:#6b7280;margin:0 0 8px 0;text-transform:uppercase;letter-spacing:.4px;`;
+const INFO_ROW_STYLE = `padding:3px 0;font-size:14px;color:#111827;`;
+const INFO_LABEL_STYLE = `font-weight:600;color:#6b7280;display:inline-block;min-width:120px;`;
+
 function renderSectionDataOra(vars: Record<string, string>): string {
   if (!vars.data && !vars.ora) return '';
   return `
-    <div class="section">
-      <div class="section-title">📅 Data e Ora</div>
-      <div class="info-row">
-        <span class="info-value">${escapeHtml(vars.data)} — ${escapeHtml(vars.ora)}</span>
-      </div>
+    <div style="${SECTION_STYLE}">
+      <div style="${SECTION_TITLE_STYLE}">📅 Data e Ora</div>
+      <div style="${INFO_ROW_STYLE}">${escapeHtml(vars.data)}${vars.ora ? ' — ' + escapeHtml(vars.ora) : ''}</div>
     </div>`;
 }
 
 function renderSectionCommessa(vars: Record<string, string>): string {
   if (!vars.numero_commessa) return '';
   return `
-    <div class="section">
-      <div class="info-row">
-        <span class="info-label">📋 Commessa:</span>
-        <span class="info-value">${escapeHtml(vars.numero_commessa)}</span>
-      </div>
+    <div style="${SECTION_STYLE}">
+      <div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">📋 Commessa:</span> ${escapeHtml(vars.numero_commessa)}</div>
     </div>`;
 }
 
@@ -116,10 +116,10 @@ function renderSectionPercorsoSemplice(vars: Record<string, string>): string {
   const dest = [vars.indirizzo_destinazione, vars.citta_destinazione].filter(Boolean).join(', ');
   if (!presa && !dest) return '';
   return `
-    <div class="section">
-      <div class="section-title">📍 Percorso</div>
-      ${presa ? `<div class="info-row"><span class="info-label">Presa:</span><span class="info-value">${escapeHtml(presa)}</span></div>` : ''}
-      ${dest ? `<div class="info-row"><span class="info-label">Destinazione:</span><span class="info-value">${escapeHtml(dest)}</span></div>` : ''}
+    <div style="${SECTION_STYLE}">
+      <div style="${SECTION_TITLE_STYLE}">📍 Percorso</div>
+      ${presa ? `<div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">Presa:</span> ${escapeHtml(presa)}</div>` : ''}
+      ${dest ? `<div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">Destinazione:</span> ${escapeHtml(dest)}</div>` : ''}
     </div>`;
 }
 
@@ -130,16 +130,16 @@ function renderSectionPasseggeri(passeggeri: any[], vars: Record<string, string>
     const indirizzo = (p.luogo_presa_personalizzato || p.indirizzo || '').trim();
     const localita = (p.localita_presa_personalizzato || p.localita || '').trim();
     const orario = p.orario_presa_personalizzato || vars.ora;
+    const isLast = idx === passeggeri.length - 1;
+    const borderStyle = isLast ? '' : 'border-bottom:1px solid #e5e7eb;';
     return `
-      <div class="route-step">
-        <div class="route-content">
-          <div class="route-name">🚶 ${idx + 1}. ${escapeHtml(nome)}</div>
-          ${indirizzo ? `<div class="route-address">${escapeHtml(indirizzo)}${localita ? ', ' + escapeHtml(localita) : ''}</div>` : ''}
-          ${orario ? `<div class="route-time">Orario: ${escapeHtml(orario)}</div>` : ''}
-        </div>
+      <div style="padding:10px 0;${borderStyle}">
+        <div style="font-weight:600;font-size:14px;color:#111827;margin-bottom:2px;">🚶 ${idx + 1}. ${escapeHtml(nome)}</div>
+        ${indirizzo ? `<div style="font-size:13px;color:#4b5563;margin-top:2px;">${escapeHtml(indirizzo)}${localita ? ', ' + escapeHtml(localita) : ''}</div>` : ''}
+        ${orario ? `<div style="font-size:12px;color:#6b7280;margin-top:2px;">Orario: ${escapeHtml(orario)}</div>` : ''}
       </div>`;
   }).join('\n');
-  return `<div class="section"><div class="section-title">🚶 Passeggeri (${passeggeri.length})</div>${rows}</div>`;
+  return `<div style="${SECTION_STYLE}"><div style="${SECTION_TITLE_STYLE}">🚶 Passeggeri (${passeggeri.length})</div>${rows}</div>`;
 }
 
 function renderSectionDestinazioni(passeggeri: any[], servizio: any): string {
@@ -158,17 +158,17 @@ function renderSectionDestinazioni(passeggeri: any[], servizio: any): string {
   if (entries.length === 0) return '';
   const rows = entries.map((dest, idx) => {
     const label = entries.length > 1 ? `🏁 Destinazione ${idx + 1}` : '🏁 Destinazione';
-    const paxList = dest.passeggeri.length > 0 ? `<div class="route-time">${dest.passeggeri.map(escapeHtml).join(', ')}</div>` : '';
+    const paxList = dest.passeggeri.length > 0 ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;">${dest.passeggeri.map(escapeHtml).join(', ')}</div>` : '';
+    const isLast = idx === entries.length - 1;
+    const borderStyle = isLast ? '' : 'border-bottom:1px solid #e5e7eb;';
     return `
-      <div class="route-step end">
-        <div class="route-content">
-          <div class="route-name">${label}</div>
-          <div class="route-address">${escapeHtml(dest.indirizzo)}${dest.citta ? ', ' + escapeHtml(dest.citta) : ''}</div>
-          ${paxList}
-        </div>
+      <div style="padding:10px 0;${borderStyle}">
+        <div style="font-weight:600;font-size:14px;color:#111827;margin-bottom:2px;">${label}</div>
+        <div style="font-size:13px;color:#4b5563;">${escapeHtml(dest.indirizzo)}${dest.citta ? ', ' + escapeHtml(dest.citta) : ''}</div>
+        ${paxList}
       </div>`;
   }).join('\n');
-  return `<div class="section">${rows}</div>`;
+  return `<div style="${SECTION_STYLE}">${rows}</div>`;
 }
 
 function renderSectionVeicoloAutista(vars: Record<string, string>, servizio: any): string {
@@ -177,30 +177,30 @@ function renderSectionVeicoloAutista(vars: Record<string, string>, servizio: any
   const hasKm = !!(servizio.km_totali);
   if (!hasVeicolo && !hasAutista && !hasKm) return '';
   return `
-    <div class="section">
-      <div class="section-title">🚗 Dettagli Operativi</div>
-      ${hasVeicolo ? `<div class="info-row"><span class="info-label">Veicolo:</span><span class="info-value">${escapeHtml(vars.veicolo)}</span></div>` : ''}
-      ${hasAutista ? `<div class="info-row"><span class="info-label">Autista:</span><span class="info-value">${escapeHtml(vars.autista_nome)}</span></div>` : ''}
-      ${hasKm ? `<div class="info-row"><span class="info-label">Km Totali:</span><span class="info-value">${servizio.km_totali} km</span></div>` : ''}
+    <div style="${SECTION_STYLE}">
+      <div style="${SECTION_TITLE_STYLE}">🚗 Dettagli Operativi</div>
+      ${hasVeicolo ? `<div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">Veicolo:</span> ${escapeHtml(vars.veicolo)}</div>` : ''}
+      ${hasAutista ? `<div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">Autista:</span> ${escapeHtml(vars.autista_nome)}</div>` : ''}
+      ${hasKm ? `<div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">Km Totali:</span> ${servizio.km_totali} km</div>` : ''}
     </div>`;
 }
 
 function renderSectionConsuntivo(vars: Record<string, string>): string {
   if (!vars.incasso && !vars.iva) return '';
   return `
-    <div class="section">
-      <div class="section-title">💰 Consuntivo</div>
-      ${vars.incasso ? `<div class="info-row"><span class="info-label">Incasso:</span><span class="info-value">€${escapeHtml(vars.incasso)}</span></div>` : ''}
-      ${vars.iva ? `<div class="info-row"><span class="info-label">IVA:</span><span class="info-value">${escapeHtml(vars.iva)}%</span></div>` : ''}
+    <div style="${SECTION_STYLE}">
+      <div style="${SECTION_TITLE_STYLE}">💰 Consuntivo</div>
+      ${vars.incasso ? `<div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">Incasso:</span> €${escapeHtml(vars.incasso)}</div>` : ''}
+      ${vars.iva ? `<div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">IVA:</span> ${escapeHtml(vars.iva)}%</div>` : ''}
     </div>`;
 }
 
 function renderSectionNote(vars: Record<string, string>): string {
   if (!vars.note) return '';
   return `
-    <div class="section">
-      <div class="section-title">📝 Note</div>
-      <div class="note-text">${escapeHtml(vars.note)}</div>
+    <div style="${SECTION_STYLE}">
+      <div style="${SECTION_TITLE_STYLE}">📝 Note</div>
+      <div style="font-size:14px;color:#374151;white-space:pre-wrap;">${escapeHtml(vars.note)}</div>
     </div>`;
 }
 
@@ -214,40 +214,28 @@ function renderUnifiedLayout(data: {
 }): string {
   const { colore_header, titolo, intro, sections, chiusura, config } = data;
   const sectionsHtml = sections.filter(s => s && s.trim()).join('\n');
+  const FONT = `-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif`;
   return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f3f4f6;color:#111827}
-.container{max-width:600px;margin:0 auto;background:#fff}
-.header{background:${colore_header};color:#fff;padding:24px;text-align:center}
-.header h1{margin:0;font-size:20px;font-weight:600}
-.body{padding:24px}
-.intro{font-size:15px;line-height:1.6;color:#111827;margin-bottom:20px}
-.section{margin:16px 0;padding:12px;background:#f9fafb;border-radius:8px;border-left:3px solid ${colore_header}}
-.section-title{font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px}
-.info-row{display:flex;gap:8px;padding:4px 0;font-size:14px}
-.info-label{font-weight:600;color:#6b7280;min-width:120px}
-.info-value{color:#111827;flex:1}
-.route-step{padding:8px 0;border-bottom:1px solid #e5e7eb}
-.route-step:last-child{border-bottom:none}
-.route-name{font-weight:600;font-size:14px;color:#111827}
-.route-address{font-size:13px;color:#4b5563;margin-top:2px}
-.route-time{font-size:12px;color:#6b7280;margin-top:2px}
-.note-text{font-size:14px;color:#374151;white-space:pre-wrap}
-.chiusura{font-size:14px;line-height:1.6;color:#374151;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb}
-.footer{padding:16px 24px;background:#f9fafb;font-size:12px;color:#6b7280;text-align:center;border-top:1px solid #e5e7eb}
-.firma{margin-top:16px;font-size:14px;color:#6b7280;font-style:italic}
-</style></head>
-<body><div class="container">
-<div class="header">${config.logo_url ? `<img src="${escapeHtml(config.logo_url)}" alt="TaxiTime" style="height:32px;margin-bottom:8px"><br>` : ''}<h1>${escapeHtml(titolo)}</h1></div>
-<div class="body">
-  <div class="intro">${escapeHtml(intro).replace(/\n/g,'<br>')}</div>
-  ${sectionsHtml}
-  <div class="chiusura">${escapeHtml(chiusura).replace(/\n/g,'<br>')}</div>
-  <div class="firma">${escapeHtml(config.firma)}</div>
-</div>
-<div class="footer">${escapeHtml(config.contatti_footer)}</div>
-</div></body></html>`;
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;font-family:${FONT};background:#f3f4f6;color:#111827;line-height:1.5;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background:#f3f4f6;padding:24px 0;">
+<tr><td align="center">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+<tr><td style="background:${colore_header};color:#ffffff;padding:28px 24px;text-align:center;">
+${config.logo_url ? `<img src="${escapeHtml(config.logo_url)}" alt="TaxiTime" style="height:32px;margin:0 auto 12px;display:block;"/>` : ''}
+<h1 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;font-family:${FONT};">${escapeHtml(titolo)}</h1>
+</td></tr>
+<tr><td style="padding:24px;font-family:${FONT};">
+<p style="font-size:15px;line-height:1.6;color:#111827;margin:0 0 20px 0;">${escapeHtml(intro).replace(/\n/g,'<br>')}</p>
+${sectionsHtml}
+<p style="font-size:14px;line-height:1.6;color:#374151;margin:24px 0 0 0;padding-top:16px;border-top:1px solid #e5e7eb;">${escapeHtml(chiusura).replace(/\n/g,'<br>')}</p>
+<p style="margin:16px 0 0 0;font-size:14px;color:#6b7280;font-style:italic;">${escapeHtml(config.firma)}</p>
+</td></tr>
+<tr><td style="padding:16px 24px;background:#f9fafb;font-size:12px;color:#6b7280;text-align:center;border-top:1px solid #e5e7eb;font-family:${FONT};">${escapeHtml(config.contatti_footer)}</td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
 }
 
 function renderUnifiedEmail(template: TemplateRecord, ctx: RenderContext, config: EmailConfig): { subject: string; html: string } {
