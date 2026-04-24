@@ -25,7 +25,10 @@ interface EmailTemplate {
   nome: string;
   descrizione: string | null;
   subject: string;
-  html_body: string;
+  titolo: string | null;
+  intro: string | null;
+  chiusura: string | null;
+  colore_header: string | null;
   attivo: boolean | null;
   variabili_disponibili: unknown;
 }
