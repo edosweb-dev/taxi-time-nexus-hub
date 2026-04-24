@@ -590,7 +590,7 @@ serve(async (req) => {
         const renderContext: RenderContext = {
           servizio,
           passeggeri: passeggeriUnified,
-          referente: servizio.referente || null,
+          referente: testReferente,
           azienda: servizio.aziende || null,
           autista: servizio.autista || null,
           veicolo: servizio.veicoli || null,
