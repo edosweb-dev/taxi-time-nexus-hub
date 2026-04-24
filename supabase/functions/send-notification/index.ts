@@ -920,7 +920,8 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     );
 
     const emailHtml: string = rendered.html;
-    const emailSubject: string = rendered.subject;
+    const emailSubject: string = normalizeSubjectAscii(rendered.subject);
+    const emailPlainText: string = htmlToPlainText(emailHtml);
 
     // 6. CHECK SMTP CONFIG
     if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
