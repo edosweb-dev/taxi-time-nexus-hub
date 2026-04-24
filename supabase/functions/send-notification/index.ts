@@ -785,15 +785,12 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       };
 
       try {
-        // Minimizza HTML per evitare =20 nel trasporto Quoted-Printable
-        const minifiedHtml = emailHtml.replace(/\n\s*/g, '\n').replace(/\s+$/gm, '');
-
         const sendResult = await smtp.send({
           from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
           to: [recipient.email],
           subject: emailSubject,
           content: emailPlainText,
-          html: minifiedHtml
+          html: emailHtml
         });
 
         results.sent++;
