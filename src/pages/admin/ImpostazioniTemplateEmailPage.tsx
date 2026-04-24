@@ -166,25 +166,67 @@ export default function ImpostazioniTemplateEmailPage() {
             <Tabs value={previewTab} onValueChange={setPreviewTab}>
               <TabsList>
                 <TabsTrigger value="editor">
-                  <Edit className="h-4 w-4 mr-1" /> Editor
+                  <Edit className="h-4 w-4 mr-1" /> Contenuto
                 </TabsTrigger>
                 <TabsTrigger value="preview">
                   <Eye className="h-4 w-4 mr-1" /> Anteprima
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="editor">
-                <Textarea
-                  value={editForm.html_body}
-                  onChange={(e) => setEditForm((f) => ({ ...f, html_body: e.target.value }))}
-                  rows={15}
-                  className="font-mono text-xs"
-                />
+              <TabsContent value="editor" className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Titolo email (mostrato grande nell'header colorato)</Label>
+                  <Input
+                    value={editForm.titolo}
+                    onChange={(e) => setEditForm((f) => ({ ...f, titolo: e.target.value }))}
+                    placeholder="Es. Nuova richiesta di servizio"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Introduzione (supporta variabili {`{{referente_nome}}`}, {`{{azienda_nome}}`}, ecc.)</Label>
+                  <Textarea
+                    value={editForm.intro}
+                    onChange={(e) => setEditForm((f) => ({ ...f, intro: e.target.value }))}
+                    rows={3}
+                    placeholder="Gentile {{referente_nome}}, ti informiamo che..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Chiusura</Label>
+                  <Textarea
+                    value={editForm.chiusura}
+                    onChange={(e) => setEditForm((f) => ({ ...f, chiusura: e.target.value }))}
+                    rows={2}
+                    placeholder="Per qualsiasi variazione, contattaci..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Colore header</Label>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <input
+                      type="color"
+                      value={editForm.colore_header}
+                      onChange={(e) => setEditForm((f) => ({ ...f, colore_header: e.target.value }))}
+                      className="h-10 w-20 rounded border cursor-pointer"
+                    />
+                    <Input
+                      value={editForm.colore_header}
+                      onChange={(e) => setEditForm((f) => ({ ...f, colore_header: e.target.value }))}
+                      placeholder="#3b82f6"
+                      className="font-mono text-sm w-32"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      Suggeriti: <span className="font-mono">#3b82f6</span> (blu),
+                      <span className="font-mono"> #f59e0b</span> (arancio),
+                      <span className="font-mono"> #10b981</span> (verde),
+                      <span className="font-mono"> #ef4444</span> (rosso)
+                    </div>
+                  </div>
+                </div>
               </TabsContent>
               <TabsContent value="preview">
-                <div
-                  className="border rounded-lg p-4 bg-white text-black min-h-[300px] overflow-auto"
-                  dangerouslySetInnerHTML={{ __html: editForm.html_body }}
-                />
+                <div className="border rounded-lg p-8 bg-muted text-center text-muted-foreground">
+                  Anteprima live in arrivo nel prossimo batch.
+                </div>
               </TabsContent>
             </Tabs>
 
