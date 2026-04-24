@@ -789,33 +789,6 @@ export default function NuovoServizioPage() {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
-
-                      {/* AlertDialog conferma eliminazione email */}
-                      <AlertDialog open={!!emailToDelete} onOpenChange={(open) => !open && setEmailToDelete(null)}>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Elimina indirizzo email</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Vuoi davvero eliminare <strong>{emailToDelete?.nome}</strong> ({emailToDelete?.email}) dalla lista email notifiche? L'indirizzo non verrà più proposto nelle future richieste.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Annulla</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              onClick={() => {
-                                if (emailToDelete) {
-                                  setEmailNotificheIds((prev) => prev.filter((id) => id !== emailToDelete.id));
-                                  deleteEmailNotifica(emailToDelete.id);
-                                  setEmailToDelete(null);
-                                }
-                              }}
-                            >
-                              Elimina
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
                     </div>
                   </>
                 )}
