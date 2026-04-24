@@ -76,6 +76,24 @@ export function useEmailNotifiche(aziendaId?: string) {
     },
   });
 
+  const updateEmailNotifica = useMutation({
+    mutationFn: async (data: { id: string; nome: string; email: string; note?: string }) => {
+      const { id, ...updateFields } = data;
+      const { error } = await supabase
+        .from('email_notifiche')
+        .update(updateFields)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-notifiche'] });
+      toast.success("Indirizzo email aggiornato");
+    },
+    onError: (error: any) => {
+      toast.error(`Errore nell'aggiornamento: ${error.message}`);
+    },
+  });
+
   const deleteEmailNotifica = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
