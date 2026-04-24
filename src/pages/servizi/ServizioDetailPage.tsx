@@ -423,13 +423,15 @@ export default function ServizioDetailPage() {
             }}
             onCompleta={() => setCompletaDialogOpen(true)}
             onConsuntiva={() => setConsuntivaDialogOpen(true)}
-            onBack={() => {
-              if (isFromReport && reportFilters) {
-                navigate('/report-passeggeri', { state: { filters: reportFilters } });
-              } else {
-                navigate(-1);
-              }
-            }}
+              onBack={() => {
+                if (isFromReport && reportFilters) {
+                  navigate('/report-passeggeri', { state: { filters: reportFilters } });
+                } else if (isDipendente) {
+                  navigate('/dipendente/servizi-assegnati');
+                } else {
+                  navigate(fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
+                }
+              }}
             backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
