@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,7 @@ export default function NuovoServizioPage() {
   
   // Stato passeggeri multipli
   const [passeggeriSelezionati, setPasseggeriSelezionati] = useState<PasseggeroSelezionato[]>([]);
+  const [searchPasseggero, setSearchPasseggero] = useState('');
   const [showNuovoDialog, setShowNuovoDialog] = useState(false);
   const [nuovoNome, setNuovoNome] = useState('');
   const [nuovoEmail, setNuovoEmail] = useState('');
@@ -121,6 +122,19 @@ export default function NuovoServizioPage() {
     },
     enabled: !!currentProfile?.azienda_id,
   });
+
+  const passeggeriFiltrati = passeggeri
+    .filter(p => !passeggeriSelezionati.some(s => s.id === p.id))
+    .filter(p => {
+      if (!searchPasseggero.trim()) return false;
+      const term = searchPasseggero.toLowerCase();
+      return (
+        p.nome_cognome?.toLowerCase().includes(term) ||
+        p.email?.toLowerCase().includes(term) ||
+        p.localita?.toLowerCase().includes(term) ||
+        p.indirizzo?.toLowerCase().includes(term)
+      );
+    });
 
   // Email notifiche hook
   const { emailNotifiche, createEmailNotifica, isCreating: isCreatingEmail } = useEmailNotifiche(currentProfile?.azienda_id);
@@ -541,34 +555,42 @@ export default function NuovoServizioPage() {
                         </div>
                       </div>
 
-                      {/* Select migliorato */}
-                      <Select
-                        onValueChange={aggiungiDaRubrica}
-                        value=""
-                        disabled={isLoadingPasseggeri}
-                      >
-                        <SelectTrigger className="bg-background">
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Search className="h-4 w-4 shrink-0" />
-                            <span>
-                              {isLoadingPasseggeri
+                      {/* Search input + lista filtrata */}
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                          <Input
+                            type="text"
+                            placeholder={
+                              isLoadingPasseggeri
                                 ? "Caricamento..."
                                 : passeggeri.length === 0
                                   ? "Nessun passeggero in rubrica"
-                                  : "Cerca per nome, email o località..."}
-                            </span>
-                          </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {passeggeri.length > 0 ? (
-                            passeggeri
-                              .filter(p => !passeggeriSelezionati.some(s => s.id === p.id))
-                              .map((p) => (
-                                <SelectItem key={p.id} value={p.id}>
+                                  : "Cerca per nome, email o località..."
+                            }
+                            value={searchPasseggero}
+                            onChange={(e) => setSearchPasseggero(e.target.value)}
+                            disabled={isLoadingPasseggeri || passeggeri.length === 0}
+                            className="pl-9 bg-background"
+                          />
+                        </div>
+                        {searchPasseggero.trim() && (
+                          <div className="max-h-64 overflow-y-auto border rounded-lg divide-y bg-background">
+                            {passeggeriFiltrati.length > 0 ? (
+                              passeggeriFiltrati.map((p) => (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onClick={() => {
+                                    aggiungiDaRubrica(p.id);
+                                    setSearchPasseggero('');
+                                  }}
+                                  className="w-full text-left p-3 hover:bg-muted/50 transition-colors"
+                                >
                                   <div className="flex flex-col">
-                                    <span>{p.nome_cognome}</span>
+                                    <span className="font-medium text-sm">{p.nome_cognome}</span>
                                     {(p.localita || p.email) && (
-                                      <span className="text-xs text-muted-foreground flex items-center gap-2">
+                                      <span className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                                         {p.localita && (
                                           <span className="flex items-center gap-1">
                                             <MapPin className="h-3 w-3" />
@@ -584,15 +606,16 @@ export default function NuovoServizioPage() {
                                       </span>
                                     )}
                                   </div>
-                                </SelectItem>
+                                </button>
                               ))
-                          ) : (
-                            <SelectItem value="empty" disabled>
-                              Nessun passeggero disponibile
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
+                            ) : (
+                              <div className="p-4 text-center text-sm text-muted-foreground">
+                                Nessun passeggero trovato
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
                       {/* Helper text con conteggio */}
                       {passeggeri && passeggeri.length > 0 && (
