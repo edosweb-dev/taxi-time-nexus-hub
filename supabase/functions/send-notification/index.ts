@@ -291,7 +291,7 @@ function renderUnifiedEmail(template: TemplateRecord, ctx: RenderContext, config
     renderSectionConsuntivo(vars),
     renderSectionNote(vars),
   ];
-  const html = renderUnifiedLayout({ colore_header, titolo, intro, sections, chiusura, config });
+  const html = minifyHtml(renderUnifiedLayout({ colore_header, titolo, intro, sections, chiusura, config }));
   return { subject, html };
 }
 
