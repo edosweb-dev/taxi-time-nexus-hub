@@ -356,7 +356,7 @@ export default function SmtpConfigForm() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-gray-400 hover:text-white hover:bg-gray-800"
+                    className="h-6 w-6 text-muted-foreground hover:text-white hover:bg-gray-800"
                     onClick={() => setShowLogs(false)}
                   >
                     <X className="h-4 w-4" />
@@ -375,7 +375,7 @@ export default function SmtpConfigForm() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-gray-400 hover:text-white hover:bg-gray-800 text-xs"
+                    className="text-muted-foreground hover:text-white hover:bg-gray-800 text-xs"
                     onClick={() => {
                       navigator.clipboard.writeText(testLogs.join('\n'));
                       toast({ title: '📋 Log copiati negli appunti' });

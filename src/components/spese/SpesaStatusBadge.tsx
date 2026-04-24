@@ -32,7 +32,7 @@ export function SpesaStatusBadge({ stato }: SpesaStatusBadgeProps) {
       default:
         return {
           label: 'Sconosciuto',
-          className: 'bg-gray-100 text-gray-800 border-gray-200'
+          className: 'bg-gray-100 text-foreground border-gray-200'
         };
     }
   };

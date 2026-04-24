@@ -194,7 +194,7 @@ export function SignatureCanvas({ onSave, width = 500, height = 200, buttonText 
           velocityFilterWeight={0.7}
         />
         {!hasSignature && !isDrawing && (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground pointer-events-none">
             Firma qui
           </div>
         )}

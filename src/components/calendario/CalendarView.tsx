@@ -56,7 +56,7 @@ function CalendarServiceCard({ servizio, timeSlot, onTap, aziendaName, conducent
     >
       <CardContent className="p-3">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-600">
+          <span className="text-sm font-medium text-muted-foreground">
             {timeSlot || servizio.orario_servizio}
           </span>
           <Badge variant="outline" className="text-xs">
@@ -64,11 +64,11 @@ function CalendarServiceCard({ servizio, timeSlot, onTap, aziendaName, conducent
           </Badge>
         </div>
         
-        <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+        <h4 className="font-semibold text-foreground mb-1 text-sm">
           {aziendaName || 'Cliente'}
         </h4>
         
-        <div className="text-xs text-gray-600 space-y-1">
+        <div className="text-xs text-muted-foreground space-y-1">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0" />
             <span className="truncate">{servizio.indirizzo_presa}</span>
@@ -186,14 +186,14 @@ export function CalendarView({
                     key={dayIndex} 
                     className={`
                       min-h-[120px] border-r border-b p-2 cursor-pointer hover:bg-gray-50
-                      ${!isCurrentMonth ? 'bg-gray-50 text-gray-400' : ''}
+                      ${!isCurrentMonth ? 'bg-gray-50 text-muted-foreground' : ''}
                       ${isCurrentDay ? 'bg-blue-50' : ''}
                     `}
                     onClick={() => onDateSelect(day)}
                   >
                     <div className={`
                       text-sm mb-2 font-medium
-                      ${isCurrentDay ? 'text-blue-600' : isCurrentMonth ? 'text-gray-900' : 'text-gray-400'}
+                      ${isCurrentDay ? 'text-blue-600' : isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
                     `}>
                       {format(day, 'd')}
                     </div>
@@ -240,10 +240,10 @@ export function CalendarView({
                 `}
                 onClick={() => onDateSelect(day)}
               >
-                <div className={`text-sm font-medium ${isCurrentDay ? 'text-blue-600' : 'text-gray-900'}`}>
+                <div className={`text-sm font-medium ${isCurrentDay ? 'text-blue-600' : 'text-foreground'}`}>
                   {format(day, 'EEE', { locale: it })}
                 </div>
-                <div className={`text-lg font-bold ${isCurrentDay ? 'text-blue-600' : 'text-gray-900'}`}>
+                <div className={`text-lg font-bold ${isCurrentDay ? 'text-blue-600' : 'text-foreground'}`}>
                   {format(day, 'd')}
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -284,7 +284,7 @@ export function CalendarView({
     <div className="space-y-4">
       {/* Day header */}
       <div className="text-center p-4 bg-white rounded-lg border">
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-foreground">
           {format(currentDate, 'EEEE d MMMM yyyy', { locale: it })}
         </h2>
         <p className="text-sm text-muted-foreground">

@@ -127,9 +127,9 @@ export function ReferentiSheet({
             ) : referenti.length === 0 ? (
               <div className="text-center py-12">
                 <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Users className="h-8 w-8 text-gray-400" />
+                  <Users className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Nessun referente presente</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Nessun referente presente</h3>
                 <p className="text-sm text-muted-foreground mb-6">
                   Non ci sono referenti associati a questa azienda.
                 </p>

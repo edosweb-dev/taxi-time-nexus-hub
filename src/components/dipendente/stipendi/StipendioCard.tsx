@@ -39,7 +39,7 @@ export function StipendioCard({ stipendio, onClick }: StipendioCardProps) {
       case 'pagato':
         return 'bg-green-100 text-green-800 hover:bg-green-100/80';
       case 'bozza':
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-100/80';
+        return 'bg-gray-100 text-foreground hover:bg-gray-100/80';
       default:
         return '';
     }

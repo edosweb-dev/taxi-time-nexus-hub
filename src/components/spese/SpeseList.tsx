@@ -133,7 +133,7 @@ export function SpeseList({ filters }: SpeseListProps) {
           {spese.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                <FileText className="h-12 w-12 text-gray-400" />
+                <FileText className="h-12 w-12 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 Nessuna spesa registrata
@@ -208,7 +208,7 @@ export function SpeseList({ filters }: SpeseListProps) {
                       <TableCell className="max-w-xs">
                         <div className="text-muted-foreground truncate text-sm" title={spesa.note || ''}>
                           {spesa.note || (
-                            <span className="italic text-gray-400">Nessuna nota</span>
+                            <span className="italic text-muted-foreground">Nessuna nota</span>
                           )}
                         </div>
                         {spesa.note_revisione && (

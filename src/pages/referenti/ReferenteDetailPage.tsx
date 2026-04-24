@@ -245,7 +245,7 @@ export default function ReferenteDetailPage() {
               ) : (
                 <div className="text-center py-6">
                   <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                    <Building2 className="h-6 w-6 text-gray-400" />
+                    <Building2 className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Nessuna azienda associata

@@ -72,7 +72,7 @@ export function getTurnoBadge(shift?: Shift) {
   if (!shift) {
     return {
       label: '-',
-      className: 'bg-gray-200 text-gray-500',
+      className: 'bg-gray-200 text-muted-foreground',
       emoji: '',
     };
   }
