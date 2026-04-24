@@ -16,6 +16,7 @@ import ServiziClientePage from './pages/cliente/ServiziPage';
 import PasseggeriCliente from './pages/cliente/PasseggeriCliente';
 import DettaglioServizio from './pages/cliente/DettaglioServizio';
 import ReportCliente from './pages/cliente/ReportCliente';
+import EmailNotifichePage from './pages/cliente/EmailNotifichePage';
 
 // Dipendente Pages
 import DipendenteDashboard from './pages/dipendente/DipendenteDashboard';
@@ -136,6 +137,12 @@ function App() {
                   <Route path="/dashboard-cliente/passeggeri" element={
                     <AuthGuard allowedRoles={['cliente']}>
                       <PasseggeriCliente />
+                    </AuthGuard>
+                  } />
+
+                  <Route path="/dashboard-cliente/email-notifiche" element={
+                    <AuthGuard allowedRoles={['cliente']}>
+                      <EmailNotifichePage />
                     </AuthGuard>
                   } />
 

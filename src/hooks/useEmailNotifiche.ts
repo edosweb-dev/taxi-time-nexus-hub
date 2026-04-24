@@ -99,8 +99,10 @@ export function useEmailNotifiche(aziendaId?: string) {
     isLoading,
     error,
     createEmailNotifica: createEmailNotifica.mutate,
+    updateEmailNotifica: updateEmailNotifica.mutate,
     deleteEmailNotifica: deleteEmailNotifica.mutate,
     isCreating: createEmailNotifica.isPending,
+    isUpdating: updateEmailNotifica.isPending,
     isDeleting: deleteEmailNotifica.isPending,
   };
 }
