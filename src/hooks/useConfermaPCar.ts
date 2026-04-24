@@ -79,6 +79,7 @@ export function useConfermaPCar() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['servizi'] }),
         queryClient.invalidateQueries({ queryKey: ['servizio', data.servizio_id] }),
+        queryClient.invalidateQueries({ queryKey: ['servizio-detail', data.servizio_id] }),
         queryClient.invalidateQueries({ queryKey: ['richieste-clienti'] }),
         queryClient.invalidateQueries({ queryKey: ['richiesta-cliente', data.servizio_id] }),
       ]);
