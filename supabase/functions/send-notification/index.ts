@@ -8,6 +8,84 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
+// ─── UNIFIED TEMPLATE PRIMITIVES (Batch 2a) ───────────────────────────────────
+// Aggiunte ma non ancora utilizzate dalla dispatch principale.
+
+interface EmailConfig {
+  firma: string;
+  contatti_footer: string;
+  logo_url: string | null;
+}
+
+interface TemplateRecord {
+  slug: string;
+  subject: string;
+  titolo: string | null;
+  intro: string | null;
+  chiusura: string | null;
+  colore_header: string | null;
+  attivo: boolean | null;
+}
+
+interface RenderContext {
+  servizio: any;
+  passeggeri: any[];
+  referente: any;
+  azienda: any;
+  autista?: any;
+  veicolo?: any;
+}
+
+function buildVariables(ctx: RenderContext): Record<string, string> {
+  const { servizio, referente, azienda, autista, veicolo } = ctx;
+  const dataFormatted = servizio.data_servizio
+    ? new Date(servizio.data_servizio).toLocaleDateString('it-IT', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      })
+    : '';
+  const oraFormatted = servizio.orario_servizio?.slice(0, 5) || '';
+  return {
+    azienda_nome: azienda?.nome || '',
+    referente_nome: referente ? `${referente.first_name || ''} ${referente.last_name || ''}`.trim() : '',
+    data: dataFormatted,
+    ora: oraFormatted,
+    numero: servizio.id?.slice(0, 8) || '',
+    numero_commessa: servizio.numero_commessa || '',
+    indirizzo_presa: servizio.indirizzo_presa || '',
+    citta_presa: servizio.citta_presa || '',
+    indirizzo_destinazione: servizio.indirizzo_destinazione || '',
+    citta_destinazione: servizio.citta_destinazione || '',
+    autista_nome: autista ? `${autista.first_name || ''} ${autista.last_name || ''}`.trim() : '',
+    veicolo: veicolo ? `${veicolo.modello || ''} ${veicolo.targa || ''}`.trim() : '',
+    km_totali: String(servizio.km_totali || ''),
+    incasso: String(servizio.incasso || ''),
+    iva: String(servizio.iva || ''),
+    data_completamento: servizio.updated_at
+      ? new Date(servizio.updated_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })
+      : '',
+    motivo: servizio.motivo_annullamento || '',
+    note: servizio.note || '',
+  };
+}
+
+function replaceVariables(template: string, vars: Record<string, string>): string {
+  if (!template) return '';
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? '');
+}
+
+async function fetchEmailConfig(supabase: any): Promise<EmailConfig> {
+  const { data } = await supabase
+    .from('email_config')
+    .select('firma, contatti_footer, logo_url')
+    .eq('id', 1)
+    .single();
+  return data || {
+    firma: 'Il team TaxiTime',
+    contatti_footer: 'TaxiTime — Per assistenza: info@taxitime.app',
+    logo_url: null,
+  };
+}
+
 // ─── DYNAMIC EMAIL BUILDER ────────────────────────────────────────────────────
 
 type DynamicEmailTipo = 'richiesta_cliente' | 'conferma_presa_carico' | 'servizio_confermato';
