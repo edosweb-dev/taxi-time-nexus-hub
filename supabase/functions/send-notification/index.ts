@@ -612,9 +612,11 @@ serve(async (req) => {
         };
 
         const rendered = renderUnifiedEmail(template as TemplateRecord, renderContext, emailConfig);
-        const subject = `[TEST] ${rendered.subject}`;
+        const subject = normalizeSubjectAscii(`[TEST] ${rendered.subject}`);
+        const plainText = htmlToPlainText(rendered.html);
 
         const password = atob(smtpCfg.smtp_password_encrypted);
+
         const smtp = new SMTPClient({
           connection: {
             hostname: smtpCfg.smtp_host,
@@ -632,6 +634,7 @@ serve(async (req) => {
               from: `${smtpCfg.smtp_from_name || 'TaxiTime'} <${smtpCfg.smtp_from_email || smtpCfg.smtp_user}>`,
               to: [email],
               subject,
+              content: plainText,
               html: rendered.html,
             });
             sent++;
