@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Azienda } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Calendar, Clock, TrendingUp } from 'lucide-react';
+import { Loader2, Calendar, Clock, TrendingUp, Mail } from 'lucide-react';
 import { Typography } from '@/components/ui/typography';
 import { ResponsiveGrid } from '@/components/ui/responsive-grid';
 import { MobileCard } from '@/components/ui/mobile-card';
@@ -316,6 +316,24 @@ export default function ClientDashboardPage() {
               </Typography>
               <Button variant="outline" className="w-full mt-4">
                 Gestisci Passeggeri
+              </Button>
+            </div>
+          </MobileCard>
+
+          <MobileCard
+            interactive={true}
+            onClick={() => navigate('/dashboard-cliente/email-notifiche')}
+          >
+            <div className={RESPONSIVE_SPACING.ELEMENT_VERTICAL}>
+              <Typography variant="h3">Email Notifiche</Typography>
+              <Typography variant="caption">
+                Gestisci gli indirizzi di notifica
+              </Typography>
+              <Typography variant="small" className="text-muted-foreground">
+                Aggiungi, modifica o rimuovi gli indirizzi email che riceveranno le notifiche dei tuoi servizi.
+              </Typography>
+              <Button variant="outline" className="w-full mt-4">
+                Gestisci Email
               </Button>
             </div>
           </MobileCard>
