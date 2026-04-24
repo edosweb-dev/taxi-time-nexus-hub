@@ -286,200 +286,6 @@ function renderUnifiedEmail(template: TemplateRecord, ctx: RenderContext, config
   return { subject, html };
 }
 
-// ─── DYNAMIC EMAIL BUILDER ────────────────────────────────────────────────────
-
-type DynamicEmailTipo = 'richiesta_cliente' | 'conferma_presa_carico' | 'servizio_confermato';
-
-function buildCompleteEmailHTML(data: {
-  tipo: DynamicEmailTipo;
-  servizio: any;
-  passeggeri: any[];
-  referente: any;
-  azienda: any;
-  autista?: any;
-  veicolo?: any;
-}): { html: string; subject: string } {
-  const { tipo, servizio, passeggeri, referente, azienda, autista, veicolo } = data;
-
-  const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT', {
-    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-  });
-  const oraFormatted = servizio.orario_servizio?.slice(0, 5) || '';
-
-  const subjects: Record<DynamicEmailTipo, string> = {
-    'richiesta_cliente': `[TaxiTime] Richiesta Servizio - ${dataFormatted} ${oraFormatted}`,
-    'conferma_presa_carico': `[TaxiTime] CONFERMATO - Servizio ${dataFormatted} ${oraFormatted}`,
-    'servizio_confermato': `[TaxiTime] SERVIZIO CONFERMATO - ${dataFormatted} ${oraFormatted}`,
-  };
-
-  const headers: Record<DynamicEmailTipo, string> = {
-    'richiesta_cliente': '📋 RICHIESTA SERVIZIO',
-    'conferma_presa_carico': '✅ SERVIZIO PRESO IN CARICO',
-    'servizio_confermato': '✅ SERVIZIO CONFERMATO',
-  };
-
-  // Build passenger stops HTML
-  const passeggeriHtml = passeggeri.map((p: any, idx: number) => {
-    const orarioPresa = p.orario_presa_personalizzato || oraFormatted;
-    const indirizzoPresa = (p.luogo_presa_personalizzato || p.indirizzo_inline || p.indirizzo || '').trim() || 'Indirizzo da definire';
-    const localitaPresa = (p.localita_presa_personalizzato || p.localita_inline || p.localita || '').trim();
-    const nomePax = p.nome_cognome_inline || p.nome_cognome || `${p.nome || ''} ${p.cognome || ''}`.trim() || 'Passeggero';
-    const email = p.email_inline || p.email || '';
-    const telefono = p.telefono_inline || p.telefono || '';
-
-    return `
-        <div class="route-step intermediate">
-          <div class="route-content">
-            <div class="route-name">🚶 FERMATA ${idx + 1}: ${escapeHtml(nomePax)}</div>
-            <div class="route-address">${escapeHtml(indirizzoPresa)}</div>
-            ${localitaPresa ? `<div class="route-address">${escapeHtml(localitaPresa)}</div>` : ''}
-            <div class="route-time">Orario previsto: ${escapeHtml(orarioPresa)}</div>
-            ${email ? `<div class="route-time">📧 ${escapeHtml(email)}</div>` : ''}
-            ${telefono ? `<div class="route-time">📱 ${escapeHtml(telefono)}</div>` : ''}
-          </div>
-        </div>`;
-  }).join('\n');
-
-  // Build per-passenger destinations (same logic as DettaglioServizio.tsx)
-  const destinazioniHtml = (() => {
-    const destMap = new Map<string, { indirizzo: string; citta: string; passeggeri: string[] }>();
-
-    passeggeri.forEach((p: any) => {
-      const haDestPers = !!p.destinazione_personalizzato;
-      const indirizzo = haDestPers
-        ? p.destinazione_personalizzato
-        : (servizio.indirizzo_destinazione || 'Destinazione da definire');
-      const citta = haDestPers
-        ? (p.localita_destinazione_personalizzato || servizio.citta_destinazione || '')
-        : (servizio.citta_destinazione || '');
-      const nome = p.nome_cognome_inline || p.nome_cognome || 'Passeggero';
-
-      const key = `${(indirizzo || '').trim().toLowerCase()}|${(citta || '').trim().toLowerCase()}`;
-      if (!destMap.has(key)) {
-        destMap.set(key, { indirizzo: (indirizzo || '').trim(), citta: (citta || '').trim(), passeggeri: [] });
-      }
-      destMap.get(key)!.passeggeri.push(nome);
-    });
-
-    const entries = Array.from(destMap.values());
-    return entries.map((dest, idx) => {
-      const label = entries.length > 1 ? `🏁 DESTINAZIONE ${idx + 1}` : '🏁 DESTINAZIONE';
-      const paxList = dest.passeggeri.length > 0
-        ? `<div class="route-time">${dest.passeggeri.map((n: string) => escapeHtml(n)).join(', ')}</div>`
-        : '';
-      return `
-        <div class="route-step end">
-          <div class="route-content">
-            <div class="route-name">${label}</div>
-            <div class="route-address">${escapeHtml(dest.indirizzo)}</div>
-            ${dest.citta ? `<div class="route-address">${escapeHtml(dest.citta)}</div>` : ''}
-            ${paxList}
-          </div>
-        </div>`;
-    }).join('\n');
-  })();
-
-  // Operational details section
-  const operativeHtml = (veicolo || autista || servizio.km_totali) ? `
-      <div class="section">
-        <div class="section-title">🚗 Dettagli Operativi</div>
-        ${veicolo ? `<div class="info-row"><span class="info-label">Veicolo:</span><span class="info-value">${escapeHtml(veicolo.modello)} - ${escapeHtml(veicolo.targa)}</span></div>` : ''}
-        ${autista ? `<div class="info-row"><span class="info-label">Autista:</span><span class="info-value">${escapeHtml(autista.first_name || '')} ${escapeHtml(autista.last_name || '')}</span></div>` : ''}
-        ${servizio.km_totali ? `<div class="info-row"><span class="info-label">Km Totali:</span><span class="info-value">${servizio.km_totali} km</span></div>` : ''}
-      </div>` : '';
-
-  const refName = referente ? `${referente.first_name || ''} ${referente.last_name || ''}`.trim() : '';
-
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-    .container { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
-    .header h1 { margin: 0; font-size: 24px; }
-    .header p { margin: 10px 0 0 0; opacity: 0.9; }
-    .content { padding: 30px; }
-    .section { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f0; }
-    .section:last-child { border-bottom: none; }
-    .section-title { font-size: 16px; font-weight: 600; color: #667eea; margin-bottom: 12px; }
-    .info-row { display: flex; padding: 8px 0; }
-    .info-label { font-weight: 600; min-width: 140px; color: #666; }
-    .info-value { color: #333; }
-    .route-step { display: flex; align-items: flex-start; margin: 15px 0; padding-left: 30px; position: relative; }
-    .route-step::before { content: ''; position: absolute; left: 0; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: #667eea; }
-    .route-step.start::before { background: #10b981; width: 12px; height: 12px; }
-    .route-step.end::before { background: #ef4444; width: 12px; height: 12px; }
-    .route-step.intermediate::before { background: #f59e0b; }
-    .route-content { margin-left: 15px; flex: 1; }
-    .route-name { font-weight: 600; color: #333; margin-bottom: 4px; }
-    .route-address { color: #666; font-size: 14px; line-height: 1.4; }
-    .route-time { color: #999; font-size: 13px; font-style: italic; margin-top: 4px; }
-    .highlight-box { background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea; margin: 15px 0; }
-    .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 13px; color: #666; }
-    @media (max-width: 600px) { body { padding: 10px; } .content { padding: 20px 15px; } .info-row { flex-direction: column; } .info-label { min-width: auto; margin-bottom: 4px; } }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>${headers[tipo]}</h1>
-      <p>${escapeHtml(dataFormatted)} alle ${escapeHtml(oraFormatted)}</p>
-    </div>
-
-    <div class="content">
-      <div class="section">
-        <div class="section-title">👤 Cliente</div>
-        <div class="info-row"><span class="info-label">Azienda:</span><span class="info-value">${escapeHtml(azienda?.nome || '')}</span></div>
-        ${refName ? `<div class="info-row"><span class="info-label">Referente:</span><span class="info-value">${escapeHtml(refName)}</span></div>` : ''}
-        ${servizio.numero_commessa ? `<div class="info-row"><span class="info-label">N° Commessa:</span><span class="info-value">${escapeHtml(servizio.numero_commessa)}</span></div>` : ''}
-      </div>
-
-      <div class="section">
-        <div class="section-title">🗺️ Percorso Servizio</div>
-
-        <div class="route-step start">
-          <div class="route-content">
-            <div class="route-name">📍 PARTENZA</div>
-            <div class="route-address">${escapeHtml(servizio.indirizzo_presa || 'Indirizzo da definire')}</div>
-            ${servizio.citta_presa ? `<div class="route-address">${escapeHtml(servizio.citta_presa)}</div>` : ''}
-            <div class="route-time">Orario: ${escapeHtml(oraFormatted)}</div>
-          </div>
-        </div>
-
-${passeggeriHtml}
-
-${destinazioniHtml}
-      </div>
-
-${operativeHtml}
-
-      ${servizio.note ? `
-      <div class="section">
-        <div class="section-title">📝 Note Servizio</div>
-        <div class="highlight-box">${escapeHtml(servizio.note)}</div>
-      </div>` : ''}
-
-      ${tipo === 'conferma_presa_carico' ? `
-      <div class="highlight-box">
-        ✅ Servizio preso in carico da TaxiTime.<br>
-        Riceverai ulteriori aggiornamenti quando necessario.
-      </div>` : ''}
-    </div>
-
-    <div class="footer">
-      <p>Questa è una notifica automatica di TaxiTime</p>
-      <p>Per assistenza: info@taxitime.it</p>
-    </div>
-  </div>
-</body>
-</html>`;
-
-  return { html, subject: subjects[tipo] };
-}
-
 function escapeHtml(text: string): string {
   if (!text) return '';
   return String(text)
@@ -523,7 +329,7 @@ serve(async (req) => {
 
         const { data: template, error: templateError } = await supabaseAdmin
           .from('email_templates')
-          .select('slug, nome, subject, html_body, attivo, titolo, intro, chiusura, colore_header')
+          .select('slug, nome, subject, attivo, titolo, intro, chiusura, colore_header')
           .eq('slug', template_slug)
           .single();
 
@@ -760,7 +566,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     // 2. FETCH TEMPLATE
     const { data: template, error: templateError } = await supabaseAdmin
       .from('email_templates')
-      .select('slug, nome, subject, html_body, attivo, titolo, intro, chiusura, colore_header')
+      .select('slug, nome, subject, attivo, titolo, intro, chiusura, colore_header')
       .eq('slug', template_slug)
       .maybeSingle();
 
