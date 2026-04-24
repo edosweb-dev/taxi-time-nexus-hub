@@ -59,10 +59,10 @@ export default function ImpostazioniTemplateEmailPage() {
   });
 
   const mutation = useMutation({
-    mutationFn: async ({ id, subject, html_body, attivo }: { id: string; subject: string; html_body: string; attivo: boolean }) => {
+    mutationFn: async ({ id, subject, titolo, intro, chiusura, colore_header, attivo }: { id: string; subject: string; titolo: string; intro: string; chiusura: string; colore_header: string; attivo: boolean }) => {
       const { error } = await supabase
         .from("email_templates")
-        .update({ subject, html_body, attivo })
+        .update({ subject, titolo, intro, chiusura, colore_header, attivo })
         .eq("id", id);
       if (error) throw error;
     },
@@ -78,7 +78,14 @@ export default function ImpostazioniTemplateEmailPage() {
 
   const openEdit = (t: EmailTemplate) => {
     setEditingTemplate(t);
-    setEditForm({ subject: t.subject, html_body: t.html_body, attivo: t.attivo ?? true });
+    setEditForm({
+      subject: t.subject,
+      titolo: t.titolo || "",
+      intro: t.intro || "",
+      chiusura: t.chiusura || "",
+      colore_header: t.colore_header || "#3b82f6",
+      attivo: t.attivo ?? true,
+    });
     setPreviewTab("editor");
   };
 
