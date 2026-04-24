@@ -59,7 +59,7 @@ export default function NuovoServizioPage() {
   const [showNuovaEmailDialog, setShowNuovaEmailDialog] = useState(false);
   const [nuovaEmailNome, setNuovaEmailNome] = useState('');
   const [nuovaEmailIndirizzo, setNuovaEmailIndirizzo] = useState('');
-  const [emailToDelete, setEmailToDelete] = useState<{ id: string; nome: string; email: string } | null>(null);
+  
 
   // Usa profilo da useAuth (supporta impersonificazione)
   const { profile: authProfile } = useAuth();
@@ -123,7 +123,7 @@ export default function NuovoServizioPage() {
   });
 
   // Email notifiche hook
-  const { emailNotifiche, createEmailNotifica, deleteEmailNotifica, isCreating: isCreatingEmail } = useEmailNotifiche(currentProfile?.azienda_id);
+  const { emailNotifiche, createEmailNotifica, isCreating: isCreatingEmail } = useEmailNotifiche(currentProfile?.azienda_id);
 
   // Pre-seleziona tutte le email notifiche attive dell'azienda
   useEffect(() => {
@@ -715,27 +715,15 @@ export default function NuovoServizioPage() {
                       ) : (
                         <div className="space-y-2">
                           {emailNotifiche.map((email) => (
-                            <div key={email.id} className="flex items-center justify-between p-3 border rounded-lg gap-2">
-                              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                                <Checkbox
-                                  checked={emailNotificheIds.includes(email.id)}
-                                  onCheckedChange={(checked) => handleEmailToggle(email.id, checked as boolean)}
-                                />
-                                <div className="min-w-0">
-                                  <div className="font-medium text-sm truncate">{email.nome}</div>
-                                  <div className="text-xs text-muted-foreground truncate">{email.email}</div>
-                                </div>
+                            <div key={email.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                              <Checkbox
+                                checked={emailNotificheIds.includes(email.id)}
+                                onCheckedChange={(checked) => handleEmailToggle(email.id, checked as boolean)}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm truncate">{email.nome}</div>
+                                <div className="text-xs text-muted-foreground truncate">{email.email}</div>
                               </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                onClick={() => setEmailToDelete({ id: email.id, nome: email.nome, email: email.email })}
-                                aria-label={`Elimina email ${email.nome}`}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
                             </div>
                           ))}
                         </div>
