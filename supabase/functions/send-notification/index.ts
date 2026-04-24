@@ -329,7 +329,7 @@ serve(async (req) => {
 
         const { data: template, error: templateError } = await supabaseAdmin
           .from('email_templates')
-          .select('slug, nome, subject, html_body, attivo, titolo, intro, chiusura, colore_header')
+          .select('slug, nome, subject, attivo, titolo, intro, chiusura, colore_header')
           .eq('slug', template_slug)
           .single();
 
@@ -566,7 +566,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     // 2. FETCH TEMPLATE
     const { data: template, error: templateError } = await supabaseAdmin
       .from('email_templates')
-      .select('slug, nome, subject, html_body, attivo, titolo, intro, chiusura, colore_header')
+      .select('slug, nome, subject, attivo, titolo, intro, chiusura, colore_header')
       .eq('slug', template_slug)
       .maybeSingle();
 
