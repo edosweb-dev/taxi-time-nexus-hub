@@ -445,6 +445,15 @@ export default function ServizioDetailPage() {
               allServizi={allServizi || []}
               onCompleta={() => setCompletaDialogOpen(true)}
               onConsuntiva={() => setConsuntivaDialogOpen(true)}
+              onBack={() => {
+                if (isFromReport && reportFilters) {
+                  navigate('/report-passeggeri', { state: { filters: reportFilters } });
+                } else if (isDipendente) {
+                  navigate('/dipendente/servizi-assegnati');
+                } else {
+                  navigate(fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
+                }
+              }}
             />
             
             {/* Button Assegna Servizio */}

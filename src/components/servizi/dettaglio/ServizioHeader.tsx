@@ -17,6 +17,7 @@ interface ServizioHeaderProps {
   allServizi: Servizio[]; // Added for stable indexing
   onCompleta: () => void;
   onConsuntiva: () => void;
+  onBack?: () => void;
 }
 
 export function ServizioHeader({
@@ -26,7 +27,8 @@ export function ServizioHeader({
   canBeConsuntivato,
   allServizi,
   onCompleta,
-  onConsuntiva
+  onConsuntiva,
+  onBack
 }: ServizioHeaderProps) {
   const navigate = useNavigate();
   
@@ -52,7 +54,7 @@ export function ServizioHeader({
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate(-1)} 
+            onClick={() => onBack ? onBack() : navigate(-1)} 
             className="text-muted-foreground hover:text-foreground self-start"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
