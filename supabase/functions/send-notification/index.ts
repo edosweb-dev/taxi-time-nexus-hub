@@ -496,6 +496,134 @@ serve(async (req) => {
         );
       }
 
+      // Se sono forniti servizio_id + template_slug, renderizza con il motore unificato
+      if (servizio_id && template_slug) {
+        console.log('[SEND-EMAIL] TEST MODE with unified renderer:', { servizio_id, template_slug, test_emails });
+
+        const supabaseAdmin = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+          { auth: { persistSession: false } }
+        );
+
+        const { data: template, error: templateError } = await supabaseAdmin
+          .from('email_templates')
+          .select('slug, nome, subject, html_body, attivo, titolo, intro, chiusura, colore_header')
+          .eq('slug', template_slug)
+          .single();
+
+        if (templateError || !template) {
+          return new Response(
+            JSON.stringify({ success: false, message: `Template not found: ${template_slug}` }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const { data: servizio, error: servizioError } = await supabaseAdmin
+          .from('servizi')
+          .select(`
+            *,
+            aziende:azienda_id (id, nome),
+            referente:referente_id (id, first_name, last_name, email),
+            autista:assegnato_a (id, first_name, last_name, email),
+            veicoli:veicolo_id (id, modello, targa),
+            servizi_passeggeri (
+              *,
+              passeggeri:passeggero_id (id, nome_cognome, email, telefono, indirizzo, localita)
+            )
+          `)
+          .eq('id', servizio_id)
+          .single();
+
+        if (servizioError || !servizio) {
+          return new Response(
+            JSON.stringify({ success: false, message: `Servizio not found: ${servizio_id}` }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const { data: smtpCfg } = await supabaseAdmin
+          .from('impostazioni')
+          .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
+          .maybeSingle();
+
+        if (!smtpCfg || !smtpCfg.email_enabled || !smtpCfg.smtp_password_encrypted) {
+          return new Response(JSON.stringify({ success: false, message: 'SMTP non configurato' }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        const emailConfig = await fetchEmailConfig(supabaseAdmin);
+
+        const passeggeriUnified = (servizio.servizi_passeggeri || []).map((sp: any) => ({
+          nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
+          nome_cognome_inline: sp.nome_cognome_inline,
+          email: sp.passeggeri?.email || '',
+          email_inline: sp.email_inline,
+          telefono: sp.passeggeri?.telefono || '',
+          telefono_inline: sp.telefono_inline,
+          indirizzo: sp.passeggeri?.indirizzo || '',
+          indirizzo_inline: sp.indirizzo_inline,
+          localita: sp.passeggeri?.localita || '',
+          localita_inline: sp.localita_inline,
+          luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+          localita_presa_personalizzato: sp.localita_presa_personalizzato,
+          orario_presa_personalizzato: sp.orario_presa_personalizzato,
+          usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato,
+          usa_destinazione_personalizzata: sp.usa_destinazione_personalizzata,
+          destinazione_personalizzato: sp.destinazione_personalizzato,
+          localita_destinazione_personalizzato: sp.localita_destinazione_personalizzato,
+          ordine_presa: sp.ordine_presa,
+        })).sort((a: any, b: any) => (a.ordine_presa ?? 999) - (b.ordine_presa ?? 999));
+
+        const renderContext: RenderContext = {
+          servizio,
+          passeggeri: passeggeriUnified,
+          referente: servizio.referente || null,
+          azienda: servizio.aziende || null,
+          autista: servizio.autista || null,
+          veicolo: servizio.veicoli || null,
+        };
+
+        const rendered = renderUnifiedEmail(template as TemplateRecord, renderContext, emailConfig);
+        const subject = `[TEST] ${rendered.subject}`;
+
+        const password = atob(smtpCfg.smtp_password_encrypted);
+        const smtp = new SMTPClient({
+          connection: {
+            hostname: smtpCfg.smtp_host,
+            port: smtpCfg.smtp_port,
+            tls: smtpCfg.smtp_secure,
+            auth: { username: smtpCfg.smtp_user, password }
+          }
+        });
+
+        let sent = 0;
+        let failed = 0;
+        for (const email of test_emails) {
+          try {
+            await smtp.send({
+              from: `${smtpCfg.smtp_from_name || 'TaxiTime'} <${smtpCfg.smtp_from_email || smtpCfg.smtp_user}>`,
+              to: [email],
+              subject,
+              html: rendered.html,
+            });
+            sent++;
+            console.log(`[SEND-EMAIL] ✅ Test (${template_slug}) sent to ${email}`);
+          } catch (err) {
+            failed++;
+            console.error(`[SEND-EMAIL] ❌ Test (${template_slug}) failed to ${email}:`, (err as Error).message);
+          }
+        }
+        await smtp.close();
+
+        return new Response(
+          JSON.stringify({ success: true, sent, failed, total: test_emails.length, template_slug }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      // ---- fine nuovo ramo ----
+
       const supabaseAdmin = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
