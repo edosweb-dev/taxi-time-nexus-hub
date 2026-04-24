@@ -248,7 +248,10 @@ export default function ImpostazioniTemplateEmailPage() {
                   mutation.mutate({
                     id: editingTemplate.id,
                     subject: editForm.subject,
-                    html_body: editForm.html_body,
+                    titolo: editForm.titolo,
+                    intro: editForm.intro,
+                    chiusura: editForm.chiusura,
+                    colore_header: editForm.colore_header,
                     attivo: editForm.attivo,
                   });
                 }}
