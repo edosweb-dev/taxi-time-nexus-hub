@@ -100,6 +100,15 @@ function htmlToPlainText(html: string): string {
     .trim();
 }
 
+function minifyHtml(html: string): string {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\n/g, '')
+    .replace(/>\s+</g, '><')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 async function fetchEmailConfig(supabase: any): Promise<EmailConfig> {
   const { data } = await supabase
     .from('email_config')
@@ -282,7 +291,7 @@ function renderUnifiedEmail(template: TemplateRecord, ctx: RenderContext, config
     renderSectionConsuntivo(vars),
     renderSectionNote(vars),
   ];
-  const html = renderUnifiedLayout({ colore_header, titolo, intro, sections, chiusura, config });
+  const html = minifyHtml(renderUnifiedLayout({ colore_header, titolo, intro, sections, chiusura, config }));
   return { subject, html };
 }
 
@@ -776,15 +785,12 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       };
 
       try {
-        // Minimizza HTML per evitare =20 nel trasporto Quoted-Printable
-        const minifiedHtml = emailHtml.replace(/\n\s*/g, '\n').replace(/\s+$/gm, '');
-
         const sendResult = await smtp.send({
           from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
           to: [recipient.email],
           subject: emailSubject,
           content: emailPlainText,
-          html: minifiedHtml
+          html: emailHtml
         });
 
         results.sent++;
