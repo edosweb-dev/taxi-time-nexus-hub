@@ -603,7 +603,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     // 2. FETCH TEMPLATE
     const { data: template, error: templateError } = await supabaseAdmin
       .from('email_templates')
-      .select('*')
+      .select('slug, nome, subject, html_body, attivo, titolo, intro, chiusura, colore_header')
       .eq('slug', template_slug)
       .maybeSingle();
 
@@ -621,6 +621,9 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+
+    // 2b. FETCH EMAIL CONFIG (firma, footer, logo)
+    const emailConfig = await fetchEmailConfig(supabaseAdmin);
 
     // 3. FETCH SERVIZIO
     const { data: servizio, error: servizioError } = await supabaseAdmin
@@ -720,87 +723,47 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 
     console.log('[SEND-EMAIL] Recipients:', uniqueRecipients.length);
 
-    // 5. BUILD EMAIL CONTENT — DETECTION MODE
-    let emailHtml: string;
-    let emailSubject: string;
-    const isDynamicTemplate = template.slug.includes('completo');
+    // 5. BUILD EMAIL CONTENT — UNIFIED RENDERER
+    console.log(`[SEND-EMAIL] UNIFIED render for: ${template.slug}`);
 
-    if (isDynamicTemplate) {
-      // ── DYNAMIC MODE ──────────────────────────────────────────────
-      console.log(`[SEND-EMAIL] DYNAMIC mode for: ${template.slug}`);
+    const passeggeriUnified = (servizio.servizi_passeggeri || []).map((sp: any) => ({
+      nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
+      nome_cognome_inline: sp.nome_cognome_inline,
+      email: sp.passeggeri?.email || '',
+      email_inline: sp.email_inline,
+      telefono: sp.passeggeri?.telefono || '',
+      telefono_inline: sp.telefono_inline,
+      indirizzo: sp.passeggeri?.indirizzo || '',
+      indirizzo_inline: sp.indirizzo_inline,
+      localita: sp.passeggeri?.localita || '',
+      localita_inline: sp.localita_inline,
+      luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
+      localita_presa_personalizzato: sp.localita_presa_personalizzato,
+      orario_presa_personalizzato: sp.orario_presa_personalizzato,
+      usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato,
+      usa_destinazione_personalizzata: sp.usa_destinazione_personalizzata,
+      destinazione_personalizzato: sp.destinazione_personalizzato,
+      localita_destinazione_personalizzato: sp.localita_destinazione_personalizzato,
+      ordine_presa: sp.ordine_presa,
+    })).sort((a: any, b: any) => (a.ordine_presa ?? 999) - (b.ordine_presa ?? 999));
 
-      let tipo: DynamicEmailTipo;
-      if (template.slug.includes('richiesta')) {
-        tipo = 'richiesta_cliente';
-      } else if (template.slug.includes('conferma_presa_carico')) {
-        tipo = 'conferma_presa_carico';
-      } else {
-        tipo = 'servizio_confermato';
-      }
+    const renderContext: RenderContext = {
+      servizio,
+      passeggeri: passeggeriUnified,
+      referente: referente || null,
+      azienda: servizio.aziende || null,
+      autista: servizio.autista || null,
+      veicolo: servizio.veicoli || null,
+    };
 
-      // Build enriched passenger list from servizi_passeggeri join
-      const passeggeriConDati = (servizio.servizi_passeggeri || []).map((sp: any) => ({
-        nome_cognome: sp.nome_cognome_inline || sp.passeggeri?.nome_cognome || '',
-        nome_cognome_inline: sp.nome_cognome_inline,
-        email: sp.passeggeri?.email || '',
-        email_inline: sp.email_inline,
-        telefono: sp.passeggeri?.telefono || '',
-        telefono_inline: sp.telefono_inline,
-        indirizzo: sp.passeggeri?.indirizzo || '',
-        indirizzo_inline: sp.indirizzo_inline,
-        localita: sp.passeggeri?.localita || '',
-        localita_inline: sp.localita_inline,
-        luogo_presa_personalizzato: sp.luogo_presa_personalizzato,
-        localita_presa_personalizzato: sp.localita_presa_personalizzato,
-        orario_presa_personalizzato: sp.orario_presa_personalizzato,
-        usa_indirizzo_personalizzato: sp.usa_indirizzo_personalizzato,
-        usa_destinazione_personalizzata: sp.usa_destinazione_personalizzata,
-        destinazione_personalizzato: sp.destinazione_personalizzato,
-        localita_destinazione_personalizzato: sp.localita_destinazione_personalizzato,
-        ordine_presa: sp.ordine_presa,
-      })).sort((a: any, b: any) => (a.ordine_presa ?? 999) - (b.ordine_presa ?? 999));
+    const rendered = renderUnifiedEmail(
+      template as TemplateRecord,
+      renderContext,
+      emailConfig
+    );
 
-      const built = buildCompleteEmailHTML({
-        tipo,
-        servizio,
-        passeggeri: passeggeriConDati,
-        referente,
-        azienda: servizio.aziende,
-        autista: servizio.autista,
-        veicolo: servizio.veicoli,
-      });
-
-      emailHtml = built.html;
-      emailSubject = built.subject;
-
-    } else {
-      // ── LEGACY MODE ───────────────────────────────────────────────
-      console.log(`[SEND-EMAIL] LEGACY mode for: ${template.slug}`);
-
-      const variables: Record<string, string> = {
-        numero: servizio.numero_commessa || servizio.id_progressivo || servizio.id.split('-')[0].toUpperCase(),
-        azienda_nome: servizio.aziende?.nome || '',
-        data: new Date(servizio.data_servizio).toLocaleDateString('it-IT'),
-        ora: servizio.orario_servizio?.slice(0, 5) || '',
-        indirizzo_presa: servizio.indirizzo_presa || '',
-        citta_presa: servizio.citta_presa || '',
-        indirizzo_destinazione: servizio.indirizzo_destinazione || '',
-        citta_destinazione: servizio.citta_destinazione || '',
-        autista_nome: servizio.autista ? `${servizio.autista.first_name || ''} ${servizio.autista.last_name || ''}`.trim() : '',
-        veicolo: servizio.veicoli ? `${servizio.veicoli.modello} ${servizio.veicoli.targa}` : '',
-        note: servizio.note || '',
-        data_completamento: new Date().toLocaleDateString('it-IT'),
-        motivo: ''
-      };
-
-      emailHtml = template.html_body;
-      emailSubject = template.subject;
-      Object.keys(variables).forEach(key => {
-        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-        emailHtml = emailHtml.replace(regex, variables[key]);
-        emailSubject = emailSubject.replace(regex, variables[key]);
-      });
-    }
+    const emailHtml: string = rendered.html;
+    const emailSubject: string = rendered.subject;
 
     // 6. CHECK SMTP CONFIG
     if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
