@@ -58,16 +58,16 @@ function ActionCard({
       className={`transition-all hover:shadow-md ${onClick ? 'cursor-pointer hover:-translate-y-0.5' : ''} ${urgent ? 'border-destructive/50' : ''}`}
       onClick={onClick}
     >
-      <CardContent className="p-4 lg:p-5">
-        <div className="flex items-start justify-between mb-3">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bgColor}`}>
-            <Icon className={`w-5 h-5 ${iconColor}`} />
+      <CardContent className="p-3 sm:p-4 lg:p-5">
+        <div className="flex items-start justify-between mb-2 sm:mb-3">
+          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${bgColor}`}>
+            <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColor}`} />
           </div>
           {urgent && <Badge variant="destructive">Urgente</Badge>}
         </div>
         <div className="space-y-1">
-          <p className="text-2xl lg:text-3xl font-bold">{value}</p>
-          <p className="text-sm font-medium">{title}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">{value}</p>
+          <p className="text-xs sm:text-sm font-medium leading-snug">{title}</p>
           {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
         </div>
         {onClick && (
@@ -100,10 +100,10 @@ function MetricCard({
 
   return (
     <Card>
-      <CardContent className="p-4 lg:p-5">
-        <div className="flex items-start justify-between mb-3">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bgColor}`}>
-            <Icon className={`w-5 h-5 ${iconColor}`} />
+      <CardContent className="p-3 sm:p-4 lg:p-5">
+        <div className="flex items-start justify-between mb-2 sm:mb-3">
+          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${bgColor}`}>
+            <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColor}`} />
           </div>
           {trend && (
             <div className={`flex items-center gap-1 text-xs font-medium ${trendColorClass}`}>
@@ -113,8 +113,8 @@ function MetricCard({
           )}
         </div>
         <div className="space-y-1">
-          <p className="text-2xl lg:text-3xl font-bold">{value}</p>
-          <p className="text-sm font-medium">{title}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">{value}</p>
+          <p className="text-xs sm:text-sm font-medium leading-snug">{title}</p>
         </div>
       </CardContent>
     </Card>
@@ -168,11 +168,11 @@ export default function DashboardPage() {
         <section>
           <SectionTitle icon={AlertCircle} title="Da gestire ora" subtitle="Azioni operative prioritarie" />
           {isLoadingMetrics ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map(i => <Skeleton key={i} className="h-36" />)}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 sm:h-36" />)}
             </div>
           ) : metrics && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <ActionCard
                 title="Richieste clienti da confermare"
                 value={metrics.richiesteClientiCount}
@@ -208,11 +208,11 @@ export default function DashboardPage() {
         <section>
           <SectionTitle icon={BarChart3} title="Performance mese" subtitle="Andamento del mese corrente" />
           {isLoadingMetrics ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map(i => <Skeleton key={i} className="h-36" />)}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 sm:h-36" />)}
             </div>
           ) : metrics && ricaviDelta && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <MetricCard
                 title="Ricavi mese"
                 value={formatCurrency(metrics.ricaviMese)}
@@ -246,11 +246,11 @@ export default function DashboardPage() {
         <section>
           <SectionTitle icon={Users} title="Team & Fleet" subtitle="Risorse disponibili" />
           {isLoadingMetrics ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2].map(i => <Skeleton key={i} className="h-36" />)}
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
+              {[1, 2].map(i => <Skeleton key={i} className="h-28 sm:h-36" />)}
             </div>
           ) : metrics && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
               <MetricCard
                 title="Team disponibile oggi"
                 value={`${teamDisponibili} / ${metrics.teamTotale}`}
