@@ -249,7 +249,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('💥 ERRORE GENERALE:', error)
     return new Response(
-      JSON.stringify({ error: error.message || 'Errore durante la generazione del report', success: false }),
+      JSON.stringify({ error: (error as Error)?.message || 'Errore durante la generazione del report', success: false }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
