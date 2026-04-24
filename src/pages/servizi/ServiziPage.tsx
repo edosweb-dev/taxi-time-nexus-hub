@@ -1162,6 +1162,7 @@ export default function ServiziPage() {
       <InserimentoServizioModal 
         open={showModal}
         onClose={() => setShowModal(false)}
+        returnSearch={searchParams.toString()}
       />
 
       {/* Dialog conferma eliminazione */}
