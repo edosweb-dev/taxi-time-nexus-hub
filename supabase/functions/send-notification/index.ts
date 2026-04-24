@@ -977,6 +977,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
           from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
           to: [recipient.email],
           subject: emailSubject,
+          content: emailPlainText,
           html: minifiedHtml
         });
 
