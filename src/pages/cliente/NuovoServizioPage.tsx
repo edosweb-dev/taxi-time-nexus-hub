@@ -11,6 +11,16 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -59,6 +69,7 @@ export default function NuovoServizioPage() {
   const [showNuovaEmailDialog, setShowNuovaEmailDialog] = useState(false);
   const [nuovaEmailNome, setNuovaEmailNome] = useState('');
   const [nuovaEmailIndirizzo, setNuovaEmailIndirizzo] = useState('');
+  const [emailToDelete, setEmailToDelete] = useState<{ id: string; nome: string; email: string } | null>(null);
 
   // Usa profilo da useAuth (supporta impersonificazione)
   const { profile: authProfile } = useAuth();
@@ -714,17 +725,27 @@ export default function NuovoServizioPage() {
                       ) : (
                         <div className="space-y-2">
                           {emailNotifiche.map((email) => (
-                            <div key={email.id} className="flex items-center justify-between p-3 border rounded-lg">
-                              <div className="flex items-center space-x-3">
+                            <div key={email.id} className="flex items-center justify-between p-3 border rounded-lg gap-2">
+                              <div className="flex items-center space-x-3 flex-1 min-w-0">
                                 <Checkbox
                                   checked={emailNotificheIds.includes(email.id)}
                                   onCheckedChange={(checked) => handleEmailToggle(email.id, checked as boolean)}
                                 />
-                                <div>
-                                  <div className="font-medium text-sm">{email.nome}</div>
-                                  <div className="text-xs text-muted-foreground">{email.email}</div>
+                                <div className="min-w-0">
+                                  <div className="font-medium text-sm truncate">{email.nome}</div>
+                                  <div className="text-xs text-muted-foreground truncate">{email.email}</div>
                                 </div>
                               </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => setEmailToDelete({ id: email.id, nome: email.nome, email: email.email })}
+                                aria-label={`Elimina email ${email.nome}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           ))}
                         </div>
@@ -790,6 +811,33 @@ export default function NuovoServizioPage() {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
+
+                      {/* AlertDialog conferma eliminazione email */}
+                      <AlertDialog open={!!emailToDelete} onOpenChange={(open) => !open && setEmailToDelete(null)}>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Elimina indirizzo email</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Vuoi davvero eliminare <strong>{emailToDelete?.nome}</strong> ({emailToDelete?.email}) dalla lista email notifiche? L'indirizzo non verrà più proposto nelle future richieste.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Annulla</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => {
+                                if (emailToDelete) {
+                                  setEmailNotificheIds((prev) => prev.filter((id) => id !== emailToDelete.id));
+                                  deleteEmailNotifica(emailToDelete.id);
+                                  setEmailToDelete(null);
+                                }
+                              }}
+                            >
+                              Elimina
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </>
                 )}
