@@ -672,14 +672,15 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 
     // Aggiungi email admin per richieste cliente
     const isRichiestaCliente = ['richiesta_cliente', 'richiesta_cliente_completo'].includes(template_slug);
+    console.log('[SEND-EMAIL] Config admin emails raw:', JSON.stringify(config.email_notifiche_admin), 'isRichiestaCliente:', isRichiestaCliente, 'template:', template_slug);
     if (isRichiestaCliente && config.email_notifiche_admin) {
       const adminEmails = Array.isArray(config.email_notifiche_admin) ? config.email_notifiche_admin : [];
       adminEmails.forEach((email: string) => {
-        if (email && typeof email === 'string') {
-          recipients.push({ email, name: 'Admin' });
+        if (email && typeof email === 'string' && email.trim().length > 0) {
+          recipients.push({ email: email.trim(), name: 'Admin' });
         }
       });
-      console.log('[SEND-EMAIL] Added admin notification emails:', adminEmails.length);
+      console.log('[SEND-EMAIL] Added admin notification emails:', adminEmails.length, adminEmails);
     }
 
     const uniqueRecipients = Array.from(
