@@ -832,14 +832,7 @@ export default function ServiziPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredServizi.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                            Nessun servizio trovato
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        filteredServizi.map((servizio: ServizioWithPasseggeri) => (
+                      {filteredServizi.map((servizio: ServizioWithPasseggeri) => (
                           <TableRow 
                             key={servizio.id}
                             className="hover:bg-muted/50"
