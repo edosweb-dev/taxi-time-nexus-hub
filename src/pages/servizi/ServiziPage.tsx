@@ -107,6 +107,40 @@ export default function ServiziPage() {
     consuntivato: servizi.filter(s => s.stato === 'consuntivato').length,
   }), [servizi]);
 
+  // Lista ordinata di tab per empty state (CASO A)
+  const statusCountsList = useMemo(() => [
+    { key: 'richiesta_cliente', label: TAB_LABELS.richiesta_cliente, count: statusCounts.richiesta_cliente },
+    { key: 'bozza', label: TAB_LABELS.bozza, count: statusCounts.bozza },
+    { key: 'da_assegnare', label: TAB_LABELS.da_assegnare, count: statusCounts.da_assegnare },
+    { key: 'assegnato', label: TAB_LABELS.assegnato, count: statusCounts.assegnato },
+    { key: 'non_accettato', label: TAB_LABELS.non_accettato, count: statusCounts.non_accettato },
+    { key: 'completato', label: TAB_LABELS.completato, count: statusCounts.completato },
+    { key: 'annullato', label: TAB_LABELS.annullato, count: statusCounts.annullato },
+    { key: 'consuntivato', label: TAB_LABELS.consuntivato, count: statusCounts.consuntivato },
+  ], [statusCounts]);
+
+  const handleClearFilters = () => {
+    setSearchParams(prev => {
+      prev.delete('data');
+      prev.delete('id');
+      return prev;
+    }, { replace: true });
+  };
+
+  const renderEmptyState = () => (
+    <EmptyServiziState
+      activeTab={activeTab}
+      activeTabLabel={TAB_LABELS[activeTab] || activeTab}
+      statusCounts={statusCountsList}
+      dataFiltro={dataFiltro}
+      idFiltro={idFiltro}
+      onGoToTab={handleTabChange}
+      onClearFilters={handleClearFilters}
+      onCreateNew={() => setShowModal(true)}
+      onRetry={() => refetch()}
+    />
+  );
+
   // Ricerca spostata su pagina dedicata /servizi/ricerca
 
   // Tab operativi = ordine ASC (urgenti/imminenti prima)
