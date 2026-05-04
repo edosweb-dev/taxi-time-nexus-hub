@@ -783,11 +783,21 @@ export default function ServiziPage() {
                 </div>
               )}
 
-        {/* Error State */}
+        {/* Error State - smart empty state CASO D */}
         {error && (
-          <Card className="w-full p-8 text-center">
-            <p className="text-destructive">Errore nel caricamento dei servizi</p>
-          </Card>
+          <EmptyServiziState
+            activeTab={activeTab}
+            activeTabLabel={TAB_LABELS[activeTab] || activeTab}
+            statusCounts={statusCountsList}
+            dataFiltro={dataFiltro}
+            idFiltro={idFiltro}
+            isError={true}
+            errorMessage={(error as Error)?.message}
+            onGoToTab={handleTabChange}
+            onClearFilters={handleClearFilters}
+            onCreateNew={() => setShowModal(true)}
+            onRetry={() => refetch()}
+          />
         )}
 
         {/* Content */}
@@ -796,18 +806,10 @@ export default function ServiziPage() {
             {/* MOBILE: Card List */}
             {isMobile ? (
               <div className="w-full space-y-3">
-                {filteredServizi.map(renderMobileCard)}
-                {filteredServizi.length === 0 && (
-                  <Card className="w-full p-8 text-center">
-                    <p className="text-muted-foreground mb-4">Nessun servizio trovato</p>
-                    <Button 
-                      onClick={() => setShowModal(true)}
-                      variant="outline"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Crea il primo servizio
-                    </Button>
-                  </Card>
+                {filteredServizi.length === 0 ? (
+                  renderEmptyState()
+                ) : (
+                  filteredServizi.map(renderMobileCard)
                 )}
               </div>
             ) : (
