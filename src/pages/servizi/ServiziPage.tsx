@@ -812,6 +812,8 @@ export default function ServiziPage() {
                   filteredServizi.map(renderMobileCard)
                 )}
               </div>
+            ) : filteredServizi.length === 0 ? (
+              renderEmptyState()
             ) : (
               /* DESKTOP: Table */
               <TooltipProvider>
