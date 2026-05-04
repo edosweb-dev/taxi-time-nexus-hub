@@ -1100,8 +1100,8 @@ export default function ServiziPage() {
                               </div>
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
+                        ))}
+
                     </TableBody>
                   </Table>
                 </Card>
