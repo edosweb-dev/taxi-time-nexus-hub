@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isImpersonating, setIsImpersonating] = useState(false);
   const [originalAdminId, setOriginalAdminId] = useState<string | null>(null);
+  const lastFetchedUserId = useRef<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -88,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsImpersonating(false);
           setOriginalAdminId(null);
           sessionStorage.removeItem('impersonation_data');
+          lastFetchedUserId.current = null;
           setLoading(false);
           return;
         }
@@ -115,9 +117,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(newSession?.user ?? null);
         
         if (newSession?.user) {
+          // Skip refetch se già caricato per questo user (SIGNED_IN/TOKEN_REFRESHED ripetuti)
+          if (lastFetchedUserId.current === newSession.user.id) {
+            setLoading(false);
+            return;
+          }
+          lastFetchedUserId.current = newSession.user.id;
           fetchProfile(newSession.user.id);
         } else {
           setProfile(null);
+          lastFetchedUserId.current = null;
           setLoading(false);
         }
       }
