@@ -27,6 +27,18 @@ import type { Servizio } from "@/lib/types/servizi";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 import { InserimentoServizioModal } from "@/components/servizi/InserimentoServizioModal";
 import { DeleteServizioDialog } from "@/components/servizi/dialogs";
+import { EmptyServiziState } from "@/components/servizi/EmptyServiziState";
+
+const TAB_LABELS: Record<string, string> = {
+  richiesta_cliente: 'Richieste Clienti',
+  bozza: 'Bozze',
+  da_assegnare: 'Da Assegnare',
+  assegnato: 'Assegnati',
+  non_accettato: 'Non Accettati',
+  completato: 'Completati',
+  annullato: 'Annullati',
+  consuntivato: 'Consuntivati',
+};
 
 export default function ServiziPage() {
   const navigate = useNavigate();
