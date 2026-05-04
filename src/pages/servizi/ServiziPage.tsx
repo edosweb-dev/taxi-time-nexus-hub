@@ -27,6 +27,18 @@ import type { Servizio } from "@/lib/types/servizi";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 import { InserimentoServizioModal } from "@/components/servizi/InserimentoServizioModal";
 import { DeleteServizioDialog } from "@/components/servizi/dialogs";
+import { EmptyServiziState } from "@/components/servizi/EmptyServiziState";
+
+const TAB_LABELS: Record<string, string> = {
+  richiesta_cliente: 'Richieste Clienti',
+  bozza: 'Bozze',
+  da_assegnare: 'Da Assegnare',
+  assegnato: 'Assegnati',
+  non_accettato: 'Non Accettati',
+  completato: 'Completati',
+  annullato: 'Annullati',
+  consuntivato: 'Consuntivati',
+};
 
 export default function ServiziPage() {
   const navigate = useNavigate();
@@ -94,6 +106,40 @@ export default function ServiziPage() {
     annullato: servizi.filter(s => s.stato === 'annullato').length,
     consuntivato: servizi.filter(s => s.stato === 'consuntivato').length,
   }), [servizi]);
+
+  // Lista ordinata di tab per empty state (CASO A)
+  const statusCountsList = useMemo(() => [
+    { key: 'richiesta_cliente', label: TAB_LABELS.richiesta_cliente, count: statusCounts.richiesta_cliente },
+    { key: 'bozza', label: TAB_LABELS.bozza, count: statusCounts.bozza },
+    { key: 'da_assegnare', label: TAB_LABELS.da_assegnare, count: statusCounts.da_assegnare },
+    { key: 'assegnato', label: TAB_LABELS.assegnato, count: statusCounts.assegnato },
+    { key: 'non_accettato', label: TAB_LABELS.non_accettato, count: statusCounts.non_accettato },
+    { key: 'completato', label: TAB_LABELS.completato, count: statusCounts.completato },
+    { key: 'annullato', label: TAB_LABELS.annullato, count: statusCounts.annullato },
+    { key: 'consuntivato', label: TAB_LABELS.consuntivato, count: statusCounts.consuntivato },
+  ], [statusCounts]);
+
+  const handleClearFilters = () => {
+    setSearchParams(prev => {
+      prev.delete('data');
+      prev.delete('id');
+      return prev;
+    }, { replace: true });
+  };
+
+  const renderEmptyState = () => (
+    <EmptyServiziState
+      activeTab={activeTab}
+      activeTabLabel={TAB_LABELS[activeTab] || activeTab}
+      statusCounts={statusCountsList}
+      dataFiltro={dataFiltro}
+      idFiltro={idFiltro}
+      onGoToTab={handleTabChange}
+      onClearFilters={handleClearFilters}
+      onCreateNew={() => setShowModal(true)}
+      onRetry={() => refetch()}
+    />
+  );
 
   // Ricerca spostata su pagina dedicata /servizi/ricerca
 
@@ -737,11 +783,21 @@ export default function ServiziPage() {
                 </div>
               )}
 
-        {/* Error State */}
+        {/* Error State - smart empty state CASO D */}
         {error && (
-          <Card className="w-full p-8 text-center">
-            <p className="text-destructive">Errore nel caricamento dei servizi</p>
-          </Card>
+          <EmptyServiziState
+            activeTab={activeTab}
+            activeTabLabel={TAB_LABELS[activeTab] || activeTab}
+            statusCounts={statusCountsList}
+            dataFiltro={dataFiltro}
+            idFiltro={idFiltro}
+            isError={true}
+            errorMessage={(error as Error)?.message}
+            onGoToTab={handleTabChange}
+            onClearFilters={handleClearFilters}
+            onCreateNew={() => setShowModal(true)}
+            onRetry={() => refetch()}
+          />
         )}
 
         {/* Content */}
@@ -750,20 +806,14 @@ export default function ServiziPage() {
             {/* MOBILE: Card List */}
             {isMobile ? (
               <div className="w-full space-y-3">
-                {filteredServizi.map(renderMobileCard)}
-                {filteredServizi.length === 0 && (
-                  <Card className="w-full p-8 text-center">
-                    <p className="text-muted-foreground mb-4">Nessun servizio trovato</p>
-                    <Button 
-                      onClick={() => setShowModal(true)}
-                      variant="outline"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Crea il primo servizio
-                    </Button>
-                  </Card>
+                {filteredServizi.length === 0 ? (
+                  renderEmptyState()
+                ) : (
+                  filteredServizi.map(renderMobileCard)
                 )}
               </div>
+            ) : filteredServizi.length === 0 ? (
+              renderEmptyState()
             ) : (
               /* DESKTOP: Table */
               <TooltipProvider>
@@ -782,14 +832,7 @@ export default function ServiziPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredServizi.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                            Nessun servizio trovato
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        filteredServizi.map((servizio: ServizioWithPasseggeri) => (
+                      {filteredServizi.map((servizio: ServizioWithPasseggeri) => (
                           <TableRow 
                             key={servizio.id}
                             className="hover:bg-muted/50"
@@ -1057,8 +1100,8 @@ export default function ServiziPage() {
                               </div>
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
+                        ))}
+
                     </TableBody>
                   </Table>
                 </Card>
