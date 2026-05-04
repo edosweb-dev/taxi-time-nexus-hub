@@ -27,7 +27,7 @@ export const useServiziWithPasseggeri = () => {
     queryKey: ['servizi-with-passeggeri'],
     staleTime: 2 * 60 * 1000, // 2 minuti - dati operativi
     queryFn: async () => {
-      // Get all servizi
+      // ✅ FIX: Single query con resource embedding (evita IN(...) gigante che genera HTTP 400)
       const { data: servizi, error: serviziError } = await supabase
         .from('servizi')
         .select(`
@@ -41,6 +41,18 @@ export const useServiziWithPasseggeri = () => {
             first_name,
             last_name,
             email
+          ),
+          servizi_passeggeri (
+            passeggero_id,
+            nome_cognome_inline,
+            destinazione_personalizzato,
+            localita_destinazione_personalizzato,
+            luogo_presa_personalizzato,
+            localita_presa_personalizzato,
+            passeggeri:passeggero_id (
+              id,
+              nome_cognome
+            )
           )
         `)
         .order('data_servizio', { ascending: false })
@@ -52,38 +64,15 @@ export const useServiziWithPasseggeri = () => {
         return [];
       }
 
-      // Get passeggeri for all servizi
-      const serviziIds = servizi.map(s => s.id);
-      const { data: passeggeriData, error: passeggeriError } = await supabase
-        .from('servizi_passeggeri')
-        .select(`
-          servizio_id,
-          passeggero_id,
-          nome_cognome_inline,
-          destinazione_personalizzato,
-          localita_destinazione_personalizzato,
-          luogo_presa_personalizzato,
-          localita_presa_personalizzato,
-          passeggeri:passeggero_id (
-            id,
-            nome_cognome
-          )
-        `)
-        .in('servizio_id', serviziIds);
+      // Map embedded passeggeri
+      const serviziWithPasseggeri: ServizioWithPasseggeri[] = servizi.map((servizio: any) => {
+        const servizioPasseggeri = Array.isArray(servizio.servizi_passeggeri)
+          ? servizio.servizi_passeggeri
+          : [];
 
-      if (passeggeriError) throw passeggeriError;
-
-      // Map passeggeri to servizi
-      const serviziWithPasseggeri: ServizioWithPasseggeri[] = servizi.map(servizio => {
-        const servizioPasseggeri = passeggeriData?.filter(
-          p => p.servizio_id === servizio.id
-        ) || [];
-
-        // ✅ Conta TUTTI i passeggeri (permanenti + temporanei)
         const passeggeriCount = servizioPasseggeri.length;
 
-        // Crea array passeggeri includendo entrambi i tipi
-        const passeggeri = servizioPasseggeri.map(p => {
+        const passeggeri: PasseggeroInfo[] = servizioPasseggeri.map((p: any) => {
           const base = {
             destinazione_personalizzato: p.destinazione_personalizzato,
             localita_destinazione_personalizzato: p.localita_destinazione_personalizzato,
@@ -93,18 +82,25 @@ export const useServiziWithPasseggeri = () => {
           if (p.passeggeri) {
             return { ...base, id: p.passeggeri.id, nome_cognome: p.passeggeri.nome_cognome };
           } else {
-            return { ...base, id: p.passeggero_id || `temp-${p.servizio_id}`, nome_cognome: p.nome_cognome_inline || 'N/A' };
+            return {
+              ...base,
+              id: p.passeggero_id || `temp-${servizio.id}`,
+              nome_cognome: p.nome_cognome_inline || 'N/A',
+            };
           }
         });
 
+        // Strip embedded relation to keep Servizio shape clean
+        const { servizi_passeggeri: _omit, ...servizioClean } = servizio;
+
         return {
-          ...(servizio as Servizio),
+          ...(servizioClean as Servizio),
           passeggeri,
-          passeggeriCount
+          passeggeriCount,
         };
       });
 
       return serviziWithPasseggeri;
-    }
+    },
   });
 };
