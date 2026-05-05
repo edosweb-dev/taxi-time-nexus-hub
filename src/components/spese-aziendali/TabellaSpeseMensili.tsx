@@ -182,7 +182,8 @@ export function TabellaSpeseMensili() {
       { spese: 0, incassi: 0, prelieviPuri: 0, prelieviScorporo: 0, versamenti: 0 }
     );
 
-  const speseNette = totaliMese.spese - totaliMese.prelieviScorporo;
+  const speseTotali = totaliMese.spese + stipendiSociLordi;
+  const speseNette = speseTotali - totaliMese.prelieviScorporo;
   const totalePrelievi = totaliMese.prelieviPuri + totaliMese.prelieviScorporo;
 
   const incassiServizi = incassiMeseStats?.totaleIncassi ?? 0;
