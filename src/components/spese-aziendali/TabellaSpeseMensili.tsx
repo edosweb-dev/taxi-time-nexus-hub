@@ -38,6 +38,26 @@ export function TabellaSpeseMensili() {
     dataFine: format(endDate, 'yyyy-MM-dd'),
   });
 
+  const meseSelezionato = selectedMonth.getMonth() + 1;
+  const annoSelezionato = selectedMonth.getFullYear();
+
+  const { data: stipendiSociLordi = 0 } = useQuery({
+    queryKey: ['stipendi-soci-lordi', meseSelezionato, annoSelezionato],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('stipendi')
+        .select('totale_lordo')
+        .eq('tipo_calcolo', 'socio')
+        .eq('mese', meseSelezionato)
+        .eq('anno', annoSelezionato);
+      if (error) throw error;
+      return (data ?? []).reduce(
+        (sum, s) => sum + Number(s.totale_lordo || 0),
+        0
+      );
+    },
+  });
+
   // Filtra movimenti per il mese selezionato
   const movimentiMese = movimentiCompleti.filter(movimento => {
     const dataMovimento = new Date(movimento.data);
