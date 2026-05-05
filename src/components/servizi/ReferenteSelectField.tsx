@@ -103,7 +103,8 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
 
   const handleCreateReferente = async (userData: UserFormData) => {
     setIsSubmitting(true);
-    try {
+
+    const operation = (async () => {
       const { user, error } = await createReferente({
         ...userData,
         role: 'cliente',
@@ -111,40 +112,38 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       });
 
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Errore",
-          description: error.message || "Errore durante la creazione del referente",
-        });
-        return;
+        throw new Error(error.message || "Errore durante la creazione del referente");
       }
 
-      toast({
-        title: "Successo",
-        description: "Referente creato con successo",
-      });
-
-      // Invalida tutte le cache che mostrano referenti, così il nuovo
-      // referente appare immediatamente in tutte le pagine
+      // Invalida tutte le cache che mostrano referenti
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['referenti', aziendaId] }),
         queryClient.invalidateQueries({ queryKey: ['users'] }),
         queryClient.invalidateQueries({ queryKey: ['all-referenti'] }),
       ]);
 
-      // Seleziona automaticamente il nuovo referente
+      return user;
+    })();
+
+    sonnerToast.promise(operation, {
+      loading: 'Creazione referente e sincronizzazione in corso...',
+      success: 'Referente creato e disponibile in tutte le pagine',
+      error: (err: any) => err?.message || 'Errore durante la creazione del referente',
+    });
+
+    try {
+      const user = await operation;
+
+      // Seleziona automaticamente il nuovo referente nel form
       if (user?.id) {
         form.setValue('referente_id', user.id);
         onValueChange?.(user.id);
       }
 
       setIsDialogOpen(false);
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Errore",
-        description: error.message || "Errore imprevisto durante la creazione del referente",
-      });
+    } catch (error) {
+      // Errore già mostrato dal toast.promise sopra; non serve altro
+      console.error('[ReferenteSelectField] handleCreateReferente error:', error);
     } finally {
       setIsSubmitting(false);
     }
