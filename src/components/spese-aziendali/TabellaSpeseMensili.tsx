@@ -145,11 +145,21 @@ export function TabellaSpeseMensili() {
   };
 
   const totaliMese = movimentiMese
-    .filter(m => m.tipo === 'aziendale') // Escludi pending dai totali
-    .reduce(
-      (acc, movimento) => {
-        const importo = Number(movimento.importo);
-        switch (movimento.tipologia) {
+      .filter(m => m.tipo === 'aziendale') // Escludi pending dai totali
+      .reduce(
+        (acc, movimento) => {
+          const importo = Number(movimento.importo);
+          // Skip spese di tipo stipendio: vengono già contate da
+          // stipendiSociLordi (preso da tabella stipendi), per evitare
+          // double-count quando il pagamento_stipendi crea la riga
+          // tipo_causale='stipendio' in spese_aziendali
+          if (
+            movimento.tipologia === 'spesa' &&
+            (movimento as any).tipo_causale === 'stipendio'
+          ) {
+            return acc;
+          }
+          switch (movimento.tipologia) {
           case 'spesa':
             acc.spese += importo;
             break;
