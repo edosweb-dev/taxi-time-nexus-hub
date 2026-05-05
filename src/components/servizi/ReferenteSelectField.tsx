@@ -375,7 +375,11 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className={modeReferente === 'completo' ? 'sm:max-w-2xl max-h-[80vh]' : 'sm:max-w-md'}>
+        <DialogContent
+          className={modeReferente === 'completo' ? 'sm:max-w-2xl max-h-[80vh]' : 'sm:max-w-md'}
+          onEscapeKeyDown={(e) => { if (isSubmitting) e.preventDefault(); }}
+          onPointerDownOutside={(e) => { if (isSubmitting) e.preventDefault(); }}
+        >
           <DialogHeader>
             <DialogTitle>Nuovo Referente</DialogTitle>
             <DialogDescription>
