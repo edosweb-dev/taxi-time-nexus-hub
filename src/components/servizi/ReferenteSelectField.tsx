@@ -123,8 +123,13 @@ export function ReferenteSelectField({ aziendaId, onValueChange }: ReferenteSele
         description: "Referente creato con successo",
       });
 
-      // Invalida la cache dei referenti per ricaricare la lista
-      await queryClient.invalidateQueries({ queryKey: ['referenti', aziendaId] });
+      // Invalida tutte le cache che mostrano referenti, così il nuovo
+      // referente appare immediatamente in tutte le pagine
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['referenti', aziendaId] }),
+        queryClient.invalidateQueries({ queryKey: ['users'] }),
+        queryClient.invalidateQueries({ queryKey: ['all-referenti'] }),
+      ]);
 
       // Seleziona automaticamente il nuovo referente
       if (user?.id) {
