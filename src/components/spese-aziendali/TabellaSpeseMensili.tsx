@@ -241,6 +241,11 @@ export function TabellaSpeseMensili() {
           <div className="text-center p-3 bg-red-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Spese</p>
             <p className="text-lg font-bold text-red-600">{formatCurrency(speseNette)}</p>
+            {stipendiSociLordi > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
+                di cui stipendi soci: {formatCurrency(stipendiSociLordi)}
+              </p>
+            )}
             {totaliMese.prelieviScorporo > 0 && (
               <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
                 di cui scorporato ai soci: {formatCurrency(totaliMese.prelieviScorporo)}
