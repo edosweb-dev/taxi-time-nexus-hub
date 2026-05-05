@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +36,26 @@ export function TabellaSpeseMensili() {
   const { stats: incassiMeseStats } = useIncassiMese({
     dataInizio: format(startDate, 'yyyy-MM-dd'),
     dataFine: format(endDate, 'yyyy-MM-dd'),
+  });
+
+  const meseSelezionato = selectedMonth.getMonth() + 1;
+  const annoSelezionato = selectedMonth.getFullYear();
+
+  const { data: stipendiSociLordi = 0 } = useQuery({
+    queryKey: ['stipendi-soci-lordi', meseSelezionato, annoSelezionato],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('stipendi')
+        .select('totale_lordo')
+        .eq('tipo_calcolo', 'socio')
+        .eq('mese', meseSelezionato)
+        .eq('anno', annoSelezionato);
+      if (error) throw error;
+      return (data ?? []).reduce(
+        (sum, s) => sum + Number(s.totale_lordo || 0),
+        0
+      );
+    },
   });
 
   // Filtra movimenti per il mese selezionato
@@ -123,11 +145,21 @@ export function TabellaSpeseMensili() {
   };
 
   const totaliMese = movimentiMese
-    .filter(m => m.tipo === 'aziendale') // Escludi pending dai totali
-    .reduce(
-      (acc, movimento) => {
-        const importo = Number(movimento.importo);
-        switch (movimento.tipologia) {
+      .filter(m => m.tipo === 'aziendale') // Escludi pending dai totali
+      .reduce(
+        (acc, movimento) => {
+          const importo = Number(movimento.importo);
+          // Skip spese di tipo stipendio: vengono già contate da
+          // stipendiSociLordi (preso da tabella stipendi), per evitare
+          // double-count quando il pagamento_stipendi crea la riga
+          // tipo_causale='stipendio' in spese_aziendali
+          if (
+            movimento.tipologia === 'spesa' &&
+            (movimento as any).tipo_causale === 'stipendio'
+          ) {
+            return acc;
+          }
+          switch (movimento.tipologia) {
           case 'spesa':
             acc.spese += importo;
             break;
@@ -150,7 +182,8 @@ export function TabellaSpeseMensili() {
       { spese: 0, incassi: 0, prelieviPuri: 0, prelieviScorporo: 0, versamenti: 0 }
     );
 
-  const speseNette = totaliMese.spese - totaliMese.prelieviScorporo;
+  const speseTotali = totaliMese.spese + stipendiSociLordi;
+  const speseNette = speseTotali - totaliMese.prelieviScorporo;
   const totalePrelievi = totaliMese.prelieviPuri + totaliMese.prelieviScorporo;
 
   const incassiServizi = incassiMeseStats?.totaleIncassi ?? 0;
@@ -208,6 +241,11 @@ export function TabellaSpeseMensili() {
           <div className="text-center p-3 bg-red-50 rounded-lg">
             <p className="text-sm text-muted-foreground">Spese</p>
             <p className="text-lg font-bold text-red-600">{formatCurrency(speseNette)}</p>
+            {stipendiSociLordi > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
+                di cui stipendi soci: {formatCurrency(stipendiSociLordi)}
+              </p>
+            )}
             {totaliMese.prelieviScorporo > 0 && (
               <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
                 di cui scorporato ai soci: {formatCurrency(totaliMese.prelieviScorporo)}
