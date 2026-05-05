@@ -133,7 +133,7 @@ export function SpeseAziendaliDashboard() {
                   <strong>Saldo = Incassi − Spese nette del mese</strong>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Spese nette = Spese totali − Scorpori a carico soci (prelievi con categoria specifica).
+                  Spese nette = Spese aziendali + Stipendi soci lordi del mese − Scorpori a carico soci (prelievi con categoria specifica).
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   I prelievi puri e i versamenti soci sono movimenti interni (cassa ↔ wallet socio) e non impattano il saldo aziendale.
