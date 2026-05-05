@@ -31,6 +31,7 @@ import { ReferenteQuickForm } from './ReferenteQuickForm';
 import { createReferente } from './utils/referentiUtils';
 import { toast } from '@/components/ui/use-toast';
 import { UserFormData } from '@/lib/api/users/types';
+import { toast as sonnerToast } from 'sonner';
 
 interface ReferenteSelectFieldProps {
   aziendaId: string;
