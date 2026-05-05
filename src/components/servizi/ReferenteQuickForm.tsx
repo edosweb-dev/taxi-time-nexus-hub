@@ -105,7 +105,13 @@ export function ReferenteQuickForm({
   const showEmailStatus = hasValidEmail && !isCheckingEmail;
 
   return (
-    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4 py-4">
+    <form
+      onSubmit={(e) => {
+        e.stopPropagation();
+        handleSubmit(onSubmitForm)(e);
+      }}
+      className="space-y-4 py-4"
+    >
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label htmlFor="first_name">
