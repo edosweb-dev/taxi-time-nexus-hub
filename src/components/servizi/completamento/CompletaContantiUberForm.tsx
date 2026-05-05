@@ -15,6 +15,7 @@ import { Servizio } from "@/lib/types/servizi";
 import { Profile } from "@/lib/types";
 import { Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CompletaContantiUberFormProps {
   open: boolean;
@@ -32,6 +33,8 @@ export function CompletaContantiUberForm({
   onComplete,
 }: CompletaContantiUberFormProps) {
   const isMobile = useIsMobile();
+  const { profile } = useAuth();
+  const isCurrentUserDipendente = profile?.role === 'dipendente';
 
   // Determina il ruolo del conducente assegnato
   const assegnato = users.find((u) => u.id === servizio.assegnato_a);
@@ -39,8 +42,10 @@ export function CompletaContantiUberForm({
     assegnato?.role === 'admin' || assegnato?.role === 'socio';
   const isConducenteEsterno = servizio.conducente_esterno === true;
   
-  // Mostra il campo solo se: non è socio/admin, o è esterno, o non c'è assegnazione
-  const showConsegnaField = !isConducenteSocioOrAdmin || isConducenteEsterno || !servizio.assegnato_a;
+  // Il dipendente non deve mai vedere il campo (verrà assegnato dall'admin)
+  const showConsegnaField =
+    !isCurrentUserDipendente &&
+    (!isConducenteSocioOrAdmin || isConducenteEsterno || !servizio.assegnato_a);
 
   // Schema Zod condizionale
   const baseSchema = z.object({
@@ -95,7 +100,9 @@ export function CompletaContantiUberForm({
 
       const consegnaFinale = showConsegnaField
         ? (data as any).consegna_contanti_a
-        : servizio.assegnato_a;
+        : isCurrentUserDipendente
+          ? undefined
+          : servizio.assegnato_a;
 
       const result = await completaServizio({
         id: servizio.id,
