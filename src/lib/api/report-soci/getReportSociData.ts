@@ -69,7 +69,7 @@ export async function getReportSociData(
     // per garantire coerenza tra colonna "stipendio" e "incrementale"
     const { data: stipendioMese } = await supabase
       .from('stipendi')
-      .select('totale_lordo')
+      .select('totale_lordo, totale_netto')
       .eq('user_id', socio.id)
       .eq('mese', mese)
       .eq('anno', anno)
@@ -176,8 +176,37 @@ export async function getReportSociData(
           0
         ) || 0;
 
-        // Calcola totale del mese
-        const totaleMese = riporto + stipendio + versamenti + speseEffettuate - prelievi - incassiDaDipendenti - incassiPersonali;
+        // Single source of truth: usa totale_netto salvato (= esattamente il valore
+        // che il mese successivo leggerà come "Riporto"). Garantisce per costruzione
+        // che TotMese[mese N] == Riporto[mese N+1].
+        // Fallback live solo se record stipendi assente, allineato a calcolaStipendio.ts
+        // (include spese_dipendenti approvate del socio + arrotondamento a 2 decimali).
+        let totaleMese: number;
+        if (stipendioMese?.totale_netto !== null && stipendioMese?.totale_netto !== undefined) {
+          totaleMese = Number(stipendioMese.totale_netto);
+        } else {
+          const { data: spesePersonaliData } = await supabase
+            .from('spese_dipendenti')
+            .select('importo')
+            .eq('user_id', socio.id)
+            .eq('stato', 'approvata')
+            .gte('data_spesa', dataInizio)
+            .lte('data_spesa', dataFine);
+
+          const spesePersonali = spesePersonaliData?.reduce(
+            (sum, s) => sum + Number(s.importo || 0), 0
+          ) || 0;
+
+          totaleMese = Number((
+            Number(riporto) + Number(stipendio) + Number(versamenti) +
+            Number(speseEffettuate) + spesePersonali -
+            Number(prelievi) - Number(incassiDaDipendenti) - Number(incassiPersonali)
+          ).toFixed(2));
+
+          console.warn(
+            `[getReportSociData] Nessun record stipendi per ${socio.id} ${mese}/${anno}: usato fallback live`
+          );
+        }
 
         return {
           userId: socio.id,
