@@ -116,8 +116,12 @@ export async function ricalcolaStipendioMese(
 }
 
 /**
- * Ricalcola il mese indicato E tutti i mesi successivi dell'anno solare,
- * fino a MIN(mese corrente reale, dicembre). Propaga il riporto a cascata.
+ * Ricalcola il mese indicato E tutti i mesi successivi fino al mese/anno corrente reale,
+ * attraversando il confine anno se necessario. Propaga il riporto a cascata.
+ *
+ * Bug fix cross-year: prima il loop si fermava a dicembre dello stesso anno, lasciando
+ * il riporto di gennaio stale (es. dicembre 2025 → gennaio 2026). Ora la cascata
+ * continua attraverso anni multipli fino al mese corrente.
  */
 export async function ricalcolaStipendioConCascata(
   userId: string,
@@ -125,23 +129,32 @@ export async function ricalcolaStipendioConCascata(
   anno: number
 ): Promise<void> {
   const oggi = new Date();
-  const meseCorrente = oggi.getFullYear() === anno ? oggi.getMonth() + 1 : 12;
-  const meseFine = oggi.getFullYear() < anno ? 0 : Math.min(12, meseCorrente);
+  const annoCorrente = oggi.getFullYear();
+  const meseCorrente = oggi.getMonth() + 1;
 
-  if (meseFine < meseInizio) {
-    console.log(`[cascata] Nessun mese da ricalcolare per ${userId} (${meseInizio}/${anno})`);
+  // Salta se punto di partenza è nel futuro
+  if (anno > annoCorrente || (anno === annoCorrente && meseInizio > meseCorrente)) {
+    console.log(`[cascata] Nessun mese da ricalcolare per ${userId} (${meseInizio}/${anno} oltre mese corrente ${meseCorrente}/${annoCorrente})`);
     return;
   }
 
-  for (let m = meseInizio; m <= meseFine; m++) {
+  let m = meseInizio;
+  let a = anno;
+
+  while (a < annoCorrente || (a === annoCorrente && m <= meseCorrente)) {
     try {
-      await ricalcolaStipendioMese(userId, m, anno);
+      await ricalcolaStipendioMese(userId, m, a);
     } catch (err) {
-      console.error(`[cascata] Errore ricalcolo ${userId} ${m}/${anno}:`, err);
+      console.error(`[cascata] Errore ricalcolo ${userId} ${m}/${a}:`, err);
+    }
+    m++;
+    if (m > 12) {
+      m = 1;
+      a++;
     }
   }
 
-  console.log(`[cascata] Ricalcolati stipendi ${userId} da ${meseInizio}/${anno} a ${meseFine}/${anno}`);
+  console.log(`[cascata] Ricalcolati stipendi ${userId} da ${meseInizio}/${anno} fino a ${meseCorrente}/${annoCorrente}`);
 }
 
 export interface RicalcolaCascataDettaglio {
