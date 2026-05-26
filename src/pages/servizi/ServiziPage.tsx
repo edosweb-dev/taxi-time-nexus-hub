@@ -65,7 +65,9 @@ export default function ServiziPage() {
     }, { replace: true });
   };
   const navigateToDetail = (servizioId: string) => {
-    navigate(`/servizi/${servizioId}`, { state: { fromTab: activeTab } });
+    navigate(`/servizi/${servizioId}`, {
+      state: { fromTab: activeTab, returnSearch: searchParams.toString() },
+    });
   };
   // Campo ricerca rimosso - ora usa pagina dedicata /servizi/ricerca
   const [selectedServizio, setSelectedServizio] = useState<Servizio | null>(null);
