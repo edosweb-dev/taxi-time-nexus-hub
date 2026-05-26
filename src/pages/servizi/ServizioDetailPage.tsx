@@ -61,6 +61,10 @@ export default function ServizioDetailPage() {
   const isFromReport = location.state?.from === 'report-passeggeri';
   const reportFilters = location.state?.filters;
   const fromTab = location.state?.fromTab;
+  const returnSearch = (location.state as { returnSearch?: string } | null)?.returnSearch;
+  const backToServizi = returnSearch
+    ? `/servizi?${returnSearch}`
+    : (fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
   const { users } = useUsers();
   const { profile } = useAuth();
   const isMobile = useIsMobile();
@@ -303,7 +307,7 @@ export default function ServizioDetailPage() {
             if (servizio?.id) {
               try {
                 await deleteServizio(servizio.id);
-                navigate('/servizi');
+                navigate(backToServizi);
               } catch (error) {
                 console.error('Errore eliminazione:', error);
                 setDeleteDialogOpen(false);
@@ -419,7 +423,7 @@ export default function ServizioDetailPage() {
                 } else if (isDipendente) {
                   navigate('/dipendente/servizi-assegnati');
                 } else {
-                  navigate(fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
+                  navigate(backToServizi);
                 }
               }}
             backLabel={isFromReport ? 'Torna al Report Passeggeri' : undefined}
@@ -451,7 +455,7 @@ export default function ServizioDetailPage() {
                 } else if (isDipendente) {
                   navigate('/dipendente/servizi-assegnati');
                 } else {
-                  navigate(fromTab ? `/servizi?tab=${fromTab}` : '/servizi');
+                  navigate(backToServizi);
                 }
               }}
             />
@@ -548,7 +552,7 @@ export default function ServizioDetailPage() {
           if (servizio?.id) {
             try {
               await deleteServizio(servizio.id);
-              navigate('/servizi');
+              navigate(backToServizi);
             } catch (error) {
               setDeleteDialogOpen(false);
             }
