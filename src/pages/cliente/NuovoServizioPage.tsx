@@ -459,7 +459,16 @@ export default function NuovoServizioPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                onKeyDown={(e) => {
+                  const tag = (e.target as HTMLElement).tagName;
+                  if (e.key === 'Enter' && tag !== 'TEXTAREA' && tag !== 'BUTTON') {
+                    e.preventDefault();
+                  }
+                }}
+                className="space-y-6"
+              >
                 
                 {/* SEZIONE: Quando */}
                 <div className="space-y-4">
