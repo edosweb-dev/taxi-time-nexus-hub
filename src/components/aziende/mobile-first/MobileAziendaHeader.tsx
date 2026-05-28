@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
-import { Search, FileSignature, Percent } from "lucide-react";
+import { Search, FileSignature, Percent, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface MobileAziendaHeaderProps {
   searchTerm: string;
@@ -11,6 +12,7 @@ interface MobileAziendaHeaderProps {
   onShowFirmaDigitaleChange: (show: boolean) => void;
   showProvvigioni: boolean;
   onShowProvvigioniChange: (show: boolean) => void;
+  onAddAzienda: () => void;
 }
 
 export function MobileAziendaHeader({
@@ -22,10 +24,11 @@ export function MobileAziendaHeader({
   onShowFirmaDigitaleChange,
   showProvvigioni,
   onShowProvvigioniChange,
+  onAddAzienda,
 }: MobileAziendaHeaderProps) {
   return (
     <div className="w-full sticky top-0 z-20 bg-background border-b md:hidden">
-      {/* Title bar con stats */}
+      {/* Title bar con stats e CTA */}
       <div className="flex items-center justify-between py-3">
         <div>
           <h1 className="text-lg font-semibold">Aziende</h1>
@@ -36,6 +39,14 @@ export function MobileAziendaHeader({
             }
           </p>
         </div>
+        <Button
+          onClick={onAddAzienda}
+          size="sm"
+          className="min-h-[44px] gap-1"
+        >
+          <Plus className="h-4 w-4" />
+          Nuova
+        </Button>
       </div>
       
       {/* Search bar */}
