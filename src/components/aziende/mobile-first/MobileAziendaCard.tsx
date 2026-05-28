@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, MapPin, Users, FileCheck, CreditCard, FileText, Trash2, ChevronRight } from "lucide-react";
 import { Azienda } from "@/lib/types";
@@ -8,7 +7,6 @@ interface MobileAziendaCardProps {
   azienda: Azienda;
   referentiCount: number;
   onView: () => void;
-  onEdit: () => void;
   onDelete: () => void;
   onReferentiClick: () => void;
 }
@@ -17,14 +15,13 @@ export function MobileAziendaCard({
   azienda,
   referentiCount,
   onView,
-  onEdit,
   onDelete,
   onReferentiClick,
 }: MobileAziendaCardProps) {
   return (
     <div className="mobile-card touch-feedback" onClick={onView}>
-      {/* Header con nome e P.IVA */}
-      <div className="flex items-start justify-between mb-3">
+      {/* Header con nome, P.IVA e cestino */}
+      <div className="flex items-start justify-between mb-3 gap-2">
         <div className="flex-1 min-w-0">
           <Link 
             to={`/aziende/${azienda.id}`}
@@ -37,6 +34,13 @@ export function MobileAziendaCard({
             P.IVA {azienda.partita_iva}
           </Badge>
         </div>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="p-2 -mr-2 text-muted-foreground hover:text-destructive transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
+          aria-label="Elimina azienda"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
       </div>
 
       {/* Info contatti */}
@@ -63,7 +67,6 @@ export function MobileAziendaCard({
 
       {/* Status badges row */}
       <div className="flex flex-wrap gap-2 mb-3">
-        {/* Firma digitale */}
         <Badge 
           variant={azienda.firma_digitale_attiva ? "success" : "secondary"}
           className="text-xs flex items-center gap-1"
@@ -72,7 +75,6 @@ export function MobileAziendaCard({
           {azienda.firma_digitale_attiva ? 'Firma Attiva' : 'No Firma'}
         </Badge>
 
-        {/* Provvigione */}
         {azienda.provvigione && (
           <Badge variant="secondary" className="text-xs px-2.5 py-1">
             <span className="font-medium">
@@ -84,7 +86,6 @@ export function MobileAziendaCard({
           </Badge>
         )}
 
-        {/* Fatturazione elettronica */}
         {(azienda.sdi || azienda.pec) && (
           <Badge variant="outline" className="text-xs flex items-center gap-1">
             <FileText className="h-3 w-3" />
@@ -100,7 +101,7 @@ export function MobileAziendaCard({
             e.stopPropagation();
             onReferentiClick();
           }}
-          className="w-full flex items-center justify-between p-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors mb-3"
+          className="w-full flex items-center justify-between p-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
         >
           <div className="flex items-center gap-2 text-sm text-blue-900">
             <Users className="h-4 w-4" />
@@ -109,32 +110,6 @@ export function MobileAziendaCard({
           <ChevronRight className="h-4 w-4 text-blue-600" />
         </button>
       )}
-
-      {/* Actions visibili */}
-      <div className="flex gap-2 pt-3 border-t">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          className="flex-1 min-h-[44px]"
-        >
-          Modifica
-        </Button>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="min-h-[44px] px-3"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
     </div>
   );
 }
