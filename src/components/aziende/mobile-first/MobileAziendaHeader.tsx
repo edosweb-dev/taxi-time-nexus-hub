@@ -27,9 +27,9 @@ export function MobileAziendaHeader({
   onAddAzienda,
 }: MobileAziendaHeaderProps) {
   return (
-    <div className="w-full sticky top-0 z-20 bg-background border-b md:hidden px-4">
+    <div className="w-full sticky top-0 z-20 bg-background border-b md:hidden px-4 md:px-6">
       {/* Title bar con stats e CTA */}
-      <div className="flex items-center justify-between py-3">
+      <div className="flex items-center justify-between py-3 pr-1">
         <div>
           <h1 className="text-lg font-semibold">Aziende</h1>
           <p className="text-xs text-muted-foreground">
@@ -42,7 +42,7 @@ export function MobileAziendaHeader({
         <Button
           onClick={onAddAzienda}
           size="sm"
-          className="min-h-[44px] gap-1"
+          className="min-h-[40px] gap-1.5 px-3"
         >
           <Plus className="h-4 w-4" />
           Nuova
