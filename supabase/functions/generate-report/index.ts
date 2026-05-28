@@ -36,6 +36,7 @@ interface ServizioData {
   referente_nome?: string
   assegnato_nome?: string
   passeggeri_nomi?: string[]
+  note?: string
 }
 
 serve(async (req) => {
@@ -329,21 +330,21 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     { label: 'ID', x: 5, width: 22 },
     { label: 'Data', x: 27, width: 18 },
     { label: 'Orario', x: 45, width: 13 },
-    { label: 'Stato', x: 58, width: 20 },
-    { label: 'Passeggeri', x: 78, width: 35 },
-    { label: 'Partenza', x: 113, width: 30 },
-    { label: 'Destinazione', x: 143, width: 30 },
-    { label: 'Autista', x: 173, width: 25 },
-    { label: 'Veicolo', x: 198, width: 25 },
-    { label: 'Commessa', x: 223, width: 18 },
-    { label: 'Ore', x: 241, width: 10 },
-    { label: 'Importo', x: 251, width: 22 },
+    { label: 'Stato', x: 58, width: 18 },
+    { label: 'Passeggeri', x: 76, width: 50 },
+    { label: 'Partenza', x: 126, width: 30 },
+    { label: 'Destinazione', x: 156, width: 30 },
+    { label: 'Commessa', x: 186, width: 18 },
+    { label: 'Ore', x: 204, width: 10 },
+    { label: 'Importo', x: 214, width: 20 },
+    { label: 'Note', x: 234, width: 47 },
   ]
   
   // Add Firma column if active
   if (azienda.firma_digitale_attiva) {
-    columns.push({ label: 'Firma', x: 273, width: 15 })
+    columns.push({ label: 'Firma', x: 281, width: 12 })
   }
+
   
   const drawTableHeader = (y: number) => {
     pdf.setFontSize(7)
@@ -370,7 +371,6 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     
     const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT')
     const passeggeriText = (servizio.passeggeri_nomi || []).join(', ')
-    const veicoloText = servizio.veicolo_targa ? `${servizio.veicolo_modello || ''} ${servizio.veicolo_targa}`.trim() : ''
     const importo = servizio.incasso_ricevuto ?? servizio.incasso_previsto
     const importoText = importo != null 
       ? `EUR ${importo.toFixed(2)}${servizio.incasso_ricevuto == null ? '*' : ''}` 
@@ -383,15 +383,15 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
       dataFormatted,
       servizio.orario_servizio,
       getStatoLabel(servizio.stato),
-      truncateText(passeggeriText, 25),
+      truncateText(passeggeriText, 40),
       truncateText(partenza, 22),
       truncateText(destinazione, 22),
-      truncateText(servizio.assegnato_nome || '', 18),
-      truncateText(veicoloText, 18),
       truncateText(servizio.numero_commessa || '', 14),
       servizio.ore_fatturate != null ? `${servizio.ore_fatturate}` : '-',
       importoText,
+      truncateText(servizio.note || '', 38),
     ]
+
     
     if (azienda.firma_digitale_attiva) {
       rowData.push(servizio.firma_url ? 'Si' : 'No')

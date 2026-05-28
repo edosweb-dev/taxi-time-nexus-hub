@@ -71,6 +71,7 @@ interface ServizioDettaglio {
   assegnato_nome: string | null;
   veicolo_info: string | null;
   passeggeri_nomi: string[];
+  note: string | null;
 }
 
 const ReportCliente = () => {
@@ -141,7 +142,7 @@ const ReportCliente = () => {
       // Fetch servizi for this period/azienda + referente loggato
       const { data: servizi, error } = await supabase
         .from("servizi")
-        .select("id, id_progressivo, data_servizio, orario_servizio, stato, indirizzo_presa, indirizzo_destinazione, citta_presa, citta_destinazione, numero_commessa, ore_fatturate, incasso_previsto, incasso_ricevuto, assegnato_a, veicolo_id")
+        .select("id, id_progressivo, data_servizio, orario_servizio, stato, indirizzo_presa, indirizzo_destinazione, citta_presa, citta_destinazione, numero_commessa, ore_fatturate, incasso_previsto, incasso_ricevuto, assegnato_a, veicolo_id, note")
         .eq("azienda_id", report.azienda_id)
         .eq("referente_id", profile.id)
         .in("stato", ["da_assegnare", "assegnato", "completato", "consuntivato"])
@@ -201,6 +202,7 @@ const ReportCliente = () => {
         assegnato_nome: s.assegnato_a ? (profilesMap.get(s.assegnato_a) || null) : null,
         veicolo_info: s.veicolo_id ? (veicoliMap.get(s.veicolo_id) || null) : null,
         passeggeri_nomi: passeggeriMap.get(s.id) || [],
+        note: (s as any).note ?? null,
       }));
     },
     enabled: !!expandedReportId && !!reports?.length && !!profile?.id,
@@ -344,6 +346,7 @@ const ReportCliente = () => {
                   <TableHead className="min-w-[100px]">Commessa</TableHead>
                   <TableHead className="min-w-[60px] text-right">Ore</TableHead>
                   <TableHead className="min-w-[100px] text-right">Importo</TableHead>
+                  <TableHead className="min-w-[150px]">Note</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -410,6 +413,15 @@ const ReportCliente = () => {
                     </TableCell>
                     <TableCell className="text-sm text-right font-medium">
                       {formatImporto(servizio)}
+                    </TableCell>
+                    <TableCell className="text-sm max-w-[250px]">
+                      {servizio.note ? (
+                        <span title={servizio.note} className="block truncate">
+                          {servizio.note.length > 50 ? servizio.note.slice(0, 50) + '…' : servizio.note}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
