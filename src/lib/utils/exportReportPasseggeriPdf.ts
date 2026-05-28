@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cleanupFirmaUrl } from '@/components/servizi/utils/firmaUtils';
+import { buildCityRoute } from './cityRouteUtils';
 
 interface ExportPdfOptions {
   dataInizio: string;
