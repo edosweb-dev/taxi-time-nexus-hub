@@ -55,3 +55,43 @@ export function hasRealCustomDestination(
 
   return serviceSet !== passeggeroSet;
 }
+
+export interface DestinazioneRaggruppata {
+  indirizzo: string;
+  citta?: string;
+  passeggeri: string[];
+}
+
+export function getDestinazioniRaggruppate(
+  passeggeriOrdinati: Array<{
+    destinazione_personalizzato?: string | null;
+    localita_destinazione_personalizzato?: string | null;
+    localita?: string | null;
+    localita_inline?: string | null;
+    nome_cognome?: string | null;
+  }>,
+  servizio: {
+    indirizzo_destinazione?: string;
+    citta_destinazione?: string | null;
+  }
+): DestinazioneRaggruppata[] {
+  const destinazioniMap = new Map<string, DestinazioneRaggruppata>();
+
+  passeggeriOrdinati.forEach((p) => {
+    const haDestPersonalizzata = !!p.destinazione_personalizzato;
+    const indirizzo = haDestPersonalizzata
+      ? p.destinazione_personalizzato!
+      : servizio.indirizzo_destinazione;
+    const citta = haDestPersonalizzata
+      ? (p.localita_destinazione_personalizzato || p.localita_inline || p.localita || servizio.citta_destinazione)
+      : servizio.citta_destinazione;
+    const key = `${indirizzo}|${citta || ''}`.toLowerCase().trim();
+
+    if (!destinazioniMap.has(key)) {
+      destinazioniMap.set(key, { indirizzo: indirizzo || '', citta: citta || undefined, passeggeri: [] });
+    }
+    destinazioniMap.get(key)!.passeggeri.push(p.nome_cognome || 'Passeggero');
+  });
+
+  return Array.from(destinazioniMap.values());
+}
