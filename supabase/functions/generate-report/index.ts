@@ -36,6 +36,7 @@ interface ServizioData {
   referente_nome?: string
   assegnato_nome?: string
   passeggeri_nomi?: string[]
+  note?: string
 }
 
 serve(async (req) => {
