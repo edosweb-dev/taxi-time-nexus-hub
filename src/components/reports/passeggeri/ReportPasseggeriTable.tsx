@@ -16,6 +16,7 @@ import { it } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Users } from 'lucide-react';
+import { buildCityRoute } from '@/lib/utils/cityRouteUtils';
 
 interface ReportPasseggeriFiltersState {
   dataInizio: string;
@@ -43,32 +44,8 @@ interface MonthGroup {
   totalePasseggeri: number;
 }
 
-/** Extract city from a route segment like "VIA MONTANARA 10, LECCO" → "LECCO" */
-function extractCity(segment: string): string {
-  const trimmed = segment.trim();
-  const commaIdx = trimmed.lastIndexOf(',');
-  if (commaIdx !== -1) {
-    return trimmed.substring(commaIdx + 1).trim();
-  }
-  return trimmed;
-}
 
-/** Build a city-only route from the full percorso */
-function buildCityRoute(percorso: string): string {
-  const segments = percorso.split(' → ');
-  if (segments.length === 0) return percorso;
-  
-  const firstCity = extractCity(segments[0]);
-  const lastCity = extractCity(segments[segments.length - 1]);
-  
-  if (segments.length <= 2) {
-    return `${firstCity} → ${lastCity}`;
-  }
-  
-  // Include intermediate cities
-  const intermediateCities = segments.slice(1, -1).map(extractCity);
-  return [firstCity, ...intermediateCities, lastCity].join(' → ');
-}
+
 
 export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = false, filters }: ReportPasseggeriTableProps) {
   const navigate = useNavigate();
@@ -180,6 +157,9 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
       <TableCell className="font-mono text-sm">
         {row.id_progressivo}
       </TableCell>
+      <TableCell className="text-sm">
+        {row.referente_nome || '-'}
+      </TableCell>
       <TableCell>
         <span className="text-sm font-medium">
           {formatDate(row.data_servizio)}
@@ -212,15 +192,22 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
       <TableCell className="text-right">
         {row.ore_sosta > 0 ? `${row.ore_sosta.toFixed(1)}h` : '-'}
       </TableCell>
-      <TableCell>
-        {getStatoBadge(row.stato)}
+      <TableCell className="max-w-[200px]">
+        {row.note ? (
+          <span className="text-sm block truncate" title={row.note}>
+            {row.note.length > 50 ? `${row.note.substring(0, 50)}…` : row.note}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
       </TableCell>
     </TableRow>
   );
 
+
   const renderMonthHeader = (group: MonthGroup) => (
     <TableRow key={`header-${group.monthKey}`} className="bg-muted/50 hover:bg-muted/50">
-      <TableCell colSpan={8} className="font-semibold capitalize">
+      <TableCell colSpan={9} className="font-semibold capitalize">
         {group.label}
         <span className="ml-4 text-muted-foreground font-normal">
           {group.rows.length} servizi • {group.totalePasseggeri} passeggeri • €{group.totaleImporto.toFixed(2)} • {group.totaleOre.toFixed(1)}h
@@ -239,14 +226,15 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[120px]">ID</TableHead>
+                    <TableHead className="w-[110px]">ID</TableHead>
+                    <TableHead className="w-[140px]">Referente</TableHead>
                     <TableHead className="w-[100px]">Data</TableHead>
                     <TableHead className="w-[70px] text-center">N° Pass.</TableHead>
                     <TableHead>Passeggeri</TableHead>
                     <TableHead>Percorso</TableHead>
                     <TableHead className="w-[100px] text-right">Importo</TableHead>
                     <TableHead className="w-[100px] text-right">Ore Fatturate</TableHead>
-                    <TableHead className="w-[100px]">Stato</TableHead>
+                    <TableHead className="w-[200px]">Note</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -263,7 +251,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                 </TableBody>
                 <TableFooter>
                   <TableRow className="bg-muted/50 font-semibold">
-                    <TableCell colSpan={2}>
+                    <TableCell colSpan={3}>
                       Totale: {grandTotals.servizi} servizi
                     </TableCell>
                     <TableCell className="text-center">
@@ -281,6 +269,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                 </TableFooter>
               </Table>
             </div>
+
           </CardContent>
         </Card>
       </div>
@@ -311,8 +300,12 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                         <p className="text-xs text-muted-foreground">
                           {formatDate(row.data_servizio)}
                         </p>
+                        {row.referente_nome && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Referente: {row.referente_nome}
+                          </p>
+                        )}
                       </div>
-                      {getStatoBadge(row.stato)}
                     </div>
 
                     <div className="space-y-2">
@@ -327,6 +320,11 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                         <p className="text-xs text-muted-foreground">{row.azienda_nome}</p>
                       )}
                       <p className="text-sm break-words">{buildCityRoute(row.percorso)}</p>
+                      {row.note && (
+                        <p className="text-xs text-muted-foreground break-words">
+                          <span className="font-medium">Note:</span> {row.note}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t">
@@ -338,6 +336,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                       )}
                     </div>
                   </CardContent>
+
                 </Card>
               ))}
             </div>
@@ -356,8 +355,12 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                     <p className="text-xs text-muted-foreground">
                       {formatDate(row.data_servizio)}
                     </p>
+                    {row.referente_nome && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Referente: {row.referente_nome}
+                      </p>
+                    )}
                   </div>
-                  {getStatoBadge(row.stato)}
                 </div>
 
                 <div className="space-y-2">
@@ -372,6 +375,11 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                     <p className="text-xs text-muted-foreground">{row.azienda_nome}</p>
                   )}
                   <p className="text-sm break-words">{buildCityRoute(row.percorso)}</p>
+                  {row.note && (
+                    <p className="text-xs text-muted-foreground break-words">
+                      <span className="font-medium">Note:</span> {row.note}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t">
@@ -383,6 +391,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                   )}
                 </div>
               </CardContent>
+
             </Card>
           ))
         )}

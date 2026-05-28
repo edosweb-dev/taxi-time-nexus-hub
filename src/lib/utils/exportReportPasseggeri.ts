@@ -1,5 +1,6 @@
 import { ReportPasseggeroRow } from '@/hooks/useReportPasseggeri';
 import { format } from 'date-fns';
+import { buildCityRoute } from './cityRouteUtils';
 
 interface ExportCsvOptions {
   dataInizio: string;
@@ -65,7 +66,7 @@ export const exportReportPasseggeri = (
       escapeCsvField(format(new Date(row.data_servizio), 'dd/MM/yyyy')),
       escapeCsvField(row.num_passeggeri.toString()),
       escapeCsvField(row.passeggeri_nomi || '-'),
-      escapeCsvField(sanitizeForCsv(row.percorso)),
+      escapeCsvField(sanitizeForCsv(buildCityRoute(row.percorso))),
       escapeCsvField(row.importo.toFixed(2)),  // Senza simbolo €
       escapeCsvField(row.ore_sosta > 0 ? row.ore_sosta.toString() : '-'),
       escapeCsvField(row.note || '-'),
