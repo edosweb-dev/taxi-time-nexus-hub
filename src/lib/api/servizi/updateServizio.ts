@@ -9,6 +9,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
       id: servizio.id,
       stato: servizio.stato,
       metodo_pagamento: servizio.metodo_pagamento,
+      iva: servizio.iva,
       assegnato_a: servizio.assegnato_a,
     });
 
@@ -36,6 +37,7 @@ export async function updateServizio({ servizio, passeggeri, email_notifiche }: 
         citta_presa: servizio.citta_presa,
         citta_destinazione: servizio.citta_destinazione,
         metodo_pagamento: servizio.metodo_pagamento,
+        iva: servizio.iva,
         note: servizio.note,
         veicolo_id: servizio.veicolo_id,
         ore_effettive: servizio.ore_effettive,

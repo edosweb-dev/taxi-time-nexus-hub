@@ -143,6 +143,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
           citta_presa: values.citta_presa,
           citta_destinazione: values.citta_destinazione,
           metodo_pagamento: values.metodo_pagamento,
+          iva: values.iva,
           note: values.note,
           veicolo_id: values.veicolo_id,
           applica_provvigione: values.applica_provvigione,

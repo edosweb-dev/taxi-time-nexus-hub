@@ -1,5 +1,5 @@
 // ServizioCreaPage
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useForm, Controller, FormProvider } from "react-hook-form";
@@ -629,11 +629,17 @@ export const ServizioCreaPage = ({
     }
   }, [aliquotaIvaDefault, mode, form]);
 
+  // ✅ Ref per skippare il primo render in edit mode (evita di sovrascrivere lo snapshot IVA esistente)
+  const isInitialMetodoRender = useRef(true);
+
   // ✅ Applica aliquota IVA di default quando cambia il metodo di pagamento
   useEffect(() => {
-    // Solo in modalità creazione
-    if (mode !== 'create') return;
-    
+    // In edit mode, skip il primo render per non sovrascrivere lo snapshot IVA prefilled da initialData
+    if (mode === 'edit' && isInitialMetodoRender.current) {
+      isInitialMetodoRender.current = false;
+      return;
+    }
+
     // Solo se il metodo di pagamento è valido e non è "da_definire"
     if (!watchMetodoPagamento || watchMetodoPagamento === 'da_definire') return;
     
