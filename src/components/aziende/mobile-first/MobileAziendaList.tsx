@@ -99,6 +99,7 @@ export function MobileAziendaList({
           onShowFirmaDigitaleChange={() => {}}
           showProvvigioni={false}
           onShowProvvigioniChange={() => {}}
+          onAddAzienda={onAddAzienda}
         />
         <div className="px-4 py-4 space-y-3">
           {[...Array(5)].map((_, i) => (
