@@ -200,20 +200,20 @@ export function MobileAziendaList({
             onReferentiClick={() => handleReferentiClick(azienda)}
           />
         ))}
-      </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="px-4 pb-4">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={filteredAziende.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      )}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-4 pt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredAziende.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </div>
 
       {/* FAB - Floating Action Button */}
       <Button

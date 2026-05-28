@@ -52,8 +52,8 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="text-sm text-muted-foreground">
+    <div className="flex flex-col items-center gap-3 px-2 md:flex-row md:justify-between md:gap-0">
+      <div className="text-sm text-muted-foreground text-center md:text-left">
         Mostra {startItem} - {endItem} di {totalItems} aziende
       </div>
       
@@ -63,7 +63,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+          className="hidden md:inline-flex h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
@@ -108,7 +108,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+          className="hidden md:inline-flex h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
