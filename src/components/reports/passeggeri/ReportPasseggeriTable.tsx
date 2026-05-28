@@ -16,6 +16,7 @@ import { it } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Users } from 'lucide-react';
+import { buildCityRoute } from '@/lib/utils/cityRouteUtils';
 
 interface ReportPasseggeriFiltersState {
   dataInizio: string;
