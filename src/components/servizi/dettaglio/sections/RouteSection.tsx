@@ -3,39 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Servizio, PasseggeroConDettagli } from "@/lib/types/servizi";
 import { MapPin, Clock, User, Navigation, Flag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { hasRealCustomAddress, hasRealCustomDestination } from "@/lib/utils/percorsoUtils";
+import { hasRealCustomAddress, hasRealCustomDestination, getDestinazioniRaggruppate } from "@/lib/utils/percorsoUtils";
 
 interface RouteSectionProps {
   servizio: Servizio;
   passeggeri?: PasseggeroConDettagli[];
-}
-
-// Helper: build grouped destination stops
-function getDestinazioniRaggruppate(
-  passeggeriOrdinati: PasseggeroConDettagli[],
-  servizio: Servizio
-) {
-  const destinazioniMap = new Map<string, { indirizzo: string; citta?: string; passeggeri: string[] }>();
-
-  passeggeriOrdinati.forEach((p) => {
-    // ⚠️ Non ci fidiamo solo del flag (può essere incoerente sui dati legacy):
-    // se il testo della destinazione personalizzata esiste, lo usiamo comunque.
-    const haDestPersonalizzata = !!p.destinazione_personalizzato;
-    const indirizzo = haDestPersonalizzata
-      ? p.destinazione_personalizzato!
-      : servizio.indirizzo_destinazione;
-    const citta = haDestPersonalizzata
-      ? (p.localita_destinazione_personalizzato || (p as any).localita_inline || p.localita || servizio.citta_destinazione)
-      : servizio.citta_destinazione;
-    const key = `${indirizzo}|${citta || ''}`.toLowerCase().trim();
-
-    if (!destinazioniMap.has(key)) {
-      destinazioniMap.set(key, { indirizzo: indirizzo || '', citta: citta || undefined, passeggeri: [] });
-    }
-    destinazioniMap.get(key)!.passeggeri.push(p.nome_cognome || 'Passeggero');
-  });
-
-  return Array.from(destinazioniMap.values());
 }
 
 export function RouteSection({ servizio, passeggeri = [] }: RouteSectionProps) {
