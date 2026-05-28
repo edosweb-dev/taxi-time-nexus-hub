@@ -157,6 +157,9 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
       <TableCell className="font-mono text-sm">
         {row.id_progressivo}
       </TableCell>
+      <TableCell className="text-sm">
+        {row.referente_nome || '-'}
+      </TableCell>
       <TableCell>
         <span className="text-sm font-medium">
           {formatDate(row.data_servizio)}
@@ -189,11 +192,18 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
       <TableCell className="text-right">
         {row.ore_sosta > 0 ? `${row.ore_sosta.toFixed(1)}h` : '-'}
       </TableCell>
-      <TableCell>
-        {getStatoBadge(row.stato)}
+      <TableCell className="max-w-[200px]">
+        {row.note ? (
+          <span className="text-sm block truncate" title={row.note}>
+            {row.note.length > 50 ? `${row.note.substring(0, 50)}…` : row.note}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
       </TableCell>
     </TableRow>
   );
+
 
   const renderMonthHeader = (group: MonthGroup) => (
     <TableRow key={`header-${group.monthKey}`} className="bg-muted/50 hover:bg-muted/50">
