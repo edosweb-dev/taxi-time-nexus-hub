@@ -355,8 +355,12 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                     <p className="text-xs text-muted-foreground">
                       {formatDate(row.data_servizio)}
                     </p>
+                    {row.referente_nome && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Referente: {row.referente_nome}
+                      </p>
+                    )}
                   </div>
-                  {getStatoBadge(row.stato)}
                 </div>
 
                 <div className="space-y-2">
@@ -371,6 +375,11 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                     <p className="text-xs text-muted-foreground">{row.azienda_nome}</p>
                   )}
                   <p className="text-sm break-words">{buildCityRoute(row.percorso)}</p>
+                  {row.note && (
+                    <p className="text-xs text-muted-foreground break-words">
+                      <span className="font-medium">Note:</span> {row.note}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t">
@@ -382,6 +391,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                   )}
                 </div>
               </CardContent>
+
             </Card>
           ))
         )}
