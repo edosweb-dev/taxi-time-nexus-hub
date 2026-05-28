@@ -1,5 +1,6 @@
 import { ReportPasseggeroRow } from '@/hooks/useReportPasseggeri';
 import { format } from 'date-fns';
+import { buildCityRoute } from './cityRouteUtils';
 
 interface ExportCsvOptions {
   dataInizio: string;
