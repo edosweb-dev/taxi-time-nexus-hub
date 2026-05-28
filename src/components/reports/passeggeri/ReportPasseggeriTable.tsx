@@ -207,7 +207,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
 
   const renderMonthHeader = (group: MonthGroup) => (
     <TableRow key={`header-${group.monthKey}`} className="bg-muted/50 hover:bg-muted/50">
-      <TableCell colSpan={8} className="font-semibold capitalize">
+      <TableCell colSpan={9} className="font-semibold capitalize">
         {group.label}
         <span className="ml-4 text-muted-foreground font-normal">
           {group.rows.length} servizi • {group.totalePasseggeri} passeggeri • €{group.totaleImporto.toFixed(2)} • {group.totaleOre.toFixed(1)}h
@@ -226,14 +226,15 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[120px]">ID</TableHead>
+                    <TableHead className="w-[110px]">ID</TableHead>
+                    <TableHead className="w-[140px]">Referente</TableHead>
                     <TableHead className="w-[100px]">Data</TableHead>
                     <TableHead className="w-[70px] text-center">N° Pass.</TableHead>
                     <TableHead>Passeggeri</TableHead>
                     <TableHead>Percorso</TableHead>
                     <TableHead className="w-[100px] text-right">Importo</TableHead>
                     <TableHead className="w-[100px] text-right">Ore Fatturate</TableHead>
-                    <TableHead className="w-[100px]">Stato</TableHead>
+                    <TableHead className="w-[200px]">Note</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -250,7 +251,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                 </TableBody>
                 <TableFooter>
                   <TableRow className="bg-muted/50 font-semibold">
-                    <TableCell colSpan={2}>
+                    <TableCell colSpan={3}>
                       Totale: {grandTotals.servizi} servizi
                     </TableCell>
                     <TableCell className="text-center">
@@ -268,6 +269,7 @@ export function ReportPasseggeriTable({ data, isLoading, hasActiveFilters = fals
                 </TableFooter>
               </Table>
             </div>
+
           </CardContent>
         </Card>
       </div>
