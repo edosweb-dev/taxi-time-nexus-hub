@@ -142,7 +142,7 @@ const ReportCliente = () => {
       // Fetch servizi for this period/azienda + referente loggato
       const { data: servizi, error } = await supabase
         .from("servizi")
-        .select("id, id_progressivo, data_servizio, orario_servizio, stato, indirizzo_presa, indirizzo_destinazione, citta_presa, citta_destinazione, numero_commessa, ore_fatturate, incasso_previsto, incasso_ricevuto, assegnato_a, veicolo_id")
+        .select("id, id_progressivo, data_servizio, orario_servizio, stato, indirizzo_presa, indirizzo_destinazione, citta_presa, citta_destinazione, numero_commessa, ore_fatturate, incasso_previsto, incasso_ricevuto, assegnato_a, veicolo_id, note")
         .eq("azienda_id", report.azienda_id)
         .eq("referente_id", profile.id)
         .in("stato", ["da_assegnare", "assegnato", "completato", "consuntivato"])
