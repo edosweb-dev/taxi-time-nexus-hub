@@ -371,7 +371,6 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
     
     const dataFormatted = new Date(servizio.data_servizio).toLocaleDateString('it-IT')
     const passeggeriText = (servizio.passeggeri_nomi || []).join(', ')
-    const veicoloText = servizio.veicolo_targa ? `${servizio.veicolo_modello || ''} ${servizio.veicolo_targa}`.trim() : ''
     const importo = servizio.incasso_ricevuto ?? servizio.incasso_previsto
     const importoText = importo != null 
       ? `EUR ${importo.toFixed(2)}${servizio.incasso_ricevuto == null ? '*' : ''}` 
@@ -384,15 +383,15 @@ async function generatePDF(servizi: ServizioData[], azienda: any, requestData: R
       dataFormatted,
       servizio.orario_servizio,
       getStatoLabel(servizio.stato),
-      truncateText(passeggeriText, 25),
+      truncateText(passeggeriText, 40),
       truncateText(partenza, 22),
       truncateText(destinazione, 22),
-      truncateText(servizio.assegnato_nome || '', 18),
-      truncateText(veicoloText, 18),
       truncateText(servizio.numero_commessa || '', 14),
       servizio.ore_fatturate != null ? `${servizio.ore_fatturate}` : '-',
       importoText,
+      truncateText(servizio.note || '', 38),
     ]
+
     
     if (azienda.firma_digitale_attiva) {
       rowData.push(servizio.firma_url ? 'Si' : 'No')
