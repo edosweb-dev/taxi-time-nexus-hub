@@ -88,6 +88,8 @@ serve(async (req) => {
     }
 
     const { data: servizi, error: serviziError } = await query
+      .order('data_servizio', { ascending: true })
+      .order('orario_servizio', { ascending: true })
     if (serviziError) {
       throw new Error(`Errore nel recupero servizi: ${serviziError.message}`)
     }
