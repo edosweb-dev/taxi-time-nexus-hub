@@ -202,6 +202,7 @@ const ReportCliente = () => {
         assegnato_nome: s.assegnato_a ? (profilesMap.get(s.assegnato_a) || null) : null,
         veicolo_info: s.veicolo_id ? (veicoliMap.get(s.veicolo_id) || null) : null,
         passeggeri_nomi: passeggeriMap.get(s.id) || [],
+        note: (s as any).note ?? null,
       }));
     },
     enabled: !!expandedReportId && !!reports?.length && !!profile?.id,
