@@ -19,22 +19,20 @@ export function Pagination({
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
   const getVisiblePages = (): (number | string)[] => {
-    const FORWARD = 3; // current + 2 successive
-    const pages: (number | string)[] = [];
-
-    // 3 pagine consecutive dal current verso avanti (clampato a totalPages)
-    const end = Math.min(currentPage + FORWARD - 1, totalPages);
-    for (let i = currentPage; i <= end; i++) {
-      pages.push(i);
+    if (totalPages <= 4) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
+    if (currentPage >= totalPages - 2) {
+      return [1, '...', totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    const end = currentPage + 2;
     if (end < totalPages - 1) {
-      pages.push('...', totalPages);
-    } else if (end === totalPages - 1) {
-      pages.push(totalPages);
+      return [currentPage, currentPage + 1, currentPage + 2, '...', totalPages];
     }
 
-    return pages;
+    return [currentPage, currentPage + 1, currentPage + 2, totalPages];
   };
 
   if (totalPages <= 1) return null;
