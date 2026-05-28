@@ -187,6 +187,7 @@ export function MobileAziendaList({
         onShowFirmaDigitaleChange={setShowFirmaDigitale}
         showProvvigioni={showProvvigioni}
         onShowProvvigioniChange={setShowProvvigioni}
+        onAddAzienda={onAddAzienda}
       />
 
       {/* Content - cards list */}
@@ -197,7 +198,6 @@ export function MobileAziendaList({
             azienda={azienda}
             referentiCount={referentiByAzienda[azienda.id]?.length || 0}
             onView={() => onView(azienda)}
-            onEdit={() => onEdit(azienda)}
             onDelete={() => onDelete(azienda)}
             onReferentiClick={() => handleReferentiClick(azienda)}
           />
@@ -216,15 +216,7 @@ export function MobileAziendaList({
           </div>
         )}
       </div>
-
-      {/* FAB - Floating Action Button */}
-      <Button
-        onClick={onAddAzienda}
-        size="lg"
-        className="fixed bottom-40 right-4 z-20 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all md:hidden"
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
+      
       
       {/* Referenti Dialog */}
       {selectedAzienda && (
