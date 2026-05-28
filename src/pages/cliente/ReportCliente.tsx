@@ -414,6 +414,15 @@ const ReportCliente = () => {
                     <TableCell className="text-sm text-right font-medium">
                       {formatImporto(servizio)}
                     </TableCell>
+                    <TableCell className="text-sm max-w-[250px]">
+                      {servizio.note ? (
+                        <span title={servizio.note} className="block truncate">
+                          {servizio.note.length > 50 ? servizio.note.slice(0, 50) + '…' : servizio.note}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
