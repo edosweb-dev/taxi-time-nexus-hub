@@ -27,7 +27,7 @@ export function MobileAziendaHeader({
   onAddAzienda,
 }: MobileAziendaHeaderProps) {
   return (
-    <div className="w-full sticky top-0 z-20 bg-background border-b md:hidden">
+    <div className="w-full sticky top-0 z-20 bg-background border-b md:hidden px-4">
       {/* Title bar con stats e CTA */}
       <div className="flex items-center justify-between py-3">
         <div>
