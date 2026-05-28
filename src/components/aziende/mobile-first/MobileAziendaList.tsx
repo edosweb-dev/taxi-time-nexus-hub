@@ -159,6 +159,7 @@ export function MobileAziendaList({
           onShowFirmaDigitaleChange={setShowFirmaDigitale}
           showProvvigioni={showProvvigioni}
           onShowProvvigioniChange={setShowProvvigioni}
+          onAddAzienda={onAddAzienda}
         />
         
         <div className="flex flex-col items-center justify-center py-12 px-4">
