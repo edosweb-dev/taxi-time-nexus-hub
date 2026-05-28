@@ -346,6 +346,7 @@ const ReportCliente = () => {
                   <TableHead className="min-w-[100px]">Commessa</TableHead>
                   <TableHead className="min-w-[60px] text-right">Ore</TableHead>
                   <TableHead className="min-w-[100px] text-right">Importo</TableHead>
+                  <TableHead className="min-w-[150px]">Note</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
