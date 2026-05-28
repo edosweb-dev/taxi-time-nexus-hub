@@ -188,10 +188,17 @@ export const useReportPasseggeri = (filters: ReportFilters) => {
         }
         
         // Destinazione
-        const destinazione = servizio.citta_destinazione 
-          ? `${servizio.indirizzo_destinazione}, ${servizio.citta_destinazione}` 
-          : servizio.indirizzo_destinazione;
-        tappe.push(destinazione);
+        if (passeggeriOrdinati.length === 0) {
+          const destinazione = servizio.citta_destinazione
+            ? `${servizio.indirizzo_destinazione}, ${servizio.citta_destinazione}`
+            : servizio.indirizzo_destinazione;
+          tappe.push(destinazione);
+        } else {
+          const destinazioni = getDestinazioniRaggruppate(passeggeriOrdinati, servizio);
+          for (const d of destinazioni) {
+            tappe.push(d.citta ? `${d.indirizzo}, ${d.citta}` : d.indirizzo);
+          }
+        }
         
         const percorsoCompleto = tappe.join(' → ');
 
