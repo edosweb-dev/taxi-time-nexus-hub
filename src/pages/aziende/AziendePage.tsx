@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { DesktopAziendaList } from '@/components/aziende/DesktopAziendaList';
@@ -14,7 +14,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 
 export default function AziendePage() {
   const navigate = useNavigate();
-  const { aziende, deleteCompany } = useAziende();
+  const { aziende, deleteCompany, isDeleting } = useAziende();
   const isMobile = useIsMobile();
   const { setPaddingMode } = useLayout();
 
@@ -49,10 +49,19 @@ export default function AziendePage() {
   const confirmDelete = () => {
     if (aziendaToDelete) {
       deleteCompany(aziendaToDelete.id);
+    }
+  };
+
+  const wasDeletingRef = useRef(false);
+  useEffect(() => {
+    if (isDeleting) {
+      wasDeletingRef.current = true;
+    } else if (wasDeletingRef.current) {
+      wasDeletingRef.current = false;
       setDeleteDialogOpen(false);
       setAziendaToDelete(null);
     }
-  };
+  }, [isDeleting]);
 
   // Vista Griglia - Layout standard con sidebar
   return (
@@ -85,6 +94,7 @@ export default function AziendePage() {
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
           onConfirm={confirmDelete}
+          isDeleting={isDeleting}
         />
         </div>
       </div>
