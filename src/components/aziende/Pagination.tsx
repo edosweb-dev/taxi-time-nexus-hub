@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PaginationProps {
   currentPage: number;
@@ -19,8 +18,7 @@ export function Pagination({
 }: PaginationProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-  const isMobile = useIsMobile();
-  const delta = isMobile ? 1 : 2;
+  const delta = 2;
 
   const getVisiblePages = () => {
     const range = [];
@@ -53,19 +51,22 @@ export function Pagination({
 
   if (totalPages <= 1) return null;
 
+  const btnClass = "h-9 w-9 p-0 md:h-8 md:w-8 min-h-[36px] min-w-[36px] md:min-h-0 md:min-w-0";
+
   return (
     <div className="flex flex-col items-center gap-3 px-2 md:flex-row md:justify-between md:gap-0">
       <div className="text-sm text-muted-foreground text-center md:text-left">
-        Mostra {startItem} - {endItem} di {totalItems} aziende
+        <span className="md:hidden">{startItem}-{endItem} di {totalItems}</span>
+        <span className="hidden md:inline">Mostra {startItem} - {endItem} di {totalItems} aziende</span>
       </div>
       
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1 md:space-x-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="hidden md:inline-flex h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+          className={`hidden md:inline-flex ${btnClass}`}
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
@@ -75,7 +76,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+          className={btnClass}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -88,7 +89,7 @@ export function Pagination({
               size="sm"
               onClick={() => typeof page === 'number' && onPageChange(page)}
               disabled={page === '...'}
-              className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+              className={btnClass}
             >
               {page}
             </Button>
@@ -100,7 +101,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+          className={btnClass}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -110,7 +111,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="hidden md:inline-flex h-8 w-8 p-0 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+          className={`hidden md:inline-flex ${btnClass}`}
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
