@@ -18,35 +18,23 @@ export function Pagination({
 }: PaginationProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-  const delta = 2;
+  const getVisiblePages = (): (number | string)[] => {
+    const FORWARD = 3; // current + 2 successive
+    const pages: (number | string)[] = [];
 
-  const getVisiblePages = () => {
-    const range = [];
-    const rangeWithDots = [];
-
-    for (
-      let i = Math.max(2, currentPage - delta);
-      i <= Math.min(totalPages - 1, currentPage + delta);
-      i++
-    ) {
-      range.push(i);
+    // 3 pagine consecutive dal current verso avanti (clampato a totalPages)
+    const end = Math.min(currentPage + FORWARD - 1, totalPages);
+    for (let i = currentPage; i <= end; i++) {
+      pages.push(i);
     }
 
-    if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...');
-    } else {
-      rangeWithDots.push(1);
+    if (end < totalPages - 1) {
+      pages.push('...', totalPages);
+    } else if (end === totalPages - 1) {
+      pages.push(totalPages);
     }
 
-    rangeWithDots.push(...range);
-
-    if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push('...', totalPages);
-    } else if (totalPages > 1) {
-      rangeWithDots.push(totalPages);
-    }
-
-    return rangeWithDots;
+    return pages;
   };
 
   if (totalPages <= 1) return null;
