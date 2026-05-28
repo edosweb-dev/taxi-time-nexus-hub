@@ -4,25 +4,35 @@ import { supabase } from '@/lib/supabase';
 export async function deleteAzienda(id: string): Promise<{ success?: boolean; error?: any }> {
   try {
     console.log(`[deleteAzienda] Deleting company with ID: ${id}`);
-    
-    // Check if company has associated profiles
-    const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('azienda_id', id);
-      
-    if (profilesError) {
-      console.error('[deleteAzienda] Error checking for associated profiles:', profilesError);
-      return { error: profilesError };
+
+    const [profilesRes, serviziRes, passeggeriRes] = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('azienda_id', id),
+      supabase.from('servizi').select('id', { count: 'exact', head: true }).eq('azienda_id', id),
+      supabase.from('passeggeri').select('id', { count: 'exact', head: true }).eq('azienda_id', id),
+    ]);
+
+    const profilesError = profilesRes.error;
+    const serviziError = serviziRes.error;
+    const passeggeriError = passeggeriRes.error;
+
+    if (profilesError || serviziError || passeggeriError) {
+      const firstError = profilesError || serviziError || passeggeriError;
+      console.error('[deleteAzienda] Error checking dependencies:', firstError);
+      return { error: firstError };
     }
-    
-    if (profiles && profiles.length > 0) {
-      console.error(`[deleteAzienda] Cannot delete company with ID ${id}, it has ${profiles.length} associated profiles`);
-      return { 
-        error: { 
-          message: 'Non è possibile eliminare l\'azienda perché ha dei referenti associati'
-        }
-      };
+
+    const nProfiles = profilesRes.count ?? 0;
+    const nServizi = serviziRes.count ?? 0;
+    const nPasseggeri = passeggeriRes.count ?? 0;
+
+    if (nProfiles > 0 || nServizi > 0 || nPasseggeri > 0) {
+      const parts: string[] = [];
+      if (nProfiles > 0) parts.push(`${nProfiles} ${nProfiles === 1 ? 'referente' : 'referenti'}`);
+      if (nServizi > 0) parts.push(`${nServizi} ${nServizi === 1 ? 'servizio' : 'servizi'}`);
+      if (nPasseggeri > 0) parts.push(`${nPasseggeri} ${nPasseggeri === 1 ? 'passeggero' : 'passeggeri'}`);
+      const message = `Non è possibile eliminare l'azienda perché ha collegamenti attivi: ${parts.join(', ')}. Elimina o sposta prima questi elementi.`;
+      console.error(`[deleteAzienda] Cannot delete company ${id}: ${message}`);
+      return { error: { message } };
     }
 
     const { error: deleteError } = await supabase

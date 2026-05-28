@@ -1,3 +1,4 @@
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,16 +16,21 @@ interface DeleteAziendaDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
+  isDeleting?: boolean;
 }
 
 export function DeleteAziendaDialog({ 
   azienda, 
   open, 
   onOpenChange, 
-  onConfirm 
+  onConfirm,
+  isDeleting = false,
 }: DeleteAziendaDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(next) => { if (!isDeleting) onOpenChange(next); }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
@@ -35,12 +41,13 @@ export function DeleteAziendaDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="min-h-[44px]">Annulla</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting} className="min-h-[44px]">Annulla</AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirm}
+            disabled={isDeleting}
             className="min-h-[44px] bg-destructive hover:bg-destructive/90"
           >
-            Elimina
+            {isDeleting ? 'Eliminazione in corso...' : 'Elimina'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
