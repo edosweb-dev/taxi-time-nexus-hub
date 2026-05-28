@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PaginationProps {
   currentPage: number;
@@ -18,9 +19,10 @@ export function Pagination({
 }: PaginationProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+  const isMobile = useIsMobile();
+  const delta = isMobile ? 1 : 2;
 
   const getVisiblePages = () => {
-    const delta = 2;
     const range = [];
     const rangeWithDots = [];
 
