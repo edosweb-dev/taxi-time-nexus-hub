@@ -71,6 +71,7 @@ interface ServizioDettaglio {
   assegnato_nome: string | null;
   veicolo_info: string | null;
   passeggeri_nomi: string[];
+  note: string | null;
 }
 
 const ReportCliente = () => {
