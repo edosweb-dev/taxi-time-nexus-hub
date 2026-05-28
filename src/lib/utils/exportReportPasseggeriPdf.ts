@@ -92,17 +92,16 @@ export const exportReportPasseggeriPdf = async (
   // Table
   autoTable(doc, {
     startY: yPos + 8,
-    head: [['Referente', 'Data', 'N°', 'Passeggeri', 'Percorso', 'Importo', 'Ore Fatturate', 'Note', 'Stato']],
+    head: [['Referente', 'Data', 'N°', 'Passeggeri', 'Percorso', 'Importo', 'Ore Fatturate', 'Note']],
     body: data.map(row => [
       row.referente_nome || '-',
       format(new Date(row.data_servizio), 'dd/MM/yyyy'),
       row.num_passeggeri.toString(),
       row.passeggeri_nomi || '-',
-      sanitizePercorso(row.percorso),
+      sanitizePercorso(buildCityRoute(row.percorso)),
       `€${row.importo.toFixed(2)}`,
       row.ore_sosta > 0 ? row.ore_sosta.toString() : '-',
       row.note || '-',
-      row.stato
     ]),
     styles: { 
       fontSize: 7, 
@@ -118,15 +117,14 @@ export const exportReportPasseggeriPdf = async (
     },
     alternateRowStyles: { fillColor: [248, 248, 248] },
     columnStyles: {
-      0: { cellWidth: 28 },
+      0: { cellWidth: 30 },
       1: { cellWidth: 22 },
       2: { cellWidth: 12, halign: 'center' },
-      3: { cellWidth: 55 },
-      4: { cellWidth: 60 },
-      5: { cellWidth: 20, halign: 'right' },
-      6: { cellWidth: 15, halign: 'center' },
-      7: { cellWidth: 35 },
-      8: { cellWidth: 22, halign: 'center' },
+      3: { cellWidth: 58 },
+      4: { cellWidth: 65 },
+      5: { cellWidth: 22, halign: 'right' },
+      6: { cellWidth: 18, halign: 'center' },
+      7: { cellWidth: 45 },
     }
   });
 
