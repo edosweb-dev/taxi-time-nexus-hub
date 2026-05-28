@@ -39,7 +39,7 @@ export function Pagination({
 
   if (totalPages <= 1) return null;
 
-  const btnClass = "h-9 w-9 p-0 md:h-8 md:w-8 min-h-[36px] min-w-[36px] md:min-h-0 md:min-w-0";
+  const btnClass = "h-10 w-10 p-0 md:h-8 md:w-8 min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0";
 
   return (
     <div className="flex flex-col items-center gap-3 px-2 md:flex-row md:justify-between md:gap-0">
@@ -56,7 +56,7 @@ export function Pagination({
           disabled={currentPage === 1}
           className={`hidden md:inline-flex ${btnClass}`}
         >
-          <ChevronsLeft className="h-4 w-4" />
+          <ChevronsLeft className="h-5 w-5" strokeWidth={2.5} />
         </Button>
         
         <Button
@@ -66,7 +66,7 @@ export function Pagination({
           disabled={currentPage === 1}
           className={btnClass}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
         </Button>
 
         <div className="flex items-center space-x-1">
@@ -91,7 +91,7 @@ export function Pagination({
           disabled={currentPage === totalPages}
           className={btnClass}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
         </Button>
         
         <Button
@@ -101,7 +101,7 @@ export function Pagination({
           disabled={currentPage === totalPages}
           className={`hidden md:inline-flex ${btnClass}`}
         >
-          <ChevronsRight className="h-4 w-4" />
+          <ChevronsRight className="h-5 w-5" strokeWidth={2.5} />
         </Button>
       </div>
     </div>
