@@ -88,11 +88,18 @@ export default function ReportPasseggeriPage() {
     }
     toast.info('Generazione PDF in corso...');
     try {
+      // Stessa logica del CSV: mostra N° Commessa quando l'azienda non usa la firma digitale
+      const aziendaFiltrata = filters.aziendaId && aziendaSelezionata ? {
+        firma_digitale_attiva: aziendaSelezionata.firma_digitale_attiva || false
+      } : null;
+      const mostraCommessa = !aziendaFiltrata || !aziendaFiltrata.firma_digitale_attiva;
+
       await exportReportPasseggeriPdf(reportData, {
         dataInizio: filters.dataInizio,
         dataFine: filters.dataFine,
         aziendaNome: aziendaSelezionata?.nome,
         referenteNome: referenteSelezionato || undefined,
+        mostraCommessa,
       });
       toast.success('Report PDF esportato con successo');
     } catch (err) {
