@@ -10,6 +10,9 @@ interface ExportPdfOptions {
   dataFine: string;
   aziendaNome?: string;
   referenteNome?: string;
+  // Mostra la colonna "N° Commessa" (serve al cliente, es. Omet).
+  // Stessa logica del CSV: attiva quando l'azienda non usa la firma digitale.
+  mostraCommessa?: boolean;
 }
 
 // Sanitizza percorso - sostituisce caratteri non supportati dal font Helvetica
@@ -61,7 +64,7 @@ export const exportReportPasseggeriPdf = async (
   data: ReportPasseggeroRow[],
   options: ExportPdfOptions
 ) => {
-  const { dataInizio, dataFine, aziendaNome, referenteNome } = options;
+  const { dataInizio, dataFine, aziendaNome, referenteNome, mostraCommessa = false } = options;
 
   // Landscape per più spazio orizzontale (297mm vs 210mm)
   const doc = new jsPDF({
@@ -90,42 +93,66 @@ export const exportReportPasseggeriPdf = async (
   }
 
   // Table
+  // Larghezze ribilanciate quando si aggiunge la colonna commessa, così la
+  // tabella resta entro i margini A4 landscape (~268mm utili). Senza commessa
+  // si usano le larghezze originali per non alterare il layout esistente.
+  const columnStyles = mostraCommessa
+    ? {
+        0: { cellWidth: 28 },                    // Referente
+        1: { cellWidth: 20 },                    // Data
+        2: { cellWidth: 11, halign: 'center' },  // N°
+        3: { cellWidth: 50 },                    // Passeggeri
+        4: { cellWidth: 54 },                    // Percorso
+        5: { cellWidth: 20, halign: 'right' },   // Importo
+        6: { cellWidth: 16, halign: 'center' },  // Ore Fatturate
+        7: { cellWidth: 33 },                    // Note
+        8: { cellWidth: 20, halign: 'center' },  // N° Commessa
+      }
+    : {
+        0: { cellWidth: 30 },
+        1: { cellWidth: 22 },
+        2: { cellWidth: 12, halign: 'center' },
+        3: { cellWidth: 58 },
+        4: { cellWidth: 65 },
+        5: { cellWidth: 22, halign: 'right' },
+        6: { cellWidth: 18, halign: 'center' },
+        7: { cellWidth: 45 },
+      };
+
   autoTable(doc, {
     startY: yPos + 8,
-    head: [['Referente', 'Data', 'N°', 'Passeggeri', 'Percorso', 'Importo', 'Ore Fatturate', 'Note']],
-    body: data.map(row => [
-      row.referente_nome || '-',
-      format(new Date(row.data_servizio), 'dd/MM/yyyy'),
-      row.num_passeggeri.toString(),
-      row.passeggeri_nomi || '-',
-      sanitizePercorso(buildCityRoute(row.percorso)),
-      `€${row.importo.toFixed(2)}`,
-      row.ore_sosta > 0 ? row.ore_sosta.toString() : '-',
-      row.note || '-',
-    ]),
-    styles: { 
-      fontSize: 7, 
+    head: [[
+      'Referente', 'Data', 'N°', 'Passeggeri', 'Percorso', 'Importo', 'Ore Fatturate', 'Note',
+      ...(mostraCommessa ? ['N° Commessa'] : []),
+    ]],
+    body: data.map(row => {
+      const cells = [
+        row.referente_nome || '-',
+        format(new Date(row.data_servizio), 'dd/MM/yyyy'),
+        row.num_passeggeri.toString(),
+        row.passeggeri_nomi || '-',
+        sanitizePercorso(buildCityRoute(row.percorso)),
+        `€${row.importo.toFixed(2)}`,
+        row.ore_sosta > 0 ? row.ore_sosta.toString() : '-',
+        row.note || '-',
+      ];
+      if (mostraCommessa) cells.push(row.numero_commessa || '-');
+      return cells;
+    }),
+    styles: {
+      fontSize: 7,
       cellPadding: 1.5,
       overflow: 'linebreak',
       minCellHeight: 8
     },
-    headStyles: { 
+    headStyles: {
       fillColor: [66, 66, 66],
       fontSize: 7,
       fontStyle: 'bold',
       halign: 'center'
     },
     alternateRowStyles: { fillColor: [248, 248, 248] },
-    columnStyles: {
-      0: { cellWidth: 30 },
-      1: { cellWidth: 22 },
-      2: { cellWidth: 12, halign: 'center' },
-      3: { cellWidth: 58 },
-      4: { cellWidth: 65 },
-      5: { cellWidth: 22, halign: 'right' },
-      6: { cellWidth: 18, halign: 'center' },
-      7: { cellWidth: 45 },
-    }
+    columnStyles
   });
 
   // Footer totals
