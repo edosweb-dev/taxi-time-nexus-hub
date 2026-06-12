@@ -149,7 +149,7 @@ export const exportReportPasseggeriPdf = async (
       fillColor: [66, 66, 66],
       fontSize: 7,
       fontStyle: 'bold',
-      halign: 'center'
+      halign: 'center' as const
     },
     alternateRowStyles: { fillColor: [248, 248, 248] },
     columnStyles
