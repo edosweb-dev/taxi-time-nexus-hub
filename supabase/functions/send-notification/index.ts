@@ -240,6 +240,14 @@ function renderSectionNote(vars: Record<string, string>): string {
     </div>`;
 }
 
+function renderSectionReferente(vars: Record<string, string>): string {
+  if (!vars.referente_nome) return '';
+  return `
+    <div style="${SECTION_STYLE}">
+      <div style="${INFO_ROW_STYLE}"><span style="${INFO_LABEL_STYLE}">👤 Referente:</span> ${escapeHtml(vars.referente_nome)}</div>
+    </div>`;
+}
+
 function renderUnifiedLayout(data: {
   colore_header: string;
   titolo: string;
