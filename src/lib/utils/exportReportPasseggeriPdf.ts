@@ -100,22 +100,22 @@ export const exportReportPasseggeriPdf = async (
     ? {
         0: { cellWidth: 28 },                    // Referente
         1: { cellWidth: 20 },                    // Data
-        2: { cellWidth: 11, halign: 'center' },  // N°
+        2: { cellWidth: 11, halign: 'center' as const },  // N°
         3: { cellWidth: 50 },                    // Passeggeri
         4: { cellWidth: 54 },                    // Percorso
-        5: { cellWidth: 20, halign: 'right' },   // Importo
-        6: { cellWidth: 16, halign: 'center' },  // Ore Fatturate
+        5: { cellWidth: 20, halign: 'right' as const },   // Importo
+        6: { cellWidth: 16, halign: 'center' as const },  // Ore Fatturate
         7: { cellWidth: 33 },                    // Note
-        8: { cellWidth: 20, halign: 'center' },  // N° Commessa
+        8: { cellWidth: 20, halign: 'center' as const },  // N° Commessa
       }
     : {
         0: { cellWidth: 30 },
         1: { cellWidth: 22 },
-        2: { cellWidth: 12, halign: 'center' },
+        2: { cellWidth: 12, halign: 'center' as const },
         3: { cellWidth: 58 },
         4: { cellWidth: 65 },
-        5: { cellWidth: 22, halign: 'right' },
-        6: { cellWidth: 18, halign: 'center' },
+        5: { cellWidth: 22, halign: 'right' as const },
+        6: { cellWidth: 18, halign: 'center' as const },
         7: { cellWidth: 45 },
       };
 
@@ -149,7 +149,7 @@ export const exportReportPasseggeriPdf = async (
       fillColor: [66, 66, 66],
       fontSize: 7,
       fontStyle: 'bold',
-      halign: 'center'
+      halign: 'center' as const
     },
     alternateRowStyles: { fillColor: [248, 248, 248] },
     columnStyles
