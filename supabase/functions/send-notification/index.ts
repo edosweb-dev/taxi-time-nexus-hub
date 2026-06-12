@@ -292,6 +292,7 @@ function renderUnifiedEmail(template: TemplateRecord, ctx: RenderContext, config
   const sections: string[] = [
     renderSectionDataOra(vars),
     renderSectionCommessa(vars),
+    renderSectionReferente(vars),
     renderSectionPercorsoSemplice(vars),
     renderSectionPasseggeri(ctx.passeggeri, vars),
     renderSectionDestinazioni(ctx.passeggeri, ctx.servizio),
