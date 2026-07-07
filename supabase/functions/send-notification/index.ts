@@ -2,6 +2,19 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
+// Evita che una singola operazione SMTP bloccata uccida il worker (errore 546 di Supabase).
+// Un'operazione che supera `ms` viene abortita con un errore gestibile invece di far
+// terminare l'intera invocazione (perdendo invii e log).
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: number | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`SMTP timeout: ${label} oltre ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  }) as Promise<T>;
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -454,13 +467,13 @@ serve(async (req) => {
         let failed = 0;
         for (const email of test_emails) {
           try {
-            await smtp.send({
+            await withTimeout(smtp.send({
               from: `${smtpCfg.smtp_from_name || 'TaxiTime'} <${smtpCfg.smtp_from_email || smtpCfg.smtp_user}>`,
               to: [email],
               subject,
               content: plainText,
               html: rendered.html,
-            });
+            }), 15000, `test send ${email}`);
             sent++;
             console.log(`[SEND-EMAIL] ✅ Test (${template_slug}) sent to ${email}`);
           } catch (err) {
@@ -468,7 +481,11 @@ serve(async (req) => {
             console.error(`[SEND-EMAIL] ❌ Test (${template_slug}) failed to ${email}:`, (err as Error).message);
           }
         }
-        await smtp.close();
+        try {
+          await withTimeout(smtp.close(), 5000, 'close');
+        } catch (closeErr) {
+          console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
+        }
 
         return new Response(
           JSON.stringify({ success: true, sent, failed, total: test_emails.length, template_slug }),
@@ -528,12 +545,12 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 
       for (const email of test_emails) {
         try {
-          await smtp.send({
+          await withTimeout(smtp.send({
             from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
             to: [email],
             subject: testSubject,
             html: testHtml
-          });
+          }), 15000, `test send ${email}`);
           sent++;
           console.log(`[SEND-EMAIL] ✅ Test sent to ${email}`);
         } catch (err: any) {
@@ -542,7 +559,11 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         }
       }
 
-      await smtp.close();
+      try {
+        await withTimeout(smtp.close(), 5000, 'close');
+      } catch (closeErr) {
+        console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
+      }
 
       return new Response(
         JSON.stringify({ success: true, sent, failed, total: test_emails.length }),
@@ -795,13 +816,13 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       };
 
       try {
-        const sendResult = await smtp.send({
+        const sendResult = await withTimeout(smtp.send({
           from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
           to: [recipient.email],
           subject: emailSubject,
           content: emailPlainText,
           html: emailHtml
-        });
+        }), 15000, `send ${recipient.email}`);
 
         results.sent++;
         logEntry.smtp_message_id = sendResult?.messageId || null;
@@ -825,9 +846,8 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       }
     }
 
-    await smtp.close();
-
-    // 9. SAVE LOGS
+    // 9. SAVE LOGS — prima della close, così l'esito di ogni invio viene sempre
+    // persistito anche se la chiusura della connessione si blocca.
     if (logs.length > 0) {
       const { error: logError } = await supabaseAdmin
         .from('email_logs')
@@ -836,6 +856,13 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       if (logError) {
         console.error('[SEND-EMAIL] Log save error:', logError);
       }
+    }
+
+    // Chiudi la connessione SMTP con timeout: una close bloccata non deve uccidere il worker.
+    try {
+      await withTimeout(smtp.close(), 5000, 'close');
+    } catch (closeErr) {
+      console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
     }
 
     console.log('[SEND-EMAIL] Complete:', results);
