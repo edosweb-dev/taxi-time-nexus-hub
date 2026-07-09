@@ -345,7 +345,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { servizio_id, template_slug, test_mode, test_emails } = body;
+    const { servizio_id, template_slug, test_mode, test_emails, skip_already_sent } = body;
 
     // ── TEST MODE ─────────────────────────────────────────────────────
     if (test_mode === true) {
