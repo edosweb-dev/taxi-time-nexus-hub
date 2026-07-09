@@ -202,7 +202,7 @@ export function AssignmentPopup({
       // Invia notifica email ai destinatari configurati
       if (servizio?.id) {
         console.log('[AssignmentPopup] Invio notifica email per servizio:', servizio.id);
-        sendNotification(servizio.id, 'assegnato');
+        sendEmailNotification(servizio.id, 'servizio_assegnato');
       }
       
       // Invalida tutte le query correlate per assicurare refresh UI
