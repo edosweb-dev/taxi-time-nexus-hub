@@ -15,6 +15,23 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   }) as Promise<T>;
 }
 
+// denomailer, a connessione SMTP gia' aperta, rigetta fuori dalla promise di send()
+// quando riceve un indirizzo malformato: la rejection non e' catturabile con try/catch
+// e Deno termina il worker (errore 546, invii persi e nessun log). Qui la assorbiamo.
+globalThis.addEventListener('unhandledrejection', (event) => {
+  event.preventDefault();
+  console.error('[SEND-EMAIL] Unhandled rejection assorbita:', event.reason);
+});
+
+// I campi email del gestionale accettano testo libero: ci finiscono numeri di telefono,
+// link e domini senza TLD. Vanno scartati prima di passarli a denomailer.
+function isValidEmail(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const email = value.trim();
+  if (email.length === 0 || email.length > 254) return false;
+  return /^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]{2,}$/.test(email);
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -713,8 +730,18 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       console.log('[SEND-EMAIL] Added admin notification emails:', adminEmails.length, adminEmails);
     }
 
+    const scartati = recipients.filter(r => !isValidEmail(r.email));
+    if (scartati.length > 0) {
+      console.warn('[SEND-EMAIL] Destinatari scartati (email non valida):',
+        scartati.map(r => `${r.name || '?'} <${r.email}>`).join(', '));
+    }
+
     const uniqueRecipients = Array.from(
-      new Map(recipients.map(r => [r.email.toLowerCase(), r])).values()
+      new Map(
+        recipients
+          .filter(r => isValidEmail(r.email))
+          .map(r => [r.email.trim().toLowerCase(), { ...r, email: r.email.trim() }])
+      ).values()
     );
 
     if (uniqueRecipients.length === 0) {
@@ -844,6 +871,18 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       if (i < uniqueRecipients.length - 1) {
         await new Promise(r => setTimeout(r, 100));
       }
+    }
+
+    for (const r of scartati) {
+      logs.push({
+        servizio_id, template_slug, template: template_slug,
+        recipient_email: r.email, destinatario: r.email,
+        subject: emailSubject, oggetto: emailSubject,
+        sent_at: new Date().toISOString(),
+        status: 'failed', stato: 'failed',
+        error_message: 'Indirizzo email non valido: invio saltato',
+        smtp_response: null, smtp_message_id: null
+      });
     }
 
     // 9. SAVE LOGS — prima della close, così l'esito di ogni invio viene sempre

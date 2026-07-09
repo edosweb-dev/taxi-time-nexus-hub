@@ -104,6 +104,33 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_id_progressivo_20260709: {
+        Row: {
+          backup_at: string | null
+          created_at: string | null
+          data_servizio: string | null
+          id: string | null
+          id_progressivo: string | null
+          stato: string | null
+        }
+        Insert: {
+          backup_at?: string | null
+          created_at?: string | null
+          data_servizio?: string | null
+          id?: string | null
+          id_progressivo?: string | null
+          stato?: string | null
+        }
+        Update: {
+          backup_at?: string | null
+          created_at?: string | null
+          data_servizio?: string | null
+          id?: string | null
+          id_progressivo?: string | null
+          stato?: string | null
+        }
+        Relationships: []
+      }
       clienti_privati: {
         Row: {
           citta: string | null
