@@ -833,12 +833,11 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     });
 
     // 8. SEND EMAILS
-    const results = { sent: 0, failed: 0, total: uniqueRecipients.length };
-    const logs: any[] = [];
+    const results = { sent: 0, failed: 0, total: destinatariDaServire.length };
 
-    for (let i = 0; i < uniqueRecipients.length; i++) {
-      const recipient = uniqueRecipients[i];
-      
+    for (let i = 0; i < destinatariDaServire.length; i++) {
+      const recipient = destinatariDaServire[i];
+
       const logEntry: Record<string, any> = {
         servizio_id: servizio_id,
         template_slug: template_slug,
@@ -868,7 +867,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         logEntry.smtp_message_id = sendResult?.messageId || null;
         logEntry.smtp_response = 'OK';
         console.log(`[SEND-EMAIL] ✅ Sent to ${recipient.email}`);
-        
+
       } catch (error: any) {
         results.failed++;
         logEntry.status = 'failed';
@@ -878,16 +877,20 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         console.error(`[SEND-EMAIL] ❌ Failed to ${recipient.email}:`, error.message);
       }
 
-      logs.push(logEntry);
+      // Persisti subito: se il worker viene terminato per CPU Time exceeded,
+      // gli invii gia' andati a buon fine restano tracciati e il retry li salta.
+      const { error: logError } = await supabaseAdmin.from('email_logs').insert([logEntry]);
+      if (logError) console.error('[SEND-EMAIL] Log save error:', logError);
 
       // Rate limit: 100ms between sends
-      if (i < uniqueRecipients.length - 1) {
+      if (i < destinatariDaServire.length - 1) {
         await new Promise(r => setTimeout(r, 100));
       }
     }
 
-    for (const r of scartati) {
-      logs.push({
+    // Log destinatari scartati (email non valide) prima della close.
+    if (scartati.length > 0) {
+      const scartatiLogs = scartati.map(r => ({
         servizio_id, template_slug, template: template_slug,
         recipient_email: r.email, destinatario: r.email,
         subject: emailSubject, oggetto: emailSubject,
@@ -895,19 +898,9 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         status: 'failed', stato: 'failed',
         error_message: 'Indirizzo email non valido: invio saltato',
         smtp_response: null, smtp_message_id: null
-      });
-    }
-
-    // 9. SAVE LOGS — prima della close, così l'esito di ogni invio viene sempre
-    // persistito anche se la chiusura della connessione si blocca.
-    if (logs.length > 0) {
-      const { error: logError } = await supabaseAdmin
-        .from('email_logs')
-        .insert(logs);
-
-      if (logError) {
-        console.error('[SEND-EMAIL] Log save error:', logError);
-      }
+      }));
+      const { error: scartatiErr } = await supabaseAdmin.from('email_logs').insert(scartatiLogs);
+      if (scartatiErr) console.error('[SEND-EMAIL] Log save error (scartati):', scartatiErr);
     }
 
     // Chiudi la connessione SMTP con timeout: una close bloccata non deve uccidere il worker.
