@@ -15,7 +15,7 @@ import { Servizio, StatoServizio } from '@/lib/types/servizi';
 import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
-import { sendNotification } from '@/hooks/useSendNotification';
+import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import { useServizioPasseggeriRoute } from '@/hooks/useServizioPasseggeriRoute';
 
 const PLACEHOLDER_VALUES = new Set(['', 'da definire', 'da_definire', 'undefined', 'null']);
