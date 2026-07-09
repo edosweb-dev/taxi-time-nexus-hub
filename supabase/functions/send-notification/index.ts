@@ -746,6 +746,26 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 
     console.log('[SEND-EMAIL] Recipients:', uniqueRecipients.length);
 
+    let destinatariDaServire = uniqueRecipients;
+    if (skip_already_sent === true) {
+      const { data: giaInviate } = await supabaseAdmin
+        .from('email_logs')
+        .select('recipient_email')
+        .eq('servizio_id', servizio_id)
+        .eq('template_slug', template_slug)
+        .eq('status', 'sent')
+        .gte('sent_at', new Date(Date.now() - 30 * 60 * 1000).toISOString());
+      const gia = new Set((giaInviate || []).map((r: any) => (r.recipient_email || '').toLowerCase()));
+      destinatariDaServire = uniqueRecipients.filter(r => !gia.has(r.email.toLowerCase()));
+      console.log(`[SEND-EMAIL] Retry: ${gia.size} gia' inviate, ${destinatariDaServire.length} da inviare`);
+      if (destinatariDaServire.length === 0) {
+        return new Response(
+          JSON.stringify({ success: true, sent: 0, failed: 0, total: 0, message: 'Tutte le email erano gia state inviate' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // 5. BUILD EMAIL CONTENT — UNIFIED RENDERER
     console.log(`[SEND-EMAIL] UNIFIED render for: ${template.slug}`);
 
