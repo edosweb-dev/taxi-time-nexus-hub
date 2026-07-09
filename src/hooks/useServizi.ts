@@ -122,9 +122,8 @@ export function useServizi() {
       });
       toast.success('Stato del servizio aggiornato con successo');
       
-      // Invia notifica email per annullamento (legacy + SMTP)
+      // Invia notifica email per annullamento (SMTP)
       if (stato === 'annullato' && servizio?.id) {
-        sendNotification(servizio.id, 'annullato');
         sendEmailNotification(servizio.id, 'servizio_annullato');
       }
     },
