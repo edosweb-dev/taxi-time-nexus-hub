@@ -4,7 +4,7 @@ import { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/
 import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
-import { sendNotification } from '@/hooks/useSendNotification';
+
 import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import { 
   calculateServizioStato, 
