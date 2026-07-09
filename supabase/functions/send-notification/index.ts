@@ -873,6 +873,18 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       }
     }
 
+    for (const r of scartati) {
+      logs.push({
+        servizio_id, template_slug, template: template_slug,
+        recipient_email: r.email, destinatario: r.email,
+        subject: emailSubject, oggetto: emailSubject,
+        sent_at: new Date().toISOString(),
+        status: 'failed', stato: 'failed',
+        error_message: 'Indirizzo email non valido: invio saltato',
+        smtp_response: null, smtp_message_id: null
+      });
+    }
+
     // 9. SAVE LOGS — prima della close, così l'esito di ogni invio viene sempre
     // persistito anche se la chiusura della connessione si blocca.
     if (logs.length > 0) {
