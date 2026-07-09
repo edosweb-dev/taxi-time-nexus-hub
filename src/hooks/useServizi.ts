@@ -4,7 +4,7 @@ import { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/
 import { toast } from '@/components/ui/sonner';
 import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
-import { sendNotification } from '@/hooks/useSendNotification';
+
 import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import { 
   calculateServizioStato, 
@@ -122,9 +122,8 @@ export function useServizi() {
       });
       toast.success('Stato del servizio aggiornato con successo');
       
-      // Invia notifica email per annullamento (legacy + SMTP)
+      // Invia notifica email per annullamento (SMTP)
       if (stato === 'annullato' && servizio?.id) {
-        sendNotification(servizio.id, 'annullato');
         sendEmailNotification(servizio.id, 'servizio_annullato');
       }
     },
@@ -145,9 +144,8 @@ export function useServizi() {
       });
       toast.success('Servizio completato con successo');
       
-      // Invia notifica email per completamento (legacy + SMTP)
+      // Invia notifica email per completamento (SMTP)
       if (result?.data?.[0]?.id) {
-        sendNotification(result.data[0].id, 'completato');
         sendEmailNotification(result.data[0].id, 'servizio_completato');
       }
     },

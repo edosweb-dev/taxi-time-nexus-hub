@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { invokeSendNotificationWithRetry } from '@/lib/api/email/invokeWithRetry';
 
 export type EmailTemplateSlug = 
   | 'servizio_creato' 
@@ -22,19 +22,8 @@ export async function sendEmailNotification(
   try {
     console.log('[sendEmailNotification] Sending:', { servizioId, templateSlug });
 
-    const { data, error } = await supabase.functions.invoke('send-notification', {
-      body: {
-        servizio_id: servizioId,
-        template_slug: templateSlug
-      }
-    });
-
-    if (error) {
-      console.error('[sendEmailNotification] Error:', error);
-      return;
-    }
-
-    console.log('[sendEmailNotification] Result:', data);
+    const result = await invokeSendNotificationWithRetry(servizioId, templateSlug);
+    console.log('[sendEmailNotification] Result:', result);
   } catch (err) {
     console.error('[sendEmailNotification] Exception:', err);
     // Fail silently - email is not critical

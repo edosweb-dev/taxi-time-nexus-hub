@@ -15,7 +15,7 @@ import { Servizio, StatoServizio } from '@/lib/types/servizi';
 import { useAssignmentUsers } from '@/hooks/useAssignmentUsers';
 import { ConducenteEsternoSelect } from './ConducenteEsternoSelect';
 import { useVeicoliAttivi } from '@/hooks/useVeicoli';
-import { sendNotification } from '@/hooks/useSendNotification';
+import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import { useServizioPasseggeriRoute } from '@/hooks/useServizioPasseggeriRoute';
 
 const PLACEHOLDER_VALUES = new Set(['', 'da definire', 'da_definire', 'undefined', 'null']);
@@ -202,7 +202,7 @@ export function AssignmentPopup({
       // Invia notifica email ai destinatari configurati
       if (servizio?.id) {
         console.log('[AssignmentPopup] Invio notifica email per servizio:', servizio.id);
-        sendNotification(servizio.id, 'assegnato');
+        sendEmailNotification(servizio.id, 'servizio_assegnato');
       }
       
       // Invalida tutte le query correlate per assicurare refresh UI
