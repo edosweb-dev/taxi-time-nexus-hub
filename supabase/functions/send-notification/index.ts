@@ -730,8 +730,18 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       console.log('[SEND-EMAIL] Added admin notification emails:', adminEmails.length, adminEmails);
     }
 
+    const scartati = recipients.filter(r => !isValidEmail(r.email));
+    if (scartati.length > 0) {
+      console.warn('[SEND-EMAIL] Destinatari scartati (email non valida):',
+        scartati.map(r => `${r.name || '?'} <${r.email}>`).join(', '));
+    }
+
     const uniqueRecipients = Array.from(
-      new Map(recipients.map(r => [r.email.toLowerCase(), r])).values()
+      new Map(
+        recipients
+          .filter(r => isValidEmail(r.email))
+          .map(r => [r.email.trim().toLowerCase(), { ...r, email: r.email.trim() }])
+      ).values()
     );
 
     if (uniqueRecipients.length === 0) {
