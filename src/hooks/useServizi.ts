@@ -144,9 +144,8 @@ export function useServizi() {
       });
       toast.success('Servizio completato con successo');
       
-      // Invia notifica email per completamento (legacy + SMTP)
+      // Invia notifica email per completamento (SMTP)
       if (result?.data?.[0]?.id) {
-        sendNotification(result.data[0].id, 'completato');
         sendEmailNotification(result.data[0].id, 'servizio_completato');
       }
     },
