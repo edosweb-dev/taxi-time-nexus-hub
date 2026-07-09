@@ -15,13 +15,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   }) as Promise<T>;
 }
 
-// denomailer, a connessione SMTP gia' aperta, rigetta fuori dalla promise di send()
-// quando riceve un indirizzo malformato: la rejection non e' catturabile con try/catch
-// e Deno termina il worker (errore 546, invii persi e nessun log). Qui la assorbiamo.
-globalThis.addEventListener('unhandledrejection', (event) => {
-  event.preventDefault();
-  console.error('[SEND-EMAIL] Unhandled rejection assorbita:', event.reason);
-});
 
 // I campi email del gestionale accettano testo libero: ci finiscono numeri di telefono,
 // link e domini senza TLD. Vanno scartati prima di passarli a denomailer.
@@ -352,7 +345,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { servizio_id, template_slug, test_mode, test_emails } = body;
+    const { servizio_id, template_slug, test_mode, test_emails, skip_already_sent } = body;
 
     // ── TEST MODE ─────────────────────────────────────────────────────
     if (test_mode === true) {
@@ -753,6 +746,26 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 
     console.log('[SEND-EMAIL] Recipients:', uniqueRecipients.length);
 
+    let destinatariDaServire = uniqueRecipients;
+    if (skip_already_sent === true) {
+      const { data: giaInviate } = await supabaseAdmin
+        .from('email_logs')
+        .select('recipient_email')
+        .eq('servizio_id', servizio_id)
+        .eq('template_slug', template_slug)
+        .eq('status', 'sent')
+        .gte('sent_at', new Date(Date.now() - 30 * 60 * 1000).toISOString());
+      const gia = new Set((giaInviate || []).map((r: any) => (r.recipient_email || '').toLowerCase()));
+      destinatariDaServire = uniqueRecipients.filter(r => !gia.has(r.email.toLowerCase()));
+      console.log(`[SEND-EMAIL] Retry: ${gia.size} gia' inviate, ${destinatariDaServire.length} da inviare`);
+      if (destinatariDaServire.length === 0) {
+        return new Response(
+          JSON.stringify({ success: true, sent: 0, failed: 0, total: 0, message: 'Tutte le email erano gia state inviate' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // 5. BUILD EMAIL CONTENT — UNIFIED RENDERER
     console.log(`[SEND-EMAIL] UNIFIED render for: ${template.slug}`);
 
@@ -820,12 +833,11 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     });
 
     // 8. SEND EMAILS
-    const results = { sent: 0, failed: 0, total: uniqueRecipients.length };
-    const logs: any[] = [];
+    const results = { sent: 0, failed: 0, total: destinatariDaServire.length };
 
-    for (let i = 0; i < uniqueRecipients.length; i++) {
-      const recipient = uniqueRecipients[i];
-      
+    for (let i = 0; i < destinatariDaServire.length; i++) {
+      const recipient = destinatariDaServire[i];
+
       const logEntry: Record<string, any> = {
         servizio_id: servizio_id,
         template_slug: template_slug,
@@ -855,7 +867,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         logEntry.smtp_message_id = sendResult?.messageId || null;
         logEntry.smtp_response = 'OK';
         console.log(`[SEND-EMAIL] ✅ Sent to ${recipient.email}`);
-        
+
       } catch (error: any) {
         results.failed++;
         logEntry.status = 'failed';
@@ -865,16 +877,20 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         console.error(`[SEND-EMAIL] ❌ Failed to ${recipient.email}:`, error.message);
       }
 
-      logs.push(logEntry);
+      // Persisti subito: se il worker viene terminato per CPU Time exceeded,
+      // gli invii gia' andati a buon fine restano tracciati e il retry li salta.
+      const { error: logError } = await supabaseAdmin.from('email_logs').insert([logEntry]);
+      if (logError) console.error('[SEND-EMAIL] Log save error:', logError);
 
       // Rate limit: 100ms between sends
-      if (i < uniqueRecipients.length - 1) {
+      if (i < destinatariDaServire.length - 1) {
         await new Promise(r => setTimeout(r, 100));
       }
     }
 
-    for (const r of scartati) {
-      logs.push({
+    // Log destinatari scartati (email non valide) prima della close.
+    if (scartati.length > 0) {
+      const scartatiLogs = scartati.map(r => ({
         servizio_id, template_slug, template: template_slug,
         recipient_email: r.email, destinatario: r.email,
         subject: emailSubject, oggetto: emailSubject,
@@ -882,19 +898,9 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         status: 'failed', stato: 'failed',
         error_message: 'Indirizzo email non valido: invio saltato',
         smtp_response: null, smtp_message_id: null
-      });
-    }
-
-    // 9. SAVE LOGS — prima della close, così l'esito di ogni invio viene sempre
-    // persistito anche se la chiusura della connessione si blocca.
-    if (logs.length > 0) {
-      const { error: logError } = await supabaseAdmin
-        .from('email_logs')
-        .insert(logs);
-
-      if (logError) {
-        console.error('[SEND-EMAIL] Log save error:', logError);
-      }
+      }));
+      const { error: scartatiErr } = await supabaseAdmin.from('email_logs').insert(scartatiLogs);
+      if (scartatiErr) console.error('[SEND-EMAIL] Log save error (scartati):', scartatiErr);
     }
 
     // Chiudi la connessione SMTP con timeout: una close bloccata non deve uccidere il worker.
