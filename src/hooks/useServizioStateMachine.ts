@@ -10,7 +10,7 @@ import {
   createServizio as apiCreateServizio, 
   updateServizio as apiUpdateServizio 
 } from '@/lib/api/servizi';
-import { sendNotification } from '@/hooks/useSendNotification';
+
 import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import type { CreateServizioRequest, UpdateServizioRequest } from '@/lib/api/servizi/types';
 import type { Servizio, StatoServizio } from '@/lib/types/servizi';
