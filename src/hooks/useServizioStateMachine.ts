@@ -223,9 +223,8 @@ export function useServizioStateMachine() {
       });
       toast.success('Servizio assegnato!');
       
-      // Invia notifica email ai destinatari configurati (legacy + SMTP)
+      // Invia notifica email ai destinatari configurati (SMTP)
       if (data?.id) {
-        sendNotification(data.id, 'assegnato');
         sendEmailNotification(data.id, 'servizio_assegnato');
       }
     },
