@@ -15,6 +15,23 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   }) as Promise<T>;
 }
 
+// denomailer, a connessione SMTP gia' aperta, rigetta fuori dalla promise di send()
+// quando riceve un indirizzo malformato: la rejection non e' catturabile con try/catch
+// e Deno termina il worker (errore 546, invii persi e nessun log). Qui la assorbiamo.
+globalThis.addEventListener('unhandledrejection', (event) => {
+  event.preventDefault();
+  console.error('[SEND-EMAIL] Unhandled rejection assorbita:', event.reason);
+});
+
+// I campi email del gestionale accettano testo libero: ci finiscono numeri di telefono,
+// link e domini senza TLD. Vanno scartati prima di passarli a denomailer.
+function isValidEmail(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const email = value.trim();
+  if (email.length === 0 || email.length > 254) return false;
+  return /^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]{2,}$/.test(email);
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
