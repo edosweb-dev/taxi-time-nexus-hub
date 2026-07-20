@@ -1,73 +1,53 @@
-# Welcome to your Lovable project
+# Taxi Time — Gestionale
 
-## Project info
+Applicazione gestionale per servizi NCC/taxi: servizi, aziende clienti, passeggeri,
+turni, stipendi soci, spese e reportistica.
 
-**URL**: https://lovable.dev/projects/314949cb-cbda-482d-a13d-ae812a0bf046
+## Stack
 
-## How can I edit this code?
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI**: Tailwind CSS + shadcn/ui
+- **Dati e auth**: Supabase (PostgreSQL, RLS, Edge Functions)
+- **Deploy**: Vercel (build da `main`)
 
-There are several ways of editing your application.
+## Sviluppo locale
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/314949cb-cbda-482d-a13d-ae812a0bf046) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Prerequisiti: Node.js 18+ e npm.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm install
+npm run dev      # server di sviluppo su http://localhost:8080
 ```
 
-**Edit a file directly in GitHub**
+Altri script:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run build    # build di produzione in dist/
+npm run preview  # anteprima locale del build
+npm run lint     # ESLint
+```
 
-**Use GitHub Codespaces**
+## Variabili d'ambiente
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Il client Supabase usa le seguenti variabili (prefisso `VITE_`, quindi incluse
+nel bundle: sono la URL del progetto e la chiave anon, pubbliche per design):
 
-## What technologies are used for this project?
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+VITE_SUPABASE_PROJECT_ID=
+```
 
-This project is built with:
+In locale vanno in un file `.env` (non versionato). Su Vercel vanno impostate
+nelle Environment Variables del progetto.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Supabase
 
-## How can I deploy this project?
+- **Migrazioni**: `supabase/migrations/`
+- **Edge Functions**: `supabase/functions/` — si deployano con
+  `supabase functions deploy <nome> --project-ref <ref>`
 
-Simply open [Lovable](https://lovable.dev/projects/314949cb-cbda-482d-a13d-ae812a0bf046) and click on Share -> Publish.
+## Deploy
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Il push su `main` innesca il build e la pubblicazione su Vercel.
+La configurazione del build (rewrite SPA incluso) sta in `vercel.json`.

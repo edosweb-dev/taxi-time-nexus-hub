@@ -34,8 +34,15 @@ serve(async (req) => {
       );
     }
 
-    // Build the reset link using the site URL and token hash
-    const siteUrl = email_data.site_url || email_data.redirect_to || "https://taxi-time.lovable.app";
+    // Build the reset link using the site URL and token hash.
+    // Il fallback finale e' la env SITE_URL (da impostare nei secrets Supabase),
+    // non piu' un dominio Lovable hardcodato. Normalmente e' site_url, passato
+    // dall'auth hook, a essere usato; questo fallback scatta solo se manca.
+    const siteUrl =
+      email_data.site_url ||
+      email_data.redirect_to ||
+      Deno.env.get("SITE_URL") ||
+      "https://taxitime.it";
     const resetLink = `${siteUrl}/reset-password#access_token=${email_data.token_hash}&type=recovery`;
 
     console.log("[send-reset-password-email] Sending to:", user.email);
