@@ -1,10 +1,30 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// Domini a cui e' lecito far puntare il link di reset. La mail parte da
+// noreply@taxitime.it con SPF/DKIM validi: un redirect verso un dominio
+// arbitrario sarebbe un phishing perfettamente credibile. Restituisce solo
+// protocollo+host (niente path), cosi' il /reset-password non viene duplicato
+// se il candidato ne include gia' uno.
+const ALLOWED_HOSTS = ["www.taxitime.app", "taxitime.app"];
+
+function baseUrlSeConsentito(candidate?: string): string | null {
+  if (!candidate) return null;
+  try {
+    const u = new URL(candidate);
+    if (u.protocol !== "https:") return null;
+    if (!ALLOWED_HOSTS.includes(u.hostname)) return null;
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return null;
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -21,7 +41,41 @@ serve(async (req) => {
       );
     }
 
-    const payload = await req.json();
+    // ── VERIFICA FIRMA WEBHOOK ──────────────────────────────────────────────
+    // Questa function e' un Send Email Hook di Supabase, pubblica
+    // (verify_jwt=false in config.toml). Senza verificare la firma, chiunque
+    // poteva POSTare user.email ed email_data arbitrari e far partire una mail
+    // di "reset password" dal dominio taxitime, con link verso un sito esterno:
+    // phishing a costo zero, piu' consumo della quota Resend. Supabase firma
+    // ogni chiamata dell'hook secondo lo standard standardwebhooks usando
+    // SEND_EMAIL_HOOK_SECRET; un attaccante non puo' produrre una firma valida.
+    const hookSecret = Deno.env.get("SEND_EMAIL_HOOK_SECRET");
+    if (!hookSecret) {
+      console.error("[send-reset-password-email] SEND_EMAIL_HOOK_SECRET non configurato");
+      return new Response(
+        JSON.stringify({ error: "Hook secret not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // La firma copre il corpo grezzo: va letto come testo, non come JSON.
+    const rawBody = await req.text();
+    const headers = Object.fromEntries(req.headers);
+
+    let payload: any;
+    try {
+      // Il secret Supabase ha formato "v1,whsec_<base64>"; standardwebhooks
+      // vuole la sola parte base64.
+      const wh = new Webhook(hookSecret.replace("v1,whsec_", ""));
+      payload = wh.verify(rawBody, headers);
+    } catch (err) {
+      console.error("[send-reset-password-email] Firma webhook non valida:", (err as Error)?.message);
+      return new Response(
+        JSON.stringify({ error: "Invalid signature" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log("[send-reset-password-email] Received payload type:", payload?.email_data?.email_action_type);
 
     const { user, email_data } = payload;
@@ -34,13 +88,16 @@ serve(async (req) => {
       );
     }
 
-    // Build the reset link using the site URL and token hash.
-    // Il fallback finale e' la env SITE_URL (da impostare nei secrets Supabase),
-    // non piu' un dominio Lovable hardcodato. Normalmente e' site_url, passato
-    // dall'auth hook, a essere usato; questo fallback scatta solo se manca.
+    // Costruzione del link di reset. Precedenza invertita rispetto a prima:
+    // vince redirect_to, cioe' il dominio da cui parte davvero la richiesta
+    // (l'app passa window.location.origin via resetPasswordForEmail), poi
+    // site_url. Entrambi filtrati contro ALLOWED_HOSTS. Prima si usava site_url
+    // per primo: essendo il Site URL configurato in Supabase ancora sul vecchio
+    // dominio Lovable, il link portava gli utenti fuori dall'app.
+    // Il fallback finale e' la env SITE_URL, poi il dominio di produzione.
     const siteUrl =
-      email_data.site_url ||
-      email_data.redirect_to ||
+      baseUrlSeConsentito(email_data.redirect_to) ||
+      baseUrlSeConsentito(email_data.site_url) ||
       Deno.env.get("SITE_URL") ||
       "https://www.taxitime.app";
     const resetLink = `${siteUrl}/reset-password#access_token=${email_data.token_hash}&type=recovery`;
