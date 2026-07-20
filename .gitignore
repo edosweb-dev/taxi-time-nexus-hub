@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Screenshot di lavoro e temp CLI Supabase
+Screen/
+supabase/.temp/
