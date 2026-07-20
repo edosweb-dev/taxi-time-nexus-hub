@@ -48,10 +48,11 @@ export default function StipendiPage() {
   const [selectedStipendiodiPendente, setSelectedStipendiodiPendente] = useState<StipendioManualeDipendente | null>(null);
   const [isRealigningAnno, setIsRealigningAnno] = useState(false);
 
-  // Verifica accesso solo per admin e soci
-  if (profile && !['admin', 'socio'].includes(profile.role)) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // NOTA: il controllo di accesso NON puo' stare qui. `profile` e' null al primo
+  // render e valorizzato subito dopo: la condizione passa da falsa a vera a
+  // runtime, il componente esce prima degli hook qui sotto e React solleva
+  // "Rendered fewer hooks than expected". La guardia e' spostata dopo l'ultimo
+  // hook, appena prima del return.
 
   // Recupera stipendi automatici per soci (admin e soci)
   const { data: stipendiSoci, isLoading: isLoadingSoci, refetch: refetchSoci } = useStipendiAutomatici(selectedMonth, selectedYear);
@@ -126,6 +127,11 @@ export default function StipendiPage() {
     }
   };
 
+  // 🔒 Accesso riservato ad admin e soci. Qui tutti gli hook sono gia' stati
+  // eseguiti, quindi l'uscita anticipata e' sicura.
+  if (profile && !['admin', 'socio'].includes(profile.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <MainLayout>

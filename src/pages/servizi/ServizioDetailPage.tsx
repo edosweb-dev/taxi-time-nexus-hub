@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { DipendenteLayout } from "@/components/layouts/DipendenteLayout";
 import { useServizioDetail } from "@/hooks/useServizioDetail";
@@ -103,11 +103,13 @@ export default function ServizioDetailPage() {
   // 🔒 Dipendente non può consuntivare
   const canBeConsuntivatoFiltered = isDipendente ? false : canBeConsuntivato;
 
-  // 🔒 SECURITY: Dipendente può vedere solo servizi assegnati a lui
-  if (isDipendente && servizio && servizio.assegnato_a !== profile?.id) {
-    navigate('/dipendente/servizi-assegnati');
-    return null;
-  }
+  // NOTA: il controllo di accesso del dipendente NON puo' stare qui. `servizio`
+  // arriva da un fetch: al primo render e' undefined, quindi la condizione e'
+  // falsa e i 16 hook qui sotto vengono eseguiti; quando i dati arrivano la
+  // condizione diventa vera, il componente esce prima di quegli hook e React
+  // solleva "Rendered fewer hooks than expected", schiantando la pagina.
+  // La guardia e' stata spostata sotto, dopo l'ultimo hook, insieme a quelle
+  // di caricamento ed errore. Vedi piu' avanti in questo file.
 
   // 🔹 DIALOG STATE (shared)
   const [completaDialogOpen, setCompletaDialogOpen] = useState(false);
@@ -178,6 +180,19 @@ export default function ServizioDetailPage() {
   
   if (error || !servizio) {
     return <ServizioError />;
+  }
+
+  // 🔒 SECURITY: il dipendente puo' vedere solo i servizi assegnati a lui.
+  //
+  // Sta QUI e non in cima al componente perche' tutti gli hook devono essere
+  // gia' stati eseguiti: un'uscita anticipata prima di loro cambia il numero di
+  // hook fra un render e l'altro e schianta la pagina. A questo punto `servizio`
+  // e' garantito non nullo dal controllo qui sopra.
+  //
+  // Si usa <Navigate> invece di navigate(): quest'ultimo e' un effetto
+  // collaterale e non va invocato durante il render.
+  if (isDipendente && servizio.assegnato_a !== profile?.id) {
+    return <Navigate to="/dipendente/servizi-assegnati" replace />;
   }
 
   // Prepare mobile-optimized service data

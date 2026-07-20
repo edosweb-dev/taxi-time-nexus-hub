@@ -39,7 +39,18 @@ export default function UserBackupsPage() {
   const [selectedBackup, setSelectedBackup] = useState<UserBackup | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
-  // Redirect if not admin
+  const { data: backups = [], isLoading, error } = useQuery({
+    queryKey: ['user-backups'],
+    queryFn: getUserBackups,
+  });
+
+  // 🔒 Accesso riservato agli amministratori.
+  //
+  // Sta DOPO lo useQuery, non prima. `profile` e' undefined al primo render,
+  // quindi `profile?.role !== 'admin'` era vera e il componente usciva senza
+  // eseguire lo useQuery; quando il profilo arrivava la condizione diventava
+  // falsa, lo useQuery veniva eseguito e React trovava piu' hook del render
+  // precedente, sollevando "Rendered more hooks than expected".
   if (profile?.role !== 'admin') {
     return (
       <MainLayout>
@@ -52,11 +63,6 @@ export default function UserBackupsPage() {
       </MainLayout>
     );
   }
-
-  const { data: backups = [], isLoading, error } = useQuery({
-    queryKey: ['user-backups'],
-    queryFn: getUserBackups,
-  });
 
   const handleViewBackup = (backup: UserBackup) => {
     setSelectedBackup(backup);

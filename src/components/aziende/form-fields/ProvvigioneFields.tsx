@@ -15,6 +15,15 @@ export function ProvvigioneFields({ control }: ProvvigioneFieldsProps) {
     defaultValue: false,
   });
 
+  // Sollevato qui dal JSX piu' sotto, dove era chiamato dentro
+  // <FormDescription>: un hook invocato durante il render di un elemento
+  // condizionale viene eseguito un numero variabile di volte fra un render e
+  // l'altro. Entrambi gli useWatch devono stare prima dell'uscita anticipata.
+  const provvigioneTipo = useWatch({
+    control,
+    name: "provvigione_tipo",
+  });
+
   if (!provvigioneAttiva) {
     return null;
   }
@@ -63,7 +72,7 @@ export function ProvvigioneFields({ control }: ProvvigioneFieldsProps) {
               />
             </FormControl>
             <FormDescription>
-              {useWatch({ control, name: "provvigione_tipo" }) === "percentuale" 
+              {provvigioneTipo === "percentuale"
                 ? "Inserisci la percentuale (es. 10 per 10%)"
                 : "Inserisci il valore fisso in euro"
               }

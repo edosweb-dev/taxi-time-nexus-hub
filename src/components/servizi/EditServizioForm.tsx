@@ -24,14 +24,10 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
   const { form, profile } = useServizioForm();
   const { updateServizio, isUpdatingServizio } = useServizi();
 
-  // Loading state - aspetta che i dati siano disponibili
-  if (!servizio || !passeggeri) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // NOTA: il controllo di caricamento e' spostato sotto, dopo lo useEffect.
+  // Le prop `servizio` e `passeggeri` arrivano da un fetch: uscendo qui, lo
+  // useEffect non veniva eseguito nei primi render e veniva eseguito in quelli
+  // successivi, cambiando il numero di hook e schiantando il componente.
 
   // Precompila il form con i dati esistenti - usa servizio.id come dependency per resettare solo quando cambia servizio
   useEffect(() => {
@@ -121,7 +117,20 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         console.log('[EditServizioForm] Form values after reset:', form.getValues());
       }, 100);
     }
-  }, [servizio?.id, passeggeri.length]);
+    // `passeggeri?.length` e non `passeggeri.length`: ora che il controllo di
+    // caricamento e' spostato dopo, questa riga viene valutata anche quando la
+    // prop non e' ancora arrivata.
+  }, [servizio?.id, passeggeri?.length]);
+
+  // Loading state - aspetta che i dati siano disponibili. Qui gli hook sono
+  // gia' stati eseguiti tutti, quindi l'uscita anticipata e' sicura.
+  if (!servizio || !passeggeri) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const onSubmit = async (values: any) => {
     try {
