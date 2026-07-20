@@ -344,11 +344,81 @@ serve(async (req) => {
   }
 
   try {
+    // ── AUTENTICAZIONE ──────────────────────────────────────────────────────
+    // Questa function usa SERVICE_ROLE e quindi scavalca la RLS. verify_jwt
+    // valida solo la firma del token, e la anon key e' un JWT valido e pubblico
+    // (sta nel bundle JS): senza questo blocco chiunque poteva invocarla.
+    //
+    // ATTENZIONE: qui basta essere autenticati, NON serve un ruolo staff.
+    // La notifica e' innescata legittimamente anche da clienti
+    // (pages/cliente/NuovoServizioPage.tsx) e da dipendenti
+    // (hooks/dipendente/useCompletaServizio.ts): imporre admin/socio
+    // romperebbe la creazione servizi lato cliente e il completamento lato
+    // dipendente. Il vettore di esfiltrazione e' test_mode, ristretto piu' giu'.
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, message: 'Autenticazione richiesta' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      console.error('[SEND-EMAIL] Token non valido:', authError);
+      return new Response(
+        JSON.stringify({ success: false, message: 'Autenticazione non valida' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const body = await req.json();
     const { servizio_id, template_slug, test_mode, test_emails, skip_already_sent } = body;
 
     // ── TEST MODE ─────────────────────────────────────────────────────
     if (test_mode === true) {
+      // test_emails e' interamente controllato dal chiamante: e' il vettore con
+      // cui si potevano farsi recapitare a un indirizzo arbitrario i dati del
+      // servizio (nomi, indirizzi e telefoni dei passeggeri), iterando gli UUID.
+      // Riservato ad admin/socio, gli unici che raggiungono /impostazioni, da
+      // cui parte l'unico invio di test dell'app (EmailNotificheAdminForm).
+      //
+      // Il ruolo si legge da user_roles e NON da profiles.role, ancora
+      // scrivibile dall'utente stesso.
+      const { data: callerRoles, error: rolesError } = await supabaseAuth
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      if (rolesError) {
+        console.error('[SEND-EMAIL] Lettura ruoli fallita:', rolesError);
+        return new Response(
+          JSON.stringify({ success: false, message: 'Verifica permessi fallita' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const isStaff = (callerRoles ?? []).some(
+        (r: { role: string }) => r.role === 'admin' || r.role === 'socio'
+      );
+
+      if (!isStaff) {
+        console.error('[SEND-EMAIL] test_mode negato per', user.id);
+        return new Response(
+          JSON.stringify({ success: false, message: 'Permessi insufficienti per la modalita di test' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       console.log('[SEND-EMAIL] TEST MODE for emails:', test_emails);
 
       if (!Array.isArray(test_emails) || test_emails.length === 0) {

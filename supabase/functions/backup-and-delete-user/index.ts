@@ -8,7 +8,8 @@ const corsHeaders = {
 
 interface DeleteUserRequest {
   userId: string;
-  deletedBy?: string; // Opzionale, verrà passato dal frontend
+  /** @deprecated ignorato: deleted_by viene dal token verificato lato server, non dal client */
+  deletedBy?: string;
 }
 
 Deno.serve(async (req) => {
@@ -36,11 +37,77 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
+    // ── AUTENTICAZIONE E AUTORIZZAZIONE ─────────────────────────────────────
+    // Questa function usa SERVICE_ROLE e quindi scavalca la RLS, ed e'
+    // distruttiva. verify_jwt valida solo la firma del token, e la anon key e'
+    // un JWT valido e pubblico (sta nel bundle JS servito al browser): senza
+    // questo blocco chiunque poteva cancellare qualunque account.
+    //
+    // Il ruolo si legge da user_roles e NON da profiles.role: quest'ultima
+    // colonna e' ancora scrivibile dall'utente stesso (policy "Allow update
+    // own profile" con with_check nullo), quindi non e' una base affidabile
+    // per autorizzare. Vincolo admin+socio scelto per combaciare con
+    // l'AuthGuard della rotta /users da cui parte la chiamata.
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('[backup-and-delete-user] Authorization header mancante');
+      return new Response(JSON.stringify({ error: 'Autenticazione richiesta' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      console.error('[backup-and-delete-user] Token non valido:', authError);
+      return new Response(JSON.stringify({ error: 'Autenticazione non valida' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { data: callerRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    if (rolesError) {
+      console.error('[backup-and-delete-user] Lettura ruoli fallita:', rolesError);
+      return new Response(JSON.stringify({ error: 'Verifica permessi fallita' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const isStaff = (callerRoles ?? []).some(
+      (r: { role: string }) => r.role === 'admin' || r.role === 'socio'
+    );
+
+    if (!isStaff) {
+      console.error('[backup-and-delete-user] Permessi insufficienti per', user.id);
+      return new Response(JSON.stringify({ error: 'Permessi insufficienti' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     // Parse request body
-    const { userId, deletedBy }: DeleteUserRequest = await req.json();
+    const { userId }: DeleteUserRequest = await req.json();
     
     if (!userId) {
       return new Response(JSON.stringify({ error: 'userId richiesto' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Impedisce l'auto-cancellazione: lascerebbe una sessione attiva senza
+    // profilo, con effetti imprevedibili sul client.
+    if (userId === user.id) {
+      return new Response(JSON.stringify({ error: 'Non puoi eliminare il tuo stesso account' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -138,7 +205,7 @@ Deno.serve(async (req) => {
       .from('user_deletion_backup')
       .insert({
         deleted_user_id: userId,
-        deleted_by: deletedBy || null, // Usa deletedBy dal frontend se disponibile
+        deleted_by: user.id, // utente autenticato verificato lato server, non il valore inviato dal frontend
         user_data: backupData.user_data,
         servizi_data: backupData.servizi_data,
         stipendi_data: backupData.stipendi_data,

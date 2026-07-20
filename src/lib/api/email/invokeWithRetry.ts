@@ -33,6 +33,16 @@ export async function invokeSendNotificationWithRetry(
       }
 
       ultimoErrore = error.message || String(error);
+
+      // 401/403 sono definitivi quanto un `success: false` applicativo: la
+      // function ora autentica il chiamante, e un token assente o scaduto non
+      // migliora ritentando. Evita 3 richieste inutili e 3,3s di attese.
+      const status = (error as { context?: { status?: number } })?.context?.status;
+      if (status === 401 || status === 403) {
+        console.error(`[sendNotification] Autenticazione rifiutata (${status}), nessun ritentativo:`, ultimoErrore);
+        return { success: false, error: ultimoErrore };
+      }
+
       console.warn(`[sendNotification] Tentativo ${tentativo}/${MAX_TENTATIVI} fallito:`, ultimoErrore);
     } catch (err: any) {
       ultimoErrore = err?.message || String(err);

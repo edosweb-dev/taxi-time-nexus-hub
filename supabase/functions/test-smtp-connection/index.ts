@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +16,64 @@ serve(async (req) => {
   const logs: string[] = [];
 
   try {
+    // ── AUTENTICAZIONE E AUTORIZZAZIONE ─────────────────────────────────────
+    // Senza questo blocco chiunque possieda la anon key (pubblica, sta nel
+    // bundle JS) poteva far aprire al server Supabase una connessione verso
+    // host e porta arbitrari — SSRF e port-scan, con i messaggi d'errore
+    // differenziati piu' sotto che funzionano da oracolo sullo stato della
+    // porta — oltre a usare l'infrastruttura come relay di posta.
+    //
+    // Il ruolo si legge da user_roles e NON da profiles.role, che e' ancora
+    // scrivibile dall'utente stesso. Vincolo admin+socio per combaciare con
+    // l'AuthGuard della rotta /impostazioni da cui parte la chiamata.
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Autenticazione richiesta' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Autenticazione non valida' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: callerRoles, error: rolesError } = await supabaseAuth
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    if (rolesError) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Verifica permessi fallita' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const isStaff = (callerRoles ?? []).some(
+      (r: { role: string }) => r.role === 'admin' || r.role === 'socio'
+    );
+
+    if (!isStaff) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Permessi insufficienti' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password, smtp_from_name, smtp_from_email, test_recipient } = await req.json();
 
     logs.push(`[1/6] Parametri ricevuti`);
