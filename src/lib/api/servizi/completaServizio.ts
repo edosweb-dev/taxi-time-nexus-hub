@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { sendEmailNotification } from '@/lib/api/email/sendNotification';
+import { ricalcolaStipendioPerServizio } from '@/lib/api/stipendi/ricalcolaStipendio';
 import { MetodoPagamento } from '@/lib/types/servizi';
 import { getTipoPagamento, TipoPagamento } from '@/lib/types/servizi/metodoPagamentoHelpers';
 
@@ -63,16 +64,22 @@ export async function completaServizio({
     // usa quella mutation: 798 servizi risultano 'completato' in produzione e
     // servizio_completato non ha mai prodotto una sola email.
     //
+    // Notifica e ricalcolo stipendio girano in parallelo: sono indipendenti e
+    // in serie sommerebbero le rispettive attese.
+    //
     // L'invio e' atteso, non fire-and-forget: uno dei chiamanti
     // (pages/dipendente/CompletaServizioPage.tsx) naviga subito dopo, e la
     // stessa corsa ha fatto perdere il 37% delle notifiche di richiesta cliente
     // a luglio (vedi il commento in pages/cliente/NuovoServizioPage.tsx). Il
     // tetto di 6 secondi evita che un guasto del trasporto blocchi l'interfaccia.
-    // sendEmailNotification non lancia mai, quindi il completamento non puo'
-    // fallire per colpa dell'email.
-    await Promise.race([
-      sendEmailNotification(id, 'servizio_completato'),
-      new Promise(resolve => setTimeout(resolve, 6000)),
+    // Ne' sendEmailNotification ne' ricalcolaStipendioPerServizio lanciano,
+    // quindi il completamento non puo' fallire per colpa loro.
+    await Promise.all([
+      Promise.race([
+        sendEmailNotification(id, 'servizio_completato'),
+        new Promise(resolve => setTimeout(resolve, 6000)),
+      ]),
+      ricalcolaStipendioPerServizio(data?.[0]),
     ]);
 
     return { data, error: null };

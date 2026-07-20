@@ -216,3 +216,44 @@ export async function ricalcolaTuttiStipendiCascata(
     dettagli,
   };
 }
+
+/**
+ * Ricalcola lo stipendio del mese a cui appartiene un servizio appena
+ * completato o consuntivato.
+ *
+ * Serve perche' km_totali e ore_attesa_socio concorrono allo stipendio del
+ * socio assegnato, ma finora nessun percorso ricalcolava il record in
+ * `stipendi` quando un servizio cambiava stato: il ricalcolo era invocato solo
+ * dalle spese aziendali, dalla pagina Stipendi e dal dettaglio. Il risultato,
+ * verificato in produzione: per febbraio 2026 Andrea Di Gregorio aveva 170 ore
+ * di attesa registrate sui servizi e `stipendi.totale_lordo` fermo a 0, quindi
+ * il report soci mostrava zero invece di 3.060 euro (170 x 18).
+ *
+ * Il report legge il valore memorizzato dal commit 284893ff del 21/04/2026
+ * (FB-09), scelta corretta per allineare le colonne "stipendio" e
+ * "incrementale" ma valida solo se quel valore e' aggiornato. Questa funzione
+ * rimuove l'assunto sbagliato invece di tornare al calcolo live.
+ *
+ * Non lancia mai: un errore nel ricalcolo non deve far fallire il
+ * completamento o la consuntivazione del servizio. Il ricalcolo e' idempotente
+ * e resta disponibile a mano dalla pagina Stipendi come rete di sicurezza.
+ * ricalcolaStipendioMese salta da solo i mesi gia' confermati o pagati.
+ */
+export async function ricalcolaStipendioPerServizio(
+  servizio: { assegnato_a?: string | null; data_servizio?: string | null } | null | undefined
+): Promise<void> {
+  try {
+    if (!servizio?.assegnato_a || !servizio?.data_servizio) return;
+
+    const data = new Date(servizio.data_servizio);
+    if (Number.isNaN(data.getTime())) return;
+
+    await ricalcolaStipendioConCascata(
+      servizio.assegnato_a,
+      data.getMonth() + 1,
+      data.getFullYear()
+    );
+  } catch (err) {
+    console.error('[ricalcolaStipendioPerServizio] Ricalcolo fallito:', err);
+  }
+}

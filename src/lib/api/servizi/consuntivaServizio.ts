@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { sendEmailNotification } from '@/lib/api/email/sendNotification';
+import { ricalcolaStipendioPerServizio } from '@/lib/api/stipendi/ricalcolaStipendio';
 
 interface ConsuntivaServizioParams {
   id: string;
@@ -45,11 +46,16 @@ export async function consuntivaServizio({
     // useConsuntivaServizioForm. La chiamata in useServizi.ts:171 non e' mai
     // stata raggiunta: 230 servizi risultano 'consuntivato' in produzione e
     // servizio_consuntivato non ha mai prodotto una sola email.
-    // Atteso con tetto di 6 secondi, per lo stesso motivo spiegato in
-    // completaServizio.ts: non dipendere dal fatto che il chiamante navighi.
-    await Promise.race([
-      sendEmailNotification(id, 'servizio_consuntivato'),
-      new Promise(resolve => setTimeout(resolve, 6000)),
+    // Notifica e ricalcolo stipendio in parallelo, per lo stesso motivo
+    // spiegato in completaServizio.ts. Qui il ricalcolo conta ancora di piu':
+    // e' la consuntivazione a valorizzare ore_attesa_socio, cioe' proprio il
+    // campo che alimenta lo stipendio del socio.
+    await Promise.all([
+      Promise.race([
+        sendEmailNotification(id, 'servizio_consuntivato'),
+        new Promise(resolve => setTimeout(resolve, 6000)),
+      ]),
+      ricalcolaStipendioPerServizio(data?.[0]),
     ]);
 
     return { data, error: null };
