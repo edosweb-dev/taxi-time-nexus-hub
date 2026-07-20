@@ -23,17 +23,22 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MainLayout } from "@/components/layouts/MainLayout";
+import {
+  STATI_SERVIZIO,
+  getStatoLabel,
+  getStatoBadgeSoft,
+} from "@/lib/servizi/statoServizio";
 
-const STATO_LABELS: Record<string, { label: string; color: string }> = {
-  bozza: { label: "Bozza", color: "bg-muted text-muted-foreground" },
-  da_assegnare: { label: "Da Assegnare", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
-  assegnato: { label: "Assegnato", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
-  completato: { label: "Completato", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
-  consuntivato: { label: "Consuntivato", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" },
-  annullato: { label: "Annullato", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
-  non_accettato: { label: "Non Accettato", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300" },
-  richiesta_cliente: { label: "Richiesta", color: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300" },
-};
+// Costruita dalla fonte unica in lib/servizi/statoServizio.ts. La mappa che
+// stava qui era la terza definizione concorrente degli stati servizio, e le
+// altre due (lista desktop e lista mobile) si contraddicevano fra loro.
+const STATO_LABELS: Record<string, { label: string; color: string }> =
+  Object.fromEntries(
+    STATI_SERVIZIO.map((s) => [
+      s,
+      { label: getStatoLabel(s), color: getStatoBadgeSoft(s) },
+    ])
+  );
 
 export default function RicercaServiziPage() {
   const navigate = useNavigate();

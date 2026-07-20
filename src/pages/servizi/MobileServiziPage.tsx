@@ -10,6 +10,7 @@ import { useAziende } from '@/hooks/useAziende';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Servizio } from '@/lib/types/servizi';
+import { getStatoBadgeSolid, getStatoLabel } from '@/lib/servizi/statoServizio';
 
 export default function MobileServiziPage() {
   // This component is now wrapped by MainLayout in ServiziPage
@@ -53,23 +54,17 @@ export default function MobileServiziPage() {
     completato: servizi.filter(s => s.stato === 'completato').length,
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusMap = {
-      da_assegnare: { label: 'Da Assegnare', color: 'bg-red-500' },
-      assegnato: { label: 'Assegnato', color: 'bg-yellow-500' },
-      completato: { label: 'Completato', color: 'bg-green-500' },
-      annullato: { label: 'Annullato', color: 'bg-gray-500' },
-      consuntivato: { label: 'Consuntivato', color: 'bg-blue-500' },
-    };
-    
-    const config = statusMap[status as keyof typeof statusMap] || { label: status, color: 'bg-gray-400' };
-    
-    return (
-      <span className={`${config.color} text-white text-xs px-2 py-1 rounded-full`}>
-        {config.label}
-      </span>
-    );
-  };
+  // Delegato a lib/servizi/statoServizio.ts. La mappa che stava qui divergeva
+  // da quella desktop su quattro stati su cinque: rosso significava
+  // "da assegnare" qui e "annullato" su desktop, giallo "assegnato" qui e
+  // "da assegnare" su desktop, blu "consuntivato" qui e "assegnato" su desktop.
+  // Copriva inoltre solo cinque stati, facendo cadere bozza e non_accettato
+  // nello stesso grigio di riserva.
+  const getStatusBadge = (status: string) => (
+    <span className={`${getStatoBadgeSolid(status)} text-xs px-2 py-1 rounded-full`}>
+      {getStatoLabel(status)}
+    </span>
+  );
 
   const getAziendaNome = (aziendaId: string) => {
     const azienda = aziende.find(a => a.id === aziendaId);

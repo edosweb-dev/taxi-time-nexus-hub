@@ -24,6 +24,7 @@ import { DatePickerField } from "@/components/ui/date-picker-field";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import type { Servizio } from "@/lib/types/servizi";
+import { getStatoBadgeSolid } from "@/lib/servizi/statoServizio";
 import { AssignmentPopup } from "@/components/servizi/assegnazione/AssignmentPopup";
 import { InserimentoServizioModal } from "@/components/servizi/InserimentoServizioModal";
 import { DeleteServizioDialog } from "@/components/servizi/dialogs";
@@ -185,18 +186,10 @@ export default function ServiziPage() {
     });
   }, [servizi, activeTab, dataFiltro, idFiltro]);
 
-  const getStatusColor = (stato: string) => {
-    const colors: Record<string, string> = {
-      bozza: 'bg-gray-400 text-white',
-      da_assegnare: 'bg-yellow-500 text-white',
-      assegnato: 'bg-blue-500 text-white',
-      non_accettato: 'bg-orange-500 text-white',
-      completato: 'bg-green-500 text-white',
-      annullato: 'bg-red-500 text-white',
-      consuntivato: 'bg-purple-500 text-white'
-    };
-    return colors[stato] || 'bg-gray-500 text-white';
-  };
+  // Delegato a lib/servizi/statoServizio.ts: questa mappa e la sua gemella
+  // mobile divergevano su quattro stati su cinque, con gli stessi colori usati
+  // per significati opposti. Vedi il commento nel modulo condiviso.
+  const getStatusColor = getStatoBadgeSolid;
 
   const getStatusLabel = (stato: string) => {
     const labels: Record<string, string> = {
