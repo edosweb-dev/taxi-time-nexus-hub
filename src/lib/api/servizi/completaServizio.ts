@@ -63,9 +63,17 @@ export async function completaServizio({
     // usa quella mutation: 798 servizi risultano 'completato' in produzione e
     // servizio_completato non ha mai prodotto una sola email.
     //
-    // Fire-and-forget: sendEmailNotification non lancia e non restituisce
-    // nulla, quindi non puo' far fallire il completamento.
-    sendEmailNotification(id, 'servizio_completato');
+    // L'invio e' atteso, non fire-and-forget: uno dei chiamanti
+    // (pages/dipendente/CompletaServizioPage.tsx) naviga subito dopo, e la
+    // stessa corsa ha fatto perdere il 37% delle notifiche di richiesta cliente
+    // a luglio (vedi il commento in pages/cliente/NuovoServizioPage.tsx). Il
+    // tetto di 6 secondi evita che un guasto del trasporto blocchi l'interfaccia.
+    // sendEmailNotification non lancia mai, quindi il completamento non puo'
+    // fallire per colpa dell'email.
+    await Promise.race([
+      sendEmailNotification(id, 'servizio_completato'),
+      new Promise(resolve => setTimeout(resolve, 6000)),
+    ]);
 
     return { data, error: null };
   } catch (error: any) {

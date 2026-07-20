@@ -364,25 +364,41 @@ export default function NuovoServizioPage() {
 
       return servizio;
     },
-    onSuccess: (servizio) => {
+    onSuccess: async (servizio) => {
       queryClient.invalidateQueries({ queryKey: ["servizi-cliente"] });
       queryClient.invalidateQueries({ queryKey: ["passeggeri-cliente"] });
-      
-      // 📧 Email notifica richiesta cliente
-      if (servizio?.id) {
-        import('@/lib/api/email/sendNotification').then(({ sendEmailNotification }) => {
-          sendEmailNotification(servizio.id, 'richiesta_cliente_completo');
-        });
-      }
-      
+
       toast({
         title: "✅ Servizio richiesto",
         description: "Reindirizzamento alla conferma...",
       });
-      
-      setTimeout(() => {
-        navigate(`/dashboard-cliente/servizio-confermato?id=${servizio.id}`);
-      }, 500);
+
+      // 📧 Email notifica richiesta cliente.
+      //
+      // L'invio va ATTESO prima di navigare. Nella versione precedente era
+      // fire-and-forget seguito da un setTimeout di 500 ms che cambiava pagina:
+      // send-notification deve caricare il servizio con cinque join,
+      // renderizzare il template e aprire una connessione SMTP, ben oltre mezzo
+      // secondo, e con i ritentativi si arriva a qualche secondo. Il risultato,
+      // misurato in produzione sulle richieste cliente: 100% di notifiche
+      // inviate a maggio, 87% a giugno, 76% e poi 63% a luglio — un degrado
+      // continuo, indipendente dal numero di passeggeri e destinatari (1,29 vs
+      // 1,27 di media fra fallite e riuscite), coerente con una corsa persa
+      // contro il timer mentre l'applicazione diventa piu' pesante.
+      //
+      // Il tetto di 6 secondi evita che un guasto del trasporto blocchi
+      // l'utente sulla pagina: scaduto quello si naviga comunque, e la
+      // richiesta resta in volo. sendEmailNotification non lancia mai, quindi
+      // non serve try/catch attorno.
+      if (servizio?.id) {
+        const { sendEmailNotification } = await import('@/lib/api/email/sendNotification');
+        await Promise.race([
+          sendEmailNotification(servizio.id, 'richiesta_cliente_completo'),
+          new Promise(resolve => setTimeout(resolve, 6000)),
+        ]);
+      }
+
+      navigate(`/dashboard-cliente/servizio-confermato?id=${servizio.id}`);
     },
     onError: (error: Error) => {
       console.error("❌ Errore creazione servizio:", error);

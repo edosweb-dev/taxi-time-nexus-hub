@@ -1504,14 +1504,21 @@ export const ServizioCreaPage = ({
         //   Usare servizio_creato qui lascerebbe il conducente all'oscuro.
         // - da_assegnare: servizio_creato
         //
-        // Fire-and-forget come gli altri chiamanti: sendEmailNotification non
-        // lancia mai e non restituisce nulla, quindi un guasto dell'invio non
-        // puo' far fallire la creazione del servizio.
+        // L'invio va ATTESO, perche' in fondo a onSubmit c'e' una navigate():
+        // lasciarlo fire-and-forget lo esporrebbe alla stessa corsa che ha
+        // fatto perdere il 37% delle notifiche di richiesta cliente a luglio
+        // (vedi il commento in pages/cliente/NuovoServizioPage.tsx). Il tetto
+        // di 6 secondi evita che un guasto del trasporto blocchi l'utente sul
+        // form. sendEmailNotification non lancia mai, quindi un fallimento
+        // dell'invio non puo' far fallire la creazione del servizio.
         if (servizio?.id && statoServizio !== 'bozza') {
-          sendEmailNotification(
-            servizio.id,
-            statoServizio === 'assegnato' ? 'servizio_assegnato' : 'servizio_creato'
-          );
+          await Promise.race([
+            sendEmailNotification(
+              servizio.id,
+              statoServizio === 'assegnato' ? 'servizio_assegnato' : 'servizio_creato'
+            ),
+            new Promise(resolve => setTimeout(resolve, 6000)),
+          ]);
         }
       }
 

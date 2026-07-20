@@ -45,7 +45,12 @@ export async function consuntivaServizio({
     // useConsuntivaServizioForm. La chiamata in useServizi.ts:171 non e' mai
     // stata raggiunta: 230 servizi risultano 'consuntivato' in produzione e
     // servizio_consuntivato non ha mai prodotto una sola email.
-    sendEmailNotification(id, 'servizio_consuntivato');
+    // Atteso con tetto di 6 secondi, per lo stesso motivo spiegato in
+    // completaServizio.ts: non dipendere dal fatto che il chiamante navighi.
+    await Promise.race([
+      sendEmailNotification(id, 'servizio_consuntivato'),
+      new Promise(resolve => setTimeout(resolve, 6000)),
+    ]);
 
     return { data, error: null };
   } catch (error: any) {
