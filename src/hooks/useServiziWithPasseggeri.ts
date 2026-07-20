@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllPages } from '@/lib/api/fetchAllPages';
 import { Servizio } from '@/lib/types/servizi';
 
 export interface PasseggeroInfo {
@@ -28,7 +29,12 @@ export const useServiziWithPasseggeri = () => {
     staleTime: 2 * 60 * 1000, // 2 minuti - dati operativi
     queryFn: async () => {
       // ✅ FIX: Single query con resource embedding (evita IN(...) gigante che genera HTTP 400)
-      const { data: servizi, error: serviziError } = await supabase
+      //
+      // Paginato con fetchAllPages: senza `.range()` PostgREST si ferma a
+      // max_rows = 1000 senza segnalare nulla, e con 1.167 servizi ordinati per
+      // data decrescente i 167 piu' vecchi sparivano dalla ricerca. Vedi il
+      // commento in lib/api/fetchAllPages.ts.
+      const servizi = await fetchAllPages<any>((from, to) => supabase
         .from('servizi')
         .select(`
           *,
@@ -56,9 +62,8 @@ export const useServiziWithPasseggeri = () => {
           )
         `)
         .order('data_servizio', { ascending: false })
-        .order('orario_servizio', { ascending: false });
-
-      if (serviziError) throw serviziError;
+        .order('orario_servizio', { ascending: false })
+        .range(from, to));
 
       if (!servizi || servizi.length === 0) {
         return [];

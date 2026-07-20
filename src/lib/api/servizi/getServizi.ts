@@ -1,10 +1,15 @@
 
 import { supabase } from '@/lib/supabase';
+import { fetchAllPages } from '@/lib/api/fetchAllPages';
 import { PasseggeroConDettagli, Servizio } from '@/lib/types/servizi';
 
 export async function getServizi(): Promise<Servizio[]> {
   try {
-    const { data, error } = await supabase
+    // Paginato: senza `.range()` PostgREST si ferma a max_rows = 1000 senza
+    // segnalare nulla. Con 1.167 servizi ordinati per data decrescente, i 167
+    // piu' vecchi non arrivavano al client, e sparivano da lista servizi,
+    // calendario e report. Vedi il commento in lib/api/fetchAllPages.ts.
+    const data = await fetchAllPages<Servizio>((from, to) => supabase
       .from('servizi')
       .select(`
         *,
@@ -14,12 +19,8 @@ export async function getServizi(): Promise<Servizio[]> {
         )
       `)
       .order('data_servizio', { ascending: false })
-      .order('orario_servizio', { ascending: false });
-
-    if (error) {
-      console.error('[getServizi] Error fetching servizi:', error);
-      throw error;
-    }
+      .order('orario_servizio', { ascending: false })
+      .range(from, to));
 
     return data as Servizio[];
   } catch (error) {
