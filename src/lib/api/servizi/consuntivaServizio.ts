@@ -1,5 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
+import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 
 interface ConsuntivaServizioParams {
   id: string;
@@ -38,6 +39,13 @@ export async function consuntivaServizio({
     if (error) {
       throw error;
     }
+
+    // 📧 Notifica email. Stesso ragionamento di completaServizio: e' il punto di
+    // convergenza di ConsuntivaServizioDialog, ConsuntivaServizioSheet e
+    // useConsuntivaServizioForm. La chiamata in useServizi.ts:171 non e' mai
+    // stata raggiunta: 230 servizi risultano 'consuntivato' in produzione e
+    // servizio_consuntivato non ha mai prodotto una sola email.
+    sendEmailNotification(id, 'servizio_consuntivato');
 
     return { data, error: null };
   } catch (error: any) {

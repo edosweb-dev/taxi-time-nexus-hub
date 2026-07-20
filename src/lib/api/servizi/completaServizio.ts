@@ -1,5 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
+import { sendEmailNotification } from '@/lib/api/email/sendNotification';
 import { MetodoPagamento } from '@/lib/types/servizi';
 import { getTipoPagamento, TipoPagamento } from '@/lib/types/servizi/metodoPagamentoHelpers';
 
@@ -53,6 +54,18 @@ export async function completaServizio({
     if (error) {
       throw error;
     }
+
+    // 📧 Notifica email. Sta QUI e non nei chiamanti perche' questo e' l'unico
+    // punto che tutti attraversano: CompletaCartaForm, CompletaBonificoDialog,
+    // CompletaContantiUberForm, useCompletaServizioForm e useCompletaServizio
+    // chiamano tutti questa funzione. La chiamata che esisteva in
+    // useServizi.ts:149 non e' mai stata raggiunta, perche' nessun componente
+    // usa quella mutation: 798 servizi risultano 'completato' in produzione e
+    // servizio_completato non ha mai prodotto una sola email.
+    //
+    // Fire-and-forget: sendEmailNotification non lancia e non restituisce
+    // nulla, quindi non puo' far fallire il completamento.
+    sendEmailNotification(id, 'servizio_completato');
 
     return { data, error: null };
   } catch (error: any) {

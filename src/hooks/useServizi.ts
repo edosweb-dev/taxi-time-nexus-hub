@@ -143,11 +143,9 @@ export function useServizi() {
         }
       });
       toast.success('Servizio completato con successo');
-      
-      // Invia notifica email per completamento (SMTP)
-      if (result?.data?.[0]?.id) {
-        sendEmailNotification(result.data[0].id, 'servizio_completato');
-      }
+
+      // 📧 La notifica e' inviata da lib/api/servizi/completaServizio.ts, che
+      // questa mutation attraversa. Tenerla anche qui la invierebbe due volte.
     },
     onError: (error: any) => {
       console.error('Error completing service:', error);
@@ -165,11 +163,9 @@ export function useServizi() {
         }
       });
       toast.success('Servizio consuntivato con successo');
-      
-      // 📧 Email notifica consuntivazione
-      if (result?.data?.[0]?.id) {
-        sendEmailNotification(result.data[0].id, 'servizio_consuntivato');
-      }
+
+      // 📧 La notifica e' inviata da lib/api/servizi/consuntivaServizio.ts, che
+      // questa mutation attraversa. Tenerla anche qui la invierebbe due volte.
     },
     onError: (error: any) => {
       console.error('Error finalizing service:', error);

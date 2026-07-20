@@ -90,13 +90,12 @@ export function useCompletaServizio() {
     onSuccess: (data, variables) => {
       toast.success('Servizio completato! ✅');
       
-      // 📧 Email notifica completamento
-      if (variables.servizioId) {
-        import('@/lib/api/email/sendNotification').then(({ sendEmailNotification }) => {
-          sendEmailNotification(variables.servizioId, 'servizio_completato');
-        });
-      }
-      
+      // 📧 La notifica di completamento e' ora inviata da
+      // lib/api/servizi/completaServizio.ts, che questo hook attraversa: e' il
+      // punto in cui convergono tutti i percorsi di completamento. Tenerla
+      // anche qui produrrebbe due email per ogni servizio completato dal
+      // dipendente.
+
       // Invalidate all relevant queries
       queryClient.invalidateQueries({ queryKey: ['servizi-assegnati'] });
       queryClient.invalidateQueries({ queryKey: ['servizio-dettaglio', variables.servizioId] });

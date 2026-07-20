@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { sendEmailNotification } from "@/lib/api/email/sendNotification";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1481,6 +1482,35 @@ export const ServizioCreaPage = ({
           toast.success(
             `${passeggeriAggiornati} ${passeggeriAggiornati === 1 ? 'passeggero aggiornato' : 'passeggeri aggiornati'} in anagrafica`,
             { duration: 3000 }
+          );
+        }
+
+        // 📧 Notifica email — questo percorso non l'ha MAI inviata.
+        //
+        // Le chiamate equivalenti vivono in useServizi.ts (righe 94-171), che
+        // questo form non attraversa: fa insert diretto alla riga 1288. Il
+        // risultato, verificato su email_logs in produzione, e' che
+        // servizio_creato e servizio_assegnato non hanno mai prodotto una sola
+        // email da quando esiste il sistema, mentre richiesta_cliente_completo
+        // (621 invii) e conferma_presa_carico_completo (528) funzionano: sono
+        // gli unici due innescati da percorsi che la notifica ce l'hanno.
+        //
+        // Lo slug dipende dallo stato con cui il servizio nasce (vedi riga 1054):
+        // - bozza (inserimento veloce): nessuna notifica, non e' ancora un
+        //   servizio reale e avvisare i destinatari sarebbe rumore
+        // - assegnato: servizio_assegnato, che e' l'unico slug — insieme a
+        //   servizio_completato — per cui send-notification avvisa anche
+        //   l'autista (supabase/functions/send-notification/index.ts:750).
+        //   Usare servizio_creato qui lascerebbe il conducente all'oscuro.
+        // - da_assegnare: servizio_creato
+        //
+        // Fire-and-forget come gli altri chiamanti: sendEmailNotification non
+        // lancia mai e non restituisce nulla, quindi un guasto dell'invio non
+        // puo' far fallire la creazione del servizio.
+        if (servizio?.id && statoServizio !== 'bozza') {
+          sendEmailNotification(
+            servizio.id,
+            statoServizio === 'assegnato' ? 'servizio_assegnato' : 'servizio_creato'
           );
         }
       }
