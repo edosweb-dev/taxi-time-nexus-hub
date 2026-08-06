@@ -471,13 +471,13 @@ serve(async (req) => {
           testReferente = refData;
         }
 
-        const { data: smtpCfg } = await supabaseAdmin
+        const { data: emailCfg } = await supabaseAdmin
           .from('impostazioni')
-          .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
+          .select('email_enabled')
           .maybeSingle();
 
-        if (!smtpCfg || !smtpCfg.email_enabled || !smtpCfg.smtp_password_encrypted) {
-          return new Response(JSON.stringify({ success: false, message: 'SMTP non configurato' }), {
+        if (!emailCfg || !emailCfg.email_enabled) {
+          return new Response(JSON.stringify({ success: false, message: 'Notifiche email disabilitate' }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
@@ -518,43 +518,33 @@ serve(async (req) => {
         const subject = normalizeSubjectAscii(`[TEST] ${rendered.subject}`);
         const plainText = htmlToPlainText(rendered.html);
 
-        const password = atob(smtpCfg.smtp_password_encrypted);
+        const invio = await sendResendBatch(
+          test_emails.map((email: string) => ({
+            to: email,
+            subject,
+            html: rendered.html,
+            text: plainText,
+          }))
+        );
 
-        const smtp = new SMTPClient({
-          connection: {
-            hostname: smtpCfg.smtp_host,
-            port: smtpCfg.smtp_port,
-            tls: smtpCfg.smtp_secure,
-            auth: { username: smtpCfg.smtp_user, password }
-          }
-        });
+        const sent = invio.ok ? invio.ids.filter((id) => id !== null).length : 0;
+        const failed = test_emails.length - sent;
 
-        let sent = 0;
-        let failed = 0;
-        for (const email of test_emails) {
-          try {
-            await withTimeout(smtp.send({
-              from: `${smtpCfg.smtp_from_name || 'TaxiTime'} <${smtpCfg.smtp_from_email || smtpCfg.smtp_user}>`,
-              to: [email],
-              subject,
-              content: plainText,
-              html: rendered.html,
-            }), 15000, `test send ${email}`);
-            sent++;
-            console.log(`[SEND-EMAIL] ✅ Test (${template_slug}) sent to ${email}`);
-          } catch (err) {
-            failed++;
-            console.error(`[SEND-EMAIL] ❌ Test (${template_slug}) failed to ${email}:`, (err as Error).message);
-          }
-        }
-        try {
-          await withTimeout(smtp.close(), 5000, 'close');
-        } catch (closeErr) {
-          console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
+        if (invio.ok) {
+          console.log(`[SEND-EMAIL] ✅ Test (${template_slug}) inviato a ${sent} destinatari`);
+        } else {
+          console.error(`[SEND-EMAIL] ❌ Test (${template_slug}) fallito:`, invio.error);
         }
 
         return new Response(
-          JSON.stringify({ success: true, sent, failed, total: test_emails.length, template_slug }),
+          JSON.stringify({
+            success: invio.ok,
+            sent,
+            failed,
+            total: test_emails.length,
+            template_slug,
+            ...(invio.error ? { error: invio.error } : {}),
+          }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -568,7 +558,7 @@ serve(async (req) => {
 
       const { data: config, error: configError } = await supabaseAdmin
         .from('impostazioni')
-        .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
+        .select('email_enabled')
         .maybeSingle();
 
       if (configError || !config) throw new Error(`Config error: ${configError?.message || 'No config found'}`);
@@ -577,21 +567,6 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
-      if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
-        return new Response(JSON.stringify({ success: false, message: 'SMTP not configured' }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      const password = atob(config.smtp_password_encrypted);
-      const smtp = new SMTPClient({
-        connection: {
-          hostname: config.smtp_host,
-          port: config.smtp_port,
-          tls: config.smtp_secure,
-          auth: { username: config.smtp_user, password }
-        }
-      });
 
       const testHtml = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
@@ -606,33 +581,33 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 </div></body></html>`;
 
       const testSubject = '✅ Test notifiche TaxiTime';
-      let sent = 0;
-      let failed = 0;
 
-      for (const email of test_emails) {
-        try {
-          await withTimeout(smtp.send({
-            from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
-            to: [email],
-            subject: testSubject,
-            html: testHtml
-          }), 15000, `test send ${email}`);
-          sent++;
-          console.log(`[SEND-EMAIL] ✅ Test sent to ${email}`);
-        } catch (err: any) {
-          failed++;
-          console.error(`[SEND-EMAIL] ❌ Test failed to ${email}:`, err.message);
-        }
-      }
+      const invio = await sendResendBatch(
+        test_emails.map((email: string) => ({
+          to: email,
+          subject: testSubject,
+          html: testHtml,
+          text: htmlToPlainText(testHtml),
+        }))
+      );
 
-      try {
-        await withTimeout(smtp.close(), 5000, 'close');
-      } catch (closeErr) {
-        console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
+      const sent = invio.ok ? invio.ids.filter((id) => id !== null).length : 0;
+      const failed = test_emails.length - sent;
+
+      if (invio.ok) {
+        console.log(`[SEND-EMAIL] ✅ Test inviato a ${sent} destinatari`);
+      } else {
+        console.error('[SEND-EMAIL] ❌ Test fallito:', invio.error);
       }
 
       return new Response(
-        JSON.stringify({ success: true, sent, failed, total: test_emails.length }),
+        JSON.stringify({
+          success: invio.ok,
+          sent,
+          failed,
+          total: test_emails.length,
+          ...(invio.error ? { error: invio.error } : {}),
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
