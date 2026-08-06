@@ -60,6 +60,7 @@ interface MobileServizioOptimizedProps {
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
   onConfermaPCar?: () => void;
+  isConfermaPCarLoading?: boolean;
   showPresaInCarico?: boolean;
   canEditNote?: boolean;
   onModificaNote?: () => void;
@@ -91,6 +92,7 @@ export function MobileServizioOptimized({
   onRimuoviAssegnazione,
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
+  isConfermaPCarLoading,
   showPresaInCarico,
   canEditNote,
   onModificaNote,
@@ -498,9 +500,10 @@ export function MobileServizioOptimized({
           {showPresaInCarico && onConfermaPCar && (
             <Button
               onClick={onConfermaPCar}
+              disabled={isConfermaPCarLoading}
               className="flex-1 h-12 bg-green-600 hover:bg-green-700 text-white text-base"
             >
-              ✅ Conferma Presa in Carico
+              {isConfermaPCarLoading ? "Invio in corso..." : "✅ Conferma Presa in Carico"}
             </Button>
           )}
 

@@ -10,6 +10,7 @@ import { Mail, ArrowLeft, Send } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Link } from "react-router-dom";
 import { resetUserPassword } from "@/lib/api/users";
+import { supabase } from "@/lib/supabase";
 
 export default function RecuperaPasswordPage() {
   const [email, setEmail] = useState("");
@@ -30,6 +31,12 @@ export default function RecuperaPasswordPage() {
       const { success, error } = await resetUserPassword(email);
       
       if (success) {
+        // Chiudi la sessione eventualmente ancora attiva in questo browser.
+        // Senza, chi arriva qui gia' autenticato viene rimandato dentro
+        // l'applicazione subito dopo aver chiesto il reset, e sembra che sia
+        // stata la richiesta a farlo entrare.
+        await supabase.auth.signOut();
+
         toast.success(`Link per reimpostare la password inviato a ${email}. Controlla la tua email.`);
         setTimeout(() => navigate("/login"), 3000);
       } else {

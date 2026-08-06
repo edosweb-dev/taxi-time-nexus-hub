@@ -27,6 +27,7 @@ interface ServizioDetailDesktopProps {
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
   onConfermaPCar?: () => void;
+  isConfermaPCarLoading?: boolean;
   showPresaInCarico?: boolean;
   canEditNote?: boolean;
   onModificaNote?: () => void;
@@ -55,6 +56,7 @@ export function ServizioDetailDesktop({
   onRimuoviAssegnazione,
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
+  isConfermaPCarLoading,
   showPresaInCarico,
   canEditNote,
   onModificaNote,
@@ -82,6 +84,7 @@ export function ServizioDetailDesktop({
         onRimuoviAssegnazione={onRimuoviAssegnazione}
         isRimuoviAssegnazioneLoading={isRimuoviAssegnazioneLoading}
         onConfermaPCar={onConfermaPCar}
+        isConfermaPCarLoading={isConfermaPCarLoading}
         showPresaInCarico={showPresaInCarico}
         canEditNote={canEditNote}
         onModificaNote={onModificaNote}

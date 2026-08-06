@@ -28,6 +28,7 @@ interface ServizioSidebarProps {
   onRimuoviAssegnazione?: () => void;
   isRimuoviAssegnazioneLoading?: boolean;
   onConfermaPCar?: () => void;
+  isConfermaPCarLoading?: boolean;
   showPresaInCarico?: boolean;
   canEditNote?: boolean;
   onModificaNote?: () => void;
@@ -53,6 +54,7 @@ export function ServizioSidebar({
   onRimuoviAssegnazione,
   isRimuoviAssegnazioneLoading,
   onConfermaPCar,
+  isConfermaPCarLoading,
   showPresaInCarico,
   canEditNote,
   onModificaNote,
@@ -92,8 +94,13 @@ export function ServizioSidebar({
         {/* Azioni Primarie */}
         <div className="border-t pt-4 space-y-2">
           {showPresaInCarico && onConfermaPCar && (
-            <Button onClick={onConfermaPCar} className="w-full bg-green-600 hover:bg-green-700" size="sm">
-              ✅ Conferma Presa in Carico
+            <Button
+              onClick={onConfermaPCar}
+              disabled={isConfermaPCarLoading}
+              className="w-full bg-green-600 hover:bg-green-700"
+              size="sm"
+            >
+              {isConfermaPCarLoading ? "Invio in corso..." : "✅ Conferma Presa in Carico"}
             </Button>
           )}
 
