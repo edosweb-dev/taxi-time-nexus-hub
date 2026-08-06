@@ -11,7 +11,7 @@ import { AliquoteIvaForm } from "./AliquoteIvaForm";
 import { EmailNotificheAdminForm } from "./EmailNotificheAdminForm";
 import { PagamentiAziendali } from "./PagamentiAziendali";
 import { TariffeKmTab } from "./TariffeKmTab";
-import SmtpConfigForm from "./SmtpConfigForm";
+import NotificheEmailForm from "./NotificheEmailForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Save, Mail, FileText, Search } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -271,7 +271,7 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
 
           {(profile?.role === 'admin' || profile?.role === 'socio') && (
             <TabsContent value="smtp" className="mt-4">
-              <SmtpConfigForm />
+              <NotificheEmailForm />
 
               {/* Links a pagine secondarie */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
