@@ -38,7 +38,11 @@ export async function sendEmailNotification(
     const result = await invokeSendNotificationWithRetry(servizioId, templateSlug);
     console.log('[sendEmailNotification] Result:', result);
 
-    return { success: result.success === true, error: result.error };
+    // I guasti di trasporto arrivano in `error`, quelli applicativi della edge
+    // function (notifiche disabilitate, nessun destinatario, template assente)
+    // in `message`: senza il fallback il motivo andrebbe perso proprio nei casi
+    // in cui serve capire perche' la notifica non e' partita.
+    return { success: result.success === true, error: result.error ?? result.message };
   } catch (err) {
     const messaggio = err instanceof Error ? err.message : String(err);
     console.error('[sendEmailNotification] Exception:', err);
