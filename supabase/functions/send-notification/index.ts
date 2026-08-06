@@ -1,20 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
-
-// Evita che una singola operazione SMTP bloccata uccida il worker (errore 546 di Supabase).
-// Un'operazione che supera `ms` viene abortita con un errore gestibile invece di far
-// terminare l'intera invocazione (perdendo invii e log).
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
-  let timer: number | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`SMTP timeout: ${label} oltre ${ms}ms`)), ms);
-  });
-  return Promise.race([promise, timeout]).finally(() => {
-    if (timer !== undefined) clearTimeout(timer);
-  }) as Promise<T>;
-}
-
+import { sendResendBatch, type ResendMessage } from "./resend.ts";
 
 // I campi email del gestionale accettano testo libero: ci finiscono numeri di telefono,
 // link e domini senza TLD. Vanno scartati prima di passarli a denomailer.
@@ -485,13 +471,13 @@ serve(async (req) => {
           testReferente = refData;
         }
 
-        const { data: smtpCfg } = await supabaseAdmin
+        const { data: emailCfg } = await supabaseAdmin
           .from('impostazioni')
-          .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
+          .select('email_enabled')
           .maybeSingle();
 
-        if (!smtpCfg || !smtpCfg.email_enabled || !smtpCfg.smtp_password_encrypted) {
-          return new Response(JSON.stringify({ success: false, message: 'SMTP non configurato' }), {
+        if (!emailCfg || !emailCfg.email_enabled) {
+          return new Response(JSON.stringify({ success: false, message: 'Notifiche email disabilitate' }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
@@ -532,43 +518,33 @@ serve(async (req) => {
         const subject = normalizeSubjectAscii(`[TEST] ${rendered.subject}`);
         const plainText = htmlToPlainText(rendered.html);
 
-        const password = atob(smtpCfg.smtp_password_encrypted);
+        const invio = await sendResendBatch(
+          test_emails.map((email: string) => ({
+            to: email,
+            subject,
+            html: rendered.html,
+            text: plainText,
+          }))
+        );
 
-        const smtp = new SMTPClient({
-          connection: {
-            hostname: smtpCfg.smtp_host,
-            port: smtpCfg.smtp_port,
-            tls: smtpCfg.smtp_secure,
-            auth: { username: smtpCfg.smtp_user, password }
-          }
-        });
+        const sent = invio.ids.filter((id) => id !== null).length;
+        const failed = test_emails.length - sent;
 
-        let sent = 0;
-        let failed = 0;
-        for (const email of test_emails) {
-          try {
-            await withTimeout(smtp.send({
-              from: `${smtpCfg.smtp_from_name || 'TaxiTime'} <${smtpCfg.smtp_from_email || smtpCfg.smtp_user}>`,
-              to: [email],
-              subject,
-              content: plainText,
-              html: rendered.html,
-            }), 15000, `test send ${email}`);
-            sent++;
-            console.log(`[SEND-EMAIL] ✅ Test (${template_slug}) sent to ${email}`);
-          } catch (err) {
-            failed++;
-            console.error(`[SEND-EMAIL] ❌ Test (${template_slug}) failed to ${email}:`, (err as Error).message);
-          }
-        }
-        try {
-          await withTimeout(smtp.close(), 5000, 'close');
-        } catch (closeErr) {
-          console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
+        if (invio.ok) {
+          console.log(`[SEND-EMAIL] ✅ Test (${template_slug}) inviato a ${sent} destinatari`);
+        } else {
+          console.error(`[SEND-EMAIL] ❌ Test (${template_slug}) fallito:`, invio.error);
         }
 
         return new Response(
-          JSON.stringify({ success: true, sent, failed, total: test_emails.length, template_slug }),
+          JSON.stringify({
+            success: invio.ok,
+            sent,
+            failed,
+            total: test_emails.length,
+            template_slug,
+            ...(invio.error ? { error: invio.error } : {}),
+          }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -582,7 +558,7 @@ serve(async (req) => {
 
       const { data: config, error: configError } = await supabaseAdmin
         .from('impostazioni')
-        .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled')
+        .select('email_enabled')
         .maybeSingle();
 
       if (configError || !config) throw new Error(`Config error: ${configError?.message || 'No config found'}`);
@@ -591,21 +567,6 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
-      if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
-        return new Response(JSON.stringify({ success: false, message: 'SMTP not configured' }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      const password = atob(config.smtp_password_encrypted);
-      const smtp = new SMTPClient({
-        connection: {
-          hostname: config.smtp_host,
-          port: config.smtp_port,
-          tls: config.smtp_secure,
-          auth: { username: config.smtp_user, password }
-        }
-      });
 
       const testHtml = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
@@ -620,33 +581,33 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 </div></body></html>`;
 
       const testSubject = '✅ Test notifiche TaxiTime';
-      let sent = 0;
-      let failed = 0;
 
-      for (const email of test_emails) {
-        try {
-          await withTimeout(smtp.send({
-            from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
-            to: [email],
-            subject: testSubject,
-            html: testHtml
-          }), 15000, `test send ${email}`);
-          sent++;
-          console.log(`[SEND-EMAIL] ✅ Test sent to ${email}`);
-        } catch (err: any) {
-          failed++;
-          console.error(`[SEND-EMAIL] ❌ Test failed to ${email}:`, err.message);
-        }
-      }
+      const invio = await sendResendBatch(
+        test_emails.map((email: string) => ({
+          to: email,
+          subject: testSubject,
+          html: testHtml,
+          text: htmlToPlainText(testHtml),
+        }))
+      );
 
-      try {
-        await withTimeout(smtp.close(), 5000, 'close');
-      } catch (closeErr) {
-        console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
+      const sent = invio.ids.filter((id) => id !== null).length;
+      const failed = test_emails.length - sent;
+
+      if (invio.ok) {
+        console.log(`[SEND-EMAIL] ✅ Test inviato a ${sent} destinatari`);
+      } else {
+        console.error('[SEND-EMAIL] ❌ Test fallito:', invio.error);
       }
 
       return new Response(
-        JSON.stringify({ success: true, sent, failed, total: test_emails.length }),
+        JSON.stringify({
+          success: invio.ok,
+          sent,
+          failed,
+          total: test_emails.length,
+          ...(invio.error ? { error: invio.error } : {}),
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -671,7 +632,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     // 1. FETCH CONFIG
     const { data: config, error: configError } = await supabaseAdmin
       .from('impostazioni')
-      .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password_encrypted, smtp_from_name, smtp_from_email, email_enabled, email_notifiche_admin')
+      .select('email_enabled, email_notifiche_admin')
       .maybeSingle();
 
     if (configError || !config) throw new Error(`Config error: ${configError?.message || 'No config found'}`);
@@ -879,36 +840,36 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     const emailSubject: string = normalizeSubjectAscii(rendered.subject);
     const emailPlainText: string = htmlToPlainText(emailHtml);
 
-    // 6. CHECK SMTP CONFIG
-    if (!config.smtp_password_encrypted || !config.smtp_host || !config.smtp_user) {
-      console.log('[SEND-EMAIL] SMTP not configured');
-      return new Response(JSON.stringify({ success: false, message: 'SMTP not configured' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
+    // 8. SEND EMAILS — una sola richiesta HTTP per tutti i destinatari.
+    const messages: ResendMessage[] = destinatariDaServire.map((r) => ({
+      to: r.email,
+      subject: emailSubject,
+      html: emailHtml,
+      text: emailPlainText,
+    }));
 
-    // 7. DECRYPT PASSWORD & CREATE SMTP CLIENT
-    const password = atob(config.smtp_password_encrypted);
-    
-    const smtp = new SMTPClient({
-      connection: {
-        hostname: config.smtp_host,
-        port: config.smtp_port,
-        tls: config.smtp_secure,
-        auth: {
-          username: config.smtp_user,
-          password: password
-        }
-      }
-    });
+    const invio = await sendResendBatch(messages, `${servizio_id}:${template_slug}`);
 
-    // 8. SEND EMAILS
     const results = { sent: 0, failed: 0, total: destinatariDaServire.length };
+    const logs: Record<string, any>[] = [];
 
     for (let i = 0; i < destinatariDaServire.length; i++) {
       const recipient = destinatariDaServire[i];
+      // Un batch parzialmente fallito ha invio.ok=false ma ids valorizzati
+      // per i blocchi riusciti prima del fallimento: l'esito per destinatario
+      // si legge da ids[i], non da invio.ok (altrimenti un fallimento su un
+      // blocco successivo marcherebbe come falliti anche gli invii gia' riusciti).
+      const inviata = invio.ids[i] !== null;
 
-      const logEntry: Record<string, any> = {
+      if (inviata) {
+        results.sent++;
+        console.log(`[SEND-EMAIL] ✅ Sent to ${recipient.email}`);
+      } else {
+        results.failed++;
+        console.error(`[SEND-EMAIL] ❌ Failed to ${recipient.email}:`, invio.error);
+      }
+
+      logs.push({
         servizio_id: servizio_id,
         template_slug: template_slug,
         template: template_slug,
@@ -917,48 +878,20 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         subject: emailSubject,
         oggetto: emailSubject,
         sent_at: new Date().toISOString(),
-        status: 'sent',
-        stato: 'sent',
-        error_message: null,
-        smtp_response: null,
-        smtp_message_id: null
-      };
-
-      try {
-        const sendResult = await withTimeout(smtp.send({
-          from: `${config.smtp_from_name || 'TaxiTime'} <${config.smtp_from_email || config.smtp_user}>`,
-          to: [recipient.email],
-          subject: emailSubject,
-          content: emailPlainText,
-          html: emailHtml
-        }), 15000, `send ${recipient.email}`);
-
-        results.sent++;
-        logEntry.smtp_message_id = sendResult?.messageId || null;
-        logEntry.smtp_response = 'OK';
-        console.log(`[SEND-EMAIL] ✅ Sent to ${recipient.email}`);
-
-      } catch (error: any) {
-        results.failed++;
-        logEntry.status = 'failed';
-        logEntry.stato = 'failed';
-        logEntry.error_message = error.message;
-        logEntry.smtp_response = error.toString();
-        console.error(`[SEND-EMAIL] ❌ Failed to ${recipient.email}:`, error.message);
-      }
-
-      // Persisti subito: se il worker viene terminato per CPU Time exceeded,
-      // gli invii gia' andati a buon fine restano tracciati e il retry li salta.
-      const { error: logError } = await supabaseAdmin.from('email_logs').insert([logEntry]);
-      if (logError) console.error('[SEND-EMAIL] Log save error:', logError);
-
-      // Rate limit: 100ms between sends
-      if (i < destinatariDaServire.length - 1) {
-        await new Promise(r => setTimeout(r, 100));
-      }
+        status: inviata ? 'sent' : 'failed',
+        stato: inviata ? 'sent' : 'failed',
+        error_message: inviata ? null : (invio.error ?? 'Resend non ha restituito un id per questo destinatario'),
+        smtp_response: inviata ? 'OK' : (invio.error ?? 'Resend non ha restituito un id per questo destinatario'),
+        smtp_message_id: invio.ids[i],
+      });
     }
 
-    // Log destinatari scartati (email non valide) prima della close.
+    if (logs.length > 0) {
+      const { error: logError } = await supabaseAdmin.from('email_logs').insert(logs);
+      if (logError) console.error('[SEND-EMAIL] Log save error:', logError);
+    }
+
+    // Log destinatari scartati (email non valide): non richiede l'invio a Resend.
     if (scartati.length > 0) {
       const scartatiLogs = scartati.map(r => ({
         servizio_id, template_slug, template: template_slug,
@@ -973,17 +906,10 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       if (scartatiErr) console.error('[SEND-EMAIL] Log save error (scartati):', scartatiErr);
     }
 
-    // Chiudi la connessione SMTP con timeout: una close bloccata non deve uccidere il worker.
-    try {
-      await withTimeout(smtp.close(), 5000, 'close');
-    } catch (closeErr) {
-      console.error('[SEND-EMAIL] SMTP close error (ignorato):', (closeErr as Error).message);
-    }
-
     console.log('[SEND-EMAIL] Complete:', results);
 
     return new Response(
-      JSON.stringify({ success: true, ...results }),
+      JSON.stringify({ success: results.failed === 0, ...results }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

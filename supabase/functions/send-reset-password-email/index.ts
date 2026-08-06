@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Domini a cui e' lecito far puntare il link di reset. La mail parte da
-// noreply@taxitime.it con SPF/DKIM validi: un redirect verso un dominio
+// noreply@taxitime.app con SPF/DKIM validi: un redirect verso un dominio
 // arbitrario sarebbe un phishing perfettamente credibile. Restituisce solo
 // protocollo+host (niente path), cosi' il /reset-password non viene duplicato
 // se il candidato ne include gia' uno.
@@ -159,7 +159,8 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "TaxiTime <noreply@taxitime.it>",
+        from: "TaxiTime <noreply@taxitime.app>",
+        reply_to: "info@taxitime.it",
         to: [user.email],
         subject: "Reimposta la tua password — TaxiTime",
         html: htmlBody,
