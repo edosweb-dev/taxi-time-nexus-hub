@@ -527,7 +527,7 @@ serve(async (req) => {
           }))
         );
 
-        const sent = invio.ok ? invio.ids.filter((id) => id !== null).length : 0;
+        const sent = invio.ids.filter((id) => id !== null).length;
         const failed = test_emails.length - sent;
 
         if (invio.ok) {
@@ -591,7 +591,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         }))
       );
 
-      const sent = invio.ok ? invio.ids.filter((id) => id !== null).length : 0;
+      const sent = invio.ids.filter((id) => id !== null).length;
       const failed = test_emails.length - sent;
 
       if (invio.ok) {
