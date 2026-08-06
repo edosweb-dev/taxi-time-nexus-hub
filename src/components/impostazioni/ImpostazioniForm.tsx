@@ -188,8 +188,8 @@ export function ImpostazioniForm({ initialData, onSaved }: ImpostazioniFormProps
             )}
             {(profile?.role === 'admin' || profile?.role === 'socio') && (
               <TabsTrigger value="smtp" className="text-xs md:text-sm px-2 md:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <span className="hidden sm:inline">Email SMTP</span>
-                <span className="sm:hidden">SMTP</span>
+                <span className="hidden sm:inline">Notifiche email</span>
+                <span className="sm:hidden">Notifiche</span>
               </TabsTrigger>
             )}
           </TabsList>

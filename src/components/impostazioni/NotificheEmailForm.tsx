@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,12 +21,9 @@ export default function NotificheEmailForm() {
     },
   });
 
-  const [emailEnabled, setEmailEnabled] = useState(true);
   const [testEmail, setTestEmail] = useState("");
 
-  useEffect(() => {
-    if (impostazioni) setEmailEnabled(impostazioni.email_enabled ?? true);
-  }, [impostazioni]);
+  const emailEnabled = impostazioni?.email_enabled ?? true;
 
   const salvaMutation = useMutation({
     mutationFn: async (enabled: boolean) => {
@@ -39,10 +36,12 @@ export default function NotificheEmailForm() {
     },
     onSuccess: () => {
       toast({ title: "Impostazione salvata" });
-      queryClient.invalidateQueries({ queryKey: ["impostazioni"] });
     },
     onError: (err: Error) => {
       toast({ title: "Errore", description: err.message, variant: "destructive" });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["impostazioni"] });
     },
   });
 
@@ -100,7 +99,6 @@ export default function NotificheEmailForm() {
             id="email-enabled"
             checked={emailEnabled}
             onCheckedChange={(v) => {
-              setEmailEnabled(v);
               salvaMutation.mutate(v);
             }}
             disabled={salvaMutation.isPending}
