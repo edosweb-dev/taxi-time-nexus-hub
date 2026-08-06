@@ -848,7 +848,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       text: emailPlainText,
     }));
 
-    const invio = await sendResendBatch(messages);
+    const invio = await sendResendBatch(messages, `${servizio_id}:${template_slug}`);
 
     const results = { sent: 0, failed: 0, total: destinatariDaServire.length };
     const logs: Record<string, any>[] = [];
