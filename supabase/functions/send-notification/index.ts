@@ -880,7 +880,11 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
 
     for (let i = 0; i < destinatariDaServire.length; i++) {
       const recipient = destinatariDaServire[i];
-      const inviata = invio.ok && invio.ids[i] !== null;
+      // Un batch parzialmente fallito ha invio.ok=false ma ids valorizzati
+      // per i blocchi riusciti prima del fallimento: l'esito per destinatario
+      // si legge da ids[i], non da invio.ok (altrimenti un fallimento su un
+      // blocco successivo marcherebbe come falliti anche gli invii gia' riusciti).
+      const inviata = invio.ids[i] !== null;
 
       if (inviata) {
         results.sent++;

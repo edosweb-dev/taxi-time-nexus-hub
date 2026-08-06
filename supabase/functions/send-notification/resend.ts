@@ -22,6 +22,12 @@ export interface ResendMessage {
 }
 
 export interface ResendBatchResult {
+  /** true solo se OGNI blocco e' stato inviato senza errori. Un batch puo'
+   *  fallire parzialmente (es. un blocco su piu' va in errore): in quel caso
+   *  ok e' false ma ids puo' comunque contenere id validi per i destinatari
+   *  dei blocchi riusciti prima del fallimento. Il chiamante deve decidere
+   *  l'esito per destinatario da ids[i] !== null, non da ok.
+   */
   ok: boolean;
   /** Un elemento per messaggio, nello stesso ordine dell'input. null se non inviato. */
   ids: (string | null)[];
@@ -74,9 +80,12 @@ export async function sendResendBatch(messages: ResendMessage[]): Promise<Resend
     } catch (err) {
       const message = (err as Error).message;
       console.error('[RESEND] Chiamata fallita:', message);
+      // Preserva gli id gia' raccolti dai blocchi precedenti andati a buon
+      // fine; questo blocco e quelli non ancora tentati diventano null.
+      while (ids.length < messages.length) ids.push(null);
       return {
         ok: false,
-        ids: messages.map(() => null),
+        ids,
         error: `Chiamata a Resend fallita: ${message}`,
       };
     }
@@ -85,9 +94,10 @@ export async function sendResendBatch(messages: ResendMessage[]): Promise<Resend
 
     if (!response.ok) {
       console.error(`[RESEND] HTTP ${response.status}:`, bodyText);
+      while (ids.length < messages.length) ids.push(null);
       return {
         ok: false,
-        ids: messages.map(() => null),
+        ids,
         error: `Resend HTTP ${response.status}: ${bodyText}`,
       };
     }
@@ -97,9 +107,10 @@ export async function sendResendBatch(messages: ResendMessage[]): Promise<Resend
       parsed = JSON.parse(bodyText);
     } catch {
       console.error('[RESEND] Risposta non JSON:', bodyText);
+      while (ids.length < messages.length) ids.push(null);
       return {
         ok: false,
-        ids: messages.map(() => null),
+        ids,
         error: `Risposta Resend non interpretabile: ${bodyText}`,
       };
     }
