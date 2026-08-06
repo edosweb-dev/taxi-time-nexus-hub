@@ -274,6 +274,7 @@ export default function ServizioDetailPage() {
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
             onConfermaPCar={() => confermaPCarMutation.mutate({ servizio_id: servizio.id })}
+            isConfermaPCarLoading={confermaPCarMutation.isPending}
             showPresaInCarico={showPresaInCarico}
             canEditNote={canEditNote}
             onModificaNote={handleOpenModificaNote}
@@ -445,6 +446,7 @@ export default function ServizioDetailPage() {
             onRimuoviAssegnazione={() => setRimuoviAssegnazioneDialogOpen(true)}
             isRimuoviAssegnazioneLoading={isUnassigning}
             onConfermaPCar={() => confermaPCarMutation.mutate({ servizio_id: servizio.id })}
+            isConfermaPCarLoading={confermaPCarMutation.isPending}
             showPresaInCarico={showPresaInCarico}
             canEditNote={canEditNote}
             onModificaNote={handleOpenModificaNote}

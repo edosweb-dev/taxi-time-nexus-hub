@@ -63,16 +63,16 @@ export function useConfermaPCar() {
 
       if (updateError) throw updateError;
 
-      // 3. Invia email conferma presa in carico (fire-and-forget)
-      try {
-        await sendEmailNotification(servizio_id, 'conferma_presa_carico_completo');
-        console.log('[useConfermaPCar] Email sent');
-      } catch (emailError) {
-        console.error('[useConfermaPCar] Email error:', emailError);
-        toast.warning('Servizio confermato ma email non inviata');
+      // 3. Invia email conferma presa in carico.
+      // sendEmailNotification non lancia mai: l'esito va letto dal valore
+      // restituito. Il servizio resta confermato anche se la notifica fallisce,
+      // ma l'operatore deve saperlo invece di leggere "INVIATA" comunque.
+      const esitoEmail = await sendEmailNotification(servizio_id, 'conferma_presa_carico_completo');
+      if (!esitoEmail.success) {
+        console.error('[useConfermaPCar] Notifica non inviata:', esitoEmail.error);
       }
 
-      return { servizio_id };
+      return { servizio_id, notificaInviata: esitoEmail.success };
     },
 
     onSuccess: async (data) => {
@@ -83,7 +83,12 @@ export function useConfermaPCar() {
         queryClient.invalidateQueries({ queryKey: ['richieste-clienti'] }),
         queryClient.invalidateQueries({ queryKey: ['richiesta-cliente', data.servizio_id] }),
       ]);
-      toast.success('CONFERMA DI PRESA IN CARICO INVIATA');
+
+      if (data.notificaInviata) {
+        toast.success('CONFERMA DI PRESA IN CARICO INVIATA');
+      } else {
+        toast.warning('Servizio confermato, ma la notifica email non e\' partita');
+      }
     },
 
     onError: (error: Error) => {

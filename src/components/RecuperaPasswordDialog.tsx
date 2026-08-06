@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Mail, Loader2 } from 'lucide-react';
 import { resetUserPassword } from '@/lib/api/users';
+import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 
 interface RecuperaPasswordDialogProps {
@@ -37,6 +38,12 @@ export function RecuperaPasswordDialog({ children }: RecuperaPasswordDialogProps
       const { success, error } = await resetUserPassword(email);
       
       if (success) {
+        // Chiudi la sessione eventualmente ancora attiva in questo browser.
+        // Senza, chi arriva qui gia' autenticato resta dentro l'applicazione
+        // subito dopo aver chiesto il reset, e sembra che sia stata la
+        // richiesta a farlo entrare.
+        await supabase.auth.signOut();
+
         toast.success(`Link per reimpostare la password inviato a ${email}. Controlla la tua email.`);
         setEmail('');
         setIsOpen(false);
