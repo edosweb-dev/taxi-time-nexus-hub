@@ -880,8 +880,8 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
         sent_at: new Date().toISOString(),
         status: inviata ? 'sent' : 'failed',
         stato: inviata ? 'sent' : 'failed',
-        error_message: inviata ? null : invio.error,
-        smtp_response: inviata ? 'OK' : invio.error,
+        error_message: inviata ? null : (invio.error ?? 'Resend non ha restituito un id per questo destinatario'),
+        smtp_response: inviata ? 'OK' : (invio.error ?? 'Resend non ha restituito un id per questo destinatario'),
         smtp_message_id: invio.ids[i],
       });
     }
@@ -891,7 +891,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       if (logError) console.error('[SEND-EMAIL] Log save error:', logError);
     }
 
-    // Log destinatari scartati (email non valide) prima della close.
+    // Log destinatari scartati (email non valide): non richiede l'invio a Resend.
     if (scartati.length > 0) {
       const scartatiLogs = scartati.map(r => ({
         servizio_id, template_slug, template: template_slug,
@@ -909,7 +909,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     console.log('[SEND-EMAIL] Complete:', results);
 
     return new Response(
-      JSON.stringify({ success: true, ...results }),
+      JSON.stringify({ success: results.failed === 0, ...results }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

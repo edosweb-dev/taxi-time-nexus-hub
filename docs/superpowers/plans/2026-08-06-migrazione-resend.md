@@ -716,19 +716,27 @@ Non ci sono ambienti di staging: il progetto `iczxhmzwjopfdvbxwzjs` è la produz
 
 Dalla dashboard Supabase, in Edge Functions → Secrets, copiare il valore attuale di `RESEND_API_KEY` e conservarlo fuori dal repo. È l'unica via di ritorno se serve tornare a `taxitime.it`: una volta sovrascritto non è più recuperabile.
 
-- [ ] **Step 2: Deploy della function di reset password**
+- [ ] **Step 2: Ritirare la function test-smtp-connection**
+
+Il Task 4 ha cancellato `supabase/functions/test-smtp-connection/` dal repo, ma cancellare la sorgente locale non disattiva la function già pubblicata su Supabase: resta live e invocabile, senza sorgente nel repo (non auditabile, non ricostruibile), ed è ancora in grado di aprire connessioni in uscita verso host e porta forniti dal chiamante.
+
+```bash
+supabase functions delete test-smtp-connection --project-ref iczxhmzwjopfdvbxwzjs
+```
+
+- [ ] **Step 3: Deploy della function di reset password**
 
 ```bash
 supabase functions deploy send-reset-password-email --project-ref iczxhmzwjopfdvbxwzjs
 ```
 
-Da qui e fino allo Step 3 il reset password non funziona: la function chiede `taxitime.app` alla chiave vecchia, che non lo ha verificato. I reset password sono rari; procedere subito con lo step successivo.
+Da qui e fino allo Step 4 il reset password non funziona: la function chiede `taxitime.app` alla chiave vecchia, che non lo ha verificato. I reset password sono rari; procedere subito con lo step successivo.
 
-- [ ] **Step 3: Sostituire il secret**
+- [ ] **Step 4: Sostituire il secret**
 
 Dalla dashboard Supabase, sostituire il valore di `RESEND_API_KEY` con la chiave del nuovo account. Non passare la chiave da riga di comando, per non lasciarla nella cronologia della shell.
 
-- [ ] **Step 4: Verificare il reset password**
+- [ ] **Step 5: Verificare il reset password**
 
 Dalla schermata di login dell'applicazione, richiedere un reset password verso un indirizzo di prova. Expected: l'email arriva, il mittente è `noreply@taxitime.app`, il link porta su `taxitime.app`.
 
@@ -737,7 +745,7 @@ Se non arriva:
 supabase functions logs send-reset-password-email --project-ref iczxhmzwjopfdvbxwzjs
 ```
 
-- [ ] **Step 5: Deploy di send-notification su uno slug canarino**
+- [ ] **Step 6: Deploy di send-notification su uno slug canarino**
 
 Prima di toccare lo slug usato dall'applicazione, pubblicare una copia con nome diverso e provarla in isolamento. È l'unico modo, senza Deno in locale, per scoprire errori di sintassi o di tipo prima che tocchino il traffico reale.
 
@@ -748,22 +756,26 @@ supabase functions deploy send-notification-canary --project-ref iczxhmzwjopfdvb
 
 Expected: il deploy completa senza errori di bundling.
 
-- [ ] **Step 6: Provare il canarino in test_mode**
+- [ ] **Step 7: Provare il canarino in test_mode**
 
-Invocare lo slug canarino con un servizio reale e un indirizzo di prova, una volta per ciascuno dei due template principali. Sostituire `<UUID_SERVIZIO>` con l'id di un servizio esistente e `<TUA_EMAIL>` con un indirizzo raggiungibile.
+Invocare lo slug canarino con un servizio reale e **almeno due indirizzi di prova**, una volta per ciascuno dei due template principali: l'indirizzo dell'operatore che esegue il test e un secondo indirizzo su un dominio non correlato — non l'indirizzo del titolare dell'account Resend, non `@taxitime.app` (ad es. un indirizzo Gmail o di un cliente di test). Questo perché una chiave Resend il cui dominio mittente non è realmente verificato resta comunque in grado di inviare al solo indirizzo del titolare dell'account: un test con un solo destinatario non lo distinguerebbe da una configurazione sana, e lo Step 8 promuoverebbe una chiave rotta dritta sullo slug live, senza rete di sicurezza perché non esiste uno staging.
+
+Sostituire `<UUID_SERVIZIO>` con l'id di un servizio esistente, `<TUA_EMAIL>` con l'indirizzo dell'operatore e `<EMAIL_DOMINIO_ESTERNO>` con il secondo indirizzo su dominio non correlato.
 
 ```bash
 curl -X POST "https://iczxhmzwjopfdvbxwzjs.supabase.co/functions/v1/send-notification-canary" \
   -H "Authorization: Bearer <JWT_DI_SESSIONE_ADMIN>" \
   -H "Content-Type: application/json" \
-  -d '{"test_mode":true,"servizio_id":"<UUID_SERVIZIO>","template_slug":"conferma_presa_carico_completo","test_emails":["<TUA_EMAIL>"]}'
+  -d '{"test_mode":true,"servizio_id":"<UUID_SERVIZIO>","template_slug":"conferma_presa_carico_completo","test_emails":["<TUA_EMAIL>","<EMAIL_DOMINIO_ESTERNO>"]}'
 ```
 
-Expected: risposta `{"success":true,"sent":1,...}` e arrivo dell'email con oggetto prefissato `[TEST]`, mittente `noreply@taxitime.app`, risposta diretta a `info@taxitime.it`.
+Expected: risposta `{"success":true,"sent":2,...}` e arrivo di entrambe le email con oggetto prefissato `[TEST]`, mittente `noreply@taxitime.app`, risposta diretta a `info@taxitime.it`.
 
 Ripetere con `"template_slug":"richiesta_cliente_completo"`.
 
-- [ ] **Step 7: Promuovere e rimuovere il canarino**
+**Se l'invio riesce per `<TUA_EMAIL>` ma fallisce per `<EMAIL_DOMINIO_ESTERNO>`** (risposta con `failed` > 0, o la seconda email non arriva), la chiave o la verifica del dominio sul nuovo account Resend sono sbagliate: NON procedere con lo Step 8. Risolvere la configurazione su Resend e ripetere questo step da capo.
+
+- [ ] **Step 8: Promuovere e rimuovere il canarino**
 
 ```bash
 supabase functions deploy send-notification --project-ref iczxhmzwjopfdvbxwzjs
@@ -771,37 +783,48 @@ supabase functions delete send-notification-canary --project-ref iczxhmzwjopfdvb
 rm -r supabase/functions/send-notification-canary
 ```
 
-- [ ] **Step 8: Verificare su un servizio reale**
+- [ ] **Step 9: Verificare su un servizio reale**
 
 Confermare la presa in carico di una richiesta cliente reale dall'applicazione. Expected: il popup compare in 1-2 secondi (non più 5-20), l'email arriva, e in `email_logs` compare una riga per destinatario con `smtp_message_id` valorizzato con l'id di Resend.
 
-- [ ] **Step 9: Controllare i log delle invocazioni**
+- [ ] **Step 10: Controllare i log delle invocazioni**
 
 Interrogare `function_edge_logs` sull'ultima ora. Expected: **nessun 546**, solo `POST | 200`.
 
 Criteri di accettazione della spec da confermare tutti:
 1. Nessuna risposta 546.
-2. Ogni invocazione produce righe in `email_logs`, `sent` o `failed`.
+2. Ogni invocazione che raggiunge la fase di invio produce righe in `email_logs`, `sent` o `failed`. Sono escluse per costruzione le invocazioni che ritornano prima di arrivarci: notifiche disabilitate (`email_enabled` false), nessun destinatario valido, template mancante o disattivato, e `skip_already_sent` che copre già tutti i destinatari.
 3. Mittente `noreply@taxitime.app`, risposte a `info@taxitime.it`.
 4. Reset password funzionante.
 5. Nessun riferimento residuo a `SMTPClient`, `smtp_host`, `test-smtp-connection`.
 
-- [ ] **Step 10: Commit finale e merge**
+- [ ] **Step 11: Commit finale e merge**
 
 ```bash
-git add -A
+git add supabase/functions/send-notification supabase/functions/send-reset-password-email
 git commit -m "chore(notifiche): rimozione slug canarino dopo la promozione"
 git checkout main
 git merge --no-ff feat/notifiche-resend
 ```
 
-Il push su `main` fa pubblicare il frontend da Vercel: eseguirlo solo dopo che gli step 4, 8 e 9 sono tutti verdi, e solo se Giuseppe lo autorizza esplicitamente.
+Percorsi espliciti e non `git add -A`: nel working tree convivono file non legati a questo lavoro (una migration non ancora committata, una cartella di screenshot) che `-A` includerebbe per errore nel commit di chiusura.
 
-- [ ] **Step 11: Ruotare le credenziali esposte**
+Il push su `main` fa pubblicare il frontend da Vercel: eseguirlo solo dopo che gli step 5, 9 e 10 sono tutti verdi, e solo se Giuseppe lo autorizza esplicitamente.
+
+- [ ] **Step 12: Ruotare le credenziali esposte**
 
 La chiave Resend e il token di accesso Supabase sono stati incollati in chat durante la progettazione. Revocarli e sostituirli:
 - Resend: dashboard → API Keys → revoca e ricrea, poi aggiorna il secret su Supabase.
 - Supabase: https://supabase.com/dashboard/account/tokens → revoca il token usato per l'analisi.
+
+**Rollback della function (se dopo il deploy la produzione risulta più rotta di prima):** non aver cancellato le colonne `smtp_*` da `impostazioni` non basta a tornare indietro — sono inerti senza il codice della vecchia function, che il Task 1 ha rimosso. La procedura è ripristinare la sorgente pre-branch e ridispiegarla:
+
+```bash
+git checkout 13ed7834 -- supabase/functions/send-notification
+supabase functions deploy send-notification --project-ref iczxhmzwjopfdvbxwzjs
+```
+
+Va inoltre ripristinato il secret `RESEND_API_KEY` con la chiave del vecchio account (quella salvata allo Step 1): è il motivo per cui quello step la conserva fuori dal repo prima di sovrascriverla.
 
 ---
 

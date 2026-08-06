@@ -75,11 +75,11 @@ export function EmailNotificheAdminForm({ emails, onChange }: EmailNotificheAdmi
       if (data?.success) {
         toast.success(`Email di test inviata a ${data.sent || emails.length} indirizzi`);
       } else {
-        toast.error(data?.message || "Errore nell'invio. Verifica configurazione SMTP.");
+        toast.error(data?.message || "Errore nell'invio. Controlla il pannello Notifiche email (configurazione Resend).");
       }
     } catch (err: any) {
       console.error('[TEST-EMAIL] Error:', err);
-      toast.error("Errore nell'invio. Verifica configurazione SMTP.");
+      toast.error("Errore nell'invio. Controlla il pannello Notifiche email (configurazione Resend).");
     } finally {
       setInvioInCorso(false);
     }
