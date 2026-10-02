@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
+import { Toaster as ToastToaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
 import { LayoutProvider } from './contexts/LayoutContext';
 import { AuthGuard } from './components/AuthGuard';
@@ -100,6 +101,7 @@ function App() {
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       <Toaster />
+      <ToastToaster />
       <BrowserRouter>
         <AuthProvider>
           <LayoutProvider>
