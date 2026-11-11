@@ -8,6 +8,7 @@ import * as z from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { sendEmailNotification } from "@/lib/api/email/sendNotification";
+import { ricalcolaStipendioPerServizio } from "@/lib/api/stipendi/ricalcolaStipendio";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1520,6 +1521,29 @@ export const ServizioCreaPage = ({
             new Promise(resolve => setTimeout(resolve, 6000)),
           ]);
         }
+      }
+
+      // Un servizio completato o consuntivato entra nello stipendio del socio
+      // assegnato (km e ore di attesa). Se in modifica cambiano ore, km, autista
+      // o data, lo stipendio va ricalcolato subito, non al prossimo "Ricalcola"
+      // manuale in Stipendi (feedback 2a1a0fe5, TXT-06). Se cambiano l'autista
+      // o il mese, si ricalcola anche il vecchio socio/mese, che perde le ore.
+      // ricalcolaStipendioPerServizio non lancia mai e salta i mesi
+      // confermati o pagati.
+      if (mode === 'edit' && initialData && ['completato', 'consuntivato'].includes(initialData.stato)) {
+        const nuovo = { assegnato_a: servizioData.assegnato_a, data_servizio: servizioData.data_servizio };
+        const vecchio = { assegnato_a: initialData.assegnato_a ?? null, data_servizio: initialData.data_servizio ?? null };
+        const meseDi = (d?: string | null) => (d ? d.slice(0, 7) : '');
+        await ricalcolaStipendioPerServizio(nuovo);
+        if (vecchio.assegnato_a !== nuovo.assegnato_a || meseDi(vecchio.data_servizio) !== meseDi(nuovo.data_servizio)) {
+          await ricalcolaStipendioPerServizio(vecchio);
+        }
+        await queryClient.invalidateQueries({
+          predicate: (query) => {
+            const key = query.queryKey[0];
+            return typeof key === 'string' && (key.startsWith('stipendi') || key === 'stipendio' || key === 'report-soci');
+          },
+        });
       }
 
       // Invalida cache per refresh immediato lista servizi e dettaglio
