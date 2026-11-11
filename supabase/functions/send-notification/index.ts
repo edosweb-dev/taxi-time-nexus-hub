@@ -699,26 +699,43 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     }
 
     // 4. BUILD RECIPIENTS
+    // Chi riceve cosa: una riga per slug. Uno slug che non compare qui
+    // usa DESTINATARI_PREDEFINITI (referente, passeggeri, mail flaggate).
+    // servizio_assegnato: solo chi guida e chi viaggia (richiesta TaxiTime del 10/11/2026).
+    type GruppoDestinatari = 'referente' | 'autista' | 'passeggeri' | 'flaggate' | 'admin';
+    const DESTINATARI_PREDEFINITI: GruppoDestinatari[] = ['referente', 'passeggeri', 'flaggate'];
+    const DESTINATARI_PER_SLUG: Record<string, GruppoDestinatari[]> = {
+      richiesta_cliente: ['referente', 'flaggate', 'admin'],
+      richiesta_cliente_completo: ['referente', 'flaggate', 'admin'],
+      conferma_presa_carico_completo: ['referente', 'passeggeri', 'flaggate'],
+      servizio_creato: ['referente', 'passeggeri', 'flaggate'],
+      servizio_confermato_completo: ['referente', 'passeggeri', 'flaggate'],
+      servizio_assegnato: ['autista', 'passeggeri'],
+      servizio_completato: ['referente', 'autista', 'passeggeri', 'flaggate'],
+      servizio_consuntivato: ['referente', 'passeggeri', 'flaggate'],
+      servizio_annullato: ['referente', 'passeggeri', 'flaggate'],
+    };
+    const gruppiAmmessi = new Set(DESTINATARI_PER_SLUG[template_slug] ?? DESTINATARI_PREDEFINITI);
+    console.log('[SEND-EMAIL] Gruppi destinatari per', template_slug, ':', [...gruppiAmmessi].join(', '));
+
     const recipients: { email: string; name: string }[] = [];
-    
-    if (referente?.email) {
+
+    if (gruppiAmmessi.has('referente') && referente?.email) {
       recipients.push({
         email: referente.email,
         name: `${referente.first_name || ''} ${referente.last_name || ''}`.trim()
       });
     }
 
-    if (servizio.autista?.email && ['servizio_assegnato', 'servizio_completato'].includes(template_slug)) {
+    if (gruppiAmmessi.has('autista') && servizio.autista?.email) {
       recipients.push({
         email: servizio.autista.email,
         name: `${servizio.autista.first_name || ''} ${servizio.autista.last_name || ''}`.trim()
       });
     }
 
-    // Passeggeri: escludi per richiesta_cliente
-    // I passeggeri ricevono email solo alla conferma TaxiTime
-    const excludePaxTemplates = ['richiesta_cliente', 'richiesta_cliente_completo'];
-    if (servizio.servizi_passeggeri && !excludePaxTemplates.includes(template_slug)) {
+    // Passeggeri: non ricevono le richieste cliente, solo dalla conferma TaxiTime in poi
+    if (gruppiAmmessi.has('passeggeri') && servizio.servizi_passeggeri) {
       servizio.servizi_passeggeri.forEach((sp: any) => {
         const paxEmail = sp.email_inline || sp.passeggeri?.email;
         if (paxEmail) {
@@ -730,7 +747,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
       });
     }
 
-    if (servizio.servizi_email_notifiche) {
+    if (gruppiAmmessi.has('flaggate') && servizio.servizi_email_notifiche) {
       servizio.servizi_email_notifiche.forEach((sen: any) => {
         if (sen.email_notifiche?.email) {
           recipients.push({
@@ -742,9 +759,7 @@ Questo indirizzo riceverà le notifiche quando un cliente crea una nuova richies
     }
 
     // Aggiungi email admin per richieste cliente
-    const isRichiestaCliente = ['richiesta_cliente', 'richiesta_cliente_completo'].includes(template_slug);
-    console.log('[SEND-EMAIL] Config admin emails raw:', JSON.stringify(config.email_notifiche_admin), 'isRichiestaCliente:', isRichiestaCliente, 'template:', template_slug);
-    if (isRichiestaCliente && config.email_notifiche_admin) {
+    if (gruppiAmmessi.has('admin') && config.email_notifiche_admin) {
       const adminEmails = Array.isArray(config.email_notifiche_admin) ? config.email_notifiche_admin : [];
       adminEmails.forEach((email: string) => {
         if (email && typeof email === 'string' && email.trim().length > 0) {
