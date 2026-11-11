@@ -128,6 +128,8 @@ export function useServizioDetail(id?: string) {
           usa_destinazione_personalizzata: sp.usa_destinazione_personalizzata ?? false,
           ordine_presa: sp.ordine_presa ?? 0,
           salva_in_database: sp.salva_in_database ?? true,
+          // Badge "Rubrica"/"Ospite" nel dettaglio: in rubrica solo se collegato a un passeggero salvato
+          tipo: sp.passeggero_id ? ('permanente' as const) : ('temporaneo' as const),
           firma_url: sp.firma_url || null,
           firma_timestamp: sp.firma_timestamp || null,
         };
