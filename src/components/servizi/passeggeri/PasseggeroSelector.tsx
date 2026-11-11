@@ -36,7 +36,6 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
   const queryClient = useQueryClient();
   const [showNewForm, setShowNewForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [salvaInRubrica, setSalvaInRubrica] = useState(true);
   const [tipoPasseggero, setTipoPasseggero] = useState<'cliente' | 'altro'>(
     clientePrivatoData?.nome && clientePrivatoData?.cognome ? 'cliente' : 'altro'
   );
@@ -154,7 +153,6 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
   const handleCreateNew = () => {
     console.log('[PasseggeroSelector] handleCreateNew called');
     console.log('[PasseggeroSelector] newPasseggero:', newPasseggero);
-    console.log('[PasseggeroSelector] salvaInRubrica:', salvaInRubrica);
     
     if (!newPasseggero.nome.trim() || !newPasseggero.cognome.trim()) {
       console.log('[PasseggeroSelector] Nome or cognome is empty, aborting');
@@ -171,7 +169,9 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
       telefono: newPasseggero.telefono,
       usa_indirizzo_personalizzato: false,
       is_existing: false,
-      salva_in_database: tipo_cliente === 'azienda' ? salvaInRubrica : false,
+      // "Aggiungi solo a questo servizio": il passeggero resta inline sul servizio
+      // e non entra in rubrica. In rubrica si salva solo col pulsante "Salva in Rubrica".
+      salva_in_database: false,
     };
     
     // ✅ DEBUG LOG
@@ -186,7 +186,6 @@ export function PasseggeroSelector({ azienda_id, tipo_cliente = 'azienda', onPas
     onPasseggeroSelect(passeggeroData);
 
     setNewPasseggero({ nome: '', cognome: '', localita: '', indirizzo: '', email: '', telefono: '' });
-    setSalvaInRubrica(true);
     setShowNewForm(false);
   };
 
