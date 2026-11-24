@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { calcolaStipendioCompleto } from './calcolaStipendio';
-import { fetchConfigurazioneStipendi } from './configurazione';
+import { calcolaStipendioSocioMese } from './calcoloAutomaticoStipendi';
 
 /**
  * Ricalcola e salva lo stipendio di un singolo (socio, mese, anno).
@@ -12,31 +11,6 @@ export async function ricalcolaStipendioMese(
   mese: number,
   anno: number
 ): Promise<number> {
-  const startDate = `${anno}-${String(mese).padStart(2, '0')}-01`;
-  const lastDay = new Date(anno, mese, 0).getDate();
-  const endDate = `${anno}-${String(mese).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-
-  // Fetch servizi del mese
-  const { data: servizi, error: serviziError } = await supabase
-    .from('servizi')
-    .select('km_totali, ore_attesa_socio')
-    .eq('assegnato_a', userId)
-    .in('stato', ['completato', 'consuntivato'])
-    .gte('data_servizio', startDate)
-    .lte('data_servizio', endDate);
-
-  if (serviziError) {
-    console.error('[ricalcolaStipendioMese] Errore fetch servizi:', serviziError);
-    throw serviziError;
-  }
-
-  let kmTotali = 0;
-  let oreAttesaTotali = 0;
-  for (const s of servizi || []) {
-    kmTotali += Number(s.km_totali) || 0;
-    oreAttesaTotali += Number(s.ore_attesa_socio) || 0;
-  }
-
   // Verifica esistenza e stato stipendio
   const { data: existing } = await supabase
     .from('stipendi')
@@ -58,22 +32,15 @@ export async function ricalcolaStipendioMese(
     return Number(stip?.totale_netto) || 0;
   }
 
-  // Calcolo completo (Batch 1 formula)
-  const risultato = await calcolaStipendioCompleto({
-    userId,
-    mese,
-    anno,
-    km: kmTotali,
-    oreAttesa: oreAttesaTotali,
-  });
-
-  const config = await fetchConfigurazioneStipendi(anno);
+  // Stessa formula della pagina Stipendi: base km per singolo servizio
+  const { kmTotali, oreAttesaSocio, calcoloCompleto: risultato } =
+    await calcolaStipendioSocioMese(userId, mese, anno);
 
   const payload = {
     totale_km: kmTotali,
-    totale_ore_attesa: oreAttesaTotali,
+    totale_ore_attesa: oreAttesaSocio,
     base_calcolo: risultato.baseKm,
-    coefficiente_applicato: config?.coefficiente_aumento || risultato.dettaglioCalcolo.parametriInput.coefficiente,
+    coefficiente_applicato: risultato.dettaglioCalcolo.configurazione.coefficiente_aumento,
     totale_lordo: risultato.totaleLordo,
     totale_spese: risultato.detrazioni.totaleSpeseSocio,
     totale_prelievi: risultato.detrazioni.totalePrelievi,

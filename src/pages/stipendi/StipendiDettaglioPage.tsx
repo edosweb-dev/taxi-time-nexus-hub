@@ -240,37 +240,9 @@ export default function StipendiDettaglioPage() {
   const tariffaOrariaAttesa = Number(configurazione?.tariffa_oraria_attesa) || 15.0;
   const tariffaOltre200 = Number(configurazione?.tariffa_oltre_200km) || 0.25;
 
-  // 1. Calcolo Base KM
-  let baseKm = 0;
-  let kmArrotondati = totaleKm;
-  
-  if (totaleKm <= 0) {
-    kmArrotondati = 0;
-    baseKm = 0;
-  } else if (totaleKm <= 200) {
-    // Arrotondamento KM
-    if (totaleKm > 12) {
-      kmArrotondati = kmPerTariffa(totaleKm, (tariffeKm ?? []).map(t => Number(t.km)));
-    } else if (totaleKm < 12) {
-      kmArrotondati = 12;
-    }
+  // Il lordo si calcola per singolo servizio (calcolaCompensoKmServizio sotto),
+  // mai sui km totali del mese.
 
-    // Lookup tabella
-    const tariffa = tariffeKm?.find(t => t.km === kmArrotondati);
-    baseKm = Number(tariffa?.importo_base) || 0;
-  } else {
-    // Calcolo lineare per KM > 200
-    baseKm = totaleKm * tariffaOltre200;
-  }
-
-  // 2. Base con aumento
-  const baseConAumento = baseKm * coefficienteAumento;
-
-  // 3. Importo ore attesa socio (usa ore_attesa_socio per il calcolo stipendio)
-  const importoOreSosta = totaleOreAttesaSocio * tariffaOrariaAttesa;
-
-  // 4. Totale lordo
-  const totaleLordo = baseConAumento + importoOreSosta;
 
   // 5. Detrazioni/Addizioni
   const totaleSpesePersonali = spesePersonali?.reduce((sum, s) => sum + Number(s.importo), 0) || 0;

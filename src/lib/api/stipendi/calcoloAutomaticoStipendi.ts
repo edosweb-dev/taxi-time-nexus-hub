@@ -131,6 +131,85 @@ async function calcolaBaseKmPerServizi(
 }
 
 /**
+ * Calcolo dello stipendio di un socio/admin per un mese: UNICA formula usata
+ * sia dalla pagina Stipendi (calcolo dal vivo) sia dal salvataggio in
+ * `stipendi` (ricalcolaStipendioMese).
+ *
+ * - La base km si calcola su OGNI servizio con la tabella tariffe e poi si
+ *   somma, mai sui km totali del mese.
+ * - Le ore di attesa del socio contano anche se i km del mese sono zero.
+ * - Detrazioni e riporto vengono da calcolaStipendioCompleto.
+ */
+export async function calcolaStipendioSocioMese(
+  userId: string,
+  mese: number,
+  anno: number
+): Promise<{
+  numeroServizi: number;
+  kmTotali: number;
+  oreAttesaSocio: number;
+  calcoloCompleto: CalcoloStipendioCompleto;
+}> {
+  const servizi = await fetchServiziMese(userId, mese, anno);
+  const numeroServizi = servizi.length;
+  const kmTotali = servizi.reduce((sum, s) => sum + (Number(s.km_totali) || 0), 0);
+
+  // Detrazioni, riporto e configurazione. km: 0 perche' la base km
+  // si sostituisce subito sotto con quella calcolata per servizio.
+  const calcoloCompleto = await calcolaStipendioCompleto({
+    userId,
+    mese,
+    anno,
+    km: 0,
+    oreAttesa: 0,
+  });
+
+  let totaleBaseKm = 0;
+  let oreAttesaSocio = 0;
+  let dettaglioServizi: string[] = [];
+  if (numeroServizi > 0) {
+    const r = await calcolaBaseKmPerServizi(servizi, anno);
+    totaleBaseKm = r.totaleBaseKm;
+    oreAttesaSocio = r.totaleOreAttesaSocio;
+    dettaglioServizi = r.dettaglioServizi;
+  }
+
+  const config = calcoloCompleto.dettaglioCalcolo.configurazione;
+  const coefficiente = Number(config.coefficiente_aumento);
+  const tariffaOraria = Number(config.tariffa_oraria_attesa);
+
+  const baseConAumento = Number((totaleBaseKm * coefficiente).toFixed(2));
+  const importoOreAttesa = Number((oreAttesaSocio * tariffaOraria).toFixed(2));
+  const totaleLordo = Number((baseConAumento + importoOreAttesa).toFixed(2));
+
+  // Formula del netto allineata al modello del cliente (vedi calcolaStipendio.ts)
+  const detr = calcoloCompleto.detrazioni;
+  const totaleNetto = Number((
+    totaleLordo +
+    detr.riportoMesePrecedente +
+    detr.totaleSpesePersonali +
+    detr.totaleSpeseSocio +
+    detr.totaleVersamenti -
+    detr.totalePrelievi -
+    detr.incassiDaDipendenti -
+    detr.incassiPersonali
+  ).toFixed(2));
+
+  calcoloCompleto.baseKm = totaleBaseKm;
+  calcoloCompleto.baseConAumento = baseConAumento;
+  calcoloCompleto.importoOreAttesa = importoOreAttesa;
+  calcoloCompleto.totaleLordo = totaleLordo;
+  calcoloCompleto.totaleNetto = totaleNetto;
+  calcoloCompleto.dettaglioCalcolo.parametriInput.km = kmTotali;
+  calcoloCompleto.dettaglioCalcolo.parametriInput.oreAttesa = oreAttesaSocio;
+  calcoloCompleto.dettaglioCalcolo.dettaglio = numeroServizi === 0
+    ? 'Nessun servizio nel mese'
+    : `Calcolo per ${numeroServizi} servizi:\n${dettaglioServizi.join('\n')}`;
+
+  return { numeroServizi, kmTotali, oreAttesaSocio, calcoloCompleto };
+}
+
+/**
  * Ottiene admin e soci con i loro stipendi calcolati automaticamente dai servizi
  * I dipendenti hanno stipendio manuale e non vengono inclusi qui
  * 
@@ -184,113 +263,8 @@ export async function getStipendiAutomaticiMese(
         const stipendioEsistente = stipendiMap.get(user.id);
 
         try {
-          // Fetch tutti i servizi del mese
-          const servizi = await fetchServiziMese(user.id, mese, anno);
-          
-          const numeroServizi = servizi.length;
-          const kmTotali = servizi.reduce((sum, s) => sum + (Number(s.km_totali) || 0), 0);
-
-          // ANCHE senza servizi, dobbiamo calcolare le detrazioni
-          // (prelievi, versamenti, incassi da dipendenti, riporto)
-          // Quindi chiamiamo SEMPRE calcolaStipendioCompleto
-          
-          // Se non ci sono servizi, calcoliamo comunque le detrazioni
-          if (numeroServizi === 0 || kmTotali === 0) {
-            // Chiamiamo calcolaStipendioCompleto per ottenere le detrazioni
-            const calcoloCompleto = await calcolaStipendioCompleto({
-              userId: user.id,
-              mese,
-              anno,
-              km: 0,
-              oreAttesa: 0,
-            });
-
-            // Ricalcola netto con lordo = 0 ma detrazioni corrette (allineato a formula cliente)
-            const detr = calcoloCompleto.detrazioni;
-            const totaleNettoCorretto = Number((
-              0 + // totaleLordo = 0
-              detr.riportoMesePrecedente +
-              detr.totaleSpesePersonali +
-              detr.totaleSpeseSocio +
-              detr.totaleVersamenti -
-              detr.totalePrelievi -
-              detr.incassiDaDipendenti -
-              detr.incassiPersonali
-            ).toFixed(2));
-
-            // Aggiorna i valori per lordo = 0
-            calcoloCompleto.baseKm = 0;
-            calcoloCompleto.baseConAumento = 0;
-            calcoloCompleto.importoOreAttesa = 0;
-            calcoloCompleto.totaleLordo = 0;
-            calcoloCompleto.totaleNetto = totaleNettoCorretto;
-            calcoloCompleto.dettaglioCalcolo.dettaglio = 'Nessun servizio nel mese';
-
-            return {
-              userId: user.id,
-              firstName: user.first_name || '',
-              lastName: user.last_name || '',
-              role: user.role,
-              numeroServizi: 0,
-              kmTotali: 0,
-              oreAttesa: 0,
-              calcoloCompleto, // ✅ ORA include le detrazioni!
-              stipendioEsistente,
-              hasStipendioSalvato: !!stipendioEsistente,
-            };
-          }
-
-          // LOGICA NORMALE: Calcola per singolo servizio (soci CON servizi)
-          const { totaleBaseKm, totaleOreAttesa, totaleOreAttesaSocio, dettaglioServizi } = await calcolaBaseKmPerServizi(servizi, anno);
-
-          console.log(`[getStipendiAutomaticiMese] ${user.first_name} ${user.last_name}:`);
-          console.log(`  - ${numeroServizi} servizi, ${kmTotali} km totali`);
-          console.log(`  - Base calcolata per singolo servizio: €${totaleBaseKm}`);
-          dettaglioServizi.forEach(d => console.log(`    ${d}`));
-
-          // Calcola lo stipendio completo usando i totali già calcolati per servizio
-          // NOTA: passiamo i km totali per compatibilità, ma il calcolo effettivo
-          // usa già la base calcolata per singolo servizio
-          const calcoloCompleto = await calcolaStipendioCompleto({
-            userId: user.id,
-            mese,
-            anno,
-            km: kmTotali,
-            oreAttesa: totaleOreAttesaSocio, // Usa ore_attesa_socio per il calcolo stipendio
-          });
-
-          // Sovrascriviamo la baseKm con quella calcolata per singolo servizio
-          // (la funzione calcolaStipendioCompleto calcola aggregato, noi vogliamo per servizio)
-          const config = await fetchConfigurazioneStipendi(anno);
-          if (config) {
-            const baseConAumentoCorretta = Number((totaleBaseKm * config.coefficiente_aumento).toFixed(2));
-            const importoOreAttesaCorretto = Number((totaleOreAttesaSocio * config.tariffa_oraria_attesa).toFixed(2));
-            const totaleLordoCorretto = Number((baseConAumentoCorretta + importoOreAttesaCorretto).toFixed(2));
-            
-            // Ricalcola netto con valori corretti (formula allineata: + riporto)
-            const detr = calcoloCompleto.detrazioni;
-            const totaleNettoCorretto = Number((
-              totaleLordoCorretto +
-              detr.riportoMesePrecedente +
-              detr.totaleSpesePersonali +
-              detr.totaleSpeseSocio +
-              detr.totaleVersamenti -
-              detr.totalePrelievi -
-              detr.incassiDaDipendenti -
-              detr.incassiPersonali
-            ).toFixed(2));
-
-            // Aggiorna i valori nel risultato
-            calcoloCompleto.baseKm = totaleBaseKm;
-            calcoloCompleto.baseConAumento = baseConAumentoCorretta;
-            calcoloCompleto.importoOreAttesa = importoOreAttesaCorretto;
-            calcoloCompleto.totaleLordo = totaleLordoCorretto;
-            calcoloCompleto.totaleNetto = totaleNettoCorretto;
-            
-            // Aggiorna dettaglio
-            calcoloCompleto.dettaglioCalcolo.dettaglio = 
-              `Calcolo per ${numeroServizi} servizi:\n${dettaglioServizi.join('\n')}`;
-          }
+          const { numeroServizi, kmTotali, oreAttesaSocio, calcoloCompleto } =
+            await calcolaStipendioSocioMese(user.id, mese, anno);
 
           return {
             userId: user.id,
@@ -299,7 +273,7 @@ export async function getStipendiAutomaticiMese(
             role: user.role,
             numeroServizi,
             kmTotali,
-            oreAttesa: totaleOreAttesaSocio,
+            oreAttesa: oreAttesaSocio,
             calcoloCompleto,
             stipendioEsistente,
             hasStipendioSalvato: !!stipendioEsistente,
