@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { kmPerTariffa } from '@/lib/api/stipendi/configurazione';
 
 interface CompensiServiziResult {
   compensiKm: number;
@@ -62,7 +63,7 @@ export function useCompensiServizi(
         if (km <= 200) {
           let kmArr = km;
           if (km > 12) {
-            kmArr = Math.round(km / 5) * 5;
+            kmArr = kmPerTariffa(km, (tariffeKm ?? []).map(t => Number(t.km)));
           } else if (km < 12) {
             kmArr = 12;
           }

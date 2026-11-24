@@ -17,6 +17,16 @@ export async function fetchTariffeKm(anno: number): Promise<TariffaKmFissa[]> {
 }
 
 /**
+ * Km con cui cercare la tariffa nella tabella.
+ * Se la tabella ha una riga per i km esatti (es. 32) vale quella;
+ * altrimenti si arrotonda al multiplo di 5 più vicino.
+ */
+export function kmPerTariffa(km: number, kmInTabella: number[]): number {
+  if (kmInTabella.some(k => Number(k) === km)) return km;
+  return Math.round(km / 5) * 5;
+}
+
+/**
  * Aggiorna singola tariffa KM
  */
 export async function updateTariffa(id: string, importo: number): Promise<void> {
@@ -146,10 +156,10 @@ export function calcolaBaseKmSingoloServizio(
   }
 
   if (km <= 200) {
-    // Arrotonda a multiplo di 5 (eccetto <= 12km)
+    // Km esatti se in tabella, altrimenti multiplo di 5 (eccetto <= 12km)
     let kmArrotondati = km;
     if (km > 12) {
-      kmArrotondati = Math.round(km / 5) * 5;
+      kmArrotondati = kmPerTariffa(km, tariffeKm.map(t => Number(t.km)));
     }
 
     // Cerca tariffa esatta
@@ -210,22 +220,17 @@ export async function calcolaBaseKm(
   }
 
   if (kmTotali <= 200) {
-    // Arrotonda a multiplo di 5 (eccetto 12km)
+    const tariffe = await fetchTariffeKm(anno);
+
+    // Km esatti se in tabella, altrimenti multiplo di 5 (eccetto 12km)
     let kmArrotondati = kmTotali;
     if (kmTotali > 12) {
-      kmArrotondati = Math.round(kmTotali / 5) * 5;
+      kmArrotondati = kmPerTariffa(kmTotali, tariffe.map(t => Number(t.km)));
     }
 
-    // Fetch tariffa esatta
-    const { data, error } = await supabase
-      .from('tariffe_km_fissi')
-      .select('importo_base')
-      .eq('anno', anno)
-      .eq('km', kmArrotondati)
-      .eq('attivo', true)
-      .maybeSingle();
+    const data = tariffe.find(t => Number(t.km) === kmArrotondati);
 
-    if (error || !data) {
+    if (!data) {
       throw new Error(`Tariffa non trovata per ${kmArrotondati}km nell'anno ${anno}`);
     }
 

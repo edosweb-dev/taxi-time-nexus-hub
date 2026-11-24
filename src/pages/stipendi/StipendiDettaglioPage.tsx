@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/sonner';
+import { kmPerTariffa } from '@/lib/api/stipendi/configurazione';
 
 export default function StipendiDettaglioPage() {
   const { userId } = useParams<{ userId: string }>();
@@ -249,7 +250,7 @@ export default function StipendiDettaglioPage() {
   } else if (totaleKm <= 200) {
     // Arrotondamento KM
     if (totaleKm > 12) {
-      kmArrotondati = Math.round(totaleKm / 5) * 5;
+      kmArrotondati = kmPerTariffa(totaleKm, (tariffeKm ?? []).map(t => Number(t.km)));
     } else if (totaleKm < 12) {
       kmArrotondati = 12;
     }
@@ -286,7 +287,7 @@ export default function StipendiDettaglioPage() {
       // Arrotondamento
       let kmArr = km;
       if (km > 12) {
-        kmArr = Math.round(km / 5) * 5;
+        kmArr = kmPerTariffa(km, (tariffeKm ?? []).map(t => Number(t.km)));
       } else if (km < 12) {
         kmArr = 12;
       }
