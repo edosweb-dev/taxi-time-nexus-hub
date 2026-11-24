@@ -1758,7 +1758,7 @@ export const ServizioCreaPage = ({
               render={({ field }) => (
                 <div className="space-y-2">
                   <Label className="font-medium">Seleziona Tipo Cliente</Label>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value} onValueChange={(v) => { if (v) field.onChange(v); }}>
                     <SelectTrigger className="w-full sm:w-[300px]">
                       <SelectValue placeholder="Seleziona tipo cliente" />
                     </SelectTrigger>
@@ -1988,7 +1988,7 @@ export const ServizioCreaPage = ({
                     name="metodo_pagamento"
                     control={form.control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={(v) => { if (v) field.onChange(v); }}>
                         <SelectTrigger className="text-base">
                           <SelectValue placeholder="Seleziona metodo" />
                         </SelectTrigger>
@@ -2023,7 +2023,7 @@ export const ServizioCreaPage = ({
                       control={form.control}
                       render={({ field }) => (
                         <Select 
-                          onValueChange={(value) => field.onChange(Number(value))} 
+                          onValueChange={(value) => { if (value) field.onChange(Number(value)); }} 
                           value={field.value !== null && field.value !== undefined ? String(field.value) : undefined}
                         >
                           <SelectTrigger className="text-base">
@@ -2177,7 +2177,7 @@ export const ServizioCreaPage = ({
                       name="assegnato_a"
                       control={form.control}
                       render={({ field }) => (
-                        <Select value={field.value || ""} onValueChange={field.onChange}>
+                        <Select value={field.value || ""} onValueChange={(v) => { if (v) field.onChange(v); }}>
                           <SelectTrigger className="text-base">
                             <SelectValue placeholder="Seleziona conducente" />
                           </SelectTrigger>
@@ -2202,7 +2202,7 @@ export const ServizioCreaPage = ({
                         <Select 
                           key={`conducente-${conducentiEsterni?.length || 0}`}
                           value={field.value || ""} 
-                          onValueChange={field.onChange}
+                          onValueChange={(v) => { if (v) field.onChange(v); }}
                         >
                           <SelectTrigger className="text-base">
                             <SelectValue placeholder="Seleziona conducente esterno" />
@@ -2227,7 +2227,7 @@ export const ServizioCreaPage = ({
                     name="veicolo_id"
                     control={form.control}
                     render={({ field }) => (
-                      <Select value={field.value || ""} onValueChange={field.onChange}>
+                      <Select value={field.value || ""} onValueChange={(v) => { if (v) field.onChange(v); }}>
                         <SelectTrigger className="text-base">
                           <SelectValue placeholder="Seleziona veicolo" />
                         </SelectTrigger>
@@ -2446,7 +2446,7 @@ export const ServizioCreaPage = ({
                     name="metodo_pagamento"
                     control={form.control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={(v) => { if (v) field.onChange(v); }}>
                         <SelectTrigger className="text-base">
                           <SelectValue placeholder="Seleziona metodo" />
                         </SelectTrigger>
