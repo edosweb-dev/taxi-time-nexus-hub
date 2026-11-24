@@ -13,6 +13,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, FileText, Calendar, User, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 interface ReportPreviewTableProps {
   aziendaId: string;
@@ -29,8 +30,8 @@ export function ReportPreviewTable({
 }: ReportPreviewTableProps) {
   
   // Calcola primo e ultimo giorno del mese
-  const dataInizio = new Date(year, month - 1, 1).toISOString().split('T')[0];
-  const dataFine = new Date(year, month, 0).toISOString().split('T')[0];
+  const dataInizio = toDataLocale(new Date(year, month - 1, 1));
+  const dataFine = toDataLocale(new Date(year, month, 0));
 
   console.log('ReportPreviewTable params:', { aziendaId, referenteId, year, month, dataInizio, dataFine });
 

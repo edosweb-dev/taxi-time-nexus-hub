@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { StatoStipendio } from './types';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 export interface UpdateStatoStipendioParams {
   stipendioId: string;
@@ -109,7 +110,7 @@ export async function updateStatoStipendio({
         const { error: spesaError } = await supabase
           .from('spese_aziendali')
           .insert({
-            data_movimento: new Date().toISOString().split('T')[0],
+            data_movimento: toDataLocale(),
             importo: currentStipendio.totale_netto || 0,
             causale: `Stipendio ${currentStipendio.user?.first_name || ''} ${currentStipendio.user?.last_name || ''} - ${getMonthName(currentStipendio.mese)} ${currentStipendio.anno}`,
             tipologia: 'spesa',

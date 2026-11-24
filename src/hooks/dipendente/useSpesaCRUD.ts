@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 export interface SpesaFormData {
   dataSpesa: Date;
@@ -24,7 +25,7 @@ export function useSpesaCRUD() {
         .insert({
           user_id: user.id,
           registered_by: user.id,
-          data_spesa: data.dataSpesa.toISOString().split('T')[0],
+          data_spesa: toDataLocale(data.dataSpesa),
           importo: data.importo,
           causale: data.causale,
           note: data.note || null,
@@ -74,7 +75,7 @@ export function useSpesaCRUD() {
       const { data: spesa, error } = await supabase
         .from('spese_dipendenti')
         .update({
-          data_spesa: data.dataSpesa.toISOString().split('T')[0],
+          data_spesa: toDataLocale(data.dataSpesa),
           importo: data.importo,
           causale: data.causale,
           note: data.note || null

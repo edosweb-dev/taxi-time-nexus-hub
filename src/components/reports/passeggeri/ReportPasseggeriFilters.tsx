@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 import { useAziende } from '@/hooks/useAziende';
 import { useUsers } from '@/hooks/useUsers';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 interface ReportPasseggeriFiltersProps {
   filters: {
@@ -42,7 +43,7 @@ export function ReportPasseggeriFilters({
       dataInizio: new Date(new Date().setDate(new Date().getDate() - 30))
         .toISOString()
         .split('T')[0],
-      dataFine: new Date().toISOString().split('T')[0],
+      dataFine: toDataLocale(),
       aziendaId: '',
       referenteId: '',
       dipendenteId: '',

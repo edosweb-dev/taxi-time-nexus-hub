@@ -61,6 +61,7 @@ import { ReferenteSelectField } from '@/components/servizi/ReferenteSelectField'
 import { PasseggeroForm } from "@/components/servizi/passeggeri/PasseggeroForm";
 // PercorsoSection rimossa - indirizzi derivati dal primo passeggero
 import { calculateServizioStato } from '@/utils/servizioValidation';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 // Schema per modalità veloce - tipo cliente selezionabile
 const servizioSchemaVeloce = z.object({
@@ -225,7 +226,7 @@ export const ServizioCreaPage = ({
       cliente_privato_citta: "",
       cliente_privato_note: "",
       salva_cliente_anagrafica: false,
-      data_servizio: new Date().toISOString().split('T')[0],
+      data_servizio: toDataLocale(),
       orario_servizio: isVeloce ? "00:00" : "12:00",
       indirizzo_presa: isVeloce ? "Da definire" : "",
       indirizzo_destinazione: isVeloce ? "Da definire" : "",
@@ -327,7 +328,7 @@ export const ServizioCreaPage = ({
             cliente_privato_citta: initialData.clienti_privati?.citta || '',
             cliente_privato_note: initialData.clienti_privati?.note || '',
             salva_cliente_anagrafica: false,
-            data_servizio: initialData.data_servizio || new Date().toISOString().split('T')[0],
+            data_servizio: initialData.data_servizio || toDataLocale(),
             orario_servizio: initialData.orario_servizio || "12:00",
             numero_commessa: initialData.numero_commessa || null,
             citta_presa: initialData.citta_presa || null,

@@ -13,6 +13,7 @@ import { useReportPasseggeri } from '@/hooks/useReportPasseggeri';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 export default function ReportPasseggeriPage() {
   const location = useLocation();
@@ -22,8 +23,8 @@ export default function ReportPasseggeriPage() {
       return savedFilters;
     }
     return {
-      dataInizio: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
-      dataFine: new Date().toISOString().split('T')[0],
+      dataInizio: toDataLocale(new Date(new Date().setDate(new Date().getDate() - 30))),
+      dataFine: toDataLocale(),
       aziendaId: '',
       referenteId: '',
       dipendenteId: '',

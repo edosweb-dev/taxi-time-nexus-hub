@@ -4,6 +4,7 @@ import { SpesaAziendale, MovimentoFormData, TotaliMese } from '@/lib/types/spese
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { ricalcolaStipendioConCascata } from '@/lib/api/stipendi/ricalcolaStipendio';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 /**
  * Estrae mese (1-12) e anno da una stringa data YYYY-MM-DD senza usare Date()
@@ -350,7 +351,7 @@ export const useSpeseAziendali = () => {
 
       // Crea movimenti aziendali per ogni spesa
       const movimenti = spese.map(spesa => ({
-        data_movimento: new Date().toISOString().split('T')[0],
+        data_movimento: toDataLocale(),
         importo: spesa.importo,
         causale: `Conversione spesa dipendente - ${spesa.causale}`,
         tipologia: 'incasso' as const,
@@ -444,8 +445,8 @@ export const useSpeseAziendali = () => {
       const { data, error } = await supabase
         .from('spese_aziendali')
         .select('tipologia, importo')
-        .gte('data_movimento', startOfMonth.toISOString().split('T')[0])
-        .lte('data_movimento', endOfMonth.toISOString().split('T')[0])
+        .gte('data_movimento', toDataLocale(startOfMonth))
+        .lte('data_movimento', toDataLocale(endOfMonth))
         .eq('stato_pagamento', 'completato');
 
       if (error) throw error;

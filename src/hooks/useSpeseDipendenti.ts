@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 export interface SpesaDipendente {
   id: string;
@@ -158,7 +159,7 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
           importo: spesaData.importo,
           causale: spesaData.causale,
           note: spesaData.note || null,
-          data_spesa: spesaData.data_spesa || new Date().toISOString().split('T')[0],
+          data_spesa: spesaData.data_spesa || toDataLocale(),
           registered_by: profile.id
         })
         .select()
@@ -235,7 +236,7 @@ export function useSpeseDipendenti(filters?: SpeseFilters) {
         .from('spese_dipendenti')
         .select('importo')
         .eq('user_id', profile.id)
-        .gte('data_spesa', startOfMonth.toISOString().split('T')[0]);
+        .gte('data_spesa', toDataLocale(startOfMonth));
 
       if (error) throw error;
 

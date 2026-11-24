@@ -33,6 +33,7 @@ import { useCreatePagamento } from '@/hooks/usePagamentiStipendi';
 import { useUsers } from '@/hooks/useUsers';
 import { useModalitaPagamenti } from '@/hooks/useModalitaPagamenti';
 import { Loader2 } from 'lucide-react';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 const pagamentoSchema = z.object({
   user_id: z.string().uuid("Seleziona un dipendente"),
@@ -101,7 +102,7 @@ export function NuovoPagamentoDialog({ open, onOpenChange }: NuovoPagamentoDialo
         mese: data.mese,
         anno: data.anno,
         importo: data.importo,
-        data_pagamento: data.data_pagamento.toISOString().split('T')[0],
+        data_pagamento: toDataLocale(data.data_pagamento),
         modalita_pagamento_id: data.modalita_pagamento_id,
         note: data.note || undefined,
       },

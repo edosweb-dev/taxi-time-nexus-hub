@@ -5,6 +5,7 @@ import * as z from "zod";
 import { ServizioFormData, MetodoPagamento } from "@/lib/types/servizi";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 export const servizioFormSchema = z.object({
   tipo_cliente: z.enum(['azienda', 'privato'], {
@@ -96,7 +97,7 @@ export function useServizioForm() {
       cliente_privato_note: "",
       salva_cliente_anagrafica: false,
       numero_commessa: "",
-      data_servizio: new Date().toISOString().split("T")[0],
+      data_servizio: toDataLocale(),
       orario_servizio: "12:00",
       partenza_tipo: "personalizzato",
       partenza_passeggero_index: undefined,

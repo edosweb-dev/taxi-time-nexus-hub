@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DollarSign } from "lucide-react";
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 interface EditServizioFormProps {
   servizio: Servizio;
@@ -74,7 +75,7 @@ export function EditServizioForm({ servizio, passeggeri }: EditServizioFormProps
         azienda_id: servizio.azienda_id ?? "",
         referente_id: servizio.referente_id ?? "",
         numero_commessa: servizio.numero_commessa ?? "",
-        data_servizio: servizio.data_servizio ?? new Date().toISOString().split("T")[0],
+        data_servizio: servizio.data_servizio ?? toDataLocale(),
         orario_servizio: servizio.orario_servizio ?? "",
         indirizzo_presa: servizio.indirizzo_presa ?? "",
         indirizzo_destinazione: servizio.indirizzo_destinazione ?? "",

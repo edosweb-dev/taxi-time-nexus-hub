@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 // ============================================================================
 // TYPES
@@ -180,7 +181,7 @@ export async function createPagamentoStipendio(
         mese: input.mese,
         anno: input.anno,
         importo: input.importo,
-        data_pagamento: input.data_pagamento || new Date().toISOString().split('T')[0],
+        data_pagamento: input.data_pagamento || toDataLocale(),
         modalita_pagamento_id: input.modalita_pagamento_id,
         note: input.note || null,
         stato: 'pagato',

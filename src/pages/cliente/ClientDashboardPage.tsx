@@ -13,6 +13,7 @@ import { RESPONSIVE_SPACING } from '@/hooks/useResponsiveSpacing';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 // Custom hook per stats dashboard cliente
 const useClienteDashboardStats = () => {
@@ -37,7 +38,7 @@ const useClienteDashboardStats = () => {
         .from("servizi")
         .select("*", { count: "exact", head: true })
         .eq("referente_id", user.id)
-        .gte("data_servizio", dataInizio.toISOString().split('T')[0]);
+        .gte("data_servizio", toDataLocale(dataInizio));
       
       if (error) {
         console.error("Errore fetch servizi ultimi 30gg:", error);
@@ -85,8 +86,8 @@ const useClienteDashboardStats = () => {
         .from("servizi")
         .select("*", { count: "exact", head: true })
         .eq("referente_id", user.id)
-        .gte("data_servizio", primoGiornoMese.toISOString().split('T')[0])
-        .lte("data_servizio", ultimoGiornoMese.toISOString().split('T')[0]);
+        .gte("data_servizio", toDataLocale(primoGiornoMese))
+        .lte("data_servizio", toDataLocale(ultimoGiornoMese));
       
       if (error) {
         console.error("Errore fetch servizi mese:", error);

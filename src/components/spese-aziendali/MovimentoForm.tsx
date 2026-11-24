@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabase';
 import { MovimentoFormData } from '@/lib/types/spese-aziendali';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 const parseLocalDate = (dateStr: string): Date => {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -77,7 +78,7 @@ export function MovimentoForm({ onSuccess, defaultTipoCausale }: MovimentoFormPr
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      data_movimento: new Date().toISOString().split('T')[0],
+      data_movimento: toDataLocale(),
       importo: 0,
       tipologia: 'spesa',
       tipo_causale: defaultTipoCausale || 'generica',

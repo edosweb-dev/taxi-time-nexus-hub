@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 interface CompensiServiziResult {
   compensiKm: number;
@@ -14,8 +15,8 @@ export function useCompensiServizi(
   anno: number,
   enabled: boolean = true
 ) {
-  const primoGiornoMese = new Date(anno, mese - 1, 1).toISOString().split('T')[0];
-  const ultimoGiornoMese = new Date(anno, mese, 0).toISOString().split('T')[0];
+  const primoGiornoMese = toDataLocale(new Date(anno, mese - 1, 1));
+  const ultimoGiornoMese = toDataLocale(new Date(anno, mese, 0));
 
   return useQuery<CompensiServiziResult>({
     queryKey: ['compensi-servizi', userId, mese, anno],

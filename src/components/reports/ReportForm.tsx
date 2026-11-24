@@ -8,6 +8,7 @@ import { useReports, useAvailableMonths } from '@/hooks/useReports';
 import { Eye, Loader2, FileText } from 'lucide-react';
 import { CreateReportData } from '@/lib/types/reports';
 import { ReportFormFields } from './ReportFormFields';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 const reportSchema = z.object({
   azienda_id: z.string().min(1, 'Seleziona un\'azienda'),
@@ -62,8 +63,8 @@ export function ReportForm({ onPreview, onResetPreview }: ReportFormProps) {
 
   const onSubmit = async (data: ReportFormData) => {
     const [year, month] = data.month_year.split('-').map(Number);
-    const dataInizio = new Date(year, month - 1, 1).toISOString().split('T')[0];
-    const dataFine = new Date(year, month, 0).toISOString().split('T')[0];
+    const dataInizio = toDataLocale(new Date(year, month - 1, 1));
+    const dataFine = toDataLocale(new Date(year, month, 0));
 
     const reportData: CreateReportData = {
       azienda_id: data.azienda_id,

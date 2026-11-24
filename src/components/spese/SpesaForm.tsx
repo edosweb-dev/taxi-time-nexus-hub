@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Loader2 } from 'lucide-react';
 import { useSpeseDipendenti, useDipendenti } from '@/hooks/useSpeseDipendenti';
 import { useAuth } from '@/contexts/AuthContext';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 const spesaSchema = z.object({
   user_id: z.string().optional(),
@@ -50,7 +51,7 @@ export function SpesaForm({ onSuccess }: SpesaFormProps) {
       importo: 0,
       causale: '',
       note: '',
-      data_spesa: new Date().toISOString().split('T')[0]
+      data_spesa: toDataLocale()
     }
   });
 

@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, MapPin, User, FileText, Send, Loader2, Plus, X, UserPlus, Mail, Trash2, Users, Search, Info } from 'lucide-react';
 import { useEmailNotifiche } from '@/hooks/useEmailNotifiche';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 // Schema senza campi passeggero (gestiti via stato React)
 const formSchema = z.object({
@@ -153,7 +154,7 @@ export default function NuovoServizioPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      data_servizio: new Date().toISOString().split('T')[0],
+      data_servizio: toDataLocale(),
       orario_servizio: new Date().toTimeString().slice(0, 5),
       citta_presa: "",
       indirizzo_presa: "",

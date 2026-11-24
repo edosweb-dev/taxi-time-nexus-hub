@@ -1,5 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
+import { toDataLocale } from '@/lib/utils/dataLocale';
 
 /**
  * Recupera e calcola i KM totali dai servizi completati per un utente in un mese specifico
@@ -9,8 +10,8 @@ export async function getKmServiziMese(userId: string, mese: number, anno: numbe
     console.log(`[getKmServiziMese] Calcolando KM per user ${userId}, ${mese}/${anno}`);
     
     // Calcola date inizio e fine mese
-    const startDate = new Date(anno, mese - 1, 1).toISOString().split('T')[0];
-    const endDate = new Date(anno, mese, 0).toISOString().split('T')[0];
+    const startDate = toDataLocale(new Date(anno, mese - 1, 1));
+    const endDate = toDataLocale(new Date(anno, mese, 0));
     
     // Recupera i servizi completati/consuntivati assegnati all'utente nel mese
     const { data, error } = await supabase
@@ -52,8 +53,8 @@ export async function getOreLavorateServiziMese(userId: string, mese: number, an
     console.log(`[getOreLavorateServiziMese] Calcolando ore per user ${userId}, ${mese}/${anno}`);
     
     // Calcola date inizio e fine mese
-    const startDate = new Date(anno, mese - 1, 1).toISOString().split('T')[0];
-    const endDate = new Date(anno, mese, 0).toISOString().split('T')[0];
+    const startDate = toDataLocale(new Date(anno, mese - 1, 1));
+    const endDate = toDataLocale(new Date(anno, mese, 0));
     
     // Recupera i servizi completati/consuntivati assegnati all'utente nel mese
     const { data, error } = await supabase
