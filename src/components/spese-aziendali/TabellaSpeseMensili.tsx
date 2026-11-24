@@ -163,9 +163,23 @@ export function TabellaSpeseMensili() {
           case 'spesa':
             acc.spese += importo;
             break;
-          case 'incasso':
-            acc.incassi += importo;
+          case 'incasso': {
+            // Entrate extra (finanziamenti, affitto box...): incassi manuali
+            // senza socio che non vengono da un servizio né dalla conversione
+            // delle spese dipendenti. Riducono le Spese del mese invece di
+            // sommarsi agli Incassi; il saldo non cambia.
+            const causale = String(movimento.causale || '');
+            const isEntrataExtra =
+              !(movimento as any).socio_id &&
+              !causale.startsWith('Servizio #') &&
+              !causale.startsWith('Conversione spesa dipendente');
+            if (isEntrataExtra) {
+              acc.entrateExtra += importo;
+            } else {
+              acc.incassi += importo;
+            }
             break;
+          }
           case 'prelievo':
             if (movimento.tipo_causale && movimento.tipo_causale !== 'generica') {
               acc.prelieviScorporo += importo;
@@ -179,11 +193,11 @@ export function TabellaSpeseMensili() {
         }
         return acc;
       },
-      { spese: 0, incassi: 0, prelieviPuri: 0, prelieviScorporo: 0, versamenti: 0 }
+      { spese: 0, incassi: 0, entrateExtra: 0, prelieviPuri: 0, prelieviScorporo: 0, versamenti: 0 }
     );
 
   const speseTotali = totaliMese.spese + stipendiSociLordi;
-  const speseNette = speseTotali - totaliMese.prelieviScorporo;
+  const speseNette = speseTotali - totaliMese.prelieviScorporo - totaliMese.entrateExtra;
   const totalePrelievi = totaliMese.prelieviPuri + totaliMese.prelieviScorporo;
 
   const incassiServizi = incassiMeseStats?.totaleIncassi ?? 0;
@@ -249,6 +263,11 @@ export function TabellaSpeseMensili() {
             {totaliMese.prelieviScorporo > 0 && (
               <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
                 di cui scorporato ai soci: {formatCurrency(totaliMese.prelieviScorporo)}
+              </p>
+            )}
+            {totaliMese.entrateExtra > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
+                di cui entrate extra: -{formatCurrency(totaliMese.entrateExtra)}
               </p>
             )}
           </div>
