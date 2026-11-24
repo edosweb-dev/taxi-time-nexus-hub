@@ -6,6 +6,7 @@ import { StatoServizio } from '@/lib/types/servizi';
 import { supabase } from '@/lib/supabase';
 
 import { sendEmailNotification } from '@/lib/api/email/sendNotification';
+import { ricalcolaStipendioPerServizio } from '@/lib/api/stipendi/ricalcolaStipendio';
 import { 
   calculateServizioStato, 
   getMissingFields,
@@ -111,6 +112,10 @@ export function useServizi() {
         .select();
       
       if (error) throw error;
+
+      // Il cambio di stato (es. annullare un servizio chiuso) cambia lo
+      // stipendio del socio assegnato. Non lancia mai.
+      await ricalcolaStipendioPerServizio(data?.[0]);
       return { servizio: data?.[0] || null, stato };
     },
     onSuccess: ({ servizio, stato }) => {

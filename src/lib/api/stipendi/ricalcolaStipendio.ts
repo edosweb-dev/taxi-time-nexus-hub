@@ -215,6 +215,15 @@ export async function ricalcolaStipendioPerServizio(
     const data = new Date(servizio.data_servizio);
     if (Number.isNaN(data.getTime())) return;
 
+    // Lo stipendio automatico vale solo per admin e soci: i dipendenti hanno
+    // lo stipendio manuale e non devono ricevere righe calcolate dai servizi.
+    const { data: profilo } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', servizio.assegnato_a)
+      .maybeSingle();
+    if (profilo?.role !== 'admin' && profilo?.role !== 'socio') return;
+
     await ricalcolaStipendioConCascata(
       servizio.assegnato_a,
       data.getMonth() + 1,

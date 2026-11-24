@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { ricalcolaStipendioPerServizio } from '@/lib/api/stipendi/ricalcolaStipendio';
 
 /**
  * Elimina fisicamente un servizio e tutti i suoi record correlati
@@ -9,6 +10,14 @@ export async function deleteServizio(id: string): Promise<void> {
   console.log('[deleteServizio] Starting hard delete for service:', id);
 
   try {
+    // STEP 0: Leggi socio, data e stato prima di eliminare, per ricalcolare
+    // lo stipendio se il servizio era già chiuso
+    const { data: servizioPrima } = await supabase
+      .from('servizi')
+      .select('assegnato_a, data_servizio, stato')
+      .eq('id', id)
+      .maybeSingle();
+
     // STEP 1: Elimina servizi_passeggeri
     console.log('[deleteServizio] Deleting servizi_passeggeri...');
     const { error: passeggeriError } = await supabase
@@ -46,6 +55,12 @@ export async function deleteServizio(id: string): Promise<void> {
     }
 
     console.log('[deleteServizio] ✅ Hard delete completed successfully');
+
+    // STEP 4: Un servizio completato o consuntivato concorreva allo stipendio
+    // del socio: senza ricalcolo resterebbe pagato. Non lancia mai.
+    if (servizioPrima && ['completato', 'consuntivato'].includes(servizioPrima.stato)) {
+      await ricalcolaStipendioPerServizio(servizioPrima);
+    }
   } catch (error) {
     console.error('[deleteServizio] ❌ Hard delete failed:', error);
     throw error;

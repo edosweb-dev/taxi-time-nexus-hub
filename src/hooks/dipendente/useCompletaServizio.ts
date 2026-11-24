@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { dataURLToBlob, validateBlobSize } from '@/lib/utils/signatureHelpers';
+import { ricalcolaStipendioPerServizio } from '@/lib/api/stipendi/ricalcolaStipendio';
 
 interface CompletaServizioInput {
   servizioId: string;
@@ -81,6 +82,10 @@ export function useCompletaServizio() {
         if (!data) {
           throw new Error('Servizio non trovato o non autorizzato');
         }
+
+        // Ricalcola lo stipendio se l'assegnatario è admin o socio
+        // (per i dipendenti non fa nulla). Non lancia mai.
+        await ricalcolaStipendioPerServizio(data);
 
         return data;
       } finally {
