@@ -55,14 +55,32 @@ export function useCompletaServizio() {
           .from('firme')
           .getPublicUrl(filePath);
 
-        // Step 5: Update servizio
+        // Step 5: Le note del servizio (es. numero di volo) si conservano:
+        // quelle del dipendente si aggiungono in coda, mai al loro posto.
+        const noteNuove = (noteCompletamento || '').trim();
+        let noteAggiornate: { note?: string } = {};
+        if (noteNuove) {
+          const { data: attuale } = await supabase
+            .from('servizi')
+            .select('note')
+            .eq('id', servizioId)
+            .maybeSingle();
+          const noteEsistenti = (attuale?.note || '').trim();
+          noteAggiornate = {
+            note: noteEsistenti
+              ? `${noteEsistenti}\n\nNote di completamento: ${noteNuove}`
+              : noteNuove,
+          };
+        }
+
+        // Step 6: Update servizio
         const { data, error: updateError } = await supabase
           .from('servizi')
           .update({
             stato: 'completato',
             firma_url: urlData.publicUrl,
             firma_timestamp: new Date().toISOString(),
-            note: noteCompletamento || null,
+            ...noteAggiornate,
             ...(ore_effettive !== undefined && { ore_effettive }),
             ...(ore_sosta !== undefined && { ore_sosta }),
             ...(km_totali !== undefined && { km_totali }),
